@@ -27,7 +27,7 @@ function matrix<T extends Axes>(config: Matrix<T>): Matrix<T> {
 // The cells a move spells, composed into the
 // cells that make it so a component never writes a motion of its own. They are
 // the one place a cell carries an interaction state or an arbitrary property
-// list (`MOTION_CELLS` names them): a platform would otherwise overlay them.
+// list: a platform would otherwise overlay them.
 // A state's look eases in on `fast` and a press lands on `instant`; never
 // `outline`, since the focus ring snaps in and out and a key reads as a
 // position. The phone has no hover and answers a press in Reanimated

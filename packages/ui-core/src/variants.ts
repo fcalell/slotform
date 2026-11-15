@@ -1703,37 +1703,3 @@ export const STREAM_IN =
 // the same way back (`data-leaving`); it stays mounted until it has gone.
 export const STREAM_LATEST =
 	"transition-[opacity,translate] duration-fast ease-out starting:opacity-0 starting:translate-y-gap data-[leaving]:ease-in data-[leaving]:opacity-0 data-[leaving]:translate-y-gap";
-
-// The motion constants above: the one place the contract's cells spell an
-// interaction state (`active:`, `data-starting-style:`) or an arbitrary
-// property list, which a platform would otherwise overlay, so verify holds
-// these alone to resolve as themselves.
-export const MOTION_CELLS = [
-	"ANSWER",
-	"GIVE",
-	"TOGGLE_THUMB",
-	"CHECK_MARK",
-	"RADIO_DOT",
-	"CHEVRON",
-	"FILL_X",
-	"FILL_Y",
-	"FILL_FADE",
-	"TRAVEL_X",
-	"TRAVEL_Y",
-	"SWAP_IN",
-	"SWAP_OUT",
-	"PULSE",
-	"SCRAMBLE",
-	"LAYER_POPOVER",
-	"LAYER_TOOLTIP",
-	"LAYER_CARD",
-	"LAYER_SHEET_BOTTOM",
-	"LAYER_SCRIM",
-	"LAYER_TOAST",
-	"LINE_IN",
-	"BLOCK_IN",
-	"STREAM_IN",
-	"STREAM_LATEST",
-	"LIFT",
-	"PATH_TONE",
-] as const;

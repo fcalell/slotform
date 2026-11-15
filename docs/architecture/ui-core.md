@@ -8,7 +8,7 @@ normative laws (the canon, the sharing line, the `cn` ordering rule) are in the 
 are stated there; the emitted `DESIGN.md` is the generated reference for tokens,
 cells and roster. This page holds the architecture and the reasons for its shape.
 
-Source map: `tokens.ts` (the sheet as data, `MOTION_KNOBS`, `MOVES`, `MOTION_CELLS`), `derive.ts`
+Source map: `tokens.ts` (the sheet as data, `MOTION_KNOBS`, `MOVES`), `derive.ts`
 (`deriveTheme`), `variants.ts` / `variant-tables.ts` (the matrices and `FAMILIES`), `roster.ts`
 (`ROSTER`), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
 `follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads.
@@ -111,8 +111,8 @@ tune in one place).
   `data-loading-*` on the root, set by `themeModePlugin` before first paint; the phone through the
   generated `.stack/native-theme.ts`).
 - **Moves.** `MOVES` is the vocabulary. A roster entry's `motion` names the moves its component
-  makes (required; `[]` for none). The cells a move spells are the contract constants in
-  `MOTION_CELLS`; they are the one place a cell carries an interaction state, a transition-status
+  makes (required; `[]` for none). The cells a move spells are the motion constants of
+  `variants.ts`; they are the one place a cell carries an interaction state, a transition-status
   attribute or an arbitrary property list.
 - **Answer, give, toggle.** Every cell a viewer points at or presses answers; a filled control
   gives (scales) on press, a wide surface never. The phone has no hover: a press lands a wash
