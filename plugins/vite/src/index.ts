@@ -4,6 +4,7 @@ import { plugin, slot } from "@fcalell/cli";
 import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
 import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
 import { api } from "@fcalell/plugin-api";
+import { z } from "zod";
 import { renderViteConfig } from "./node/codegen.ts";
 import { headerKey, mergeClientHeader } from "./node/csp.ts";
 import {
@@ -14,6 +15,8 @@ import {
 } from "./types.ts";
 
 const SOURCE = "vite";
+
+const viteManifestSchema = z.object({ bin: z.object({ vite: z.string() }) });
 
 // The consumer declares vite (this plugin's `devDependencies`) and its
 // generated config imports it, so the one vite that runs is the
@@ -33,11 +36,9 @@ function viteBin(cwd: string): string {
 	}
 	return join(
 		dirname(manifest),
-		(own(manifest) as { bin: { vite: string } }).bin.vite,
+		viteManifestSchema.parse(own(manifest)).bin.vite,
 	);
 }
-
-// ── Slot declarations ──────────────────────────────────────────────
 
 // Sort config imports by source so the emitted vite.config.ts order is
 // independent of `config.plugins` array order.
@@ -106,7 +107,6 @@ const optimizeExclude = slot.list<string>({
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// Resolved dev-server port. Defaults to 3000; overrideable via options.port.
 const devServerPort = slot.value<number, ViteOptions>({
 	source: SOURCE,
 	name: "devServerPort",
@@ -171,9 +171,8 @@ const clientHeaders = slot.map<string>({
 	merge: mergeClientHeader,
 });
 
-// Rendered `.stack/vite.config.ts` source. Pulled into `cli.slots.artifactFiles`
-// by the contribution below — gated on at least one plugin call or import
-// so a vite-less config never writes an empty file.
+// Null with no plugin call and no import, so a vite-less config never writes an
+// empty file.
 const viteConfig = slot.derived({
 	source: SOURCE,
 	name: "viteConfig",
@@ -248,7 +247,6 @@ export const vite = plugin("vite", {
 			"X-Frame-Options": "DENY",
 		})),
 
-		// Framework preset — the providers and schema virtual module plugins.
 		self.slots.configImports.contribute(
 			(): TsImportSpec => ({
 				source: "@fcalell/plugin-vite/preset",
@@ -299,8 +297,6 @@ export const vite = plugin("vite", {
 			return `http://localhost:${port}`;
 		}),
 
-		// Emit `.stack/vite.config.ts` via cli.slots.artifactFiles. Null source
-		// (empty pluginCalls + empty imports) skips the write.
 		emitArtifact(".stack/vite.config.ts", self.slots.viteConfig),
 
 		// Dev process. The generated `.stack/vite.config.ts` is the single

@@ -119,6 +119,7 @@ export function renderViteConfig(values: ViteConfigValues): string {
 					key: name,
 					value: {
 						kind: "string",
+						// `name` is a key just read from the object; the index read types it possibly undefined.
 						value: values.clientHeaders[name] as string,
 					},
 				})),

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { builtinModules } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import type { Plugin } from "vite";
+import { z } from "zod";
 
 // The dev optimizer's scan stops at a package in `optimizeDeps.exclude`, so
 // what that package imports is found when a page first loads it, bundled then,
@@ -23,16 +24,18 @@ function findPackage(name: string, from: string): string | undefined {
 	}
 }
 
-interface Manifest {
-	exports?: Record<string, unknown>;
-}
+// A malformed `exports` (a string or array shorthand) reads as no subpaths.
+const manifestSchema = z.object({
+	exports: z.record(z.string(), z.unknown()).optional().catch(undefined),
+});
 
 // A subpath's file: a string target, or the `default`/`import` of a condition map.
 function targetOf(value: unknown): string | undefined {
 	if (typeof value === "string") return value;
 	if (value && typeof value === "object") {
-		const map = value as Record<string, unknown>;
-		return targetOf(map.default ?? map.import);
+		return targetOf(
+			Reflect.get(value, "default") ?? Reflect.get(value, "import"),
+		);
 	}
 	return undefined;
 }
@@ -47,17 +50,25 @@ function localFile(from: string, specifier: string): string | undefined {
 		.find((path) => {
 			try {
 				return statSync(path).isFile();
-			} catch {
-				return false;
+			} catch (err) {
+				if (isAbsent(err)) return false;
+				throw err;
 			}
 		});
+}
+
+// A missing path, or a file where a directory should be: the not-found answers.
+function isAbsent(err: unknown): boolean {
+	const code = err instanceof Error && "code" in err ? err.code : undefined;
+	return code === "ENOENT" || code === "ENOTDIR";
 }
 
 function read(file: string): string {
 	try {
 		return readFileSync(file, "utf8");
-	} catch {
-		return "";
+	} catch (err) {
+		if (isAbsent(err)) return "";
+		throw err;
 	}
 }
 
@@ -98,9 +109,9 @@ export function excludedImports(
 		const name = packageOf(entry);
 		const dir = findPackage(name, root);
 		if (!dir) continue;
-		const manifest = JSON.parse(
-			read(join(dir, "package.json")) || "{}",
-		) as Manifest;
+		const manifest = manifestSchema.parse(
+			JSON.parse(read(join(dir, "package.json")) || "{}"),
+		);
 		const subpaths = manifest.exports ?? {};
 		const whole = entry === name;
 		const isExcluded = (specifier: string): boolean =>
@@ -116,6 +127,7 @@ export function excludedImports(
 					continue;
 				}
 				if (specifier.startsWith("node:") || BUILTINS.has(specifier)) continue;
+				// A `virtual:` module is served by a Vite plugin: no file to read.
 				if (specifier.startsWith("virtual:")) continue;
 				const owner = packageOf(specifier);
 				if (owner === name) {

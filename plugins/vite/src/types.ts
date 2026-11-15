@@ -15,8 +15,7 @@ export const viteOptionsSchema = z.object({
 
 export type ViteOptions = z.input<typeof viteOptionsSchema>;
 
-// A dev-server proxy rule rendered into the generated config's
-// `server.proxy`. `ws: true` also forwards WebSocket upgrades.
+// `ws: true` also forwards WebSocket upgrades.
 export interface ServerProxyEntry {
 	path: string;
 	target: string;
