@@ -54,7 +54,7 @@ export function installStack(cwd: string): void {
 	const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as Manifest;
 	const workspace = stackWorkspaceRoot(cwd);
 	const checkout = linkedCheckout(pkg, cwd);
-	const root = pnpmWorkspaceRoot(cwd) ?? cwd;
+	const root = workspaceOf(cwd)?.root ?? cwd;
 	// Every writer of a stack spec (init, add, a plugin's `dependencies`) writes
 	// the npm or GitHub one; the workspace and link modes settle the specs here.
 	const settled = workspace
@@ -184,12 +184,6 @@ function workspaceOf(
 		return matches(false) && !matches(true);
 	};
 	return isProject(target) ? { root, isProject } : null;
-}
-
-// The root of the pnpm workspace `dir` is a project of (a consumer monorepo
-// whose `packages` globs name the app), or null when the app is its own root.
-function pnpmWorkspaceRoot(dir: string): string | null {
-	return workspaceOf(dir)?.root ?? null;
 }
 
 // The root of the pnpm workspace `dir` belongs to, when the CLI at `cliDir`

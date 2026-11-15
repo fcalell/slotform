@@ -121,7 +121,7 @@ export function createPromptContext(
 	return {
 		text: async (msg: string, opts?: { default?: string }) =>
 			ask(msg, opts?.default),
-		confirm: async (msg: string) => confirm(msg),
+		confirm,
 		select: async <T>(
 			msg: string,
 			options: { label: string; value: T }[],

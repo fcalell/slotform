@@ -121,11 +121,7 @@ export function buildGraph(
 	// and each slot's compute/contributions fire exactly once.
 	const cache = new Map<symbol, Promise<unknown>>();
 
-	const graph: Graph = {
-		resolve<T>(target: Slot<T>): Promise<T> {
-			return resolveSlot(target) as Promise<T>;
-		},
-	};
+	const graph: Graph = { resolve: resolveSlot };
 
 	function makeCtx(pluginName: string): ContributionCtx {
 		const plug = ctxFactory.ctxForPlugin(pluginName);
@@ -138,7 +134,7 @@ export function buildGraph(
 			readFile: plug.readFile,
 			template: plug.template,
 			scaffold: plug.scaffold,
-			resolve: <U>(s: Slot<U>) => graph.resolve(s),
+			resolve: resolveSlot,
 		};
 	}
 

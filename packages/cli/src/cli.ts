@@ -172,7 +172,10 @@ async function main(): Promise<void> {
 	const { findPluginCommand, parseCommandFlags } = await import(
 		"./lib/command-router.ts"
 	);
-	const { createCommandContext } = await import("./lib/command-context.ts");
+	const { generate } = await import("./commands/generate.ts");
+	const { createLogContext, createPromptContext } = await import(
+		"./lib/prompt.ts"
+	);
 
 	const config = await loadConfig(configPath);
 	const { graph, plugins } = await buildGraphFromConfig({
@@ -191,14 +194,20 @@ async function main(): Promise<void> {
 	const flags = parseCommandFlags(match.command, process.argv.slice(2));
 	const plugin = plugins.find((p) => p.name === pluginName);
 
-	const ctx = createCommandContext({
-		options: plugin?.options ?? {},
-		cwd: process.cwd(),
-		graph,
-		configPath,
-	});
-
-	await match.command.handler(ctx, flags);
+	// `generate` is the call `stack generate` makes, so a command's
+	// regeneration and the CLI's never differ.
+	const cwd = process.cwd();
+	await match.command.handler(
+		{
+			options: plugin?.options ?? {},
+			cwd,
+			resolve: graph.resolve,
+			generate: () => generate(configPath, cwd),
+			log: createLogContext(),
+			prompt: createPromptContext(),
+		},
+		flags,
+	);
 }
 
 try {
