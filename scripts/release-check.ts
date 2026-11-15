@@ -39,19 +39,19 @@ interface Consumer {
 const CONSUMERS: Consumer[] = [
 	{
 		name: "web",
-		plugins: "cloudflare,db,auth,api,vite,react,react-ui,screens",
+		plugins: "cloudflare,db,auth,api,query,vite,react,react-ui,screens",
 		build: true,
 		typecheck: true,
 	},
 	{
 		name: "node",
-		plugins: "node,db,auth,api,vite,react,react-ui,screens",
+		plugins: "node,db,auth,api,query,vite,react,react-ui,screens",
 		build: true,
 		typecheck: true,
 	},
 	{
 		name: "native",
-		plugins: "expo,native-ui,db,auth,api,cloudflare",
+		plugins: "expo,native-ui,db,auth,api,query,cloudflare",
 		build: false,
 		typecheck: true,
 	},
