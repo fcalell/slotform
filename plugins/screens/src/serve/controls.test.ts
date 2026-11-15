@@ -34,11 +34,15 @@ test("a delayed request waits, and the controls themselves never do", async () =
 	const worker = fixtureControls(app);
 	await ask(worker, "/fixture/delay?match=/rpc&ms=80");
 	const started = Date.now();
-	await ask(worker, "/rpc/a/list");
-	assert.ok(Date.now() - started >= 70);
-	const control = Date.now();
+	let waited = false;
+	const delayed = ask(worker, "/rpc/a/list").then((response) => {
+		waited = true;
+		return response;
+	});
 	await ask(worker, "/fixture/delay?match=/rpc&ms=0");
-	assert.ok(Date.now() - control < 70);
+	assert.equal(waited, false);
+	assert.equal(await (await delayed).text(), "app /rpc/a/list");
+	assert.ok(Date.now() - started >= 70);
 });
 
 test("a control that is not given its arguments is refused", async () => {

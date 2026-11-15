@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { setImmediate } from "node:timers/promises";
 import { ORPCError } from "@orpc/client";
 import {
 	answer,
@@ -232,7 +233,7 @@ test("loading holds the frame until release", async () => {
 		settled = true;
 		return a;
 	});
-	await new Promise((resolve) => setTimeout(resolve, 10));
+	await setImmediate();
 	assert.equal(settled, false);
 	release();
 	assert.deepEqual((await held).send?.payload, inbox);
@@ -368,7 +369,6 @@ test("a POST to a query procedure takes the forced states", async () => {
 	assert.equal((await post("projects/list", "notFound")).status, 404);
 	assert.match((await post("projects/list", "empty")).body, /\[\]/);
 	const held = post("projects/list", "loading");
-	await new Promise((resolve) => setTimeout(resolve, 10));
 	assert.equal(heldReads(), 1);
 	release();
 	assert.equal((await held).status, 200);
