@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import type { ControlPoint, Tab } from "./tab.ts";
+import type { Tab } from "./tab.ts";
 
 // What `shoot` and `drive` judge a page with: the test run's own page code
 // (`src/ui/inject.ts`: the render walk, the overflow check, the control hit
@@ -64,13 +64,6 @@ export const call = <T>(tab: Tab, expression: string): Promise<T> =>
 
 export function settle(tab: Tab, cap: number) {
 	return call<string>(tab, "READ_BUSY").then((busy) => tab.settle(cap, busy));
-}
-
-export function controlPoint(tab: Tab, text: string) {
-	return call<ControlPoint | null>(
-		tab,
-		`controlPoint(${JSON.stringify(text)})`,
-	);
 }
 
 interface Violation {

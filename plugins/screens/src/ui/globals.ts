@@ -1,12 +1,5 @@
 import type { PreviewGlobal } from "../types.ts";
 
-// The root's classes and attributes a global drives: all it needs of the
-// document, so a test can hand it a stand-in.
-interface GlobalsRoot {
-	setAttribute(name: string, value: string): void;
-	classList: { toggle(name: string, force: boolean): unknown };
-}
-
 // Storybook's `globalTypes`, one toolbar select per contributed global.
 export function globalTypes(globals: PreviewGlobal[]) {
 	return Object.fromEntries(
@@ -36,7 +29,7 @@ export const unpinned = new Set<string>();
 
 // Pins every global's chosen value on the root.
 export function applyGlobals(
-	root: GlobalsRoot,
+	root: Element,
 	globals: PreviewGlobal[],
 	chosen: Record<string, unknown>,
 ): void {

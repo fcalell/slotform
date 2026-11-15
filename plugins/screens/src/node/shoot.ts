@@ -2,9 +2,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { HEIGHT, SHOT_MAX_HEIGHT } from "../widths.ts";
 import { withLease } from "./browser.ts";
-import { call, controlPoint, judge, prepare, settle } from "./judge.ts";
+import { call, judge, prepare, settle } from "./judge.ts";
 import { parseList } from "./select.ts";
-import type { Tab } from "./tab.ts";
+import type { ControlPoint, Tab } from "./tab.ts";
 
 // `stack screens shoot` and `drive`: a live app opened in the shared browser,
 // judged and shot at each width and mode. `shoot` visits routes; `drive` runs a
@@ -165,7 +165,11 @@ export class Page {
 
 	// Presses the control named `text`, then waits for the page to go quiet.
 	async open(text: string): Promise<void> {
-		await this.tab.press(await controlPoint(this.tab, text), text);
+		const point = await call<ControlPoint | null>(
+			this.tab,
+			`controlPoint(${JSON.stringify(text)})`,
+		);
+		await this.tab.press(point, text);
 		await this.quiet();
 	}
 

@@ -1,10 +1,20 @@
 import { SHOT_MAX_HEIGHT } from "../widths.ts";
-import { overflowError } from "./overflow.ts";
 import { findings, format } from "./walk.ts";
 
 // What the test run's floors and `stack screens shoot` and `drive` share about
 // a drawn page: what a read holds busy, how far its scrollers hide content,
 // the judgement at a width, and where a control is.
+
+// What a screen's overflow at a width reads, or null when it fits.
+function overflowError(
+	width: number,
+	scrollWidth: number,
+	innerWidth: number,
+): string | null {
+	return scrollWidth > innerWidth
+		? `horizontal overflow at ${width}px: scrollWidth ${scrollWidth}`
+		: null;
+}
 
 // What a read holds busy: not a button, whose busy is its own action in
 // flight (a demo of one stays so), only a region or a list waiting for data.
