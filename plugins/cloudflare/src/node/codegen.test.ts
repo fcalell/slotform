@@ -3,12 +3,12 @@ import { test } from "node:test";
 import type { CodegenWranglerPayload, WranglerBindingSpec } from "../types.ts";
 import { aggregateWrangler } from "./codegen.ts";
 
-const QUEUE: WranglerBindingSpec = {
+const QUEUE = {
 	kind: "queue",
 	binding: "QUEUE",
 	queue: "shop",
 	consumer: { maxBatchSize: 10, maxBatchTimeout: 5, maxRetries: 3 },
-};
+} satisfies Extract<WranglerBindingSpec, { kind: "queue" }>;
 
 function payload(
 	over: Partial<CodegenWranglerPayload> = {},
@@ -53,10 +53,7 @@ test("a queue binding renders a producer and, with a consumer, its consumer tabl
 });
 
 test("a queue binding without a consumer renders only the producer", () => {
-	const { consumer: _, ...producer } = QUEUE as Extract<
-		WranglerBindingSpec,
-		{ kind: "queue" }
-	>;
+	const { consumer: _, ...producer } = QUEUE;
 	const out = render(null, { bindings: [producer] });
 	assert.match(out, /\[\[queues\.producers\]\]/);
 	assert.doesNotMatch(out, /queues\.consumers/);
