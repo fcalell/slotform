@@ -51,7 +51,7 @@ function Project() {
 ## Preloading a route's data
 
 A route warms what its screen reads in its `loader`, through `preload` from
-`@fcalell/plugin-api/tanstack-query`, which takes the app's query client from the loader's
+`@fcalell/plugin-query/preload`, which takes the app's query client from the loader's
 `context` (the root route is made with `createRootRouteWithContext`, and the entry hands the router
 the client the providers hold). One function builds the read, and the loader and the
 component both call it, so the key is written once. The loader returns nothing, so navigation

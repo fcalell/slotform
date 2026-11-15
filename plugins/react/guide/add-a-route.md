@@ -36,13 +36,13 @@ function Project() {
 Read what the screen shows through the typed client as a `read`, keyed by the route's parameters.
 A procedure the route needs that does not exist yet is added first, by the add-a-procedure
 recipe (`node_modules/@fcalell/plugin-api/guide/add-a-procedure.md`). Page:
-`node_modules/@fcalell/plugin-api/guide/reads.md`.
+`node_modules/@fcalell/plugin-query/guide/reads.md`.
 
 ```tsx
 const project = (id: string) => orpc.projects.get.read({ id });
 ```
 
-Warm it in the route's `loader` with `preload` from `@fcalell/plugin-api/tanstack-query`, giving it
+Warm it in the route's `loader` with `preload` from `@fcalell/plugin-query/preload`, giving it
 the query client the loader finds in `context`, and build the component's read through the same
 function. Hovering or focusing a link to the route
 then preloads it. Page: [routes](./routes.md), preloading.
