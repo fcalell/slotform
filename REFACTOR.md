@@ -609,3 +609,8 @@ Consumer break list, measured after the first green gate by `.refactor/consumers
 | martechthings | `ProcedureCall`, `InputOf` from `@fcalell/plugin-api/types` | 2, 4 | `@fcalell/ui-core/form` |
 
 Neither consumer is edited; both migrate after stack, on the owner's word.
+
+F9 (showcase move), gate green (`pnpm check` exit 0, 32 and 27 tasks, Biome 976 files); no visual check. 53 files moved to `apps/showcase/src/roster/` and `src/screens/`; stories 114 before and after, diff empty (`.refactor/f9/stories-*.txt`); five `./showcase/*` exports removed (0 uses in both consumers); react-ui lost the `plugin-api` and `plugin-query` dependencies. Open, for the owner:
+- 34 frame imports still reach 19 plugin modules by relative path (`grep -rho "plugins/react-ui/src[^\"]*" apps/showcase/src | sort | uniq -c`): 23 have no public way to stage the edge (`FormField` 9, `PortalContainer` 3, `FormBody` 2, `SheetCard` 2, shell host 2, `ButtonBase`/`IconButtonBase` painted 2, `ToastList`, `RowBase`, `FileRowBase`), 9 have a public route that draws a different tree (needs a look), 2 read `graphs.ts`.
+- `apps/showcase/tsconfig.app.json` sets `"rootDir": "../.."` so those relative imports compile; it goes when the last one goes.
+- `plugins/react-ui/src/ui/showcase/graphs.ts` stays: `components/canvas/open.test.ts` and two frames both read it.
