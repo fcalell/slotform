@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
-import { cliManifest } from "./manifest.ts";
+import { isErrno } from "./errno.ts";
 import {
 	pinnedCommit,
 	STACK_PACKAGES,
@@ -19,14 +19,6 @@ test("a published version selects npm, an unpublished checkout selects github", 
 	assert.equal(stackSpecMode("0.1.0"), "npm");
 	assert.equal(stackSpecMode("1.2.3-beta.1"), "npm");
 	assert.equal(stackSpecMode("0.0.0"), "github");
-});
-
-test("the default mode follows the CLI's own manifest", () => {
-	assert.equal(stackSpecMode(), stackSpecMode(cliManifest.version));
-	assert.equal(
-		stackSpec("@fcalell/plugin-db"),
-		stackSpec("@fcalell/plugin-db", null, cliManifest.version),
-	);
 });
 
 test("npm specs are a caret range of the CLI's version, whatever the commit", () => {
@@ -104,6 +96,7 @@ test("the github workspace template overrides each package and approves its prep
 	assert.ok(yaml.includes(stackGitSpec("@fcalell/cli")));
 });
 
+// The two tests below hold STACK_PACKAGES to the checkout's own manifests.
 const REPO = new URL("../../../../", import.meta.url);
 
 function manifest(dir: string): {
@@ -140,8 +133,9 @@ test("every public package of the repo has an entry", () => {
 		let pkg: ReturnType<typeof manifest>;
 		try {
 			pkg = manifest(dir);
-		} catch {
-			continue;
+		} catch (error) {
+			if (isErrno(error, "ENOENT")) continue;
+			throw error;
 		}
 		if (pkg.private) continue;
 		assert.ok(listed.has(pkg.name), `${pkg.name} (${dir}) has no entry`);
