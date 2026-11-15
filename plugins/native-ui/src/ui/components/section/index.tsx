@@ -9,7 +9,6 @@ import {
 } from "@fcalell/plugin-api/tanstack-query";
 import type {
 	Band as BandData,
-	FileItem as FileItemData,
 	IconLinkAct,
 	LinkAct,
 	Row as RowData,
@@ -71,8 +70,6 @@ export type Row<V extends string | null = string> = WithReads<RowData<V>>;
 export type RowItem<V extends string | null = string> = WithReads<
 	RowItemData<V>
 >;
-/** A file row as the platform draws it. */
-export type FileItem = WithReads<FileItemData>;
 
 interface SectionHeadProps extends Closed {
 	/** Under the title (a sentence; wraps). It paints where it will stand while its selection waits. `""` and an undefined one draw no line. */

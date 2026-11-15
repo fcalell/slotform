@@ -168,7 +168,7 @@ const ENTRY_FIELD = "grow shrink min-w-0 gap-gap basis-measure-short";
 const ENTRY_ACT = "shrink-0 max-w-full ms-auto";
 
 /** What a Section hands the rows it draws; no app sets them, so they are outside the items. */
-export interface RowInternal {
+interface RowInternal {
 	/** The row's place in a tree Section: its depth (the roots 0) and, for a branch, whether its children are drawn and how to fold them. */
 	tree?: RowTree;
 	/** The Section's items are not here: every part paints at its role, the row takes no touch and builds no hit. */
@@ -180,7 +180,7 @@ export interface RowInternal {
 }
 
 /** The fields a row takes: a row item's, its reads widened to a `Datum`. */
-export type RowProps<V extends string | null = string> = Omit<
+type RowProps<V extends string | null = string> = Omit<
 	RowItemData<V>,
 	"key" | "children" | "group"
 > &
@@ -840,7 +840,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 }
 
 /** What a Section hands the RowItem it draws; no app sets it. */
-export interface RowItemProps {
+interface RowItemProps {
 	item: RowItemData;
 	/** The item's key, which the tree's fold hears. */
 	id: string;

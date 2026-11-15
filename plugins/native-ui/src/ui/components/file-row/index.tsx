@@ -45,7 +45,7 @@ const COUNT = "shrink-0 text-right";
 
 // What a Section hands the row it draws while its items are not here; no app
 // sets them.
-export interface FileRowInternal {
+interface FileRowInternal {
 	// The file is not here: the glyph, the path and the counts paint, never the
 	// chip; the row takes no touch and builds no hit.
 	painted?: boolean;
@@ -115,7 +115,7 @@ function Path({ path }: { path: string }) {
 // hit, current (the selection wash) at its `href`, named by the whole path,
 // the cut text never read; it washes under the press.
 // At the card's inset and the row radius.
-export function FileRowBase({
+function FileRowBase({
 	path,
 	added,
 	removed,

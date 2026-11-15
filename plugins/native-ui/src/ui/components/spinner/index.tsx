@@ -31,7 +31,7 @@ const LAYER = "absolute inset-0";
 // only once wrapped.
 const Turning = withUniwind(Animated.View);
 
-export interface SpinnerProps extends Closed {}
+interface SpinnerProps extends Closed {}
 
 // A turning ring in the ink of its place, the size of the glyph it replaces;
 // A view takes no currentColor, so the place's ink is resolved and set as

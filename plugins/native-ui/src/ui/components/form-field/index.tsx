@@ -127,7 +127,7 @@ type OneOf<C> = {
 // consumer gives the error and the control; bound, the form's field gives
 // both, and the control is a function of the field's value:
 // `{(control) => <Input {...control} />}`.
-export type FormFieldProps<
+type FormFieldProps<
 	V = unknown,
 	S extends string | null = string,
 	O extends string = string,
@@ -178,14 +178,6 @@ function kindOf(props: Body): ControlKind | undefined {
 	if (props.options) return "options";
 	if (props.segments) return "segments";
 	return undefined;
-}
-
-// The children a field draws, bound drawn from the field's value. A sheet
-// reads them to know whether it holds a prose `Input`.
-export function fieldControl<V, S extends string | null, O extends string, T>(
-	props: FormFieldProps<V, S, O, T>,
-): ReactNode {
-	return childrenOf(props as Body);
 }
 
 // The value the descriptor's control saves, which the field holds the draft of.

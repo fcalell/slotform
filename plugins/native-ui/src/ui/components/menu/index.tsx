@@ -2,7 +2,7 @@ import type { MenuEntry } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { MenuBase } from "./base";
 
-export interface MenuProps extends Closed {
+interface MenuProps extends Closed {
 	/** The more act's accessible name, and the sheet's title (a short phrase; read aloud on the act, wraps as the sheet's title). */
 	label: string;
 	// The acts in order, a `{ label, href }` entry a press that navigates to its route; the destructive ones stand last under a hairline.

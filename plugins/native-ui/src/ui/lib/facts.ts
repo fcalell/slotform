@@ -26,7 +26,7 @@ import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
 // and, where it is painted, no words at all.
 
 /** What a badge draws: a status's tone mark, a warning, a lock, a chip's family dot, the required ring, a flag, a count's figure, or words alone, each with its words. */
-export type BadgeKind =
+type BadgeKind =
 	| "status"
 	| "warning"
 	| "lock"
@@ -58,7 +58,7 @@ export interface BadgeSpec {
 }
 
 /** What a list of facts draws, in the row's one reading. */
-export interface Badges {
+interface Badges {
 	/** The badges of the facts line, in the order given. */
 	badges: BadgeSpec[];
 	/** The boolean marks that draw no words (`words: false`): their glyphs stand in the end group, each named by its label, and no badge of the line. */
@@ -66,7 +66,7 @@ export interface Badges {
 }
 
 /** What the facts are drawn with. */
-export interface BadgeInput {
+interface BadgeInput {
 	/** The facts, in the order given, each one fact; a placeholder (a fact that waits) is words. */
 	facts: readonly unknown[];
 	/** The word of a tone (`words[tone]`), for a status that gives none and the name of one that draws none. */

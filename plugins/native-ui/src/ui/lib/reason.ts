@@ -7,7 +7,7 @@ import { createContext, useCallback, useState } from "react";
 // alone and stretches as a live one does. The act calls the host when
 // pressed while blocked; the host shows the reason from then on, or once its
 // form or sheet is touched.
-export interface ReasonHost {
+interface ReasonHost {
 	press: () => void;
 }
 

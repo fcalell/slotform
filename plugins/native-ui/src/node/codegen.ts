@@ -5,7 +5,7 @@ import { modeBlocks, themeDeclarations, utilityBlocks } from "./theme.ts";
 // Inputs for the `.stack/global.css` derivation. `plugin-native-ui` resolves
 // the consumer's `theme` option through ui-core's `deriveTheme` and renders
 // the single uniwind entry stylesheet from it.
-export interface CodegenGlobalCssPayload {
+interface CodegenGlobalCssPayload {
 	resolved: ResolvedTheme;
 	// `@source` paths (relative to `.stack/`, where global.css lands) telling
 	// uniwind where to scan for classNames — the consumer src, this plugin, and

@@ -6,7 +6,7 @@ import {
 import type { Closed } from "../../lib/closed";
 import { CountBase } from "./base";
 
-export interface CountProps extends Closed {
+interface CountProps extends Closed {
 	/** The number, or its drawn form where it is capped (`tabCount`). A selection paints the figure until its read lands. */
 	value: Datum<number | string>;
 }

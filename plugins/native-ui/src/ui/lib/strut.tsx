@@ -4,7 +4,7 @@ import { Text as RNText } from "react-native";
 // The zero-width space the strut draws: a line with no glyph in it.
 const ZERO_WIDTH = "​";
 
-export type StrutRole = NonNullable<
+type StrutRole = NonNullable<
 	NonNullable<Parameters<typeof lineBox>[0]>["role"]
 >;
 

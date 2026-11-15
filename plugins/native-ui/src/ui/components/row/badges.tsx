@@ -44,7 +44,7 @@ const META = cn(text({ role: "meta" }), FIGURES);
 type Entering = ReturnType<typeof blockIn>;
 
 /** What a badge does when pressed: a link or a button, its box the press target, reaching the target size by a hit slop. */
-export interface BadgePress {
+interface BadgePress {
 	role: "link" | "button";
 	onPress: () => void;
 	onPressIn?: () => void;

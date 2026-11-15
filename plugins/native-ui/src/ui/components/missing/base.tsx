@@ -8,7 +8,7 @@ import { useWords } from "../../lib/words";
 // The Back link of a Pane's read that answers not found: to the Pane's back,
 // else the place's route; none with neither, and none where the Pane's `back`
 // is `false`.
-export function useBackAct(): LinkAct | undefined {
+function useBackAct(): LinkAct | undefined {
 	const words = useWords();
 	const pane = useContext(BackRoute);
 	const place = useContext(PlaceRoute);

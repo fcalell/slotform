@@ -66,7 +66,7 @@ const OVER = { marginLeft: "-100%" } as const;
 const GHOST = "opacity-0";
 // What a docked foot gives the bar it draws; no app sets it, so it is outside
 // `ActionBarProps`.
-export interface ActionBarInternal {
+interface ActionBarInternal {
 	// The bar keeps the reason's line before a reason shows, so showing it never
 	// moves the act it describes.
 	kept?: boolean;

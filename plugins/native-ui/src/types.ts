@@ -5,7 +5,7 @@ import { z } from "zod";
 
 // A font file to embed natively through expo-font. The family it carries is
 // named by `theme.fonts` (`sans`, `mono`); this entry only brings the file.
-export const nativeFontSchema = z.object({
+const nativeFontSchema = z.object({
 	// Native font-family name as registered with the OS / expo-font.
 	family: z.string().min(1),
 	// Path to the font file, consumer-relative.
@@ -18,12 +18,10 @@ export type NativeFontEntry = z.input<typeof nativeFontSchema>;
 // providers into the generated `.stack/entry.tsx`. The consumer configures the
 // client in `src/lib/` (per the native-provider-wiring decision); paths are
 // resolved relative to `.stack/`.
-export const clientModuleSchema = z.object({
+const clientModuleSchema = z.object({
 	source: z.string().min(1),
 	export: z.string().min(1),
 });
-
-export type ClientModule = z.input<typeof clientModuleSchema>;
 
 export const nativeUiOptionsSchema = z.object({
 	// The ui-core design contract: the knobs and the mode the app starts in.

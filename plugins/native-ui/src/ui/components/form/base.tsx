@@ -41,7 +41,7 @@ const BAND = "min-w-0";
 const LEGEND = "flex-row items-center gap-gap";
 
 // One group of fields a `Form` draws, titled.
-export interface FormGroup {
+interface FormGroup {
 	/** The group's name, its heading (a short phrase; wraps); without it the group draws no heading, for fields that lead or close the form among titled groups. */
 	title?: string;
 	/** Under the title (a sentence; wraps). */
@@ -89,7 +89,7 @@ export type FormFrameProps = FormBase &
 	);
 
 /** Where a form stands: on a `page` (a `Form`, a `Gate`'s form), a card of its own; in a `sheet`, its rows flush on the sheet and its bar in the sheet's foot. */
-export type FormIn = "page" | "sheet";
+type FormIn = "page" | "sheet";
 
 // One group: a run of the form's rows, its legend a band, then its lead and
 // its fields, which are the group's own frame when it holds a `read`. A block

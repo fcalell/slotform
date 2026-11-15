@@ -39,7 +39,7 @@ function groupsOf(items: readonly Act[]) {
 // destructive act), its label, and, blocked, its label faded over its reason,
 // the row inert. Outside the package's exports: the Shell's switcher draws
 // its create act with it.
-export function MenuRow({ item, onAct }: { item: Act; onAct: () => void }) {
+function MenuRow({ item, onAct }: { item: Act; onAct: () => void }) {
 	const blocked = item.blocked !== undefined;
 	const kind = item.destructive ? "destructive" : "act";
 	const label = cn(text({ role: "body" }), menuLabel({ kind }));

@@ -7,7 +7,7 @@ import type { Tone } from "@fcalell/ui-core/descriptors";
 import type { Closed } from "../../lib/closed";
 import { StatusBase } from "./base";
 
-export interface StatusProps extends Closed {
+interface StatusProps extends Closed {
 	/** The state the mark and the default word name. A selection paints the mark, which takes no touch, until its read lands. */
 	tone: Datum<Tone>;
 	/** The word, when the state's own word does not say it (a word; truncates when its line is out of room). A selection paints the mark like a `tone` does. */

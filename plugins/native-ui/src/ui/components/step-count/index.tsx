@@ -15,7 +15,7 @@ const STACK = "min-w-0";
 const SEGMENTS = "flex-row";
 const SEGMENT = "flex-1";
 
-export interface StepCountProps extends Closed {
+interface StepCountProps extends Closed {
 	// The current step, counted from one.
 	at: number;
 	// How many steps the flow has, two to four.

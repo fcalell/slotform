@@ -8,7 +8,7 @@ import { GLYPHS, Glyph } from "../../lib/glyph";
 import { useInk } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 
-export interface IconProps extends Closed {
+interface IconProps extends Closed {
 	name: IconName;
 	fit?: IconFit;
 }

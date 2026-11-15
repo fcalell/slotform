@@ -7,7 +7,7 @@ import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import type { Closed } from "../../lib/closed";
 import { ChipBase } from "./base";
 
-export interface ChipProps extends Closed {
+interface ChipProps extends Closed {
 	/** The value (a word; truncates past the short measure, 20 characters). A selection paints the pill, which takes no touch, until its read lands. */
 	label: Datum<string>;
 	/** The family of values it belongs to, one hue per family across screens. A selection paints the pill like a `label` does. */

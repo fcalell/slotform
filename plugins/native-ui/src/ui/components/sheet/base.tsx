@@ -298,7 +298,7 @@ export function submitAct(submit: SheetSubmit, close: () => void): Act {
 }
 
 /** What every sheet draws: the public `Sheet`, the confirm, a `Menu` and the Picker's options. Outside the package's exports. */
-export interface SheetBaseProps {
+interface SheetBaseProps {
 	open: boolean;
 	onClose: () => void;
 	// Hears the sheet gone, its leave played (a cell's pick ends its edit).

@@ -58,7 +58,7 @@ const NO_MATCHES = "py-gap";
 
 // Options under their groups and flat, derived once per options identity and
 // shared by a trigger and its sheet.
-export interface OptionGroups<V extends string | null> {
+interface OptionGroups<V extends string | null> {
 	groups: readonly Grouped<V>[];
 	flat: readonly Option<V>[];
 }
