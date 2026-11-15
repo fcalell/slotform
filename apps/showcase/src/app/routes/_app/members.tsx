@@ -8,7 +8,7 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
 import { Table } from "@fcalell/plugin-react-ui/components/table";
-import { confirm } from "@fcalell/plugin-react-ui/lib/confirm";
+import { confirm } from "@fcalell/ui-core/react/confirm";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
 import type { Option, TableColumn } from "@fcalell/ui-core/descriptors";
 import type { Read } from "@fcalell/ui-core/read";

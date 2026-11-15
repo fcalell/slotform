@@ -11,7 +11,7 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
 import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
 import { age } from "@fcalell/plugin-react-ui/lib/age";
-import { confirm } from "@fcalell/plugin-react-ui/lib/confirm";
+import { confirm } from "@fcalell/ui-core/react/confirm";
 import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
 import type {

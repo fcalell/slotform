@@ -2,7 +2,7 @@ import { Pane } from "@fcalell/plugin-native-ui/components/pane";
 import { Section } from "@fcalell/plugin-native-ui/components/section";
 import { Sheet } from "@fcalell/plugin-native-ui/components/sheet";
 import { age } from "@fcalell/plugin-native-ui/lib/age";
-import { confirm } from "@fcalell/plugin-native-ui/lib/confirm";
+import { confirm } from "@fcalell/ui-core/react/confirm";
 import { preload as start } from "@fcalell/plugin-query/preload";
 import { useMutation } from "@fcalell/plugin-query/tanstack-query";
 import type { Act } from "@fcalell/ui-core/descriptors";

@@ -8,7 +8,7 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Stats } from "@fcalell/plugin-react-ui/components/stats";
 import { Table } from "@fcalell/plugin-react-ui/components/table";
-import { confirm } from "@fcalell/plugin-react-ui/lib/confirm";
+import { confirm } from "@fcalell/ui-core/react/confirm";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
 import { createFileRoute } from "@tanstack/react-router";
 import type { AppRouter } from "../../../../.stack/worker";
