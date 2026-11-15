@@ -1138,9 +1138,15 @@ export const ROSTER: Record<Layer, Record<string, RosterEntry>> = {
 		// The sidebar on the desktop, the tab bar on touch. A Shell whose places name
 		// groups (each listed in `groups`, which carry the icon) draws the sidebar as
 		// a rail of icon entries (the ungrouped places first, named by their first
-		// place; the footer places at its foot) beside the group column (the
-		// switcher, the group's heading, its switcher, its places): pressing an entry
-		// shows its column until the route changes, and the column folds away. One
+		// place, a press going to the group's first place; the footer places and the
+		// dock act at its foot) beside the docked column of the current place's
+		// group (the group's switcher, its places; the app's switcher leads the
+		// rail). A pointer resting on an entry or a focus on it shows its group in
+		// the column; folded to the rail, the sidebar opens over the page to its
+		// labels with that column beside it instead. It goes back once the pointer
+		// and the focus leave, on Escape or when the route changes; a menu or sheet
+		// the column opened holds it, and a pointer heading for the column keeps
+		// the group shown. One
 		// with no groups keeps the one sidebar. On touch the places layer lists the
 		// groups first.
 		// The column holds the place: the route's Panes in a row, each but the last
@@ -1158,7 +1164,17 @@ export const ROSTER: Record<Layer, Record<string, RosterEntry>> = {
 			draws: [
 				"SHELL_SIDEBAR",
 				"SHELL_RAIL",
+				"SHELL_FRAME",
+				"SHELL_RAIL_SLOT",
+				"SHELL_SIDEBAR_SLOT",
+				"SHELL_RAIL_PANEL",
+				"SHELL_COLUMN_AT",
 				"SHELL_RAIL_ENTRY",
+				"SHELL_RAIL_GLYPH",
+				"SHELL_RAIL_MOTION",
+				"SHELL_COLUMN_MOTION",
+				"SHELL_PAGE_SLIDE",
+				"SHELL_COLUMN_FLOAT",
 				"SHELL_INSET",
 				"SHELL_LAYER",
 				"SHELL_MARK",

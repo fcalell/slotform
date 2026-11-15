@@ -53,10 +53,14 @@ export function useFolds(): {
 	return { chosen, choose };
 }
 
+// A route starts with a slash, so this key is never a route's.
 const COLUMN = "column";
 
-/** Whether the sidebar's column stands beside the rail (the viewer's choice, kept by the browser) and the act that sets it. Outside the package's exports. */
-export function useColumn(): readonly [boolean, (open: boolean) => void] {
+/** Whether the sidebar's column stands docked beside the rail (docked until the viewer folds it to the rail) and the act that records the choice. Outside the package's exports. */
+export function useDocked(): [
+	docked: boolean,
+	dock: (docked: boolean) => void,
+] {
 	const { chosen, choose } = useFolds();
-	return [chosen[COLUMN] !== false, (open) => choose(COLUMN, open)];
+	return [chosen[COLUMN] ?? true, (docked) => choose(COLUMN, docked)];
 }

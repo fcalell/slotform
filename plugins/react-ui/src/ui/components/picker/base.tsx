@@ -186,11 +186,8 @@ const CHIP_SLOT = "flex grow min-w-0";
 // truncates before it does, and only a chip past the short measure is cut.
 const CHIP_AFTER = "flex shrink-0 max-w-measure-short";
 // In a Pane's bar (`fit: pill`) the trigger is its dot, its label, its chip and
-// its chevron, the label truncating; below a Pane width of `tablet` the label
-// and the chip are not drawn (`display: none` by the Pane's container query), so
-// the pick is its dot and chevron and nothing is clipped. Its name and tooltip
-// are the chosen label.
-const BAR_WORDS = "page-max-tablet:hidden";
+// its chevron at every width, the label truncating within its share of the
+// bar. Its name and tooltip are the chosen label.
 const SEARCH = "flex grow items-center";
 const SEARCH_VALUE =
 	"min-w-0 grow truncate outline-none placeholder:text-ink-meta";
@@ -567,7 +564,7 @@ export function PickerBase<V extends string | null = string>(
 	) : null;
 	// The option's kind stands after its value, on the trigger as in the list.
 	const kind = current?.chip ? (
-		<span className={cn(CHIP_AFTER, fit === "pill" && BAR_WORDS)}>
+		<span className={CHIP_AFTER}>
 			<Chip {...current.chip} />
 		</span>
 	) : null;
@@ -598,7 +595,6 @@ export function PickerBase<V extends string | null = string>(
 			<span
 				className={cn(
 					fieldValue({ kind: "text" }),
-					fit === "pill" && BAR_WORDS,
 					current?.value === null && PICKER_EMPTY,
 					unset && FIELD_PLACEHOLDER,
 					FIELD_VALUE,
@@ -863,8 +859,8 @@ export function PickerBase<V extends string | null = string>(
 	);
 }
 
-// The bar's pill wears its name as a tooltip on a pointer, as an icon act does:
-// below `tablet` it is its dot and chevron and the tooltip is its words.
+// The bar's pill wears its name as a tooltip on a pointer, as an icon act does,
+// so a label its share of the bar cuts is read whole.
 function NamedWhen(props: {
 	on: boolean;
 	label: string;

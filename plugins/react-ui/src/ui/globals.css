@@ -27,6 +27,16 @@
 		border-color: var(--color-edge);
 	}
 
+	/* A scroller draws a thin thumb in the strong hairline over no track, the
+	   boundary that holds 3:1 on every ground. Every element declares it:
+	   `scrollbar-width` does not inherit, and `scrollbar-color` inherits the
+	   color computed where it is declared, so each element resolves the token
+	   itself and a mode scope (the sidebar's `dark` rail) draws its own. */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--color-edge-strong) transparent;
+	}
+
 	html {
 		font-family: var(--font-sans);
 		font-optical-sizing: auto;
@@ -90,6 +100,15 @@
 	to {
 		opacity: 0;
 		transform: scale(0.96);
+	}
+}
+
+/* The page slides from where it stood as the sidebar docks or folds
+   (`SHELL_PAGE_SLIDE`), `--page-from` away; written `from` alone, so a setup
+   that switches animations off draws the page at its rest. */
+@keyframes page-slide {
+	from {
+		translate: var(--page-from);
 	}
 }
 

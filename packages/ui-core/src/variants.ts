@@ -490,11 +490,7 @@ export const PICKER_POPOVER = "w-popover";
 // fit (the control height, the control radius, a hairline border on
 // the surface) under the hover wash in place of the hover edge, held to the
 // popover's width so a long label truncates.
-// Below a Pane width of `tablet` the pill is its dot and chevron, which takes the
-// gap for its inset in place of the field's: the bar's room there is the title's
-// floor, the acts and the pick, and the pick keeps both its marks inside it.
-export const PICKER_PILL =
-	"max-w-popover hover:bg-wash-hover page-max-tablet:px-gap";
+export const PICKER_PILL = "max-w-popover hover:bg-wash-hover";
 // A list of rules on the desktop: rows of flex terms sharing one basis, so the
 // columns align across rows, a pair rhythm between rows and the inside gap
 // between terms. A rule's terms keep the inside gap on touch too, stacked in
@@ -1155,10 +1151,13 @@ export const SHELL_COLUMN_PHONE = "bg-canvas";
 // edge meets the Pane title's and the page gap stands under it, above the
 // header.
 export const SHELL_BANNER = "p-page";
-// The switcher slot: the strip height as a Pane's bar, an acts gap over the
-// places; it holds the app's mark in the row's glyph slot and the switcher's
-// trigger after it.
-export const SWITCHER_SLOT = "py-gap mb-gap";
+// The switcher slot: the strip height as a Pane's bar (a control's row, an
+// acts gap over and under it), empty or not, the places starting at its foot.
+// It holds the app's mark in the row's glyph slot and the switcher's trigger
+// after it; the rail and its column each lead with one, so the column's
+// switcher stands level with the app's and its first place with the rail's
+// first entry.
+export const SWITCHER_SLOT = "box-content min-h-control py-gap";
 // The app's mark in a place row's glyph slot: the icon size, its image fit
 // inside.
 export const SHELL_MARK = "size-icon object-contain";
@@ -1169,13 +1168,57 @@ export const SHELL_PLACES = "grow min-h-0 overflow-y-auto gap-stack";
 // The footer group (settings and exits) stands fixed at the sidebar's bottom,
 // a fields gap under the places.
 export const SHELL_FOOT = "shrink-0 pt-stack";
-// A Shell that names groups draws its sidebar as a rail beside the column (the
-// column is `SHELL_SIDEBAR`): the rail is a strip of icon entries on the same
-// slate at the sidebar's inset, a hairline between it and the column, its top a
-// gap down as the switcher slot's row is. An entry is a place row cut to the
-// control square, its glyph centred.
-export const SHELL_RAIL = "dark bg-surface border-e border-edge px-gap py-gap";
-export const SHELL_RAIL_ENTRY = "size-control justify-center px-0";
+// A Shell that names groups draws its sidebar as one body on the sidebar's
+// rung (`SHELL_RAIL_PANEL`): a rail of entries on the same slate at the
+// sidebar's inset (`SHELL_INSET`), a hairline at its end, and a group's column (`SHELL_SIDEBAR`) at the open rail's end
+// (`SHELL_COLUMN_AT`). Open (`data-expanded`) the rail is as wide as its
+// labels, a short label's measure (`--rail-open`), with the column beside it;
+// shut, it is its icon strip, an entry's control square wide (`--rail-slot`),
+// and the column is gone. Docked, the body stands open in the room the frame
+// keeps for all of it (`SHELL_SIDEBAR_SLOT`); folded, the frame keeps the
+// strip's room (`SHELL_RAIL_SLOT`) and the body opens over the page. The frame
+// names the widths, the body's travel (how far its end moves between shut and
+// open) and the inline direction's sign (`SHELL_FRAME`).
+// An entry is a place row whose glyph keeps the control square at its start, its
+// label after it.
+export const SHELL_FRAME =
+	"[--dir:1] rtl:[--dir:-1] [--rail-slot:calc(var(--spacing-control)+2*var(--spacing-gap)+var(--spacing-hairline))] [--rail-open:calc(var(--container-measure-short)+2*var(--spacing-gap))] [--sidebar-travel:calc(var(--rail-open)+var(--container-sidebar)-var(--rail-slot))]";
+export const SHELL_RAIL_SLOT = "w-(--rail-slot)";
+export const SHELL_SIDEBAR_SLOT =
+	"w-[calc(var(--rail-open)+var(--container-sidebar))]";
+export const SHELL_RAIL =
+	"dark bg-surface border-e border-edge w-(--rail-slot) data-expanded:w-(--rail-open)";
+export const SHELL_RAIL_PANEL =
+	"absolute inset-y-0 start-0 z-(--layer-sidebar) flex pointer-events-none";
+export const SHELL_COLUMN_AT = "absolute inset-y-0 start-(--rail-open)";
+export const SHELL_RAIL_ENTRY =
+	"h-control w-full justify-start gap-0 px-0 text-start overflow-hidden";
+export const SHELL_RAIL_GLYPH =
+	"flex size-control shrink-0 items-center justify-center";
+// The body opens and shuts as one, on `base` `out` both ways, and no size
+// moves through layout. The rail's clip uncovers its labels from the strip's
+// end; it takes its open width at once on the way open and the strip's once
+// shut (a snap, never an interpolation), so a shut strip's entries are its
+// boxes and a tooltip stands on them. The column slides out from behind the
+// rail, its start clipped on the same curve a hairline under the rail's moving
+// end, so no seam opens between them, and its end is the body's end. The
+// hairline that parts the two is the column's, at its clipped start; the
+// rail's own stands at its end only while it is shut, against the page, and
+// snaps in once shut. Where the column stands over the page it draws a
+// hairline at its end (`SHELL_COLUMN_FLOAT`). Reduced motion snaps them.
+export const SHELL_RAIL_MOTION =
+	"[clip-path:inset(0_calc(max(0,var(--dir))*(100%-var(--rail-slot)))_0_calc(max(0,-1*var(--dir))*(100%-var(--rail-slot))))] data-expanded:[clip-path:inset(0)] data-expanded:border-e-transparent [transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s_var(--transition-duration-base),border-color_0s_var(--transition-duration-base)] data-expanded:[transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s,border-color_0s] motion-reduce:transition-none";
+export const SHELL_COLUMN_MOTION =
+	"invisible translate-x-[calc(var(--dir)*-1*var(--sidebar-travel))] [clip-path:inset(0_calc(max(0,-1*var(--dir))*(100%-var(--spacing-hairline)))_0_calc(max(0,var(--dir))*(100%-var(--spacing-hairline))))] transition-[translate,clip-path,visibility] duration-base ease-out data-expanded:visible data-expanded:translate-x-0 data-expanded:[clip-path:inset(0_calc(max(0,-1*var(--dir))*-1*var(--spacing-hairline))_0_calc(max(0,var(--dir))*-1*var(--spacing-hairline)))] data-expanded:pointer-events-auto before:absolute before:inset-y-0 before:start-0 before:w-hairline before:bg-edge before:translate-x-[calc(var(--dir)*var(--container-sidebar))] data-expanded:before:translate-x-0 before:transition-[translate] before:duration-base before:ease-out motion-reduce:transition-none motion-reduce:before:transition-none";
+export const SHELL_COLUMN_FLOAT = "border-e border-edge";
+// As the viewer docks or folds the sidebar, the page takes its new room at
+// once and slides from where it stood (`data-slide` on the frame: `dock` from
+// the strip's end, `fold` from the body's), its end moving with the body's
+// end, on the body's `base` `out`; the `page-slide` keyframes are in the web's
+// `globals.css`. Each part of the page carries it (the banner, the place, the
+// foot), since the frame, the column and `main` hold no transform.
+export const SHELL_PAGE_SLIDE =
+	"in-data-[slide=dock]:[--page-from:calc(var(--dir)*-1*var(--sidebar-travel))] in-data-[slide=fold]:[--page-from:calc(var(--dir)*var(--sidebar-travel))] in-data-slide:animate-[page-slide_var(--transition-duration-base)_var(--ease-out)]";
 // A group's label, at the rows' inline inset, a pair over its rows.
 export const SHELL_GROUP_LABEL =
 	"px-pad pb-gap text-caption leading-caption tracking-label font-medium uppercase text-ink-meta";

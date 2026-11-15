@@ -20,23 +20,34 @@ import {
 	placeRowGlyph,
 	SHELL_BANNER,
 	SHELL_COLUMN,
+	SHELL_COLUMN_AT,
+	SHELL_COLUMN_FLOAT,
+	SHELL_COLUMN_MOTION,
 	SHELL_FOOT,
+	SHELL_FRAME,
 	SHELL_GROUP_LABEL,
 	SHELL_INSET,
 	SHELL_LAYER,
 	SHELL_MARK,
+	SHELL_PAGE_SLIDE,
 	SHELL_PLACES,
 	SHELL_RAIL,
+	SHELL_RAIL_ENTRY,
+	SHELL_RAIL_GLYPH,
+	SHELL_RAIL_MOTION,
+	SHELL_RAIL_PANEL,
+	SHELL_RAIL_SLOT,
 	SHELL_SIDEBAR,
+	SHELL_SIDEBAR_SLOT,
 	SWITCHER_SLOT,
 	text,
 	textStrong,
 } from "@fcalell/ui-core/variants";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, type Ref, useMemo, useState } from "react";
 import type { Closed } from "../../lib/closed.ts";
-import { useColumn } from "../../lib/folds.ts";
+import { useDocked } from "../../lib/folds.ts";
 import { PlaceRoute, ShellHome, ShellMenu } from "../../lib/frame.ts";
-import { useMark } from "../../lib/mark.tsx";
+import { type AppMark, useMark } from "../../lib/mark.tsx";
 import { useTouch } from "../../lib/media.ts";
 import { isRoute, useRoute } from "../../lib/navigate.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
@@ -46,6 +57,7 @@ import { Button } from "../button/index.tsx";
 import { Icon } from "../icon/index.tsx";
 import { FrameHost, FrameMain } from "./host.tsx";
 import { Place } from "./place.tsx";
+import { usePreview } from "./preview.ts";
 import { GroupRow, RailEntry } from "./rail.tsx";
 import { GLYPH, LABEL, ROW_BOX } from "./row.ts";
 import { type Switcher, SwitcherPick } from "./switcher.tsx";
@@ -59,13 +71,21 @@ const FRAME = "flex h-dvh overflow-hidden";
 const SIDEBAR = "relative flex flex-col shrink-0 min-h-0";
 // The switcher slot is a bar: its row centred in the strip, the close act
 // (on the touch layer) at its end.
-const SLOT = "flex items-center gap-gap";
+const SLOT = "flex shrink-0 items-center gap-gap";
 const PLACES = "flex flex-col";
 const RUN = "flex flex-col";
-// With groups the sidebar is the rail and the column side by side; the rail's
-// entries scroll above its footer places.
-const SPLIT = "flex shrink-0 min-h-0";
+// With groups the sidebar is one body over the room the frame keeps for it:
+// the rail, its entries scrolling above its footer places, and the column.
+const SPLIT = "relative flex shrink-0 min-h-0";
 const RAIL_ENTRIES = "flex flex-col gap-gap grow min-h-0 overflow-y-auto";
+// The body lets the page take presses where nothing of it stands: the rail
+// always takes them, the column only while it is open (`SHELL_COLUMN_MOTION`).
+const RAIL_HIT = "pointer-events-auto";
+const COLUMN_BODY = "flex flex-col min-h-0";
+// The place's part of the page, which slides as the sidebar docks or folds;
+// the place grows in it as it does in `main`.
+const PAGE = "flex flex-col grow min-h-0 min-w-0";
+const FOOT = "shrink-0";
 const RAIL_FOOT = "flex flex-col gap-gap shrink-0 pt-gap";
 // The touch group view's head: the way back to the groups, then the heading.
 const BACK = "flex items-center gap-gap";
@@ -80,11 +100,11 @@ const NAME = "truncate";
 const LAYER = "fixed inset-0 z-(--layer-sheet) flex flex-col";
 const CLOSE = "ms-auto";
 
-/** A group of places the sidebar names: its label (the column's heading), its icon (its entry on the rail), its switcher when it is a scope, and its places when a read gives them. */
+/** A group of places the sidebar names: its label (beside its icon on the docked or open rail, and the heading of its places on the touch layer), its icon (its entry on the rail), its switcher when it is a scope, and its places when a read gives them. */
 export interface ShellGroup extends Omit<GroupSpec, "switcher"> {
-	/** The scope the group's places follow, a row under the label. */
+	/** The scope the group's places follow: it leads the group's column level with the app's switcher, and on the touch layer it stands under the heading. */
 	switcher?: Switcher;
-	/** The group's places, constants or a selection: the group stands where it stands in `groups`, whose order is the rail's: before the first plain run whose group `groups` lists after it, else after the plain runs. While the selection waits the heading draws over `PAINT_ROWS` painted place rows, inert; once it failed or is missing the group is the read's frame and draws the compact failed or missing form with Retry in the rows' place (so the read counts as held and its failure is drawn once), and when it is loaded and empty the group is absent (no heading, no switcher row) The group's `switcher` selections of the same read need no frame of their own. */
+	/** The group's places, constants or a selection: the group stands where it stands in `groups`, whose order is the rail's: before the first plain run whose group `groups` lists after it, else after the plain runs. While the selection waits the heading draws over `PAINT_ROWS` painted place rows, inert; once it failed or is missing the group is the read's frame and draws the compact failed or missing form with Retry in the rows' place (so the read counts as held and its failure is drawn once), and when it is loaded and empty the group draws no places, its `switcher` standing alone so its act can make the first. The group's `switcher` selections of the same read need no frame of their own. */
 	places?: Datum<readonly PlaceSpec[]>;
 }
 
@@ -104,7 +124,7 @@ export interface ShellProps extends Closed {
 	children?: ReactNode;
 }
 
-/** The frame, with the route's Panes in a row (the place) on its canvas: the place's Pane, and a record's after it, the place's then at the list width giving way to its floor and the record's taking the rest, a hairline between them, and below `tablet` of the column only the last standing. A route renders its `Pane`s and no place of its own. A `foot` stands under the place across the column. On the desktop the sidebar beside the column: the mark and the switcher on one bar, then the places, a group's switcher under its heading. A Shell that names groups draws the sidebar as a rail of icon entries (the ungrouped places first, named by their first place and headed by nothing in the column, then each group; the footer places at the rail's foot) beside the group column: pressing an entry shows that group's column until the route changes, and the column folds away to leave the rail, which the viewer's choice keeps. On touch the column alone, the same places on a layer over the viewport that the menu act leading a Pane's bar opens (the groups first, a tap showing a group's places with a way back) and that closes on its close act, Escape or going to a place. */
+/** The frame, with the route's Panes in a row (the place) on its canvas: the place's Pane, and a record's after it, the place's then at the list width giving way to its floor and the record's taking the rest, a hairline between them, and below `tablet` of the column only the last standing. A route renders its `Pane`s and no place of its own. A `foot` stands under the place across the column. On the desktop the sidebar beside the column: the mark and the switcher on one bar, then the places, a group's switcher under its heading. A Shell that names groups draws the sidebar as a rail of icon entries (the ungrouped places first, named by their first place, then each group, a press going to the group's first place; the footer places and the act that folds or docks the column at the rail's foot) beside the column of the current place's group, the app's switcher leading the rail and the group's leading the column level with it (an empty slot for a group with none), so the column's first place stands level with the rail's first entry. Docked (the default) the rail stands wide with each entry's label and the column beside it in the frame's flow, and a pointer resting on an entry or a focus on it shows that group in the column; folded to the rail (the viewer's choice, kept from one visit to the next), the rail is its icons, the app's switcher its mark, and the sidebar opens over the page instead, each entry's label uncovered and that column sliding out beside it. The sidebar opens and shuts as one body on `base`, by clip and transform (snapping under reduced motion), and as the viewer docks or folds it the page slides from where it stood, its edge on the sidebar's end. The footer places and the dock act show nothing on hover or focus. A pointer heading for the column keeps the group shown while it crosses other entries; the column goes back once the pointer and the focus have left the rail and the column a moment, on Escape or when the route changes, and a menu or a sheet the column opened holds it while it is open. On touch the column alone, the same places on a layer over the viewport that the menu act leading a Pane's bar opens (the groups first, a tap showing a group's places with a way back) and that closes on its close act, Escape or going to a place. */
 export function Shell({
 	places,
 	groups,
@@ -144,23 +164,41 @@ export function Shell({
 	const first = places.find((spec) => isRoute(spec.route));
 	const home = first && { label: first.label, href: first.route };
 	const close = () => setOpenAt(undefined);
+	const lead = leadOf(switcher, mark);
 	const rows = runs(places, groups);
 	const railed = (groups?.length ?? 0) > 0 || places.some((one) => one.group);
-	const entries = railed ? rail(rows) : [];
+	const entries = railed ? rail(rows, groups) : [];
 	const ends = places.filter((one) => one.end);
 	// The group the current place stands in: a place of the rows, else a place
 	// a group's own read gave. None for a footer place, or none at the address.
 	const owner = railed ? ownerOf(places, groups, drawn, route) : undefined;
-	// The column shows the group the viewer pressed, at the route it was
-	// pressed at: going to a place returns it to the current place's group.
-	const [picked, setPicked] = useState<{ at: string; group?: string }>();
-	const stands = picked?.at === at ? picked : owner;
-	const entry =
-		entries.find((one) => one.group === stands?.group) ?? entries[0];
-	const [columned, setColumned] = useColumn();
+	const [docked, dock] = useDocked();
+	// A group's entry goes to its group's first place that is a route: a place
+	// of its runs, else the first its group's read gave, none while it waits.
+	const firstOf = (entry: Entry) => {
+		const run = entry.runs[0];
+		const at = (groups ?? []).findIndex((one) => one.label === run?.group);
+		const read = run?.read ? drawn[at] : undefined;
+		const specs = read ? (read.painted ? [] : read.value) : (run?.places ?? []);
+		return specs.find((one) => isRoute(one.route))?.route;
+	};
+	// Docked (the default), the body stands open in the room the frame keeps
+	// for it; folded, the frame keeps the strip's room and a preview opens the
+	// body over the page. The viewer's dock or fold slides the page from where
+	// it stood (`slide`) until its slide ends.
+	const [slide, setSlide] = useState<"dock" | "fold">();
+	const preview = usePreview({
+		at,
+		docked,
+		owner,
+		entries: entries.map((one) => one.key),
+	});
+	const shown = entries.find((one) => one.key === preview.shown);
+	const held = entries.find((one) => one.key === preview.held);
+	const expanded = docked || shown !== undefined ? "" : undefined;
 	// The group the touch layer shows, once one is tapped: none each time it opens.
-	const [viewed, setViewed] = useState<{ group?: string }>();
-	const viewing = viewed && entries.find((one) => one.group === viewed.group);
+	const [viewed, setViewed] = useState<string>();
+	const viewing = entries.find((one) => one.key === viewed);
 	const common = {
 		route,
 		trail,
@@ -172,21 +210,21 @@ export function Shell({
 		</span>
 	) : undefined;
 	const plain = (
-		<PlacesBody switcher={switcher} ends={ends} end={closer} {...common}>
+		<PlacesBody lead={lead} ends={ends} end={closer} {...common}>
 			<Runs rows={rows} {...common} />
 		</PlacesBody>
 	);
 	const listed = (
-		<PlacesBody switcher={switcher} ends={ends} end={closer} {...common}>
+		<PlacesBody lead={lead} ends={ends} end={closer} {...common}>
 			{viewing === undefined ? (
 				<div className={cn(SHELL_PLACES, PLACES)}>
 					{entries.map((one) => (
 						<GroupRow
-							key={one.group ?? ""}
+							key={one.key}
 							icon={one.icon}
 							label={one.label}
-							current={owner !== undefined && one.group === owner.group}
-							onPress={() => setViewed({ group: one.group })}
+							current={one.key === owner}
+							onPress={() => setViewed(one.key)}
 						/>
 					))}
 				</div>
@@ -203,73 +241,109 @@ export function Shell({
 							<Heading label={viewing.label} />
 						)}
 					</div>
-					<Runs rows={viewing.runs} bare {...common} />
+					{viewing.switcher ? (
+						<SwitcherPick switcher={viewing.switcher} />
+					) : null}
+					<Runs rows={viewing.runs} {...common} />
 				</>
 			)}
 		</PlacesBody>
 	);
-	// The rail's entries scroll above its footer places; the column beside it
-	// folds away.
+	// The rail's entries scroll above its footer places and the dock act; the
+	// column stands beside it, docked or over the page. The app's switcher
+	// leads the rail, and coming onto it shows the current place's group; the
+	// group's switcher leads the column, in a slot of its own whether or not
+	// the group has one.
+	const current = owner ?? entries[0]?.key;
+	const railLead = railed
+		? leadOf(switcher, mark, (wait) => {
+				if (current !== undefined) preview.point(current, wait);
+			})
+		: null;
+	// Footer entries carry their label as a tooltip while the rail draws none.
+	const named = expanded === undefined;
 	const railing = (
-		<nav aria-label={words.places} className={SPLIT}>
-			<div className={cn(SHELL_RAIL, SIDEBAR)}>
-				<div className={RAIL_ENTRIES}>
-					{entries.map((one) => (
-						<RailEntry
-							key={one.group ?? ""}
-							icon={one.icon}
-							label={one.label}
-							current={owner !== undefined && one.group === owner.group}
-							shown={columned && one === entry}
-							onPress={() => {
-								setPicked({ at, group: one.group });
-								setColumned(true);
-							}}
-						/>
-					))}
-				</div>
-				{ends.length > 0 ? (
+		<nav
+			aria-label={words.places}
+			className={cn(SPLIT, docked ? SHELL_SIDEBAR_SLOT : SHELL_RAIL_SLOT)}
+			{...preview.nav}
+		>
+			<div className={SHELL_RAIL_PANEL}>
+				<div
+					data-expanded={expanded}
+					className={cn(
+						SHELL_RAIL,
+						SHELL_INSET,
+						SIDEBAR,
+						SHELL_RAIL_MOTION,
+						RAIL_HIT,
+					)}
+				>
+					<div className={cn(SWITCHER_SLOT, SLOT)}>{railLead}</div>
+					<div className={RAIL_ENTRIES}>
+						{entries.map((one) => (
+							<RailEntry
+								key={one.key}
+								icon={one.icon}
+								label={one.label}
+								current={one.key === owner ? "true" : undefined}
+								shown={one === shown}
+								href={firstOf(one)}
+								onExpand={(wait) => preview.point(one.key, wait)}
+								onLeave={preview.hold}
+							/>
+						))}
+					</div>
+					{/* The footer places and the dock act preview nothing: a pointer
+					    reaching for them leaves the column as it stands, a group
+					    crossed on the way included. */}
 					<div className={RAIL_FOOT}>
 						{ends.map((one) => (
 							<RailEntry
 								key={one.route}
 								icon={one.icon}
 								label={one.label}
-								current={one.route === route}
+								current={one.route === route ? "page" : undefined}
 								href={one.route}
+								named={named}
+								onExpand={preview.hold}
 							/>
 						))}
+						<RailEntry
+							icon={docked ? "PanelLeftClose" : "PanelLeftOpen"}
+							label={docked ? words.foldSidebar : words.dockSidebar}
+							named={named}
+							onExpand={preview.hold}
+							// Folding shuts the body on what it shows; docking keeps
+							// the preview where the pointer has it.
+							onPress={() => {
+								if (docked) preview.back();
+								setSlide(docked ? "fold" : "dock");
+								dock(!docked);
+							}}
+						/>
+					</div>
+				</div>
+				{held ? (
+					<div
+						data-expanded={expanded}
+						className={cn(
+							SHELL_SIDEBAR,
+							SHELL_INSET,
+							SHELL_COLUMN_AT,
+							COLUMN_BODY,
+							SHELL_COLUMN_MOTION,
+							!docked && SHELL_COLUMN_FLOAT,
+						)}
+						onPointerEnter={preview.column.onPointerEnter}
+					>
+						<div className={cn(SWITCHER_SLOT, SLOT)}>
+							{held.switcher ? <SwitcherPick switcher={held.switcher} /> : null}
+						</div>
+						<Runs ref={preview.column.places} rows={held.runs} {...common} />
 					</div>
 				) : null}
 			</div>
-			{columned ? (
-				<div className={cn(SHELL_SIDEBAR, SHELL_INSET, SIDEBAR)}>
-					<PlacesBody
-						switcher={switcher}
-						ends={[]}
-						end={
-							<span className={CLOSE}>
-								<Button
-									glyph
-									icon="PanelLeftClose"
-									label={`${words.collapse} ${words.places}`}
-									onAct={() => setColumned(false)}
-								/>
-							</span>
-						}
-						{...common}
-					>
-						{entry ? (
-							<>
-								{entry.group === undefined ? null : (
-									<Heading label={entry.label} />
-								)}
-								<Runs rows={entry.runs} bare {...common} />
-							</>
-						) : null}
-					</PlacesBody>
-				</div>
-			) : null}
 		</nav>
 	);
 	// The sidebar and the layer differ by density; the column, and the page
@@ -321,33 +395,80 @@ export function Shell({
 		: undefined;
 	return (
 		<FrameHost>
-			<div className={FRAME}>
+			<div
+				data-slide={slide}
+				className={cn(FRAME, SHELL_FRAME)}
+				onAnimationEnd={(event) => {
+					if (event.animationName === "page-slide") setSlide(undefined);
+				}}
+			>
 				{sidebar}
 				<div className={cn(SHELL_COLUMN, COLUMN)}>
 					{banner ? (
-						<div className={cn(SHELL_BANNER, BANNER_SLOT)}>{banner}</div>
+						<div className={cn(SHELL_BANNER, BANNER_SLOT, SHELL_PAGE_SLIDE)}>
+							{banner}
+						</div>
 					) : null}
 					<FrameMain>
 						<ShellHome value={home}>
 							<ShellMenu value={menu}>
 								<PlaceRoute value={route}>
-									<Place
-										title={
-											flat.find((one) => one.route === route)?.label ??
-											mark?.name
-										}
-									>
-										{children}
-									</Place>
+									<div className={cn(PAGE, SHELL_PAGE_SLIDE)}>
+										<Place
+											title={
+												flat.find((one) => one.route === route)?.label ??
+												mark?.name
+											}
+										>
+											{children}
+										</Place>
+									</div>
 								</PlaceRoute>
 							</ShellMenu>
 						</ShellHome>
 					</FrameMain>
-					{foot}
+					{foot ? (
+						<div className={cn(FOOT, SHELL_PAGE_SLIDE)}>{foot}</div>
+					) : null}
 					{layer}
 				</div>
 			</div>
 		</FrameHost>
+	);
+}
+
+// The switcher slot's lead: the app's switcher with the mark in its glyph
+// slot, else the mark and the app's name. On the rail (`onRail`, which a
+// pointer coming onto the switcher or a focus calls) the glyph keeps its control
+// square and the rest is uncovered with the rail's labels.
+function leadOf(
+	switcher: Switcher | undefined,
+	mark: AppMark | null,
+	onRail?: (wait: boolean) => void,
+): ReactNode {
+	const rail = onRail !== undefined;
+	// The sidebar is the dark calibration in both modes: the dark icon stands.
+	const glyph = mark ? (
+		<img src={mark.dark ?? mark.src} alt="" className={SHELL_MARK} />
+	) : undefined;
+	if (switcher)
+		return <SwitcherPick switcher={switcher} glyph={glyph} onExpand={onRail} />;
+	if (!mark) return null;
+	return (
+		<span className={cn(placeRow(), ROW_BOX, rail && SHELL_RAIL_ENTRY)}>
+			<span className={cn(placeRowGlyph(), GLYPH, rail && SHELL_RAIL_GLYPH)}>
+				{glyph}
+			</span>
+			<span
+				className={cn(
+					text({ role: "body" }),
+					textStrong({ role: "body" }),
+					NAME,
+				)}
+			>
+				{mark.name}
+			</span>
+		</span>
 	);
 }
 
@@ -356,7 +477,7 @@ export function Shell({
 // after it, `end` at the bar's end), what the caller puts under it (the runs
 // of places, or a group's heading over its runs) and the footer places.
 function PlacesBody(props: {
-	switcher: Switcher | undefined;
+	lead?: ReactNode;
 	ends: readonly PlaceSpec[];
 	route: string | undefined;
 	trail: readonly string[];
@@ -364,30 +485,8 @@ function PlacesBody(props: {
 	onPlace?: () => void;
 	children?: ReactNode;
 }) {
-	const { switcher, ends, route, trail, end, onPlace, children } = props;
+	const { lead, ends, route, trail, end, onPlace, children } = props;
 	const words = useWords();
-	const mark = useMark();
-	// The sidebar is the dark calibration in both modes: the dark icon stands.
-	const glyph = mark ? (
-		<img src={mark.dark ?? mark.src} alt="" className={SHELL_MARK} />
-	) : undefined;
-	let lead: ReactNode = null;
-	if (switcher) lead = <SwitcherPick switcher={switcher} glyph={glyph} />;
-	else if (mark)
-		lead = (
-			<span className={cn(placeRow(), ROW_BOX)}>
-				<span className={cn(placeRowGlyph(), GLYPH)}>{glyph}</span>
-				<span
-					className={cn(
-						text({ role: "body" }),
-						textStrong({ role: "body" }),
-						NAME,
-					)}
-				>
-					{mark.name}
-				</span>
-			</span>
-		);
 	return (
 		<>
 			{lead || end ? (
@@ -414,21 +513,20 @@ function PlacesBody(props: {
 
 // The runs of places, scrolling between the switcher bar and the footer.
 function Runs(props: {
+	// The column's places, which a pointer heading for them aims at.
+	ref?: Ref<HTMLDivElement>;
 	rows: readonly Run[];
-	bare?: boolean;
 	route: string | undefined;
 	trail: readonly string[];
 	onPlace?: () => void;
 }) {
-	const { rows, bare, route, trail, onPlace } = props;
+	const { ref, rows, route, trail, onPlace } = props;
 	return (
-		<div className={cn(SHELL_PLACES, PLACES)}>
+		<div ref={ref} className={cn(SHELL_PLACES, PLACES)}>
 			{rows.map((run) => (
 				<GroupRun
 					key={run.key}
 					label={run.group}
-					bare={bare}
-					switcher={run.switcher}
 					places={run.read ?? run.places}
 					route={route}
 					trail={trail}
@@ -452,7 +550,6 @@ type Run = {
 	group?: string;
 	name: string;
 	icon: IconName;
-	switcher?: Switcher;
 	places: PlaceSpec[];
 	read?: Datum<readonly PlaceSpec[]>;
 };
@@ -485,7 +582,6 @@ function runs(
 			group: spec.group,
 			name: group?.label ?? spec.label,
 			icon: group?.icon ?? spec.icon,
-			switcher: group?.switcher,
 			places: [spec],
 		});
 	}
@@ -500,7 +596,6 @@ function runs(
 			group: spec.label,
 			name: spec.label,
 			icon: spec.icon,
-			switcher: spec.switcher,
 			places: [],
 			read: spec.places,
 		});
@@ -509,22 +604,40 @@ function runs(
 }
 
 // A group on the rail: all its runs, named and drawn by its group, or for the
-// ungrouped places by their first place.
+// ungrouped places by their first place, and its group's switcher, which leads
+// its places. `key` names it apart from every other entry, the ungrouped
+// places' included.
 interface Entry {
+	key: string;
 	group: string | undefined;
 	label: string;
 	icon: IconName;
+	switcher: Switcher | undefined;
 	runs: Run[];
 }
 
+const UNGROUPED = "";
+const entryKey = (group: string | undefined) =>
+	group === undefined ? UNGROUPED : `group:${group}`;
+
 // The rail's entries: the ungrouped places first, then each group in the order
 // of its first run.
-function rail(rows: readonly Run[]): Entry[] {
+function rail(
+	rows: readonly Run[],
+	groups: readonly ShellGroup[] | undefined,
+): Entry[] {
 	const out: Entry[] = [];
 	for (const run of rows) {
 		let entry = out.find((one) => one.group === run.group);
 		if (!entry) {
-			entry = { group: run.group, label: run.name, icon: run.icon, runs: [] };
+			entry = {
+				key: entryKey(run.group),
+				group: run.group,
+				label: run.name,
+				icon: run.icon,
+				switcher: groups?.find((one) => one.label === run.group)?.switcher,
+				runs: [],
+			};
 			out.push(entry);
 		}
 		entry.runs.push(run);
@@ -535,9 +648,9 @@ function rail(rows: readonly Run[]): Entry[] {
 	];
 }
 
-// The group the place at `route` stands in, wrapped (the ungrouped places' is
-// `{ group: undefined }`): a place of `places`, else one a group's own read
-// gave. None for a footer place or no place.
+// The key of the rail entry the place at `route` stands in: a place of
+// `places`, else one a group's own read gave. None for a footer place or no
+// place.
 function ownerOf(
 	places: readonly PlaceSpec[],
 	groups: readonly ShellGroup[] | undefined,
@@ -546,30 +659,28 @@ function ownerOf(
 		| { painted: false; value: readonly PlaceSpec[] }
 	)[],
 	route: string | undefined,
-): { group?: string } | undefined {
+): string | undefined {
 	const holds = (specs: readonly PlaceSpec[]) =>
 		flatPlaces(specs).some((one) => one.route === route);
 	const own = places.find((one) => !one.end && holds([one]));
-	if (own) return { group: own.group };
+	if (own) return entryKey(own.group);
 	const read = drawn.findIndex((each) => !each.painted && holds(each.value));
-	return read < 0 ? undefined : { group: groups?.[read]?.label };
+	const group = groups?.[read]?.label;
+	return group === undefined ? undefined : entryKey(group);
 }
 
 const PAINTED_PLACES = Array.from({ length: PAINT_ROWS }, (_, at) => at);
 
-// One run: the group's label, its switcher as a row under it, then its places,
-// or `PAINT_ROWS` painted rows at the row height while their read waits.
+// One run's places (`label` their group, which names their list), or
+// `PAINT_ROWS` painted rows at the row height while their read waits.
 function GroupRun(props: {
 	label: string | undefined;
-	// The heading stands above the run (a group's column draws it once).
-	bare?: boolean;
-	switcher: Switcher | undefined;
 	places: Datum<readonly PlaceSpec[]>;
 	route: string | undefined;
 	trail: readonly string[];
 	onPlace?: () => void;
 }) {
-	const { label, bare, switcher, route, trail, onPlace } = props;
+	const { label, route, trail, onPlace } = props;
 	const words = useWords();
 	const [drawn] = useSelections([props.places] as const);
 	// The group is the frame of its places' read: it holds it, so the read's
@@ -578,13 +689,11 @@ function GroupRun(props: {
 	const waits = paints(drawn);
 	const specs = drawn.painted ? [] : drawn.value;
 	const ended = frame.form === "failed" || frame.form === "missing";
-	// A group loaded and empty is absent: no label, no switcher row, nothing.
+	// A group loaded and empty draws no places.
 	if (!(waits || ended) && specs.length === 0) return null;
 	return (
 		<FrameHolds holds={frame.held}>
 			<div className={RUN} aria-busy={(waits && frame.holds) || undefined}>
-				{label === undefined || bare ? null : <Heading label={label} />}
-				{switcher && !ended ? <SwitcherPick switcher={switcher} /> : null}
 				{ended ? (
 					<FrameBody frame={frame} fit="part" />
 				) : waits ? (

@@ -33,9 +33,10 @@ how much a row carries and where things stand, never for colour, type, corners o
    following the pick; the places scroll between the bar and the footer group, which stay in
    place, so none is ever clipped; settings and exits stand in the footer group. The current place carries the
    current bar (decision 6) and a 6 percent white wash. The mark stands on the Gates as a lockup. A sidebar
-   whose places name groups is a rail of `control` squares (a group's icon, its label the tooltip; the
-   ungrouped places first, the footer places at its foot) beside that column, which carries the group's label as
-   its heading and folds away; the rail's current entry takes the row's bar and wash.
+   whose places name groups is a rail of `control` squares (a group's icon; the ungrouped places first, the footer places at its foot,
+   each with its label beside it, a press going to the group's first place) beside the column of the current place's group, which needs no heading of its own,
+   the app's switcher leading the rail; the rail's current entry takes the row's bar and wash. Hover or focus on an entry shows its group in the column; folded to its icons by
+   the act at its foot (each label then its tooltip), the sidebar opens over the page on hover or focus instead, each entry's label uncovered and that column sliding out beside it.
 3. **Rules.** Regions part by a hairline in the edge colour (the ink at about 15 percent); no
    rule is heavier. Rows stand on hairlines inside their sheet. A sheet is the surface, a
    1 px edge, rounded corners, and every part of a Section's body is one of its own: a list's or a
@@ -113,7 +114,7 @@ how much a row carries and where things stand, never for colour, type, corners o
     of the three looks above; in a row's or a head's facts it is a badge. A pill is one size
     wherever it stands, so a list row keeps its `row` height (32 px, 44 px on touch, at the default `size`); a row's pick of a state is that state pill
     holding its chevron, one shape with the head's.
-13. **Context.** A scope the page reads in (an environment, a release, a saved version) is a pick in the bar: an outlined pill at the `control` height (32 px, 44 px on touch, at the default `size`) holding a dot in the scope's tone (the app's `state`; no tone carries a fixed meaning), its name and its chip; in a Pane narrower than `tablet` the pill is its dot and chevron, the name its tooltip and accessible name.
+13. **Context.** A scope the page reads in (an environment, a release, a saved version) is a pick in the bar: an outlined pill at the `control` height (32 px, 44 px on touch, at the default `size`) holding a dot in the scope's tone (the app's `state`; no tone carries a fixed meaning), its name and its chip at every width, the name truncating within its share of the bar and whole in its tooltip and accessible name.
 14. **Phone.** No sidebar. The place's Pane's bar leads with the menu glyph where the sidebar would stand, and a
     record's Pane (opened beside its list) leads with its Back, the menu glyph one back away. The place's Pane has no Back or Close, since the sidebar moves between places; a record's has Close on the desktop and Back below `tablet`, both returning to the place's Pane as it stood, its tab and filters kept. A record is read in a Pane; a sheet is for a task. The menu glyph opens the sidebar as a layer over the whole screen (the slate, the same rows, the groups listed first when it has them, a
     close glyph at the bar's end), closed by a place, the close glyph or Escape. Rows at `row` (44 px on touch, at the default `size`), the

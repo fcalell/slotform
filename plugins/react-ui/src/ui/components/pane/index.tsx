@@ -128,7 +128,7 @@ interface PaneBase<P extends ProcedureCall> extends Closed {
 	acts?: readonly Offered<IconAct | IconLinkAct>[];
 	/** The acts past the acts, in a menu under the more act, named "More", whose touch sheet is titled by the Pane's title (a record's name), "More" while it waits; the more act paints and stands blocked as an action does. A record's Pane whose `read` failed or answered not found draws no more act. */
 	more?: Offered<readonly MenuEntry[]>;
-	/** The scope the page reads in, picked in the bar: an outlined pill at the control height after the title, before the acts, its label truncating at three fifths of the row; below a Pane width of `tablet` it is its dot and chevron, its label its name and tooltip. The title keeps its floor of two fifths. A selection paints, inert, until its read lands. */
+	/** The scope the page reads in, picked in the bar: an outlined pill at the control height after the title, before the acts, its label truncating at three fifths of the row at every width, its label its name and tooltip. The title keeps its floor of two fifths. A selection paints, inert, until its read lands. */
 	context?: Omit<PickOneProps<string | null>, "fit">;
 	/** The tone of the scope the page reads in: a dot in the state's colour before the context pick's label; the app chooses the tone. */
 	state?: Tone;

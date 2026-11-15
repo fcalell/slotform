@@ -80,8 +80,8 @@ const LONG_CONTEXT =
 	"Preview of release 14 billing, invoicing and tax reporting changes";
 
 // One Pane whose bar holds a title, the context pick and two acts: the title
-// keeps its two fifths of the row, and the pick's label truncates before it;
-// below a Pane width of `tablet` the pick is its dot and chevron. Every form
+// keeps its two fifths of the row, and the pick's label truncates before it,
+// at every width. Every form
 // judges its own edge, the `long` one with a label that would take the row.
 function Context(props: { preview?: boolean; long?: boolean }) {
 	const [value, setValue] = useState<string | null>(

@@ -4,8 +4,10 @@ import {
 	placeRow,
 	placeRowGlyph,
 	SHELL_RAIL_ENTRY,
+	SHELL_RAIL_GLYPH,
 	text,
 } from "@fcalell/ui-core/variants";
+import type { PointerEvent } from "react";
 import { follow } from "../../lib/navigate.ts";
 import { Named } from "../button/glyph.tsx";
 import { Icon } from "../icon/index.tsx";
@@ -35,43 +37,94 @@ function glyph(icon: IconName, inked: boolean) {
 	);
 }
 
-// An entry of the rail: a group's (it shows the group's column) or a footer
-// place's (it goes there), its label the tooltip and the accessible name.
+// The rail entry's glyph keeps its control square at its start, so it stands
+// still while the rail's clip uncovers the label after it.
+function railFace(icon: IconName, label: string, inked: boolean) {
+	return (
+		<>
+			<span className={SHELL_RAIL_GLYPH}>{glyph(icon, inked)}</span>
+			<span
+				className={cn(
+					text({ role: "body" }),
+					placeRowGlyph({ state: inked ? "selected" : "rest" }),
+					LABEL,
+				)}
+			>
+				{label}
+			</span>
+		</>
+	);
+}
+
+// An entry of the rail: a group's, whose press goes to its group's first place
+// and which shows its group's column while a pointer rests on it or a focus
+// stands on it, its label beside its glyph while the rail is open; a footer
+// place's, which goes there; or the act that docks the column and folds it.
+// The label is its accessible name; an entry given `named` wears it as its
+// tooltip while it is true (the rail shut to its strip, which draws no label).
 // Outside the package's exports.
 export function RailEntry(props: {
 	icon: IconName;
 	label: string;
-	current: boolean;
+	// The current place is the entry's own (`page`) or stands in its group.
+	current?: "page" | "true";
+	// Its group's column is the one standing.
 	shown?: boolean;
+	// Where a press goes: a footer place's route, a group's first place. None
+	// while the group's places wait, when a press shows its column.
 	href?: string;
+	// What a press runs where it goes nowhere (the dock act).
 	onPress?: () => void;
+	// A pointer came onto the entry (`wait`: its column follows a dwell later),
+	// or a focus or a press landed on it (at once).
+	onExpand?: (wait: boolean) => void;
+	// The pointer left the entry before its column followed.
+	onLeave?: () => void;
+	named?: boolean;
 }) {
-	const { icon, label, current, shown, href, onPress } = props;
-	const inked = current || shown === true;
-	return (
-		<Named label={label}>
-			{href === undefined ? (
-				<button
-					type="button"
-					aria-label={label}
-					aria-current={current ? "true" : undefined}
-					aria-pressed={shown}
-					onClick={onPress}
-					className={cn(look(current), SHELL_RAIL_ENTRY)}
-				>
-					{glyph(icon, inked)}
-				</button>
-			) : (
-				<a
-					href={href}
-					aria-label={label}
-					aria-current={current ? "page" : undefined}
-					onClick={follow}
-					className={cn(look(current), SHELL_RAIL_ENTRY)}
-				>
-					{glyph(icon, inked)}
-				</a>
-			)}
+	const {
+		icon,
+		label,
+		current,
+		shown,
+		href,
+		onPress,
+		onExpand,
+		onLeave,
+		named,
+	} = props;
+	const near = {
+		"aria-label": label,
+		"aria-current": current,
+		onPointerEnter: (event: PointerEvent<HTMLElement>) => {
+			if (event.pointerType !== "touch") onExpand?.(true);
+		},
+		onPointerLeave: () => onLeave?.(),
+		onFocus: () => onExpand?.(false),
+		className: cn(look(current !== undefined), SHELL_RAIL_ENTRY),
+	};
+	const face = railFace(icon, label, current !== undefined || shown === true);
+	const entry =
+		href === undefined ? (
+			<button
+				type="button"
+				{...near}
+				onClick={onPress ?? (() => onExpand?.(false))}
+			>
+				{face}
+			</button>
+		) : (
+			<a href={href} {...near} onClick={follow}>
+				{face}
+			</a>
+		);
+	// An entry that wears a tooltip some of the time keeps its place in the
+	// tree, so a strip opening and shutting never mounts it again.
+	return named === undefined ? (
+		entry
+	) : (
+		<Named label={label} off={!named}>
+			{entry}
 		</Named>
 	);
 }

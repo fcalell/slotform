@@ -655,10 +655,10 @@ export interface PlaceSpec<Q = unknown> {
 }
 
 // A group of places in the sidebar, named by `PlaceSpec.group`; a Shell lists
-// every group its places name. Its entry on the rail carries the `icon`, its
-// column the `label` as its heading. One with a `switcher` is a scope (a
-// project) whose places follow its pick: the pick stands as a row under the
-// heading, before the places.
+// every group its places name. Its entry on the rail carries the `icon` and,
+// while the rail is docked or expanded, the `label` beside it; the touch layer heads the group's places with the `label`. One with a `switcher` is a scope (a
+// project) whose places follow its pick: the pick stands as a row before the
+// places.
 export interface GroupSpec {
 	// The group's name (a word; truncates), as the places' `group` names it.
 	label: string;

@@ -69,7 +69,7 @@ const START = "touch:-ms-icon-inset";
 // The title keeps its floor against the context pick, a pick or none: the pick
 // keeps its content up to three fifths of the row (`PAGE_CONTEXT`) and less where
 // the title's two fifths need the room, its label then truncating, the dot and the
-// chevron whole; below a Pane width of `tablet` the pick is its dot and chevron.
+// chevron whole, at every width.
 const PILL = "flex min-w-0";
 const ACTS = "flex shrink-0 items-center gap-gap ms-auto touch:-me-icon-inset";
 // The heading is the title's line, the busy mark after the title.
