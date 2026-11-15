@@ -208,7 +208,6 @@ What `stack generate` writes, by the slot that renders it:
 | `@fcalell/cli/ast` | TS / TOML / HTML spec types + printers + builder helpers |
 | `@fcalell/cli/discovery` | `discoverPlugins()`, `loadInstalledPlugins(names)`, `FIRST_PARTY_PLUGINS`, `PLUGIN_NAMES` |
 | `@fcalell/cli/runtime` | `RuntimePlugin<TName, TDeps, TProvides, TRoutes>` |
-| `@fcalell/cli/codegen` | Reusable codegen helpers |
 | `@fcalell/cli/errors` | `StackError`, `ConfigValidationError` |
 
 ## License
