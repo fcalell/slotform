@@ -5,7 +5,7 @@ type Request = AppRouter["requests"]["list"]["__output"]["data"][number];
 
 // Fifty thousand requests the deploys served, made when first asked for: the
 // window over them loads only the pages in view.
-export const TOTAL = 50_000;
+const TOTAL = 50_000;
 
 const PATHS = [
 	"/",
