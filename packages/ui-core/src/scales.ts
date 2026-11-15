@@ -91,10 +91,7 @@ export function spacingFor(
 	density: Density,
 	size = KNOB_DEFAULTS.size,
 ): Record<SpacingRole, string> {
-	return record(
-		SPACING_ROLES,
-		(role) => `${spacingOf(density, role, size)}px`,
-	);
+	return record(SPACING_ROLES, (role) => `${spacingOf(density, role, size)}px`);
 }
 
 // A px width: a unit width is its count of the space base, which the `size`

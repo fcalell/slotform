@@ -12,8 +12,8 @@ import { useContext, useEffect, useRef, useState } from "react";
 import {
 	type NativeScrollEvent,
 	type NativeSyntheticEvent,
-	ScrollView,
 	Text as RNText,
+	ScrollView,
 	View,
 } from "react-native";
 import { LinearTransition, ReduceMotion } from "react-native-reanimated";

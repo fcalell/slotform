@@ -55,9 +55,7 @@ function formatOptions(obj: Record<string, unknown>, depth: number): string {
 		} else if (typeof value === "number" || typeof value === "boolean") {
 			entries.push(`${innerIndent}${key}: ${value}`);
 		} else if (isRecord(value)) {
-			entries.push(
-				`${innerIndent}${key}: ${formatOptions(value, depth + 1)}`,
-			);
+			entries.push(`${innerIndent}${key}: ${formatOptions(value, depth + 1)}`);
 		} else {
 			entries.push(`${innerIndent}${key}: ${JSON.stringify(value)}`);
 		}

@@ -18,9 +18,11 @@ export function useLeaveGuard(leave: Leave, guarded: boolean): void {
 			if (!leave.asks()) return;
 			event.preventDefault();
 			const { action } = event.data;
-			void leave.attempt(() => askDiscard(words)).then((go) => {
-				if (go) navigation.dispatch(action);
-			});
+			void leave
+				.attempt(() => askDiscard(words))
+				.then((go) => {
+					if (go) navigation.dispatch(action);
+				});
 		});
 	}, [leave, guarded, words, navigation]);
 }

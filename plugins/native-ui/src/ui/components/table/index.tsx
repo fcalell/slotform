@@ -69,8 +69,8 @@ import {
 import { memo, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
 	Pressable,
-	ScrollView,
 	Text as RNText,
+	ScrollView,
 	useWindowDimensions,
 	View,
 } from "react-native";

@@ -9,12 +9,7 @@ import {
 } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import type { PreviewGlobal } from "../types.ts";
-import {
-	globalTag,
-	SCREEN_STATES,
-	screenTitle,
-	stateTag,
-} from "./screens.ts";
+import { globalTag, SCREEN_STATES, screenTitle, stateTag } from "./screens.ts";
 
 // The folder at the app root holding one story file per screen. It is no dot
 // directory: Storybook's watcher ignores those.

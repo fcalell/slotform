@@ -12,8 +12,8 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import {
-	Image as RNImage,
 	Pressable,
+	Image as RNImage,
 	Text as RNText,
 	View,
 } from "react-native";

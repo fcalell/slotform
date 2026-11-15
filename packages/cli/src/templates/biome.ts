@@ -44,10 +44,7 @@ export function lintConfig(
 	plugins: readonly LintPlugin[],
 	ignore: readonly string[],
 ): string {
-	const byIncludes = new Map<
-		string,
-		{ includes: string[]; paths: string[] }
-	>();
+	const byIncludes = new Map<string, { includes: string[]; paths: string[] }>();
 	for (const { path, includes } of plugins) {
 		const key = JSON.stringify(includes);
 		const group = byIncludes.get(key) ?? { includes, paths: [] };

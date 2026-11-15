@@ -2,12 +2,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import type { PreviewGlobal } from "../types.ts";
 import { WIDTHS } from "../widths.ts";
-import {
-	globalTag,
-	SCREEN_STATES,
-	screenTitle,
-	stateTag,
-} from "./screens.ts";
+import { globalTag, SCREEN_STATES, screenTitle, stateTag } from "./screens.ts";
 
 // What `stack screens test` narrows a run by. The run excludes the tags
 // (`screens.ts`) of every value it was not asked for, so the narrowing across

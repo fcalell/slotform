@@ -682,7 +682,11 @@ const pages = (kind: ReadKind) => kind === "pages" || kind === "window";
 const stable = (value: unknown): string =>
 	JSON.stringify(value, (_, v: unknown) =>
 		isPlain(v)
-			? Object.fromEntries(Object.keys(v).sort().map((key) => [key, v[key]]))
+			? Object.fromEntries(
+					Object.keys(v)
+						.sort()
+						.map((key) => [key, v[key]]),
+				)
 			: v,
 	);
 
@@ -745,8 +749,7 @@ export interface ReadAnswer extends ReadResult {
 // `painted` are those some value uses plainly (the quiet ones are subscribed and
 // nothing more); `queries` are the observed reads, the painted ones given
 // `placeholder`; `draw` maps their answers back onto the values, in order.
-const isReal = (r: ReadAnswer) =>
-	!r.isPlaceholderData && r.data !== undefined;
+const isReal = (r: ReadAnswer) => !r.isPlaceholderData && r.data !== undefined;
 
 // Why a read has no data: it ended, nothing is coming, or the answer is.
 function phaseOf(r: ReadAnswer, read: Read<unknown>): DrawnPhase {

@@ -103,8 +103,7 @@ export function target(flags: Record<string, unknown>, cwd: string): Target {
 		full: flags.full === true,
 		settle: parseSettle(flags.settle),
 		cookie: typeof flags.cookie === "string" ? flags.cookie : undefined,
-		signIn:
-			typeof flags["sign-in"] === "string" ? flags["sign-in"] : undefined,
+		signIn: typeof flags["sign-in"] === "string" ? flags["sign-in"] : undefined,
 	};
 }
 

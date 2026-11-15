@@ -68,9 +68,7 @@ export function migratedFts(migrationsDir: string): Map<string, string> {
 		.sort();
 	for (const file of files) {
 		const sql = readFileSync(join(migrationsDir, file), "utf-8");
-		for (const [, name, hash] of sql.matchAll(
-			/^-- stack:fts (\S+) (\S+)$/gm,
-		)) {
+		for (const [, name, hash] of sql.matchAll(/^-- stack:fts (\S+) (\S+)$/gm)) {
 			if (name && hash) state.set(name, hash);
 		}
 		for (const [, name] of sql.matchAll(/^-- stack:fts-drop (\S+)$/gm)) {

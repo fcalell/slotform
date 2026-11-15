@@ -98,9 +98,8 @@ export function expressionIndexes(
 		) => {
 			const has = columns.get(table);
 			if (!has) return whole;
-			const fixed = list.replace(
-				/`([^`]*)`/g,
-				(item, inner: string) => (has.has(inner) ? item : inner),
+			const fixed = list.replace(/`([^`]*)`/g, (item, inner: string) =>
+				has.has(inner) ? item : inner,
 			);
 			return `${head}${fixed}${tail}`;
 		},

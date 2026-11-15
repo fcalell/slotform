@@ -242,7 +242,7 @@ export const screens = plugin("screens", {
 		vitest: "^5.0.3",
 	},
 
-		gitignore: [STORIES_DIR],
+	gitignore: [STORIES_DIR],
 
 	slots: {
 		handlerModules,

@@ -4,8 +4,8 @@ import { levelOf, type MeterLevel } from "@fcalell/ui-core/list-state";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { endedSentence } from "@fcalell/ui-core/read";
 import type { Datum } from "@fcalell/ui-core/read";
+import { endedSentence } from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,

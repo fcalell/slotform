@@ -1,7 +1,7 @@
 import { drew, isPlaced, isThenable } from "@fcalell/ui-core/acts";
 import type {
-	Act as ActData,
 	ActBase,
+	Act as ActData,
 	Decision,
 	IconLinkAct,
 	IconName,

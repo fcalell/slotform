@@ -156,9 +156,7 @@ export function withHold(
 // this read's own write waits (never TanStack's scheduler), a refetch or a
 // later page is not held, and a cancelled fetch is let go at once: TanStack
 // ignores what it settles.
-function held<F extends (ctx: QueryFunctionContext) => unknown>(
-	queryFn: F,
-): F {
+function held<F extends (ctx: QueryFunctionContext) => unknown>(queryFn: F): F {
 	// The wrapper has `queryFn`'s own signature; the compiler cannot see that through `F`.
 	return (async (ctx: QueryFunctionContext) => {
 		const first = ctx.client.getQueryData(ctx.queryKey) === undefined;
@@ -308,10 +306,7 @@ function readsAt(
 	return new Proxy(target, {
 		get(_, key) {
 			if (key === "read" || key === "pages" || key === "window") {
-				const child = readsAt(Reflect.get(target, key), schema, [
-					...path,
-					key,
-				]);
+				const child = readsAt(Reflect.get(target, key), schema, [...path, key]);
 				return new Proxy(make(key), { get: (_, k) => Reflect.get(child, k) });
 			}
 			const value = Reflect.get(target, key);
@@ -351,7 +346,7 @@ function windowRead(target: any, input: unknown, how: ReadHow): Read<unknown> {
 	];
 	const page = (offset: number): Promise<WindowPage> =>
 		at(offset).queryFn({}) as Promise<WindowPage>;
-	return read<WindowState>(
+	return read(
 		{
 			...base,
 			queryKey,
