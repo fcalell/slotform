@@ -413,8 +413,14 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 in progress |
+| 4 Fixes | F1 done; F2 next (see Step 4 log) |
 | 5 Fresh-agent checks | not started |
+
+## Step 4 log
+
+| Fix | State | Gate | Notes |
+| --- | --- | --- | --- |
+| F1 | done | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 938 files; `release:check` exit 0 | Cause of `check-2-stale-types.log` proven by mtimes: run 1's `generate` archived old `.stack/types`, run 2's cache hit restored 18 files at 08:56:15 before `tsc -b`. `generate` and `build` now exclude `.stack/types` and `.stack/node_modules`; app `check-types` declares `.stack/types`. Showcase `generate` writes the stories. Package `check` and `lint` scripts, turbo `lint` and `dev` tasks, two unused `imports` maps, ui-core's unused cli devDependency, changeset `linked` removed. `dev.test.ts` fixed early because it failed the gate twice under load. Kept: H1-05 (manifests have no inheritance; the apps' `tsconfig.worker.json` is the cli template's output), changeset `fixed` (the version rule), ui-core's three hand-run scripts, `@fcalell/cli` as an app devDependency (config file only) |
 
 ## Baseline
 

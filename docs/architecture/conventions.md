@@ -43,9 +43,16 @@ adds `.tsx` to `optimizeDeps.extensions`.
 A sibling `@fcalell/*` import resolves through its `exports`, so type-checking needs the
 dependencies' `dist`: turbo runs `^build` before `check-types`, and the package's own
 `build` before its `check-types` (a source entry's self-name import). Root `pnpm check` is
-`turbo run check-types`, then `biome check` (read-only; `pnpm lint` writes the fixes). The
+`turbo run check-types`, `turbo run test`, then `biome check` (read-only; `pnpm lint` writes the
+fixes). A package has no `check` or `lint` script of its own: the root runs both. The
 apps' `check-types` depends on their `generate` (the `.stack/` files), not their
-`build`, so the gate never runs a production bundle; `pnpm build` does.
+`build`, so the gate never runs a production bundle; `pnpm build` does. The showcase's `generate`
+also writes the roster's stories, so the gate type-checks the stories the roster names now.
+
+Each turbo task declares only what it writes. An app's `tsc -b` emits the worker's declarations
+into `.stack/types/`, so `generate` and `build` exclude that folder from their `.stack/**` output
+and `check-types` declares it: a cached `generate` that archived it would restore old declarations
+over new ones.
 
 ## Where a new feature or config surface belongs
 

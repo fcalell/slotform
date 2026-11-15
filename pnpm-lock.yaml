@@ -183,6 +183,9 @@ importers:
       '@fcalell/plugin-vite':
         specifier: workspace:*
         version: link:../../plugins/vite
+      '@fcalell/ui-core':
+        specifier: workspace:*
+        version: link:../../packages/ui-core
       '@orpc/tanstack-query':
         specifier: ^1.14.4
         version: 1.14.4(@opentelemetry/api@1.9.1)(@orpc/client@1.14.4(@opentelemetry/api@1.9.1))(@tanstack/query-core@5.104.0)
@@ -208,9 +211,6 @@ importers:
       '@fcalell/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
-      '@fcalell/ui-core':
-        specifier: workspace:*
-        version: link:../../packages/ui-core
       '@orpc/client':
         specifier: 1.14.4
         version: 1.14.4(@opentelemetry/api@1.9.1)
@@ -337,9 +337,6 @@ importers:
         specifier: ^3.5.0
         version: 3.5.0
     devDependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../cli
       '@fcalell/typescript-config':
         specifier: workspace:^
         version: link:../typescript-config

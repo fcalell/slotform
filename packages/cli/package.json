@@ -92,8 +92,6 @@
 		"build": "tsc -p tsconfig.build.json",
 		"prepare": "node ../../scripts/prepare.ts",
 		"check-types": "tsc --noEmit --pretty",
-		"lint": "biome check --write --unsafe",
-		"check": "pnpm check-types && pnpm lint",
 		"clear": "rm -rf dist node_modules .turbo",
 		"test": "node --test 'src/**/*.test.ts'"
 	},

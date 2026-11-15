@@ -85,3 +85,6 @@ export function writeStories(): void {
 			writeFileSync(target, source);
 	}
 }
+
+// `pnpm generate` runs this file, so the gate type-checks the stories the roster names now.
+if (import.meta.main) writeStories();

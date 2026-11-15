@@ -127,8 +127,6 @@
 		"prepare": "node ../../scripts/prepare.ts",
 		"check-types": "tsc --noEmit --pretty",
 		"test": "node --test 'src/**/*.test.ts'",
-		"lint": "biome check --write --unsafe",
-		"check": "pnpm check-types && pnpm lint",
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"dependencies": {

@@ -3,10 +3,11 @@
 	"extends": ["//"],
 	"tasks": {
 		"build": {
-			"outputs": [".stack/**"]
+			"outputs": [".stack/**", "!.stack/types/**", "!.stack/node_modules/**"]
 		},
 		"check-types": {
-			"dependsOn": ["^build", "generate"]
+			"dependsOn": ["^build", "generate"],
+			"outputs": [".stack/types/**"]
 		}
 	}
 }

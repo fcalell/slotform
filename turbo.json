@@ -4,18 +4,16 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": ["dist/**", ".stack/**"]
+			"outputs": [
+				"dist/**",
+				".stack/**",
+				"!.stack/types/**",
+				"!.stack/node_modules/**"
+			]
 		},
 		"generate": {
 			"dependsOn": ["^build"],
-			"outputs": [".stack/**"]
-		},
-		"dev": {
-			"interactive": true,
-			"cache": false
-		},
-		"lint": {
-			"dependsOn": ["^lint"]
+			"outputs": [".stack/**", "!.stack/types/**", "!.stack/node_modules/**"]
 		},
 		"check-types": {
 			"dependsOn": ["^build", "build"]
