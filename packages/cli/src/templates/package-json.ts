@@ -84,7 +84,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 	};
 	if (!options.workspace) {
 		scripts.lint = "biome check --write --unsafe";
-		scripts.check = "pnpm check-types && pnpm lint";
+		scripts.check = "pnpm check-types && biome check";
 	}
 
 	pkg.scripts = scripts;

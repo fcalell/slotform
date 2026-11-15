@@ -69,7 +69,8 @@ test("stopAll kills a process that ignores SIGTERM after the grace", async () =>
 		"stubborn",
 		"process.on('SIGTERM', () => {}); console.log('up'); setInterval(() => {}, 1000)",
 	);
-	await new Promise((r) => setTimeout(r, 500));
+	// `up` prints after the handler is installed: a SIGTERM before it would end the child at once.
+	await new Promise((r) => proc.current()?.stdout?.once("data", r));
 	const started = Date.now();
 	await stopAll([proc], 400);
 	assert.ok(Date.now() - started >= 400);

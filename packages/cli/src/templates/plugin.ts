@@ -33,7 +33,7 @@ export function pluginPackageJsonTemplate(
 			prepare: "pnpm build",
 			"check-types": "tsc --noEmit --pretty",
 			lint: "biome check --write --unsafe",
-			check: "pnpm check-types && pnpm lint",
+			check: "pnpm check-types && biome check",
 		},
 		dependencies: {
 			"@fcalell/cli": stackSpec("@fcalell/cli"),
