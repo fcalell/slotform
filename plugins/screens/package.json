@@ -119,6 +119,7 @@
 	"dependencies": {
 		"@fcalell/cli": "workspace:^",
 		"@fcalell/plugin-api": "workspace:^",
+		"@fcalell/plugin-query": "workspace:^",
 		"@fcalell/plugin-react": "workspace:^",
 		"@fcalell/plugin-vite": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",

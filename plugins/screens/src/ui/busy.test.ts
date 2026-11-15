@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { QueryClient } from "@fcalell/plugin-api/tanstack-query";
+import type { QueryClient } from "@fcalell/plugin-query/tanstack-query";
 import { fetchingReads } from "./busy.ts";
 
 // Only the part of the client the count reads: the fetching queries' meta.

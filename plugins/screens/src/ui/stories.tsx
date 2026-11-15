@@ -7,7 +7,7 @@ import {
 	prefixes,
 	routeTree,
 } from "virtual:stack-screens";
-import { useQueryClient } from "@fcalell/plugin-api/tanstack-query";
+import { useQueryClient } from "@fcalell/plugin-query/tanstack-query";
 import type { StoryObj } from "@storybook/react-vite";
 import {
 	createMemoryHistory,

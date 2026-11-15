@@ -1,5 +1,5 @@
-import { isStreamQuery } from "@fcalell/plugin-api/read";
-import type { QueryClient } from "@fcalell/plugin-api/tanstack-query";
+import { isStreamQuery } from "@fcalell/plugin-query/read";
+import type { QueryClient } from "@fcalell/plugin-query/tanstack-query";
 
 // The reads in flight that a run waits for. A stream (a channel read, the
 // connection) stays fetching for as long as it is subscribed and does not
