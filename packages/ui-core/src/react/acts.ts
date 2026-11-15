@@ -1,6 +1,6 @@
 // The hooks a host holds its acts' runs and a control its saves with (the
 // model is `../acts.ts`), over the binding's port.
-import { use, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
 	drew,
 	holdSave,
@@ -9,7 +9,7 @@ import {
 	startRun,
 } from "../acts.ts";
 import { type Datum, draftFor, type Kept, readKey, readsOf } from "../read.ts";
-import { ReadPortContext, usePort } from "./port.ts";
+import { usePort } from "./port.ts";
 import { useSelections } from "./read.ts";
 
 export interface Draft<T> {
@@ -94,10 +94,10 @@ export interface Run<K> {
 }
 
 // A host's hold on its acts' runs (`../acts.ts`): `key` names which act runs,
-// for a host with several. The newest run wins. A run needs no read, so under
-// no binding the act is called as it is.
+// for a host with several. The newest run wins. A run needs no read, so the
+// port with no binding calls the act as it is.
 export function useRun<K = true>(): Run<K> {
-	const port = use(ReadPortContext);
+	const port = usePort();
 	const [state, setState] = useState<RunState<K>>({});
 	const latest = useRef(0);
 	return {
@@ -107,7 +107,7 @@ export function useRun<K = true>(): Run<K> {
 			const seq = ++latest.current;
 			startRun(
 				key,
-				port ? () => port.act(onAct) : onAct,
+				() => port.act(onAct),
 				() => seq === latest.current,
 				setState,
 			);

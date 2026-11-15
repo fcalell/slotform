@@ -153,6 +153,10 @@
 			"types": "./dist/listen.d.ts",
 			"default": "./dist/listen.js"
 		},
+		"./same-by": {
+			"types": "./dist/same-by.d.ts",
+			"default": "./dist/same-by.js"
+		},
 		"./react/port": {
 			"types": "./dist/react/port.d.ts",
 			"default": "./dist/react/port.js"
