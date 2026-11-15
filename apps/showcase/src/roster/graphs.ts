@@ -6,8 +6,7 @@ import type {
 	CanvasPath,
 } from "@fcalell/ui-core/descriptors";
 
-// The two graphs the canvas is shown and tested with, as plain data so a node
-// test reads them.
+// The graphs the roster's canvas frames draw.
 
 export interface Graph {
 	nodes: CanvasNode[];
@@ -616,17 +615,6 @@ export const ROLES_RUN = marked(
 		at: "checks",
 	},
 );
-
-// A journey whose first leg's edge carries a label the width of a sentence,
-// which its chip draws whole.
-export const OPENING: Graph = {
-	...JOURNEY,
-	edges: JOURNEY.edges.map((edge) =>
-		edge.id === "begin-a1"
-			? { ...edge, label: "Open the ticked as units" }
-			: edge,
-	),
-};
 
 // Nodes whose titles and statuses compete for a node's width: the status is a
 // badge that keeps its word up to the short measure and cuts it inside its box

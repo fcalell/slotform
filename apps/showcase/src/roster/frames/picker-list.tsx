@@ -2,7 +2,6 @@ import { Input } from "@fcalell/plugin-react-ui/components/input";
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import type { Option } from "@fcalell/ui-core/descriptors";
-import { FormField } from "../../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { endedAt, itemsAt, waitingText } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";
@@ -125,31 +124,27 @@ const CELL_PARTS: ReadonlyArray<readonly [string, keyof typeof PARTS]> = [
 function Approaches(props: { checked: boolean; painted?: boolean }) {
 	return (
 		<Wide>
-			<FormField
+			<Picker
+				fit="list"
 				label="How should the agent proceed?"
-				options={{
-					items: APPROACHES,
-					option: {
-						value: (approach) => approach.id,
-						label: (approach) => approach.name,
-						line: (approach) => approach.about,
-						recommended: (approach) => approach.suggested,
-					},
-					value: props.painted ? waitingText : props.checked ? "ask" : null,
-					onChange: change,
-					children: (
-						<FormField label="Note">
-							<Input
-								label="Note"
-								kind="prose"
-								value=""
-								onChange={change}
-								placeholder="Anything the agent should know"
-							/>
-						</FormField>
-					),
+				items={APPROACHES}
+				option={{
+					value: (approach) => approach.id,
+					label: (approach) => approach.name,
+					line: (approach) => approach.about,
+					recommended: (approach) => approach.suggested,
 				}}
-			/>
+				value={props.painted ? waitingText : props.checked ? "ask" : null}
+				onChange={change}
+			>
+				<Input
+					label="Note"
+					kind="prose"
+					value=""
+					onChange={change}
+					placeholder="Anything the agent should know"
+				/>
+			</Picker>
 		</Wide>
 	);
 }
@@ -204,32 +199,30 @@ function Topics(props: {
 			read={topics}
 			empty={{ sentence: "No topic to follow yet." }}
 		>
-			<FormField
+			<Picker
+				fit="list"
 				label="Email me about"
 				description="Sent to ada@acme.dev."
-				options={{
-					items: topics,
-					option: {
-						value: (topic) => topic.id,
-						label: (topic) => topic.name,
-						line: (topic) => topic.about,
-						recommended: (topic) => topic.suggested,
-						group: part.grouped ? (topic) => topic.kind : undefined,
-					},
-					value: [...part.chosen],
-					onChange: change,
-					children: part.opens ? (
-						<FormField
-							label="Only for"
-							picker={{
-								value: "production",
-								onChange: change,
-								options: ENVIRONMENTS,
-							}}
-						/>
-					) : null,
+				items={topics}
+				option={{
+					value: (topic) => topic.id,
+					label: (topic) => topic.name,
+					line: (topic) => topic.about,
+					recommended: (topic) => topic.suggested,
+					group: part.grouped ? (topic) => topic.kind : undefined,
 				}}
-			/>
+				value={[...part.chosen]}
+				onChange={change}
+			>
+				{part.opens ? (
+					<Picker
+						label="Only for"
+						value="production"
+						onChange={change}
+						options={ENVIRONMENTS}
+					/>
+				) : null}
+			</Picker>
 		</Section>
 	);
 }
@@ -240,18 +233,17 @@ export function FailedLists(props: { id: string }) {
 	return (
 		<Wide>
 			{endedAt<Topic>(props.id, "error").map(({ title, items }) => (
-				<FormField
+				<Picker
 					key={title}
+					fit="list"
 					label={title}
-					options={{
-						items,
-						option: {
-							value: (topic) => topic.id,
-							label: (topic) => topic.name,
-						},
-						value: [],
-						onChange: change,
+					items={items}
+					option={{
+						value: (topic) => topic.id,
+						label: (topic) => topic.name,
 					}}
+					value={[]}
+					onChange={change}
 				/>
 			))}
 		</Wide>

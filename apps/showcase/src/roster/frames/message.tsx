@@ -1,10 +1,20 @@
-import type { Attachment } from "@fcalell/ui-core/descriptors";
+import {
+	type MessageSlots,
+	Thread,
+} from "@fcalell/plugin-react-ui/components/thread";
+import type {
+	Attachment,
+	MessageDetail,
+	Run,
+} from "@fcalell/ui-core/descriptors";
 import type { ReactNode } from "react";
-import { MessageBase } from "../../../../../plugins/react-ui/src/ui/components/message/base.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
+import { waiting } from "../waiting.ts";
 import { SCREEN } from "./image.tsx";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
+
+const act = () => {};
 
 // A moment today at a board's time, as an ISO string the Message formats.
 export function today(time: string): string {
@@ -23,8 +33,37 @@ export const ATTACHED: Attachment[] = [
 	{ id: "log", name: "deploy-api-4f2c.log" },
 ];
 
+export interface Turn {
+	id: string;
+	author: "you" | "other" | "system";
+	body: string;
+	at?: string;
+	// A system line that opens what it names.
+	opens?: boolean;
+	// What stands under a system line.
+	detail?: MessageDetail;
+	// What came with a turn, and where it came from.
+	attachments?: Attachment[];
+	from?: Run[];
+}
+
+const NAME = { you: "You", other: "Assistant" } as const;
+
+// The Message slots every turn fills.
+export const TURN: MessageSlots<Turn> = {
+	key: (turn) => turn.id,
+	author: (turn) => turn.author,
+	name: (turn) => (turn.author === "system" ? undefined : NAME[turn.author]),
+	body: (turn) => turn.body,
+	at: (turn) => turn.at,
+	onOpen: (turn) => (turn.opens ? act : undefined),
+	detail: (turn) => turn.detail,
+	attachments: (turn) => turn.attachments,
+	from: (turn) => turn.from,
+};
+
 // Board 53's context: a thread's pane, the surface a thread stands on.
-export function Pane(props: { children: ReactNode }) {
+function Pane(props: { children: ReactNode }) {
 	return (
 		<div className="flex flex-col gap-stack rounded-card border border-edge bg-surface p-page">
 			{props.children}
@@ -32,7 +71,7 @@ export function Pane(props: { children: ReactNode }) {
 	);
 }
 
-type Author = "you" | "other" | "system";
+type Author = Turn["author"];
 
 // The author a cell stands for: a `MESSAGE.author` cell its own, the strong
 // name another's, the provenance line, the chevron and the code a system line's,
@@ -59,182 +98,143 @@ function authorOf(cell: string): Author {
 	return "other";
 }
 
-function Rest(props: { author: Author }) {
-	if (props.author === "you")
-		return (
-			<>
-				<Pane>
-					<MessageBase
-						author="you"
-						name="You"
-						body="Why did the last deploy of api fail?"
-						at={today("10:02")}
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="you"
-						name="You"
-						body="Open the migration, and hold the redeploy until I have read it. If the column is missing on staging too, tell me before you touch anything."
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="you"
-						name="You"
-						body="Read https://acme.dev/deploys/api/4f2c9a1e7b3d5f60a8c2e4b6d8f0a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5"
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="you"
-						name="You"
-						body="Why did this payment fail?"
-						at={today("10:07")}
-						attachments={ATTACHED}
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="you"
-						name="You"
-						body="Open the migration and hold the redeploy."
-						from={["via email", "Front desk"]}
-						at={today("10:08")}
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="you"
-						name="You"
-						body=""
-						attachments={ATTACHED.slice(0, 1)}
-						from={["via email"]}
-					/>
-				</Pane>
-			</>
-		);
-	if (props.author === "other")
-		return (
-			<>
-				<Pane>
-					<MessageBase
-						author="other"
-						name="Assistant"
-						body={REPLY}
-						at={today("10:03")}
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="other"
-						body="Opened `0042_add_invoices`. The redeploy waits for you."
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="other"
-						name="Assistant"
-						body="Here is the page as the customer saw it."
-						attachments={ATTACHED}
-						from={["Front desk"]}
-						at={today("10:09")}
-					/>
-				</Pane>
-				<Pane>
-					<MessageBase
-						author="other"
-						name="Assistant"
-						body="The full log is attached."
-						attachments={ATTACHED.slice(1)}
-						at={today("10:10")}
-					/>
-				</Pane>
-			</>
-		);
-	return (
-		<>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="Ada Lovelace joined the thread"
-					at={today("10:02")}
-				/>
-			</Pane>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="The answer was cut short: the deploy log is longer than the assistant reads at once"
-					at={today("10:06")}
-				/>
-			</Pane>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="Relayed https://acme.dev/deploys/api/4f2c9a1e7b3d5f60a8c2e4b6d8f0a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5"
-				/>
-			</Pane>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="Relayed from #deploys"
-					at={today("10:04")}
-					onOpen={open}
-				/>
-			</Pane>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="Read 3 files"
-					at={today("10:04")}
-					detail={{
-						fold: "migrations/0042_add_invoices.sql\nsrc/db/schema.ts\nwrangler.toml",
-					}}
-				/>
-			</Pane>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="Ran migrate"
-					at={today("10:06")}
-					detail={{ code: "0042_add_invoices --env production" }}
-				/>
-			</Pane>
-			<Pane>
-				<MessageBase
-					author="system"
-					body="Proposed a redeploy"
-					at={today("10:06")}
-					detail={{
-						row: {
-							leading: { icon: "Rocket" },
-							title: "Redeploy api to production",
-							facts: [
-								{ tone: "waiting", label: "Waits for you" },
-								"Deploy",
-								"After the migration",
-							],
-							onOpen: open,
-						},
-					}}
-				/>
-			</Pane>
-		</>
-	);
-}
+const LINK =
+	"https://acme.dev/deploys/api/4f2c9a1e7b3d5f60a8c2e4b6d8f0a1c3e5b7d9f1a3c5e7b9d1f3a5c7e9b1d3f5";
 
-// Board 53's message cells on a thread's pane, drawn by the Thread's frame: each author at rest, and
-// yours and the reply painted while their thread's items are not here (a
-// system line is never painted); the paint cell draws a reply beside its
-// painted form.
+// Each author's messages at rest, in one thread each.
+const RESTING: Record<Author, Turn[]> = {
+	you: [
+		{
+			id: "you-asked",
+			author: "you",
+			body: "Why did the last deploy of api fail?",
+			at: today("10:02"),
+		},
+		{
+			id: "you-long",
+			author: "you",
+			body: "Open the migration, and hold the redeploy until I have read it. If the column is missing on staging too, tell me before you touch anything.",
+		},
+		{ id: "you-link", author: "you", body: `Read ${LINK}` },
+		{
+			id: "you-shot",
+			author: "you",
+			body: "Why did this payment fail?",
+			at: today("10:07"),
+			attachments: ATTACHED,
+		},
+		{
+			id: "you-from",
+			author: "you",
+			body: "Open the migration and hold the redeploy.",
+			from: ["via email", "Front desk"],
+			at: today("10:08"),
+		},
+		{
+			id: "you-only-shot",
+			author: "you",
+			body: "",
+			attachments: ATTACHED.slice(0, 1),
+			from: ["via email"],
+		},
+	],
+	other: [
+		{ id: "other-reply", author: "other", body: REPLY, at: today("10:03") },
+		{
+			id: "other-opened",
+			author: "other",
+			body: "Opened `0042_add_invoices`. The redeploy waits for you.",
+		},
+		{
+			id: "other-shot",
+			author: "other",
+			body: "Here is the page as the customer saw it.",
+			attachments: ATTACHED,
+			from: ["Front desk"],
+			at: today("10:09"),
+		},
+		{
+			id: "other-log",
+			author: "other",
+			body: "The full log is attached.",
+			attachments: ATTACHED.slice(1),
+			at: today("10:10"),
+		},
+	],
+	system: [
+		{
+			id: "system-joined",
+			author: "system",
+			body: "Ada Lovelace joined the thread",
+			at: today("10:02"),
+		},
+		{
+			id: "system-cut",
+			author: "system",
+			body: "The answer was cut short: the deploy log is longer than the assistant reads at once",
+			at: today("10:06"),
+		},
+		{ id: "system-link", author: "system", body: `Relayed ${LINK}` },
+		{
+			id: "system-relayed",
+			author: "system",
+			body: "Relayed from #deploys",
+			at: today("10:04"),
+			opens: true,
+		},
+		{
+			id: "system-reads",
+			author: "system",
+			body: "Read 3 files",
+			at: today("10:04"),
+			detail: {
+				fold: "migrations/0042_add_invoices.sql\nsrc/db/schema.ts\nwrangler.toml",
+			},
+		},
+		{
+			id: "system-ran",
+			author: "system",
+			body: "Ran migrate",
+			at: today("10:06"),
+			detail: { code: "0042_add_invoices --env production" },
+		},
+		{
+			id: "system-proposed",
+			author: "system",
+			body: "Proposed a redeploy",
+			at: today("10:06"),
+			detail: {
+				row: {
+					leading: { icon: "Rocket" },
+					title: "Redeploy api to production",
+					facts: [
+						{ tone: "waiting", label: "Waits for you" },
+						"Deploy",
+						"After the migration",
+					],
+					onOpen: act,
+				},
+			},
+		},
+	],
+};
+
+// Turns that never arrive: a thread given them paints an ask of yours over
+// the other author's reply.
+const WAITING_TURNS = waiting.at((): readonly Turn[] => []);
+
+// Board 53's message cells, each a Thread of its author's messages on a
+// thread's pane, drawn by the Thread's frame: each author at rest, and the
+// painted thread while its items are not here (a system line is never
+// painted); the paint cell draws a reply beside the painted thread.
 export function drawMessages(frame: ShowcaseFrame) {
 	const author = authorOf(frame.cell.name);
-	const painted = <MessageBase painted author="other" name />;
+	const painted = <Thread items={WAITING_TURNS} message={TURN} />;
 	if (isPaint(frame))
 		return frame.state === "rest" ? (
 			<Wide>
 				<Pane>
-					<MessageBase author="other" name="Assistant" body={REPLY} />
+					<Thread items={RESTING.other.slice(0, 1)} message={TURN} />
 					{painted}
 				</Pane>
 			</Wide>
@@ -242,14 +242,14 @@ export function drawMessages(frame: ShowcaseFrame) {
 	if (frame.state === "loading")
 		return author === "system" ? undefined : (
 			<Wide>
-				<Pane>
-					{author === "you" ? <MessageBase painted author="you" /> : painted}
-				</Pane>
+				<Pane>{painted}</Pane>
 			</Wide>
 		);
 	return (
 		<Wide>
-			<Rest author={author} />
+			<Pane>
+				<Thread items={RESTING[author]} message={TURN} />
+			</Pane>
 		</Wide>
 	);
 }

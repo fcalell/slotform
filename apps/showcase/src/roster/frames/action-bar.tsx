@@ -1,13 +1,19 @@
+import { ApiError } from "@fcalell/plugin-api/error";
 import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import type { Act } from "@fcalell/ui-core/descriptors";
 import { GATE_COLUMN } from "@fcalell/ui-core/variants";
-import { Reason } from "../../../../../plugins/react-ui/src/ui/parts/button/reason.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { fail, hang, Pressed } from "./pending.tsx";
 
-const REFUSED =
-	"`/tmp/acme-build-9180/services/billing-missing` is not a directory, so the service does not run.";
+// The server refuses the act, wording a machine name between backticks.
+const refuse = () =>
+	Promise.reject(
+		new ApiError("BAD_REQUEST", {
+			message:
+				"`/tmp/acme-build-9180/services/billing-missing` is not a directory, so the service does not run.",
+		}),
+	);
 
 import { Column } from "./place.tsx";
 import { Publish } from "./table.tsx";
@@ -165,12 +171,12 @@ export function drawActionBar(frame: ShowcaseFrame) {
 		return (
 			<div className="flex flex-col gap-section">
 				<Pressed label={acts[last]?.label}>{bar}</Pressed>
-				<div className="w-list max-w-full">
-					{/* The line a refusal draws: the server words a machine name between backticks, and it stands boxed in the mono, wrapping whole. */}
-					<Reason shown failed>
-						{REFUSED}
-					</Reason>
-				</div>
+				{/* The line a refusal draws: the server words a machine name between backticks, and it stands boxed in the mono, wrapping whole. */}
+				<Pressed label="Restart">
+					<div className="w-list max-w-full">
+						<ActionBar acts={[{ label: "Restart", onAct: refuse }]} />
+					</div>
+				</Pressed>
 			</div>
 		);
 	if (frame.state === "pending" || frame.state === "error")

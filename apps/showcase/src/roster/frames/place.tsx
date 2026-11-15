@@ -1,8 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { Act } from "@fcalell/ui-core/descriptors";
 import { SHELL_COLUMN } from "@fcalell/ui-core/variants";
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { PortalContainer } from "../../../../../plugins/react-ui/src/ui/lib/portal.ts";
+import type { ReactNode } from "react";
 
 const act = () => {};
 export const ACTIONS = [
@@ -23,36 +22,5 @@ export function Column(props: { children: ReactNode }) {
 		<div className={cn(SHELL_COLUMN, "flex flex-col w-screen max-w-full")}>
 			{props.children}
 		</div>
-	);
-}
-
-// A frame whose first menu (or, `popup: "listbox"`, its first pick) is open:
-// once mounted it focuses that trigger and opens it from the keyboard; with
-// `popup: "closed"` it opens none and holds the popups a viewer opens. The
-// popup mounts inside the frame, so it draws the frame's mode.
-export function Opened(props: {
-	children: ReactNode;
-	popup?: "menu" | "listbox" | "closed";
-}) {
-	const popup = props.popup ?? "menu";
-	const frame = useRef<HTMLDivElement>(null);
-	const [container, setContainer] = useState<HTMLElement | null>(null);
-	useEffect(() => {
-		if (!container || popup === "closed") return;
-		const trigger = frame.current?.querySelector<HTMLElement>(
-			`[aria-haspopup="${popup}"]`,
-		);
-		trigger?.focus();
-		trigger?.dispatchEvent(
-			new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
-		);
-	}, [container, popup]);
-	return (
-		<PortalContainer value={container}>
-			<div ref={frame} className="relative flex flex-col">
-				{props.children}
-				<div ref={setContainer} />
-			</div>
-		</PortalContainer>
 	);
 }

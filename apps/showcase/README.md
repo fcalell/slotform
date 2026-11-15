@@ -72,8 +72,10 @@ A frame is one function per component in `src/roster/frames/<dir>.tsx`, `draw<Na
 the frame and returns the real component in that cell and state, or `undefined` for a cell the
 component has no form for. A state the component takes as a prop (`disabled` through `blocked`,
 `loading`, `error`, `selected`, `empty`) is drawn by passing it. A frame imports react-ui through
-its `exports`; a part no entry reaches (a painted act, a stage's portal) it imports by a relative
-path into the plugin. `src/roster/cells.ts` lists the frames: `showcaseFrames()`, one per matrix
+its `exports` only, so it draws what a consumer can: a painted part inside a host whose read waits,
+a popup inside a `Gate` or a `Shell` standing in a viewport-tall stage
+(`src/roster/frames/overlay-stage.tsx`), whose portal it mounts in, and a toast raised by
+`toast()` into the queue every root frame on the page draws. `src/roster/cells.ts` lists the frames: `showcaseFrames()`, one per matrix
 cell a roster component draws (the families its entry's `draws` names, enumerated by
 `matrixCells`) and drawn state its entry's `states` lists, in both modes and both densities, each
 drawn in `Frame` (`src/roster/frame.tsx`: its

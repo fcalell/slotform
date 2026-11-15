@@ -2,9 +2,6 @@
 	"extends": "@fcalell/typescript-config/web-vite.json",
 	"compilerOptions": {
 		"noEmit": true,
-		// A roster frame imports a react-ui module no `exports` entry lists by a
-		// relative path into the plugin, which puts that file under the repo root.
-		"rootDir": "../..",
 		"declaration": false,
 		"declarationMap": false,
 		"disableSourceOfProjectReferenceRedirect": true,

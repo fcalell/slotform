@@ -2,13 +2,16 @@ import {
 	Button,
 	type ButtonRunProps,
 } from "@fcalell/plugin-react-ui/components/button";
+import { Form } from "@fcalell/plugin-react-ui/components/form";
+import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import { createLeave } from "@fcalell/ui-core/leave";
 import { TouchedContext } from "@fcalell/ui-core/react/touched";
 import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
-import { ButtonBase } from "../../../../../plugins/react-ui/src/ui/components/button/base.tsx";
-import { IconButtonBase } from "../../../../../plugins/react-ui/src/ui/parts/button/glyph.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
+import { waiting } from "../waiting.ts";
+import { FILLED, GIVEN, SAVED } from "./form.tsx";
+import { STAND_INS, Wide } from "./layout-context.tsx";
 import { beside, isPaint } from "./painted.tsx";
 import { hang, Pressed } from "./pending.tsx";
 
@@ -39,8 +42,9 @@ const COUNTED: ButtonRunProps = {
 // `pending` presses them into an act that never settles. `disabled` draws the blocked act twice, as the
 // board's two columns: before it is pressed, then in a touched form with its
 // reason shown. The `BUTTON_LABEL` cells are drawn inside every button.
-// `PAINT.kind.control` draws the filled act and the icon form beside their
-// painted forms, the box kept and the label and glyph not drawn.
+// `PAINT.kind.control` draws the filled act and the icon form beside the hosts
+// that paint them while their read waits, the box kept and the label and glyph
+// not drawn: a form's filled act, and a Section's act and more.
 export function drawButton(frame: ShowcaseFrame) {
 	if (isPaint(frame)) {
 		const own = {
@@ -54,10 +58,25 @@ export function drawButton(frame: ShowcaseFrame) {
 				<Button {...own} onAct={act} />
 				<Button glyph icon="Ellipsis" label="More" onAct={act} />
 			</>,
-			<>
-				<ButtonBase {...own} painted />
-				<IconButtonBase icon="Ellipsis" label="More" painted />
-			</>,
+			<Wide>
+				<Form
+					act={SAVED}
+					given={{ ...GIVEN, ...FILLED }}
+					read={waiting}
+					fields={{ owner: { label: "Project name" } }}
+					submit={{ label: own.label }}
+				/>
+				<Section
+					title="Projects"
+					act={waiting.at(() => ({
+						icon: own.icon,
+						label: own.label,
+						onAct: act,
+					}))}
+					more={waiting.at(() => [{ label: "Export as CSV", onAct: act }])}
+					items={STAND_INS}
+				/>
+			</Wide>,
 		);
 	}
 	const [cell, axis, value] = frame.cell.name.split(".");

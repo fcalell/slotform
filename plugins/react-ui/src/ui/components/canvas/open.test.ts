@@ -7,7 +7,7 @@ import type {
 	CanvasNode,
 } from "@fcalell/ui-core/descriptors";
 import ELK from "elkjs/lib/elk.bundled.js";
-import * as graphs from "../../showcase/graphs.ts";
+import * as graphs from "./__fixtures__/graphs.ts";
 import {
 	type ElkInput,
 	elkGraph,

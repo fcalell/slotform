@@ -1,8 +1,8 @@
+import { Card } from "@fcalell/plugin-react-ui/components/card";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { cn } from "@fcalell/ui-core/cn";
 import { row, text, textStrong } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
-import { SheetCard } from "../../../../../plugins/react-ui/src/ui/parts/section/card.tsx";
 
 // Context the layout frames place inside their molecules: stand-in rows at
 // the row cell until the row molecules are built, the width a board's frame
@@ -38,14 +38,12 @@ function StandInRow(props: { name: string }) {
 	);
 }
 
-/** The stand-in rows on a card of their own, a part of a Section's body. */
+/** The stand-in rows on a `Card`, a part of a Section's body. */
 export function StandInCard() {
 	return (
-		<SheetCard>
-			{NAMES.map((name) => (
-				<StandInRow key={name} name={name} />
-			))}
-		</SheetCard>
+		<Card>
+			<StandInRows />
+		</Card>
 	);
 }
 

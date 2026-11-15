@@ -109,9 +109,9 @@ and `style` as `?: never`) and declares exactly the roster's prop names.
 - **Composition.** A component that draws another's place takes its pattern, never a copy:
   A field's `Picker` trigger is `Input`'s box (`BOX`, `BOX_HOVER`, `BOX_DISABLED`, exported from
   `components/input`) and its open list a popover (`POPOVER`) of rows (`ROW`, `highlighted`
-  under Base UI's highlight). An app's popups mount in the body; only a
-  showcase stage provides a `PortalContainer` (`lib/portal`), so its popups draw the stage's mode
-  from its `.dark` class.
+  under Base UI's highlight). A popup mounts in its root frame's portal
+  (`lib/portal`): the Shell and the Gate name an element inside their `main`, so a popup stands in
+  a landmark and draws the mode of the box the frame stands in.
 - **Words.** A word the component draws on its own comes from `useWords()`; a sentence is a prop.
 
 `Text` is the worked example: a `<p>` in `text({ role })` with the `max-w-measure` overlay.

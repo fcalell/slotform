@@ -1,5 +1,5 @@
 import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Input } from "@fcalell/plugin-react-ui/components/input";
+import { Form } from "@fcalell/plugin-react-ui/components/form";
 import { cn } from "@fcalell/ui-core/cn";
 import { deriveTheme } from "@fcalell/ui-core/derive";
 import {
@@ -30,8 +30,8 @@ import {
 	textStrong,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
-import { ButtonBase } from "../../../../plugins/react-ui/src/ui/components/button/base.tsx";
-import { FormField } from "../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
+import { orpc } from "../app/lib/api.ts";
+import { hang, Pressed } from "../roster/frames/pending.tsx";
 import { useView, type View, ViewBar } from "./view.tsx";
 
 // Every class this page builds from a token's name (`bg-${name}`) is one
@@ -99,8 +99,8 @@ const SWITCH_TRACKS = COLOR_GROUPS.switch.filter(
 	(name) => name !== "switch-thumb",
 );
 
-// A field's static states. FIELD carries rest and error; hover and disabled
-// are drawn by their overlay classes.
+// A field's static states. FIELD carries rest and error; hover is drawn by its
+// overlay class, and disabled by a form's locked field.
 const FIELD_STATES: ReadonlyArray<readonly [string, string]> = [
 	["rest", field()],
 	["hover", cn(field(), "border-edge-hover")],
@@ -434,11 +434,13 @@ function States() {
 							</div>
 						))}
 						<div data-act={`${fill}-pending`}>
-							<ButtonBase
-								act={ACT_KIND[fill as keyof typeof ACT_KIND]}
-								label="pending"
-								pending
-							/>
+							<Pressed>
+								<Button
+									act={ACT_KIND[fill as keyof typeof ACT_KIND]}
+									label="pending"
+									onAct={hang}
+								/>
+							</Pressed>
 						</div>
 						<div data-act={`${fill}-disabled`}>
 							<Button
@@ -462,9 +464,13 @@ function States() {
 						</div>
 					))}
 					<div data-field="disabled">
-						<FormField label="disabled" disabled>
-							<Input label="disabled" value="disabled" onChange={() => {}} />
-						</FormField>
+						<Form
+							act={orpc.forms.rename}
+							given={{ workspaceId: "acme" }}
+							commit="field"
+							values={{ name: "disabled" }}
+							fields={{ name: { label: "disabled", locked: "Not available." } }}
+						/>
 					</div>
 				</div>
 			</Group>

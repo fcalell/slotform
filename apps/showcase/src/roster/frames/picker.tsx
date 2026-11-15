@@ -1,13 +1,14 @@
+import { Form } from "@fcalell/plugin-react-ui/components/form";
+import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import type { Option } from "@fcalell/ui-core/descriptors";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { FormField } from "../../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
-import { HeldPicker } from "../../../../../plugins/react-ui/src/ui/components/picker/base.tsx";
 import { ago } from "../ago.ts";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
 import { afterFrames } from "../judge.ts";
-import { endedAt, itemsAt } from "../waiting.ts";
+import { endedAt, itemsAt, waiting } from "../waiting.ts";
+import { FILLED, GIVEN, SAVED } from "./form.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { beside } from "./painted.tsx";
 import { drawList, FailedLists } from "./picker-list.tsx";
@@ -265,82 +266,86 @@ function Bars() {
 	);
 }
 
-// A pick a `FormField` holds: the field's label over the box at the form's
-// field height, the placeholder in its ink while nothing is chosen (a pick of
-// several given none reads None, as an empty list does), the field's
-// error and disabled states on the box; a pick of one, then of several, each
-// chosen and not.
-function Fielded(props: {
-	invalid?: boolean;
-	disabled?: boolean;
-	only?: boolean;
-}) {
-	const { invalid, disabled, only } = props;
+// A pick placed alone, so it is its field: the label over the box at the
+// form's field height, the placeholder in its ink while nothing is chosen (a
+// pick of several given none reads None, as an empty list does), the field's
+// error state on the box; a pick of one, then of several, each chosen and not.
+function Fielded(props: { invalid?: boolean; only?: boolean }) {
+	const { invalid, only } = props;
 	const [roles, setRoles] = useState<Role[]>(["admin", "member"]);
 	const [none, setNone] = useState<Role[]>([]);
 	const error = invalid ? "Pick a role." : undefined;
 	return (
 		<ChipsJudged>
 			<div className="flex w-popover max-w-full flex-col gap-stack">
-				<FormField
+				<Picker
 					label="Default role"
 					description="Given to anyone who joins."
 					error={error}
-					disabled={disabled}
-					picker={{
-						value: "admin",
-						onChange: change,
-						options: [...ROLES],
-						placeholder: "Choose a role",
-					}}
+					value="admin"
+					onChange={change}
+					options={[...ROLES]}
+					placeholder="Choose a role"
 				/>
 				{only ? null : (
 					<>
-						<FormField
+						<Picker
 							label="Fallback role"
 							error={error}
-							disabled={disabled}
-							picker={{
-								onChange: change,
-								options: [...ROLES],
-								placeholder: "Choose a role",
-							}}
+							onChange={change}
+							options={[...ROLES]}
+							placeholder="Choose a role"
 						/>
-						<FormField
+						<Picker
 							label="Allowed roles"
 							error={error}
-							disabled={disabled}
-							picker={{
-								value: roles,
-								onChange: setRoles,
-								options: [...ROLES],
-								placeholder: "Choose roles",
-							}}
+							value={roles}
+							onChange={setRoles}
+							options={[...ROLES]}
+							placeholder="Choose roles"
 						/>
-						<FormField
+						<Picker
 							label="Blocked roles"
 							error={error}
-							disabled={disabled}
-							picker={{
-								value: none,
-								onChange: setNone,
-								options: [...ROLES],
-								placeholder: "Choose roles",
-							}}
+							value={none}
+							onChange={setNone}
+							options={[...ROLES]}
+							placeholder="Choose roles"
 						/>
-						<FormField
+						<Picker
 							label="Helpers"
 							description="Each runs with the read tools alone."
 							error={error}
-							disabled={disabled}
-							picker={{
-								value: none,
-								onChange: setNone,
-								options: [...ROLES],
-							}}
+							value={none}
+							onChange={setNone}
+							options={[...ROLES]}
 						/>
 					</>
 				)}
+			</div>
+		</ChipsJudged>
+	);
+}
+
+// The same picks as a form's fields, each locked: disabled, its reason in the
+// description's place; a pick of one chosen, one with nothing chosen, and one
+// of several chosen.
+function Locked() {
+	const locked = "Set by your organisation.";
+	return (
+		<ChipsJudged>
+			<div className="flex w-popover max-w-full flex-col">
+				<Form
+					act={SAVED}
+					given={{ ...GIVEN, ...FILLED }}
+					commit="field"
+					values={{ owner: "admin", channels: ["email", "slack"] }}
+					fields={{
+						owner: { label: "Default role", options: ROLES, locked },
+						priority: { label: "Priority", locked },
+						channels: { label: "Channels", locked },
+					}}
+				/>
 			</div>
 		</ChipsJudged>
 	);
@@ -393,10 +398,11 @@ const drawn = (cell: string, prefixes: readonly string[]) =>
 // with a value, with the empty choice and with
 // none (its label in the placeholder's ink, a row fit's too).
 //
-// `PAINT.kind.control` draws the field-fit trigger beside its painted form, then
-// the list's and the segments'. The list fit and the segments fit draw the
-// cells they own (`drawList`, `drawSegments`); loading, the menu's options
-// wait and its trigger paints.
+// `PAINT.kind.control` draws the field-fit trigger beside the same trigger over
+// a value that never arrives, then the list's and the segments'. The list fit
+// and the segments fit draw the cells they own (`drawList`, `drawSegments`);
+// loading, the menu's options wait and its trigger paints. The open state
+// stands in a Gate, whose portal the popup mounts in.
 export function drawPicker(frame: ShowcaseFrame) {
 	const cell = frame.cell.name;
 	if (cell === "PAINT.kind.control")
@@ -412,12 +418,11 @@ export function drawPicker(frame: ShowcaseFrame) {
 						value="admin"
 						onChange={change}
 					/>
-					<HeldPicker
+					<Picker
 						label="Role"
 						options={[...ROLES]}
-						value="admin"
+						value={waiting.at((): Role => "admin")}
 						onChange={change}
-						painted
 					/>
 				</div>
 				{drawList(frame)}
@@ -463,18 +468,18 @@ export function drawPicker(frame: ShowcaseFrame) {
 		cell.startsWith("ICON.fit.meta") ||
 		cell.startsWith("ROW.");
 	const bar = cell.startsWith("PICKER.fit.bar");
-	// The field's cells, and the disabled state of the rest, draw the picks a
-	// `FormField` holds.
+	// The field's cells draw the picks placed alone, and the disabled state of
+	// the rest the same picks locked in a form.
 	const fielded =
 		cell === "FIELD.state.error" ||
 		(frame.state === "disabled" && !row && !bar);
 	if (frame.state === "selected")
 		return (
 			<Stage contain={frame.density === "touch"} ready={openFirst}>
-				<div className="flex flex-col p-pad">{opened(row, bar, fielded)}</div>
+				<Gate title="Members">{opened(row, bar, fielded)}</Gate>
 			</Stage>
 		);
-	if (fielded) return <Fielded disabled={frame.state === "disabled"} />;
+	if (fielded) return frame.state === "disabled" ? <Locked /> : <Fielded />;
 	if (row)
 		return (
 			<div className="flex flex-col gap-section">

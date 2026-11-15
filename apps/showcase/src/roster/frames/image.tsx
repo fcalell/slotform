@@ -1,8 +1,9 @@
+import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Image } from "@fcalell/plugin-react-ui/components/image";
 import type { ImageFit, ImageState } from "@fcalell/ui-core/variants";
-import { PictureTile } from "../../../../../plugins/react-ui/src/ui/components/image/base.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { waitingText } from "../waiting.ts";
+import { Standing } from "./dock.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { isPaint } from "./painted.tsx";
 
@@ -29,9 +30,11 @@ function drawn(fit: ImageFit, state: ShowcaseFrame["state"]) {
 	// The address a read has not answered: the tile paints.
 	const shown = state === "loading" ? waitingText : src;
 	if (fit === "thumb") return <Image src={shown} alt={ALT} fit="thumb" />;
-	// The mini tile is the dock's: a picture to look at, which presses nothing.
+	// The mini tile is the dock's: a picture to look at, which presses nothing,
+	// drawn in the dock of a loaded track. A track's picture is an address, never
+	// a read, so the mini tile has no painted form.
 	if (fit === "mini")
-		return <PictureTile src={shown} alt={ALT} fit="mini" box={undefined} />;
+		return state === "loading" ? undefined : <Standing image={src} />;
 	const code = state === "rest" ? CODE : shown;
 	return (
 		<div className={COLUMN}>
@@ -46,9 +49,9 @@ const pressPicture = (stage: HTMLElement) =>
 
 // `IMAGE.fit.<fit>` draws the picture at that fit in the frame's state
 // (`loading` the painted tile, `error` the failed form); `IMAGE.state.<state>` both fits in that state and
-// `IMAGE_PICTURE.fit.<fit>` the picture alone. The Close act's cell
-// (`ICON_BUTTON.fit.body`) draws the full view opened, contain-fit on the
-// scrim.
+// `IMAGE_PICTURE.fit.<fit>` the picture alone (the mini fit in a dock). The
+// Close act's cell (`ICON_BUTTON.fit.body`) draws the full view opened from a
+// thumbnail in a Gate, contain-fit on the scrim.
 export function drawImage(frame: ShowcaseFrame) {
 	const [family, axis, value] = frame.cell.name.split(".");
 	if (isPaint(frame))
@@ -61,7 +64,9 @@ export function drawImage(frame: ShowcaseFrame) {
 	if (family === "ICON_BUTTON" && frame.state === "rest")
 		return (
 			<Stage contain ready={pressPicture}>
-				<Image src={SCREEN} alt={ALT} fit="thumb" />
+				<Gate title="Screenshots">
+					<Image src={SCREEN} alt={ALT} fit="thumb" />
+				</Gate>
 			</Stage>
 		);
 	// The cell's name is `<family>.<axis>.<value>` over the matrices' own

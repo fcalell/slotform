@@ -1,3 +1,4 @@
+import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Input } from "@fcalell/plugin-react-ui/components/input";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
@@ -13,10 +14,6 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { FileRowBase } from "../../../../../plugins/react-ui/src/ui/components/file-row/index.tsx";
-import { FormField } from "../../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
-import { RowBase } from "../../../../../plugins/react-ui/src/ui/components/row/index.tsx";
-import { SheetCard } from "../../../../../plugins/react-ui/src/ui/parts/section/card.tsx";
 import { ago } from "../ago.ts";
 import type { ShowcaseFrame } from "../cells.ts";
 import {
@@ -524,15 +521,13 @@ function Library(props: { frame: ShowcaseFrame }) {
 						items={at("hosts", HOSTS)}
 						empty={{ sentence: "Hosts you allow land here." }}
 					></Section>
-					<FormField label="Add host">
-						<Input
-							label="Add host"
-							value=""
-							onChange={act}
-							placeholder="docs.example.org"
-							act={{ icon: "Plus", label: "Add host", onAct: act }}
-						/>
-					</FormField>
+					<Input
+						label="Add host"
+						value=""
+						onChange={act}
+						placeholder="docs.example.org"
+						act={{ icon: "Plus", label: "Add host", onAct: act }}
+					/>
 				</Pane>
 			</Place>
 		</Column>
@@ -663,30 +658,28 @@ function drawPart(frame: ShowcaseFrame, name: PartName, pair: boolean) {
 	);
 }
 
-// A painted row beside the loaded one: every shape a row holds, loaded and
-// then painted (the same props, every part painted).
-function Shapes(props: { painted?: boolean }) {
-	const rows = [...SHAPES, ...FACTS, ...REVIEW, ...CHIPPED, ...LINES];
+// Every shape a row holds, loaded, then each shape painted: a Section of its
+// own over items that never arrive, whose selector maps a record to that row,
+// so its waiting rows paint in the row's slots. A file row paints no form of
+// its own (the sheet paints the roster's title over a facts line for it), so
+// the painted run holds the list rows alone.
+const SHAPED = [...SHAPES, ...FACTS, ...REVIEW, ...CHIPPED, ...LINES];
+
+function Shapes(props: { id: string }) {
 	return (
-		<SheetCard>
-			{rows.map((row, at) => {
-				if ("path" in row) {
-					const { key, ...file } = row;
-					return (
-						<FileRowBase key={key} {...file} painted={props.painted} at={at} />
-					);
-				}
-				const { key: _key, ...item } = row;
-				return (
-					<RowBase
+		<>
+			<Section items={SHAPED} />
+			{SHAPED.map((row, at) =>
+				"path" in row ? null : (
+					<Section
 						key={row.key ?? `row-${at}`}
-						{...item}
-						painted={props.painted}
-						at={at}
+						items={itemsAt<Row>(`${props.id}/shape-${at}`, "loading", []).at(
+							(list) => list.map(() => row),
+						)}
 					/>
-				);
-			})}
-		</SheetCard>
+				),
+			)}
+		</>
 	);
 }
 
@@ -699,8 +692,7 @@ export function drawSection(frame: ShowcaseFrame) {
 	if (isPaint(frame))
 		return state === "rest" ? (
 			<Wide>
-				<Shapes />
-				<Shapes painted />
+				<Shapes id={frame.id} />
 			</Wide>
 		) : undefined;
 	const reads = readsAt(frame.id);
@@ -781,12 +773,14 @@ export function drawSection(frame: ShowcaseFrame) {
 			state === "disabled" ? undefined : (
 			<Library frame={frame} />
 		);
-	// A `MENU` cell draws the head's `more` menu open: the popover on the
-	// desktop, the sheet on touch.
+	// A `MENU` cell draws the head's `more` menu open, in a Gate: the popover
+	// on the desktop, the sheet on touch.
 	if (cell.startsWith("MENU"))
 		return state === "rest" ? (
 			<Stage contain={frame.density === "touch"} ready={openMore}>
-				<Section title="People" more={MENU} items={PEOPLE} />
+				<Gate title="Members">
+					<Section title="People" more={MENU} items={PEOPLE} />
+				</Gate>
 			</Stage>
 		) : undefined;
 	if (state === "error")

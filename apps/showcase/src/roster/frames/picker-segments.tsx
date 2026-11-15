@@ -1,8 +1,6 @@
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { ListedRoute } from "@fcalell/plugin-react-ui/lib/navigate";
 import { type ReactNode, useEffect, useRef } from "react";
-import { FormField } from "../../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
-import { HeldSegments } from "../../../../../plugins/react-ui/src/ui/components/picker/segments.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { afterFrames } from "../judge.ts";
 import { waitingText } from "../waiting.ts";
@@ -119,10 +117,10 @@ function Judged({ children }: { children: ReactNode }) {
 
 // Board 41's four periods, Week chosen; the frame's state forces every
 // segment, so the idle ones draw it and the chosen one its own; loading, the
-// value waits and the track paints. Under it a FormField names a range switch
-// with its label and describes it, and the tabs of a place are links, the one
-// the location selects marked. `PAINT.kind.control` draws the switch beside its
-// painted form. The tabs that outrun 320 open with the chosen one in view, and
+// value waits and the track paints. Under it a range switch placed alone is
+// its field, named by its label and described, and the tabs of a place are
+// links, the one the location selects marked. `PAINT.kind.control` draws the
+// switch beside the same switch over a value that never arrives. The tabs that outrun 320 open with the chosen one in view, and
 // a strip that fits (the periods, the ranges) has no fade on either side.
 export function drawSegments(frame: ShowcaseFrame) {
 	if (frame.state === "error") return undefined;
@@ -136,12 +134,12 @@ export function drawSegments(frame: ShowcaseFrame) {
 				value="week"
 				onChange={change}
 			/>,
-			<HeldSegments
+			<Picker
+				fit="segments"
 				label="Period"
 				options={PERIODS}
-				value="week"
+				value={waitingText}
 				onChange={change}
-				painted
 			/>,
 		);
 	return (
@@ -166,10 +164,13 @@ export function drawSegments(frame: ShowcaseFrame) {
 					value="unplanned"
 					onChange={change}
 				/>
-				<FormField
+				<Picker
+					fit="segments"
 					label="Range"
 					description="API calls by day."
-					segments={{ options: RANGES, value: "30d", onChange: change }}
+					options={RANGES}
+					value="30d"
+					onChange={change}
 				/>
 			</div>
 		</Judged>

@@ -3,73 +3,14 @@ import {
 	Form as Derived,
 	type FormProps,
 } from "@fcalell/plugin-react-ui/components/form";
-import { Input } from "@fcalell/plugin-react-ui/components/input";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import type { Can, FormFields } from "@fcalell/ui-core/form";
 import type { Selection } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
-import { FormBody } from "../../../../../plugins/react-ui/src/ui/components/form/base.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { afterFrames } from "../judge.ts";
 import { isHeld, readsAt, ready, waiting } from "../waiting.ts";
 import { isPaint } from "./painted.tsx";
-
-const change = () => {};
-const never = () => new Promise<void>(() => {});
-
-// A field placed alone: its label over it, the description under it.
-export function Labelled(props: {
-	label: string;
-	value: string;
-	description?: string;
-}) {
-	return (
-		<Input
-			label={props.label}
-			description={props.description}
-			value={props.value}
-			onChange={change}
-		/>
-	);
-}
-
-// A form of two fields and its bar over a read, in whichever form the read
-// puts it: waiting (the fields' leaves paint, the filled act with them),
-// failed, missing, empty or landed.
-function Over(props: { read: Selection<unknown>; empty?: FormProps["empty"] }) {
-	return (
-		<FormBody
-			in="page"
-			read={props.read}
-			empty={props.empty}
-			bar={{ acts: [{ label: "Save", onAct: never }] }}
-		>
-			<Labelled label="Project name" value="acme-web" />
-			<Labelled label="Region" value="Frankfurt, eu-central-1" />
-		</FormBody>
-	);
-}
-
-// A form of groups, each its own frame: the first over a read, the second
-// always loaded, so one group's wait or failure never stands in the other's.
-function Grouped(props: { read: Selection<unknown> }) {
-	return (
-		<FormBody
-			in="page"
-			groups={[
-				{
-					title: "General",
-					read: props.read,
-					fields: <Labelled label="Workspace name" value="Acme Inc" />,
-				},
-				{
-					title: "Region",
-					fields: <Labelled label="Region" value="Frankfurt, eu-central-1" />,
-				},
-			]}
-		/>
-	);
-}
 
 // The input of the showcase's `forms.submit` procedure, which `.stack/schema.ts`
 // holds the schema of: a form over it derives every control.
@@ -100,21 +41,23 @@ function procedure(run: () => Promise<{ id: string }>) {
 	};
 }
 const NEVER = procedure(() => new Promise<{ id: string }>(() => {}));
+
+/** `forms.submit` refused by the server's schema: each issue stands under the field its path names. */
+export function refusing(
+	issues: { path: (keyof Request)[]; message: string }[],
+) {
+	return procedure(() =>
+		Promise.reject(new ApiError("BAD_REQUEST", { data: { issues } })),
+	);
+}
+
 // The server refuses the directory, quoting its path between backticks.
-const REFUSED = procedure(() =>
-	Promise.reject(
-		new ApiError("BAD_REQUEST", {
-			data: {
-				issues: [
-					{
-						path: ["directory"],
-						message: "no project stands under `/srv/acme/billing-digest`",
-					},
-				],
-			},
-		}),
-	),
-);
+const REFUSED = refusing([
+	{
+		path: ["directory"],
+		message: "no project stands under `/srv/acme/billing-digest`",
+	},
+]);
 export const SAVED = procedure(() => Promise.resolve({ id: "request-1" }));
 
 const OWNERS = [
@@ -174,6 +117,51 @@ export const FILLED = {
 } as const;
 
 export const GIVEN = { workspaceId: "acme" };
+
+// The required keys the two forms below give, every one but the title, which
+// they show.
+const UNSHOWN = {
+	...GIVEN,
+	kind: FILLED.kind,
+	seats: FILLED.seats,
+	urgent: FILLED.urgent,
+};
+
+// A form of two fields and its bar over a read, in whichever form the read
+// puts it: waiting (the fields' leaves paint, the filled act with them),
+// failed, missing, empty or landed. Its submit never settles.
+function Over(props: { read: Selection<unknown>; empty?: FormProps["empty"] }) {
+	return (
+		<Derived
+			act={NEVER}
+			given={UNSHOWN}
+			values={{ title: "acme-web", owner: "Frankfurt, eu-central-1" }}
+			read={props.read}
+			empty={props.empty}
+			fields={{ title: { label: "Project name" }, owner: { label: "Region" } }}
+			submit={{ label: "Save" }}
+		/>
+	);
+}
+
+// A form of two groups over a read, which commits by field, so it draws no
+// bar: the read is the whole form's, its wait or failure standing in both
+// groups' place.
+function Grouped(props: { read: Selection<unknown> }) {
+	return (
+		<Derived
+			act={NEVER}
+			given={UNSHOWN}
+			commit="field"
+			values={{ title: "Acme Inc", owner: "Frankfurt, eu-central-1" }}
+			read={props.read}
+			groups={[
+				{ title: "General", fields: { title: { label: "Workspace name" } } },
+				{ title: "Region", fields: { owner: { label: "Region" } } },
+			]}
+		/>
+	);
+}
 
 // A form's controls show their placeholder or value whole: a long label makes
 // the label column wide, and the Pane stands the value under its label where it
@@ -238,9 +226,8 @@ function ControlsJudged({ children }: { children: ReactNode }) {
 	);
 }
 
-// The loading frame presses its form's submit act once mounted, into an act
-// that never settles.
-function Submitted(props: { children: ReactNode }) {
+/** Presses its form's submit act once mounted, so the frame holds what the press leaves: an act that never settles pending, a refusal under its fields. */
+export function Submitted(props: { children: ReactNode }) {
 	const frame = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		frame.current
@@ -445,8 +432,8 @@ function Painted() {
 // in error the `TEXT.role.meta` cell draws a mono path the server refused over
 // the forms whose read failed.
 // Loading, a form over a read and one of groups over a read wait beside it,
-// painted. Busy, stale and paused draw both over a read that holds rows: the
-// mark after the group's legend, the line under it or at the form's top.
+// painted. Busy, stale and paused draw both over a read that holds rows, the
+// read's line at the form's top.
 export function drawForm(frame: ShowcaseFrame) {
 	if (isPaint(frame)) return frame.state === "rest" ? <Painted /> : undefined;
 	const create = frame.cell.name === "TEXT.role.meta";

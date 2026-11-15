@@ -55,7 +55,8 @@ export function useLoadedTrack(options: { image?: string; failing?: boolean }) {
 	}, [image, failing]);
 }
 
-function Standing(props: { image?: string; failing?: boolean }) {
+/** A dock under a place's column, its track loaded with `image` (`failing`: told to play and failed). */
+export function Standing(props: { image?: string; failing?: boolean }) {
 	useLoadedTrack(props);
 	return (
 		<Column>

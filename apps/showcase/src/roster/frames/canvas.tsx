@@ -1,15 +1,12 @@
 import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Shell } from "@fcalell/plugin-react-ui/components/shell";
 import { spacing } from "@fcalell/plugin-react-ui/lib/media";
 import type { CanvasNode } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { useEffect, useRef, useState } from "react";
-import {
-	FrameHost,
-	FrameMain,
-} from "../../../../../plugins/react-ui/src/ui/components/shell/host.tsx";
+import type { ShowcaseFrame } from "../cells.ts";
 import {
 	ANSWERS_THREE,
 	ANSWERS_TWO,
@@ -35,8 +32,7 @@ import {
 	WARNING,
 	WELCOME_NOTE,
 	WORKFLOW,
-} from "../../../../../plugins/react-ui/src/ui/showcase/graphs.ts";
-import type { ShowcaseFrame } from "../cells.ts";
+} from "../graphs.ts";
 import { onceStanding } from "../judge.ts";
 import { endedAt, waiting } from "../waiting.ts";
 import { Stage } from "./overlay-stage.tsx";
@@ -593,33 +589,31 @@ function Chosen({
 	);
 }
 
-// A canvas in a Pane with a sheet open over it, as a step's sheet opens in the
-// app: the graph stands behind the scrim, drawn, never the bare ground.
+// A canvas in a Shell's Pane with a sheet open over it, as a step's sheet opens
+// in the app: the graph stands behind the scrim, drawn, never the bare ground.
 function UnderSheet() {
 	return (
 		<Stage contain>
-			<FrameHost>
-				<FrameMain>
-					<Place title="Flow">
-						<Pane fill>
-							<Canvas
-								label="Behind a sheet"
-								nodes={WORKFLOW.nodes}
-								edges={WORKFLOW.edges}
-								groups={WORKFLOW.groups}
-							/>
-						</Pane>
-					</Place>
-					<Sheet
-						open
-						onClose={() => {}}
-						title="What the workflow gains"
-						description="Saving gives it these. Closing keeps the draft unsaved."
-					>
-						<p>Adds the command toolchain, free.</p>
-					</Sheet>
-				</FrameMain>
-			</FrameHost>
+			<Shell
+				places={[{ label: "Flow", icon: "Workflow", route: location.pathname }]}
+			>
+				<Pane fill>
+					<Canvas
+						label="Behind a sheet"
+						nodes={WORKFLOW.nodes}
+						edges={WORKFLOW.edges}
+						groups={WORKFLOW.groups}
+					/>
+				</Pane>
+				<Sheet
+					open
+					onClose={() => {}}
+					title="What the workflow gains"
+					description="Saving gives it these. Closing keeps the draft unsaved."
+				>
+					<p>Adds the command toolchain, free.</p>
+				</Sheet>
+			</Shell>
 		</Stage>
 	);
 }

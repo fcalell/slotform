@@ -2,54 +2,24 @@ import { read } from "@fcalell/plugin-query/read";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Place } from "@fcalell/plugin-react-ui/components/shell";
-import {
-	type MessageSlots,
-	Thread,
-} from "@fcalell/plugin-react-ui/components/thread";
-import type {
-	Attachment,
-	MessageDetail,
-	Run,
-} from "@fcalell/ui-core/descriptors";
+import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import type { Datum } from "@fcalell/ui-core/read";
 import { useMemo, useState } from "react";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
 import { endedAt, itemsAt } from "../waiting.ts";
 import { StandInList } from "./layout-context.tsx";
-import { ATTACHED, drawMessages, REPLY, today } from "./message.tsx";
+import {
+	ATTACHED,
+	drawMessages,
+	REPLY,
+	TURN,
+	type Turn,
+	today,
+} from "./message.tsx";
 import { drawComposer } from "./message-input.tsx";
 import { Column } from "./place.tsx";
 
 const act = () => {};
-
-interface Turn {
-	id: string;
-	author: "you" | "other" | "system";
-	body: string;
-	at: string;
-	// A system line that opens what it names.
-	opens?: boolean;
-	// What stands under a system line.
-	detail?: MessageDetail;
-	// What came with a turn, and where it came from.
-	attachments?: Attachment[];
-	from?: Run[];
-}
-
-const NAME = { you: "You", other: "Assistant" } as const;
-
-// The Message slots every turn fills.
-export const TURN: MessageSlots<Turn> = {
-	key: (turn) => turn.id,
-	author: (turn) => turn.author,
-	name: (turn) => (turn.author === "system" ? undefined : NAME[turn.author]),
-	body: (turn) => turn.body,
-	at: (turn) => turn.at,
-	onOpen: (turn) => (turn.opens ? act : undefined),
-	detail: (turn) => turn.detail,
-	attachments: (turn) => turn.attachments,
-	from: (turn) => turn.from,
-};
 
 export const TURNS: Turn[] = [
 	{

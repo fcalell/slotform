@@ -1,4 +1,5 @@
 import { Field } from "@base-ui/react/field";
+import { Form } from "@fcalell/plugin-react-ui/components/form";
 import {
 	Input,
 	type InputKind,
@@ -8,11 +9,9 @@ import { Place } from "@fcalell/plugin-react-ui/components/shell";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
 import { text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { FormBody } from "../../../../../plugins/react-ui/src/ui/components/form/base.tsx";
-import { FormField } from "../../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
-import { HeldInput } from "../../../../../plugins/react-ui/src/ui/components/input/base.tsx";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
 import { waitingText } from "../waiting.ts";
+import { FILLED, GIVEN, refusing, SAVED, Submitted } from "./form.tsx";
 import { drawFormField } from "./form-field.tsx";
 import { beside, isPaint, labelled } from "./painted.tsx";
 import { hang } from "./pending.tsx";
@@ -54,6 +53,10 @@ const SOURCE = Array.from(
 	{ length: 40 },
 	(_, line) => `line ${line + 1} of the page's source`,
 ).join("\n");
+// The server refuses the page's source, under its field.
+const REFUSED_SOURCE = refusing([
+	{ path: ["why"], message: "Not valid markdown." },
+]);
 
 const ACCEPT = ["text/csv", ".har"];
 const CHOSEN = {
@@ -74,7 +77,7 @@ const states = (frame: ShowcaseFrame, ...of: ShowcaseFrame["state"][]) =>
 // `Field`, as a `FormField` puts them; `FIELD.state.error` is in error in
 // every state. `FIELD.trailing.act` draws the in-field copy act, and
 // `FIELD.trailing.none` a number with its unit; `PAINT.kind.control` the field
-// beside its painted form.
+// beside the same field over a value that never arrives.
 function drawLine(frame: ShowcaseFrame) {
 	if (!states(frame, "rest", "disabled", "error")) return undefined;
 	if (isPaint(frame))
@@ -83,7 +86,9 @@ function drawLine(frame: ShowcaseFrame) {
 			labelled(
 				<Input label="Workspace" value={VALUES.text} onChange={change} />,
 			),
-			labelled(<HeldInput value={VALUES.text} onChange={change} painted />),
+			labelled(
+				<Input label="Workspace" value={waitingText} onChange={change} />,
+			),
 		);
 	const name = frame.cell.name;
 	if (
@@ -145,8 +150,10 @@ function drawLine(frame: ShowcaseFrame) {
 
 // `TEXT_AREA.state.error` is in error in every state;
 // `TEXT_AREA_BUDGET.state.error` is over its budget, the rest under it;
-// `FIELD_VALUE.kind.code` is `source` in a page's `Form`, which fills the
-// page's height and scrolls its long value inside; `search` has no form.
+// `FIELD_VALUE.kind.code` is a `source` field of a page's `Form`, which fills
+// the page's height and scrolls its long value inside: locked when disabled,
+// and in error refused by the server, its submit pressed once mounted;
+// `search` has no form.
 // `PAINT.kind.control` draws the box beside its painted form, a value that
 // never arrives.
 function drawProse(frame: ShowcaseFrame) {
@@ -186,42 +193,36 @@ function drawProse(frame: ShowcaseFrame) {
 	)
 		return undefined;
 	if (name === "FIELD_VALUE.kind.search") return undefined;
-	if (name === "FIELD_VALUE.kind.code")
-		return (
+	if (name === "FIELD_VALUE.kind.code") {
+		const page = (
 			<Column>
 				<div className="flex flex-col h-dvh">
 					<Place title="Page source">
 						<Pane>
-							<FormBody
-								in="page"
-								bar={{
-									acts: [
-										{ label: "Discard", onAct: change },
-										{ label: "Save", onAct: change },
-									],
+							<Form
+								act={frame.state === "error" ? REFUSED_SOURCE : SAVED}
+								given={{ ...GIVEN, ...FILLED }}
+								values={{ why: SOURCE }}
+								fields={{
+									why: {
+										label: "Source",
+										control: "source",
+										locked:
+											frame.state === "disabled"
+												? "Set by the page's template."
+												: undefined,
+									},
 								}}
-							>
-								<FormField
-									label="Source"
-									disabled={frame.state === "disabled"}
-									error={
-										frame.state === "error" ? "Not valid markdown." : undefined
-									}
-								>
-									<Input
-										label="Source"
-										kind="prose"
-										source
-										value={SOURCE}
-										onChange={change}
-									/>
-								</FormField>
-							</FormBody>
+								acts={[{ label: "Discard", onAct: change }]}
+								submit={{ label: "Save" }}
+							/>
 						</Pane>
 					</Place>
 				</div>
 			</Column>
 		);
+		return frame.state === "error" ? <Submitted>{page}</Submitted> : page;
+	}
 	const over = name === "TEXT_AREA_BUDGET.state.error";
 	return (
 		<FieldOwned value>
@@ -316,12 +317,13 @@ function drawCode(frame: ShowcaseFrame) {
 	);
 }
 
-// A file control stands in a `FormField`, which labels it and draws the error
-// line a refused file lands in; the frame's `error` and `disabled` reach the
-// control through it. `FIELD.state.error` is in error in every state. The
+// A file control placed alone is its field, which labels it and draws the
+// error line a refused file lands in; the frame's `error` reaches the control
+// through its `error`. `FIELD.state.error` is in error in every state. The
 // cells that draw the box's own parts stand empty (the word in its placeholder
 // ink, the whole box the act); the rest hold a chosen file, its size after the
-// name and the act that removes it.
+// name and the act that removes it. Disabled, the file pick is a form's locked
+// field, which holds the file's content and no chosen file, so it stands empty.
 const FILE_CELLS = [
 	"FIELD.trailing.none",
 	"FIELD.trailing.act",
@@ -346,20 +348,31 @@ function drawFile(frame: ShowcaseFrame) {
 		name === "FIELD.state.error" ||
 		name === "FIELD_PLACEHOLDER";
 	const error = frame.state === "error" || name === "FIELD.state.error";
-	return (
-		<FormField
-			label="Invoices file"
-			error={error ? "Choose a CSV or HAR file." : undefined}
-			disabled={frame.state === "disabled"}
-		>
-			<Input
-				label="Invoices file"
-				kind="file"
-				value={empty ? null : CHOSEN}
-				onChange={change}
-				accept={ACCEPT}
+	if (frame.state === "disabled")
+		return (
+			<Form
+				act={SAVED}
+				given={{ ...GIVEN, ...FILLED }}
+				commit="field"
+				fields={{
+					directory: {
+						label: "Invoices file",
+						control: "file",
+						accept: ACCEPT,
+						locked: "Set by your organisation.",
+					},
+				}}
 			/>
-		</FormField>
+		);
+	return (
+		<Input
+			label="Invoices file"
+			kind="file"
+			value={empty ? null : CHOSEN}
+			onChange={change}
+			accept={ACCEPT}
+			error={error ? "Choose a CSV or HAR file." : undefined}
+		/>
 	);
 }
 
@@ -387,20 +400,21 @@ function drawPath(frame: ShowcaseFrame) {
 	if (frame.state !== "error" || frame.cell.name !== "FIELD.state.error")
 		return undefined;
 	return (
-		<FormBody in="page">
-			<FormField
+		<>
+			<Input
 				label="Upload folder"
+				value={PATH}
+				onChange={change}
 				error={[{ code: PATH }, " is not a directory."]}
-			>
-				<Input label="Upload folder" value={PATH} onChange={change} />
-			</FormField>
-			<FormField label="Address" error={ADDRESS}>
-				<Input label="Address" value="ftp://ha.lan" onChange={change} />
-			</FormField>
-			<FormField label="Host key" error={SHOWN}>
-				<Input label="Host key" value="" onChange={change} />
-			</FormField>
-		</FormBody>
+			/>
+			<Input
+				label="Address"
+				value="ftp://ha.lan"
+				onChange={change}
+				error={ADDRESS}
+			/>
+			<Input label="Host key" value="" onChange={change} error={SHOWN} />
+		</>
 	);
 }
 

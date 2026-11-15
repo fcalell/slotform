@@ -9,8 +9,8 @@ import type { Option, RecordFact, Run } from "@fcalell/ui-core/descriptors";
 import type { Datum, Selection } from "@fcalell/ui-core/read";
 import { BREAKPOINT_PX, type Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
-import { WORKFLOW } from "../../../../../plugins/react-ui/src/ui/showcase/graphs.ts";
 import type { ShowcaseFrame } from "../cells.ts";
+import { WORKFLOW } from "../graphs.ts";
 import { afterFrames, onceStanding } from "../judge.ts";
 import {
 	type HeldState,
@@ -21,10 +21,11 @@ import {
 	waitingText,
 } from "../waiting.ts";
 import { StandInList, StandInRows } from "./layout-context.tsx";
+import { TURN } from "./message.tsx";
 import { isPaint } from "./painted.tsx";
-import { ACTIONS, Column, MORE, Opened } from "./place.tsx";
+import { ACTIONS, Column, MORE } from "./place.tsx";
 import { SERVER } from "./section-rows.ts";
-import { TURN, TURNS } from "./thread.tsx";
+import { TURNS } from "./thread.tsx";
 
 const act = () => {};
 const _SEARCH = [{ icon: "Search" as const, label: "Search", onAct: act }];
@@ -786,7 +787,7 @@ function Heads(frame: ShowcaseFrame) {
 			</>
 		) : undefined;
 	return (
-		<Opened popup="closed">
+		<>
 			<Head facts={[moving("attention"), ...REST]} />
 			<Head facts={[moving(state), ...REST]} />
 			<Head
@@ -806,7 +807,7 @@ function Heads(frame: ShowcaseFrame) {
 					image={src}
 				/>
 			))}
-		</Opened>
+		</>
 	);
 }
 

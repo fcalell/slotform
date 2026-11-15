@@ -1,10 +1,10 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { type ReactNode, useLayoutEffect, useState } from "react";
-import { PortalContainer } from "../../../../../plugins/react-ui/src/ui/lib/portal.ts";
 
-// A stage an overlay draws inside: the popup mounts in it so it draws the
-// frame's mode; `contain` stands a sheet's fixed layer in the stage's box (a
-// transformed box contains its fixed descendants), which a popover anchored
+// A stage a root frame (a `Gate`, a `Shell`) stands in, a viewport tall, so a
+// popup mounts in that frame's portal and draws the frame's mode; `contain`
+// stands the frame's fixed layers (its portal, its toasts) in the stage's box
+// (a transformed box contains its fixed descendants), which a popover anchored
 // to its trigger must not take; and `ready` drives the frame (opens a menu,
 // presses a blocked submit so its reason shows).
 // `ready` runs before paint, in the commit the stage mounts in, before any
@@ -24,17 +24,15 @@ export function Stage(props: {
 		ready(stage);
 	}, [stage, ready]);
 	return (
-		<PortalContainer value={stage}>
-			<div
-				ref={setStage}
-				className={cn(
-					"relative flex flex-col overflow-hidden h-150 w-screen max-w-full rounded-card border border-edge bg-surface",
-					props.contain && "transform-gpu",
-				)}
-			>
-				{props.children}
-			</div>
-		</PortalContainer>
+		<div
+			ref={setStage}
+			className={cn(
+				"relative flex flex-col overflow-hidden h-dvh w-screen max-w-full rounded-card border border-edge bg-surface",
+				props.contain && "transform-gpu",
+			)}
+		>
+			{props.children}
+		</div>
 	);
 }
 

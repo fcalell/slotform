@@ -18,7 +18,8 @@ phone. Plugins wrap their domain and coordinate only through a typed slot graph.
   the frame that draws the edge it fixes (a long word, 320 px, empty and full) in the showcase app,
   `apps/showcase/src/roster/frames/`, which `pnpm stories` draws (the roster's stories are
   generated from the frames into the gitignored `apps/showcase/stories/`); a frame draws through
-  react-ui's public exports; some frames judge their own edge and log an error where it breaks,
+  react-ui's public exports only, as a consumer does, so a part stands inside the composition that
+  hosts it; some frames judge their own edge and log an error where it breaks,
   the others are looked at there. `test-screens` runs only
   the screens (`stack-screens/**`), so it holds a fix only through a showcase screen that draws the
   component: add the edge to one when a screen can draw it. What gets checked depends on what changed:

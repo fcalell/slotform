@@ -2,6 +2,7 @@ import {
 	Gallery,
 	type GalleryItem,
 } from "@fcalell/plugin-react-ui/components/gallery";
+import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import type { ShowcaseFrame } from "../cells.ts";
 import { waitingText } from "../waiting.ts";
 import { SCREEN } from "./image.tsx";
@@ -65,14 +66,14 @@ const pressMiddle = (stage: HTMLElement) =>
 // `TEXT.role.meta`) draw the gallery in the frame's state: `loading` every
 // tile painted, `error` one failed beside two loaded. The glyphs' cell
 // (`ICON.fit.body`) draws the full view opened on the middle picture at rest,
-// Previous and Next at its sides and Close at its corner, and the failed tile's
-// glyph in `error`.
+// from a gallery in a Gate, Previous and Next at its sides and Close at its
+// corner, and the failed tile's glyph in `error`.
 export function drawGallery(frame: ShowcaseFrame) {
 	if (frame.cell.name !== "ICON.fit.body" || frame.state !== "rest")
 		return drawn(frame.state);
 	return (
 		<Stage contain ready={pressMiddle}>
-			{drawn("rest")}
+			<Gate title="Screenshots">{drawn("rest")}</Gate>
 		</Stage>
 	);
 }

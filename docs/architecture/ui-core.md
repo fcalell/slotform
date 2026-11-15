@@ -379,8 +379,10 @@ not found, light and dark, at either density.
 
 The roster is in Storybook. The app's `src/roster/` holds the frame data (`cells.ts`), the
 `Frame` wrapper (`frame.tsx`) and one drawer per component (`frames/<dir>.tsx`); `.storybook/` generates the stories from them. A
-frame imports react-ui through its `exports`; a part no entry reaches (a painted act, a stage's
-portal) it imports by a relative path into the plugin. A story is a component in one state drawing every cell through `Frame`,
+frame imports react-ui through its `exports` only, as any consumer does, so a part stands inside the
+public composition that hosts it: a painted control in a host whose read waits, a popup in the
+portal of a `Gate` or a `Shell`, a toast raised by `toast()`. An edge no public composition
+reaches has no frame. A story is a component in one state drawing every cell through `Frame`,
 light and dark side by side. Pointer and focus states stay in the roster and draw no story (the web
 variants match only real pseudo-classes). `Motion tuning` (the phone app) is the one place every
 timing is tuned. The Storybook preview fails any story that trips a dev check. Nothing runs the

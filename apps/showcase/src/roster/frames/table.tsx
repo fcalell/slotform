@@ -19,7 +19,6 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { PortalContainer } from "../../../../../plugins/react-ui/src/ui/lib/portal.ts";
 import { ago } from "../ago.ts";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
 import { afterFrames } from "../judge.ts";
@@ -346,25 +345,22 @@ function Tasks(props: {
 
 // A frame driven as it mounts, the way a viewer would: sorting from the
 // header, the cursor on a cell and its edit opened from the keyboard. It
-// drives before paint, as a `Stage` does (`overlay-stage.tsx`). A popup
-// mounts inside the frame, so it draws the frame's mode.
+// drives before paint, as a `Stage` does (`overlay-stage.tsx`). A popup it
+// opens stands in no root frame, so it mounts in the document's body and
+// draws the page's mode.
 function Driven(props: {
 	children: ReactNode;
 	ready?: (frame: HTMLElement) => void;
 }) {
 	const frame = useRef<HTMLDivElement>(null);
-	const [container, setContainer] = useState<HTMLElement | null>(null);
 	const { ready } = props;
 	useLayoutEffect(() => {
 		if (frame.current) ready?.(frame.current);
 	}, [ready]);
 	return (
-		<PortalContainer value={container}>
-			<div ref={frame} className="relative flex flex-col">
-				{props.children}
-				<div ref={setContainer} />
-			</div>
-		</PortalContainer>
+		<div ref={frame} className="relative flex flex-col">
+			{props.children}
+		</div>
 	);
 }
 

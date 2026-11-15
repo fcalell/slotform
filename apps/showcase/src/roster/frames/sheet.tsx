@@ -1,5 +1,6 @@
 import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Code } from "@fcalell/plugin-react-ui/components/code";
+import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Input } from "@fcalell/plugin-react-ui/components/input";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
@@ -12,14 +13,13 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { Act, Option } from "@fcalell/ui-core/descriptors";
 import { SHELL_BANNER, SHELL_COLUMN } from "@fcalell/ui-core/variants";
 import { useEffect, useRef, useState } from "react";
-import { FormField } from "../../../../../plugins/react-ui/src/ui/components/form-field/index.tsx";
-import { ConfirmSheet } from "../../../../../plugins/react-ui/src/ui/components/sheet/confirm.tsx";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
 import { isHeld, readsAt } from "../waiting.ts";
 import { StandInRows } from "./layout-context.tsx";
+import { TURN } from "./message.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { fail, hang } from "./pending.tsx";
-import { TURN, TURNS } from "./thread.tsx";
+import { TURNS } from "./thread.tsx";
 
 const act = () => {};
 
@@ -172,14 +172,11 @@ function DockedQuestions({ state }: { state: ShowcaseFrame["state"] }) {
 	);
 }
 
-// A short form: one field, so the desktop sheet is a centred sheet.
+// A short form: one field placed alone, so the desktop sheet is a centred
+// sheet.
 function OneField() {
 	const [value, setValue] = useState("production");
-	return (
-		<FormField label="Branch">
-			<Input label="Branch" value={value} onChange={setValue} />
-		</FormField>
-	);
+	return <Input label="Branch" value={value} onChange={setValue} />;
 }
 
 // The submit's work by state: one that never settles while it pends, one the
@@ -232,45 +229,8 @@ function readOf(frame: ShowcaseFrame) {
 	}
 }
 
-const NAME = {
-	value: "acme-web",
-	label: "Type acme-web to confirm",
-	blocked: "Type the project name to delete it.",
-};
-// The act's work never settles, so a pressed act stays pending.
-const CONFIRM = {
-	id: 0,
-	title: "Delete acme-web?",
-	sentence: "Its deploys, domains and logs go with it. This cannot be undone.",
-	cancel: "Keep the project",
-	act: {
-		label: "Delete project",
-		destructive: true,
-		onAct: () => new Promise<never>(() => {}),
-	},
-	confirmName: NAME,
-};
-
-// The name typed in, then the act pressed: the act runs its work.
+// The submit pressed: the act runs its work.
 const pressSave = (stage: HTMLElement) => pressNamed(stage, "Save");
-
-const typeAndRun = (stage: HTMLElement) =>
-	requestAnimationFrame(() => {
-		const field = stage.querySelector("input");
-		if (!field) return;
-		Object.getOwnPropertyDescriptor(
-			HTMLInputElement.prototype,
-			"value",
-		)?.set?.call(field, NAME.value);
-		field.dispatchEvent(new Event("input", { bubbles: true }));
-		requestAnimationFrame(() =>
-			press(
-				[...stage.querySelectorAll("button")].find(
-					(button) => button.textContent === CONFIRM.act.label,
-				),
-			),
-		);
-	});
 
 // A set of codes shown once, which the viewer acknowledges.
 const JOIN = "https://app.example.com/join?code=7k2m-9xq4-4tpw-h8nz";
@@ -287,9 +247,8 @@ c3vd-2rfj
 // a read (two Sections in its body, a sections gap apart; the data landed at
 // rest, the submit painted and inert while it waits, the failure with Retry in
 // the body's place, the empty sentence, and busy, stale and paused over rows).
-// The confirm is on the primary act cell: its typed name blocked on `disabled`
-// (the reason shown as the card's is), typed and its act running on `pending`.
-// The rows inside are context. The bar fit cell draws the docked form, since
+// Each sheet stands in a Gate, whose portal it mounts in. The rows inside are
+// context. The bar fit cell draws the docked form, since
 // the docked foot draws no matrix cell of its own: a conversation with a
 // four-question sheet in its foot at a phone's height.
 export function drawSheet(frame: ShowcaseFrame) {
@@ -314,61 +273,67 @@ export function drawSheet(frame: ShowcaseFrame) {
 									: undefined
 						}
 					>
-						<Sheet
-							open
-							onClose={act}
-							title="Edit project"
-							description="acme-web · production"
-							submit={submitOf(state)}
-						>
-							<StandInRows />
-						</Sheet>
+						<Gate title="Projects">
+							<Sheet
+								open
+								onClose={act}
+								title="Edit project"
+								description="acme-web · production"
+								submit={submitOf(state)}
+							>
+								<StandInRows />
+							</Sheet>
+						</Gate>
 					</Stage>
 				) : null}
 				{forming && state === "rest" ? (
 					// A join sheet: the code a camera reads, its address, and the
 					// banner that waits for the device, which ends the body.
 					<Stage contain>
-						<Sheet
-							open
-							onClose={act}
-							title="Add a device"
-							description="Scan the code with the device, or open the address on it."
-						>
-							<QrCode value={JOIN} label="A code that adds a device" />
-							<Code text={JOIN} copy />
-							<Banner
-								tone="running"
-								sentence="Waiting for the new device"
-								until={new Date(Date.now() + 5 * 60_000)}
-							/>
-						</Sheet>
+						<Gate title="Projects">
+							<Sheet
+								open
+								onClose={act}
+								title="Add a device"
+								description="Scan the code with the device, or open the address on it."
+							>
+								<QrCode value={JOIN} label="A code that adds a device" />
+								<Code text={JOIN} copy />
+								<Banner
+									tone="running"
+									sentence="Waiting for the new device"
+									until={new Date(Date.now() + 5 * 60_000)}
+								/>
+							</Sheet>
+						</Gate>
 					</Stage>
 				) : null}
 				{reading ? (
 					<Stage contain>
-						<Sheet
-							open
-							onClose={act}
-							title="Details"
-							description="acme-web · production"
-							submit={
-								state === "rest" ? undefined : { label: "Save", onAct: act }
-							}
-							read={readOf(frame)}
-							empty={
-								state === "empty"
-									? { sentence: "Nothing to show for this deploy." }
-									: undefined
-							}
-						>
-							<Section title="Properties">
-								<StandInRows />
-							</Section>
-							<Section title="Activity">
-								<StandInRows />
-							</Section>
-						</Sheet>
+						<Gate title="Projects">
+							<Sheet
+								open
+								onClose={act}
+								title="Details"
+								description="acme-web · production"
+								submit={
+									state === "rest" ? undefined : { label: "Save", onAct: act }
+								}
+								read={readOf(frame)}
+								empty={
+									state === "empty"
+										? { sentence: "Nothing to show for this deploy." }
+										: undefined
+								}
+							>
+								<Section title="Properties">
+									<StandInRows />
+								</Section>
+								<Section title="Activity">
+									<StandInRows />
+								</Section>
+							</Sheet>
+						</Gate>
 					</Stage>
 				) : null}
 			</>
@@ -376,53 +341,36 @@ export function drawSheet(frame: ShowcaseFrame) {
 	if (cell === "ICON_BUTTON.fit.body" && state === "rest")
 		return (
 			<Stage contain>
-				<Sheet
-					open
-					onClose={act}
-					back={act}
-					title="Production environment"
-					description="acme-web · what every production deploy reads"
-					submit={submitOf(state)}
-				>
-					<OneField />
-				</Sheet>
+				<Gate title="Projects">
+					<Sheet
+						open
+						onClose={act}
+						back={act}
+						title="Production environment"
+						description="acme-web · what every production deploy reads"
+						submit={submitOf(state)}
+					>
+						<OneField />
+					</Sheet>
+				</Gate>
 			</Stage>
 		);
 	if (cell === "SHEET_FOOT" && state === "rest")
 		return (
 			<Stage contain>
-				<Sheet
-					open
-					onClose={act}
-					title="New recovery codes"
-					description="Each opens recovery once. They are not shown again."
-					submit={{ label: "I saved them" }}
-				>
-					<Code text={CODES} copy />
-				</Sheet>
+				<Gate title="Projects">
+					<Sheet
+						open
+						onClose={act}
+						title="New recovery codes"
+						description="Each opens recovery once. They are not shown again."
+						submit={{ label: "I saved them" }}
+					>
+						<Code text={CODES} copy />
+					</Sheet>
+				</Gate>
 			</Stage>
 		);
 	if (cell === "BUTTON.fit.bar") return <DockedQuestions state={state} />;
-	if (cell === "BUTTON.act.primary")
-		return (
-			<Stage
-				contain
-				ready={
-					state === "disabled"
-						? pressSubmit
-						: state === "pending"
-							? typeAndRun
-							: undefined
-				}
-			>
-				<ConfirmSheet
-					open
-					onDone={act}
-					entry={
-						state === "rest" ? { ...CONFIRM, confirmName: undefined } : CONFIRM
-					}
-				/>
-			</Stage>
-		);
 	return undefined;
 }
