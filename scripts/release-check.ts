@@ -200,6 +200,16 @@ function matchesPattern(pattern: string, file: string): boolean {
 if (new Set(seen.map((m) => m.version)).size > 1)
 	fail("the public packages are not at one version");
 
+// A plugin no consumer installs is packed here but never installed, generated or type-checked.
+const installedPlugins = new Set(
+	CONSUMERS.flatMap((consumer) => consumer.plugins.split(",")),
+);
+for (const { name } of seen) {
+	const plugin = /^@fcalell\/plugin-(.+)$/.exec(name)?.[1];
+	if (plugin && !installedPlugins.has(plugin))
+		fail(`${name} is in no consumer`);
+}
+
 console.log("\nTarballs");
 for (const row of rows) console.log(`  ${row}`);
 
