@@ -1,13 +1,9 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import {
-	type Datum,
-	type Drawn,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, type Drawn, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import { counted, named } from "@fcalell/ui-core/tokens";
 import {

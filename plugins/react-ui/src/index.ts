@@ -149,18 +149,13 @@ export const reactUi = plugin("react-ui", {
 
 	schema: reactUiOptionsSchema,
 
-	requires: ["react", "vite"],
+	requires: ["react", "vite", "query"],
 
 	dependencies: {
 		// The guide's index points into the consumer's node_modules for
 		// ui-core's pages.
 		"@fcalell/ui-core": stackSpec("@fcalell/ui-core"),
 		tailwindcss: "^4.3.3",
-		// The generated providers module mounts plugin-api's `QueryProvider`,
-		// whose reads the frames and leaves subscribe to through its TanStack
-		// peers; `react`, which this plugin requires, installs TanStack Query.
-		"@fcalell/plugin-api": stackSpec("@fcalell/plugin-api"),
-		"@orpc/tanstack-query": "^1.14.4",
 	},
 	devDependencies: {
 		"@tailwindcss/vite": "^4.3.3",
@@ -410,30 +405,6 @@ export const reactUi = plugin("react-ui", {
 					order: 1,
 				};
 			},
-		),
-
-		// One query client around the app, inside the words.
-		react.slots.providers.contribute(
-			(): ProviderSpec => ({
-				imports: [
-					{
-						source: "@fcalell/plugin-api/tanstack-query",
-						named: ["QueryProvider"],
-					},
-					{
-						source: "@fcalell/ui-core/paint",
-						named: ["holdFor"],
-					},
-				],
-				// A read's first write lands no earlier than the minimum hold.
-				wrap: {
-					identifier: "QueryProvider",
-					props: [
-						{ name: "hold", value: { kind: "identifier", name: "holdFor" } },
-					],
-				},
-				order: 2,
-			}),
 		),
 
 		// The web rules, as lint rules on the app's own sources.

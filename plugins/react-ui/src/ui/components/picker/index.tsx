@@ -1,8 +1,4 @@
 import type {
-	Datum,
-	Fielded as WithText,
-} from "@fcalell/plugin-api/tanstack-query";
-import type {
 	ChoiceSegment,
 	IconLinkAct,
 	LinkSegment,
@@ -10,6 +6,7 @@ import type {
 	OptionGroup,
 } from "@fcalell/ui-core/descriptors";
 import type { OptionSlots } from "@fcalell/ui-core/list-state";
+import type { Datum, Fielded as WithText } from "@fcalell/ui-core/read";
 import type { OptionText } from "@fcalell/ui-core/reason";
 import type { PickerFit } from "@fcalell/ui-core/variants";
 import { type ReactElement, type ReactNode, use } from "react";

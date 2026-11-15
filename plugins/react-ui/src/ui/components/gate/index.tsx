@@ -1,6 +1,6 @@
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { runsOf } from "@fcalell/ui-core/runs";
 import {
 	BLOCK_IN,

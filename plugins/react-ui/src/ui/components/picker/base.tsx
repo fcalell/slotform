@@ -1,7 +1,6 @@
 import { Combobox } from "@base-ui/react/combobox";
 import { Dialog } from "@base-ui/react/dialog";
 import { Select } from "@base-ui/react/select";
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
 import {
@@ -18,6 +17,7 @@ import {
 	SEARCH_PAST,
 	type Several,
 } from "@fcalell/ui-core/pick";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import { nounOf } from "@fcalell/ui-core/rules";
 import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
 import {

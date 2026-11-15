@@ -1,14 +1,9 @@
-import { paints } from "@fcalell/plugin-api/read";
-import {
-	type Datum,
-	useDrawsFailure,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Route, Run } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { endedReason } from "@fcalell/ui-core/read";
+import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
 import { isCode, partRuns, partText } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {

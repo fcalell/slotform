@@ -1,10 +1,6 @@
-import {
-	type More,
-	type Read,
-	useMore,
-	useWindowMore,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
+import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
+import type { More, Read } from "@fcalell/ui-core/read";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";

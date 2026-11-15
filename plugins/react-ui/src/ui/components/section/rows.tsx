@@ -1,5 +1,3 @@
-import { placeholderData } from "@fcalell/plugin-api/read";
-import type { Drawn, Read } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import {
 	folding,
@@ -9,6 +7,7 @@ import {
 	treeStop,
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
 	type ComponentProps,

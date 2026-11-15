@@ -1,10 +1,7 @@
 import { Dialog } from "@base-ui/react/dialog";
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	IMAGE_CLOSE,
 	IMAGE_FAILED_INK,

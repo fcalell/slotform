@@ -1,9 +1,5 @@
-import {
-	type Datum,
-	type Read,
-	read,
-	type Selection,
-} from "@fcalell/plugin-api/tanstack-query";
+import { read } from "@fcalell/plugin-query/read";
+import type { Datum, Read, Selection } from "@fcalell/ui-core/read";
 import type { ShowcaseFrame } from "./cells.ts";
 
 // The reads a frame's showcase drawer hands a frame to show each of its forms:

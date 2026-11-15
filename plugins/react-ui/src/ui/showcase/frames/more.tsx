@@ -1,4 +1,5 @@
-import { type Read, useMore } from "@fcalell/plugin-api/tanstack-query";
+import { useMore } from "@fcalell/ui-core/react/read";
+import type { Read } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { type MoreState, pagesAt } from "../waiting.ts";
 

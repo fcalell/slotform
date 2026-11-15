@@ -1,4 +1,4 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
+import type { Datum } from "@fcalell/ui-core/read";
 import { IMAGE_CAP_LINES, imageAspect } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import type { Closed } from "../../lib/closed.ts";

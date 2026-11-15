@@ -1,7 +1,7 @@
 import { Dialog } from "@base-ui/react/dialog";
-import type { Selection } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import type { Selection } from "@fcalell/ui-core/read";
 import {
 	LAYER_CARD,
 	LAYER_SCRIM,

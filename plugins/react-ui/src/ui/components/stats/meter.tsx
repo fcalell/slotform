@@ -1,10 +1,11 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { type Datum, useSelections } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { levelOf } from "@fcalell/ui-core/list-state";
 import { type PaintRole, paintText } from "@fcalell/ui-core/paint";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import type { Datum } from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,

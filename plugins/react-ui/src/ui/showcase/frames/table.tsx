@@ -1,4 +1,3 @@
-import type { Read } from "@fcalell/plugin-api/tanstack-query";
 import type {
 	CellValue,
 	ChangeCell,
@@ -7,6 +6,7 @@ import type {
 	TableChoice,
 	TableColumn,
 } from "@fcalell/ui-core/descriptors";
+import type { Read } from "@fcalell/ui-core/read";
 import {
 	type ReactNode,
 	useEffect,

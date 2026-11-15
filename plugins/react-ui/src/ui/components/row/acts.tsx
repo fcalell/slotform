@@ -1,12 +1,7 @@
-import {
-	type Datum,
-	isSelection,
-	useDrawsFailure,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
-import { endedReason } from "@fcalell/ui-core/read";
+import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
 import { useMemo } from "react";
 import {

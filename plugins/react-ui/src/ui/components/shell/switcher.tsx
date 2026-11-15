@@ -1,8 +1,3 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	IconLinkAct,
@@ -11,6 +6,8 @@ import type {
 	OptionPick,
 } from "@fcalell/ui-core/descriptors";
 import { optionLeading } from "@fcalell/ui-core/list-state";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	FIELD_PLACEHOLDER,
 	placeRow,

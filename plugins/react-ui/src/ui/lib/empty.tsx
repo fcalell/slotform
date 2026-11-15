@@ -1,6 +1,6 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
+import type { Datum } from "@fcalell/ui-core/read";
 import {
 	CARD_PART,
 	EMPTY_LINE,

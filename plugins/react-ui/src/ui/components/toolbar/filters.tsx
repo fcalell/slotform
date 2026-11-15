@@ -1,10 +1,9 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Popover } from "@base-ui/react/popover";
-import type { Fielded } from "@fcalell/plugin-api/tanstack-query";
-import { paints } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { MultiPick, OptionPick } from "@fcalell/ui-core/descriptors";
 import { filterChip, filterEmpty } from "@fcalell/ui-core/list-state";
+import { type Fielded, paints } from "@fcalell/ui-core/read";
 import type { OptionText } from "@fcalell/ui-core/reason";
 import {
 	LAYER_POPOVER,

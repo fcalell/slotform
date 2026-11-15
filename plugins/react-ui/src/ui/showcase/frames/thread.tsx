@@ -1,9 +1,10 @@
-import { type Datum, read } from "@fcalell/plugin-api/tanstack-query";
+import { read } from "@fcalell/plugin-query/read";
 import type {
 	Attachment,
 	MessageDetail,
 	Run,
 } from "@fcalell/ui-core/descriptors";
+import type { Datum } from "@fcalell/ui-core/read";
 import { useMemo, useState } from "react";
 import { Pane } from "../../components/pane/index.tsx";
 import { Section } from "../../components/section/index.tsx";

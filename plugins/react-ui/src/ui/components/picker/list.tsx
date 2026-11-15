@@ -1,7 +1,6 @@
 import { Field } from "@base-ui/react/field";
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Option } from "@fcalell/ui-core/descriptors";
 import {
@@ -13,6 +12,7 @@ import {
 	optionsOf,
 } from "@fcalell/ui-core/list-state";
 import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	BLOCK_IN,
 	LINE_IN,

@@ -73,8 +73,8 @@ arrows moves the focused row).
 
 ## Acts
 
-`refusal(error)` comes from `@fcalell/plugin-api/acts`; `useRun()` and
-`useDraft` from `@fcalell/plugin-api/tanstack-query`. The pending look waits `ACT_DELAY` (300 ms,
+`refusal(error)` comes from `@fcalell/plugin-query/acts`; `useRun()` and
+`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `ACT_DELAY` (300 ms,
 `--act-delay`, from `@fcalell/ui-core/paint`).
 
 An `Act` (`@fcalell/ui-core/descriptors`) carries its wiring as data: `confirm` (`{ title, sentence }`, asked

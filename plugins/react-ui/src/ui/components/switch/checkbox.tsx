@@ -1,7 +1,8 @@
 import { Checkbox as Base } from "@base-ui/react/checkbox";
-import type { Datum, Draft } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import { STATES } from "@fcalell/ui-core/controls";
+import type { Draft } from "@fcalell/ui-core/react/acts";
+import type { Datum } from "@fcalell/ui-core/read";
 import { ICON_STROKE } from "@fcalell/ui-core/tokens";
 import { ANSWER, CHECKBOX_MARK, checkbox } from "@fcalell/ui-core/variants";
 import { Check, type IconNode, Minus } from "lucide";

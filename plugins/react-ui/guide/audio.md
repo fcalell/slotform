@@ -58,7 +58,7 @@ const toTrack = (t: Song): Track => ({
   read's own pages, in its order and filter:
 
   ```tsx
-  // useWindow: @fcalell/plugin-api/tanstack-query
+  // useWindow: @fcalell/ui-core/react/read
   const rows = useWindow(tracks)?.rows ?? [];
   <Table items={tracks} row={{ id: (t) => t.id }} onOpen={(id) => {
     const at = rows.findIndex((t) => t?.id === id);

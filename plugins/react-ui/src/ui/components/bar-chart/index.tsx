@@ -1,4 +1,3 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
 import {
 	axisStride,
 	type Bar,
@@ -23,6 +22,7 @@ import {
 } from "@fcalell/ui-core/chart";
 import { cn } from "@fcalell/ui-core/cn";
 import { formatterFor } from "@fcalell/ui-core/format";
+import type { Datum } from "@fcalell/ui-core/read";
 import { CHART_SERIES } from "@fcalell/ui-core/tokens";
 import {
 	CHART,

@@ -1,12 +1,8 @@
-import {
-	type Datum,
-	type Drawn,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { keyed, type Part, parts, safeHref } from "@fcalell/ui-core/prose";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, type Drawn, paints } from "@fcalell/ui-core/read";
 import {
 	PROSE,
 	PROSE_BLOCKS,

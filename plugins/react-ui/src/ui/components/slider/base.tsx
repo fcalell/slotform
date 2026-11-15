@@ -1,6 +1,6 @@
 import { Slider as Base } from "@base-ui/react/slider";
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	ANSWER,
 	SLIDER,

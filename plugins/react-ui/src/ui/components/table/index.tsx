@@ -1,14 +1,4 @@
 import { Field } from "@base-ui/react/field";
-import { placeholderData, readKey } from "@fcalell/plugin-api/read";
-import {
-	type Datum,
-	isRead,
-	pagesOf,
-	type Read,
-	sameQuery,
-	useWindow,
-	windowOf,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	CellValue,
@@ -65,6 +55,17 @@ import {
 	turnedOver,
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS, painting } from "@fcalell/ui-core/paint";
+import { useWindow } from "@fcalell/ui-core/react/read";
+import {
+	type Datum,
+	isRead,
+	pagesOf,
+	placeholderData,
+	type Read,
+	readKey,
+	sameQuery,
+	windowOf,
+} from "@fcalell/ui-core/read";
 import {
 	CARD,
 	FIGURES,

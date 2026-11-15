@@ -1,13 +1,8 @@
-import { NO_HOLDS } from "@fcalell/plugin-api/read";
-import {
-	type Datum,
-	FrameHolds,
-	type Selection,
-	usePainted,
-} from "@fcalell/plugin-api/tanstack-query";
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
+import { FrameHolds, usePainted } from "@fcalell/ui-core/react/read";
+import { type Datum, NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
 	FOOT_DOCKED,

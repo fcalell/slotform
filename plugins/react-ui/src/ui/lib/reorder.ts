@@ -1,4 +1,4 @@
-import { isThenable } from "@fcalell/plugin-api/acts";
+import { isThenable } from "@fcalell/ui-core/acts";
 import type { Moved, Reorder } from "@fcalell/ui-core/descriptors";
 import { moveEntry, type Step, stepOf } from "@fcalell/ui-core/drag";
 import type { Words } from "@fcalell/ui-core/tokens";

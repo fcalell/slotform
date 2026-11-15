@@ -1,11 +1,4 @@
 import { Dialog } from "@base-ui/react/dialog";
-import {
-	type Datum,
-	FrameHolds,
-	isSelection,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	GroupSpec,
@@ -13,6 +6,8 @@ import type {
 	PlaceSpec,
 } from "@fcalell/ui-core/descriptors";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { FrameHolds, useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, isSelection, paints } from "@fcalell/ui-core/read";
 import { flatPlaces, placeAt, placeTrail } from "@fcalell/ui-core/route";
 import {
 	LAYER_CARD,

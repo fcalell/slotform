@@ -1,6 +1,6 @@
 import { ApiError } from "@fcalell/plugin-api/error";
-import type { Selection } from "@fcalell/plugin-api/tanstack-query";
 import type { Can, FormFields } from "@fcalell/ui-core/form";
+import type { Selection } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { FormBody } from "../../components/form/base.tsx";
 import { Form as Derived } from "../../components/form/index.tsx";

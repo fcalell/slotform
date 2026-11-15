@@ -1,8 +1,3 @@
-import {
-	type Datum,
-	isSelection,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { pathOrder } from "@fcalell/ui-core/canvas";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
@@ -13,6 +8,8 @@ import type {
 	CanvasPoint,
 	LinkAct,
 } from "@fcalell/ui-core/descriptors";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
 	CANVAS_GROUP_HEAD,

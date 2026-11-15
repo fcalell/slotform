@@ -1,5 +1,5 @@
-import type { Datum, Selection } from "@fcalell/plugin-api/tanstack-query";
 import type { Option, RecordFact, Run } from "@fcalell/ui-core/descriptors";
+import type { Datum, Selection } from "@fcalell/ui-core/read";
 import { BREAKPOINT_PX, type Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ActionBar } from "../../components/action-bar/index.tsx";

@@ -1,8 +1,5 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import type { Closed } from "../../lib/closed.ts";
 import { CountBase } from "./base.tsx";
 

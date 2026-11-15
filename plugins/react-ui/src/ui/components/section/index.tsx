@@ -1,13 +1,4 @@
 import { Collapsible } from "@base-ui/react/collapsible";
-import {
-	combine,
-	type Datum,
-	isSelection,
-	pagesOf,
-	type Selection,
-	sampleOf,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Band as BandData,
@@ -19,6 +10,15 @@ import type {
 	Run,
 } from "@fcalell/ui-core/descriptors";
 import { factsOnly, listedRows, ownCount } from "@fcalell/ui-core/list-state";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import {
+	combine,
+	type Datum,
+	isSelection,
+	pagesOf,
+	type Selection,
+	sampleOf,
+} from "@fcalell/ui-core/read";
 import { ROWS, SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useId, useMemo, useRef, useState } from "react";
 import type {

@@ -1,13 +1,9 @@
-import {
-	type Datum,
-	useDrawsFailure,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { GLYPHS } from "@fcalell/ui-core/banner";
 import { timeLeft } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
-import { endedReason } from "@fcalell/ui-core/read";
+import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, endedReason } from "@fcalell/ui-core/read";
 import { partRuns } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {

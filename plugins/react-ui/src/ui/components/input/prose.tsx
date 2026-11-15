@@ -1,7 +1,7 @@
 import { Input as Control } from "@base-ui/react/input";
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
 import { wordCount } from "@fcalell/ui-core/controls";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	fieldValue,
 	TEXT_AREA_VALUE,

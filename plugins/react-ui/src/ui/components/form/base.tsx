@@ -1,5 +1,6 @@
-import { type Selection, usePainted } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
+import { usePainted } from "@fcalell/ui-core/react/read";
+import type { Selection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
 	CARD,

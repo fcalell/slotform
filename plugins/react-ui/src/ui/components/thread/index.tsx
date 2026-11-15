@@ -1,12 +1,3 @@
-import { NO_HOLDS } from "@fcalell/plugin-api/read";
-import {
-	type Datum,
-	type Drawn,
-	FrameHolds,
-	type Selection,
-	useFrameRead,
-} from "@fcalell/plugin-api/tanstack-query";
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
 import { stampsTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
@@ -14,8 +5,16 @@ import type {
 	MessageDetail,
 	Runs,
 } from "@fcalell/ui-core/descriptors";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { PAINT_TURNS } from "@fcalell/ui-core/paint";
-import { turnOf } from "@fcalell/ui-core/read";
+import { FrameHolds, useFrameRead } from "@fcalell/ui-core/react/read";
+import {
+	type Datum,
+	type Drawn,
+	NO_HOLDS,
+	type Selection,
+	turnOf,
+} from "@fcalell/ui-core/read";
 import { THREAD, THREAD_COLUMN } from "@fcalell/ui-core/variants";
 import {
 	memo,

@@ -1,4 +1,4 @@
-import { isThenable } from "@fcalell/plugin-api/acts";
+import { isThenable } from "@fcalell/ui-core/acts";
 import type { Acting, ActSheetProps } from "../../lib/act.ts";
 import { Sheet } from "./index.tsx";
 

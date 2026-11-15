@@ -1,5 +1,5 @@
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
 import { cn } from "@fcalell/ui-core/cn";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
 import { dockedBodyMax } from "@fcalell/ui-core/tokens";
 import {

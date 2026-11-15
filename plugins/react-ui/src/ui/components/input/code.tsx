@@ -1,7 +1,8 @@
 import { Input as Control } from "@base-ui/react/input";
-import { drew, isThenable, refusal } from "@fcalell/plugin-api/acts";
-import { useRun } from "@fcalell/plugin-api/tanstack-query";
+import { refusal } from "@fcalell/plugin-query/acts";
+import { drew, isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
+import { useRun } from "@fcalell/ui-core/react/acts";
 import {
 	FIELD_ERROR_LINE,
 	LINE_IN,

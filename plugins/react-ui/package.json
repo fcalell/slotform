@@ -111,7 +111,6 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"peerDependencies": {
-		"@orpc/tanstack-query": "^1.14.4",
 		"@tailwindcss/vite": "^4.3.3",
 		"@tanstack/react-query": "^5.100.2",
 		"react": "^19.2.0",
@@ -131,6 +130,7 @@
 		"@fcalell/cli": "workspace:^",
 		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-auth": "workspace:^",
+		"@fcalell/plugin-query": "workspace:^",
 		"@fcalell/plugin-react": "workspace:^",
 		"@fcalell/plugin-screens": "workspace:^",
 		"@fcalell/plugin-vite": "workspace:^",
@@ -151,7 +151,6 @@
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
-		"@orpc/tanstack-query": "^1.14.4",
 		"@tailwindcss/cli": "^4.3.3",
 		"@tailwindcss/vite": "^4.3.3",
 		"@tanstack/react-query": "^5.104.0",

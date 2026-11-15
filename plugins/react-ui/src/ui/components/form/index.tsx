@@ -1,24 +1,7 @@
-import { registeredScope } from "@fcalell/plugin-api/scope";
-import {
-	ability,
-	type Datum,
-	type Drawn,
-	drew,
-	type Issue,
-	isPlaceholder,
-	isSelection,
-	issues,
-	refusal,
-	type Selection,
-	schemaOf,
-	useMutation,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
-import type {
-	InputOf,
-	OutputOf,
-	ProcedureCall,
-} from "@fcalell/plugin-api/types";
+import { ability } from "@fcalell/plugin-query/ability-client";
+import { issues, refusal } from "@fcalell/plugin-query/acts";
+import { schemaOf, useMutation } from "@fcalell/plugin-query/tanstack-query";
+import { drew, type Issue } from "@fcalell/ui-core/acts";
 import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
 import {
 	type Can,
@@ -29,10 +12,13 @@ import {
 	type FormGroupOf,
 	type Held,
 	heldPick,
+	type InputOf,
 	invalidReason,
 	isEmpty,
 	markedRuns,
+	type OutputOf,
 	type PickWords,
+	type ProcedureCall,
 	type ProcedureSchema,
 	pickWords,
 	readPicked,
@@ -40,6 +26,15 @@ import {
 	toInput,
 	toShown,
 } from "@fcalell/ui-core/form";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Datum,
+	type Drawn,
+	isPlaceholder,
+	isSelection,
+	type Selection,
+} from "@fcalell/ui-core/read";
+import { registeredScope } from "@fcalell/ui-core/scope";
 import type { UseMutationOptions } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { useState } from "react";

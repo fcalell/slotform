@@ -1,6 +1,6 @@
 import { Switch as Base } from "@base-ui/react/switch";
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { cn } from "@fcalell/ui-core/cn";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import { switchThumb, switchTrack } from "@fcalell/ui-core/variants";
 import { useHeldDraft } from "../../lib/act.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";

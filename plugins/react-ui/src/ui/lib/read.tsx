@@ -1,17 +1,20 @@
+import { cn } from "@fcalell/ui-core/cn";
+import {
+	FrameHolds,
+	useFrameRead,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
 import {
 	combine,
 	type Datum,
 	type Drawn,
+	endedReason,
 	type Fielded,
-	FrameHolds,
+	frameOf,
 	isSelection,
 	lift,
 	type Selection,
-	useFrameRead,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
-import { cn } from "@fcalell/ui-core/cn";
-import { endedReason, frameOf } from "@fcalell/ui-core/read";
+} from "@fcalell/ui-core/read";
 import { OPTION_TEXT, type OptionText } from "@fcalell/ui-core/reason";
 import type { Words } from "@fcalell/ui-core/tokens";
 import { ROW_RETRY, row } from "@fcalell/ui-core/variants";

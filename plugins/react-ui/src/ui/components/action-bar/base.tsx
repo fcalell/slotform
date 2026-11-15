@@ -1,6 +1,6 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { isThenable } from "@fcalell/plugin-api/acts";
 import { chosenAbsent, kindOf, NO_FAILURE } from "@fcalell/ui-core/action-bar";
+import { isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { ChosenCount, LinkAct } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";

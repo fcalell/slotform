@@ -1,7 +1,7 @@
 # Rules for the web UI
 
 Every app `.tsx` follows these rules. The design system is the roster
-(`node_modules/@fcalell/ui-core/src/roster.ts`; cells, states and tokens in ui-core's `DESIGN.md`)
+(`node_modules/@fcalell/ui-core/src/roster.ts`, each component's entry in `src/roster/<component>.ts`; cells, states and tokens in ui-core's `DESIGN.md`)
 plus the app's own `ui/` directory (any `ui/` path segment); everything else composes components
 and never restyles them.
 
