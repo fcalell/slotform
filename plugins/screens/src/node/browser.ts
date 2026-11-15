@@ -20,7 +20,7 @@ import { Tab } from "./tab.ts";
 // end. A Chrome a command started closes when its last context is gone; one
 // `stack screens browser` started stays until `stack screens browser stop`.
 
-export interface BrowserState {
+interface BrowserState {
 	port: number;
 	pid: number;
 	// Set by `stack screens browser`: the browser stays after its last context.
@@ -64,7 +64,7 @@ export function lockIsStale(
 	return Number.isInteger(pid) && pid > 0 ? !alive(pid) : ageMs > grace;
 }
 
-export function pidAlive(pid: number): boolean {
+function pidAlive(pid: number): boolean {
 	try {
 		process.kill(pid, 0);
 		return true;

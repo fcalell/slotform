@@ -41,8 +41,8 @@ const TOLERANCE = 0.5;
 
 // The least font size a visible text may have, and the most distinct sizes a
 // screen may draw.
-export const MIN_TEXT_PX = 12;
-export const MAX_TEXT_SIZES = 6;
+const MIN_TEXT_PX = 12;
+const MAX_TEXT_SIZES = 6;
 
 const px = (value: number): string => `${round(value)}px`;
 const round = (value: number): number => Math.round(value * 100) / 100;
@@ -51,7 +51,7 @@ const names = (tokens: Token[]): string =>
 	tokens.map((t) => `${t.name} ${t.px}px`).join(", ");
 
 // The token nearest to a value, for a fix that names it.
-export function nearest(value: number, tokens: Token[]): Token | undefined {
+function nearest(value: number, tokens: Token[]): Token | undefined {
 	return [...tokens].sort(
 		(a, b) => Math.abs(a.px - value) - Math.abs(b.px - value),
 	)[0];
@@ -539,7 +539,7 @@ export function checkHeadings(headings: HeadingMeasure[]): Finding[] {
 
 // ── canvas ──────────────────────────────────────────────────────────
 
-export interface Rect {
+interface Rect {
 	left: number;
 	right: number;
 	top: number;

@@ -15,7 +15,7 @@ let bundle: Promise<string> | undefined;
 
 // The injected page code, built by the app's own Vite from this package's
 // sources, once per process.
-export function pageCode(cwd: string): Promise<string> {
+function pageCode(cwd: string): Promise<string> {
 	bundle ??= (async () => {
 		const entry = createRequire(join(cwd, "package.json")).resolve("vite");
 		const vite = (await import(

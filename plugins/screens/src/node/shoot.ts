@@ -72,7 +72,7 @@ export function parseCookie(
 	return { name: text.slice(0, at), value: text.slice(at + 1) };
 }
 
-export function parseSettle(value: unknown): number {
+function parseSettle(value: unknown): number {
 	if (value === undefined) return 10_000;
 	const ms = Number(value);
 	if (!Number.isFinite(ms) || ms < 0)
@@ -80,7 +80,7 @@ export function parseSettle(value: unknown): number {
 	return ms;
 }
 
-export function parseApp(value: unknown): string {
+function parseApp(value: unknown): string {
 	if (typeof value !== "string" || value === "")
 		throw new Error(
 			"--url: give the app's address, like http://localhost:3000",

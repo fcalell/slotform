@@ -146,7 +146,7 @@ export const FULL_ENV = "STACK_SCREENS_FULL";
 export const OPEN_ENV = "STACK_SCREENS_OPEN";
 // Read by the story in the browser through Vite's `import.meta.env`
 // (`envPrefix` in the Vitest config), so it is also the name the story reads.
-export const SEARCH_ENV = "STACK_SCREENS_SEARCH";
+const SEARCH_ENV = "STACK_SCREENS_SEARCH";
 
 export function selectionEnv(selection: RunSelection): Record<string, string> {
 	return {

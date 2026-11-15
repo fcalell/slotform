@@ -85,7 +85,7 @@ function isFixture(value: unknown): value is Fixture {
 // The fixture of a procedure by its path under the router (`projects.list`),
 // from the app's tree, then from each plugin's, so the app overrides a plugin's
 // answer per procedure. `plugin` tells whose it is.
-export function findFixture(
+function findFixture(
 	app: unknown,
 	plugins: readonly unknown[],
 	path: readonly string[],
@@ -151,7 +151,7 @@ async function inputOf(request: Request): Promise<unknown> {
 }
 
 // The procedure a request calls, from the path after the prefix.
-export function procedurePath(url: string, prefix: string): string[] {
+function procedurePath(url: string, prefix: string): string[] {
 	const { pathname } = new URL(url);
 	const at = pathname.indexOf(`${prefix}/`);
 	return pathname
@@ -196,7 +196,7 @@ export function fixtureGaps(): readonly string[] {
 // call sent and the error's code (`notFound` and `error` are the states that
 // draw a failure on purpose). A read whose input carries none of them (a setup
 // form's) has no example record to blame and is no gap.
-export function failedInData(
+function failedInData(
 	path: readonly string[],
 	input: unknown,
 	params: Readonly<Record<string, string>>,
@@ -249,7 +249,7 @@ export function release(): void {
 
 // The kind of each procedure by dotted path, from the generated schema
 // (`virtual:stack-schema`).
-export type ProcedureKinds = Readonly<
+type ProcedureKinds = Readonly<
 	Record<string, { readonly kind: "query" | "mutation" } | undefined>
 >;
 

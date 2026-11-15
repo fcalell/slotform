@@ -6,7 +6,7 @@ import { buildGraphFromConfig } from "@fcalell/cli/build-graph";
 import { vite } from "@fcalell/plugin-vite";
 import { renderComponentHostConfig } from "./config.ts";
 
-export const STORYBOOK_VITE_CONFIG = ".stack/storybook.vite.config.ts";
+const STORYBOOK_VITE_CONFIG = ".stack/storybook.vite.config.ts";
 
 // The Vite config of a Storybook that draws components, not routes (the
 // showcase's roster), written under `.stack/` and returned as a path for

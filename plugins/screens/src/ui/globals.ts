@@ -2,7 +2,7 @@ import type { PreviewGlobal } from "../types.ts";
 
 // The root's classes and attributes a global drives: all it needs of the
 // document, so a test can hand it a stand-in.
-export interface GlobalsRoot {
+interface GlobalsRoot {
 	setAttribute(name: string, value: string): void;
 	classList: { toggle(name: string, force: boolean): unknown };
 }

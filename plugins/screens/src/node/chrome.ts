@@ -43,7 +43,7 @@ function isExecutable(path: string): boolean {
 	}
 }
 
-export const CHROME_ARGS = [
+const CHROME_ARGS = [
 	"--headless=new",
 	"--no-sandbox",
 	"--hide-scrollbars",
@@ -117,7 +117,7 @@ interface Pending {
 	timer: NodeJS.Timeout;
 }
 
-export const CALL_TIMEOUT = 30_000;
+const CALL_TIMEOUT = 30_000;
 
 // One connection to Chrome's browser endpoint. A call to a tab names its
 // `sessionId` (flat sessions); `Session` binds it.

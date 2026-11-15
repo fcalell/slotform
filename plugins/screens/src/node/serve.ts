@@ -15,9 +15,9 @@ import { startServer } from "./serve-process.ts";
 
 // `stack screens serve`: the app's real server on throwaway state, seeded.
 
-export const SEED_FILE = "src/app/seed.ts";
+const SEED_FILE = "src/app/seed.ts";
 
-export interface ServeInputs {
+interface ServeInputs {
 	cwd: string;
 	flags: Record<string, unknown>;
 	steps: ServeStep[];

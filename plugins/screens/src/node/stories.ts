@@ -9,15 +9,7 @@ import {
 } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import type { PreviewGlobal } from "../types.ts";
-import {
-	ancestorIds,
-	checkVariants,
-	fileRouteId,
-	isScreen,
-	lazyRouteId,
-	SCREEN_STATES,
-	screenTitle,
-} from "./screens.ts";
+import { SCREEN_STATES, screenTitle } from "./screens.ts";
 import { globalTag, stateTag } from "./select.ts";
 
 // The folder at the app root holding one story file per screen. It is no dot
@@ -27,6 +19,69 @@ export const STORIES_DIR = "stack-screens";
 const STORY_FILE = ".stories.ts";
 const ROUTE_FILE = /\.(tsx|ts|jsx|js)$/;
 const ROOT_ROUTE = /^__root\./;
+
+const FILE_ROUTE = /\bcreateFileRoute\(\s*(["'`])([^"'`]+)\1/;
+const LAZY_ROUTE = /\bcreateLazyFileRoute\(\s*(["'`])([^"'`]+)\1/;
+
+// The route id a route file declares, `createFileRoute("/projects/$id")`: the
+// string TanStack's generator writes and checks against the file's place, so
+// it is the file's id without redoing the generator's naming rules. Null for
+// a file that declares none (the root route, a file the router ignores).
+function fileRouteId(source: string): string | null {
+	return FILE_ROUTE.exec(source)?.[2] ?? null;
+}
+
+// The id a lazy route file completes, `createLazyFileRoute("/projects")`: the
+// id of the route that imports it.
+function lazyRouteId(source: string): string | null {
+	return LAZY_ROUTE.exec(source)?.[2] ?? null;
+}
+
+// Whether a route is a screen: a pathless layout (`/_app`) has no URL of its
+// own and draws only around the routes it holds, which are screens.
+function isScreen(routeId: string): boolean {
+	return !routeId.slice(routeId.lastIndexOf("/") + 1).startsWith("_");
+}
+
+// The ids of the routes a route draws inside: its path's prefixes, each a
+// layout where a file declares it (`/_app/deploys/$id/` is inside
+// `/_app/deploys/$id`, `/_app/deploys` and `/_app`).
+function ancestorIds(routeId: string): string[] {
+	const segments = routeId.split("/");
+	return segments
+		.slice(2)
+		.map((_, index) => segments.slice(0, index + 2).join("/"));
+}
+
+// One extra story per screen state: a combination of the globals' checked
+// values other than the one every story opens with (the dev story covers it).
+interface CheckVariant {
+	// Every global's value in the combination.
+	globals: Record<string, string>;
+	// The values that differ from the defaults, which name the story.
+	label: string[];
+}
+
+// Every combination of the globals' checked values, less the defaults'.
+function checkVariants(globals: PreviewGlobal[]): CheckVariant[] {
+	let combinations: Array<Record<string, string>> = [{}];
+	for (const global of globals) {
+		combinations = combinations.flatMap((combination) =>
+			(global.checked ?? [global.default]).map((value) => ({
+				...combination,
+				[global.name]: value,
+			})),
+		);
+	}
+	return combinations.flatMap((combination) => {
+		const label = globals.flatMap((global) =>
+			combination[global.name] === global.default
+				? []
+				: [combination[global.name] as string],
+		);
+		return label.length === 0 ? [] : [{ globals: combination, label }];
+	});
+}
 
 const posix = (path: string): string => path.split(sep).join("/");
 
@@ -85,7 +140,7 @@ export async function listScreens(routes: string): Promise<string[]> {
 // global the run checks, which is how a run narrows to some of them. The
 // imports are the screen's graph, as side effects so the transform keeps
 // every one: an import of a name nothing uses is dropped.
-export function renderStoryFile(
+function renderStoryFile(
 	routeId: string,
 	imports: string[],
 	globals: PreviewGlobal[],
@@ -120,7 +175,7 @@ export function renderStoryFile(
 	].join("\n");
 }
 
-export interface SyncOptions {
+interface SyncOptions {
 	// The app root, where the stories folder lives.
 	root: string;
 	// The routes directory, absolute.
