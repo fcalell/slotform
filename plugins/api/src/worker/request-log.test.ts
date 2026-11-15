@@ -41,6 +41,6 @@ test("requestLogger never prints the query string", async () => {
 	assert.equal(res.status, 200);
 	assert.equal(lines.length, 2);
 	assert.equal(lines[0], "<-- GET /rpc/search");
-	assert.match(lines[1] ?? "", /^--> GET \/rpc\/search 200 \d+ms$/);
+	assert.match(lines[1] ?? "", /^--> GET \/rpc\/search 200 (\d+ms|[\d.]+s)$/);
 	assert.ok(lines.every((line) => !line.includes("a@b.c")));
 });
