@@ -57,12 +57,3 @@ export class MissingPluginError extends StackError {
 		this.name = "MissingPluginError";
 	}
 }
-
-export class ScaffoldError extends StackError {
-	readonly path?: string;
-	constructor(message: string, path?: string) {
-		super(message, "SCAFFOLD");
-		this.path = path;
-		this.name = "ScaffoldError";
-	}
-}

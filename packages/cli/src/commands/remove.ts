@@ -6,7 +6,7 @@ import type { StackConfig } from "../config.ts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
-import { removePluginCall } from "../lib/config-writer.ts";
+import { editConfig } from "../lib/config-writer.ts";
 import {
 	type DiscoveredPlugin,
 	discoverPlugins,
@@ -14,7 +14,33 @@ import {
 } from "../lib/discovery.ts";
 import { MissingPluginError, StackError } from "../lib/errors.ts";
 import { insideProject } from "../lib/inside-project.ts";
+import { toCamelCase } from "../lib/naming.ts";
 import { confirm } from "../lib/prompt.ts";
+
+/**
+ * Remove the call to the given plugin's factory from the `plugins: [...]`
+ * array in `stack.config.ts`. Accepts the kebab-case plugin slug
+ * (e.g. `"native-ui"`) and matches against the camelCase callee (`nativeUi`).
+ *
+ * No-op when the plugin isn't present. Throws `EditConfigError` when the
+ * config file shape can't be edited in place.
+ */
+async function removePluginCall(
+	path: string,
+	pluginName: string,
+): Promise<void> {
+	const callee = toCamelCase(pluginName);
+	await editConfig(path, ({ config }) => {
+		if (!Array.isArray(config.plugins)) return;
+		const idx = config.plugins.findIndex(
+			// biome-ignore lint/suspicious/noExplicitAny: magicast proxies are dynamically typed
+			(p: any) => p?.$type === "function-call" && p.$callee === callee,
+		);
+		if (idx >= 0) {
+			config.plugins.splice(idx, 1);
+		}
+	});
+}
 
 // Remove `keys` from `pkg[field]` (when it's a plain object). Returns true if
 // `pkg` was modified at all (any key removal AND/OR a whole-field deletion
@@ -25,7 +51,7 @@ import { confirm } from "../lib/prompt.ts";
 // Non-object fields are left untouched (we only know how to prune
 // plugin-contributed records of names→strings; lists, scalars, etc. aren't
 // our domain here).
-export function pruneObjectField(
+function pruneObjectField(
 	pkg: Record<string, unknown>,
 	field: string,
 	keys: ReadonlySet<string>,

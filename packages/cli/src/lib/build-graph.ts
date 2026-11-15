@@ -1,16 +1,111 @@
 import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { AppConfig, StackConfig } from "../config.ts";
-import { LINT_PATH, lintConfig } from "../templates/biome.ts";
+import type { GuideEntry, LintPlugin } from "../specs.ts";
 import { tsconfigLayout, workerTsconfig } from "../templates/tsconfig.ts";
 import { cliSlots } from "./cli-slots.ts";
 import { type DiscoveredPlugin, discoverPlugins } from "./discovery.ts";
 import { ConfigValidationError } from "./errors.ts";
 import { buildGraph, type Graph } from "./graph.ts";
-import { cliGuide, GUIDE_PATH, renderGuide } from "./guide.ts";
 import { cliManifest } from "./manifest.ts";
 import { createLogContext } from "./prompt.ts";
 import type { Contribution, LogContext, Slot } from "./slots.ts";
+
+const GUIDE_PATH = ".stack/guide.md";
+
+// The CLI's own pages, beside the plugins' in `cliSlots.guide`.
+const cliGuide: readonly { page: string; trigger: string }[] = [
+	{
+		page: "provided",
+		trigger: "Shaping, scoping or estimating a feature",
+	},
+	{
+		page: "config",
+		trigger: "Adding a plugin or changing an option in `stack.config.ts`",
+	},
+	{
+		page: "commands",
+		trigger: "Running a `stack` command, or deciding which one a change needs",
+	},
+	{
+		page: "gap",
+		trigger:
+			"A part the app needs that stack lacks: a component, variant, token, option or procedure feature",
+	},
+];
+
+// `.stack/guide.md`, which the consumer's `CLAUDE.md` imports: each line a
+// trigger and the page's path from the consumer root, grouped by domain in the
+// slot's order. Claude Code imports an `@` only at a line start or after
+// whitespace; a scoped package's `@` follows `node_modules/`, so no page loads
+// until a session opens it.
+function renderGuide(entries: readonly GuideEntry[]): string {
+	const domains = new Map<string, string[]>();
+	const seen = new Set<string>();
+	for (const e of entries) {
+		const key = `${e.package}/${e.page}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		const lines = domains.get(e.domain) ?? [];
+		lines.push(`- ${e.trigger} → node_modules/${e.package}/guide/${e.page}.md`);
+		domains.set(e.domain, lines);
+	}
+	const sections = [...domains].map(
+		([domain, lines]) => `## ${domain}\n\n${lines.join("\n")}\n`,
+	);
+	return [
+		"Stack's guide at this project's pin: each line says when to open a page, then the page. Open only the page the step in hand needs.\n",
+		...sections,
+	].join("\n");
+}
+
+const LINT_PATH = ".stack/biome.json";
+
+// `.stack/biome.json`: the plugins' GritQL rules, each on the sources it names.
+// `root: false` keeps Biome from reading it as a second root config where the
+// consumer's `files.includes` does not skip `.stack`.
+//
+// TODO: Biome resolves a plugin path against the directory of the root config
+// (or the nested one), not the extending file, and fails a package specifier,
+// so a package's file is spelled under `node_modules/` and each plugin takes
+// its `includes` through an override (Biome 2.4 reads no `includes` on a plugin
+// entry). Drop both when Biome resolves `@scope/pkg/file.grit` and takes
+// per-plugin `includes` (2.5's object form).
+//
+// `ignore` lists generated sources Biome skips: a plugin's output follows its
+// tool's formatting, not the consumer's. They are an override that turns the
+// linter, formatter and import sorting off for them, never a `files.includes`
+// exclusion: an `includes` list in an extending config replaces the one before
+// it (a lone `["!src/migrations"]` leaves nothing to check, `biome check .`
+// processing 0 files), where overrides accumulate and leave the shared preset's
+// list in force.
+function lintConfig(
+	plugins: readonly LintPlugin[],
+	ignore: readonly string[] = [],
+): string {
+	const byIncludes = new Map<string, string[]>();
+	for (const { path, includes } of plugins) {
+		const key = JSON.stringify(includes);
+		byIncludes.set(key, [
+			...(byIncludes.get(key) ?? []),
+			`node_modules/${path}`,
+		]);
+	}
+	const overrides: object[] = [...byIncludes].map(([includes, paths]) => ({
+		includes: JSON.parse(includes) as string[],
+		plugins: paths,
+	}));
+	if (ignore.length > 0) {
+		overrides.push({
+			// Each entry as a file and as a directory's contents.
+			includes: ignore.flatMap((glob) => [glob, `${glob}/**`]),
+			linter: { enabled: false },
+			formatter: { enabled: false },
+			assist: { enabled: false },
+		});
+	}
+	return `${JSON.stringify({ root: false, overrides }, null, "\t")}\n`;
+}
 
 export interface CollectedPlugin {
 	discovered: DiscoveredPlugin;

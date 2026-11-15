@@ -17,7 +17,7 @@ const STDERR_TAIL_BYTES = 4 * 1024;
 
 export type OutputStream = "stdout" | "stderr";
 
-export interface SuperviseOptions {
+interface SuperviseOptions {
 	spec: ProcessSpec;
 	cwd?: string;
 	// Each line the child prints, on whichever stream it printed it.
@@ -50,10 +50,9 @@ export interface SupervisedProcess {
 	restart(): void;
 }
 
-// Exponential backoff capped at 10s. Exposed for plugins that want to
-// reproduce supervisor timing without re-implementing it.
+// Exponential backoff capped at 10s.
 //   attempt=1 -> 250ms, 2 -> 500ms, 3 -> 1000ms, 4 -> 2000ms ... cap 10000ms
-export function restartBackoffMs(attempt: number): number {
+function restartBackoffMs(attempt: number): number {
 	if (attempt <= 0) return 0;
 	const ms = 250 * 2 ** (attempt - 1);
 	return Math.min(ms, 10_000);

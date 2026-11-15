@@ -152,7 +152,7 @@ const UNPUBLISHED = "0.0.0";
 // How a consumer outside stack's workspace takes the stack packages: from the
 // npm registry at this CLI's own version, or, when the CLI is an unpublished
 // checkout (version 0.0.0), from stack's repository on GitHub.
-export type StackSpecMode = "npm" | "github";
+type StackSpecMode = "npm" | "github";
 
 export function stackSpecMode(
 	version: string = cliManifest.version,
@@ -208,19 +208,6 @@ export function pinnedCommit(
 // from GitHub needs it.
 export function stackBuildKey(name: StackPackage): string {
 	return `${name}@git+https://github.com/${REPOSITORY}.git`;
-}
-
-// The given packages and every first-party package their `dependencies`
-// reach, sorted by name.
-export function stackClosure(names: Iterable<StackPackage>): StackPackage[] {
-	const seen = new Set<StackPackage>();
-	const visit = (name: StackPackage): void => {
-		if (seen.has(name)) return;
-		seen.add(name);
-		for (const dep of STACK_PACKAGES[name].dependencies) visit(dep);
-	};
-	for (const name of names) visit(name);
-	return [...seen].sort();
 }
 
 // Each first-party plugin's package, by plugin name, with its spec at the

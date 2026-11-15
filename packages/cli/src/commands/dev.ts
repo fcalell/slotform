@@ -20,13 +20,13 @@ interface DevOptions {
 	config: string;
 }
 
-export interface DevPlan {
+interface DevPlan {
 	processes: ProcessSpec[];
 	readySetup: DevReadyTask[];
 	watchers: WatcherSpec[];
 }
 
-export async function devPlanFromConfig(
+async function devPlanFromConfig(
 	config: StackConfig,
 	cwd: string,
 	log?: LogContext,
@@ -49,7 +49,7 @@ export async function devPlanFromConfig(
 //
 // Returns an array (possibly empty) so the caller can splat into its
 // FSWatcher list — empty when the watch path doesn't exist.
-export function attachWatcher(args: {
+function attachWatcher(args: {
 	spec: WatcherSpec;
 	cwd: string;
 	log: LogContext;

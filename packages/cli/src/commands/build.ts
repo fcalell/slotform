@@ -8,7 +8,7 @@ import { StepFailedError } from "../lib/errors.ts";
 import type { BuildStep } from "../specs.ts";
 import { generateFromConfig } from "./generate.ts";
 
-export async function buildStepsFromConfig(
+async function buildStepsFromConfig(
 	config: StackConfig,
 	cwd: string,
 ): Promise<BuildStep[]> {
@@ -17,10 +17,7 @@ export async function buildStepsFromConfig(
 	return graph.resolve(cliSlots.buildSteps);
 }
 
-export async function runBuildSteps(
-	steps: BuildStep[],
-	cwd: string,
-): Promise<void> {
+async function runBuildSteps(steps: BuildStep[], cwd: string): Promise<void> {
 	for (const step of steps) {
 		const phaseLabel =
 			step.phase === "pre"

@@ -40,7 +40,7 @@ export async function choose<T extends string>(
 	return unwrap(value) as T;
 }
 
-export interface MultiOption<T extends string> {
+interface MultiOption<T extends string> {
 	label: string;
 	value: T;
 	default?: boolean;
@@ -72,7 +72,7 @@ export function createLogContext(): CommandContext<unknown>["log"] {
 	};
 }
 
-export interface PromptContextOptions {
+interface PromptContextOptions {
 	/**
 	 * When true, prompt methods resolve immediately with sensible defaults
 	 * instead of rendering an interactive prompt. Used for CI and scripted

@@ -12,7 +12,7 @@ type AnyCliPlugin = InternalCliPlugin<
 	unknown
 >;
 
-export interface PluginCommandMatch {
+interface PluginCommandMatch {
 	plugin: AnyCliPlugin;
 	command: CommandDefinition<unknown, Record<string, unknown>>;
 	commandName: string;

@@ -1,37 +1,11 @@
 import { writeFile as fsWriteFile } from "node:fs/promises";
 import { generateCode, loadFile, type ProxifiedModule } from "magicast";
-import { toCamelCase } from "./naming.ts";
 
 interface ConfigAst {
 	mod: ProxifiedModule;
 	/** The object literal passed to `defineConfig({...})`. */
 	// biome-ignore lint/suspicious/noExplicitAny: magicast proxies are dynamically typed
 	config: any;
-}
-
-/**
- * Remove the call to the given plugin's factory from the `plugins: [...]`
- * array in `stack.config.ts`. Accepts the kebab-case plugin slug
- * (e.g. `"native-ui"`) and matches against the camelCase callee (`nativeUi`).
- *
- * No-op when the plugin isn't present. Throws `EditConfigError` when the
- * config file shape can't be edited in place.
- */
-export async function removePluginCall(
-	path: string,
-	pluginName: string,
-): Promise<void> {
-	const callee = toCamelCase(pluginName);
-	await editConfig(path, ({ config }) => {
-		if (!Array.isArray(config.plugins)) return;
-		const idx = config.plugins.findIndex(
-			// biome-ignore lint/suspicious/noExplicitAny: magicast proxies are dynamically typed
-			(p: any) => p?.$type === "function-call" && p.$callee === callee,
-		);
-		if (idx >= 0) {
-			config.plugins.splice(idx, 1);
-		}
-	});
 }
 
 /**
@@ -106,7 +80,7 @@ function getConfigObject(mod: ProxifiedModule, path: string): any {
 	return config;
 }
 
-export class EditConfigError extends Error {
+class EditConfigError extends Error {
 	constructor(path: string, detail: string) {
 		super(
 			`Could not automatically edit ${path} (${detail}). ` +

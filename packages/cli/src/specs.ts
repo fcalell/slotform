@@ -33,20 +33,6 @@ export interface GuideEntry {
 //   "always"    — restart on any exit (rare; useful for long-running daemons).
 export type ProcessRestartPolicy = "never" | "on-crash" | "always";
 
-// Hook invoked after every exit. Returning `{ restart: false }` vetoes a
-// restart that the policy would otherwise schedule. Returning anything else
-// (`undefined` or no return value) defers to the policy. Sync return only —
-// the supervisor needs the decision before scheduling backoff.
-//
-// Declared as a function-type alias rather than a method shorthand because
-// callers compose with arrow functions; method-shorthand on the interface
-// member (below) gives us the bivariant return-type checking that lets a
-// side-effect-only handler (`(event) => { ctx.log.error(...) }`, no return
-// statement) typecheck against `{ restart: boolean } | undefined`.
-export type ProcessOnExit = (
-	event: ProcessExit,
-) => { restart: boolean } | undefined;
-
 export interface ProcessSpec {
 	name: string;
 	command: string;

@@ -120,19 +120,6 @@ export class SlotError extends Error {
 	}
 }
 
-export class SlotCycleError extends SlotError {
-	readonly cycle: string[];
-	constructor(cycle: string[]) {
-		super(
-			`Slot dependency cycle detected: ${cycle.join(" -> ")}. ` +
-				`Break the cycle by removing one of the 'inputs' entries on a derived slot.`,
-			"SLOT_CYCLE",
-		);
-		this.cycle = cycle;
-		this.name = "SlotCycleError";
-	}
-}
-
 export class SlotConflictError extends SlotError {
 	readonly slotName: string;
 	readonly key: string | null;
@@ -154,27 +141,6 @@ export class SlotConflictError extends SlotError {
 		this.key = key;
 		this.contributors = contributors;
 		this.name = "SlotConflictError";
-	}
-}
-
-export class SlotResolutionError extends SlotError {
-	readonly slotName: string;
-	readonly plugin: string | null;
-	readonly cause: unknown;
-	constructor(
-		message: string,
-		slotName: string,
-		plugin: string | null,
-		cause: unknown,
-	) {
-		super(message, "SLOT_RESOLUTION");
-		this.slotName = slotName;
-		this.plugin = plugin;
-		this.cause = cause;
-		this.name = "SlotResolutionError";
-		if (cause instanceof Error && cause.stack) {
-			this.stack = cause.stack;
-		}
 	}
 }
 

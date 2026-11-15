@@ -9,7 +9,16 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { log } from "@clack/prompts";
 import type { ScaffoldSpec } from "../ast/index.ts";
-import { ScaffoldError } from "./errors.ts";
+import { StackError } from "./errors.ts";
+
+class ScaffoldError extends StackError {
+	readonly path?: string;
+	constructor(message: string, path?: string) {
+		super(message, "SCAFFOLD");
+		this.path = path;
+		this.name = "ScaffoldError";
+	}
+}
 
 // Legacy accommodation for the CLI's own base-file templates (package.json,
 // tsconfig.json, biome.json, .gitignore, stack.config.ts). Base templates are
@@ -88,7 +97,7 @@ export function ensureGitignore(...entries: string[]): boolean {
 	return added;
 }
 
-export interface PackageJsonPatch {
+interface PackageJsonPatch {
 	imports?: Record<string, string>;
 	dependencies?: Record<string, string>;
 	devDependencies?: Record<string, string>;

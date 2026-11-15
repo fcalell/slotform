@@ -2,7 +2,7 @@ import { cliSlots } from "./cli-slots.ts";
 import type { Graph } from "./graph.ts";
 import { stackPluginSpecs } from "./stack-packages.ts";
 
-export interface PluginDependencies {
+interface PluginDependencies {
 	dependencies: Record<string, string>;
 	devDependencies: Record<string, string>;
 }

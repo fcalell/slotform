@@ -2,26 +2,23 @@ import { existsSync, mkdirSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { log, outro } from "@clack/prompts";
 import { StackError } from "../lib/errors.ts";
-import { stackWorkspaceRoot } from "../lib/install.ts";
+import { stackWorkspaceRoot, toWorkspaceSpecs } from "../lib/install.ts";
+import { toCamelCase } from "../lib/naming.ts";
 import { writeIfMissingString } from "../lib/scaffold.ts";
-import { stackSpecMode } from "../lib/stack-packages.ts";
 import {
-	pluginIndexTemplate,
-	pluginPackageJsonTemplate,
-	pluginReadmeTemplate,
-	pluginRuntimeTemplate,
-	pluginTsconfigBuildTemplate,
-	pluginTsconfigTemplate,
-} from "../templates/plugin.ts";
+	PACKAGE_MANAGER,
+	stackSpec,
+	stackSpecMode,
+} from "../lib/stack-packages.ts";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 
-export interface InitPluginOptions {
+interface InitPluginOptions {
 	name: string;
 	package?: string;
 	dir?: string;
 }
 
-export interface PluginFilesOptions {
+interface PluginFilesOptions {
 	name: string;
 	packageName: string;
 	// The plugin sits in stack's own workspace, which installs it: no
@@ -30,9 +27,7 @@ export interface PluginFilesOptions {
 }
 
 // The plugin skeleton's files, by path relative to its directory.
-export function pluginFiles(
-	options: PluginFilesOptions,
-): Array<[string, string]> {
+function pluginFiles(options: PluginFilesOptions): Array<[string, string]> {
 	const { name, packageName, workspace } = options;
 	const label = name
 		.split("-")
@@ -127,4 +122,177 @@ export async function initPlugin(options: InitPluginOptions): Promise<void> {
 	} finally {
 		process.chdir(original);
 	}
+}
+
+// PascalCase variant for type names derived from a slug ("widget" -> "Widget",
+// "my-widget" -> "MyWidget").
+function toPascalCase(name: string): string {
+	const camel = toCamelCase(name);
+	return camel.charAt(0).toUpperCase() + camel.slice(1);
+}
+
+interface PluginPackageJsonOptions {
+	name: string;
+	packageName: string;
+	// The plugin sits in stack's own workspace: it takes each stack package
+	// from the workspace and the root's package manager.
+	workspace: boolean;
+}
+
+function pluginPackageJsonTemplate(options: PluginPackageJsonOptions): string {
+	const pkg = {
+		name: options.packageName,
+		version: "0.0.0",
+		type: "module",
+		sideEffects: false,
+		...(options.workspace ? {} : { packageManager: PACKAGE_MANAGER }),
+		exports: {
+			".": { types: "./dist/index.d.ts", default: "./dist/index.js" },
+			"./runtime": {
+				types: "./dist/worker/index.d.ts",
+				default: "./dist/worker/index.js",
+			},
+		},
+		files: ["dist", "src", "README.md"],
+		license: "MIT",
+		scripts: {
+			build: "tsc -p tsconfig.build.json",
+			prepare: "pnpm build",
+			"check-types": "tsc --noEmit --pretty",
+			lint: "biome check --write --unsafe",
+			check: "pnpm check-types && biome check",
+		},
+		dependencies: {
+			"@fcalell/cli": stackSpec("@fcalell/cli"),
+		},
+		devDependencies: {
+			"@fcalell/typescript-config": stackSpec("@fcalell/typescript-config"),
+			typescript: "^5.9.3",
+		},
+	};
+
+	const manifest = options.workspace ? toWorkspaceSpecs(pkg) : pkg;
+	return `${JSON.stringify(manifest, null, "\t")}\n`;
+}
+
+function pluginTsconfigTemplate(): string {
+	const config = {
+		extends: "@fcalell/typescript-config/node-tsx.json",
+		include: ["src"],
+	};
+	return `${JSON.stringify(config, null, "\t")}\n`;
+}
+
+function pluginTsconfigBuildTemplate(): string {
+	const config = {
+		extends: ["./tsconfig.json", "@fcalell/typescript-config/build.json"],
+	};
+	return `${JSON.stringify(config, null, "\t")}\n`;
+}
+
+interface PluginIndexOptions {
+	name: string;
+	packageName: string;
+	label: string;
+}
+
+function pluginIndexTemplate(options: PluginIndexOptions): string {
+	const { name, packageName, label } = options;
+	const varName = toCamelCase(name);
+	return `import { plugin, slot } from "@fcalell/cli";
+
+export interface ${toPascalCase(name)}Options {
+\t// Add plugin-specific options here.
+}
+
+// Example slot this plugin owns. Other plugins contribute to it; this
+// plugin derives / composes the final value.
+const example = slot.list<string>({ source: "${name}", name: "example" });
+
+export const ${varName} = plugin("${name}", {
+\tlabel: "${label}",
+\tpackage: "${packageName}",
+
+\tslots: { example },
+
+\tdependencies: {
+\t\t"${packageName}": "^0.0.0",
+\t},
+
+\tcontributes: [
+\t\t// example.contribute(() => "hello"),
+\t],
+});
+`;
+}
+
+interface PluginRuntimeOptions {
+	name: string;
+}
+
+// Minimal RuntimePlugin stub so third-party plugins that want worker-side
+// behaviour have a starting point. The stub is intentionally no-op — authors
+// replace `context()` with their own logic.
+function pluginRuntimeTemplate(options: PluginRuntimeOptions): string {
+	const { name } = options;
+	const varName = toCamelCase(name);
+	return `import type { RuntimePlugin } from "@fcalell/cli/runtime";
+
+export interface ${toPascalCase(name)}RuntimeOptions {
+\t// Runtime options live here. They are plain values read at generate time
+\t// and inlined into .stack/worker.ts as JS literals.
+}
+
+export default function ${varName}Runtime(
+\t_options: ${toPascalCase(name)}RuntimeOptions = {},
+): RuntimePlugin<"${name}"> {
+\treturn {
+\t\tname: "${name}",
+\t\tcontext() {
+\t\t\treturn {};
+\t\t},
+\t};
+}
+`;
+}
+
+interface PluginReadmeOptions {
+	name: string;
+	packageName: string;
+	label: string;
+}
+
+function pluginReadmeTemplate(options: PluginReadmeOptions): string {
+	const { name, packageName, label } = options;
+	return `# ${packageName}
+
+${label} plugin for [\`@fcalell/stack\`](https://github.com/fcalell/stack).
+
+## Install
+
+\`\`\`bash
+pnpm add ${packageName}
+\`\`\`
+
+## Usage
+
+\`\`\`ts
+// stack.config.ts
+import { defineConfig } from "@fcalell/cli";
+import { ${toCamelCase(name)} } from "${packageName}";
+
+export default defineConfig({
+  plugins: [${toCamelCase(name)}()],
+});
+\`\`\`
+
+## Publishing
+
+1. Run \`pnpm check-types\`.
+2. Publish: \`pnpm publish --access public\` (\`prepare\` builds \`dist\` first).
+
+## License
+
+MIT
+`;
 }

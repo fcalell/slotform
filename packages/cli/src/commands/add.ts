@@ -2,14 +2,12 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { log, outro } from "@clack/prompts";
 import { builders } from "magicast";
-import { defineConfig } from "../config.ts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
 import { editConfig } from "../lib/config-writer.ts";
 import {
 	type DiscoveredPlugin,
-	displacedBy,
 	loadInstalledPlugins,
 	PLUGIN_NAMES,
 	resolveRequiresClosure,
@@ -28,6 +26,25 @@ import {
 import { stackPluginSpecs } from "../lib/stack-packages.ts";
 import { syntheticConfigFromSelection } from "./init.ts";
 import { uninstall } from "./remove.ts";
+
+// The app's plugins that `name` replaces: each one meeting a one-of
+// requirement `name` also meets, since a one-of is met by exactly one plugin.
+function displacedBy(
+	name: string,
+	plugins: readonly DiscoveredPlugin[],
+): string[] {
+	const present = new Set(plugins.map((p) => p.name));
+	const displaced = new Set<string>();
+	for (const plugin of plugins) {
+		for (const req of plugin.cli.requires(plugin.options)) {
+			if (typeof req === "string" || !req.oneOf.includes(name)) continue;
+			for (const option of req.oneOf) {
+				if (option !== name && present.has(option)) displaced.add(option);
+			}
+		}
+	}
+	return [...displaced];
+}
 
 export async function add(
 	pluginName: string,
@@ -259,6 +276,3 @@ export async function add(
 			: `Added ${addedInfos.map((i) => i.cli.label).join(", ")}`,
 	);
 }
-
-// Helper re-export used by init; kept import-local for readability.
-export { defineConfig };

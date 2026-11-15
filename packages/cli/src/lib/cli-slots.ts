@@ -140,8 +140,6 @@ export const cliSlots = {
 	}),
 } as const;
 
-export type CliSlots = typeof cliSlots;
-
 // Shorthand for the canonical "resolve a *Source slot, write it as an
 // artifact, skip on null" pattern. A null source means the upstream
 // derivation chose not to emit anything (e.g. no runtimes registered) — the

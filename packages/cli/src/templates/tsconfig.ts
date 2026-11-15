@@ -3,7 +3,7 @@
 // worker's bundler reads (`workerTsconfig`). `node` is the node target
 // (`node()` in place of `cloudflare()`): its server runs under Node, with no
 // Workers globals, and holds the consumer's services under `src/server`.
-export interface TsconfigLayout {
+interface TsconfigLayout {
 	// A DOM app built by Vite: `vite` in the config.
 	web: boolean;
 	native: boolean;

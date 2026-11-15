@@ -8,9 +8,7 @@ import {
 	composeValue,
 	type LogContext,
 	type Slot,
-	SlotCycleError,
 	SlotError,
-	SlotResolutionError,
 } from "./slots.ts";
 
 // ── Plugin shape consumed by buildGraph ─────────────────────────────
@@ -208,6 +206,40 @@ export function buildGraph(
 	}
 
 	return graph;
+}
+
+class SlotCycleError extends SlotError {
+	readonly cycle: string[];
+	constructor(cycle: string[]) {
+		super(
+			`Slot dependency cycle detected: ${cycle.join(" -> ")}. ` +
+				`Break the cycle by removing one of the 'inputs' entries on a derived slot.`,
+			"SLOT_CYCLE",
+		);
+		this.cycle = cycle;
+		this.name = "SlotCycleError";
+	}
+}
+
+class SlotResolutionError extends SlotError {
+	readonly slotName: string;
+	readonly plugin: string | null;
+	readonly cause: unknown;
+	constructor(
+		message: string,
+		slotName: string,
+		plugin: string | null,
+		cause: unknown,
+	) {
+		super(message, "SLOT_RESOLUTION");
+		this.slotName = slotName;
+		this.plugin = plugin;
+		this.cause = cause;
+		this.name = "SlotResolutionError";
+		if (cause instanceof Error && cause.stack) {
+			this.stack = cause.stack;
+		}
+	}
 }
 
 function wrapResolutionError(

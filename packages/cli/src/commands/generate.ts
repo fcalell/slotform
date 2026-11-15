@@ -7,7 +7,7 @@ import type { LogContext } from "../lib/slots.ts";
 import { writeArtifact } from "../lib/write-artifact.ts";
 import type { GeneratedFile } from "../specs.ts";
 
-export interface GenerateResult {
+interface GenerateResult {
 	files: GeneratedFile[];
 	postWrite: Array<() => Promise<void>>;
 }

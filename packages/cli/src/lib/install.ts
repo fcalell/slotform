@@ -188,7 +188,7 @@ function workspaceOf(
 
 // The root of the pnpm workspace `dir` is a project of (a consumer monorepo
 // whose `packages` globs name the app), or null when the app is its own root.
-export function pnpmWorkspaceRoot(dir: string): string | null {
+function pnpmWorkspaceRoot(dir: string): string | null {
 	return workspaceOf(dir)?.root ?? null;
 }
 

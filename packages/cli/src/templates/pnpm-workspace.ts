@@ -3,9 +3,21 @@ import {
 	STACK_PACKAGES,
 	type StackPackage,
 	stackBuildKey,
-	stackClosure,
 	stackGitSpec,
 } from "../lib/stack-packages.ts";
+
+// The given packages and every first-party package their `dependencies`
+// reach, sorted by name.
+function stackClosure(names: Iterable<StackPackage>): StackPackage[] {
+	const seen = new Set<StackPackage>();
+	const visit = (name: StackPackage): void => {
+		if (seen.has(name)) return;
+		seen.add(name);
+		for (const dep of STACK_PACKAGES[name].dependencies) visit(dep);
+	};
+	for (const name of names) visit(name);
+	return [...seen].sort();
+}
 
 // Each git package's `prepare` installs and builds the whole stack workspace
 // in its own clone, so several at once can exhaust the machine's memory.

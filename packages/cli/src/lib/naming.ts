@@ -7,10 +7,3 @@
 export function toCamelCase(name: string): string {
 	return name.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());
 }
-
-// PascalCase variant for type names derived from a slug ("widget" -> "Widget",
-// "my-widget" -> "MyWidget").
-export function toPascalCase(name: string): string {
-	const camel = toCamelCase(name);
-	return camel.charAt(0).toUpperCase() + camel.slice(1);
-}

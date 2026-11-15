@@ -13,7 +13,7 @@ interface DeployOptions {
 	config: string;
 }
 
-export async function deployPlanFromConfig(
+async function deployPlanFromConfig(
 	config: StackConfig,
 	cwd: string,
 ): Promise<{ checks: DeployCheck[]; steps: DeployStep[] }> {
@@ -25,10 +25,7 @@ export async function deployPlanFromConfig(
 	return { checks, steps };
 }
 
-export async function runDeploySteps(
-	steps: DeployStep[],
-	cwd: string,
-): Promise<void> {
+async function runDeploySteps(steps: DeployStep[], cwd: string): Promise<void> {
 	for (const step of steps) {
 		log.step(`Deploying: ${step.name}`);
 		if ("run" in step) {

@@ -3,7 +3,7 @@ import type { CommandContext } from "./create-plugin.ts";
 import type { Graph } from "./graph.ts";
 import { createLogContext, createPromptContext } from "./prompt.ts";
 
-export interface CommandContextInput {
+interface CommandContextInput {
 	options: unknown;
 	cwd: string;
 	graph: Graph;

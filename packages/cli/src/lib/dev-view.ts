@@ -7,11 +7,11 @@ import type { OutputStream } from "./proc.ts";
 import { createLogContext } from "./prompt.ts";
 import type { LogContext } from "./slots.ts";
 
-export interface DevLog extends LogContext {
+interface DevLog extends LogContext {
 	step(msg: string): void;
 }
 
-export type ProcessStatus =
+type ProcessStatus =
 	| { kind: "starting"; attempt: number }
 	// `url`: where the process serves, which `o` opens.
 	| { kind: "ready"; url?: string }
@@ -261,7 +261,7 @@ function openUrl(url: string, log: DevLog): void {
 		.unref();
 }
 
-export interface ScreenModel {
+interface ScreenModel {
 	panes: Pane[];
 	selected: Pane;
 	cols: number;
