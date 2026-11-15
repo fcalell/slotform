@@ -1,0 +1,363 @@
+/// <reference path="./virtual.d.ts" />
+
+// Siblings by package name, never relative: this file ships as source for the
+// bundler while its siblings, plugin-api's client and ui-core ship compiled
+// from dist, so a relative import would load a second copy of the registered
+// client, the entity registry and the model's state.
+import { SCHEMA } from "virtual:stack-schema";
+import type { MongoAbility } from "@casl/ability";
+import { registerOperationContext } from "@fcalell/plugin-api/client";
+import {
+	type EntityName,
+	handleMutationSuccess,
+} from "@fcalell/plugin-api/query-invalidation";
+import type {
+	RouterClient,
+	ScopedRouterClient,
+} from "@fcalell/plugin-api/types";
+import {
+	composeAbility,
+	orgRules,
+	type PackedRulesLike,
+} from "@fcalell/plugin-query/ability-client";
+import {
+	guardReach,
+	heldAct,
+	type Reach,
+	watchActs,
+	whenSettled,
+} from "@fcalell/plugin-query/acts";
+import { listenQueries } from "@fcalell/plugin-query/listen";
+import {
+	ensurePages,
+	retryOnce,
+	watchUnheld,
+	withHold,
+	withRead,
+} from "@fcalell/plugin-query/read";
+import { scoped as scopedBy, withScope } from "@fcalell/plugin-query/scope";
+import type { QueryListeners } from "@fcalell/ui-core/listen";
+import { PortProvider, type ReadPort } from "@fcalell/ui-core/react/port";
+import {
+	type Observed,
+	planSelections,
+	type QueryOf,
+	type Read,
+	type ReadAnswer,
+	type Selection,
+	type WindowState,
+} from "@fcalell/ui-core/read";
+import { registeredScope, type ScopeIds } from "@fcalell/ui-core/scope";
+import {
+	createTanstackQueryUtils,
+	OPERATION_CONTEXT_SYMBOL,
+} from "@orpc/tanstack-query";
+import {
+	keepPreviousData,
+	MutationCache,
+	QueryClient,
+	type QueryClientConfig,
+	QueryClientProvider,
+	type SkipToken,
+	skipToken,
+	type UseInfiniteQueryOptions,
+	type UseQueryOptions,
+	useInfiniteQuery,
+	useQueries,
+	useQuery,
+} from "@tanstack/react-query";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
+
+export {
+	experimental_streamedQuery as streamedQuery,
+	QueryClient,
+	QueryClientProvider,
+	useInfiniteQuery,
+	useMutation,
+	useQuery,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
+
+// A query outside the API declares what it reads as `meta: { reads: [...] }`
+// (see `@fcalell/plugin-api/query-invalidation`); registering the shape types
+// those names over the app's `EntityName`, on web and phone alike. Other meta
+// keys stay open.
+declare module "@tanstack/react-query" {
+	interface Register {
+		queryMeta: {
+			reads?: readonly EntityName[];
+			// How much longer a first load's data waits, set once on the client's
+			// default query meta by `QueryProvider`.
+			hold?: (elapsed: number) => number;
+			// Says from the read's value whether the server is out of reach
+			// (`guardReach` in `@fcalell/plugin-query/acts`).
+			reach?: Reach;
+		} & Record<string, unknown>;
+	}
+}
+
+// Mobile-friendly defaults: a single retry of a failure that may pass (flaky
+// cellular shouldn't hammer the worker) and a short freshness window so navigating between screens doesn't
+// refetch on every mount.
+const NATIVE_DEFAULTS: QueryClientConfig = {
+	defaultOptions: {
+		queries: {
+			retry: retryOnce,
+			staleTime: 30_000,
+		},
+	},
+};
+
+// Auto-invalidate on every mutation success unless the caller supplied its
+// own `mutationCache` (they own invalidation then, and call `guardReach` in
+// its `onMutate`) or the mutation opted out via
+// `meta: { skipAutoInvalidation: true }`. Every mutation first passes the
+// reach guard: nothing queues for a connection that is not there.
+function createAutoInvalidationMutationCache(
+	getQueryClient: () => QueryClient,
+): MutationCache {
+	return new MutationCache({
+		onMutate: () => guardReach(getQueryClient()),
+		onSuccess: (_data, _variables, _onMutateResult, mutation) => {
+			if (mutation.meta?.skipAutoInvalidation) return;
+			handleMutationSuccess(getQueryClient(), mutation.options.mutationKey);
+		},
+	});
+}
+
+export function createQueryClient(config?: QueryClientConfig): QueryClient {
+	const queryClient: QueryClient = new QueryClient({
+		...NATIVE_DEFAULTS,
+		...config,
+		defaultOptions: {
+			...NATIVE_DEFAULTS.defaultOptions,
+			...config?.defaultOptions,
+			queries: {
+				...NATIVE_DEFAULTS.defaultOptions?.queries,
+				...config?.defaultOptions?.queries,
+			},
+		},
+		mutationCache:
+			config?.mutationCache ??
+			createAutoInvalidationMutationCache(() => queryClient),
+	});
+
+	return queryClient;
+}
+
+// `.read(input)` on every procedure's utils, beside `.queryOptions`: the same
+// input (`skipToken` included), the output typed, as a `Read` handle. A
+// procedure whose output is stack's paginated envelope also gets `.pages(input)`
+// (no `cursor`), a read of the flat list that pages in; one whose output is the
+// window envelope gets `.window(input)` (no `offset`), a read of the rows loaded
+// from the start that a collection under a scroller sizes to the total. Both
+// carry the query they answer (the input less its paging and sort).
+type Page<T> = { data: T[]; nextCursor: string | null };
+type Windowed<T> = { data: T[]; total: number; offset: number };
+type ReadsOf<C> = C extends (...a: infer A) => Promise<infer O>
+	? {
+			read(...a: { [K in keyof A]: A[K] | SkipToken }): Read<O>;
+		} & (O extends Page<infer T>
+			? {
+					pages(
+						input: Omit<A[0], "cursor"> | SkipToken,
+					): Read<T[], QueryOf<A[0]>>;
+				}
+			: unknown) &
+			(O extends Windowed<infer T>
+				? {
+						window(
+							input: Omit<A[0], "offset"> | SkipToken,
+						): Read<T[], QueryOf<A[0]>>;
+					}
+				: unknown)
+	: { [K in keyof C]: ReadsOf<C[K]> };
+
+export type ApiQueryUtils<TRouter> = ReturnType<
+	typeof createTanstackQueryUtils<ScopedRouterClient<TRouter>>
+> &
+	ReadsOf<ScopedRouterClient<TRouter>>;
+
+// Wrap a typed oRPC client with TanStack Query helpers (`.queryOptions`,
+// `.mutationOptions`, `.infiniteOptions`, and `.read`). The native analog of
+// `createClient` from `@fcalell/plugin-api/client` — same router-typed surface,
+// query-shaped. The client sends a query these utils make as GET: it learns the
+// operation context's symbol here, from the copy of `@orpc/tanstack-query` the
+// utils are.
+export function createApiQueryUtils<TRouter>(
+	client: RouterClient<TRouter>,
+): ApiQueryUtils<TRouter> {
+	registerOperationContext(OPERATION_CONTEXT_SYMBOL);
+	return withRead(
+		withScope(createTanstackQueryUtils(client), registeredScope, SCHEMA),
+		SCHEMA,
+	) as ApiQueryUtils<TRouter>;
+}
+
+/**
+ * The utils with `scope` fixed, for a call made outside any boundary: a route
+ * `loader` runs before the boundary renders, so it names the ids it resolved.
+ */
+export function scoped<U>(utils: U, scope: ScopeIds): U {
+	return scopedBy(utils, scope, SCHEMA);
+}
+
+/** One procedure of the generated schema (`.stack/schema.ts`) by dotted path, or undefined before the first `stack generate`. */
+export function schemaOf(path: string): (typeof SCHEMA)[string] | undefined {
+	return SCHEMA[path];
+}
+
+// A read's options as an observer takes them: a painted read's carry the
+// placeholder that marks the observer, a silent one's notify on nothing.
+const optionsOf = (o: Observed): Read<unknown>["options"] => ({
+	...o.read.options,
+	...(o.placeholder && { placeholderData: o.placeholder }),
+	...(o.silent && { notifyOnChangeProps: [] }),
+});
+
+const IDLE = {
+	queryKey: ["stack", "window", "idle"] as readonly unknown[],
+	queryFn: skipToken,
+};
+
+// The read hooks' port over one query client: each observing member is
+// TanStack's hook given that client, so a read observes the provider's cache
+// wherever its hook renders.
+function readPort(client: QueryClient): ReadPort {
+	return {
+		useReads<R>(
+			observed: readonly Observed[],
+			combine?: (answers: readonly ReadAnswer[]) => R,
+		): R {
+			return useQueries({ queries: observed.map(optionsOf), combine }, client);
+		},
+		fetchingNext(read) {
+			return (
+				client.getQueryCache().find({ queryKey: read.options.queryKey })?.state
+					.fetchMeta?.fetchMore?.direction === "forward"
+			);
+		},
+		retry(read) {
+			return client.refetchQueries({
+				queryKey: read.options.queryKey,
+				exact: true,
+			});
+		},
+		// An infinite observer that never fetches by mounting (`enabled: false`).
+		useNextPage(read) {
+			const query = useInfiniteQuery(
+				{
+					...(read.options as UseInfiniteQueryOptions),
+					enabled: false,
+				},
+				client,
+			);
+			return {
+				next: query.hasNextPage,
+				fetching: query.isFetchingNextPage,
+				failed: query.isFetchNextPageError,
+				fetch: () => query.fetchNextPage(),
+			};
+		},
+		useWindowState(read) {
+			const query = useQuery(
+				{
+					...((read?.options ?? IDLE) as UseQueryOptions),
+					enabled: false,
+					placeholderData: keepPreviousData,
+				},
+				client,
+			);
+			return {
+				state: query.data as WindowState | undefined,
+				kept: query.isPlaceholderData,
+			};
+		},
+		ensurePages(read, pages) {
+			return ensurePages(client, read, pages);
+		},
+		settled(reads) {
+			return whenSettled(client.getQueryCache(), reads);
+		},
+		act(onAct) {
+			return heldAct(onAct);
+		},
+		carry(children) {
+			return (
+				<QueryClientProvider client={client}>{children}</QueryClientProvider>
+			);
+		},
+	};
+}
+
+export interface QueryProviderProps {
+	client?: QueryClient;
+	// How the online and focus managers learn their state, where the platform
+	// has no window events (the phone). The web passes nothing.
+	listen?: QueryListeners;
+	// The minimum hold on a read's first write, given the ms since its fetch
+	// began (`holdOf` in `./read.ts`); a UI plugin passes it from its timings.
+	hold?: (elapsed: number) => number;
+	children: ReactNode;
+}
+
+// The provider the app root is wrapped with (contributed to
+// `plugin-react.slots.providers` by this plugin, and to
+// `plugin-expo.slots.providers` by `plugin-native-ui`). Lazily builds a stable
+// default client when none is supplied so a bare consumer gets sane behaviour
+// with zero config, and the read hooks' port over it.
+export function QueryProvider(props: QueryProviderProps) {
+	const [client] = useState(() =>
+		withHold(
+			props.client ??
+				createQueryClient({
+					defaultOptions: { queries: { meta: { hold: props.hold } } },
+				}),
+			props.hold,
+		),
+	);
+	const [port] = useState(() => readPort(client));
+	const { listen } = props;
+	useEffect(() => (listen ? listenQueries(listen) : undefined), [listen]);
+	useEffect(() => watchUnheld(client.getQueryCache()), [client]);
+	useEffect(() => watchActs(client.getMutationCache()), [client]);
+	return (
+		<QueryClientProvider client={client}>
+			<PortProvider port={port}>{props.children}</PortProvider>
+		</QueryClientProvider>
+	);
+}
+
+// The app's own subscription to a selection: real data, or `undefined` while
+// the read waits, is idle or failed. The placeholder never reaches app code.
+export function useRead<T>(selection: Selection<T>): T | undefined {
+	const plan = useMemo(() => planSelections([selection]), [selection]);
+	const combine = useMemo(
+		() => (results: Parameters<typeof plan.draw>[0]) => {
+			const [drawn] = plan.draw(results);
+			return drawn?.painted ? undefined : (drawn?.value as T);
+		},
+		[plan],
+	);
+	return useQueries({
+		queries: plan.reads.map((r) => r.options),
+		combine,
+	});
+}
+
+// Org-level authority everywhere, layered with a `PackedRules` field off any
+// query the caller already has (`useAbility(orgId, query.data.rules)`).
+// Deny-all while the org rules are loading or errored (`composeAbility` treats
+// "no org rules and no record rules" as deny-all); a record layer passed in
+// that window still answers its own checks, since it is real data the caller
+// already has.
+export function useAbility(
+	organizationId: string | undefined,
+	recordRules?: PackedRulesLike,
+): MongoAbility {
+	const rules = useRead(
+		useMemo(() => orgRules(organizationId), [organizationId]),
+	);
+	return composeAbility(rules, recordRules);
+}
