@@ -144,7 +144,7 @@ export interface PaginatedResult<T> {
 // The order columns of a page: the caller's sort, else the default. An
 // unknown sort column answers BAD_REQUEST (a procedure that declares `sort`
 // already refuses it at the schema).
-export function orderOf(options: PageOptions<unknown, string>): Order[] {
+function orderOf(options: PageOptions<unknown, string>): Order[] {
 	const { sort, idColumn } = options;
 	if (sort) {
 		const found = sortOf(sort.column, options.sorts, idColumn);
@@ -171,7 +171,7 @@ export function sortOf(
 	return Object.hasOwn(from, key) ? (from[key] as Orderable) : undefined;
 }
 
-export function isColumn(value: Orderable): value is SQLiteColumn {
+function isColumn(value: Orderable): value is SQLiteColumn {
 	return is(value, Column);
 }
 

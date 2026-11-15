@@ -143,7 +143,6 @@ export {
 	read,
 	sameQuery,
 	sampleOf,
-	WINDOW_PAGES,
 	windowOf,
 } from "@fcalell/plugin-api/read";
 export type { ScopeIds } from "@fcalell/plugin-api/scope";

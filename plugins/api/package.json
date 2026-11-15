@@ -83,14 +83,6 @@
 			"types": "./dist/types.d.ts",
 			"default": "./dist/types.js"
 		},
-		"./node/codegen": {
-			"types": "./dist/node/codegen.d.ts",
-			"default": "./dist/node/codegen.js"
-		},
-		"./node/types": {
-			"types": "./dist/node/types.d.ts",
-			"default": "./dist/node/types.js"
-		},
 		"./lib/cursor": {
 			"types": "./dist/lib/cursor.d.ts",
 			"default": "./dist/lib/cursor.js"

@@ -207,7 +207,7 @@ export function startRun<K>(
 // starts the refetch synchronously in the mutation's `onSuccess`, before the
 // save's promise resolves, so a read idle at that moment is not being
 // refreshed. A stream stays fetching while it writes and would never end.
-export function whenSettled(
+function whenSettled(
 	cache: QueryCache,
 	reads: readonly Read<unknown>[],
 ): Promise<void> {

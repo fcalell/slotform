@@ -15,7 +15,7 @@ import {
 	read,
 	type Selection,
 } from "./read.ts";
-import { ORG_RULES_PATH, SCOPE_ROUTES_PATH } from "./wire.ts";
+import { ORG_RULES_PATH } from "./wire.ts";
 
 // Framework-agnostic core behind
 // `useAbility()` on every platform (`./tanstack-query.tsx` on native, the
@@ -105,36 +105,6 @@ export async function fetchOrgRules(
 		if (isNotFound(error)) return [];
 		throw error;
 	}
-}
-
-// ---------- Scope lookup ----------
-
-export interface ScopeLookupInput {
-	slug: string;
-	parentId?: string;
-}
-
-function scopeLookupPath(scope: string) {
-	return [...SCOPE_ROUTES_PATH, scope, "bySlug"] as const;
-}
-
-// Shaped like the org rules key, so entity invalidation and prefix
-// invalidation treat a lookup as any other oRPC-backed query.
-export function scopeQueryKey(scope: string, input: ScopeLookupInput) {
-	return [scopeLookupPath(scope), { input }] as const;
-}
-
-// Resolves a URL slug to its scope's chain: the rows from the organization
-// down, and the caller's `member` row. Slugs are unique within their parent,
-// so every scope below the organization names its parent's id. NOT_FOUND
-// (no such row, or the caller is no member) propagates for the boundary to
-// draw.
-export async function fetchScope(
-	scope: string,
-	input: ScopeLookupInput,
-): Promise<Record<string, unknown>> {
-	const route = registeredRoute(scopeLookupPath(scope), "ScopeBoundary");
-	return (await route(input)) as Record<string, unknown>;
 }
 
 // ---------- Ability composition ----------

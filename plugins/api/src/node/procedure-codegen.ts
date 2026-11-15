@@ -40,7 +40,7 @@ import {
 // import would create middleware -> routes -> procedure.ts -> middleware.
 // Not a supported pattern; the route barrel exclusion below only guards the
 // symmetric routes -> procedure.ts direction.
-export interface ProcedurePayload {
+interface ProcedurePayload {
 	// Same `workerBase` (`createWorker({...})` call) the real worker uses.
 	base: TsExpression;
 	// Same `pluginRuntimes` the real worker uses, in the same (sorted) order.

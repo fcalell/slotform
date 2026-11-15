@@ -148,7 +148,7 @@ export function createEntityRegistry(): EntityRegistry {
 // requests/users must not reuse it: user A's captured entity headers could
 // drive user B's cache invalidation. Build a request-scoped registry via
 // `createEntityRegistry()` instead.
-export const defaultEntityRegistry: EntityRegistry = createEntityRegistry();
+const defaultEntityRegistry: EntityRegistry = createEntityRegistry();
 
 export function captureEntityHeaders(pathKey: string, headers: Headers): void {
 	defaultEntityRegistry.capture(pathKey, headers);

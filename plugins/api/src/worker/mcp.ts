@@ -24,7 +24,7 @@ const INTERNAL = {
 
 // ---------- Tools ----------
 
-export interface McpTool {
+interface McpTool {
 	name: string;
 	description: string;
 	inputSchema: Tool["inputSchema"];
@@ -274,7 +274,7 @@ async function runTool(
 
 type Sdk = typeof import("@modelcontextprotocol/server");
 
-export interface McpEndpoint {
+interface McpEndpoint {
 	fetch(
 		request: Request,
 		options: { parsedBody: unknown; authInfo: AuthInfo },
@@ -368,7 +368,7 @@ export function createMcpEndpoint(options: {
 
 // ---------- The route ----------
 
-export interface McpRouteDeps {
+interface McpRouteDeps {
 	endpoint: McpEndpoint;
 	// A browser Origin the worker's CORS list does not carry.
 	isForbiddenOrigin(c: Context): boolean;

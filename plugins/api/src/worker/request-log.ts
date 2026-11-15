@@ -6,7 +6,7 @@ import type { MiddlewareHandler } from "hono";
 // prints the method and the pathname only.
 
 // "12ms" under a second, "1.2s" from there.
-export function formatDuration(ms: number): string {
+function formatDuration(ms: number): string {
 	return ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(1)}s`;
 }
 

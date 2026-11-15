@@ -464,10 +464,10 @@ function flatten(data: unknown): unknown {
 const pages = (kind: ReadKind) => kind === "pages" || kind === "window";
 
 /** How many pages a window keeps before the farthest from the viewer's are dropped. */
-export const WINDOW_PAGES = 24;
+const WINDOW_PAGES = 24;
 
 /** The state with `page` added and, past `WINDOW_PAGES`, the pages farthest from every page in `wanted` dropped (never page 0, nor a wanted one). */
-export function withPage(
+function withPage(
 	state: WindowState,
 	page: number,
 	rows: readonly unknown[],

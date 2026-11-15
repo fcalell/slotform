@@ -12,8 +12,8 @@ const SERVER_ROUTER_TYPES = ".stack/types/.stack/worker.d.ts";
 // What the server app tells its clients beyond its procedures. `auth` is
 // whether it has `auth()`, which decides whether a client app stands the
 // sign-in provider.
-export const serverManifestSchema = z.object({ auth: z.boolean() });
-export type ServerManifest = z.infer<typeof serverManifestSchema>;
+const serverManifestSchema = z.object({ auth: z.boolean() });
+type ServerManifest = z.infer<typeof serverManifestSchema>;
 
 type FileCtx = Pick<ContributionCtx, "fileExists" | "readFile">;
 
