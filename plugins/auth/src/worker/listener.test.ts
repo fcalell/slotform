@@ -29,11 +29,14 @@ test("the listener's origin stands before the app's URL var", () => {
 test("passkeys keep the baked options with no listener origin, and swap in dev", () => {
 	const { devOrigin: _, ...production } = BAKED;
 	assert.deepEqual(passkeyFor(BAKED, {}), production);
-	assert.deepEqual(passkeyFor(BAKED, { STACK_ORIGIN: "https://x.net", STACK_DEV: "1" }), {
-		...production,
-		rpID: "localhost",
-		origin: BAKED.devOrigin,
-	});
+	assert.deepEqual(
+		passkeyFor(BAKED, { STACK_ORIGIN: "https://x.net", STACK_DEV: "1" }),
+		{
+			...production,
+			rpID: "localhost",
+			origin: BAKED.devOrigin,
+		},
+	);
 });
 
 test("a listener origin under the baked relying party joins its origins", () => {

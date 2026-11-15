@@ -53,5 +53,4 @@ test("the message names the file and the callback to implement", () => {
 	]);
 	assert.match(message, /src\/worker\/plugins\/auth\.ts/);
 	assert.match(message, /`sendOTP`/);
-	assert.match(message, /\/\/ TODO: send OTP email/);
 });

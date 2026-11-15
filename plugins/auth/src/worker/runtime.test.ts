@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { subscribe, unsubscribe } from "node:diagnostics_channel";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { test } from "node:test";
+import { after, test } from "node:test";
 import createWorker from "@fcalell/plugin-api/runtime";
 import { createClient } from "@fcalell/plugin-db/sqlite";
 import * as schema from "../schema/index.ts";
@@ -103,8 +103,16 @@ create table oauth_access_token (
 );
 `;
 
+const directories: string[] = [];
+after(() => {
+	for (const directory of directories)
+		rmSync(directory, { recursive: true, force: true });
+});
+
 function database() {
-	const file = join(mkdtempSync(join(tmpdir(), "stack-auth-")), "auth.sqlite");
+	const directory = mkdtempSync(join(tmpdir(), "stack-auth-"));
+	directories.push(directory);
+	const file = join(directory, "auth.sqlite");
 	const db = createClient(file, {
 		...schema,
 		...oauthSchema,
