@@ -18,6 +18,7 @@ let bundle: Promise<string> | undefined;
 function pageCode(cwd: string): Promise<string> {
 	bundle ??= (async () => {
 		const entry = createRequire(join(cwd, "package.json")).resolve("vite");
+		// The app's own Vite, imported by path: its types are this package's.
 		const vite = (await import(
 			pathToFileURL(entry).href
 		)) as typeof import("vite");
@@ -36,6 +37,7 @@ function pageCode(cwd: string): Promise<string> {
 				},
 			},
 		});
+		// A lib build with `write: false` returns its outputs, not the watcher.
 		const [bundle] = (Array.isArray(built) ? built : [built]) as {
 			output: { code: string }[];
 		}[];
@@ -56,9 +58,13 @@ function axeSource(cwd: string): string {
 export async function prepare(tab: Tab, cwd: string): Promise<void> {
 	const source = await pageCode(cwd);
 	await tab.send("Page.addScriptToEvaluateOnNewDocument", { source });
+	// Every later document gets the code from the registration above; the
+	// current one is best effort.
 	await tab.evaluate(source).catch(() => {});
 }
 
+// The page code is reached through a global of the page, the one link between
+// this process and what `prepare` injected.
 export const call = <T>(tab: Tab, expression: string): Promise<T> =>
 	tab.evaluate<T>(`globalThis.__stackScreens.${expression}`);
 

@@ -85,6 +85,16 @@ export class Tab {
 		this.targetId = targetId;
 	}
 
+	static async open(
+		cdp: Cdp,
+		sessionId: string,
+		targetId: string,
+	): Promise<Tab> {
+		const tab = new Tab(cdp, sessionId, targetId);
+		await tab.init();
+		return tab;
+	}
+
 	send<T = unknown>(method: string, params: object = {}, timeout?: number) {
 		return this.cdp.send<T>(method, params, {
 			sessionId: this.sessionId,
@@ -92,13 +102,14 @@ export class Tab {
 		});
 	}
 
+	// The caller states the event's type: CDP's are not typed here.
 	private listen<P>(method: string, handler: (params: P) => void): void {
 		this.cdp.on(method, (params: unknown, sessionId) => {
 			if (sessionId === this.sessionId) handler(params as P);
 		});
 	}
 
-	async init(): Promise<void> {
+	private async init(): Promise<void> {
 		this.listen(
 			"Network.requestWillBeSent",
 			(p: { requestId: string; type?: string }) => {
@@ -129,7 +140,8 @@ export class Tab {
 		this.listen<void>("Page.loadEventFired", () => {
 			this.loadedAt = Date.now();
 		});
-		// A page that guards its edits asks before it unloads: a goto leaves it.
+		// A page that guards its edits asks before it unloads: a goto leaves it. The
+		// dialog may be gone by the time the answer arrives.
 		this.listen("Page.javascriptDialogOpening", () => {
 			void this.send("Page.handleJavaScriptDialog", { accept: true }).catch(
 				() => {},
@@ -150,18 +162,20 @@ export class Tab {
 		});
 	}
 
-	// The viewport at scale 1, with touch input on under `TOUCH_BELOW`.
-	async viewport(
-		width: number,
-		height: number,
-		touch = width < TOUCH_BELOW,
-	): Promise<void> {
+	// The viewport at scale 1.
+	async viewport(width: number, height: number): Promise<void> {
 		await this.send("Emulation.setDeviceMetricsOverride", {
 			width,
 			height,
 			deviceScaleFactor: 1,
 			mobile: false,
 		});
+	}
+
+	// The viewport as a device of that width: touch input on under `TOUCH_BELOW`.
+	async device(width: number, height: number): Promise<void> {
+		await this.viewport(width, height);
+		const touch = width < TOUCH_BELOW;
 		// Only a change is sent: switching touch emulation off, even when it was
 		// never on, drops the launch flag's fine pointer.
 		if (touch === this.touch) return;
@@ -201,13 +215,14 @@ export class Tab {
 			throw new Error(
 				`page script failed: ${result.exceptionDetails.exception?.description ?? result.exceptionDetails.text}`,
 			);
+		// The caller states the result's type: the page's answer is not typed here.
 		return result.result.value as T;
 	}
 
 	// Waits until the page is quiet: loaded, no busy request (`busyRequests`)
 	// in flight or ended in the last 400 ms, and nothing `aria-busy`; or `cap`
 	// ms. The page that never goes quiet ends at the cap, and returns what it
-	// was still waiting for.
+	// was still waiting for. No event says a page is quiet, so it is polled.
 	async settle(cap: number, busy: string): Promise<string | undefined> {
 		const end = Date.now() + cap;
 		this.lastNet = Date.now();
@@ -217,6 +232,7 @@ export class Tab {
 				busyRequests(this.open.values(), Date.now()) === 0 &&
 				Date.now() - this.lastNet >= 400
 			) {
+				// A page mid-navigation has no context to evaluate in: not idle yet.
 				const idle = await this.evaluate<boolean>(
 					`document.readyState==="complete"&&document.querySelector(${JSON.stringify(busy)})===null`,
 				).catch(() => false);
@@ -331,6 +347,7 @@ export class Tab {
 	}
 
 	async close(): Promise<void> {
+		// The target is gone already when its context or browser closed first.
 		await this.cdp
 			.send("Target.closeTarget", { targetId: this.targetId })
 			.catch(() => {});

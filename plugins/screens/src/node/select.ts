@@ -2,18 +2,17 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import type { PreviewGlobal } from "../types.ts";
 import { WIDTHS } from "../widths.ts";
-import { SCREEN_STATES, screenTitle } from "./screens.ts";
+import {
+	globalTag,
+	SCREEN_STATES,
+	screenTitle,
+	stateTag,
+} from "./screens.ts";
 
-// What `stack screens test` narrows a run by. A story carries a tag per
-// checked global (`mode:dark`) and one for its state (`state:loading`); the
-// run excludes the tags of every value it was not asked for, so the narrowing
-// across globals and states multiplies where an include list would add.
+// What `stack screens test` narrows a run by. The run excludes the tags
+// (`screens.ts`) of every value it was not asked for, so the narrowing across
+// globals and states multiplies where an include list would add.
 
-export const globalTag = (name: string, value: string): string =>
-	`${name}:${value}`;
-export const stateTag = (state: string): string => `state:${state}`;
-
-// A comma list as its items, trimmed; empty when the flag is absent.
 export function parseList(value: unknown): string[] {
 	if (typeof value !== "string") return [];
 	return value
@@ -61,7 +60,6 @@ export function globalExcludes(
 		.map((v) => globalTag(name, v));
 }
 
-// The tags to leave out for `--state`.
 export function stateExcludes(value: unknown): string[] {
 	const states = SCREEN_STATES.map(({ state }) => state);
 	const kept = pick("state", value, states);

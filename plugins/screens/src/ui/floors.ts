@@ -2,6 +2,7 @@ import { previewGlobals } from "virtual:stack-screens";
 import type { Preview } from "@storybook/react-vite";
 import { expect, inject } from "vitest";
 import { commands, page } from "vitest/browser";
+import { stateTag } from "../node/screens.ts";
 import { HEIGHT, SHOT_MAX_HEIGHT, WIDTHS } from "../widths.ts";
 import {
 	called,
@@ -131,10 +132,10 @@ const waiting = (): boolean =>
 	document.querySelector(READ_BUSY) !== null ||
 	fetchingReads(storyClient()) > 0;
 
-// Once the reads are answered (held ones released): no read fetching, nothing
-// busy, and the page settled. Holds for a few frames running, since a read can
-// start the frame after another lands.
-async function loaded(animations = true): Promise<string | undefined> {
+// Once the reads are answered (held ones released): no read fetching and
+// nothing busy. Holds for a few frames running, since a read can start the
+// frame after another lands.
+async function readsLanded(): Promise<string | undefined> {
 	const end = performance.now() + LOAD_TIMEOUT;
 	for (let held = 0; held < STABLE_FRAMES; ) {
 		if (performance.now() > end)
@@ -142,7 +143,14 @@ async function loaded(animations = true): Promise<string | undefined> {
 		await frame();
 		held = waiting() ? 0 : held + 1;
 	}
-	await settle(animations);
+	return undefined;
+}
+
+// The reads answered and the page settled.
+async function loaded(): Promise<string | undefined> {
+	const busy = await readsLanded();
+	if (busy) return busy;
+	await settle(true);
 	return undefined;
 }
 
@@ -380,6 +388,7 @@ async function visit(
 	for (const line of reports) console.info(line);
 	// The phone width draws the touch set and the wider ones the desktop one: a
 	// run that visits both and draws one set at all of them did not unpin.
+	// `WIDTHS` lists the phone, the laptop and the desktop, in that order.
 	const wide = [...marks].filter(([width]) => width >= WIDTHS[1]);
 	const phone = marks.get(WIDTHS[0]);
 	if (
@@ -429,7 +438,8 @@ async function perRead(): Promise<string[]> {
 			// Waiting for every animation to end costs about 2 s a read (one outlasts
 			// the wait's limit), so the page is judged settled by its size, as at
 			// each width.
-			const busy = await loaded(false);
+			const busy = await readsLanded();
+			if (!busy) await settle(false);
 			const found = busy ? [`shift: ${busy}`] : [];
 			for (const width of widths()) {
 				await resize(pins, width);
@@ -463,19 +473,19 @@ const floors: Preview = {
 	beforeEach: () => {
 		holdCalls();
 		capture();
-		watchFirstPaint(document.getElementById("storybook-root") ?? document.body);
+		watchFirstPaint();
 	},
 	afterEach: async ({ tags, title, name }) => {
 		const failures = await visit(
-			tags.includes("state:loading"),
+			tags.includes(stateTag("loading")),
 			title,
 			(width, open) => shotPath(title, name, width, open),
 		);
 		// Read before the per-read run, whose resets fetch every read again.
 		failures.push(...fixtureGaps());
 		// The sidebar's Data story alone: its hidden variants (`!dev`) are the
-		// other modes and densities of the same reads.
-		if (tags.includes("state:data") && tags.includes("dev"))
+		// other modes and densities of the same reads. `dev` is Storybook's own tag.
+		if (tags.includes(stateTag("data")) && tags.includes("dev"))
 			failures.push(...(await perRead()));
 		failures.push(...logged);
 		release();

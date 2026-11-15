@@ -24,6 +24,7 @@ const standIn = { queryClient: undefined as never };
 
 // `stack screens test --search`: the search every screen is drawn at, in
 // place of the fixtures' example (an empty one draws none).
+// `import.meta.env` is Vite's: this package's tsconfig loads no `vite/client`.
 const searchOverride = (
 	import.meta as { env?: Record<string, string | undefined> }
 ).env?.STACK_SCREENS_SEARCH;
@@ -37,6 +38,7 @@ function routerAt(routeId: string) {
 		history: createMemoryHistory(),
 		context: standIn,
 	});
+	// `routeTree` is an `AnyRoute`: its routes are untyped.
 	const route = (
 		probe.routesById as Record<string, { fullPath: string } | undefined>
 	)[routeId];

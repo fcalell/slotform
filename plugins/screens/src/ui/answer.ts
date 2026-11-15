@@ -98,7 +98,7 @@ function findFixture(
 				node = undefined;
 				break;
 			}
-			node = (node as Record<string, unknown>)[key];
+			node = Reflect.get(node, key);
 		}
 		if (isFixture(node)) return { fixture: node, plugin: index > 0 };
 	}
@@ -150,7 +150,6 @@ async function inputOf(request: Request): Promise<unknown> {
 	}
 }
 
-// The procedure a request calls, from the path after the prefix.
 function procedurePath(url: string, prefix: string): string[] {
 	const { pathname } = new URL(url);
 	const at = pathname.indexOf(`${prefix}/`);
@@ -202,9 +201,9 @@ function failedInData(
 	params: Readonly<Record<string, string>>,
 	code: string,
 ): string | undefined {
-	const sent =
+	const sent: unknown[] =
 		typeof input === "object" && input !== null
-			? Object.values(input as Record<string, unknown>)
+			? Object.values(input)
 			: [input];
 	const named = Object.entries(params)
 		.filter(([, value]) => sent.includes(value))
@@ -267,6 +266,7 @@ export async function answer(
 	app: unknown,
 	plugins: readonly unknown[],
 	story: ScreenState,
+	// The generated schema is a virtual module the node tests cannot import.
 	kinds: ProcedureKinds = {},
 ): Promise<Response> {
 	const path = procedurePath(request.url, prefix);
@@ -274,7 +274,7 @@ export async function answer(
 	const query = kind ? kind === "query" : request.method === "GET";
 	const found = findFixture(app, plugins, path);
 	const owned = found?.plugin || isFrameRoute(path) || isSessionRead(path);
-	let state = query && !owned ? story : ("data" as ScreenState);
+	let state: ScreenState = query && !owned ? story : "data";
 	if (query) {
 		seen.set(path.join("."), path);
 		if (state === "data" && !owned && failed === path.join("."))
@@ -419,7 +419,6 @@ export function currentStory(): Story {
 	return story;
 }
 
-// The handlers that answer the worker's prefixes for one story.
 export function fixtureHandlers(
 	prefixes: readonly string[],
 	app: unknown,

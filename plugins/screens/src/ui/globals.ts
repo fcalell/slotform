@@ -1,6 +1,5 @@
 import type { PreviewGlobal } from "../types.ts";
 
-// Storybook's `globalTypes`, one toolbar select per contributed global.
 export function globalTypes(globals: PreviewGlobal[]) {
 	return Object.fromEntries(
 		globals.map((g) => [
@@ -27,7 +26,6 @@ export function initialGlobals(
 // story that renders again pins the rest, never these.
 export const unpinned = new Set<string>();
 
-// Pins every global's chosen value on the root.
 export function applyGlobals(
 	root: Element,
 	globals: PreviewGlobal[],

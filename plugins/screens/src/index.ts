@@ -136,7 +136,6 @@ const viteConfig = slot.derived({
 	},
 });
 
-// `.stack/screens/main.ts`, the Storybook config directory's one file.
 const storybookMain = slot.derived({
 	source: SOURCE,
 	name: "storybookMain",
@@ -171,12 +170,13 @@ function binOf(cwd: string, name: string): string {
 	const manifest = createRequire(join(cwd, "package.json")).resolve(
 		`${name}/package.json`,
 	);
-	const bin = (
-		JSON.parse(readFileSync(manifest, "utf8")) as {
-			bin: Record<string, string>;
-		}
-	).bin[name];
-	return join(dirname(manifest), bin as string);
+	// The manifest is the package's own: only `bin` is read.
+	const { bin } = JSON.parse(readFileSync(manifest, "utf8")) as {
+		bin?: Record<string, string>;
+	};
+	const file = bin?.[name];
+	if (!file) throw new Error(`${name} declares no bin named ${name}`);
+	return join(dirname(manifest), file);
 }
 
 // Runs a Node script in the app and resolves when it exits cleanly. A signal
@@ -242,8 +242,7 @@ export const screens = plugin("screens", {
 		vitest: "^5.0.3",
 	},
 
-	// The story files are generated, one per route.
-	gitignore: [STORIES_DIR],
+		gitignore: [STORIES_DIR],
 
 	slots: {
 		handlerModules,
@@ -265,7 +264,6 @@ export const screens = plugin("screens", {
 		emitArtifact(".stack/screens-test/main.ts", self.slots.testMain),
 		emitArtifact(".stack/screens.vitest.config.ts", self.slots.vitestConfig),
 
-		// One story file per route, in step with the routes after every generate.
 		cliSlots.postWrite.contribute(async (ctx) => {
 			const dir = await ctx.resolve(react.slots.routesDir);
 			if (dir === null) return undefined;
@@ -508,6 +506,7 @@ export const screens = plugin("screens", {
 			handler: async (ctx, flags) => {
 				const routesDir = await ctx.resolve(react.slots.routesDir);
 				const globals = await ctx.resolve(previewGlobals);
+				// `--mode` narrows the design system's global of that name.
 				// Bad flags fail before anything is generated or started.
 				const selection: RunSelection = {
 					widths: parseWidths(flags.width),

@@ -50,6 +50,8 @@ function linked(cwd: string, name: string): string | null {
 // directory is in the graph; a compiled entry (`dist/`, gitignored) holds none
 // of its `src/`. A published app links nothing, so its list is empty.
 export function workspaceTriggers(cwd: string): string[] {
+	// The manifests are the package manager's own: only the fields named here
+	// are read.
 	const manifest = JSON.parse(
 		readFileSync(join(cwd, "package.json"), "utf8"),
 	) as {

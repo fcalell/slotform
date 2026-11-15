@@ -35,8 +35,12 @@ function freePort(): Promise<number> {
 		const server = createServer();
 		server.once("error", reject);
 		server.listen(0, "127.0.0.1", () => {
-			const { port } = server.address() as { port: number };
-			server.close(() => resolve(port));
+			const address = server.address();
+			server.close(() =>
+				address && typeof address === "object"
+					? resolve(address.port)
+					: reject(new Error("the server has no TCP address")),
+			);
 		});
 	});
 }
@@ -53,6 +57,7 @@ function buildClient(
 			"--config",
 			".stack/vite.config.ts",
 			"--outDir",
+			// `client` is set whenever there is a web client to build.
 			serve.client as string,
 			"--emptyOutDir",
 		],
@@ -138,6 +143,7 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 		if (typeof flags.entry === "string") {
 			stop = await startServer(run, "server", process.execPath, [flags.entry]);
 		} else {
+			// A deploy target is one only: the first contribution starts.
 			const target = targets[0];
 			if (!target) throw new Error("no deploy target in the config to serve");
 			stop = await target.start(run);
@@ -145,11 +151,9 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 
 		const seedFile = join(cwd, SEED_FILE);
 		if (existsSync(seedFile)) {
-			const seed = (
-				(await import(pathToFileURL(seedFile).href)) as {
-					default: unknown;
-				}
-			).default;
+			const { default: seed }: { default: unknown } = await import(
+				pathToFileURL(seedFile).href
+			);
 			if (typeof seed !== "function")
 				throw new Error(
 					`${SEED_FILE} must export default defineServeSeed(...)`,

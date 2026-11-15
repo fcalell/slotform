@@ -10,6 +10,12 @@ export const SCREEN_STATES = [
 	{ state: "notFound", exportName: "NotFound", name: "Not found" },
 ] as const;
 
+// The tags a story carries, which a test run narrows by: one per checked
+// global (`mode:dark`) and one for its state (`state:loading`).
+export const globalTag = (name: string, value: string): string =>
+	`${name}:${value}`;
+export const stateTag = (state: string): string => `state:${state}`;
+
 // The sidebar title of a route's screens: its id under `Screens/` without the
 // segments that add no URL (a pathless layout `_app`, a group `(auth)`), a
 // trailing slash (an index route) named `index` so it never shares a title

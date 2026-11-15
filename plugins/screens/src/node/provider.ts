@@ -31,7 +31,7 @@ declare module "vitest/node" {
 const viewport: BrowserCommand<[{ width: number; height: number }]> = (
 	{ tab },
 	{ width, height },
-) => tab.viewport(width, height, false);
+) => tab.viewport(width, height);
 
 interface ScreenshotOptions {
 	path?: string;
@@ -72,13 +72,12 @@ const takeScreenshot: BrowserCommand<[string, ScreenshotOptions]> = async (
 // The inputs the floors send. They name the config's `browser.commands`: the
 // page's `commands` module lists a command only if it is registered before the
 // first page opens, which the provider, built lazily, is not.
-export const inputCommands = {
-	press: (({ tab }, x, y) => tab.click(x, y)) as BrowserCommand<
-		[number, number]
-	>,
-	key: (({ tab }, name) => tab.key(name)) as BrowserCommand<[string]>,
-	rest: (({ tab }) => tab.rest()) as BrowserCommand<[]>,
-};
+const press: BrowserCommand<[number, number]> = ({ tab }, x, y) =>
+	tab.click(x, y);
+const key: BrowserCommand<[string]> = ({ tab }, name) => tab.key(name);
+const rest: BrowserCommand<[]> = ({ tab }) => tab.rest();
+
+export const inputCommands = { press, key, rest };
 
 const commands = {
 	__vitest_viewport: viewport,
@@ -93,6 +92,8 @@ class ChromeProvider implements BrowserProvider {
 	private tabs = new Map<string, Tab>();
 
 	constructor(project: TestProject) {
+		// Vitest's internal `__vitest_*` commands are not in its public
+		// `BrowserCommands` type, and `Object.entries` widens the union.
 		for (const [name, command] of Object.entries(commands))
 			project.browser?.registerCommand(
 				name as keyof BrowserCommands,
@@ -116,7 +117,7 @@ class ChromeProvider implements BrowserProvider {
 		this.scopes.set(sessionId, scope);
 		const tab = await scope.tab();
 		this.tabs.set(sessionId, tab);
-		await tab.viewport(1280, 800, false);
+		await tab.viewport(1280, 800);
 		await tab.goto(url, 60_000);
 	}
 

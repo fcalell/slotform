@@ -10,7 +10,14 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { browserUrl, Cdp, findChrome, launchChrome, sleep } from "./chrome.ts";
+import {
+	browserUrl,
+	Cdp,
+	findChrome,
+	hasCode,
+	launchChrome,
+	sleep,
+} from "./chrome.ts";
 import { Tab } from "./tab.ts";
 
 // The one Chrome every screens command on the machine shares. Its address is
@@ -43,25 +50,29 @@ const files = () => {
 
 export function parseState(text: string): BrowserState | undefined {
 	try {
-		const value = JSON.parse(text) as Partial<BrowserState>;
-		return Number.isInteger(value.port) && Number.isInteger(value.pid)
-			? (value as BrowserState)
-			: undefined;
+		const value: unknown = JSON.parse(text);
+		if (typeof value !== "object" || value === null) return undefined;
+		if (!("port" in value) || !("pid" in value)) return undefined;
+		const { port, pid } = value;
+		if (typeof port !== "number" || !Number.isInteger(port)) return undefined;
+		if (typeof pid !== "number" || !Number.isInteger(pid)) return undefined;
+		return "kept" in value && value.kept === true
+			? { port, pid, kept: true }
+			: { port, pid };
 	} catch {
 		return undefined;
 	}
 }
 
 // A lock file holds its owner's pid. It is stale when that process is gone, or,
-// while the pid is not yet written, when it is older than `grace` ms.
+// while the pid is not yet written, when it is older than 10 s.
 export function lockIsStale(
 	content: string,
 	ageMs: number,
 	alive: (pid: number) => boolean,
-	grace = 10_000,
 ): boolean {
 	const pid = Number(content);
-	return Number.isInteger(pid) && pid > 0 ? !alive(pid) : ageMs > grace;
+	return Number.isInteger(pid) && pid > 0 ? !alive(pid) : ageMs > 10_000;
 }
 
 function pidAlive(pid: number): boolean {
@@ -92,20 +103,23 @@ async function withLock<T>(body: () => Promise<T>): Promise<T> {
 			closeSync(fd);
 			break;
 		} catch (error) {
-			if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+			if (!hasCode(error, "EEXIST")) throw error;
 			try {
 				const age = Date.now() - statSync(lock).mtimeMs;
 				if (lockIsStale(readFileSync(lock, "utf8"), age, pidAlive)) {
 					rmSync(lock, { force: true });
 					continue;
 				}
-			} catch {
+			} catch (inner) {
+				// The holder released it between the two reads: take it again.
+				if (!hasCode(inner, "ENOENT")) throw inner;
 				continue;
 			}
 			if (Date.now() > end)
 				throw new Error(
 					`the browser lock ${lock} is held by another process; remove it if no stack screens command is running`,
 				);
+			// Another process holds the lock: nothing signals its release.
 			await sleep(50);
 		}
 	}
@@ -130,36 +144,39 @@ function discard(state: BrowserState | undefined): void {
 	if (state && pidAlive(state.pid)) {
 		try {
 			process.kill(state.pid, "SIGKILL");
-		} catch {}
+		} catch {
+			// The process may exit between the check and the kill.
+		}
 	}
 	rmSync(file, { force: true });
 	rmSync(profile, { recursive: true, force: true });
 }
 
-// The browser's endpoint, started when none runs. Call it under the lock.
-async function ensure(kept: boolean): Promise<string> {
-	const state = readState();
-	const url = await liveUrl(state);
-	if (url) {
-		if (kept && !state?.kept)
-			writeFileSync(files().state, JSON.stringify({ ...state, kept: true }));
-		return url;
-	}
-	discard(state);
-	const { profile, state: file } = files();
-	const { port, pid } = await launchChrome(findChrome(), profile);
-	writeFileSync(
-		file,
-		JSON.stringify(kept ? ({ port, pid, kept: true } as const) : { port, pid }),
-	);
-	const started = await browserUrl(port, 10_000);
-	if (!started) throw new Error(`Chrome on port ${port} does not answer`);
-	return started;
-}
+// The browser's endpoint, started when none runs.
+const ensure = (kept: boolean): Promise<string> =>
+	withLock(async () => {
+		const state = readState();
+		const url = await liveUrl(state);
+		if (url) {
+			if (kept && !state?.kept)
+				writeFileSync(files().state, JSON.stringify({ ...state, kept: true }));
+			return url;
+		}
+		discard(state);
+		const { profile, state: file } = files();
+		const { port, pid } = await launchChrome(findChrome(), profile);
+		writeFileSync(
+			file,
+			JSON.stringify(kept ? { port, pid, kept: true } : { port, pid }),
+		);
+		const started = await browserUrl(port, 10_000);
+		if (!started) throw new Error(`Chrome on port ${port} does not answer`);
+		return started;
+	});
 
-// What `stack screens browser` does: start the shared browser and leave it.
 export async function startBrowser(): Promise<BrowserState> {
-	await withLock(() => ensure(true));
+	await ensure(true);
+	// `ensure` wrote or confirmed the state file.
 	return readState() as BrowserState;
 }
 
@@ -175,9 +192,13 @@ export async function stopBrowser(): Promise<boolean> {
 		}
 		try {
 			const cdp = await Cdp.connect(url);
+			// Chrome may close the socket before it answers.
 			await cdp.send("Browser.close", {}, { timeout: 5000 }).catch(() => {});
 			cdp.close();
-		} catch {}
+		} catch {
+			// A browser that does not answer is killed by `discard` below.
+		}
+		// The browser is no child of this process: no exit event to wait on.
 		for (let i = 0; i < 50 && pidAlive(state.pid); i++) await sleep(100);
 		discard(state);
 		return true;
@@ -195,11 +216,11 @@ export class Scope {
 		this.contextId = contextId;
 	}
 
-	async tab(url = "about:blank"): Promise<Tab> {
+	async tab(): Promise<Tab> {
 		const { targetId } = await this.cdp.send<{ targetId: string }>(
 			"Target.createTarget",
 			{
-				url,
+				url: "about:blank",
 				browserContextId: this.contextId,
 			},
 		);
@@ -210,12 +231,11 @@ export class Scope {
 				flatten: true,
 			},
 		);
-		const tab = new Tab(this.cdp, sessionId, targetId);
-		await tab.init();
-		return tab;
+		return Tab.open(this.cdp, sessionId, targetId);
 	}
 
 	dispose(): Promise<unknown> {
+		// The context is gone already when its browser closed first.
 		return this.cdp
 			.send("Target.disposeBrowserContext", {
 				browserContextId: this.contextId,
@@ -258,17 +278,22 @@ export class Lease {
 
 	private async dispose(): Promise<void> {
 		await Promise.all(this.scopes.map((scope) => scope.dispose()));
+		// Releasing is best effort: a lock timeout must not fail a command that
+		// already finished.
 		await withLock(async () => {
 			if (this.cdp.closed || readState()?.kept) return;
 			const { browserContextIds } = await this.cdp
 				.send<{ browserContextIds: string[] }>("Target.getBrowserContexts")
+				// A browser that cannot say what it holds stays up.
 				.catch(() => ({ browserContextIds: ["unknown"] }));
 			if (browserContextIds.length > 0) return;
 			const state = readState();
 			rmSync(files().state, { force: true });
+			// Chrome may close the socket before it answers.
 			await this.cdp
 				.send("Browser.close", {}, { timeout: 5000 })
 				.catch(() => {});
+			// The browser is no child of this process: no exit event to wait on.
 			for (let i = 0; state && i < 50 && pidAlive(state.pid); i++)
 				await sleep(100);
 			rmSync(files().profile, { recursive: true, force: true });
@@ -283,7 +308,7 @@ export async function openLease(): Promise<Lease> {
 	let last: unknown;
 	for (let attempt = 0; attempt < 2; attempt++) {
 		try {
-			const url = await withLock(() => ensure(false));
+			const url = await ensure(false);
 			return new Lease(await Cdp.connect(url));
 		} catch (error) {
 			last = error;

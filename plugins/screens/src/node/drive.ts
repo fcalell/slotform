@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { withLease } from "./browser.ts";
 import { sleep } from "./chrome.ts";
-import { Page, printRun, target } from "./shoot.ts";
+import { messageOf, Page, printRun, target } from "./shoot.ts";
 
 // `stack screens drive <plan.json> --url <app>`: a plan is a list of steps run
 // in a tab of the app, once for each viewport of `each`.
@@ -21,6 +21,9 @@ export interface Plan {
 	steps: Step[];
 }
 
+// A key, typing or a scroll has no event that says the page has reacted.
+const REACT_MS = 150;
+
 const KINDS: Record<string, "string" | "boolean" | "number"> = {
 	goto: "string",
 	open: "string",
@@ -36,13 +39,15 @@ const KINDS: Record<string, "string" | "boolean" | "number"> = {
 // the wrong type, or with two kinds in one object, fails the whole plan before
 // anything runs.
 export function parsePlan(text: string): Plan {
+	// The file is read field by field below, so its shape is a claim until then.
 	const plan = JSON.parse(text) as {
 		each?: { width?: unknown; mode?: unknown }[];
 		steps?: unknown;
 	};
 	if (!Array.isArray(plan.steps) || plan.steps.length === 0)
 		throw new Error('the plan has no steps: expected { "steps": [...] }');
-	const steps = plan.steps.map((raw, index): Step => {
+	const items: unknown[] = plan.steps;
+	const steps = items.map((raw, index): Step => {
 		const at = `step ${index + 1} ${JSON.stringify(raw)}`;
 		if (typeof raw !== "object" || raw === null || Array.isArray(raw))
 			throw new Error(`${at} is not an object`);
@@ -54,16 +59,18 @@ export function parsePlan(text: string): Plan {
 			throw new Error(
 				`${at}: a step has exactly one of ${Object.keys(KINDS).join(", ")}`,
 			);
-		if (typeof (raw as Record<string, unknown>)[kind] !== KINDS[kind])
+		if (typeof Reflect.get(raw, kind) !== KINDS[kind])
 			throw new Error(`${at}: ${kind} takes a ${KINDS[kind]}`);
 		if ("in" in raw && typeof raw.in !== "string")
 			throw new Error(`${at}: in takes a CSS selector`);
+		// Its one kind and that kind's value type are checked above.
 		return raw as Step;
 	});
 	const each = (plan.each ?? [{ width: 320 }, { width: 1920 }]).map((entry) => {
 		const width = entry.width;
 		if (typeof width !== "number" || !Number.isInteger(width) || width < 200)
 			throw new Error(`each: ${JSON.stringify(entry)} needs a width in px`);
+		// The values of `prefers-color-scheme`.
 		const mode = entry.mode ?? "dark";
 		if (mode !== "light" && mode !== "dark")
 			throw new Error(`each: mode is light or dark, not ${String(mode)}`);
@@ -85,10 +92,10 @@ async function run(page: Page, steps: Step[]): Promise<void> {
 			else if ("open" in step) await page.open(fill(step.open, fx));
 			else if ("key" in step) {
 				await page.tab.key(step.key);
-				await sleep(150);
+				await sleep(REACT_MS);
 			} else if ("type" in step) {
 				await page.tab.type(fill(step.type, fx));
-				await sleep(150);
+				await sleep(REACT_MS);
 			} else if ("fx" in step) {
 				const path = JSON.stringify(
 					new URL(fill(step.fx, fx), page.target.url).href,
@@ -103,10 +110,10 @@ async function run(page: Page, steps: Step[]): Promise<void> {
 					? `document.querySelector(${JSON.stringify(step.in)})`
 					: "document.scrollingElement";
 				await page.tab.evaluate(`${scroller}.scrollTop = ${step.scroll}`);
-				await sleep(150);
+				await sleep(REACT_MS);
 			}
 		} catch (error) {
-			throw new Error(`${at}: ${(error as Error).message}`);
+			throw new Error(`${at}: ${messageOf(error)}`);
 		}
 	}
 }
@@ -128,7 +135,7 @@ export async function drive(
 			try {
 				await run(page, plan.steps);
 			} catch (error) {
-				page.report((error as Error).message);
+				page.report(messageOf(error));
 			} finally {
 				await page.tab.close();
 			}

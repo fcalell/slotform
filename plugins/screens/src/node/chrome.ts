@@ -6,6 +6,9 @@ import { delimiter, join } from "node:path";
 // that talks to it over Node's own WebSocket. Nothing here waits without a
 // limit: every call rejects, naming what it waited for.
 
+const LAUNCH_TIMEOUT = 20_000;
+const CONNECT_TIMEOUT = 10_000;
+
 const NAMES = ["chromium", "google-chrome", "google-chrome-stable"];
 
 export const NO_CHROME =
@@ -57,12 +60,15 @@ const CHROME_ARGS = [
 export const sleep = (ms: number) =>
 	new Promise<void>((resolve) => setTimeout(resolve, ms));
 
+// Whether `error` is a Node system error with this `code`.
+export const hasCode = (error: unknown, code: string): boolean =>
+	error instanceof Error && "code" in error && error.code === code;
+
 // Starts Chrome detached on a free debugging port with its own profile, and
 // resolves with the port it chose, which it writes to `DevToolsActivePort`.
 export async function launchChrome(
 	executable: string,
 	userDataDir: string,
-	timeout = 20_000,
 ): Promise<{ port: number; pid: number }> {
 	const child = spawn(
 		executable,
@@ -85,29 +91,36 @@ export async function launchChrome(
 	);
 	const portFile = join(userDataDir, "DevToolsActivePort");
 	const ready = (async () => {
-		const end = Date.now() + timeout;
+		const end = Date.now() + LAUNCH_TIMEOUT;
 		while (Date.now() < end) {
 			if (exited) throw new Error(`${executable} ${exited} before it listened`);
+			// Chrome announces its port only by writing this file.
 			try {
 				const port = Number(readFileSync(portFile, "utf8").split("\n")[0]);
 				if (port > 0) return port;
-			} catch {}
+			} catch (error) {
+				if (!hasCode(error, "ENOENT")) throw error;
+			}
 			await sleep(50);
 		}
 		throw new Error(
-			`${executable} did not open its debugging port within ${timeout} ms`,
+			`${executable} did not open its debugging port within ${LAUNCH_TIMEOUT} ms`,
 		);
 	})();
 	try {
 		const port = await Promise.race([ready, spawnFailure]);
+		const { pid } = child;
+		if (pid === undefined) throw new Error(`cannot start ${executable}`);
 		child.unref();
-		return { port, pid: child.pid as number };
+		return { port, pid };
 	} catch (error) {
 		child.kill("SIGKILL");
 		throw error;
 	}
 }
 
+// `Handler` and `Pending` take `never` so a caller's own type for an event or a
+// reply fits; the JSON's `any` meets them through a cast.
 type Handler = (params: never, sessionId: string | undefined) => void;
 
 interface Pending {
@@ -153,15 +166,17 @@ export class Cdp {
 		socket.addEventListener("error", () => this.fail("the connection failed"));
 	}
 
-	static connect(url: string, timeout = 10_000): Promise<Cdp> {
+	static connect(url: string): Promise<Cdp> {
 		return new Promise((resolve, reject) => {
 			const socket = new WebSocket(url);
 			const timer = setTimeout(() => {
 				socket.close();
 				reject(
-					new Error(`CDP connect to ${url} timed out after ${timeout} ms`),
+					new Error(
+						`CDP connect to ${url} timed out after ${CONNECT_TIMEOUT} ms`,
+					),
 				);
-			}, timeout);
+			}, CONNECT_TIMEOUT);
 			socket.addEventListener("open", () => {
 				clearTimeout(timer);
 				resolve(new Cdp(socket));
@@ -227,10 +242,13 @@ export async function browserUrl(
 		const response = await fetch(`http://127.0.0.1:${port}/json/version`, {
 			signal: AbortSignal.timeout(timeout),
 		});
-		const { webSocketDebuggerUrl } = (await response.json()) as {
-			webSocketDebuggerUrl?: string;
-		};
-		return webSocketDebuggerUrl;
+		const body: unknown = await response.json();
+		return typeof body === "object" &&
+			body !== null &&
+			"webSocketDebuggerUrl" in body &&
+			typeof body.webSocketDebuggerUrl === "string"
+			? body.webSocketDebuggerUrl
+			: undefined;
 	} catch {
 		return undefined;
 	}

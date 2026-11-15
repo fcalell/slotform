@@ -24,6 +24,9 @@ export interface Target {
 	signIn?: string;
 }
 
+export const messageOf = (error: unknown): string =>
+	error instanceof Error ? error.message : String(error);
+
 export const slug = (text: string): string =>
 	text
 		.toLowerCase()
@@ -43,9 +46,9 @@ export const shotName = (
 ): string =>
 	`${name}-${width}-${mode}${opened ? `-open-${slug(opened)}` : ""}.png`;
 
-export function parseWidthList(value: unknown, fallback: number[]): number[] {
+export function parseWidthList(value: unknown): number[] {
 	const items = parseList(value);
-	if (items.length === 0) return fallback;
+	if (items.length === 0) return [320, 1920];
 	return items.map((item) => {
 		const width = Number(item);
 		if (!Number.isInteger(width) || width < 200 || width > 4000)
@@ -55,6 +58,7 @@ export function parseWidthList(value: unknown, fallback: number[]): number[] {
 }
 
 export function parseModes(value: unknown): string[] {
+	// The values of `prefers-color-scheme`.
 	const modes = parseList(value);
 	const bad = modes.filter((mode) => mode !== "light" && mode !== "dark");
 	if (bad.length > 0)
@@ -98,8 +102,9 @@ export function target(flags: Record<string, unknown>, cwd: string): Target {
 		),
 		full: flags.full === true,
 		settle: parseSettle(flags.settle),
-		cookie: flags.cookie as string | undefined,
-		signIn: flags["sign-in"] as string | undefined,
+		cookie: typeof flags.cookie === "string" ? flags.cookie : undefined,
+		signIn:
+			typeof flags["sign-in"] === "string" ? flags["sign-in"] : undefined,
 	};
 }
 
@@ -132,7 +137,7 @@ export class Page {
 	): Promise<Page> {
 		const tab = await scope.tab();
 		await tab.media(mode);
-		await tab.viewport(width, HEIGHT);
+		await tab.device(width, HEIGHT);
 		await prepare(tab, target.cwd);
 		const cookie = parseCookie(target.cookie);
 		if (cookie) await tab.cookie(cookie.name, cookie.value, target.url);
@@ -163,7 +168,6 @@ export class Page {
 		return `${this.width}px ${this.mode}`;
 	}
 
-	// Presses the control named `text`, then waits for the page to go quiet.
 	async open(text: string): Promise<void> {
 		const point = await call<ControlPoint | null>(
 			this.tab,
@@ -174,9 +178,15 @@ export class Page {
 	}
 
 	// Judges the page as it is and writes its shot, the viewport or with
-	// `--full` all the page holds.
-	async shoot(name: string, opened?: string, fonts = true): Promise<void> {
-		const found = await judge(this.tab, this.target.cwd, this.width, fonts);
+	// `--full` all the page holds. The fonts are judged once a screen: not again
+	// with a control open.
+	async shoot(name: string, opened?: string): Promise<void> {
+		const found = await judge(
+			this.tab,
+			this.target.cwd,
+			this.width,
+			opened === undefined,
+		);
 		for (const line of found)
 			this.report(opened ? `with "${opened}" open: ${line}` : line);
 		let height = HEIGHT;
@@ -187,7 +197,7 @@ export class Page {
 				hidden = await call<number>(this.tab, "hiddenHeight()")
 			) {
 				height = Math.min(height + hidden, SHOT_MAX_HEIGHT);
-				await this.tab.viewport(this.width, height);
+				await this.tab.device(this.width, height);
 				await this.quiet();
 			}
 		}
@@ -198,7 +208,7 @@ export class Page {
 		await mkdir(dirname(file), { recursive: true });
 		await writeFile(file, await this.tab.screenshot());
 		this.shots.push(file);
-		if (height !== HEIGHT) await this.tab.viewport(this.width, HEIGHT);
+		if (height !== HEIGHT) await this.tab.device(this.width, HEIGHT);
 	}
 }
 
@@ -223,7 +233,7 @@ export async function shoot(
 	const routes = parseList(flags.route);
 	if (routes.length === 0)
 		throw new Error("--route: give the routes to shoot, like /,/deploys");
-	const widths = parseWidthList(flags.width, [320, 1920]);
+	const widths = parseWidthList(flags.width);
 	const modes = parseModes(flags.mode);
 	const open = typeof flags.open === "string" ? flags.open : undefined;
 	const pages: Page[] = [];
@@ -242,14 +252,14 @@ export async function shoot(
 							try {
 								await page.open(open);
 							} catch (error) {
-								page.report(`--open on ${route}: ${(error as Error).message}`);
+								page.report(`--open on ${route}: ${messageOf(error)}`);
 								continue;
 							}
-							await page.shoot(routeSlug(route), open, false);
+							await page.shoot(routeSlug(route), open);
 						}
 					}
 				} catch (error) {
-					page.report((error as Error).message);
+					page.report(messageOf(error));
 				} finally {
 					await page.tab.close();
 				}

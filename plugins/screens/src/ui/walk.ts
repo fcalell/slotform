@@ -304,6 +304,7 @@ function resolveTokens(scope: Element): Tokens {
 	const read = (prefix: string, name: string): Token[] => {
 		const property = `--${prefix}-${name}`;
 		if (declared.getPropertyValue(property).trim() === "") return [];
+		// A `--text-*` token is a font size; every other prefix is a length.
 		if (prefix === "text") {
 			probe.style.fontSize = `var(${property})`;
 			return [
@@ -390,7 +391,7 @@ const SKIPPED = new Set(["SCRIPT", "STYLE", "TEMPLATE", "NOSCRIPT", "HEAD"]);
 // (a visually hidden input is no control), and `display: contents` seen
 // through, so its children are measured and it is not. An svg is one element:
 // its parts are drawn in the drawing's own units.
-function drawn(roots: Element[]): Seen[] {
+function drawn(): Seen[] {
 	const seen: Seen[] = [];
 	const visit = (element: Element): void => {
 		if (SKIPPED.has(element.tagName)) return;
@@ -412,7 +413,7 @@ function drawn(roots: Element[]): Seen[] {
 		if (element instanceof SVGElement) return;
 		for (const child of element.children) visit(child);
 	};
-	for (const root of roots) visit(root);
+	visit(document.body);
 	return seen;
 }
 
@@ -463,8 +464,8 @@ function texts(seen: Seen[]): Array<{ node: Text; seen: Seen }> {
 	for (const s of seen) {
 		if (s.element.tagName === "OPTION") continue;
 		for (const node of s.element.childNodes) {
-			if (node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim())
-				out.push({ node: node as Text, seen: s });
+			if (node instanceof Text && node.nodeValue?.trim())
+				out.push({ node, seen: s });
 		}
 	}
 	return out;
@@ -550,7 +551,10 @@ function regionName(element: Element): string | null {
 	return named && name ? name : null;
 }
 
-function corners(style: CSSStyleDeclaration, rect: DOMRect) {
+function corners(
+	style: CSSStyleDeclaration,
+	rect: DOMRect,
+): [number, number, number, number] {
 	const read = (value: string): number => {
 		const first = value.split(" ")[0] ?? "0";
 		return first.endsWith("%")
@@ -562,7 +566,7 @@ function corners(style: CSSStyleDeclaration, rect: DOMRect) {
 		read(style.borderTopRightRadius),
 		read(style.borderBottomRightRadius),
 		read(style.borderBottomLeftRadius),
-	] as [number, number, number, number];
+	];
 }
 
 const painted = (style: CSSStyleDeclaration): boolean =>
@@ -578,9 +582,9 @@ const painted = (style: CSSStyleDeclaration): boolean =>
 // Waits for the finite animations and transitions on the page to end, so a
 // popup still opening or a sheet sliding in is judged where it settles (an
 // endless one, a spinner or a shimmer, is left running). Gives up after
-// `timeout` ms.
-export async function settled(timeout = 2000): Promise<void> {
-	const end = performance.now() + timeout;
+// 2000 ms.
+export async function settled(): Promise<void> {
+	const end = performance.now() + 2000;
 	while (performance.now() < end) {
 		const running = document
 			.getAnimations()
@@ -592,6 +596,7 @@ export async function settled(timeout = 2000): Promise<void> {
 		if (running.length === 0) return;
 		await Promise.race([
 			Promise.allSettled(running.map((animation) => animation.finished)),
+			// An animation paused meanwhile never finishes: look again.
 			new Promise((resolve) => setTimeout(resolve, 100)),
 		]);
 	}
@@ -607,9 +612,10 @@ function faceKey(face: FontFace): string {
 	return `${face.family} ${face.weight} ${face.style}`;
 }
 
-// Starts watching for the screen's first frame: the first element the root
-// gains. Call it before the story renders; a later call starts over.
-export function watchFirstPaint(root: Element = document.body): void {
+// Starts watching for the screen's first frame: the first element the story's
+// root gains. Call it before the story renders; a later call starts over.
+export function watchFirstPaint(): void {
+	const root = document.getElementById("storybook-root") ?? document.body;
 	watching?.disconnect();
 	paintFaces = new Map();
 	watching = new MutationObserver((records) => {
@@ -641,10 +647,6 @@ function fonts(): FontMeasure[] {
 }
 
 export interface WalkOptions {
-	// The elements to walk, the whole page by default; one component's frames in
-	// a roster story. The checks that read the page (its fonts, its count of
-	// type sizes) are left to the whole page.
-	roots?: Element[];
 	// Whether the fonts are judged too (once a screen: they do not change with
 	// the width); on by default.
 	fonts?: boolean;
@@ -659,10 +661,10 @@ interface Group {
 	radii: RadiusMeasure[];
 }
 
-// Every finding on the page, or under `roots`, the alignment rules (`align-*`)
-// among them; `alignFindings()` returns those alone.
+// Every finding on the page, the alignment rules (`align-*`) among them;
+// `alignFindings()` returns those alone.
 export function findings(options: WalkOptions = {}): Finding[] {
-	return [...layoutFindings(options), ...alignFindings(options)];
+	return [...layoutFindings(options), ...alignFindings()];
 }
 
 // The boxes above each of a text's sampled points, from the topmost down to
@@ -826,9 +828,7 @@ function covers(seen: Seen[]): CoverMeasure[] {
 }
 
 function layoutFindings(options: WalkOptions): Finding[] {
-	const roots = options.roots ?? [document.body];
-	const scoped = options.roots !== undefined;
-	const seen = drawn(roots);
+	const seen = drawn();
 	const scopes = new Scopes();
 	const groups = new Map<string, Group>();
 	const groupOf = (element: Element, style: CSSStyleDeclaration): Group => {
@@ -909,7 +909,7 @@ function layoutFindings(options: WalkOptions): Finding[] {
 				height: rect.height,
 			};
 			if (painted(style) || style.overflowX !== "visible")
-				measure.outer = outerOf(element, rect, roots);
+				measure.outer = outerOf(element, rect);
 			group.radii.push(measure);
 		}
 
@@ -945,7 +945,7 @@ function layoutFindings(options: WalkOptions): Finding[] {
 	}
 
 	return [
-		...checkType(type).filter((f) => !scoped || f.rule !== "type-sizes"),
+		...checkType(type),
 		...[...groups.values()].flatMap((g) => [
 			...checkHeights(g.controls, g.rows, g.tokens),
 			...checkSpacing(g.spacing, g.tokens),
@@ -958,9 +958,9 @@ function layoutFindings(options: WalkOptions): Finding[] {
 		...checkToolbars(toolbars()),
 		...checkFigures(figures),
 		...checkRegions(regions),
-		...(scoped ? [] : checkHeadings(headings())),
-		...(scoped ? [] : checkCanvases(canvases())),
-		...(scoped || options.fonts === false ? [] : checkFonts(fonts())),
+		...checkHeadings(headings()),
+		...checkCanvases(canvases()),
+		...(options.fonts === false ? [] : checkFonts(fonts())),
 	];
 }
 
@@ -1083,11 +1083,10 @@ function widest(box: Element): ClipMeasure["widest"] {
 function outerOf(
 	element: Element,
 	rect: DOMRect,
-	roots: Element[],
 ): RadiusMeasure["outer"] | undefined {
 	for (
 		let up = element.parentElement;
-		up && up !== document.body && !roots.includes(up);
+		up && up !== document.body;
 		up = up.parentElement
 	) {
 		const style = getComputedStyle(up);
@@ -1266,11 +1265,11 @@ function draws(
 	return found;
 }
 
-// Every box in the flow under `roots` with what it draws, outermost empty box
+// Every box in the flow of the page with what it draws, outermost empty box
 // first: one that is found is not entered, for what it holds is as empty.
 // `aria-hidden` is no excuse here: the empty end square is hidden from a screen
 // reader and still takes room.
-function boxes(roots: Element[]): BoxMeasure[] {
+function boxes(): BoxMeasure[] {
 	const out: BoxMeasure[] = [];
 	const memo = new Map<Element, boolean>();
 	const visit = (element: Element): void => {
@@ -1307,12 +1306,12 @@ function boxes(roots: Element[]): BoxMeasure[] {
 		}
 		for (const child of element.children) visit(child);
 	};
-	for (const root of roots) visit(root);
+	visit(document.body);
 	return out;
 }
 
 // Every element of the page that is laid out as a grid.
-function grids(roots: Element[]): GridMeasure[] {
+function grids(): GridMeasure[] {
 	const out: GridMeasure[] = [];
 	const visit = (element: Element): void => {
 		if (SKIPPED.has(element.tagName) || element instanceof SVGElement) return;
@@ -1325,7 +1324,7 @@ function grids(roots: Element[]): GridMeasure[] {
 			out.push({ ...locate(element), display });
 		for (const child of element.children) visit(child);
 	};
-	for (const root of roots) visit(root);
+	visit(document.body);
 	return out;
 }
 
@@ -1453,11 +1452,11 @@ function leavesOf(row: Element): Array<Leaf & { right: number }> {
 		for (const node of element.childNodes) {
 			if (node instanceof Element) visit(node, inside);
 			else if (
-				node.nodeType === Node.TEXT_NODE &&
+				node instanceof Text &&
 				node.nodeValue?.trim() &&
 				style.visibility === "visible"
 			) {
-				const shown = textBox(node as Text);
+				const shown = textBox(node);
 				if (shown)
 					push(
 						clipTo(shown.box, inside),
@@ -1652,6 +1651,7 @@ function runsOf(item: Node, lane: number): RunMeasure[] {
 		if (
 			style.display !== "contents" &&
 			(replaced(element) ||
+				// A link's text runs in the line it stands in; any other control is a box of its own.
 				(interactive(element) && element.tagName !== "A") ||
 				paintsOwn(element, style) ||
 				nestedRow(element, style))
@@ -1660,15 +1660,16 @@ function runsOf(item: Node, lane: number): RunMeasure[] {
 		for (const child of element.childNodes) {
 			if (child instanceof Element) visit(child);
 			else if (
-				child.nodeType === Node.TEXT_NODE &&
+				child instanceof Text &&
 				child.nodeValue?.trim() &&
 				style.visibility === "visible"
 			)
-				read(child as Text, element);
+				read(child, element);
 		}
 	};
 	if (item instanceof Element) visit(item);
-	else if (item.parentElement) read(item as Text, item.parentElement);
+	else if (item instanceof Text && item.parentElement)
+		read(item, item.parentElement);
 	return out;
 }
 
@@ -1699,16 +1700,15 @@ function lines(seen: Seen[]): RunMeasure[][] {
 	return out;
 }
 
-// The alignment findings on the page, or under `roots`: what `findings()` adds
-// to the layout rules.
-export function alignFindings(options: WalkOptions = {}): Finding[] {
-	const roots = options.roots ?? [document.body];
-	const seen = drawn(roots);
+// The alignment findings on the page: what `findings()` adds to the layout
+// rules.
+export function alignFindings(): Finding[] {
+	const seen = drawn();
 	return [
-		...checkDeadBoxes(boxes(roots)),
+		...checkDeadBoxes(boxes()),
 		...checkCentres(rows(seen, new Scopes())),
 		...lines(seen).flatMap(checkBaselines),
-		...checkGrids(grids(roots)),
+		...checkGrids(grids()),
 	];
 }
 

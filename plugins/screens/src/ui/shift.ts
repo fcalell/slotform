@@ -46,7 +46,6 @@ export interface SectionBox {
 	text?: boolean;
 }
 
-// The slack a layout rounding may take.
 const ROUNDING = 2;
 
 // What holds a Section's heading and the text above it: a Pane, a docked

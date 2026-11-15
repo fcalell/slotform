@@ -9,8 +9,12 @@ import {
 } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import type { PreviewGlobal } from "../types.ts";
-import { SCREEN_STATES, screenTitle } from "./screens.ts";
-import { globalTag, stateTag } from "./select.ts";
+import {
+	globalTag,
+	SCREEN_STATES,
+	screenTitle,
+	stateTag,
+} from "./screens.ts";
 
 // The folder at the app root holding one story file per screen. It is no dot
 // directory: Storybook's watcher ignores those.
@@ -18,6 +22,7 @@ export const STORIES_DIR = "stack-screens";
 
 const STORY_FILE = ".stories.ts";
 const ROUTE_FILE = /\.(tsx|ts|jsx|js)$/;
+// TanStack's root route file is named `__root`.
 const ROOT_ROUTE = /^__root\./;
 
 const FILE_ROUTE = /\bcreateFileRoute\(\s*(["'`])([^"'`]+)\1/;
@@ -62,7 +67,6 @@ interface CheckVariant {
 	label: string[];
 }
 
-// Every combination of the globals' checked values, less the defaults'.
 function checkVariants(globals: PreviewGlobal[]): CheckVariant[] {
 	let combinations: Array<Record<string, string>> = [{}];
 	for (const global of globals) {
@@ -74,11 +78,10 @@ function checkVariants(globals: PreviewGlobal[]): CheckVariant[] {
 		);
 	}
 	return combinations.flatMap((combination) => {
-		const label = globals.flatMap((global) =>
-			combination[global.name] === global.default
-				? []
-				: [combination[global.name] as string],
-		);
+		const label = globals.flatMap((global) => {
+			const value = combination[global.name];
+			return value === undefined || value === global.default ? [] : [value];
+		});
 		return label.length === 0 ? [] : [{ globals: combination, label }];
 	});
 }

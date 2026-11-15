@@ -5,7 +5,6 @@ import { findings, format } from "./walk.ts";
 // a drawn page: what a read holds busy, how far its scrollers hide content,
 // the judgement at a width, and where a control is.
 
-// What a screen's overflow at a width reads, or null when it fits.
 function overflowError(
 	width: number,
 	scrollWidth: number,
@@ -91,7 +90,7 @@ export function controlPoint(text: string): ControlPoint | null {
 				box.width > 0 &&
 				box.height > 0 &&
 				getComputedStyle(element).visibility !== "hidden" &&
-				!(element as HTMLButtonElement).disabled &&
+				!("disabled" in element && element.disabled) &&
 				(nameOf(element) === want || words(element.innerText) === want)
 			);
 		},

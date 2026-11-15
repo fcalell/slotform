@@ -22,9 +22,9 @@ test("a shot is named by route, width and mode, with the open control", () => {
 });
 
 test("widths default to a phone and a monitor", () => {
-	assert.deepEqual(parseWidthList(undefined, [320, 1920]), [320, 1920]);
-	assert.deepEqual(parseWidthList("375, 1280", [1]), [375, 1280]);
-	assert.throws(() => parseWidthList("wide", [1]), /not a width/);
+	assert.deepEqual(parseWidthList(undefined), [320, 1920]);
+	assert.deepEqual(parseWidthList("375, 1280"), [375, 1280]);
+	assert.throws(() => parseWidthList("wide"), /not a width/);
 });
 
 test("the mode defaults to dark", () => {

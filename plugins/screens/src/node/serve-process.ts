@@ -54,12 +54,15 @@ export async function startServer(
 			resolve();
 		});
 	});
+	const { pid } = child;
 	const stop = async () => {
-		if (exited || child.pid === undefined) return;
+		if (exited || pid === undefined) return;
 		const group = (signal: NodeJS.Signals) => {
 			try {
-				process.kill(-(child.pid as number), signal);
-			} catch {}
+				process.kill(-pid, signal);
+			} catch {
+				// ESRCH: the group has exited already.
+			}
 		};
 		group("SIGTERM");
 		const timer = setTimeout(() => group("SIGKILL"), STOP_MS);
@@ -67,6 +70,7 @@ export async function startServer(
 		clearTimeout(timer);
 	};
 
+	// The server announces it is ready only by accepting connections.
 	const deadline = Date.now() + READY_MS;
 	while (!(await listening(serve.port))) {
 		if (exited || Date.now() > deadline) {
