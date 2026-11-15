@@ -272,7 +272,7 @@ The largest mechanisms, which the step 3 design has to stand behind:
 8. Tests and tooling wait on fixed time: 9 tests, 16 tooling timers, 27 frame-count waits. (T2-01,
    C4-01, C4-02)
 
-## Design (step 3; open questions at the end are not yet confirmed)
+## Design (step 3; the four questions are answered, the kept table awaits the owner's yes)
 
 Target layering, most stable first. An import points up this list only.
 
@@ -336,7 +336,7 @@ Resolves: H3-02, H1-08, S1-04, and the 565 uphill edges into ui-core (N2-02, N2-
 `controlOf`, `isRun`, ...) move beside their component's contract; the 16 same-body hooks and the
 platform-free lib files (`clock`, `confirm`, `same-by`, `reason`, `touched`, `arrive`) move to
 `ui-core/react`; a file that is shared logic plus a platform edge splits there, and the edge stays
-in the plugin. Each moved function gets a unit test (see question 3).
+in the plugin. No test is added for moved logic (owner's answer 3).
 Resolves: H1-01, H1-02, H1-06, H1-07, H3-03, C1-01 (rows that test the same literal in both drawers), owner preference P2.
 
 **F8 A component folder imports another only through its entry, and a parts layer sits below.**
@@ -366,8 +366,8 @@ its fact in one comment line; counts go in the progress table.
 | H2-01, H4-01, H4-02 | a module-level singleton another module sets becomes a value passed in, or one module owns both the write and the read |
 
 **F11 Tests, last.** T1 rows removed or rewritten to assert behaviour; T2-01 waits on the event
-(`dev.test.ts:72` waits for the child's `up` line); T2-02 uses a temp dir; T2-05 isolates state.
-Resolves: T1-01 to T1-03, T2-01, T2-02, T2-05; T3 per question 3.
+(`dev.test.ts:72` waits for the child's `up` line); T2-02 uses a temp dir; T2-05 isolates state. No test is added: T3-01 to T3-11 are closed as not in the ask (owner's answer 3).
+Resolves: T1-01 to T1-03, T2-01, T2-02, T2-05.
 
 **F12 Docs.** Each page changes in the commit that changes its code; a last docs commit clears
 what is left of D1, D2, DH, DS-02.
@@ -389,16 +389,22 @@ Where an owner preference no longer fits:
 
 - P5 is already true for `lib`; its last pattern (`./showcase/frames/*`) leaves with F9.
 - P6: the screen run and the Storybook build need Chrome, and CLAUDE.md scopes the screen run to
-  what changed; `release:check` installs three consumers from the registry (1.6 GB). Question 2.
+  what changed; `release:check` installs three consumers from the registry (1.6 GB). The owner
+  confirmed: only offline checks join the gate.
 - P1 to P4 and P7 fit.
 
 What stead has to change (grep counts, files): `plugin-api/tanstack-query` 91 (F5),
 `plugin-react-ui/lib/act` 31, `lib/clock` 13 (F7), `ui-core/descriptors` 49 (unchanged path).
 Each removal or rename adds a row here in its commit.
 
-Open questions: (1) component home: three packages with per-component contract files, or one
-folder per component across platforms; (2) what joins the gate; (3) which untested modules get
-tests; (4) when stead is migrated.
+Owner's answers:
+
+| Question | Answer |
+| --- | --- |
+| Component home | Three packages; one contract file per component in ui-core; shared logic in ui-core |
+| What joins the gate | Offline checks only: the DESIGN.md test and story generation with its type-check. `release:check`, the screen run and the Storybook build stay outside |
+| New tests | None. Moved logic is held by the type-checker and the final screen comparison |
+| Stead | Not touched. Every break is recorded here with old and new path; migrated after stack, on the owner's word |
 
 ## Progress
 
@@ -406,7 +412,7 @@ tests; (4) when stead is migrated.
 | --- | --- |
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
-| 3 Redesign | in progress |
+| 3 Redesign | done except the kept table, which awaits the owner's yes |
 | 4 Fixes | not started |
 | 5 Fresh-agent checks | not started |
 
