@@ -591,3 +591,21 @@ The gate took five runs to go green on this machine. Each failure is a finding f
 Owner, after phase 3: run the gate now (not only at the very end); **no visual checks** (no screen runs, no shots, no Storybook) in this refactor unless the owner says otherwise. martechthings (`~/projects/martechthings`) is a second consumer: check removed and moved public names against it as well as stead.
 
 First gate after phases 4 to 8 (2026-11-15): `pnpm check` exit 0 (check-types 32 of 32, test 27 of 27, Biome 975 files). Two fixes were needed: `plugins/query/src/read.ts` window read type inferred, `plugins/screens/src/serve/controls.test.ts` helper made async. Biome reformatted 25 files. Not checked: any drawing (visual checks are off), `pnpm release:check`, martechthings imports.
+
+Consumer break list, measured after the first green gate by `.refactor/consumers.mjs` (every `@fcalell/*` import in both consumers against the current `exports` and the names each target exports; output in `.refactor/consumers.txt`). File counts are this script's and replace the earlier hand counts.
+
+| Consumer | Import | Files | Goes to |
+| --- | --- | --- | --- |
+| stead | `@fcalell/plugin-api/tanstack-query` | 180 | `@fcalell/plugin-query/*` and `@fcalell/ui-core/*` per `.refactor/f5/map.md`; add `query()` to the config |
+| stead | `@fcalell/plugin-api/read` | 4 | `@fcalell/ui-core/read` |
+| stead | `@fcalell/plugin-react-ui/lib/clock` | 26 | `@fcalell/ui-core/react/clock` |
+| stead | `@fcalell/plugin-react-ui/lib/confirm` | 4 | `@fcalell/ui-core/react/confirm` |
+| stead | `placed` from `@fcalell/plugin-react-ui/lib/act` | 2 | `@fcalell/ui-core/acts` |
+| martechthings | `@fcalell/plugin-api/tanstack-query` | 423 | as stead |
+| martechthings | `@fcalell/plugin-api/read` | 12 | `@fcalell/ui-core/read` |
+| martechthings | `@fcalell/plugin-api/acts` | 6 | `@fcalell/ui-core/acts`, `@fcalell/plugin-query/acts` per the map |
+| martechthings | `@fcalell/plugin-api/ability-client` | 2 | per the map |
+| martechthings | `@fcalell/plugin-react-ui/lib/words` | 6 | `@fcalell/ui-core/react/words` |
+| martechthings | `ProcedureCall`, `InputOf` from `@fcalell/plugin-api/types` | 2, 4 | `@fcalell/ui-core/form` |
+
+Neither consumer is edited; both migrate after stack, on the owner's word.
