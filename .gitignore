@@ -53,3 +53,6 @@ shots/
 
 # Claude Code per-machine settings
 .claude/settings.json
+
+# Refactor working files (removed with REFACTOR.md)
+.refactor/
