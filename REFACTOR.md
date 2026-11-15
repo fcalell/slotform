@@ -413,7 +413,7 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 done; F2 part 1 done; F2 part 2 next (see Step 4 log) |
+| 4 Fixes | F1 done; F2 done for the stable packages; slots await the owner; F3 next (see Step 4 log) |
 | 5 Fresh-agent checks | not started |
 
 ## Step 4 log
@@ -422,7 +422,9 @@ Owner's answers:
 | --- | --- | --- | --- |
 | F1 | done | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 938 files; `release:check` exit 0 | Cause of `check-2-stale-types.log` proven by mtimes: run 1's `generate` archived old `.stack/types`, run 2's cache hit restored 18 files at 08:56:15 before `tsc -b`. `generate` and `build` now exclude `.stack/types` and `.stack/node_modules`; app `check-types` declares `.stack/types`. Showcase `generate` writes the stories. Package `check` and `lint` scripts, turbo `lint` and `dev` tasks, two unused `imports` maps, ui-core's unused cli devDependency, changeset `linked` removed. `dev.test.ts` fixed early because it failed the gate twice under load. Kept: H1-05 (manifests have no inheritance; the apps' `tsconfig.worker.json` is the cli template's output), changeset `fixed` (the version rule), ui-core's three hand-run scripts, `@fcalell/cli` as an app devDependency (config file only) |
 | F2 part 1: exports, files, subpaths | done (commits `26d34e1f` to `63d6724f`, plus the native-ui Menu entry) | exit 0: 30 type tasks uncached, 25 test tasks, 538 tests, Biome 923 files; `release:check` exit 0 | Ten Sonnet agents, one per package group, brief `.refactor/f2-brief.md`, per-row reports `.refactor/f2/*.md`. 906 rows (agents' counts): deleted 44, unexported 207, moved 48, kept stead 25, kept documented 108, kept signature 202, kept used 64 (the audit was wrong), kept test 45, kept one importer 129, not done 39 (showcase, F9). Checked apart from the agents by `.refactor/f2-verify.mjs`: stead imports none of the removed public names (2168 `@fcalell` specifier occurrences); no body line of the 16 deleted files is lost. `@fcalell/cli/codegen` restored: the cli agent deleted it though the README lists it. Files 866 to 852; cycles unchanged (8 all-import, 2 value) |
-| F2 part 2: slots, unions, shallow modules, pass-throughs | not started | | S2-02, S2-03, S2-04, S2-05, N4-01 to N4-04, S1-01, S1-03, S1-06, N1-32. One-importer rows in api, ui-core, react-ui, native-ui (N1-01, N1-05, N1-13, N1-16) wait until F5 to F9 have moved those files |
+| F2 part 2, stable packages: pass-throughs, aliases, dead members, shallow files | done (commits `e5592c1c` to `fb36918a`) | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 929 files | Six Sonnet agents, brief `.refactor/f2-part2-brief.md`, reports `.refactor/f2/part2-*.md`. 67 rows (agents' counts): changed 15 (cli 5, small plugins 3, db and node 4, screens 3), the rest kept (binds an argument, boundary, documented, entry, sibling kind) or audit errors (5). Undone by me: the auth agent folded `worker/session-ended.ts` into `worker/index.ts`, which made the test spell the channel name as a second literal and left `README.md:82` pointing at a deleted file; the module stays (a test counts as an importer for a shallow file) |
+| F2 part 2, slots | waiting for the slot table (`.refactor/f2/slots.md`) and the owner | | S2-02 (36), S2-03 (20). Every slot is in the catalog, so this is the documented-surface case; the owner decides with the table in hand |
+| F2 part 2, volatile packages | after F5 to F9 | | The same row kinds, and the one-importer rows N1-01, N1-05, N1-13, N1-16, in api, ui-core, react-ui, native-ui |
 
 Owner's decisions after F2 part 1 (applied in `7d0fbdc9`, `7ebe81fb`, `6f4786d9`; gate exit 0, 538 tests; `release:check` exit 0):
 
