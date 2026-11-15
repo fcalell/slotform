@@ -81,7 +81,6 @@ export const STACK_PACKAGES = {
 			"@fcalell/plugin-api",
 			"@fcalell/plugin-auth",
 			"@fcalell/plugin-expo",
-			"@fcalell/plugin-query",
 			"@fcalell/ui-core",
 		],
 	},
