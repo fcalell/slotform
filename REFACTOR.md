@@ -589,3 +589,5 @@ The gate took five runs to go green on this machine. Each failure is a finding f
 | `.refactor/` is ignored through a `.gitignore` line, removed in the last commit | Baseline logs and shots are large and machine-bound; the session-start check needs a clean tree; Biome honours `.gitignore` only |
 
 Owner, after phase 3: run the gate now (not only at the very end); **no visual checks** (no screen runs, no shots, no Storybook) in this refactor unless the owner says otherwise. martechthings (`~/projects/martechthings`) is a second consumer: check removed and moved public names against it as well as stead.
+
+First gate after phases 4 to 8 (2026-11-15): `pnpm check` exit 0 (check-types 32 of 32, test 27 of 27, Biome 975 files). Two fixes were needed: `plugins/query/src/read.ts` window read type inferred, `plugins/screens/src/serve/controls.test.ts` helper made async. Biome reformatted 25 files. Not checked: any drawing (visual checks are off), `pnpm release:check`, martechthings imports.
