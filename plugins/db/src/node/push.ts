@@ -25,7 +25,6 @@ import {
 } from "./fts.ts";
 import { migrationLockPath, withMigrationLock } from "./lock.ts";
 import {
-	columnsAfter,
 	columnsBefore,
 	copyOnlyExisting,
 	expressionIndexes,
@@ -221,7 +220,7 @@ export async function generateMigrations(
 		// Full-text indexes are not in drizzle's snapshot, so they migrate as
 		// custom migrations of their own, after the tables they read.
 		const fts = loadFtsDefinitions(cwd);
-		const after = columnsAfter(migrationsDir);
+		const after = columnsBefore(migrationsDir);
 		for (const entry of newSql()) {
 			const file = join(migrationsDir, entry);
 			const sql = readFileSync(file, "utf-8");

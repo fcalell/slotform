@@ -380,14 +380,11 @@ export const db = plugin("db", {
 		// save is live without generating a migration or restarting.
 		// Migrations exist for the remote deploy path; `stack db apply` still
 		// applies committed ones locally for journal parity when wanted.
-		const applySchemaLocal = (cwd: string): Promise<void> =>
-			pushSchemaLocal(cwd, self.options);
-
 		const schemaSerializers = new Map<string, () => Promise<void>>();
 		const getSharedSchemaApply = (cwd: string): (() => Promise<void>) => {
 			let cached = schemaSerializers.get(cwd);
 			if (!cached) {
-				cached = createSerialized(() => applySchemaLocal(cwd));
+				cached = createSerialized(() => pushSchemaLocal(cwd, self.options));
 				schemaSerializers.set(cwd, cached);
 			}
 			return cached;

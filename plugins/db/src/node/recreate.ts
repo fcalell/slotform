@@ -70,9 +70,6 @@ export function copyOnlyExisting(
 const INDEX =
 	/(CREATE (?:UNIQUE )?INDEX `\w+` ON `(\w+)` \()(.*)(\)(?: WHERE [^\n]*)?;)/g;
 
-/** The columns of each table in the newest drizzle snapshot (the migration just written). */
-export const columnsAfter = columnsBefore;
-
 /** The migration with an index expression written as the SQL it is. drizzle-kit writes an expression index (``index().on(sql`${t.title} collate nocase`)``) as it is when it creates the table, but when it rebuilds the table it quotes the whole expression as a column name (`` `"title" collate nocase` ``), which SQLite reads as a missing column. An item in an index's list that names no column of its table, in the newest snapshot, is an expression: its quotes come off. */
 export function expressionIndexes(
 	sql: string,
