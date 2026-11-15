@@ -1,5 +1,5 @@
 import { createClient } from "@fcalell/plugin-api/client";
-import { createApiQueryUtils } from "@fcalell/plugin-api/tanstack-query";
+import { createApiQueryUtils } from "@fcalell/plugin-query/tanstack-query";
 import { createVersionGatedFetch } from "@fcalell/plugin-expo/client";
 // The emitted worker's router type, imported type-only so no worker code
 // (or its Node/Workers-only dependencies) enters the app bundle. The app's

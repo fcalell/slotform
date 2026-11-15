@@ -7,7 +7,7 @@ invalidation work as on the web (`node_modules/@fcalell/plugin-api/guide/client.
 ```ts
 // src/lib/api.ts
 import { createClient } from "@fcalell/plugin-api/client";
-import { createApiQueryUtils } from "@fcalell/plugin-api/tanstack-query";
+import { createApiQueryUtils } from "@fcalell/plugin-query/tanstack-query";
 import { createVersionGatedFetch } from "@fcalell/plugin-expo/client";
 import type { AppRouter } from "../../.stack/worker";
 
@@ -27,7 +27,7 @@ const projects = orpc.projects.list.read({ organizationId });
 
 `read` is `queryOptions` as a handle a `Pane`, `Section`, `Sheet` or `Form` takes as its `read`, and
 a `List` or any part that shows a value takes as data; `useQuery(orpc.….queryOptions(…))` still
-serves a region the app draws itself. Page: `node_modules/@fcalell/plugin-api/guide/reads.md`.
+serves a region the app draws itself. Page: `node_modules/@fcalell/plugin-query/guide/reads.md`.
 
 ## The URL
 
@@ -60,6 +60,6 @@ useEffect(() => onUpdateRequired(() => router.replace("/update")), []);
 
 ## Without `nativeUi()`
 
-`nativeUi()` installs `@tanstack/react-query` and `@orpc/tanstack-query` and wraps the app in the
+`nativeUi()` installs `@tanstack/react-query`, requires `query()` (which installs `@orpc/tanstack-query`), and wraps the app in the
 `QueryProvider` the hooks need. An app on `expo()` alone installs both and mounts the provider
 itself.

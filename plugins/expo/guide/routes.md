@@ -92,7 +92,7 @@ sooner exports `preload`, built from the read its screen draws, as a web route's
 
 ```tsx
 // src/app/projects/[id].tsx
-import { preload as start } from "@fcalell/plugin-api/tanstack-query";
+import { preload as start } from "@fcalell/plugin-query/preload";
 import type { QueryClient } from "@tanstack/react-query";
 
 const project = (id: string) => orpc.projects.get.read({ id });
