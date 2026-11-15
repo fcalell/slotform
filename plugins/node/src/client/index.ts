@@ -1,5 +1,6 @@
-import type { Reach } from "@fcalell/plugin-api/acts";
-import { type Read, read } from "@fcalell/plugin-api/read";
+import type { Reach } from "@fcalell/plugin-query/acts";
+import { read } from "@fcalell/plugin-query/read";
+import type { Read } from "@fcalell/ui-core/read";
 import { createStore } from "@fcalell/ui-core/store";
 import type { z } from "zod";
 import type { ChannelDef, ClientFrame, MessageSchemas } from "../ws/index.ts";
