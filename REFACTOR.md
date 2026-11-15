@@ -413,7 +413,7 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 to F3 done and gated; F4, phase 1 (F5 core, F6, F10 on stable packages) committed, unverified; phase 2 running (see Orchestration and Step 4 log) |
+| 4 Fixes | F1 to F3 done and gated; F4, phase 1 and phase 2a committed, unverified; phase 2b running (see Orchestration and Step 4 log) |
 | 5 Fresh-agent checks | not started |
 
 ## Orchestration (owner's instruction, given after F4)
@@ -433,7 +433,7 @@ perimeter when it reports.
 | 1 | F5 core (Opus): `plugins/api`, new `plugins/query`, ui-core except the four roster files, cli `stack-packages.ts`, `scripts/release-check.ts`, `slot-catalog.md`, `runtime.md`. Writes `.refactor/f5/map.md` | `.refactor/f5/core-brief.md` | done, committed |
 | 1 | F6 roster split (Opus): ui-core `roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`, `design-md.ts`, `roster/`, `docs/architecture/ui-core.md` | `.refactor/f6/brief.md` | done, committed |
 | 1 | F10 row rules (Sonnet), one each: cli (not `stack-packages.ts`); cloudflare, expo, react, vite; db; node; auth; screens | `.refactor/f10/brief.md` | done, committed |
-| 2 | F5 apply (Sonnet), one each from the map: react-ui; native-ui; screens, node, expo, vite, auth; the apps. F7 core (Opus): the shared logic's home in ui-core's per-concept modules, plus `.refactor/f7/map.md` | `.refactor/f5/apply-brief.md`, `.refactor/f7/core-brief.md` | F5 apply running (react-ui; native-ui; screens, node, expo, vite, auth, react; apps; docs). F7 core waits: its shared `useAct` needs `refusal` and `retries`, which need the owner's decision on the port |
+| 2 | F5 apply (Sonnet), one each from the map: react-ui; native-ui; screens, node, expo, vite, auth; the apps. F7 core (Opus): the shared logic's home in ui-core's per-concept modules, plus `.refactor/f7/map.md` | `.refactor/f5/apply-brief.md`, `.refactor/f7/core-brief.md` | F5 apply done, committed. **Phase 2b running:** F5b (Opus, `.refactor/f5/port-brief.md`); F10 for plugin-api and for the apps (Sonnet, `.refactor/f10/brief.md`); F11 tests for cli, cloudflare with react and vite, db, node, auth, screens (Sonnet, `.refactor/f11/brief.md`). F7 core starts when F5b reports |
 | 3 | Per UI plugin (Opus), one each: apply the F7 map, then F8 (parts layer, cycles, walk-exception owners for react-ui with `plugins/screens/src/ui/walk.ts`). Stream stop and the reply helper (P7). F10 and the F2 leftovers for api and ui-core. F10 for the apps | to write | waits for phase 2 |
 | 4 | F9 showcase leaves react-ui for `apps/showcase` (Opus). Then F10 and the F2 leftovers for react-ui; native-ui in parallel | to write | waits for phase 3 |
 | 5 | F11 tests per package; F12 docs sweep, including every `docs to change` row the agents reported | to write | waits for phase 4 |
@@ -442,6 +442,17 @@ perimeter when it reports.
 F7 refinement: shared derivations go into ui-core's per-concept model modules (the style of
 `action-bar.ts`, `form.ts`, `pick.ts`), not into the roster contract files, so F6 and F7 do not
 write the same files.
+
+Owner's decisions after phase 1 and 2a:
+
+- **The UI imports only ui-core.** No file under a UI plugin's `src/ui/` imports plugin-query,
+  plugin-api, `@tanstack/*`, `@orpc/*` or `@casl/*`; the UI plugins do not `require` query; with
+  no binding mounted, plain values still draw. The port grows by about six members (act failure
+  sentence, whether it retries, submit, schema, permission, issues). Step F5b,
+  `.refactor/f5/port-brief.md`.
+- **The port's observing members stay hooks the binding supplies** (`useReads`, `useNextPage`,
+  `useWindowState`).
+- **`FAMILIES` stays a hand list:** its order is data DESIGN.md's front matter follows.
 
 For phase 6: delete every `dist/` before the final build (`tsc` leaves the output of deleted modules, such as `plugins/api/dist/tanstack-query.js`, and `files` ships `dist`).
 
@@ -485,6 +496,7 @@ Carried forward from phase 1:
 | F10 row rules, stable packages (phase 1) | committed (`09e9cb6e` to `856cb382`), **not verified** | none run (owner's instruction) | Six Sonnet agents, reports `.refactor/f10/*.md`. 497 rows (agents' counts): fixed 216, kept with the fact stated 194, audit wrong 41, not done 46. Per package, rows and fixed: cli 112 and 58; cloudflare, expo, react, vite 47 and 29; db 83 and 41; node 59 and 23; auth 87 and 24; screens 109 and 41. Read by the main session before commit: auth's token deletion, redirect guard and dev-mode check; db's serve step and recreate SQL; node's server; expo's version gate; vite's manifest read; screens' tab emulation; cli's watcher, package resolution and manifest read. **Three corrections made:** (1) cli `readManifest` returned zod's copy of the app's `package.json`, which puts `dependencies` and `devDependencies` first (checked against zod 4.6.5), and `installStack` writes it back: it now returns the file's own object. (2) cli `dev.ts`: a non-`ENOENT` stat error was rethrown inside the `fs.watch` callback, which would end `stack dev`; the catch swallows again and says why. (3) Two contract comments deleted as restating were restored (auth `consumerScopes`, db `withMigrationLock`) |
 | F6 roster split (phase 1) | committed (`54c9be5e`), **not verified** by a build | Agent's own scripts in `.refactor/f6/`: exports diff of the four public modules 0 lines; 706 of 706 moved declarations verbatim; imports resolve, none unused, no value cycle | 33 files `packages/ui-core/src/roster/<component>.ts`, 420 declarations moved, 254 left shared, `roster/shared.ts` holds the 20 shared values component files need. `roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts` stay the public modules and re-export. `design-md.ts` and DESIGN.md untouched. **Open:** `FAMILIES` (72 rows) not derived, its order is data that DESIGN.md's front matter follows (owner). 84 type-only import cycles between component files and the four modules (shared types stayed there because native-ui augments `RouteRegistry` in `@fcalell/ui-core/descriptors`); cleared after the gate, when a compiler can prove augmentation through a re-export |
 | F5 core (phase 1) | committed (`c6979119`, `8d28303b`, `b1a977e9`, `c7335489`, `f9387b86`), **not verified** by a build | Main session's static checks: no `@tanstack`, `@orpc`, `@casl` or `hono` in ui-core and `react` only under `src/react/`; no React, ui-core or TanStack in plugin-api; no old specifier left in the perimeter's source; import graph resolves every specifier in ui-core, plugin-api, plugin-query and cli; no package cycle | Report `.refactor/f5/core-report.md`, plan `.refactor/f5/plan.md`, **map `.refactor/f5/map.md` (260 rows)**. 140 names placed: ui-core model 61, `ui-core/react` 13, plugin-query 43, stay in plugin-api 23. New `plugins/query` (`plugin("query", { requires: ["api"] })`), contributes the web `QueryProvider` spec and the vite `optimizeExclude` entry. plugin-api: peers none. Port (9 members): `useReads`, `fetchingNext`, `retry`, `useNextPage`, `useWindowState`, `ensurePages`, `settled`, `act`, `carry`. `query-invalidation` stays in plugin-api (moving it makes a package cycle). The phone's provider spec and `src/lib/query.ts` scaffold stay in native-ui. cli `FIRST_PARTY_PLUGINS` gains `query` (applied by the main session). **Open with the owner:** the UI still takes `ability`, `useMutation`, `schemaOf`, `issues` (the derived Form) and `refusal`, `retries` (`lib/act.ts`) from plugin-query, imports TanStack directly in `same-by.ts`, form, native `navigate.ts` and `warm.ts`, and would `require` query; the port's observing members are hooks the binding supplies |
+| F5 apply (phase 2a) | committed (`7fa635d0` to `d3109e77`, docs `88cec42a`), **not verified** by a build | Main session's import graph over the whole repo: 2 unresolved specifiers, both on-disk templates that import a consumer's `.stack/` files (as before); no old plugin-api client specifier left in source or docs; no package cycle | Five Sonnet agents from the map, reports `.refactor/f5/apply-*.md`. Files changed: react-ui 70, native-ui 62, screens, node, expo, vite, auth, react 18, apps 30, docs 6. No name without a map row. Imports of plugin-api from the UI plugins: 155 statements before, now 1 in react-ui (the showcase's `ApiError`, leaves with F9) and 1 in native-ui's plugin entry |
 
 Owner's decisions after F2 part 1 (applied in `7d0fbdc9`, `7ebe81fb`, `6f4786d9`; gate exit 0, 538 tests; `release:check` exit 0):
 
