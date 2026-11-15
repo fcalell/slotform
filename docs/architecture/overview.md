@@ -62,7 +62,7 @@ plugin-screens ───────────> cli, requires react + api
                                   derives from vite's input slots, react.slots.routesDir/routerOptions/entryImports/
                                   routerBindings and api.slots.routePrefixes;
                                   contributes to cliSlots.artifactFiles/postWrite (the story files)/removeFiles; reads, never writes, the app's Vite config)
-plugin-react-ui ──────────> cli + ui-core, requires react + vite + query
+plugin-react-ui ──────────> cli + ui-core, requires react + vite
                                  (owns reactUi.slots.appCssImports/appCssBlocks/appCssLayers/fonts/
                                   resolvedTheme/appCssSource;
                                   contributes to vite.slots.configImports/pluginCalls/fsAllow,
