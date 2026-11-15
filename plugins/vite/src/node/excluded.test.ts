@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { test } from "node:test";
+import { after, test } from "node:test";
 import { excludedImports, importsOf } from "./excluded.ts";
 
 function write(root: string, path: string, content: string): void {
@@ -11,8 +11,15 @@ function write(root: string, path: string, content: string): void {
 	writeFileSync(file, content);
 }
 
+const roots: string[] = [];
+
+after(() => {
+	for (const root of roots) rmSync(root, { recursive: true, force: true });
+});
+
 function app(): string {
 	const root = mkdtempSync(join(tmpdir(), "excluded-"));
+	roots.push(root);
 	const pkg = "node_modules/@acme/web";
 	write(
 		root,
