@@ -33,7 +33,7 @@ export default defineConfig({
 
 `app` holds only what more than one plugin reads:
 
-- `name` (required): the worker's name, the default auth cookie prefix, the fallback `<title>`.
+- `name` (required): the worker's name, the default of `stack init`'s auth cookie prefix prompt, the fallback `<title>`.
 - `domain` (required): the production origins, `https://<domain>` and `https://app.<domain>`, and
   the URLs auth builds.
 - `origins` (optional): replaces the derived CORS allow-list. A local origin in it (`localhost`,
@@ -50,10 +50,10 @@ that needs another names it, and a missing one fails with the plugin to add:
 | Plugin | Needs |
 | --- | --- |
 | `react()` | `vite()` |
-| `reactUi()` | `react()`, `vite()` |
-| `nativeUi()` | `expo()`, `api()`, `auth()` |
+| `reactUi()` | `react()`, `vite()`, `query()` |
+| `nativeUi()` | `expo()`, `api()`, `query()` |
 | `auth()` | `api()`, `db()` |
-| `db()`, `node()` | `api()` |
+| `db()`, `node()`, `query()` | `api()` |
 
 Each plugin's options are typed and defaulted; its guide pages list them. Add a
 plugin with `stack add <plugin>` rather than by hand: it also writes the plugin's starter files

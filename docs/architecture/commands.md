@@ -14,6 +14,7 @@ stack dev                    # Plugin-driven dev (processes, watchers, schema pu
 stack build                  # Plugin-driven production build
 stack deploy                 # Plugin-driven deploy (migrations, wrangler)
 stack <plugin> <command>     # Plugin subcommands (e.g. stack db push)
+stack plugin init <name>     # Scaffold a third-party plugin skeleton
 ```
 
 ## Command procedures
@@ -23,7 +24,7 @@ stack <plugin> <command>     # Plugin subcommands (e.g. stack db push)
 | `stack init` / `stack add` | write the plugins' packages and `pnpm-workspace.yaml` → `pnpm install` (again until every `requires` is installed) → `cliSlots.initPrompts` → render `stack.config.ts` → `cliSlots.initScaffolds` + `initDeps` + `initDevDeps` + `gitignore` → `pnpm install` → run `generate` |
 | `stack generate` | `cliSlots.artifactFiles` → write each `{ path, content }` (only when its content differs, replaced atomically) → resolve `cliSlots.postWrite` → await each |
 | `stack dev` | `generate` → `cliSlots.devProcesses` (spawn) → `cliSlots.devReadySetup` (post-ready) → `cliSlots.devWatchers` (`fs.watch`) |
-| `stack build` | `generate` → `cliSlots.buildSteps` (sorted by phase + order) → exec sequentially |
+| `stack build` | `generate` → `cliSlots.buildSteps` (sorted by phase; equal phases keep contribution order) → exec sequentially |
 | `stack deploy` | `build` → `cliSlots.deployChecks` (display + confirm) → `cliSlots.deploySteps` → exec sequentially |
 | `stack remove` | `cliSlots.removeFiles` + `removeDeps` + `removeDevDeps` filtered to target plugin → patch config → `generate` |
 | `stack <plugin> <command>` | Plugin's own `commands[name].handler(ctx)` — `ctx.resolve(slot)` is the escape hatch to pull arbitrary slot values |

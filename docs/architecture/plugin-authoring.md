@@ -18,10 +18,8 @@ these paradigms in mind every time you add a plugin or feature:
   specs are the only surface. Don't introduce a sibling mechanism (custom file formats,
   plugin-to-plugin hooks, globals). A third-party plugin shipped outside this repo must be able to
   do everything a first-party plugin does with the same interface.
-- **Own the domain end-to-end.** Anything domain-specific (option types, slot definitions, codegen
-  aggregators, runtime factories, CLI subcommands) lives in the plugin. Never leak a domain type
-  into `@fcalell/cli`. If you catch yourself editing `packages/cli/src/` to land a feature, stop
-  and move it.
+- **Own the domain end-to-end.** Anything domain-specific lives in the plugin and core stays
+  domain-agnostic (`../product.md`, "Features live in the plugin that owns the domain").
 
 ## The `plugin()` contract
 
@@ -77,12 +75,9 @@ Key fields:
 
 - `label`: human label used in the CLI picker.
 - `schema`: Zod schema for plugin options (see next section).
-- `requires`: presence-only sibling plugins, a list or a function of the plugin's resolved options, each entry a name or a one-of
-  (`{ oneOf: ["cloudflare", "node"] }`) that exactly one of its plugins meets, the first being
-  the default. `stack init` and `stack add` pull every requirement the selection lacks; for an
-  unmet one-of, interactive `init` asks which and every other path takes the first. The CLI
-  surfaces a missing entry, or a one-of met twice, with an actionable error naming the choices;
-  ordering is derived from slot edges, not from this list.
+- `requires`: presence-only sibling plugins, a list or a function of the plugin's resolved options.
+  What an entry means is in `slot-graph.md`, "Why there's no ordering to think about"; how
+  `stack init` and `stack add` pull what is missing is in `commands.md`.
 - `slots`: slots owned by this plugin, exposed on the returned factory as `.slots` so other plugins
   can contribute or derive.
 - `contributes`: array (or `(self) => array`) of `Contribution`s built via `someSlot.contribute(fn)`.
@@ -105,7 +100,7 @@ Key fields:
 ## Options via `schema`
 
 Plugin options are declared as a Zod schema. `plugin()` validates the caller's input through it,
-applies defaults, and, because `schema?: z.ZodType<unknown, TOptions>` pins `TOptions` to
+applies defaults, and, because `schema?: z.ZodType<TResolvedOptions, TOptions>` pins `TOptions` to
 `z.input<typeof schema>`, types your options everywhere they're read with the *resolved*
 (post-default) shape: command handlers via `ctx.options`, contribution functions via the
 `self.options` helper, and a module-level `slot.derived`/`slot.value` via an annotated
@@ -153,11 +148,9 @@ contributes: (self) => [
 ],
 ```
 
-A map slot's owner may declare a merge rule (`slot.map({ source, name, keyOf?, merge? })`; see
-[slot-graph](./slot-graph.md)), so two plugins contributing one key combine instead of throwing:
-`vite.slots.clientHeaders` merges `Content-Security-Policy` per directive, which is how a
-consumer's own plugin adds sources to vite's default policy. Declare a rule only for a key whose
-combination has one obvious meaning; the slot's catalog entry states it.
+A map slot's owner may declare a merge rule, so two plugins contributing one key combine instead of
+throwing ([slot-graph](./slot-graph.md)). Declare a rule only for a key whose combination has one
+obvious meaning; the slot's catalog entry states it.
 
 **ContributionCtx** carries:
 
@@ -235,16 +228,13 @@ contributes: [
    `dist` and `src`.
 2. `node/` and `worker/` are split; no cross-imports.
 3. Runtime (if any) is exported from `./runtime` and takes plain options, not `PluginConfig`.
-   Every entry Node loads (`.`, `./runtime`, `node/*`) exports compiled `dist` with its `types`;
-   only `.tsx`, `.css` and `src/ui/` entries export source. The package has `tsconfig.build.json`,
-   `build` and `prepare` (`conventions.md`, "Build and exports").
+   Which entries export compiled `dist` and which source, and the package's `tsconfig.build.json`,
+   `build` and `prepare`: `conventions.md`, "Build and exports".
 4. Commands are routable via `stack <plugin> <command>`.
 5. Cross-plugin dataflow is expressed via slot imports: `B.slots.foo.contribute(...)` to push,
    `slot.derived({ inputs: { foo: B.slots.foo }, ... })` to read. No `requires:` for ordering (it's
    presence-only).
 6. New/renamed/removed slots are reflected in `slot-catalog.md` in the same
    commit.
-7. Stack packages are `dependencies` of one another (`workspace:^`), never peers; a third-party
-   dependency's optional peer that an app can hold in two versions becomes a direct dependency, so
-   the app ends with one copy of the plugin (`releasing.md`, "Peers"). `pnpm release:check`
-   installs consumers from the packed tarballs and counts the copies.
+7. Dependencies and peers follow the rules in `releasing.md`, "Peers: one copy of each stack
+   package".

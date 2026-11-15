@@ -25,9 +25,8 @@ maps), `src/` (the entries a bundler compiles resolve to it, `ui-core`'s guide s
 `src/roster.ts` and `src/roster/`, and the maps point into it), `guide/*.md` (a consumer's `stack generate` indexes
 them), `DESIGN.md` for ui-core, `templates/` and `lint/` where a plugin scaffolds or contributes
 them, the README and the LICENSE. Test files, `tsconfig*.json` and ui-core's maintainer scripts
-stay out. Every entry Node loads resolves through `exports` into `dist/` (Node refuses to strip
-types under `node_modules`); only `.tsx`, `.css` and `src/ui/` entries resolve to source
-(`conventions.md`, "Build and exports").
+stay out. Which `exports` entries resolve to `dist/` and which to source:
+`conventions.md`, "Build and exports".
 
 ## The version rule
 
@@ -83,7 +82,7 @@ every `exports` and `bin` target present). It then makes three consumers with `s
 (a worker web app, a Node-target web app, a native app), each installing **only** from the
 tarballs (`overrides` to `file:` tarballs in the consumer's `pnpm-workspace.yaml`, which is what
 the registry will serve), runs `stack generate`, `stack build` and `tsc -b` on them (the native
-one generates only), counts the copies of each stack package in the lockfile, and ends with
+one has no `stack build`), counts the copies of each stack package in the lockfile, and ends with
 `pnpm -r publish --dry-run`. Its logs, tarballs and consumers land in a fresh directory it
 prints; `--only web,node,native` narrows the consumers, `--keep` keeps their `node_modules`.
 
@@ -141,7 +140,7 @@ verdicts:
 - the `overrides` entries naming `@fcalell/*`;
 - `blockExoticSubdeps: false`;
 - the `allowBuilds` keys of the form `"@fcalell/<name>@git+https://github.com/fcalell/stack.git": true`;
-- `childConcurrency` and `networkConcurrency` when they were set for the git prepares.
+- `childConcurrency` and `networkConcurrency`, which only the git prepares needed.
 
 Then `pnpm install`, and check that the lockfile holds no `github.com/fcalell/stack` entry and one
 copy of each stack package (the command above), run `stack generate`, and run the consumer's

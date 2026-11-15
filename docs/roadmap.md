@@ -6,5 +6,5 @@ Unbuilt work, one item each; an item moves into the built docs when it lands.
   the web's touch density); `plugins/native-ui`'s own cells (its shell, tabs, definition rows,
   the type mark drawn as plain text) still draw the earlier look.
 - A breadcrumb in a Pane's bar: the parents of the page in the meta ink before its title.
-- The type mark's box is the `check` size (18 desktop, 20 touch); a two-character mark fits, the
+- The type mark's box is `size-icon-control` (`ROW_MARK`); a two-character mark fits, the
   touch box wants 22.

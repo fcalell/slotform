@@ -11,14 +11,15 @@ Use subpath exports for the public API. Code Node runs imports its own modules b
 with the `.ts` extension: the build rewrites relative specifiers only, so a `#` import would reach
 the consumer as a `.ts` path. `#` hash imports stay in bundler-compiled code (`src/ui/`).
 
-All packages use `workspace:*` to depend on sibling `@fcalell/*` packages.
+Packages depend on sibling `@fcalell/*` packages with `workspace:^` (see [releasing](./releasing.md)); apps use `workspace:*`.
 
 TypeScript configs extend `@fcalell/typescript-config`, never define compiler options directly.
 
 ## Build and exports
 
 A package ships JavaScript for everything Node runs, because Node refuses to strip types under
-`node_modules`. Its `tsconfig.build.json` extends its own `tsconfig.json` plus
+`node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`) and has no flag for it. Its
+`tsconfig.build.json` extends its own `tsconfig.json` plus
 `@fcalell/typescript-config/build.json`, which compiles `src/` to `dist/` under `nodenext` (an
 extensionless relative import fails the build) and leaves out `src/ui/` and `.tsx`. Scripts:
 `"build": "tsc -p tsconfig.build.json"` and `"prepare": "node ../../scripts/prepare.ts"`, which
@@ -29,13 +30,13 @@ before (there is no `prepublishOnly`); `files` lists `dist` and `src` (and the
 packages are versioned, which peers a stack package may state and the publish order: `releasing.md`.
 
 Each `exports` entry a bundler compiles (`.tsx`, `.css`, anything under `src/ui/`, the
-`./components/*` and `./lib/*` patterns) points at source; every other entry is
+`./showcase/frames/*` pattern) points at source; every other entry is
 `{ "types": "./dist/<path>.d.ts", "default": "./dist/<path>.js" }`. A source entry reaches a
 sibling module that also ships compiled through the package's own name, never a relative path,
 or the bundle holds two copies of that module. An entry's target is one string, never an array: a
 bundler takes an array's first target whether or not the file exists, where tsc tries each, so an
 array type-checks and fails the consumer's build. A pattern names one extension
-(`"./lib/*": "./src/ui/lib/*.ts"`) and each module of the other extension gets its own entry
+(`"./showcase/frames/*": "./src/ui/showcase/frames/*.tsx"`) and each module of the other extension gets its own entry
 (`"./lib/words": "./src/ui/lib/words.tsx"`).
 Vite's dev optimizer skips a `.tsx` entry unless told otherwise, so plugin-vite's generated config
 adds `.tsx` to `optimizeDeps.extensions`.
@@ -59,16 +60,9 @@ over new ones.
 Before adding any option, type, or file, decide who owns the domain. The default answer is **a
 plugin, not core**. Full rationale: `docs/product.md`.
 
-- **`@fcalell/cli` (core) is domain-agnostic.** Orchestration, slot graph, codegen, `defineConfig`,
-  `plugin`, `slot.*`, AST specs. Never add domain types here (`FontEntry`, `AuthProvider`,
-  `SchemaTable`, etc.). If you catch yourself importing a domain type into `packages/cli/src/`,
-  stop and move it.
-- **`AppConfig` / top-level `app`** takes only cross-cutting identity (`name`, `domain`): values
-  consumed by more than one plugin. A value that only makes sense to one plugin's domain does
-  **not** go on `app`; it goes on that plugin's options. HTML `<head>` metadata (`title`,
-  `description`, `icon`, `themeColor`, `lang`) lives on `plugin-react` because it's meaningless
-  without a web app; the deep-link scheme lives on `plugin-expo` because it's meaningless without
-  a native app.
+- **`@fcalell/cli` (core) and `app`.** Core is domain-agnostic and `app` takes only
+  cross-cutting identity (`name`, `domain`); the rule, its examples and the quick test are in
+  `docs/product.md`, "Features live in the plugin that owns the domain".
 - **Plugin options** are the home for domain config. Typography → `reactUi({ fonts })`. API
   prefix → `api({ prefix })`. Drizzle dialect → `db({ dialect })`. Types for those options live in
   the plugin's `src/types.ts`, or alongside the plugin that renders them at build time.
@@ -119,8 +113,8 @@ default.
 One word per meaning across both UI plugins and every ui-core descriptor, so a screen reads the same
 whichever component it fills. A new prop or descriptor field takes the word its meaning already has
 here, and a meaning without a word here gets one in this list in the same change. No prop is called
-`meta`: it named five things (a row's facts, a message's provenance, a stat's sentence, a canvas
-node's line and a type role), and each now has its own word. A text role keeps `meta` (the type
+`meta`: five meanings (a row's facts, a message's provenance, a stat's sentence, a canvas
+node's line and a type role) each have their own word. A text role keeps `meta` (the type
 scale's name, `text({ role: "meta" })`); a prop never does.
 
 | Word | Names | Type |

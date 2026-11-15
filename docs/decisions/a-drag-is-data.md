@@ -8,7 +8,7 @@ follows the pointer, the line a reordered row lands at, the scroll near an edge,
 the act's sequence (confirm, run, toast, go) on a drop and a move, and the keyboard. A consumer
 writes no pointer handler and no drag state.
 
-**Why.** A drag was the one interaction a consumer would build by hand: native drag events or a
+**Why.** A drag is the one interaction a consumer would build by hand without it: native drag events or a
 library per list, its own state for what is held, its own auto-scroll, its own line. On a 50,000-row
 library that is three things at once that a hand-built one gets wrong: the dragged row leaves the
 window (a native drag's source unmounts with it and the browser sends no end), the pick is a query

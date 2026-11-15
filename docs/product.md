@@ -8,8 +8,8 @@ judged against the five pillars below.
 ## The consumer writes only business logic
 
 Plugins wrap their domain (Drizzle, Hono, oRPC, Vite, Tailwind) and re-export only what's
-needed. Consumers don't install or import `drizzle-orm`, `hono`, `zod`, `vite`, or
-`tailwindcss` directly, and they don't hand-write glue code, boilerplate config, or wiring. If a
+needed. Consumers don't import `drizzle-orm`, `hono`, `zod`, `vite`, or
+`tailwindcss` directly and install none by hand (`stack init` and `stack add` write the build tools into the app's `devDependencies`), and they don't hand-write glue code, boilerplate config, or wiring. If a
 value can be generated, inferred, defaulted, or auto-wired, a plugin must do it behind the scenes. A
 new consumer-facing option is the last resort, not the first.
 

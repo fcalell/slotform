@@ -202,8 +202,7 @@ The web `<head>` belongs to `plugin-react`: its options render into `.stack/inde
 peer plugin contributes its own tags (fonts, preloads) to the same slot.
 
 `app.name` flows into the generated `wrangler.toml`; `app.domain`
-drives the seed of `api.slots.cors` (`https://${domain}` + `https://app.${domain}`, plus the vite
-dev-port localhost origin contributed by `plugin-vite` when present) and auth's derived
+drives the seed of `api.slots.cors` (`https://${domain}` + `https://app.${domain}`; `plugin-vite`'s dev-port localhost origin goes to `api.slots.devCorsOrigins`) and auth's derived
 `trustedOrigins`. Set `app.origins` to override the derived allow-list entirely; local origins in the list are dev-only (honoured under `STACK_DEV`, stripped from the deploy), except under a node server bound to loopback, whose deployment is local.
 
 Every plugin the consumer depends on must be listed explicitly; there is no implicit-resolution
@@ -216,9 +215,7 @@ type stripping, so both stay erasable-only syntax and name the file of every rel
 
 ## Installing stack
 
-Every package ships JavaScript in `dist/` for everything Node runs: Node refuses to strip types
-under `node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`) and has no flag for it.
-Bundler-compiled entries (`.tsx`, `.css`, `src/ui/`) resolve to source.
+Which entries ship compiled in `dist/` and which resolve to source: [conventions](./conventions.md#build-and-exports).
 
 ### From npm
 

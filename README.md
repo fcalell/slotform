@@ -53,7 +53,7 @@ pnpm exec stack init my-app
 - **UI**: one design system, `@fcalell/ui-core`. On the web its stylesheet, fonts, words and showcase over Tailwind v4 (`@fcalell/plugin-react-ui`); on the phone its roster in React Native + uniwind (`@fcalell/plugin-native-ui`).
 - **Tooling**: one `stack` CLI for init, dev, build, deploy. TypeScript and Biome presets included.
 
-Consumers never install or import `drizzle-orm`, `hono`, `zod`, `vite`, or `tailwindcss` directly. Plugins wrap their domain and re-export only what is needed.
+Consumers never import `drizzle-orm`, `hono`, `zod`, `vite`, or `tailwindcss` directly and install none of them by hand: `stack init` and `stack add` write the build tools (`vite`, `tailwindcss`) into the app's `devDependencies`. Plugins wrap their domain and re-export only what is needed.
 
 ## Packages
 

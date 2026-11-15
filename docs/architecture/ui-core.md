@@ -166,7 +166,7 @@ fails `tsc` and the schema. It is a plugin option beside `theme`; each plugin co
   drops a slot. Rejected: a bare connective composed around figures.
 - Ages, moments and every other `Intl` formatter come from ui-core (`ageWords`, `formatterFor(kind,
   lang, options)` in `./format`, built once per kind, language and options at module scope);
-  `src` holds no `new Intl.`.
+  `new Intl.` appears in `format.ts` and, for `groupZeros`, in `scramble.ts`.
 - Ages and pending bars read one coarse clock per plugin (`lib/clock`, `useClock(read, until)`, over ui-core's `createClock`),
   ticking once a second while a reader holds it. `pendingShare(run, now)` in `./clock` is pure; the
   fill animates by transform, and under reduced motion steps with the clock.
@@ -347,8 +347,8 @@ where the row opens nothing), the Context Menu key (or Shift+F10) opens the menu
   `src/roster/<component>.ts`. The showcase draws exactly those cells and states. A component's
   directory is `componentDir(name)`. A component draws another's place by composing it, never by
   spelling its cells.
-- A popup trigger renders the icon act's base (`icon-button/base.tsx`); the icon act's base names
-  the act with a Tooltip (none on touch). Text the frame cuts names itself through one shared
+- A popup trigger renders the icon act's base (`IconButtonBase` in `button/glyph.tsx`); the icon act's base
+  names the act with a Tooltip (none on touch). Text the frame cuts names itself through one shared
   tooltip the frame host mounts (`shell/cut.tsx`), shown only when it measures cut. No popup of the
   roster locks the page scroll (`Picker` passes `modal={false}`); a sheet is modal by design.
 - file `Input` is the field box that chooses a file; its value is `PickedFile` (`{ name, size, type,
