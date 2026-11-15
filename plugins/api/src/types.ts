@@ -2,7 +2,7 @@ import type { Client } from "@orpc/client";
 
 // `TScope` is the input key the procedure's scope adds (`organizationId`), or
 // `never`: the client type makes that key optional, for the route's scope
-// boundary to fill (`./scope.ts`).
+// boundary to fill (the query plugin merges the registered scope in).
 export interface Procedure<
 	TInput = unknown,
 	TOutput = unknown,
@@ -79,24 +79,3 @@ export interface EnvSpec {
 	devDefault: string;
 	validate?: EnvValidation;
 }
-
-/** A procedure of the query utils, `orpc.requests.submit`: what a `Form` submits and reads its schema from. */
-export interface ProcedureCall {
-	call: (...args: never[]) => Promise<unknown>;
-	mutationKey: (...args: never[]) => readonly unknown[];
-	mutationOptions: (...args: never[]) => unknown;
-}
-
-/** What the procedure takes. */
-export type InputOf<P extends ProcedureCall> = P extends {
-	call: (...args: infer A) => unknown;
-}
-	? NonNullable<A[0]>
-	: never;
-
-/** What the procedure answers. */
-export type OutputOf<P extends ProcedureCall> = P extends {
-	call: (...args: never[]) => Promise<infer O>;
-}
-	? O
-	: never;

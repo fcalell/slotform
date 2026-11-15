@@ -12,14 +12,13 @@ stack add api
 
 ## Guide
 
-Writing procedures, worker middleware, the client and its reads, acts and abilities, options, pagination and slugs lives in
+Writing procedures, worker middleware, the client, options, pagination and slugs lives in
 `guide/`, indexed into a consumer's `.stack/guide.md`:
 [`add-a-procedure.md`](./guide/add-a-procedure.md), [`procedures.md`](./guide/procedures.md),
 [`middleware.md`](./guide/middleware.md), [`client.md`](./guide/client.md),
-[`reads.md`](./guide/reads.md), [`pages-and-streams.md`](./guide/pages-and-streams.md),
-[`acts.md`](./guide/acts.md), [`abilities.md`](./guide/abilities.md),
-[`provider.md`](./guide/provider.md), [`mcp.md`](./guide/mcp.md), [`background.md`](./guide/background.md), [`config.md`](./guide/config.md) and
-[`utilities.md`](./guide/utilities.md).
+[`mcp.md`](./guide/mcp.md), [`background.md`](./guide/background.md), [`config.md`](./guide/config.md) and
+[`utilities.md`](./guide/utilities.md). Drawing the client's reads, acts and abilities is the query
+plugin's (`@fcalell/plugin-query`).
 
 ## Plugin implementation
 
@@ -148,7 +147,7 @@ A `cliSlots.postWrite` contribution writes `.stack/schema.ts` (`virtual:stack-sc
 
 ### Scope
 
-A procedure with a `scope` takes the scope's id in its input (`organizationId`) and stamps the key on its meta as `scope`. The route's `ScopeBoundary` registers the ids its layout resolved from the URL slug (a nested boundary extends the outer ones), and the utils `createApiQueryUtils` returns merge the registered id into the input of every call whose procedure names that scope key in `.stack/schema.ts`, and only that key (an explicit id wins), before the query key is built, so the key carries the id and the input type makes the scope key optional. A scoped call with no registered scope and no id throws before any request, naming the procedure and the key. A route `loader` names its ids or uses `scoped(orpc, ids)`. See `guide/client.md`.
+A procedure with a `scope` takes the scope's id in its input (`organizationId`) and stamps the key on its meta as `scope`. The route's `ScopeBoundary` registers the ids its layout resolved from the URL slug (a nested boundary extends the outer ones), and the utils `createApiQueryUtils` returns merge the registered id into the input of every call whose procedure names that scope key in `.stack/schema.ts`, and only that key (an explicit id wins), before the query key is built, so the key carries the id and the input type makes the scope key optional. A scoped call with no registered scope and no id throws before any request, naming the procedure and the key. A route `loader` names its ids or uses `scoped(orpc, ids)`. `ScopeBoundary` is `@fcalell/ui-core/react/scope` and `createApiQueryUtils` is `@fcalell/plugin-query/tanstack-query`. See `guide/client.md`.
 
 ## Exports
 
@@ -160,12 +159,9 @@ A procedure with a `scope` takes the scope's id in its input (`organizationId`) 
 | `@fcalell/plugin-api/procedure` | `createProcedure()`, `createJobs()`, `noSuch()` (a scope's `NOT_FOUND` refusal, "No such <scope>"), `JobBatch`, `JobMessage`, `JobScheduledEvent`, `Middleware`, `ProcedureConfig`, `STACK_READS_HEADER`, `STACK_WRITES_HEADER` -- what the generated `.stack/procedure.ts` (`virtual:stack-procedure`) imports |
 | `@fcalell/plugin-api/error` | `ApiError` -- worker-safe (no Node-only deps); import this from route files |
 | `@fcalell/cli/runtime` | `RuntimePlugin` |
-| `@fcalell/plugin-api/client` | `createClient()`, `RouterClient`, `ClientConfig` |
-| `@fcalell/plugin-api/tanstack-query` | `createQueryClient()`, `createApiQueryUtils()`, `ScopeBoundary`, `scoped()`, `QueryProvider`, `useAbility(organizationId, recordRules?)`, `ORG_RULES_QUERY_KEY`, `orgRulesQueryKey()`, query hooks -- native TanStack Query client (runtime-only) |
+| `@fcalell/plugin-api/client` | `createClient()`, `RouterClient`, `ClientConfig`, `isNotFound()`, `registerApiClient()`, `getRegisteredApiClient()` (the client `useAbility()` fetches the org rules through), `registerOperationContext()` |
 | `@fcalell/plugin-api/query-invalidation` | `captureEntityHeaders()`, `invalidateForWrites()`, `handleMutationSuccess()`, `createEntityRegistry()`, `EntityName` -- framework-agnostic auto-invalidation core; `invalidateForWrites` takes the app's `Entity` names (type-only) |
-| `@fcalell/plugin-api/scope` | `registerScope()`, `mergeScope()`, `withScope()`, `scoped()`, `ScopeSchema` -- the registered route scope and the merge of a scoped procedure's key into utils inputs (runtime-only) |
-| `@fcalell/plugin-api/types` | `Procedure`, `RouterClient`, `ScopedRouterClient`, `ProcedureCall`, `InputOf`, `OutputOf`, `InferRouter` -- the types of the client |
-| `@fcalell/plugin-api/ability-client` | `composeAbility()`, `fetchOrgRules(organizationId)`, `registerApiClient()`, `ORG_RULES_QUERY_KEY`, `orgRulesQueryKey()`, `PackedRulesLike` -- framework-agnostic `useAbility()` core (runtime-only), consumed by `./tanstack-query` |
+| `@fcalell/plugin-api/types` | `Procedure`, `Router`, `RouterClient`, `ScopedRouterClient`, `InferRouter`, `EnvSpec`, `EnvValidation` -- the types of the client and the worker |
 | `@fcalell/plugin-api/schema` | `z` (Zod re-export), `ZodObject`, `ZodType`, `ZodRawShape`, `selector()` / `Selector` (rows a mutation acts on: ids, or a read's query less the unticked ids), `inputJsonSchema()` (a procedure's input as JSON Schema, also the MCP tool's), `routerSchema()` (every procedure of a router, the worker's `_router`: what `stack generate` writes to `.stack/schema.ts`) |
 | `@fcalell/plugin-api/lib/cursor` | `encodeCursor`, `decodeCursor`, `paginate` (keyset over one or more order columns), `clampLimit`, constants |
 | `@fcalell/plugin-api/lib/window` | `paginateWindow` -- a `paginated: "window"` procedure's page at an offset with the filter's total, ordered by columns or SQL expressions over an optional join |

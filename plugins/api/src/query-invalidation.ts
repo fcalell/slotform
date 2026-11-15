@@ -2,8 +2,8 @@ import { STACK_READS_HEADER, STACK_WRITES_HEADER } from "./wire.ts";
 
 // The client-side half of entity-based
 // cache invalidation. Framework-agnostic core -- no react/node imports --
-// consumed by `./client.ts` (capture point), `./tanstack-query.tsx` (React
-// wiring), and the web plugin's app shell.
+// consumed by `./client.ts` (capture point) and the query plugin's query
+// client (`createQueryClient`, which invalidates on a mutation's success).
 //
 // Query/mutation keys are oRPC's `@orpc/tanstack-query` shape:
 // `[path: readonly string[], { input?, type?, fnOptions? }]`. The path
@@ -137,11 +137,11 @@ export function createEntityRegistry(): EntityRegistry {
 	return { capture, invalidateForWrites, handleMutationSuccess };
 }
 
-// The registry `./client.ts`, `./tanstack-query.tsx`, and the web plugin
-// share by default. Tests that need isolation from other tests' captured
+// The registry `./client.ts` and the query plugin's query client share by
+// default. Tests that need isolation from other tests' captured
 // headers build their own via `createEntityRegistry()` instead.
 //
-// Per-JS-isolate, single-user assumption: like `ability-client.ts`'s
+// Per-JS-isolate, single-user assumption: like `./client.ts`'s
 // registered-client singleton, this module-level registry assumes one
 // client's captured headers for the lifetime of the isolate (CSR/native) --
 // it is NOT per-request. An SSR target that reuses the same isolate across

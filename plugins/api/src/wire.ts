@@ -1,8 +1,8 @@
 // Wire contract for entity-based cache invalidation and org rules, shared
 // between `./procedure.ts` (server, pulls in `@orpc/server` + zod + the whole
 // procedure builder) and the client bundles that read the
-// same headers/path (`./query-invalidation.ts`, `./ability-client.ts`,
-// `./tanstack-query.tsx`). Import-free by construction — mirrors
+// same headers/path (`./query-invalidation.ts`, and the query plugin's
+// org-rules read). Import-free by construction — mirrors
 // `plugins/expo/src/version-gate-shared.ts` — so a client bundle depending
 // only on these constants doesn't drag the server builder along with
 // it. `./procedure.ts` re-exports them from here, so `@fcalell/plugin-api/procedure`

@@ -8,14 +8,14 @@ procedure's caller-side input and output, and none of the worker's source.
 ```ts
 // src/app/lib/api.ts
 import { createClient } from "@fcalell/plugin-api/client";
-import { createApiQueryUtils } from "@fcalell/plugin-api/tanstack-query";
+import { createApiQueryUtils } from "@fcalell/plugin-query/tanstack-query";
 import type { AppRouter } from "../../../.stack/worker";
 
 export const api = createClient<AppRouter>(); // url "/rpc", credentials "include"
 export const orpc = createApiQueryUtils(api);
 ```
 
-A query made through `orpc.*.queryOptions` travels as `GET` (its input in the URL) and a mutation as `POST`. Build the utils with `createApiQueryUtils`: oRPC's own `createTanstackQueryUtils` sends queries as `POST`.
+A query made through `orpc.*.queryOptions` travels as `GET` (its input in the URL) and a mutation as `POST`. Build the utils with `createApiQueryUtils` (the query plugin, `query()`): oRPC's own `createTanstackQueryUtils` sends queries as `POST`.
 
 On the phone, pass an absolute `url` (`process.env.EXPO_PUBLIC_API_URL`). `headers` takes an
 object, or a function returning one or a promise of one (read on every request, so a cookie or key
@@ -27,10 +27,11 @@ is the old server's. A machine with no browser sends its device key there:
 
 ## Queries
 
-`@fcalell/plugin-api/tanstack-query` pairs the client with TanStack Query 5 and re-exports its
+`@fcalell/plugin-query/tanstack-query` pairs the client with TanStack Query 5 and re-exports its
 hooks (`useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery`, `useQueryClient`). The
-`QueryProvider` that wraps the app is on [the provider page](./provider.md); drawing a query on a
-screen is [reads](./reads.md).
+`QueryProvider` that wraps the app is on the query plugin's provider page
+(`node_modules/@fcalell/plugin-query/guide/provider.md`); drawing a query on a screen is its reads
+page (`node_modules/@fcalell/plugin-query/guide/reads.md`).
 
 ```tsx
 const { data } = useQuery(orpc.projects.list.queryOptions({ input: { organizationId } }));
@@ -42,7 +43,7 @@ const create = useMutation(orpc.projects.create.mutationOptions());
 A procedure with a `scope` takes the scope's id in its input (`organizationId`, `projectId`) and
 stamps the key on its meta as `scope`; `stack generate` writes it to `.stack/schema.ts` beside the
 procedure's input schema. The route's boundary supplies the id: `ScopeBoundary` from
-`@fcalell/plugin-api/tanstack-query` registers the ids the layout resolved from the URL slug for the
+`@fcalell/ui-core/react/scope` registers the ids the layout resolved from the URL slug for the
 subtree it renders, and the utils `createApiQueryUtils` returns merge the registered id into the
 input of every call whose procedure names that key, and only that key (an explicit id wins),
 before the query key is built. The key carries the id, so two organizations' `projects.list`
@@ -63,7 +64,8 @@ ambient, per isolate: one client and one rendered route subtree. A call that nam
 passes its id.
 
 A route `loader` runs before the boundary renders, so it names the ids it resolved, in the input or
-once with `scoped(orpc, { organizationId })` from the same module, which nests. A call of an
+once with `scoped(orpc, { organizationId })` from `@fcalell/plugin-query/tanstack-query`, which
+nests. A call of an
 unscoped procedure keeps its input as it is under any boundary. A call of a scoped procedure with
 no registered scope and no id throws before any request, naming the procedure and the key; a
 procedure added since the last `stack generate` is not in the schema, so it is not scoped until

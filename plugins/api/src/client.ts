@@ -1,12 +1,40 @@
 import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
-import { getRegisteredApiClient, registerApiClient } from "./ability-client.ts";
 import { captureEntityHeaders } from "./query-invalidation.ts";
 import type { RouterClient } from "./types.ts";
 import { STACK_NOT_FOUND_HEADER } from "./wire.ts";
 
 export { isNotFound } from "./not-found.ts";
 export type { RouterClient } from "./types.ts";
+
+// ---------- Default-client registration ----------
+// Mirrors `defaultEntityRegistry` (./query-invalidation.ts): a module-level
+// singleton so `useAbility()` needs zero wiring in the common case (one
+// client per app). `createClient` below calls `registerApiClient`
+// internally only when nothing is registered yet, so the first client
+// created wins as the default; an explicit call always overwrites,
+// regardless of call order.
+//
+// Per-JS-isolate, single-user assumption: this module-level singleton
+// assumes one client for the lifetime of the isolate (CSR in a browser tab,
+// or a native app's single JS runtime) -- it is NOT per-request. An SSR
+// target that reuses the same isolate across requests/users (Node, most
+// non-Workers SSR runtimes) must never rely on it: a request from user A
+// could read user B's registered client. SSR consumers should call
+// `registerApiClient` (or otherwise thread the client explicitly) within
+// each request's own scope instead of depending on this default.
+let registeredApiClient: unknown;
+
+export function registerApiClient(client: unknown): void {
+	registeredApiClient = client;
+}
+
+// Read by the query plugin's org-rules fetch and by `createClient`'s
+// auto-registration guard. Not a consumer-facing surface -- there's nothing
+// to inspect on the value beyond "is a client registered".
+export function getRegisteredApiClient(): unknown {
+	return registeredApiClient;
+}
 
 export interface ClientConfig {
 	/** The RPC endpoint (`/rpc` by default). A function is read on every request, so an app whose server is chosen while it runs (a phone signing in to a server it is told the address of) changes the address without rebuilding the client. Clear the query cache when it changes: the data held is the old server's. */
@@ -46,9 +74,9 @@ function resolveClientUrl(url: string): string {
 
 // oRPC's TanStack Query utils tag every call they make with an operation
 // context (`queryOptions` -> "query", `mutationOptions` -> "mutation", ...)
-// under the symbol `@orpc/tanstack-query` exports. That package is an optional
-// peer this entry must not import, so `./tanstack-query.tsx`, which imports it,
-// hands the symbol over (`createApiQueryUtils`) before its calls are made.
+// under the symbol `@orpc/tanstack-query` exports. That package is the query
+// plugin's peer, which this entry must not import, so its `createApiQueryUtils`
+// hands the symbol over before its calls are made.
 let operationContext: symbol | undefined;
 
 export function registerOperationContext(symbol: symbol): void {
@@ -118,7 +146,7 @@ export function createClient<TRouter>(
 	// The first client any consumer
 	// creates becomes `useAbility()`'s default target, zero config. A later
 	// `createClient` call never overwrites it; an explicit `registerApiClient`
-	// always does (see ./ability-client.ts).
+	// always does (see the registration above).
 	if (getRegisteredApiClient() === undefined) {
 		registerApiClient(client);
 	}
