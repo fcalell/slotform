@@ -4,7 +4,7 @@ import type { TsExpression } from "@fcalell/cli/ast";
 
 // Where the generated route tree lands, relative to the project root. The
 // entry and `.stack/routes.d.ts` import it as `./routeTree.gen.ts`.
-export const ROUTE_TREE = ".stack/routeTree.gen.ts";
+const ROUTE_TREE = ".stack/routeTree.gen.ts";
 
 // `fileURLToPath(new URL("<path>", import.meta.url))`: an absolute path
 // anchored on the generated `.stack/vite.config.ts`, so it holds wherever the
