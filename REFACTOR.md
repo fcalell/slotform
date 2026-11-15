@@ -413,7 +413,7 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 done; F2 done for the stable packages; F3 done where rows are derivable now; slots and STACK_PACKAGES await the owner; F4 next (see Step 4 log) |
+| 4 Fixes | F1 done; F2 done for the stable packages; F3 done where rows are derivable now; F4 next (see Step 4 log) |
 | 5 Fresh-agent checks | not started |
 
 ## Step 4 log
@@ -423,7 +423,7 @@ Owner's answers:
 | F1 | done | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 938 files; `release:check` exit 0 | Cause of `check-2-stale-types.log` proven by mtimes: run 1's `generate` archived old `.stack/types`, run 2's cache hit restored 18 files at 08:56:15 before `tsc -b`. `generate` and `build` now exclude `.stack/types` and `.stack/node_modules`; app `check-types` declares `.stack/types`. Showcase `generate` writes the stories. Package `check` and `lint` scripts, turbo `lint` and `dev` tasks, two unused `imports` maps, ui-core's unused cli devDependency, changeset `linked` removed. `dev.test.ts` fixed early because it failed the gate twice under load. Kept: H1-05 (manifests have no inheritance; the apps' `tsconfig.worker.json` is the cli template's output), changeset `fixed` (the version rule), ui-core's three hand-run scripts, `@fcalell/cli` as an app devDependency (config file only) |
 | F2 part 1: exports, files, subpaths | done (commits `26d34e1f` to `63d6724f`, plus the native-ui Menu entry) | exit 0: 30 type tasks uncached, 25 test tasks, 538 tests, Biome 923 files; `release:check` exit 0 | Ten Sonnet agents, one per package group, brief `.refactor/f2-brief.md`, per-row reports `.refactor/f2/*.md`. 906 rows (agents' counts): deleted 44, unexported 207, moved 48, kept stead 25, kept documented 108, kept signature 202, kept used 64 (the audit was wrong), kept test 45, kept one importer 129, not done 39 (showcase, F9). Checked apart from the agents by `.refactor/f2-verify.mjs`: stead imports none of the removed public names (2168 `@fcalell` specifier occurrences); no body line of the 16 deleted files is lost. `@fcalell/cli/codegen` restored: the cli agent deleted it though the README lists it. Files 866 to 852; cycles unchanged (8 all-import, 2 value) |
 | F2 part 2, stable packages: pass-throughs, aliases, dead members, shallow files | done (commits `e5592c1c` to `fb36918a`) | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 929 files | Six Sonnet agents, brief `.refactor/f2-part2-brief.md`, reports `.refactor/f2/part2-*.md`. 67 rows (agents' counts): changed 15 (cli 5, small plugins 3, db and node 4, screens 3), the rest kept (binds an argument, boundary, documented, entry, sibling kind) or audit errors (5). Undone by me: the auth agent folded `worker/session-ended.ts` into `worker/index.ts`, which made the test spell the channel name as a second literal and left `README.md:82` pointing at a deleted file; the module stays (a test counts as an importer for a shallow file) |
-| F2 part 2, slots | waiting for the slot table (`.refactor/f2/slots.md`) and the owner | | S2-02 (36), S2-03 (20). Every slot is in the catalog, so this is the documented-surface case; the owner decides with the table in hand |
+| F2 part 2, slots | closed: kept by the owner's decision | | Table `.refactor/f2/slots.md`: 54 slots, none unread, 32 used across packages, 22 touched only by their own plugin. No slot changed; two catalog rows added |
 | F2 part 2, volatile packages | after F5 to F9 | | The same row kinds, and the one-importer rows N1-01, N1-05, N1-13, N1-16, in api, ui-core, react-ui, native-ui |
 | F3 derived lists, part done now | done (`b60912e4`, `14fa7fb2`, `b3ed1912`) | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 929 files; `release:check` exit 0, and exit 1 with `FAIL @fcalell/plugin-expo is in no consumer` when expo is dropped from its consumer (run with `--only none --no-build`, then restored) | Of the 29 H5 rows: **3 done** (`MOTION_CELLS` removed, nothing read it and DESIGN.md is unchanged; the Storybook breath pattern no story id matches and the `behaviour` include of a missing folder removed; `release:check` now fails a plugin in none of its three consumers). **5 kept with the fact:** the Lucide `IconName` union (written by `scripts/icon-name.ts`, its test holds it to Lucide), `YIELDS_LAST_EACH` (Tailwind reads a class as written, so it cannot be composed), `apply-motion` SITES (a typed record that throws on a miss), auth `BASE_CONTEXT` (held by `keyof`), auth `CALLBACK_MARKERS` (strings of an on-disk template; the test is the link). **16 move with their files:** roster against component folders, `draws`, `owns`, `FAMILIES` and the 72 `build(X)` exports in F6; the walk-exception owners (5 rows) in F8; the six showcase rows in F9; the plugin-api `exports`, `slots` and `guide` lists after F5. **1 is a test:** the auth DDL, in F11. **4 await the owner:** `STACK_PACKAGES` |
 
@@ -437,20 +437,13 @@ Owner's decisions after F2 part 1 (applied in `7d0fbdc9`, `7ebe81fb`, `6f4786d9`
 - Documented public surface nothing uses (108 rows) stays, except `@fcalell/cli/codegen`, which is
   removed (stead uses: 0).
 
-Open with the owner after F3:
+Owner's decisions after F3:
 
-1. Slots (S2-02, S2-03). Table in `.refactor/f2/slots.md`: 54 slots, none with no reader, 32 that
-   another package contributes to or reads, 22 that only their own plugin touches. Of the 22, 21 are
-   in the slot catalog; 16 are value slots that publish a plugin's resolved settings and 6 are list
-   or map slots that are always empty (`api.corsOrigins`, `cloudflare.routes`, `cloudflare.vars`,
-   `node.services`, `native-ui.appCssImports`, `react.htmlBodyEnd`). The confirmed design says a
-   slot with no contributor goes; the owner's later ruling keeps documented surface. Recommended:
-   keep all 54 and add the two catalog rows that are missing.
-2. `STACK_PACKAGES` (H5-02, 4 rows). F3 said "from the workspace". It ships in the published CLI
-   and runs in consumer projects with no workspace (git specs by repo directory, the first-party
-   closure for `pnpm-workspace.yaml`), and it carries hand-written `builds` verdicts. Deriving it
-   means build-time codegen. Recommended: keep the hand list and its test; preference P4 does not
-   fit this row.
+- Slots: all 54 stay (S2-02 and S2-03 are closed as kept). The slot catalog is the plugin contract
+  and is not trimmed by current use. The two rows it lacked are added
+  (`api.slots.routeBarrelSource`, `reactUi.slots.appCssSources`; DS-02).
+- `STACK_PACKAGES` stays a hand list held by its test. Preference P4 does not fit it: it ships in
+  the published CLI, runs where no workspace exists, and carries hand-written `builds` verdicts.
 
 Public names removed in F2 part 1 (stead uses of each: 0): plugin-api `./node/codegen`,
 `./node/types`, `WINDOW_PAGES`, `withPage`, `fetchScope`, `scopeQueryKey`, `ScopeLookupInput`,
