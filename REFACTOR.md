@@ -258,7 +258,7 @@ The largest mechanisms, which the step 3 design has to stand behind:
    showcase frame. 70 of 77 `roster.ts` commits also touch a react-ui component; 52 touch both UI
    plugins. (H1-01, H1-02, H3-02, H3-03, N2)
 2. ui-core is the most imported and the most changed package: 8.2 commits per file against 1.7 to
-   5.3 elsewhere; 546 of 818 uphill cross-package edges point at it.
+   5.3 elsewhere; 565 of 818 uphill cross-package edges point at it (react-ui 303, native-ui 243, showcase 12, phone 4, screens 3).
 3. The UI plugins import plugin-api 155 times; about four fifths of the names are model shapes, one
    fifth read and act hooks. plugin-api's `read.ts`, `acts.ts`, `ability-client.ts`, `scope.ts` mix
    wire and model. (N1-06, N1-11, N1-12, N1-25; owner preference P1)
