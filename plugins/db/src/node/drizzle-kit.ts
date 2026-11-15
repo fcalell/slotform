@@ -9,7 +9,7 @@ import { runCommand } from "./exec.ts";
 // only, so `drizzle-kit/bin.cjs` is not resolvable: resolve the package entry
 // from this module and take the bin beside it, as a realpath so the probes
 // below resolve from where drizzle-kit itself will.
-export function drizzleKitBin(): string {
+function drizzleKitBin(): string {
 	let entry: string;
 	try {
 		entry = createRequire(import.meta.url).resolve("drizzle-kit");

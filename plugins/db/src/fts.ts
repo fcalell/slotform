@@ -22,7 +22,7 @@ import {
 
 export const FTS_KEY = Symbol.for("@fcalell/plugin-db/fts");
 
-export const STATEMENT_BREAKPOINT = "--> statement-breakpoint";
+const STATEMENT_BREAKPOINT = "--> statement-breakpoint";
 
 export interface FtsTrigger {
 	name: string;
@@ -146,7 +146,7 @@ function fnv1a(input: string): string {
 	return (h >>> 0).toString(16).padStart(8, "0");
 }
 
-export function buildFtsDefinition(input: {
+function buildFtsDefinition(input: {
 	name: string;
 	content: string;
 	columns: string[];
@@ -208,11 +208,10 @@ const dropTriggers = (def: Pick<FtsDefinition, "name">): string[] =>
 		(s) => `DROP TRIGGER IF EXISTS ${q(`${def.name}_${s}`)};`,
 	);
 
-export const ftsMarker = (def: Pick<FtsDefinition, "name" | "hash">): string =>
+const ftsMarker = (def: Pick<FtsDefinition, "name" | "hash">): string =>
 	`-- stack:fts ${def.name} ${def.hash}`;
 
-export const ftsDropMarker = (name: string): string =>
-	`-- stack:fts-drop ${name}`;
+const ftsDropMarker = (name: string): string => `-- stack:fts-drop ${name}`;
 
 const join = (statements: string[]): string =>
 	`${statements.join(`\n${STATEMENT_BREAKPOINT}\n`)}\n`;
@@ -275,11 +274,6 @@ export function ftsConvergeStatements(
 // The tables SQLite keeps behind an FTS5 table.
 export const ftsShadowTables = (name: string): string[] =>
 	["data", "idx", "docsize", "config", "content"].map((s) => `${name}_${s}`);
-
-export const dropFtsStatements = (name: string): string[] => [
-	...dropTriggers({ name }),
-	`DROP TABLE IF EXISTS ${q(name)};`,
-];
 
 function rowidColumn(
 	content: SQLiteTable,

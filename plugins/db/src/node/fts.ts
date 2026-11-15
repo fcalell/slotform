@@ -77,7 +77,7 @@ export function migratedFts(migrationsDir: string): Map<string, string> {
 	return state;
 }
 
-export interface FtsMigration {
+interface FtsMigration {
 	name: string;
 	sql: string;
 }

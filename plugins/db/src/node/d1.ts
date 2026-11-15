@@ -15,7 +15,7 @@ export function isWranglerAuthed(): boolean {
 	return result.status === 0;
 }
 
-export type D1CreateResult =
+type D1CreateResult =
 	| { ok: true; id: string; name: string }
 	| { ok: false; error: string };
 

@@ -165,7 +165,7 @@ async function waitFor(path: string, timeoutMs: number): Promise<LockHandle> {
 	}
 }
 
-export interface MigrationLockOptions {
+interface MigrationLockOptions {
 	// Default 30s — covers a slow `drizzle-kit generate` on a large schema
 	// while still surfacing a wedged lock within a single CI step.
 	timeoutMs?: number;

@@ -20,7 +20,7 @@ import {
 // A migration acknowledged as an intentional, reviewed drop carries this
 // marker anywhere in its `.sql` (a plain comment line). Kept as a bare token so
 // `-- stack:allow-destructive` reads naturally in a SQL file.
-export const ALLOW_DESTRUCTIVE_MARKER = "stack:allow-destructive";
+const ALLOW_DESTRUCTIVE_MARKER = "stack:allow-destructive";
 
 // Temp workspace for the drift check. Lives under the already-gitignored
 // `.db-kit` and is RELATIVE to cwd on purpose: drizzle-kit 0.31 mangles
@@ -46,7 +46,7 @@ interface Journal {
 	entries?: JournalEntry[];
 }
 
-export interface DropReport {
+interface DropReport {
 	tables: string[];
 	columns: { table: string; column: string }[];
 	views: string[];

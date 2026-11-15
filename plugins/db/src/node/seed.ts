@@ -200,7 +200,7 @@ export function describeSeed(
 // property names to DB column names and applies each column's driver mapping
 // (Date → epoch, boolean → 0/1, json → text). Cross-instance-safe: drizzle keys
 // its internals with `Symbol.for`, so the consumer's tables read correctly here.
-export function tableToSpec(
+function tableToSpec(
 	table: SQLiteTable,
 	rows: Array<Record<string, unknown>>,
 ): TableSeedSpec {
@@ -251,7 +251,7 @@ export function tableToSpec(
 // A seeded database is pruned (rows outside the seed deleted) locally always,
 // and remotely only when the seed file exports `prune = true`: the deployed
 // database holds rows users wrote, which a deploy must not delete unasked.
-export interface LoadedSeed {
+interface LoadedSeed {
 	specs: TableSeedSpec[];
 	prune: boolean;
 }
@@ -285,7 +285,7 @@ export async function loadSeed(cwd: string): Promise<LoadedSeed | null> {
 // Full pipeline: load + introspect + build. `null` when there's no seed file or
 // it produces no statements. `remote` builds what a deploy would run: it prunes
 // only when the seed file opts in.
-export async function buildSeedSqlFromCwd(
+async function buildSeedSqlFromCwd(
 	cwd: string,
 	{ remote = false }: { remote?: boolean } = {},
 ): Promise<string | null> {

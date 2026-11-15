@@ -6,7 +6,7 @@ import { runCommand } from "./exec.ts";
 // agree on BOTH so schema, seed, and the running worker share one miniflare
 // D1. `wrangler dev` is spawned with the same `--config`/`--persist-to` in
 // plugin-cloudflare.
-export const WRANGLER_CONFIG = ".stack/wrangler.toml";
+const WRANGLER_CONFIG = ".stack/wrangler.toml";
 
 // The table `wrangler d1 migrations apply` records applied migrations in;
 // the generated wrangler config sets no `migrations_table`, so it is the default.
@@ -19,7 +19,7 @@ export function localD1Flags(persist = LOCAL_PERSIST): string[] {
 }
 
 // Flags that target the deployed remote D1.
-export function remoteD1Flags(): string[] {
+function remoteD1Flags(): string[] {
 	return ["--remote", "--config", WRANGLER_CONFIG];
 }
 
