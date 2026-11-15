@@ -12,15 +12,12 @@ interface GenerateResult {
 	postWrite: Array<() => Promise<void>>;
 }
 
-// Resolve `cliSlots.artifactFiles` + `cliSlots.postWrite` from the graph.
-// Dedupes files by path (last write wins), optionally persists to disk,
-// then runs each postWrite hook sequentially.
 export async function generateFromConfig(
 	config: StackConfig,
 	cwd: string,
-	opts: { writeToDisk?: boolean; log?: LogContext } = {},
+	log?: LogContext,
 ): Promise<GenerateResult> {
-	const { graph } = await buildGraphFromConfig({ config, cwd, log: opts.log });
+	const { graph } = await buildGraphFromConfig({ config, cwd, log });
 
 	const rawFiles = await graph.resolve(cliSlots.artifactFiles);
 	const postWrite = await graph.resolve(cliSlots.postWrite);
@@ -53,16 +50,17 @@ export async function generateFromConfig(
 	}
 	const files = [...byPath.values()];
 
-	if (opts.writeToDisk) {
-		// Every path is checked before the first write, so a bad contribution
-		// leaves the disk as it was.
-		const targets = files.map((file) => insideProject(cwd, file.path));
-		for (const [i, file] of files.entries()) {
-			await writeArtifact(targets[i] as string, file.content);
-		}
-		for (const hook of postWrite) {
-			await hook();
-		}
+	// Every path is checked before the first write, so a bad contribution
+	// leaves the disk as it was.
+	const writes = files.map((file) => ({
+		target: insideProject(cwd, file.path),
+		content: file.content,
+	}));
+	for (const { target, content } of writes) {
+		await writeArtifact(target, content);
+	}
+	for (const hook of postWrite) {
+		await hook();
 	}
 
 	return {
@@ -71,13 +69,8 @@ export async function generateFromConfig(
 	};
 }
 
-// `stack generate`, and the `generate` a plugin command's context carries:
-// load the config, write every artifact, run the postWrite hooks.
-export async function generate(
-	configPath: string,
-	cwd: string = process.cwd(),
-	opts: { reload?: boolean } = {},
-): Promise<void> {
-	const config = await loadConfig(configPath, opts);
-	await generateFromConfig(config, cwd, { writeToDisk: true });
+// `stack generate`, and the `generate` a plugin command's context carries.
+export async function generate(configPath: string): Promise<void> {
+	const config = await loadConfig(configPath);
+	await generateFromConfig(config, process.cwd());
 }

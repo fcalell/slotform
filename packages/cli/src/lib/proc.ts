@@ -19,7 +19,6 @@ export type OutputStream = "stdout" | "stderr";
 
 interface SuperviseOptions {
 	spec: ProcessSpec;
-	cwd?: string;
 	// Each line the child prints, on whichever stream it printed it.
 	onOutput(stream: OutputStream, line: string): void;
 	// Called as each child is spawned: attempt 0, then once per restart.
@@ -50,26 +49,19 @@ export interface SupervisedProcess {
 	restart(): void;
 }
 
-// Exponential backoff capped at 10s.
-//   attempt=1 -> 250ms, 2 -> 500ms, 3 -> 1000ms, 4 -> 2000ms ... cap 10000ms
 function restartBackoffMs(attempt: number): number {
 	if (attempt <= 0) return 0;
 	const ms = 250 * 2 ** (attempt - 1);
 	return Math.min(ms, 10_000);
 }
 
-// Spawn a child process with line-split output + restart supervision +
-// port-in-use classification + onExit veto: the primitive `dev.ts` builds
-// on. Returns immediately; the caller awaits `done` for terminal completion
-// or calls `stop()` to teardown.
+// Returns immediately; the caller awaits `done` for terminal completion
+// or calls `stop()` to tear down.
 export function supervise(opts: SuperviseOptions): SupervisedProcess {
-	const { spec, cwd } = opts;
+	const { spec } = opts;
 	const policy = spec.restart ?? "never";
 	const maxRestarts = spec.maxRestarts ?? DEFAULT_MAX_RESTARTS;
-	const portPattern =
-		spec.portConflictPattern === undefined
-			? DEFAULT_PORT_CONFLICT
-			: spec.portConflictPattern;
+	const portPattern = spec.portConflictPattern ?? DEFAULT_PORT_CONFLICT;
 
 	let attempt = 0;
 	let stopped = false;
@@ -110,7 +102,6 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 		// signals as one.
 		const child = spawn(spec.command, spec.args, {
 			stdio: ["ignore", "pipe", "pipe"],
-			cwd,
 			env: spec.env ? { ...process.env, ...spec.env } : undefined,
 			detached: true,
 		});
@@ -152,18 +143,16 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 
 			let portInUse = false;
 			let detectedPort: number | null = null;
-			if (portPattern) {
-				const match = portPattern.exec(stderrTail);
-				if (match) {
-					portInUse = true;
-					const captured = match[1];
-					if (captured) {
-						const n = Number.parseInt(captured, 10);
-						if (Number.isFinite(n)) detectedPort = n;
-					}
-					if (detectedPort === null && spec.defaultPort !== undefined) {
-						detectedPort = spec.defaultPort;
-					}
+			const match = portPattern.exec(stderrTail);
+			if (match) {
+				portInUse = true;
+				const captured = match[1];
+				if (captured) {
+					const n = Number.parseInt(captured, 10);
+					if (Number.isFinite(n)) detectedPort = n;
+				}
+				if (detectedPort === null && spec.defaultPort !== undefined) {
+					detectedPort = spec.defaultPort;
 				}
 			}
 

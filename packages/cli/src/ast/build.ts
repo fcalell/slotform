@@ -23,15 +23,13 @@ function literal(value: unknown): TsExpression {
 	if (typeof value === "object") {
 		const proto = Object.getPrototypeOf(value);
 		if (proto !== null && proto !== Object.prototype) {
-			const name =
-				(value as { constructor?: { name?: string } }).constructor?.name ??
-				"object";
+			const name = value.constructor?.name ?? "object";
 			throw new TypeError(
 				`literal(): cannot convert non-plain object of type \`${name}\` to a TsExpression. Build a structured TsExpression node instead (e.g. \`{ kind: "new", callee: { kind: "identifier", name: "Date" }, args: [...] }\` for Dates, \`{ kind: "identifier", name }\` for identifiers).`,
 			);
 		}
 		const properties: Array<{ key: string; value: TsExpression }> = [];
-		for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+		for (const [k, v] of Object.entries(value)) {
 			properties.push({ key: k, value: literal(v) });
 		}
 		return { kind: "object", properties };

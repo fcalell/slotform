@@ -1,8 +1,4 @@
-import type {
-	CommandDefinition,
-	FlagDefinition,
-	InternalCliPlugin,
-} from "./create-plugin.ts";
+import type { CommandDefinition, InternalCliPlugin } from "./create-plugin.ts";
 import { StackError } from "./errors.ts";
 import type { Slot } from "./slots.ts";
 
@@ -37,9 +33,8 @@ export function parseCommandFlags(
 	argv: string[],
 ): Record<string, unknown> {
 	const flags: Record<string, unknown> = {};
-	const defs = (command.options ?? {}) as Record<string, FlagDefinition>;
+	const defs = command.options ?? {};
 
-	// Build lookup maps for canonical names and aliases.
 	const longLookup = new Map<string, string>();
 	const shortLookup = new Map<string, string>();
 	for (const [key, def] of Object.entries(defs)) {
@@ -52,7 +47,6 @@ export function parseCommandFlags(
 		}
 	}
 
-	// Set defaults
 	for (const [key, def] of Object.entries(defs)) {
 		if (def.default !== undefined) {
 			flags[key] = def.default;
@@ -66,7 +60,6 @@ export function parseCommandFlags(
 			.map(([k, d]) => (d.alias ? `--${k} (-${d.alias})` : `--${k}`))
 			.join(", ") || "(none)";
 
-	// Parse argv
 	for (let i = 0; i < argv.length; i++) {
 		const arg = argv[i];
 		if (arg === undefined) continue;

@@ -69,6 +69,7 @@ export function getPlugin<T extends readonly PluginConfig[], N extends string>(
 ): ExtractPlugin<T, N> {
 	const found = config.plugins.find((p) => p.__plugin === name);
 	if (!found) throw new Error(`Plugin "${name}" not found in config`);
+	// `find` answers the union member type; the compiler cannot narrow it by the `__plugin` name.
 	return found as ExtractPlugin<T, N>;
 }
 

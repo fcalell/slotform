@@ -10,6 +10,7 @@ import { dirname, join, resolve } from "node:path";
 import { log } from "@clack/prompts";
 import type { ScaffoldSpec } from "../ast/index.ts";
 import { StackError } from "./errors.ts";
+import { isRecord } from "./is-record.ts";
 
 class ScaffoldError extends StackError {
 	readonly path?: string;
@@ -119,13 +120,15 @@ export function patchPackageJson(cwd: string, patch: PackageJsonPatch): void {
 		return;
 	}
 
-	const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as Record<
-		string,
-		unknown
-	>;
+	const pkg: unknown = JSON.parse(readFileSync(pkgPath, "utf-8"));
+	if (!isRecord(pkg)) {
+		throw new ScaffoldError(`${pkgPath} is not a JSON object.`, pkgPath);
+	}
 	let changed = false;
-	const entries = (field: string) =>
-		(pkg[field] ?? {}) as Record<string, string>;
+	const entries = (field: string): Record<string, unknown> => {
+		const value = pkg[field];
+		return isRecord(value) ? value : {};
+	};
 	// A package either dependency field declares is present in both, so no
 	// name is declared twice.
 	const present = (field: string, name: string) =>

@@ -14,7 +14,7 @@ function unwrap<T>(value: T | symbol): T {
 		cancel("Cancelled.");
 		process.exit(0);
 	}
-	return value as T;
+	return value;
 }
 
 export async function ask(
@@ -34,6 +34,7 @@ export async function choose<T extends string>(
 ): Promise<T> {
 	const value = await select({
 		message,
+		// The `any` options erase clack's answer type, so the answer is cast back.
 		// biome-ignore lint/suspicious/noExplicitAny: Option<T> conditional type is unresolvable with generics
 		options: options.map((v) => ({ value: v, label: v })) as any,
 	});
@@ -43,7 +44,6 @@ export async function choose<T extends string>(
 interface MultiOption<T extends string> {
 	label: string;
 	value: T;
-	default?: boolean;
 }
 
 export async function multi<T extends string>(
@@ -52,17 +52,13 @@ export async function multi<T extends string>(
 ): Promise<T[]> {
 	const value = await multiselect({
 		message,
+		// The `any` options erase clack's answer type, so the answer is cast back.
 		// biome-ignore lint/suspicious/noExplicitAny: Option<T> conditional type is unresolvable with generics
 		options: options.map((o) => ({ value: o.value, label: o.label })) as any,
-		initialValues: options.filter((o) => o.default).map((o) => o.value),
 	});
 	return unwrap(value) as T[];
 }
 
-/**
- * Shared `log` adapter that wraps `@clack/prompts`'s log functions to match
- * the `RegisterContext`/`CommandContext` shape consumed by plugins.
- */
 export function createLogContext(): CommandContext<unknown>["log"] {
 	return {
 		info: (msg: string) => log.info(msg),
@@ -126,6 +122,7 @@ export function createPromptContext(
 			msg: string,
 			options: { label: string; value: T }[],
 		): Promise<T> => {
+			// The `any` options erase clack's answer type, so the answer is cast back.
 			const value = await select({
 				message: msg,
 				options: options.map((o) => ({
@@ -140,6 +137,7 @@ export function createPromptContext(
 			msg: string,
 			options: { label: string; value: T }[],
 		): Promise<T[]> => {
+			// The `any` options erase clack's answer type, so the answer is cast back.
 			const value = await multiselect({
 				message: msg,
 				options: options.map((o) => ({

@@ -71,7 +71,9 @@ function attachWatcher(args: {
 			if (statSync(join(fullPath, filename)).isDirectory()) return;
 		} catch {
 			// Target doesn't exist: a real unlink (fire), or the watch root
-			// aliased to its own basename (skip).
+			// aliased to its own basename (skip). Any other stat failure on a path
+			// that just changed fires too: a throw here leaves the watch callback
+			// uncaught and ends `dev`.
 			if (filename === basename(fullPath)) return;
 		}
 		if (spec.ignore?.some((pattern: string) => filename.includes(pattern)))
@@ -139,7 +141,9 @@ export async function dev(options: DevOptions): Promise<void> {
 			for (const w of fsWatchers) {
 				try {
 					w.close();
-				} catch {}
+				} catch {
+					// A watcher that fails to close must not keep the processes running.
+				}
 			}
 			await stopAll(supervised);
 		})();
@@ -151,12 +155,11 @@ export async function dev(options: DevOptions): Promise<void> {
 		process.exit(exitCode);
 	};
 	// The screen needs a terminal to draw on and keys to read; CI, an agent or
-	// a pipe gets the prefixed stream.
+	// a pipe gets the prefixed stream. TERM=dumb is a terminal that cannot draw.
 	const screen =
 		process.stdin.isTTY === true &&
 		process.stdout.isTTY === true &&
 		process.env.TERM !== "dumb";
-	// The screen's `r`, by process name.
 	const restarts = new Map<string, () => void>();
 	const view: DevView = screen
 		? createScreenView({
@@ -176,7 +179,7 @@ export async function dev(options: DevOptions): Promise<void> {
 		// Reload: ESM caches the config module by URL, so a plain import would
 		// regenerate from the config as it was at startup.
 		const config = await loadConfig(options.config, { reload: true });
-		await generateFromConfig(config, cwd, { writeToDisk: true, log });
+		await generateFromConfig(config, cwd, log);
 	};
 	// A piped child sees no terminal and prints no colour; the screen draws
 	// colour, so it asks the children for it.
@@ -199,7 +202,6 @@ export async function dev(options: DevOptions): Promise<void> {
 		const readyWaits: Array<Promise<boolean>> = [];
 		for (const spec of processes) {
 			const { readyPattern } = spec;
-			// Whether the running launch has printed its ready line.
 			let ready = false;
 			// Whether a child is running, and whether its exit is a restart `r`
 			// asked for, which is no failure to report.
@@ -223,7 +225,6 @@ export async function dev(options: DevOptions): Promise<void> {
 				spec: forceColor
 					? { ...spec, env: { FORCE_COLOR: "1", ...spec.env } }
 					: spec,
-				cwd,
 				onLaunch: (attempt) => {
 					live = true;
 					ready = readyPattern === undefined;

@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 import type {
 	CodeBlockWriter,
 	ImportDeclarationStructure,
-	StructureKind,
+	ImportSpecifierStructure,
 } from "ts-morph";
 
 import type {
@@ -38,10 +38,16 @@ function isIdentifier(name: string): boolean {
 
 // ── Imports ─────────────────────────────────────────────────────────
 
+function toImportSpecifier(
+	name: string,
+	alias?: string,
+): ImportSpecifierStructure {
+	return { kind: loadTsMorph().StructureKind.ImportSpecifier, name, alias };
+}
+
 function toImportStructure(spec: TsImportSpec): ImportDeclarationStructure {
-	const base = {
-		kind: loadTsMorph().StructureKind
-			.ImportDeclaration as StructureKind.ImportDeclaration,
+	const base: Pick<ImportDeclarationStructure, "kind" | "moduleSpecifier"> = {
+		kind: loadTsMorph().StructureKind.ImportDeclaration,
 		moduleSpecifier: spec.source,
 	};
 
@@ -61,23 +67,13 @@ function toImportStructure(spec: TsImportSpec): ImportDeclarationStructure {
 		return { ...base, namespaceImport: spec.namespace };
 	}
 
-	// named
 	return {
 		...base,
 		isTypeOnly: spec.typeOnly ?? false,
 		namedImports: spec.named.map((entry) =>
 			typeof entry === "string"
-				? {
-						kind: loadTsMorph().StructureKind
-							.ImportSpecifier as StructureKind.ImportSpecifier,
-						name: entry,
-					}
-				: {
-						kind: loadTsMorph().StructureKind
-							.ImportSpecifier as StructureKind.ImportSpecifier,
-						name: entry.name,
-						alias: entry.alias,
-					},
+				? toImportSpecifier(entry)
+				: toImportSpecifier(entry.name, entry.alias),
 		),
 	};
 }
@@ -122,6 +118,7 @@ function writeType(writer: CodeBlockWriter, type: TsTypeRef): void {
 		}
 		default: {
 			const _exhaustive: never = type;
+			// Unreachable by type; a spec built by hand can still reach it.
 			throw new Error(
 				`writeType: unhandled TsTypeRef kind '${(_exhaustive as { kind: string }).kind}'`,
 			);
@@ -322,18 +319,19 @@ function writeExpression(writer: CodeBlockWriter, expr: TsExpression): void {
 				}
 			});
 			writer.write(") => ");
-			if (Array.isArray(expr.body)) {
+			const body = expr.body;
+			if (Array.isArray(body)) {
 				writer.write("{");
 				writer.newLine();
 				writer.indent(() => {
-					for (const stmt of expr.body as TsStatement[]) {
+					for (const stmt of body) {
 						writeStatement(writer, stmt);
 						writer.newLine();
 					}
 				});
 				writer.write("}");
 			} else {
-				writeExpression(writer, expr.body);
+				writeExpression(writer, body);
 			}
 			return;
 		}
@@ -378,6 +376,7 @@ function writeExpression(writer: CodeBlockWriter, expr: TsExpression): void {
 		}
 		default: {
 			const _exhaustive: never = expr;
+			// Unreachable by type; a spec built by hand can still reach it.
 			throw new Error(
 				`writeExpression: unhandled TsExpression kind '${(_exhaustive as { kind: string }).kind}'`,
 			);

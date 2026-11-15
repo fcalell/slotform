@@ -44,7 +44,7 @@ interface CallbackFactory {
 	>() => OptionalCallbackMarker<T, R>;
 }
 
-export const callback = Object.assign(
+export const callback: CallbackFactory = Object.assign(
 	<
 		T extends Record<string, unknown>,
 		R = void | Promise<void>,
@@ -55,7 +55,7 @@ export const callback = Object.assign(
 			R = void | Promise<void>,
 		>(): OptionalCallbackMarker<T, R> => ({ __optional: true }) as const,
 	},
-) as CallbackFactory;
+);
 
 // ── CommandContext ─────────────────────────────────────────────────
 //
@@ -359,6 +359,7 @@ export function plugin<
 		if (typeof declared !== "function") return declared;
 		const schema = definition.schema;
 		return declared(
+			// Without a schema the options are their own resolved form; `unknown` hides it.
 			schema ? schema.parse(options ?? {}) : (options as TResolvedOptions),
 		);
 	};
@@ -380,6 +381,7 @@ export function plugin<
 		plugin: name,
 	});
 
+	// `{}` stands in for TSlots' default, `Record<string, never>`, which the compiler cannot match to the omitted case.
 	const slots = (definition.slots ?? {}) as TSlots;
 
 	function autoContributions(): Contribution<unknown>[] {
@@ -416,7 +418,8 @@ export function plugin<
 		// wiring for the worker chain itself is performed by plugin-api in a
 		// separate contribution; this hook only ensures the callback file
 		// exists on disk after `stack init` / `stack add`.
-		if (hasCallbacks && packageInfo()?.pkgJson?.exports?.["./runtime"]) {
+		const packageExports = packageInfo()?.exports;
+		if (hasCallbacks && packageExports && "./runtime" in packageExports) {
 			auto.push(
 				cliSlots.initScaffolds.contribute(
 					(): ScaffoldSpec => ({
@@ -463,15 +466,8 @@ export function plugin<
 		label: definition.label,
 		package: pkg,
 		requires,
-		callbacks: (definition.callbacks ?? {}) as Record<
-			string,
-			| CallbackMarker<unknown, unknown>
-			| OptionalCallbackMarker<unknown, unknown>
-		>,
-		commands: (definition.commands ?? {}) as Record<
-			string,
-			CommandDefinition<TResolvedOptions, Record<string, unknown>>
-		>,
+		callbacks: definition.callbacks ?? {},
+		commands: definition.commands ?? {},
 		dependencies: definition.dependencies ?? {},
 		devDependencies: definition.devDependencies ?? {},
 		gitignore: definition.gitignore ?? [],
@@ -497,12 +493,13 @@ export function plugin<
 					"PLUGIN_CONFIG_INVALID",
 				);
 			}
-			validated = result.data as TResolvedOptions;
+			validated = result.data;
 		} else {
+			// Without a schema TResolvedOptions is TOptions; the generic default hides it.
 			validated = (options ?? {}) as unknown as TResolvedOptions;
 		}
 		return {
-			__plugin: name as TName,
+			__plugin: name,
 			__package: pkg,
 			options: validated,
 		};
@@ -527,6 +524,7 @@ export function plugin<
 		});
 	}
 
+	// Object.assign cannot express the call signature, nor the `defineCallbacks` the runtime branch adds.
 	return result as unknown as PluginFactory<
 		TName,
 		TOptions,
@@ -536,9 +534,4 @@ export function plugin<
 	>;
 }
 
-// ── ContributionCtx re-export ──────────────────────────────────────
-//
-// The slot-based contract uses `ContributionCtx` (declared in `#lib/slots`)
-// everywhere `RegisterContext` used to appear. Re-export it so callers that
-// import from `#lib/create-plugin` for a ctx type keep working.
 export type { ContributionCtx } from "./slots.ts";

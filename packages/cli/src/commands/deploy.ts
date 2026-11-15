@@ -25,7 +25,7 @@ async function deployPlanFromConfig(
 	return { checks, steps };
 }
 
-async function runDeploySteps(steps: DeployStep[], cwd: string): Promise<void> {
+async function runDeploySteps(steps: DeployStep[]): Promise<void> {
 	for (const step of steps) {
 		log.step(`Deploying: ${step.name}`);
 		if ("run" in step) {
@@ -33,7 +33,7 @@ async function runDeploySteps(steps: DeployStep[], cwd: string): Promise<void> {
 		} else {
 			const result = spawnSync(step.exec.command, step.exec.args, {
 				stdio: "inherit",
-				cwd: step.exec.cwd ?? cwd,
+				cwd: step.exec.cwd,
 			});
 			if (result.status !== 0) {
 				throw new StepFailedError(step.name, result.status, step.exec.command);
@@ -78,7 +78,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		}
 	}
 
-	await runDeploySteps(steps, cwd);
+	await runDeploySteps(steps);
 
 	outro("Deployed");
 }

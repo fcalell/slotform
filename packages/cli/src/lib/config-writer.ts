@@ -9,9 +9,7 @@ interface ConfigAst {
 }
 
 /**
- * Load `stack.config.ts` via magicast, hand its config object to the mutator,
- * then write it back. Preserves comments, formatting, and anything the
- * mutator doesn't touch.
+ * Preserves comments, formatting, and anything the mutator doesn't touch.
  *
  * Throws `EditConfigError` with actionable instructions when the file can't
  * be edited in place (e.g. `defineConfig` wrapped in a condition).

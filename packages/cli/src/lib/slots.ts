@@ -182,6 +182,9 @@ interface DerivedOpts<
 	) => T | Promise<T>;
 }
 
+// `base` lacks `contribute`, which is assigned below; the compiler cannot see the
+// assignment complete the Slot. A contribution's value type is checked at the
+// `contribute` call, and the graph runs it as `unknown`.
 function attachContribute<T>(base: Omit<Slot<T>, "contribute">): Slot<T> {
 	const slot = base as Slot<T>;
 	(slot as { contribute: Slot<T>["contribute"] }).contribute = (fn) => ({
@@ -196,6 +199,8 @@ function attachContribute<T>(base: Omit<Slot<T>, "contribute">): Slot<T> {
 	return slot;
 }
 
+// The builders store the caller's typed callbacks (item, input and options types) under
+// the engine's erased ones; a callback's parameter type does not widen to them for the compiler.
 function listSlot<T>(opts: ListOpts<T>): Slot<T[]> {
 	return attachContribute<T[]>({
 		__brand: "slot",
@@ -274,7 +279,9 @@ export const slot = {
 //
 // Compose raw contribution results into the slot's final value. Called by
 // the graph resolver; kept here so slot-kind semantics live next to the
-// type definitions.
+// type definitions. The graph calls each composer for a slot of its own kind,
+// and contribution values arrive `unknown`: the `kind` and each value are cast
+// to the slot's types, which the compiler cannot relate.
 
 interface ComposeArgs<T> {
 	slot: Slot<T>;

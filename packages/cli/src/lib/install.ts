@@ -13,7 +13,10 @@ import {
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
+import { isErrno } from "./errno.ts";
 import { StackError } from "./errors.ts";
+import { isRecord } from "./is-record.ts";
+import { type Manifest, readManifest } from "./manifest.ts";
 import {
 	isStackPackage,
 	pinnedCommit,
@@ -25,16 +28,9 @@ import {
 // This package's root, from `src/lib/` or `dist/lib/`.
 const CLI_DIR = fileURLToPath(new URL("../..", import.meta.url));
 
-type Manifest = Record<string, unknown> & {
-	dependencies?: Record<string, string>;
-	devDependencies?: Record<string, string>;
-};
-
 // The commit the app's stack specs pin, read off its `package.json`.
 export function pinnedStackCommit(cwd: string): string | null {
-	const pkg = JSON.parse(
-		readFileSync(join(cwd, "package.json"), "utf8"),
-	) as Manifest;
+	const pkg = readManifest(join(cwd, "package.json"));
 	return pinnedCommit({ ...pkg.dependencies, ...pkg.devDependencies });
 }
 
@@ -51,7 +47,7 @@ export function pinnedStackCommit(cwd: string): string | null {
 // else to the app.
 export function installStack(cwd: string): void {
 	const pkgPath = join(cwd, "package.json");
-	const pkg = JSON.parse(readFileSync(pkgPath, "utf8")) as Manifest;
+	const pkg = readManifest(pkgPath);
 	const workspace = stackWorkspaceRoot(cwd);
 	const checkout = linkedCheckout(pkg, cwd);
 	const root = workspaceOf(cwd)?.root ?? cwd;
@@ -87,7 +83,7 @@ export function installStack(cwd: string): void {
 		cwd: workspace ?? root,
 		stdio: "inherit",
 	});
-	if ((result.error as NodeJS.ErrnoException | undefined)?.code === "ENOENT") {
+	if (isErrno(result.error, "ENOENT")) {
 		throw new StackError(
 			"pnpm is not installed; install it with `corepack enable` or `npm i -g pnpm`.",
 			"INSTALL_FAILED",
@@ -101,7 +97,6 @@ export function installStack(cwd: string): void {
 	}
 }
 
-// The manifest with every stack package's spec given by `spec`.
 function withStackSpecs(
 	pkg: Manifest,
 	spec: (name: StackPackage) => string,
@@ -121,7 +116,6 @@ function withStackSpecs(
 	};
 }
 
-// The manifest with every stack package taken from the workspace.
 export function toWorkspaceSpecs(pkg: Manifest): Manifest {
 	return withStackSpecs(pkg, () => "workspace:*");
 }
@@ -167,11 +161,15 @@ function workspaceOf(
 		if (parent === root) return null;
 		root = parent;
 	}
-	const manifest = parse(
+	const manifest: unknown = parse(
 		readFileSync(join(root, "pnpm-workspace.yaml"), "utf8"),
-	) as { packages?: string[] } | null;
+	);
+	const packages =
+		isRecord(manifest) && Array.isArray(manifest.packages)
+			? manifest.packages.filter((p): p is string => typeof p === "string")
+			: [];
 	// pnpm accepts `./apps/*`, `..` segments and repeated slashes.
-	const globs = (manifest?.packages ?? []).map((p) => ({
+	const globs = packages.map((p) => ({
 		exclude: p.startsWith("!"),
 		glob: posix.normalize(p.replace(/^!/, "")),
 	}));
@@ -188,10 +186,7 @@ function workspaceOf(
 
 // The root of the pnpm workspace `dir` belongs to, when the CLI at `cliDir`
 // is a project of that workspace too: stack's own checkout.
-export function stackWorkspaceRoot(
-	dir: string,
-	cliDir: string = CLI_DIR,
-): string | null {
+export function stackWorkspaceRoot(dir: string): string | null {
 	const workspace = workspaceOf(dir);
-	return workspace?.isProject(realpathSync(cliDir)) ? workspace.root : null;
+	return workspace?.isProject(realpathSync(CLI_DIR)) ? workspace.root : null;
 }

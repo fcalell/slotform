@@ -1,3 +1,4 @@
+import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
 
 interface StackConfigOptions {
@@ -53,13 +54,9 @@ function formatOptions(obj: Record<string, unknown>, depth: number): string {
 			entries.push(`${innerIndent}${key}: ${JSON.stringify(value)}`);
 		} else if (typeof value === "number" || typeof value === "boolean") {
 			entries.push(`${innerIndent}${key}: ${value}`);
-		} else if (
-			typeof value === "object" &&
-			value !== null &&
-			!Array.isArray(value)
-		) {
+		} else if (isRecord(value)) {
 			entries.push(
-				`${innerIndent}${key}: ${formatOptions(value as Record<string, unknown>, depth + 1)}`,
+				`${innerIndent}${key}: ${formatOptions(value, depth + 1)}`,
 			);
 		} else {
 			entries.push(`${innerIndent}${key}: ${JSON.stringify(value)}`);

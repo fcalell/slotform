@@ -1,5 +1,6 @@
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
+import { isErrno } from "./errno.ts";
 
 // Write one generated file so a process watching it under `stack dev` (wrangler
 // on `.stack/wrangler.toml`, Vite on `.stack/vite.config.ts`) never reads it
@@ -14,7 +15,10 @@ export async function writeArtifact(
 	absPath: string,
 	content: string,
 ): Promise<boolean> {
-	const current = await readFile(absPath, "utf-8").catch(() => null);
+	const current = await readFile(absPath, "utf-8").catch((error: unknown) => {
+		if (!isErrno(error, "ENOENT", "ENOTDIR")) throw error;
+		return null;
+	});
 	if (current === content) return false;
 	await mkdir(dirname(absPath), { recursive: true });
 	const temp = join(

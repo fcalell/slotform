@@ -100,6 +100,8 @@ export async function init(
 		mkdirSync(dir, { recursive: true });
 	}
 
+	// The project is the cwd: the scaffold's relative paths, `ensureGitignore` and
+	// package resolution all read it.
 	const original = process.cwd();
 	process.chdir(dir);
 
@@ -157,6 +159,7 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 	const installedCli = createRequire(join(dir, "package.json")).resolve(
 		"@fcalell/cli",
 	);
+	// The installed copy is this module at another version; the compiler sees only this one's shape.
 	const { scaffold } = (await import(
 		new URL("./commands/init.js", pathToFileURL(installedCli)).href
 	)) as typeof import("./init.ts");
@@ -239,7 +242,6 @@ export async function scaffold(
 	const tsconfigPaths = await promptGraph.resolve(cliSlots.tsconfigPaths);
 	const tsconfigTypes = await promptGraph.resolve(cliSlots.tsconfigTypes);
 
-	// Scaffold base files — CLI-owned, not plugin-contributed.
 	const baseEntries: Array<[string, string]> = [
 		...tsconfigTemplate({
 			...tsconfigLayout(selectedPlugins),
@@ -377,8 +379,7 @@ function validatePluginNames(requested: string[]): string[] {
 	return requested;
 }
 
-// Build a StackConfig by calling each plugin's factory — the factory stamps
-// __plugin/__package and validates options against the plugin's schema.
+// The factory stamps __plugin/__package and validates options against the plugin's schema.
 export function syntheticConfigFromSelection(opts: {
 	selectedPlugins: string[];
 	available: DiscoveredPlugin[];
@@ -390,8 +391,6 @@ export function syntheticConfigFromSelection(opts: {
 		const info = opts.available.find((p) => p.name === name);
 		if (!info) continue;
 		const pluginOpts = opts.perPluginOptions?.get(name) ?? {};
-		// factory is callable — invoking it validates options and returns
-		// the PluginConfig entry defineConfig expects.
 		const cfg = info.factory(pluginOpts);
 		configs.push(cfg);
 	}

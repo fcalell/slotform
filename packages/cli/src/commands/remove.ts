@@ -12,15 +12,16 @@ import {
 	discoverPlugins,
 	requirementOptions,
 } from "../lib/discovery.ts";
+import { isErrno } from "../lib/errno.ts";
 import { MissingPluginError, StackError } from "../lib/errors.ts";
 import { insideProject } from "../lib/inside-project.ts";
+import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import { confirm } from "../lib/prompt.ts";
 
 /**
- * Remove the call to the given plugin's factory from the `plugins: [...]`
- * array in `stack.config.ts`. Accepts the kebab-case plugin slug
- * (e.g. `"native-ui"`) and matches against the camelCase callee (`nativeUi`).
+ * Accepts the kebab-case plugin slug (e.g. `"native-ui"`) and matches against
+ * the camelCase callee (`nativeUi`).
  *
  * No-op when the plugin isn't present. Throws `EditConfigError` when the
  * config file shape can't be edited in place.
@@ -57,10 +58,8 @@ function pruneObjectField(
 	keys: ReadonlySet<string>,
 ): boolean {
 	const current = pkg[field];
-	if (!current || typeof current !== "object" || Array.isArray(current)) {
-		return false;
-	}
-	const obj = current as Record<string, string>;
+	if (!isRecord(current)) return false;
+	const obj = current;
 	let changed = false;
 	for (const key of keys) {
 		if (key in obj) {
@@ -240,7 +239,9 @@ export async function uninstall(
 	for (const target of targets) {
 		try {
 			await rm(target, { recursive: true, force: true });
-		} catch {}
+		} catch {
+			// A path that cannot be deleted must not keep the package and the config call in place.
+		}
 	}
 	if (files.length > 0) {
 		log.info(`Removed files: ${files.join(", ")}`);
@@ -253,11 +254,14 @@ export async function uninstall(
 	// plugin-contributed object on package.json (e.g. `scripts`) — pruning
 	// must always be idempotent and never leave behind empty `{}`.
 	const pkgPath = join(cwd, "package.json");
+	let manifest: string | null = null;
 	try {
-		const pkg = JSON.parse(readFileSync(pkgPath, "utf-8")) as Record<
-			string,
-			unknown
-		>;
+		manifest = readFileSync(pkgPath, "utf-8");
+	} catch (error) {
+		if (!isErrno(error, "ENOENT")) throw error;
+	}
+	const pkg: unknown = manifest === null ? null : JSON.parse(manifest);
+	if (isRecord(pkg)) {
 		let changed = false;
 		const removalsByField: Record<string, ReadonlySet<string>> = {
 			dependencies: new Set([...contributedDeps, packageName]),
@@ -269,7 +273,7 @@ export async function uninstall(
 		if (changed) {
 			writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);
 		}
-	} catch {}
+	}
 
 	const fullConfigPath = join(cwd, configPath);
 	await removePluginCall(fullConfigPath, pluginName);

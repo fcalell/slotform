@@ -42,20 +42,21 @@ export const LINT_PATH = ".stack/biome.json";
 // list in force.
 export function lintConfig(
 	plugins: readonly LintPlugin[],
-	ignore: readonly string[] = [],
+	ignore: readonly string[],
 ): string {
-	const byIncludes = new Map<string, string[]>();
+	const byIncludes = new Map<
+		string,
+		{ includes: string[]; paths: string[] }
+	>();
 	for (const { path, includes } of plugins) {
 		const key = JSON.stringify(includes);
-		byIncludes.set(key, [
-			...(byIncludes.get(key) ?? []),
-			`node_modules/${path}`,
-		]);
+		const group = byIncludes.get(key) ?? { includes, paths: [] };
+		group.paths.push(`node_modules/${path}`);
+		byIncludes.set(key, group);
 	}
-	const overrides: object[] = [...byIncludes].map(([includes, paths]) => ({
-		includes: JSON.parse(includes) as string[],
-		plugins: paths,
-	}));
+	const overrides: object[] = [...byIncludes.values()].map(
+		({ includes, paths }) => ({ includes, plugins: paths }),
+	);
 	if (ignore.length > 0) {
 		overrides.push({
 			// Each entry as a file and as a directory's contents.

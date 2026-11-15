@@ -55,8 +55,7 @@ const COMMAND_USAGE: Record<string, string> = {
 		"stack plugin init <name> [--package <npm-name>] [--dir <path>]\n  Scaffold a third-party plugin skeleton",
 };
 
-function usage(code = 1): never {
-	log.info(`Usage:
+const USAGE = `Usage:
   stack init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]
                                         Scaffold a new project
   stack add <plugin> [-y]               Add a plugin
@@ -68,8 +67,11 @@ function usage(code = 1): never {
   stack plugin init <name> [--package <npm-name>] [--dir <path>]
                                         Scaffold a third-party plugin skeleton
 
-Flags: -h/--help, --config <path>, --debug (stack traces)`);
-	process.exit(code);
+Flags: -h/--help, --config <path>, --debug (stack traces)`;
+
+function usage(): never {
+	log.info(USAGE);
+	process.exit(1);
 }
 
 async function main(): Promise<void> {
@@ -80,7 +82,10 @@ async function main(): Promise<void> {
 			process.exit(0);
 		}
 		// A plugin subcommand's own `--help` is its command's concern.
-		if (!command) usage(0);
+		if (!command) {
+			log.info(USAGE);
+			process.exit(0);
+		}
 	}
 	if (!command) usage();
 
@@ -161,8 +166,6 @@ async function main(): Promise<void> {
 		return;
 	}
 
-	// Plugin subcommands (`stack <plugin> <command>`) — build the slot graph
-	// once, look the command up, and hand it a CommandContext wired to the graph.
 	const pluginName = command;
 	const commandName = subcommand;
 	if (!commandName) usage();
@@ -202,7 +205,7 @@ async function main(): Promise<void> {
 			options: plugin?.options ?? {},
 			cwd,
 			resolve: graph.resolve,
-			generate: () => generate(configPath, cwd),
+			generate: () => generate(configPath),
 			log: createLogContext(),
 			prompt: createPromptContext(),
 		},

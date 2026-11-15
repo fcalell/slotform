@@ -45,14 +45,11 @@ export const FIRST_PARTY_PLUGINS = [
 	{ name: "screens", package: "@fcalell/plugin-screens" },
 ] as const satisfies ReadonlyArray<{ name: string; package: string }>;
 
-// Derive both the value and the type straight from `FIRST_PARTY_PLUGINS` so a
-// new plugin added to that array flows through automatically — no hand-kept
-// tuple to drift out of sync.
 export type PluginName = (typeof FIRST_PARTY_PLUGINS)[number]["name"];
 
-export const PLUGIN_NAMES = FIRST_PARTY_PLUGINS.map(
+export const PLUGIN_NAMES: readonly PluginName[] = FIRST_PARTY_PLUGINS.map(
 	(p) => p.name,
-) as readonly PluginName[];
+);
 
 async function loadPlugin(
 	name: string,
@@ -81,6 +78,7 @@ async function loadPlugin(
 		}
 	}
 	const camelName = toCamelCase(name);
+	// A dynamic import types its exports `unknown`; the `.cli` check below confirms the shape.
 	const pluginExport = (mod[camelName] ?? mod[name] ?? mod.default) as
 		| PluginFactory<
 				string,

@@ -57,9 +57,8 @@ export interface ProcessSpec {
 	// exceeded, the supervisor reports the final exit and stops.
 	maxRestarts?: number;
 	// Pattern matched against captured stderr to flag port-in-use. Defaults
-	// to a Node.js / Bun / Wrangler EADDRINUSE pattern. Pass `null` to opt
-	// out (e.g. processes where stderr noise would false-positive).
-	portConflictPattern?: RegExp | null;
+	// to a Node.js / Bun / Wrangler EADDRINUSE pattern.
+	portConflictPattern?: RegExp;
 	// Per-exit hook — method shorthand makes return-type checking bivariant
 	// so callers with side-effect-only handlers (no explicit return) work.
 	onExit?(event: ProcessExit): { restart: boolean } | undefined;

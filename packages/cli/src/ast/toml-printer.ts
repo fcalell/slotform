@@ -1,4 +1,5 @@
 import { stringify } from "smol-toml";
+import { isRecord } from "../lib/is-record.ts";
 import type { TomlDocument, TomlValue } from "./specs.ts";
 
 // Build a nested JS object that smol-toml's stringify can serialize.
@@ -10,20 +11,17 @@ type MutableTomlTable = { [key: string]: TomlValue };
 
 function ensureObject(parent: MutableTomlTable, key: string): MutableTomlTable {
 	const existing = parent[key];
-	if (
-		existing !== undefined &&
-		(typeof existing !== "object" || Array.isArray(existing))
-	) {
-		throw new Error(
-			`TOML path conflict: "${key}" already set to a non-object value`,
-		);
-	}
 	if (existing === undefined) {
 		const fresh: MutableTomlTable = {};
 		parent[key] = fresh;
 		return fresh;
 	}
-	return existing as MutableTomlTable;
+	if (!isRecord(existing)) {
+		throw new Error(
+			`TOML path conflict: "${key}" already set to a non-object value`,
+		);
+	}
+	return existing;
 }
 
 function ensureArray(
@@ -33,7 +31,7 @@ function ensureArray(
 	const existing = parent[key];
 	if (existing === undefined) {
 		const fresh: MutableTomlTable[] = [];
-		parent[key] = fresh as unknown as TomlValue;
+		parent[key] = fresh;
 		return fresh;
 	}
 	if (!Array.isArray(existing)) {
@@ -41,6 +39,7 @@ function ensureArray(
 			`TOML path conflict: "${key}" already set to a non-array value`,
 		);
 	}
+	// Only this function writes an array at a table path, and it writes tables.
 	return existing as MutableTomlTable[];
 }
 

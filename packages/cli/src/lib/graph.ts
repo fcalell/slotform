@@ -139,6 +139,7 @@ export function buildGraph(
 	}
 
 	function resolveSlot<T>(s: Slot<T>): Promise<T> {
+		// The id fixes the slot's T, which the cache's `unknown` cannot carry.
 		const hit = cache.get(s.id) as Promise<T> | undefined;
 		if (hit) return hit;
 		register(s);
@@ -147,6 +148,8 @@ export function buildGraph(
 		return promise;
 	}
 
+	// A slot's `kind` is not tied to its T by the compiler: `compute`, `seed` and the
+	// composers answer `unknown`, and each result is cast to the slot's own T.
 	async function computeSlot<T>(s: Slot<T>): Promise<T> {
 		const kind = s.kind;
 		if (kind.type === "derived") {

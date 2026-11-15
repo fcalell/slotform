@@ -34,9 +34,7 @@ export interface BuildGraphFromConfigResult {
 	app: AppConfig;
 }
 
-// Validate → discover → per-plugin `.cli.collect()` → buildGraph. Every
-// command that needs the slot graph funnels through this helper; keeps the
-// wiring in one place so new commands don't re-invent the path.
+// Every command that needs the slot graph funnels through this helper.
 export async function buildGraphFromConfig(
 	opts: BuildGraphFromConfigOptions,
 ): Promise<BuildGraphFromConfigResult> {

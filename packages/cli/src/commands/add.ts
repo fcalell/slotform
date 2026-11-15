@@ -14,6 +14,7 @@ import {
 } from "../lib/discovery.ts";
 import { ConfigLoadError, MissingPluginError } from "../lib/errors.ts";
 import { installStack, pinnedStackCommit } from "../lib/install.ts";
+import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import { pluginDependencies } from "../lib/plugin-dependencies.ts";
 import { confirm, createPromptContext } from "../lib/prompt.ts";
@@ -160,14 +161,10 @@ export async function add(
 	if (existingConfig) {
 		for (const p of existingConfig.plugins) {
 			if (!existingNames.has(p.__plugin)) continue;
-			existingOptions.set(
-				p.__plugin,
-				(p.options as Record<string, unknown>) ?? {},
-			);
+			existingOptions.set(p.__plugin, isRecord(p.options) ? p.options : {});
 		}
 	}
 
-	// Answers collected per newly-added plugin, keyed by plugin name.
 	const answersByPlugin = new Map<string, Record<string, unknown>>();
 	for (const n of pluginsToAdd) answersByPlugin.set(n, {});
 
@@ -236,8 +233,7 @@ export async function add(
 		ensureGitignore(...gitignoreEntries);
 	}
 
-	// Mutate stack.config.ts via magicast — preserves comments/formatting.
-	// Append an import + factory call for each newly-added plugin.
+	// magicast keeps the config's comments and formatting.
 	const fullConfigPath = join(cwd, configPath);
 	if (existsSync(fullConfigPath)) {
 		await editConfig(fullConfigPath, ({ mod, config: ast }) => {

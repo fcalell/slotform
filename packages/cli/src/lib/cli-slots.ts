@@ -140,10 +140,9 @@ export const cliSlots = {
 	}),
 } as const;
 
-// Shorthand for the canonical "resolve a *Source slot, write it as an
-// artifact, skip on null" pattern. A null source means the upstream
-// derivation chose not to emit anything (e.g. no runtimes registered) — the
-// contribution returns undefined and the artifactFiles list drops it.
+// A null source means the upstream derivation chose not to emit anything (e.g.
+// no runtimes registered) — the contribution returns undefined and the
+// artifactFiles list drops it.
 export function emitArtifact(
 	path: string,
 	source: Slot<string | null>,

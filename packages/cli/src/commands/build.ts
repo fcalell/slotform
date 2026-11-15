@@ -17,15 +17,15 @@ async function buildStepsFromConfig(
 	return graph.resolve(cliSlots.buildSteps);
 }
 
-async function runBuildSteps(steps: BuildStep[], cwd: string): Promise<void> {
+const PHASE_LABEL = {
+	pre: "Pre-build",
+	main: "Building",
+	post: "Post-build",
+} satisfies Record<BuildStep["phase"], string>;
+
+async function runBuildSteps(steps: BuildStep[]): Promise<void> {
 	for (const step of steps) {
-		const phaseLabel =
-			step.phase === "pre"
-				? "Pre-build"
-				: step.phase === "post"
-					? "Post-build"
-					: "Building";
-		log.step(`${phaseLabel}: ${step.name}`);
+		log.step(`${PHASE_LABEL[step.phase]}: ${step.name}`);
 
 		if ("run" in step) {
 			await step.run();
@@ -33,7 +33,7 @@ async function runBuildSteps(steps: BuildStep[], cwd: string): Promise<void> {
 		}
 		const result = spawnSync(step.exec.command, step.exec.args, {
 			stdio: "inherit",
-			cwd: step.exec.cwd ?? cwd,
+			cwd: step.exec.cwd,
 		});
 		if (result.status !== 0) {
 			throw new StepFailedError(step.name, result.status, step.exec.command);
@@ -46,10 +46,10 @@ export async function build(configPath: string): Promise<void> {
 	const cwd = process.cwd();
 	const config = await loadConfig(configPath);
 
-	await generateFromConfig(config, cwd, { writeToDisk: true });
+	await generateFromConfig(config, cwd);
 
 	const steps = await buildStepsFromConfig(config, cwd);
-	await runBuildSteps(steps, cwd);
+	await runBuildSteps(steps);
 
 	outro("Build complete");
 }

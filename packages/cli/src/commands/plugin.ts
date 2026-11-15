@@ -89,6 +89,7 @@ export async function initPlugin(options: InitPluginOptions): Promise<void> {
 	}
 	const workspace = stackWorkspaceRoot(targetDir) !== null;
 
+	// The skeleton's paths are relative to the plugin's directory.
 	const original = process.cwd();
 	process.chdir(targetDir);
 
