@@ -133,24 +133,3 @@ export function defineConfig<const T extends readonly PluginConfig[]>(input: {
 		},
 	};
 }
-
-// ── Slot-based plugin system ────────────────────────────────────────
-
-export type {
-	CallbackMarker,
-	CommandContext,
-	CommandDefinition,
-	ContributionCtx,
-	FlagDefinition,
-	InternalCliPlugin,
-	OptionalCallbackMarker,
-	PluginFactory,
-} from "./lib/create-plugin.ts";
-export { callback, plugin } from "./lib/create-plugin.ts";
-export type {
-	Contribution,
-	Slot,
-	SlotKind,
-} from "./lib/slots.ts";
-export { slot } from "./lib/slots.ts";
-export { stackSpec } from "./lib/stack-packages.ts";

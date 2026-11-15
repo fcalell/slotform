@@ -19,8 +19,8 @@
 	"sideEffects": false,
 	"exports": {
 		".": {
-			"types": "./dist/config.d.ts",
-			"default": "./dist/config.js"
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
 		},
 		"./ast": {
 			"types": "./dist/ast/index.d.ts",
