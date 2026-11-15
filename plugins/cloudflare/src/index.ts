@@ -24,12 +24,25 @@ import {
 import { assertEnvName, declaresDevVar } from "./node/dev-vars.ts";
 import {
 	cloudflareOptionsSchema,
-	DEFAULT_COMPATIBILITY_DATE,
 	type WranglerBindingSpec,
 	type WranglerRouteSpec,
 } from "./types.ts";
 
 const SOURCE = "cloudflare";
+
+// Default Workers compatibility date. Pinned so wrangler.toml generation is
+// deterministic from (config + plugin version) — not from today's wall clock.
+// Bump alongside plugin releases; consumers who want a newer date push a
+// `cloudflare.slots.compatibilityDate` value with `override: true`.
+//
+// Why pin in source (not a build step): the alternative is reading the wall
+// clock at generate-time, which makes wrangler.toml content depend on which
+// day `stack generate` runs. That dirties `wrangler types` regeneration
+// caches across midnight and thrashes CI build caches for no functional
+// reason. A repo-versioned constant trades "automatic bumps" for
+// bit-exact reproducibility, which is the more important property in practice
+// — compat dates are a stability contract, not a feature flag.
+const DEFAULT_COMPATIBILITY_DATE = "2025-01-01";
 
 // `wrangler dev`'s listen port, passed explicitly so the dev process and the
 // worker's dev origin agree.
