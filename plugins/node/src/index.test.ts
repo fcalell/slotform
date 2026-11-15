@@ -59,7 +59,9 @@ async function serverSource(files: Record<string, string>) {
 const ROUTE = { "src/worker/routes/a.ts": "export const a = 1;\n" };
 
 test("a server renders without background handler files", async () => {
-	assert.match((await serverSource(ROUTE)) ?? "", /worker/);
+	const source = (await serverSource(ROUTE)) ?? "";
+	assert.match(source, /workerModule:\s*new URL\(["']\.\/worker\.ts["']/);
+	assert.match(source, /workerPaths:\s*\[[^\]]*["']\/rpc["']/);
 });
 
 test("node refuses a queue handler and a cron handler through the api slots", async () => {

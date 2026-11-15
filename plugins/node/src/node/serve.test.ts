@@ -21,8 +21,10 @@ test("the dev and bundle entries hold no trace of the served controls", () => {
 	for (const source of [
 		aggregateServer(payload),
 		aggregateServer({ ...payload, bundle }),
-	])
+	]) {
+		assert.match(source, /startNodeServer/);
 		assert.doesNotMatch(source, /fixture|STACK_SERVE|plugin-screens/);
+	}
 });
 
 test("a served entry loads the run's own worker module", () => {
