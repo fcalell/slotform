@@ -75,15 +75,6 @@ export interface WsHub {
 	closeSession(sessionId: string): void;
 }
 
-// The per-connection event handlers create-node-server hands to
-// upgradeWebSocket. Own minimal shape so this module never imports hono.
-interface HubConnectionHandlers {
-	onOpen(event: unknown, ws: HubSocket): void;
-	onMessage(event: { data: unknown }, ws: HubSocket): void;
-	onClose(event: unknown, ws: HubSocket): void;
-	onError(event: unknown, ws: HubSocket): void;
-}
-
 interface RegisteredChannel {
 	def: ChannelDef;
 	handlers: ChannelHandlers<MessageSchemas, MessageSchemas>;
@@ -92,7 +83,14 @@ interface RegisteredChannel {
 
 interface WsHubInternal {
 	hub: WsHub;
-	connectionHandlers(session: ConnectionSession | null): HubConnectionHandlers;
+	// The per-connection event handlers create-node-server hands to
+	// upgradeWebSocket. Own minimal shape so this module never imports hono.
+	connectionHandlers(session: ConnectionSession | null): {
+		onOpen(event: unknown, ws: HubSocket): void;
+		onMessage(event: { data: unknown }, ws: HubSocket): void;
+		onClose(event: unknown, ws: HubSocket): void;
+		onError(event: unknown, ws: HubSocket): void;
+	};
 }
 
 export function createWsHub(log: ServiceLogger): WsHubInternal {

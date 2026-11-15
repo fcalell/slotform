@@ -1,4 +1,4 @@
-import type { ServiceSpec } from "./server/service.ts";
+import type { ServiceSpec } from "./server/index.ts";
 
 // `/fixture/socket?close=1` of a served app: closes the WebSockets of the
 // session the request holds, as a server restart or a revoked session does.
