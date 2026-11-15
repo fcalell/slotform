@@ -1,10 +1,11 @@
-import { type Selection, useRead } from "@fcalell/plugin-api/tanstack-query";
+import { useRead } from "@fcalell/plugin-query/tanstack-query";
 import { Code } from "@fcalell/plugin-react-ui/components/code";
 import { Diff } from "@fcalell/plugin-react-ui/components/diff";
 import { Prose } from "@fcalell/plugin-react-ui/components/prose";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { useRoute } from "@fcalell/plugin-react-ui/lib/navigate";
 import type { ChipMark, FileItem } from "@fcalell/ui-core/descriptors";
+import type { Selection } from "@fcalell/ui-core/read";
 import type { AppRouter } from "../../../.stack/worker";
 import { orpc } from "../lib/api.ts";
 

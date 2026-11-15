@@ -1,8 +1,5 @@
-import {
-	preload,
-	useMutation,
-	useRead,
-} from "@fcalell/plugin-api/tanstack-query";
+import { preload } from "@fcalell/plugin-query/preload";
+import { useMutation, useRead } from "@fcalell/plugin-query/tanstack-query";
 import {
 	BarChart,
 	type BarSlots,

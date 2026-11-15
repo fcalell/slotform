@@ -1,4 +1,4 @@
-import { preload } from "@fcalell/plugin-api/tanstack-query";
+import { preload } from "@fcalell/plugin-query/preload";
 import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { createFileRoute } from "@tanstack/react-router";

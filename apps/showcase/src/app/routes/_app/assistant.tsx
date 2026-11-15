@@ -1,15 +1,15 @@
+import { preload } from "@fcalell/plugin-query/preload";
+import { read } from "@fcalell/plugin-query/read";
 import {
-	preload,
-	type Read,
-	read,
 	streamedQuery,
 	useQueryClient,
-} from "@fcalell/plugin-api/tanstack-query";
+} from "@fcalell/plugin-query/tanstack-query";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
 import type { Attachment, Notice } from "@fcalell/ui-core/descriptors";
+import type { Read } from "@fcalell/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import type { AppRouter } from "../../../../.stack/worker";

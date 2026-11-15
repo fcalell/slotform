@@ -1,9 +1,10 @@
-import { useMutation, useWindow } from "@fcalell/plugin-api/tanstack-query";
+import { useMutation } from "@fcalell/plugin-query/tanstack-query";
 import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Table } from "@fcalell/plugin-react-ui/components/table";
 import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
 import type { Picked, TableColumn } from "@fcalell/ui-core/descriptors";
+import { useWindow } from "@fcalell/ui-core/react/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import type { AppRouter } from "../../../../.stack/worker";

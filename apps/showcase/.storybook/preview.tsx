@@ -14,7 +14,7 @@ const painted = () =>
 		requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
 	);
 
-// The dev checks of plugin-api's acts (a mutation an act started without
+// The dev checks of plugin-query's acts (a mutation an act started without
 // returning its promise, a failure nothing drew) log to `console.error`; a
 // story that trips one fails, so a route or a story that wires an act wrong
 // cannot pass.

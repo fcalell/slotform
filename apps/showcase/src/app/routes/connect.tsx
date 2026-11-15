@@ -1,4 +1,5 @@
-import { preload, useQuery } from "@fcalell/plugin-api/tanstack-query";
+import { preload } from "@fcalell/plugin-query/preload";
+import { useQuery } from "@fcalell/plugin-query/tanstack-query";
 import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Section } from "@fcalell/plugin-react-ui/components/section";

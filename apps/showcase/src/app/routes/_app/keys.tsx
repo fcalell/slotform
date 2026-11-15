@@ -1,12 +1,9 @@
-import {
-	useDrawsFailure,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { Code } from "@fcalell/plugin-react-ui/components/code";
 import { Form } from "@fcalell/plugin-react-ui/components/form";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
+import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { orpc } from "../../lib/api.ts";
 

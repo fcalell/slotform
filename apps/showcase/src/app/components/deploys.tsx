@@ -1,9 +1,8 @@
 import {
-	type Selection,
 	useMutation,
 	useQueryClient,
 	useRead,
-} from "@fcalell/plugin-api/tanstack-query";
+} from "@fcalell/plugin-query/tanstack-query";
 import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Button } from "@fcalell/plugin-react-ui/components/button";
 import { Code } from "@fcalell/plugin-react-ui/components/code";
@@ -21,6 +20,7 @@ import type {
 	IconAct,
 	Option,
 } from "@fcalell/ui-core/descriptors";
+import type { Selection } from "@fcalell/ui-core/read";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useState } from "react";
 import type { AppRouter } from "../../../.stack/worker";

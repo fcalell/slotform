@@ -1,10 +1,9 @@
+import { preload } from "@fcalell/plugin-query/preload";
 import {
-	preload,
-	type Read,
 	useMutation,
 	useQueryClient,
 	useRead,
-} from "@fcalell/plugin-api/tanstack-query";
+} from "@fcalell/plugin-query/tanstack-query";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
@@ -16,6 +15,7 @@ import type {
 	Option,
 	TableColumn,
 } from "@fcalell/ui-core/descriptors";
+import type { Read } from "@fcalell/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import type { AppRouter } from "../../../../.stack/worker";

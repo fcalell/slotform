@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@fcalell/plugin-api/tanstack-query";
+import { useMutation, useQuery } from "@fcalell/plugin-query/tanstack-query";
 import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";

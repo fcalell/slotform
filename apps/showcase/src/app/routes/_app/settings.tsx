@@ -1,9 +1,9 @@
+import { preload } from "@fcalell/plugin-query/preload";
+import { read } from "@fcalell/plugin-query/read";
 import {
-	preload,
-	read,
 	useMutation,
 	useQueryClient,
-} from "@fcalell/plugin-api/tanstack-query";
+} from "@fcalell/plugin-query/tanstack-query";
 import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Form } from "@fcalell/plugin-react-ui/components/form";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";

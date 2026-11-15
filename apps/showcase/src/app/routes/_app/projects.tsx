@@ -1,4 +1,4 @@
-import { preload } from "@fcalell/plugin-api/tanstack-query";
+import { preload } from "@fcalell/plugin-query/preload";
 import { Columns } from "@fcalell/plugin-react-ui/components/columns";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";

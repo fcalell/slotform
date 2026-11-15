@@ -1,6 +1,7 @@
-import { combine, useMutation } from "@fcalell/plugin-api/tanstack-query";
+import { useMutation } from "@fcalell/plugin-query/tanstack-query";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
+import { combine } from "@fcalell/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { orpc } from "../../lib/api.ts";
 

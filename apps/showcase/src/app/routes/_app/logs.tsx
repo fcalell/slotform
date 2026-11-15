@@ -1,4 +1,4 @@
-import { read } from "@fcalell/plugin-api/tanstack-query";
+import { read } from "@fcalell/plugin-query/read";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { createFileRoute } from "@tanstack/react-router";
 import { act } from "../../lib/act.ts";
