@@ -118,16 +118,8 @@ interface GrantFilter {
 	referenceId: string;
 }
 
-// Deletes one grant's rows, or every grant a filter names: the access-token
-// rows first, since `refreshId` has no cascade, then the refresh tokens, then
-// the consent. One `deleteMany` each (a batch is not portable: the sqlite
-// client has none).
-async function deleteGrants(
-	adapter: GrantAdapter,
-	filter: GrantFilter,
-	before?: Date,
-): Promise<number> {
-	const where = [
+function grantWhere(filter: GrantFilter) {
+	return [
 		{ field: "referenceId", value: filter.referenceId },
 		...(filter.clientId === undefined
 			? []
@@ -136,12 +128,27 @@ async function deleteGrants(
 			? []
 			: [{ field: "userId", value: filter.userId }]),
 	];
-	const tokens = before
-		? [...where, { field: "createdAt", value: before, operator: "lt" }]
-		: where;
-	await adapter.deleteMany({ model: "oauthAccessToken", where: tokens });
-	await adapter.deleteMany({ model: "oauthRefreshToken", where: tokens });
-	if (before) return 0;
+}
+
+// The access-token rows first, since `refreshId` has no cascade, then the
+// refresh tokens. One `deleteMany` each (a batch is not portable: the sqlite
+// client has none).
+async function deleteTokens(
+	adapter: GrantAdapter,
+	where: { field: string; value: unknown; operator?: string }[],
+): Promise<void> {
+	await adapter.deleteMany({ model: "oauthAccessToken", where });
+	await adapter.deleteMany({ model: "oauthRefreshToken", where });
+}
+
+// Deletes one grant's rows, or every grant a filter names: its tokens, then
+// the consent.
+async function deleteGrants(
+	adapter: GrantAdapter,
+	filter: GrantFilter,
+): Promise<number> {
+	const where = grantWhere(filter);
+	await deleteTokens(adapter, where);
 	return adapter.deleteMany({ model: "oauthConsent", where });
 }
 
@@ -189,7 +196,9 @@ export interface OAuth {
 	listGrants(userId: string): Promise<OAuthGrant[]>;
 }
 
-// The drizzle surface the grant read uses.
+// The drizzle surface the grant read uses. `db` is `unknown` across the
+// plugin boundary and `get()` answers `unknown`, so each read casts to the
+// row it selects.
 interface GrantClient {
 	select(fields: Record<string, unknown>): {
 		from(table: unknown): {
@@ -206,7 +215,8 @@ interface GrantClient {
 	};
 }
 
-// The drizzle surface the grant list uses.
+// The drizzle surface the grant list uses; `all()` answers `unknown`, as
+// `GrantClient`'s `get()` does.
 interface GrantListClient {
 	select(fields: Record<string, unknown>): {
 		from(table: unknown): {
@@ -222,7 +232,8 @@ interface GrantListClient {
 	};
 }
 
-// The auth context members the capability reads.
+// The auth context members the capability reads; `OAuthDeps.auth.$context`
+// is `Promise<unknown>`, so the read casts to this.
 interface AuthContextLike {
 	adapter: GrantAdapter;
 	internalAdapter: Parameters<typeof createDpopReplayStore>[0];
@@ -251,9 +262,11 @@ const JOSE_CODE = /^ERR_J/;
 // value that is no JWT raises.
 function isTokenError(error: unknown): boolean {
 	if (error instanceof TypeError) return true;
-	const code = (error as { code?: unknown } | null)?.code;
 	return (
-		error instanceof Error && typeof code === "string" && JOSE_CODE.test(code)
+		error instanceof Error &&
+		"code" in error &&
+		typeof error.code === "string" &&
+		JOSE_CODE.test(error.code)
 	);
 }
 
@@ -311,6 +324,7 @@ export function createOAuth(deps: OAuthDeps): OAuth {
 				throw unauthorized("authorization scheme must be Bearer or DPoP");
 			}
 			const payload = await verifyJwsAccessToken(authorization.token, {
+				// `getJwks` answers a JWKS the verifier's typings spell with `never[]` keys.
 				jwksFetch: () =>
 					deps.auth.api.getJwks() as Promise<{ keys: never[] } | undefined>,
 				jwksCacheKey: cacheKey,
@@ -593,10 +607,13 @@ export function mcpPlugins(deps: McpPluginsDeps): {
 				{
 					matcher: (ctx) => ctx.path === "/oauth2/authorize",
 					handler: createAuthMiddleware(async (ctx) => {
+						// The provider sets `authorizeSettings` on its own resumes; the hook
+						// context's type does not carry it.
 						if ((ctx as { authorizeSettings?: unknown }).authorizeSettings) {
 							return;
 						}
 						const post = (ctx.request?.method ?? ctx.method) === "POST";
+						// The hook context types the body and query as `any`.
 						const source = (post ? ctx.body : ctx.query) as
 							| Record<string, unknown>
 							| undefined;
@@ -616,6 +633,8 @@ export function mcpPlugins(deps: McpPluginsDeps): {
 						const session = await getSessionFromCtx(ctx);
 						// No session: the endpoint refuses it as it always does.
 						if (!session) return;
+						// The matcher held `oauth_query`; the endpoint's own input is not on the
+						// hook context's type.
 						const body = ctx.body as {
 							organizationId?: string | null;
 							organizationSlug?: string;
@@ -659,6 +678,7 @@ export function mcpPlugins(deps: McpPluginsDeps): {
 							session.user.id,
 							session.session.activeOrganizationId,
 						);
+						// `GrantAdapter` is the slice of Better Auth's adapter the deletions use.
 						const adapter = ctx.context.adapter as unknown as GrantAdapter;
 						const consent = await adapter.findOne<{ createdAt: Date }>({
 							model: "oauthConsent",
@@ -669,17 +689,21 @@ export function mcpPlugins(deps: McpPluginsDeps): {
 							],
 						});
 						if (!consent) return;
-						await deleteGrants(
-							adapter,
-							{ clientId, userId: session.user.id, referenceId },
-							new Date(consent.createdAt),
-						);
+						await deleteTokens(adapter, [
+							...grantWhere({ clientId, userId: session.user.id, referenceId }),
+							{
+								field: "createdAt",
+								value: new Date(consent.createdAt),
+								operator: "lt",
+							},
+						]);
 					}),
 				},
 				{
 					// Leaving runs no organization hook.
 					matcher: (ctx) => ctx.path === "/organization/leave",
 					handler: createAuthMiddleware(async (ctx) => {
+						// `returned` is the endpoint's answer, `unknown` to a hook.
 						const left = ctx.context.returned as
 							| { organizationId?: string; userId?: string }
 							| undefined;

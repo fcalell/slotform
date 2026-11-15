@@ -9,7 +9,14 @@ export function appUrlOf(
 	env: Record<string, unknown>,
 	appUrlVar: string,
 ): string {
+	// The generated worker's `envChecks` asserts the URL var is set.
 	return listenerOrigin(env) ?? (env[appUrlVar] as string);
+}
+
+// Same predicate plugin-api puts on `ctx._devMode`, read straight off env:
+// `buildAuth` runs per env, before any request context exists.
+export function isDevMode(env: Record<string, unknown>): boolean {
+	return env.STACK_DEV === "1";
 }
 
 export interface BakedPasskey {
@@ -30,10 +37,9 @@ export interface BakedPasskey {
 export function passkeyFor(
 	passkey: BakedPasskey,
 	env: Record<string, unknown>,
-	devMode: boolean,
 ): Omit<BakedPasskey, "devOrigin"> {
 	const { devOrigin, ...production } = passkey;
-	if (devOrigin && devMode) {
+	if (devOrigin && isDevMode(env)) {
 		return { ...production, rpID: "localhost", origin: devOrigin };
 	}
 	const own = listenerOrigin(env);

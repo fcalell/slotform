@@ -107,6 +107,8 @@ function organizationPlugin(access: true | OrganizationAccess) {
 export function createAuthClient<const O extends AuthClientOptions>(
 	options: O,
 ): BetterAuthClient<O> {
+	// The array's element types are the union of every plugin; `ClientPlugins<O>`
+	// keeps only those `O` switched on.
 	const plugins = [
 		...(options.passkey ? [passkeyClient()] : []),
 		...(options.emailOtp === false ? [] : [emailOTPClient()]),

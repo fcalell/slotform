@@ -51,14 +51,23 @@ export function isSafeCallbackURL(
 	return trustedOrigins.some((pattern) => matchesOrigin(url, pattern));
 }
 
+const REDIRECT_FIELDS = [
+	"callbackURL",
+	"newUserCallbackURL",
+	"errorCallbackURL",
+] as const;
+
+export type RedirectInput = Partial<
+	Record<(typeof REDIRECT_FIELDS)[number], string | undefined>
+>;
+
 // The fields of an input that carry a redirect, by name; the first one that
 // is not safe, so the refusal can name it.
-export function unsafeCallbackField<K extends string>(
-	input: Partial<Record<K, string | undefined>>,
-	fields: readonly K[],
+export function unsafeCallbackField(
+	input: RedirectInput,
 	trustedOrigins: readonly string[],
-): K | undefined {
-	return fields.find((field) => {
+): (typeof REDIRECT_FIELDS)[number] | undefined {
+	return REDIRECT_FIELDS.find((field) => {
 		const value = input[field];
 		return value !== undefined && !isSafeCallbackURL(value, trustedOrigins);
 	});

@@ -34,7 +34,9 @@ export interface Tenancy {
 
 // The surface of the drizzle client this module reads: one-row selects. The
 // sqlite and D1 clients both answer `get()`, one synchronously, one with a
-// promise, and `await` reads both.
+// promise, and `await` reads both. `db` is `unknown` across the plugin
+// boundary and `get()` answers `unknown`, so each read casts to the row it
+// selects.
 interface SelectClient {
 	select(fields: Record<string, unknown>): {
 		from(table: unknown): {
@@ -114,6 +116,8 @@ export function createTenancy(
 			userId,
 		);
 		if (!root) return null;
+		// The entries are keyed by the chain's scope names, which `ScopeContext<S>`
+		// spells for the one `scope` the type parameter names.
 		const entries: Record<string, unknown> = { ...root };
 		for (const { scope: below, id: rowId, row } of levels.reverse()) {
 			if (below.where) {
@@ -141,6 +145,8 @@ export function createTenancy(
 		): Promise<ScopeContext<S> | null> {
 			if (scope.slug === null) return null;
 			if (scope.parent === null) {
+				// The organization root answers `organization` and `member`, the
+				// whole `ScopeContext` of the organization scope.
 				return resolveOrganization(
 					eq(scope.slug, slug),
 					userId,
@@ -166,6 +172,7 @@ export function createTenancy(
 // The ids of the organizations `userId` is a member of, the membership
 // predicate applied: what a tenancy resolves for them at the root. The
 // authorization flow counts these to decide whether the member chooses.
+// `db` is `unknown` across the plugin boundary, as in `createTenancy`.
 export async function listOrganizations(
 	db: unknown,
 	membership: Membership | null,
@@ -199,7 +206,8 @@ export async function listOrganizations(
 function grantsOf(role: unknown): Record<string, readonly string[]> | null {
 	if (!role || typeof role !== "object") return null;
 	if ("statements" in role) {
-		const statements = (role as { statements: unknown }).statements;
+		const statements = role.statements;
+		// A role's grants are lists of action names by contract; no check reads them.
 		if (statements && typeof statements === "object") {
 			return statements as Record<string, readonly string[]>;
 		}

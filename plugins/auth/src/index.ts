@@ -62,6 +62,8 @@ function organizationAccess(
 	org: ResolvedAuthOptions["organization"],
 ): OrganizationAccess | boolean {
 	if (typeof org !== "object") return Boolean(org);
+	// `ac` and `roles` are `unknown` in the options schema (an `ac` is a
+	// function-bearing object no schema can hold).
 	const statements = getStatements(
 		org.ac as { statements?: Record<string, readonly string[]> } | undefined,
 	);
@@ -135,6 +137,7 @@ const runtimeOptions = slot.derived({
 		// without re-literalising the whole object.
 		//   • `callbacks` — owned by api.slots.callbacks and spliced in by
 		//     api's codegen; a consumer passing it in options would collide.
+		// `ctx.options` is the plugin's typed options, spread here as a record.
 		const rawOptions = { ...(ctx.options as Record<string, unknown>) };
 		delete rawOptions.callbacks;
 		// `rateLimiter` — replace the full options object (limit/period are
@@ -400,7 +403,6 @@ export const auth = plugin("auth", {
 	},
 
 	contributes: (self) => [
-		// Init prompts: cookie prefix + optional organization feature toggle.
 		// `app.name` is captured from the contribution ctx (the orchestrator
 		// only hands `prompt` into `ask`, so we close over the value here).
 		// `app.name` is the default cookie prefix:
@@ -440,7 +442,6 @@ export const auth = plugin("auth", {
 		// auth configuration needs it.
 		cloudflare.slots.compatibilityFlags.contribute(() => "nodejs_compat"),
 
-		// Rate limiter bindings for IP + email.
 		cloudflare.slots.bindings.contribute(() => [
 			{
 				kind: "rate_limiter" as const,
@@ -473,7 +474,6 @@ export const auth = plugin("auth", {
 				: []),
 		]),
 
-		// Env: AUTH_SECRET + APP_URL (consumer-renameable via options).
 		// APP_URL's devDefault comes from `appUrlDevDefault`, the first
 		// frontend dev origin, else the deploy target's.
 		api.slots.env.contribute(async (ctx) => {

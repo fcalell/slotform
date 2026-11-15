@@ -17,6 +17,7 @@ export default async function link(
 ): Promise<Response | undefined> {
 	const url = new URL(request.url);
 	if (url.pathname !== `${FIXTURE_PREFIX}/link`) return undefined;
+	// `ExtraControls` types `env` as `unknown`: the served worker's bindings.
 	const vars = context.env as Record<string, unknown>;
 	const email = vars.STACK_SERVE_EMAIL;
 	const code = vars.STACK_SERVE_CODE;

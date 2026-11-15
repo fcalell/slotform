@@ -6,6 +6,7 @@ import type { AuthCallbacks } from "@fcalell/plugin-auth/runtime";
 // With `magicLink: true`, uncomment `sendMagicLink` below.
 // The stubs below log in dev and throw anywhere else: a code in Workers Logs
 // is a leaked sign-in. `stack deploy` refuses while a `// TODO` marker stays.
+// `stack dev` sets `STACK_DEV`; your worker's `Env` does not declare it.
 const isDev = (env: unknown) =>
 	(env as { STACK_DEV?: string }).STACK_DEV === "1";
 

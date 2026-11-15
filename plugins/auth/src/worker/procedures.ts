@@ -9,7 +9,7 @@ import type { role as buildAcRole } from "better-auth/plugins/access";
 import type { emailOTP } from "better-auth/plugins/email-otp";
 import type { magicLink } from "better-auth/plugins/magic-link";
 import type { DefaultOrganizationPlugin } from "better-auth/plugins/organization";
-import { unsafeCallbackField } from "./callback-url.ts";
+import { type RedirectInput, unsafeCallbackField } from "./callback-url.ts";
 import { DEVICE_EXPIRES_MAX_DAYS, DEVICE_NAME_MAX } from "./devices.ts";
 import { emailKey } from "./email-key.ts";
 import type { OAuth } from "./oauth.ts";
@@ -152,21 +152,11 @@ async function limitEmail(
 // better-auth's origin check; a redirect the member's link carries is checked
 // here against the origins the instance trusts (a path on the app always
 // passes). With none known, only paths pass.
-const REDIRECT_FIELDS = [
-	"callbackURL",
-	"newUserCallbackURL",
-	"errorCallbackURL",
-] as const;
-
 function assertRedirects(
 	context: { _trustedOrigins?: readonly string[] },
-	input: Partial<Record<(typeof REDIRECT_FIELDS)[number], string | undefined>>,
+	input: RedirectInput,
 ): void {
-	const field = unsafeCallbackField(
-		input,
-		REDIRECT_FIELDS,
-		context._trustedOrigins ?? [],
-	);
+	const field = unsafeCallbackField(input, context._trustedOrigins ?? []);
 	if (field) {
 		throw new ORPCError("BAD_REQUEST", {
 			message: `\`${field}\` must be a path on this app or a URL on a trusted origin.`,
@@ -192,7 +182,6 @@ export interface OAuthRedirect {
 	url: string;
 }
 
-// The body with the signed query where the client plugin puts it.
 function withOAuthQuery<T extends object>(
 	body: T,
 	oauthQuery: string | undefined,

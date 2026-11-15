@@ -52,7 +52,12 @@ import type {
 import { AUTH_PREFIX, OAUTH_DISCOVERY_PREFIXES } from "../types.ts";
 import { devicePlugins } from "./devices.ts";
 import { emailKey } from "./email-key.ts";
-import { appUrlOf, type BakedPasskey, passkeyFor } from "./listener.ts";
+import {
+	appUrlOf,
+	type BakedPasskey,
+	isDevMode,
+	passkeyFor,
+} from "./listener.ts";
 import {
 	createOAuth,
 	type GrantAdapter,
@@ -333,16 +338,12 @@ export interface AuthInstance<
 // there).
 const cache = new WeakMap<object, ReturnType<typeof buildAuth>>();
 
-// Same predicate plugin-api puts on `ctx._devMode`, read straight off env:
-// `buildAuth` runs per env, before any request context exists.
-function isDevMode(env: Record<string, unknown>): boolean {
-	return env.STACK_DEV === "1";
-}
-
 function appOrigin(url: unknown): string[] {
 	try {
 		return typeof url === "string" ? [new URL(url).origin] : [];
 	} catch {
+		// A URL var that does not parse names no origin; Better Auth refuses it as
+		// `baseURL` when the instance builds.
 		return [];
 	}
 }
@@ -502,11 +503,9 @@ class MissingSendMagicLinkError extends Error {
 
 // The grants the roles table resolves: the consumer's, else better-auth's own.
 function organizationRoles(options: AuthRuntimeInput): Record<string, unknown> {
-	return (
-		typeof options.organization === "object" && options.organization.roles
-			? options.organization.roles
-			: defaultOrgRoles
-	) as Record<string, unknown>;
+	return typeof options.organization === "object" && options.organization.roles
+		? options.organization.roles
+		: defaultOrgRoles;
 }
 
 function buildAuth(
@@ -540,6 +539,7 @@ function buildAuth(
 		options.signUp === "invite" || options.signUp === "first"
 			? signUpPolicy(
 					options.signUp,
+					// `GrantAdapter` and `PolicyAdapter` are two slices of Better Auth's one adapter.
 					async () => (await authContext)?.adapter as unknown as PolicyAdapter,
 				)
 			: undefined;
@@ -680,7 +680,7 @@ function buildAuth(
 	}
 
 	if (options.passkey) {
-		plugins.push(passkey(passkeyFor(options.passkey, env, isDevMode(env))));
+		plugins.push(passkey(passkeyFor(options.passkey, env)));
 	}
 
 	// jwt, the OAuth provider and CIMD, then the guards around them, before the
@@ -693,7 +693,8 @@ function buildAuth(
 
 	// Read each configured provider's credentials from env (never baked into
 	// the worker — only the var names are). Apple optionally carries the app
-	// bundle id for native ID-token validation.
+	// bundle id for native ID-token validation. The generated worker's
+	// `envChecks` asserts each var is set, so the `as string` reads hold.
 	const socialProviders: NonNullable<BetterAuthOptions["socialProviders"]> = {};
 	const google = options.socialProviders?.google;
 	if (google) {
@@ -789,6 +790,7 @@ function buildAuth(
 								enabled: true,
 								beforeDelete: async (user, request) => {
 									await options.callbacks?.beforeDelete?.({
+										// Better Auth's user row carries the fields `AuthUser` names.
 										user: user as AuthUser,
 										request,
 										env,
@@ -839,6 +841,8 @@ function buildAuth(
 				}
 			: {}),
 	});
+	// The instance's inferred type holds `$context` as Better Auth's full
+	// context; the hooks need only its adapter.
 	authContext = instance.$context as unknown as Promise<{
 		adapter: GrantAdapter;
 	}>;
@@ -846,15 +850,14 @@ function buildAuth(
 }
 
 function getOrInitAuth(
-	env: unknown,
+	env: Record<string, unknown>,
 	db: unknown,
 	options: AuthRuntimeInput,
 ): ReturnType<typeof buildAuth> {
-	const envObj = env as object;
-	let auth = cache.get(envObj);
+	let auth = cache.get(env);
 	if (!auth) {
-		auth = buildAuth(env as Record<string, unknown>, db, options);
-		cache.set(envObj, auth);
+		auth = buildAuth(env, db, options);
+		cache.set(env, auth);
 	}
 	return auth;
 }
@@ -875,7 +878,7 @@ async function readRequestEmail(request: Request): Promise<string | null> {
 	try {
 		const body: unknown = await request.clone().json();
 		if (body && typeof body === "object" && "email" in body) {
-			const email = (body as { email: unknown }).email;
+			const email = body.email;
 			if (typeof email === "string" && email.length > 0) return email;
 		}
 	} catch {
@@ -1121,7 +1124,6 @@ type OAuthRoutes<TOptions> = WithMcp<
 	ReturnType<typeof oauthProcedures>
 >;
 
-// The routes registered under `auth`, by option.
 type AuthRoutes<TOptions> = {
 	auth: ReturnType<typeof sessionProcedures> &
 		SignInRoutes<TOptions> &
@@ -1129,20 +1131,6 @@ type AuthRoutes<TOptions> = {
 		OAuthRoutes<TOptions> &
 		DeviceRoutes<TOptions>;
 };
-
-// The organization calls; with `mcp`, `setActive` is the one that takes the
-// authorization's signed query.
-function organizationRoutesOf(factory: AuthProcedureFactory, mcp: boolean) {
-	const routes = organizationProcedures(factory);
-	return mcp
-		? {
-				organization: {
-					...routes.organization,
-					setActive: setActiveOauthProcedure(factory),
-				},
-			}
-		: routes;
-}
 
 export default function authRuntime<TOptions extends AuthRuntimeInput>(
 	options: TOptions,
@@ -1203,7 +1191,16 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 			const organizationRoutes = (
 				options.organization
 					? {
-							...organizationRoutesOf(factory, options.mcp === true),
+							// With `mcp`, `setActive` is the one that takes the authorization's
+							// signed query.
+							...(options.mcp
+								? {
+										organization: {
+											...organizationProcedures(factory).organization,
+											setActive: setActiveOauthProcedure(factory),
+										},
+									}
+								: organizationProcedures(factory)),
 							[ORG_RULES_PATH[1]]: orgRulesProcedure(factory, roles),
 							[SCOPE_ROUTES_PATH[1]]: Object.fromEntries(
 								[organizationScope, ...scopes]
@@ -1225,7 +1222,6 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 				options.devices ? deviceProcedures(factory) : {}
 			) as DeviceRoutes<TOptions>;
 
-			// All fragments share their router key, `auth`.
 			return {
 				[ORG_RULES_PATH[0]]: {
 					...sessionProcedures(factory),
@@ -1237,11 +1233,14 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 			};
 		},
 		context(env, upstream) {
+			// `RuntimePlugin` types `env` and `upstream` as `unknown`; `dependsOn`
+			// makes `upstream.db` the drizzle client, and `env` is the worker's bindings.
 			const u = upstream as { db: unknown };
 			const e = env as Record<string, unknown>;
 
 			const rateLimiter: { ip?: RateLimitBinding; email?: RateLimitBinding } =
 				{};
+			// A rate-limiter binding is a Wrangler binding `Env` does not type.
 			const agentBinding = options.rateLimiter?.agent?.binding;
 			const agentLimiter =
 				agentBinding && !isDevMode(e)
@@ -1256,13 +1255,14 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 				rateLimiter.email = e[emailBinding] as RateLimitBinding;
 			}
 
-			const auth = getOrInitAuth(env, u.db, options);
+			const auth = getOrInitAuth(e, u.db, options);
 			return {
 				// `getOrInitAuth` returns whatever better-auth infers from the
 				// literal built inside `buildAuth`; it structurally satisfies
 				// `AuthApi` at runtime. This cast is the one place the
 				// hand-declared `AuthInstance<TOptions>` contract stands in for
-				// better-auth's own (differently-parameterized) inferred type.
+				// better-auth's own (differently-parameterized) inferred type; the
+				// cast in `createOAuth`'s `auth` below is the same.
 				auth: auth as unknown as AuthInstance<TOptions>,
 				...(options.organization
 					? { tenancy: createTenancy(u.db, roles, membership) }

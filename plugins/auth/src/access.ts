@@ -12,6 +12,7 @@ export function createAccessControl<
 				[K in keyof T]?: T[K][number][];
 			},
 		): Role {
+			// `T[K][number][]` is a list of action names, which `Role` spells as `readonly string[]`.
 			return permissions as Role;
 		},
 	};

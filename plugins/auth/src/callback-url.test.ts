@@ -89,16 +89,10 @@ test("a native scheme passes only when a trusted origin names it", () => {
 });
 
 test("unsafeCallbackField names the first refused field", () => {
-	const fields = [
-		"callbackURL",
-		"newUserCallbackURL",
-		"errorCallbackURL",
-	] as const;
-	assert.equal(unsafeCallbackField({}, fields, TRUSTED), undefined);
+	assert.equal(unsafeCallbackField({}, TRUSTED), undefined);
 	assert.equal(
 		unsafeCallbackField(
 			{ callbackURL: "/ok", errorCallbackURL: "/err" },
-			fields,
 			TRUSTED,
 		),
 		undefined,
@@ -106,7 +100,6 @@ test("unsafeCallbackField names the first refused field", () => {
 	assert.equal(
 		unsafeCallbackField(
 			{ callbackURL: "/ok", newUserCallbackURL: "https://evil.com/x" },
-			fields,
 			TRUSTED,
 		),
 		"newUserCallbackURL",

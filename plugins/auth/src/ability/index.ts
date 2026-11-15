@@ -96,6 +96,8 @@ export function subject<
 
 // ---------- assertCan ----------
 
+// `opts.cloak` is for a consumer's own procedures, which `guide/abilities.md`
+// documents; the framework passes no option.
 export function assertCan<TAbility extends AnyMongoAbility>(
 	ability: TAbility,
 	action: Parameters<TAbility["can"]>[0],

@@ -23,7 +23,6 @@ export function requiredCallbacks(options: {
 	];
 }
 
-// The required callbacks whose scaffold marker the source still holds.
 export function pendingCallbacks(
 	source: string,
 	required: readonly StubbedCallback[],

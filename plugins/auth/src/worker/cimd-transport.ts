@@ -64,15 +64,19 @@ async function resolveAddresses(
 	if (!response.ok) {
 		throw new TypeError(`DNS lookup of the metadata host failed (${type})`);
 	}
+	// The DoH JSON answer is read as the shape `DohAnswer` names; a field of
+	// another type fails the `typeof` checks below.
 	const body = (await response.json()) as DohAnswer;
 	if (body.Status !== 0) {
 		throw new TypeError(
 			`DNS lookup of the metadata host answered status ${body.Status}`,
 		);
 	}
-	return (body.Answer ?? [])
-		.filter((record) => record.type === type && typeof record.data === "string")
-		.map((record) => record.data as string);
+	return (body.Answer ?? []).flatMap((record) =>
+		record.type === type && typeof record.data === "string"
+			? [record.data]
+			: [],
+	);
 }
 
 export async function fetchClientMetadataResource(
