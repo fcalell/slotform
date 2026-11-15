@@ -42,10 +42,6 @@ export function onUpdateRequired(cb: () => void): () => void {
 	return updateRequired.subscribe(cb);
 }
 
-function notifyUpdateRequired(): void {
-	updateRequired.emit();
-}
-
 // Wraps `fetch` (defaulting to the global) to stamp the version headers on
 // every request and translate a 426 response into the update-wall signal.
 // `input` may already be a `Request` carrying its own headers (the oRPC link
@@ -68,7 +64,7 @@ export function createVersionGatedFetch(
 			headers.set(key, value);
 		}
 		const response = await base(input, { ...init, headers });
-		if (response.status === 426) notifyUpdateRequired();
+		if (response.status === 426) updateRequired.emit();
 		return response;
 	};
 }

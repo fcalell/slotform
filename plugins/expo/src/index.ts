@@ -132,12 +132,6 @@ function packageSegment(raw: string): string {
 	return /^[0-9]/.test(cleaned) ? `a${cleaned}` : cleaned;
 }
 
-// A leaf segment safe for both an iOS bundle identifier and an Android package
-// (the latter forbids hyphens), derived from the app slug.
-function packageLeaf(slug: string): string {
-	return packageSegment(slug);
-}
-
 // Reverse a domain into a bundle-id prefix: "wenauti.app" → "app.wenauti".
 function reverseDomain(domain: string): string {
 	const segments = domain
@@ -155,7 +149,7 @@ function reverseDomain(domain: string): string {
 // keep the leaf.
 function buildBundleId(domain: string, slug: string): string {
 	const prefix = reverseDomain(domain);
-	const leaf = packageLeaf(slug);
+	const leaf = packageSegment(slug);
 	const labels = prefix.split(".");
 	if (labels[labels.length - 1] === leaf) return prefix;
 	return `${prefix}.${leaf}`;
