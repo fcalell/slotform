@@ -168,46 +168,58 @@ H1: 4
 not answered: <question> | <why>
 ```
 
-### Audit assignments (confirmed by the owner; N2 is measured by a Haiku agent's script)
+### Audit (run; findings in `.refactor/findings/`)
 
-Every agent reads `.refactor/brief.md` and writes `.refactor/findings/<file>.md`. N2 is not asked of
-the unit agents: `.refactor/volatility.ts` answers it for all units into `findings/N2.md`.
+Every agent read `.refactor/brief.md`. N2 is `.refactor/volatility.ts` over `graph.json` and `churn.txt`.
 
-| Findings file | Slice | Model | State |
-| --- | --- | --- | --- |
-| `U01.md` | `packages/cli` (+ the flaky `stopAll` test, the 5-file cycle) | Sonnet | launched |
-| `U02a.md` | ui-core contract: tokens, schema, derive, emit, scales, oklch, variants, variant-tables, roster, descriptors, design-md, manifest, rules, cn, icon-name, scripts | Sonnet | launched |
-| `U02b.md` | ui-core models: every other `src` module | Sonnet | launched |
-| `U03.md` | `plugins/api` (+ wire/model/binding split, stream stop) | Sonnet | launched |
-| `U04.md` | `plugins/auth` | Sonnet | launched |
-| `U05-U07-U09-U10.md` | cloudflare, expo, react, vite | Sonnet | launched |
-| `U06-U08.md` | db, node (+ node's three cycles) | Sonnet | launched |
-| `U11.md` | `plugins/screens` (+ who removes stale stories) | Sonnet | launched |
-| `U12ab.md` | react-ui outside `ui/`, and `ui/lib` | Sonnet | launched |
-| `U12c-1.md` | react-ui `components/canvas` | Sonnet | launched |
-| `U12c-2.md` | react-ui picker, table, row, shell | Sonnet | launched |
-| `U12c-3.md` | react-ui section, form, button, sheet, input, bar-chart, pane, form-field, thread, stats, item-header | Sonnet | launched |
-| `U12c-4.md` | react-ui remaining 32 component folders | Sonnet | launched |
-| `U12d.md` | react-ui `ui/showcase` | Sonnet | launched |
-| `U14-U15.md` | `apps/showcase`, `apps/phone` | Sonnet | launched |
-| `U13a.md` | native-ui outside `ui/components` | Sonnet | launched |
-| `U13b-1.md` | native-ui row, picker, table, form, sheet, section, input, bar-chart | Sonnet | launched |
-| `U13b-2.md` | native-ui remaining component folders | Sonnet | launched |
-| `U16.md` | root, turbo, manifests, config packages (+ P6, the turbo output overlap) | Sonnet | launched |
-| `U17.md` | every Markdown file | Sonnet | launched |
-| `X1.md` | react-ui against native-ui (the 133 same-named files) | Sonnet | not launched: 20-agent limit |
-| `X3.md` | plugin-api against its importers | Sonnet | not launched: 20-agent limit |
-| `N2.md` | volatility script over `graph.json` and `churn.txt` | Haiku | not launched: 20-agent limit |
+| Findings file | Slice | Files read in full |
+| --- | --- | --- |
+| `U01.md` | `packages/cli` | 64 of 64 |
+| `U02a.md` | ui-core contract modules | 21 of 26 (the four data files went to U02c) |
+| `U02b.md` | ui-core model modules | 45 of 45, two tests in part |
+| `U02c.md` | ui-core `roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts` | 4 of 4 |
+| `U03.md` | `plugins/api` | 45 of 45 |
+| `U04.md` | `plugins/auth` | 31 of 31 |
+| `U05-U07-U09-U10.md` | cloudflare, expo, react, vite | 42 of 42 |
+| `U06-U08.md` | db, node | all source; two node tests in part |
+| `U11.md` | `plugins/screens` | 43 of 43 source, 10 of 12 tests |
+| `U12ab.md` | react-ui outside components | 78 of 78 |
+| `U12c-1.md` to `U12c-4.md` | react-ui components | 23, 25, 35, 59: all |
+| `U12d.md` | react-ui `ui/showcase` | 8 of 54; structural answers complete, line-level counts from greps (accepted as partial: the folder is read whole when it moves) |
+| `U13a.md` | native-ui outside components | 64 of 64 |
+| `U13b-1a.md`, `U13b-1b.md`, `U13b-1c.md` | native-ui row, table; picker, form; sheet, section, input, bar-chart | 9, 8, 16: all. They replace `U13b-1.md`, which was answered from greps and is ignored |
+| `U13b-2.md` | native-ui remaining components | 69 of 69 |
+| `U14-U15.md` | both apps | 68 of 68, 19 of 19 |
+| `U16.md` | root, turbo, manifests | manifests by field dump |
+| `U17.md` | every Markdown file | path, command and count statements only |
+| `U17b.md`, `U17c.md`, `U17d.md` | behaviour claims: architecture docs; server guides; UI guides | running |
+| `X1.md` | react-ui against native-ui | from diffs and export lists |
+| `X3.md` | plugin-api against its importers | 11 files in full |
+| `N2.md` | volatility | script |
 
-The three prompts not yet launched are in the session that wrote this row; a cold session rewrites
-them from the checklist rows X1, X3 and N2 and the questions P1, P2, P7.
+Consolidation: four Sonnet agents merge the findings by question group into
+`.refactor/problems/{hidden,needless,surplus,special-tests}.md` following `.refactor/consolidate.md`
+(rows recounted, grouped into problems by mechanism, no fixes). State: running.
+
+Corrections the audit made to earlier statements in this file:
+
+- Stale stories: both story writers remove files they no longer generate
+  (`plugins/screens/src/node/stories.ts:166-173`, `apps/showcase/.storybook/roster.ts:80-81`). The gate
+  fails because the showcase `tsc -b` reads the gitignored `stories/` folder that only `pnpm stories`
+  regenerates.
+- Turbo overlap: proven as a defect (`turbo.json:7,11` declare `.stack/**`;
+  `apps/*/tsconfig.worker.json:13-14` emit into `.stack/types`; 55 cached `generate` archives hold
+  `.stack/types/`). The archive of the failing run (`f487e5c3ebb0f471`) holds no `.stack/types`, so
+  the cause of the 64 errors in `check-2-stale-types.log` is unknown and is reproduced in step 3.
+- The `stopAll` failure is in the test: `packages/cli/src/commands/dev.test.ts:72` sleeps 500 ms
+  instead of waiting for the child's `up` line.
 
 ## Progress
 
 | Step | State |
 | --- | --- |
 | 1 Additions | done |
-| 2 Problem list and checklist | checklist confirmed; audit running (20 of 23 agents launched) |
+| 2 Problem list and checklist | audit done (28 agents); consolidation and the second docs audit running; problem list not yet presented |
 | 3 Redesign | not started |
 | 4 Fixes | not started |
 | 5 Fresh-agent checks | not started |
@@ -219,8 +231,8 @@ Taken at 686cd3e1 before any change. Logs in `.refactor/baseline/`.
 | Run | Command | Exit | Result |
 | --- | --- | --- | --- |
 | Gate | `pnpm check` | 0 | `check.log`: check-types 30 of 30 tasks, test 25 of 25 tasks, 537 tests pass, 0 fail, 0 skipped, Biome 937 files clean |
-| Release | `pnpm release:check` | not run yet | |
-| Screens | `pnpm --filter showcase test-screens --mode dark --width 320,1920 --state data,empty --shots .refactor/baseline/shots` | not run yet | |
+| Release | `pnpm release:check` | 0 | `release-check.log`: "Release check passed."; web 475 packages, node 449, native 1081; one copy of each stack package |
+| Screens | `pnpm --filter showcase test-screens --all --mode dark --width 320,1920 --state data,empty --shots shots/baseline` | 1 | `test-screens.log`: no test ran; `CDP Emulation.setDeviceMetricsOverride timed out after 30000 ms` on `_app/deploys/$deployId`; not retried, the owner decides how (recommended: `stack screens browser stop`, then once more). `--shots` must be a folder inside the app |
 | Stories | showcase Storybook build and story run, sharded | not run yet | |
 
 Tests per package: cli 38, ui-core 98, api 45, auth 29, cloudflare 16, db 27, native-ui 17, node 38,
