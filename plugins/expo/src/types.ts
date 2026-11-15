@@ -14,8 +14,6 @@ const configPluginSchema = z.object({
 	dependencies: z.record(z.string(), z.string()).optional(),
 });
 
-export type ConfigPluginSpec = z.infer<typeof configPluginSchema>;
-
 // Per-platform native build floor. A
 // missing platform floors at 0 (dormant — every build of that platform
 // passes); this is a product decision bumped by hand alongside a breaking
