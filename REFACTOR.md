@@ -432,7 +432,7 @@ perimeter when it reports.
 | --- | --- | --- | --- |
 | 1 | F5 core (Opus): `plugins/api`, new `plugins/query`, ui-core except the four roster files, cli `stack-packages.ts`, `scripts/release-check.ts`, `slot-catalog.md`, `runtime.md`. Writes `.refactor/f5/map.md` | `.refactor/f5/core-brief.md` | running |
 | 1 | F6 roster split (Opus): ui-core `roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`, `design-md.ts`, `roster/`, `docs/architecture/ui-core.md` | `.refactor/f6/brief.md` | running |
-| 1 | F10 row rules (Sonnet), one each: cli (not `stack-packages.ts`); cloudflare, expo, react, vite; db; node; auth; screens | `.refactor/f10/brief.md` | running |
+| 1 | F10 row rules (Sonnet), one each: cli (not `stack-packages.ts`); cloudflare, expo, react, vite; db; node; auth; screens | `.refactor/f10/brief.md` | done, committed |
 | 2 | F5 apply (Sonnet), one each from the map: react-ui; native-ui; screens, node, expo, vite, auth; the apps. F7 core (Opus): the shared logic's home in ui-core's per-concept modules, plus `.refactor/f7/map.md` | to write when the map exists | waits for phase 1 |
 | 3 | Per UI plugin (Opus), one each: apply the F7 map, then F8 (parts layer, cycles, walk-exception owners for react-ui with `plugins/screens/src/ui/walk.ts`). Stream stop and the reply helper (P7). F10 and the F2 leftovers for api and ui-core. F10 for the apps | to write | waits for phase 2 |
 | 4 | F9 showcase leaves react-ui for `apps/showcase` (Opus). Then F10 and the F2 leftovers for react-ui; native-ui in parallel | to write | waits for phase 3 |
@@ -442,6 +442,32 @@ perimeter when it reports.
 F7 refinement: shared derivations go into ui-core's per-concept model modules (the style of
 `action-bar.ts`, `form.ts`, `pick.ts`), not into the roster contract files, so F6 and F7 do not
 write the same files.
+
+Carried forward from phase 1:
+
+- **Deliberate behaviour changes** (C3-02 and boundary parses; listed per file in the reports): a
+  filesystem or resolve error other than `ENOENT`/`ENOTDIR` (or `MODULE_NOT_FOUND`,
+  `ERR_PACKAGE_PATH_NOT_EXPORTED`) now throws in cli `package-info`, `write-artifact`, `remove`;
+  node `barrel`; expo `not-found`; vite `excluded`; screens `browser` lock and `chrome` port
+  file. Package manifests are schema-checked in cli, node `bundle` and vite.
+- **Public changes, stead uses 0 each:** cli `ProcessSpec.portConflictPattern` no longer takes
+  `null`; expo `VersionGateOptions.metricsBinding` removed (the worker reads the binding name from
+  `version-gate-shared.ts`); screens `WalkOptions.roots` removed and `alignFindings`, `settled`,
+  `watchFirstPaint` take no argument.
+- **Not done, each needs a decision or a second package (46 rows):** cli plugin names in the init
+  templates (4 rows: a new slot contributed by api, db, expo, react); cli `ProcessSpec.color` and
+  `WatcherSpec` handler `type` (used by five plugins); expo `AUTH_PREFIX` and screens
+  `SESSION_PATH` (literals plugin-auth owns); node `payload.bundle` and `payload.workerFile`
+  (two defensible shapes); cloudflare `payload.serve` (3 rows, one coupled override); auth
+  `createTenancy` `pin`; db `assertSqliteDriver` call order; screens `Tab.goto` load poll; the
+  rows in test files (20), which F11 owns.
+- **For F11:** `plugins/db/src/node/sqlite-file.test.ts` now sets `process.env` because
+  `sqliteFile` lost its `env` parameter; it must restore what it sets. `plugins/auth/src/worker/listener.test.ts`
+  has a line over the column limit.
+- **For step 5:** four packages each grew an errno guard (cli `isErrno`, db `errnoCode`, vite
+  `isAbsent`, node inline).
+- **Formatting:** agents cannot run Biome; one `biome check --write` over the tree precedes the
+  final gate.
 
 ## Step 4 log
 
@@ -454,6 +480,7 @@ write the same files.
 | F2 part 2, volatile packages | after F5 to F9 | | The same row kinds, and the one-importer rows N1-01, N1-05, N1-13, N1-16, in api, ui-core, react-ui, native-ui |
 | F3 derived lists, part done now | done (`b60912e4`, `14fa7fb2`, `b3ed1912`) | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 929 files; `release:check` exit 0, and exit 1 with `FAIL @fcalell/plugin-expo is in no consumer` when expo is dropped from its consumer (run with `--only none --no-build`, then restored) | Of the 29 H5 rows: **3 done** (`MOTION_CELLS` removed, nothing read it and DESIGN.md is unchanged; the Storybook breath pattern no story id matches and the `behaviour` include of a missing folder removed; `release:check` now fails a plugin in none of its three consumers). **5 kept with the fact:** the Lucide `IconName` union (written by `scripts/icon-name.ts`, its test holds it to Lucide), `YIELDS_LAST_EACH` (Tailwind reads a class as written, so it cannot be composed), `apply-motion` SITES (a typed record that throws on a miss), auth `BASE_CONTEXT` (held by `keyof`), auth `CALLBACK_MARKERS` (strings of an on-disk template; the test is the link). **16 move with their files:** roster against component folders, `draws`, `owns`, `FAMILIES` and the 72 `build(X)` exports in F6; the walk-exception owners (5 rows) in F8; the six showcase rows in F9; the plugin-api `exports`, `slots` and `guide` lists after F5. **1 is a test:** the auth DDL, in F11. **4 await the owner:** `STACK_PACKAGES` |
 | F4 file cycles | committed (`29e4ce97` to `e50311f4`), **not verified** | The one gate run failed: `@fcalell/plugin-node#check-types` exit 2, two tests imported `NodeWorker` from `create-node-server.ts`. Both now import it from `server/worker.ts`; fixed by reading, not re-run. The run stopped there, so the rest of F4 is unverified too | File cycles 8 to 3 (the three left are the UI plugins' component cycles, F8). cli: `src/config.ts` is a leaf, `src/index.ts` is the package entry. ui-core: `kindOf` and `scrambles` moved from `scramble.ts` to `paint.ts`. node: `PAUSE_AFTER` in the client, `ServiceLogger` in `server/log.ts`, `NodeWorker` in `server/worker.ts`. Public moves, stead uses 0 each: `kindOf` `ui-core/scramble` to `ui-core/paint`; `PAUSE_AFTER` `plugin-node/live` to `plugin-node/client`. Kept: `add` importing `uninstall` from the `remove` command (commands call each other's operations, as four do with `generate`); `lib/` and `templates/` importing each other at folder level (no file cycle). N1-24's native-ui row goes to F8 |
+| F10 row rules, stable packages (phase 1) | committed (`09e9cb6e` to `856cb382`), **not verified** | none run (owner's instruction) | Six Sonnet agents, reports `.refactor/f10/*.md`. 497 rows (agents' counts): fixed 216, kept with the fact stated 194, audit wrong 41, not done 46. Per package, rows and fixed: cli 112 and 58; cloudflare, expo, react, vite 47 and 29; db 83 and 41; node 59 and 23; auth 87 and 24; screens 109 and 41. Read by the main session before commit: auth's token deletion, redirect guard and dev-mode check; db's serve step and recreate SQL; node's server; expo's version gate; vite's manifest read; screens' tab emulation; cli's watcher, package resolution and manifest read. **Three corrections made:** (1) cli `readManifest` returned zod's copy of the app's `package.json`, which puts `dependencies` and `devDependencies` first (checked against zod 4.6.5), and `installStack` writes it back: it now returns the file's own object. (2) cli `dev.ts`: a non-`ENOENT` stat error was rethrown inside the `fs.watch` callback, which would end `stack dev`; the catch swallows again and says why. (3) Two contract comments deleted as restating were restored (auth `consumerScopes`, db `withMigrationLock`) |
 
 Owner's decisions after F2 part 1 (applied in `7d0fbdc9`, `7ebe81fb`, `6f4786d9`; gate exit 0, 538 tests; `release:check` exit 0):
 
