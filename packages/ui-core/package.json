@@ -141,6 +141,34 @@
 			"types": "./dist/read.d.ts",
 			"default": "./dist/read.js"
 		},
+		"./acts": {
+			"types": "./dist/acts.d.ts",
+			"default": "./dist/acts.js"
+		},
+		"./scope": {
+			"types": "./dist/scope.d.ts",
+			"default": "./dist/scope.js"
+		},
+		"./listen": {
+			"types": "./dist/listen.d.ts",
+			"default": "./dist/listen.js"
+		},
+		"./react/port": {
+			"types": "./dist/react/port.d.ts",
+			"default": "./dist/react/port.js"
+		},
+		"./react/read": {
+			"types": "./dist/react/read.d.ts",
+			"default": "./dist/react/read.js"
+		},
+		"./react/acts": {
+			"types": "./dist/react/acts.d.ts",
+			"default": "./dist/react/acts.js"
+		},
+		"./react/scope": {
+			"types": "./dist/react/scope.d.ts",
+			"default": "./dist/react/scope.js"
+		},
 		"./runs": {
 			"types": "./dist/runs.d.ts",
 			"default": "./dist/runs.js"
@@ -224,14 +252,22 @@
 		"tailwind-merge": "^3.5.0"
 	},
 	"peerDependencies": {
+		"react": "^19.2.0",
 		"zod": "^4.0.0"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@google/design.md": "^0.4.0",
 		"@tailwindcss/cli": "^4.1.7",
 		"@types/node": "^25.5.0",
+		"@types/react": "^19.2.16",
 		"lucide": "^1.49.0",
+		"react": "19.2.3",
 		"tailwindcss": "^4.1.7",
 		"tsx": "^4.19.0",
 		"typescript": "^5.9.3",

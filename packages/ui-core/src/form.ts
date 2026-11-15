@@ -35,6 +35,27 @@ export interface ProcedureSchema {
 	readonly scope: string | null;
 }
 
+/** A procedure of the query utils, `orpc.requests.submit`: what a `Form` submits and reads its schema from. */
+export interface ProcedureCall {
+	call: (...args: never[]) => Promise<unknown>;
+	mutationKey: (...args: never[]) => readonly unknown[];
+	mutationOptions: (...args: never[]) => unknown;
+}
+
+/** What the procedure takes. */
+export type InputOf<P extends ProcedureCall> = P extends {
+	call: (...args: infer A) => unknown;
+}
+	? NonNullable<A[0]>
+	: never;
+
+/** What the procedure answers. */
+export type OutputOf<P extends ProcedureCall> = P extends {
+	call: (...args: never[]) => Promise<infer O>;
+}
+	? O
+	: never;
+
 /** What a field draws: a line of text (in the mono with the `mono` hint), a number, a date (a `date-time` is sent as a `Date`), a switch, a pick of one value, a pick of several, the prose and source hints' text areas, the one-time code boxes, the masked line, the file pick, a list as a line per item, or an object as json source. */
 export type Control =
 	| "text"

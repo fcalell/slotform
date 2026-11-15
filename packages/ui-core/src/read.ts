@@ -4,6 +4,7 @@
 // TanStack's `useQuery` satisfies `ReadResult`, but ui-core names only the
 // fields it reads, so it imports neither TanStack nor React.
 
+import { createStore } from "./store.ts";
 import type { Words } from "./tokens.ts";
 
 export interface ReadResult {
@@ -212,4 +213,867 @@ export function turnOf(held: Held): { form: TurnForm; value: unknown } {
 export function endedReason(words: Words, phase?: string): string | undefined {
 	if (phase === "failed") return words.readFailed;
 	return phase === "missing" ? words.missing : undefined;
+}
+
+// The read handle: one query by its key plus how its failure reads as "not
+// found", and `Selection`s that pick from one or several reads. Pure, so the
+// hooks in `./react/read.ts` and the binding that runs the reads share one
+// core. A leaf subscribes to a selection, paints it while its reads wait, and
+// draws it once they land (`states.md` §2).
+
+const SELECTION = Symbol.for("@fcalell/ui-core/selection");
+const PLACEHOLDER = Symbol.for("@fcalell/ui-core/placeholder");
+
+// One private-use character: a placeholder run through a template literal
+// keeps a mark that `isPlaceholder` finds, where a bare string would be lost.
+const WAITING_CHAR = "\uE000";
+
+export interface Selection<T> {
+	/** @internal */ readonly [SELECTION]: {
+		readonly reads: readonly Read<unknown>[];
+		// Per read, in order: used only through `or`, so it never paints, holds
+		// or fails a frame.
+		readonly quiet: readonly boolean[];
+		// One datum and one "is real data" per read, in order.
+		readonly pick: (data: readonly unknown[], real: readonly boolean[]) => T;
+	};
+	at<U>(fn: (value: T) => U): Selection<U>;
+	/** Real data when its reads have it, `fallback` in every other state (waiting, idle, paused, failed, missing). It never paints, holds or fails a frame, and a read used only through it is quiet. For enrichments only (a name, a badge, a board's column order, a link): a read whose rows, options, facts or text a component draws is never `or`. */
+	or<F>(fallback: F): Selection<T | F>;
+}
+
+// How a read's query behaves: a plain `query`, an infinite one of stack's
+// paginated envelope (`pages`), a sparse window over a total whose pages load
+// where the viewer scrolls (`window`: its value is the rows loaded from the
+// start, `useWindow` has the rest), or one that stays fetching while it writes
+// (`stream`: fetching with data is writing, not busy).
+export type ReadKind = "query" | "pages" | "window" | "stream";
+
+/** The input of a paginated read less what pages it and orders it (`cursor`, `offset`, `limit`, `sort`): what a selection over the read names. */
+export type QueryOf<I> = I extends object
+	? Omit<I, "cursor" | "offset" | "limit" | "sort">
+	: never;
+
+/** The order a read of a procedure that declares `sort` can be given: the columns it names and the read in that order. */
+export interface Sorting<T, Q> {
+	readonly columns: readonly string[];
+	readonly by: (
+		sort: { column: string; direction: "asc" | "desc" } | undefined,
+	) => Read<T, Q>;
+}
+
+// What the binding that runs a read gives it: the read's query by identity
+// (two reads with one key are one query). The binding adds what it runs the
+// query with (`@fcalell/plugin-query` merges its query options in as `options`).
+export interface ReadBinding {
+	readonly key: string;
+}
+
+// A read is its own identity selection, so `Section items={deploys}` takes a root.
+// `Q` is the query it answers, a paginated read's input less the paging (for
+// the selector a mutation takes); it rides the type only.
+export interface Read<T, Q = unknown> extends Selection<T>, ReadBinding {
+	readonly missing: (error: unknown) => boolean;
+	readonly kind: ReadKind;
+	/** A paginated read's query: its input less the paging and the sort. */
+	readonly query?: Q;
+	/** Present when the procedure declares `sort`: a Table over the read sends its header sort through the input. */
+	readonly sorting?: Sorting<T, Q>;
+	/** A window read's page at an offset, which `ensurePages` loads. */
+	readonly page?: (offset: number) => Promise<WindowPage>;
+}
+
+export interface ReadHow<T = unknown, Q = unknown> {
+	missing?: (error: unknown) => boolean;
+	kind?: ReadKind;
+	query?: Q;
+	sorting?: Sorting<T, Q>;
+	page?: (offset: number) => Promise<WindowPage>;
+}
+
+// A `paginated: "window"` procedure's answer.
+export interface WindowPage {
+	data: readonly unknown[];
+	total: number;
+	offset: number;
+}
+
+// What a window read's query holds: the total, the page size, and the pages
+// loaded by their number (offset over size). Page 0 is always there, so the
+// rows from the start (the value a plain collection draws) never go.
+export interface WindowState {
+	total: number;
+	size: number;
+	pages: Readonly<Record<number, readonly unknown[]>>;
+}
+
+// A data prop's type: a constant, or a selection the leaf subscribes to.
+export type Datum<T> = T | Selection<T>;
+
+/** `T` whose props named `K` (on it, on each member of a list, and on the `options` of a group) may each be a selection. */
+export type Lifted<T, K extends string> = T extends readonly (infer E)[]
+	? readonly Lifted<E, K>[]
+	: T extends (...args: never[]) => unknown
+		? T
+		: T extends object
+			? {
+					[P in keyof T]: P extends K
+						? T[P] | Selection<T[P]>
+						: P extends "options"
+							? Lifted<T[P], K>
+							: T[P];
+				}
+			: T;
+
+/** A data prop whose text props may be selections too: a constant, a selection of the whole, or a constant with selections in its `K` props (an act's `blocked`, an option's `description`). */
+export type Fielded<T, K extends string> = Datum<T> | Lifted<T, K>;
+
+const isPlain = (v: unknown): v is Record<string, unknown> => {
+	if (typeof v !== "object" || v === null) return false;
+	const proto = Object.getPrototypeOf(v);
+	return proto === Object.prototype || proto === null;
+};
+
+// Walks a list or a plain object one level (and the list under its `nesting`
+// key, a group's options), handing every selection held in a `keys` prop to
+// `take` and putting back what it returns; a value with none is returned as it
+// is.
+function walk(
+	value: unknown,
+	keys: readonly string[],
+	nesting: string | undefined,
+	take: (found: Selection<unknown>) => unknown,
+): unknown {
+	if (Array.isArray(value)) {
+		let changed = false;
+		const out = value.map((one) => {
+			const next = walk(one, keys, nesting, take);
+			if (next !== one) changed = true;
+			return next;
+		});
+		return changed ? out : value;
+	}
+	if (!isPlain(value) || isSelection(value)) return value;
+	let out: Record<string, unknown> | undefined;
+	for (const key of Object.keys(value)) {
+		const field = value[key];
+		const next =
+			keys.includes(key) && isSelection(field)
+				? take(field)
+				: key === nesting && Array.isArray(field)
+					? walk(field, keys, nesting, take)
+					: field;
+		if (next !== field) {
+			out ??= { ...value };
+			out[key] = next;
+		}
+	}
+	return out ?? value;
+}
+
+const lifts = new WeakMap<object, Map<string, unknown>>();
+
+/** A data prop made whole: a constant (or a list of them) whose `keys` props hold selections becomes one selection of the constant with each prop's value in its place, so a host that draws a `Datum` draws the prop's read as it draws the whole thing's (painted, inert, while a read waits; failed or missing, the act blocked with the sentence). `nesting` names the prop that holds a list of the same kind (a group's `options`), which is walked too; absent, none is. A value with no selection in those props is returned as it is. Cached by the value's identity, so a render that passes the same value gets the same selection. */
+export function lift<T, K extends string>(
+	value: Fielded<T, K>,
+	keys: readonly K[],
+	nesting?: string,
+): Datum<T>;
+export function lift<T, K extends string>(
+	value: Fielded<T, K> | undefined,
+	keys: readonly K[],
+	nesting?: string,
+): Datum<T> | undefined;
+export function lift<T, K extends string>(
+	value: Fielded<T, K> | undefined,
+	keys: readonly K[],
+	nesting?: string,
+): Datum<T> | undefined {
+	if (typeof value !== "object" || value === null || isSelection(value)) {
+		return value as Datum<T> | undefined;
+	}
+	const id = `${keys.join(",")}/${nesting ?? ""}`;
+	const held = lifts.get(value)?.get(id);
+	if (held !== undefined) return held as Datum<T>;
+	const found: Selection<unknown>[] = [];
+	walk(value, keys, nesting, (one) => {
+		found.push(one);
+		return one;
+	});
+	const made =
+		found.length === 0
+			? value
+			: combine(found, (...values) => {
+					let at = 0;
+					return walk(value, keys, nesting, () => values[at++]);
+				});
+	const cache = lifts.get(value) ?? new Map<string, unknown>();
+	cache.set(id, made);
+	lifts.set(value, cache);
+	return made as Datum<T>;
+}
+
+// What a leaf draws for one value: a constant or real data as given, or a
+// selection with a read still to land, whose `value` is the placeholder's and
+// whose `phase` says why. waiting: asked for, no answer. still: not asked for,
+// or paused with no data, so nothing is coming (paints still, no sentence).
+// failed, missing: the read ended (the failed sentence, `words.missing`).
+export type DrawnPhase = "waiting" | "still" | "failed" | "missing";
+export type Drawn<T> =
+	| { readonly painted: false; readonly value: T }
+	| {
+			readonly painted: true;
+			readonly value: unknown;
+			readonly phase: DrawnPhase;
+	  };
+
+// Whether a leaf draws its paint: while its read waits (or stands still). A
+// leaf whose read ended draws its loaded-empty form instead, no line for a
+// text and nothing for a mark; the frame that holds the read says why, once.
+export function paints(drawn: Drawn<unknown>): boolean {
+	return (
+		drawn.painted && (drawn.phase === "waiting" || drawn.phase === "still")
+	);
+}
+
+// The placeholder: the stand-in for data not yet there, shaped by nothing. It
+// is every key of itself and callable, so a selector walks it to a value and
+// takes its default branch (comparisons are false, lookups miss, `new Date`
+// is the epoch, a number formats as 0, `map` and `filter` give it back).
+// Nothing is frozen on the target (a frozen function would pin `name` and
+// `length` against the traps); the traps refuse every write instead.
+const NO_KEYS = new Set(["then", "toJSON", "$$typeof"]);
+
+// A selector run over the placeholder or the sample follows keys that are
+// always there, so a walk that goes on while it finds one (`while (n.parent)
+// n = n.parent`) never reaches an end. A run over either is given this many
+// reads of them: past it the run throws, which a guarded selector turns into
+// the placeholder, a sample into none, as any other throw over a placeholder.
+// Far above what a selector reads for a record's shape.
+const WALK_LIMIT = 10_000;
+let depth = 0;
+let steps = 0;
+
+// `run` with the walk budget: the outermost run starts it, a nested one (a
+// selection built on another's) spends the same.
+function bounded<T>(run: () => T): T {
+	if (depth === 0) steps = 0;
+	depth++;
+	try {
+		return run();
+	} finally {
+		depth--;
+	}
+}
+
+function step(): void {
+	if (depth > 0 && ++steps > WALK_LIMIT)
+		throw new Error(
+			`a selector read the placeholder more than ${WALK_LIMIT} times: a walk that follows a key which is always there never ends, so bound it (a counter, or the real data's own end)`,
+		);
+}
+const emptyIterator = function* () {};
+const toPrimitive = (hint: string) => (hint === "string" ? WAITING_CHAR : 0);
+
+// biome-ignore lint/suspicious/noExplicitAny: the placeholder stands in for every type
+const P: any = new Proxy(() => P, {
+	get(_, key) {
+		if (key === PLACEHOLDER) return true;
+		step();
+		if (key === Symbol.toPrimitive) return toPrimitive;
+		if (key === Symbol.iterator) return emptyIterator;
+		if (typeof key === "symbol" || NO_KEYS.has(key)) return undefined;
+		return P;
+	},
+	apply: () => P,
+	has: () => true,
+	ownKeys: () => [],
+	set: () => false,
+	defineProperty: () => false,
+	deleteProperty: () => false,
+});
+
+// The placeholder, the sample (a list's one record, which stands only inside
+// `sampleOf`) or a string a template made of either.
+export function isPlaceholder(v: unknown): boolean {
+	return (
+		v === P || v === S || (typeof v === "string" && v.includes(WAITING_CHAR))
+	);
+}
+
+// Two constant functions: TanStack compares a function `placeholderData` by
+// identity between option sets, and the dev check reads them back off a
+// query's observers. `placeholderData` marks an observer as a painter (a leaf
+// that draws the read), `heldPlaceholder` as a holder (a frame, or a leaf that
+// draws the failure itself). Both return the placeholder.
+export const placeholderData = (): unknown => P;
+export const heldPlaceholder = (): unknown => P;
+
+// The sample: the placeholder, except that a list's search finds its one
+// record (`find`, `filter`, a copy or a sort gives the sample back), mapping
+// it maps that record once (`map`, `flatMap`) and iterating it yields it, so a
+// selector that finds a group and maps its rows reaches one row. It stands
+// only inside `sampleOf`, which hands out no part of it.
+type Each = (value: unknown, index: number, list: unknown) => unknown;
+const SAMPLE_LIST: Record<string, (fn?: unknown) => unknown> = {
+	map: (fn) => [(fn as Each)(S, 0, S)],
+	flatMap: (fn) => [(fn as Each)(S, 0, S)].flat(),
+	find: () => S,
+	filter: () => S,
+	slice: () => S,
+	sort: () => S,
+	toSorted: () => S,
+	reverse: () => S,
+	concat: () => S,
+};
+const sampleIterator = function* () {
+	yield S;
+};
+// biome-ignore lint/suspicious/noExplicitAny: the sample stands in for every type
+const S: any = new Proxy(() => S, {
+	get(_, key) {
+		if (key === PLACEHOLDER) return true;
+		step();
+		if (key === Symbol.toPrimitive) return toPrimitive;
+		if (key === Symbol.iterator) return sampleIterator;
+		if (typeof key === "symbol" || NO_KEYS.has(key)) return undefined;
+		return SAMPLE_LIST[key] ?? S;
+	},
+	apply: () => S,
+	has: () => true,
+	ownKeys: () => [],
+	set: () => false,
+	defineProperty: () => false,
+	deleteProperty: () => false,
+});
+
+// One item as a list selection draws it, for the waiting form's shape: the
+// selection's pick run over the sample, a record whose lists hold one record,
+// so a selector that maps each record (`list.map(toRow)`, a group's rows found
+// first or not) gives the slots a loaded item fills (a leading mark, a
+// trailing value), each value it took from the record the empty string.
+// Undefined where the selection reads more than one read, its selector throws
+// over the sample, or it gives no list of one item.
+export function sampleOf<T>(
+	v: Selection<readonly T[]>,
+): Exclude<T, undefined> | undefined {
+	const { reads, pick } = v[SELECTION];
+	if (reads.length !== 1) return undefined;
+	try {
+		const value: unknown = bounded(() => pick([S], [false]));
+		if (!Array.isArray(value) || value.length !== 1) return undefined;
+		const [one] = value;
+		if (one === undefined || one === null || isPlaceholder(one))
+			return undefined;
+		return slotted(one) as Exclude<T, undefined>;
+	} catch {
+		return undefined;
+	}
+}
+
+// A sample's placeholder values as the empty string, through its plain objects
+// and arrays: a slot that is there, with nothing in it.
+function slotted(v: unknown): unknown {
+	if (isPlaceholder(v)) return "";
+	if (Array.isArray(v)) return v.map(slotted);
+	if (
+		typeof v === "object" &&
+		v !== null &&
+		Object.getPrototypeOf(v) === Object.prototype
+	)
+		return Object.fromEntries(
+			Object.entries(v).map(([key, value]) => [key, slotted(value)]),
+		);
+	return v;
+}
+
+export function isSelection(v: unknown): v is Selection<unknown> {
+	return typeof v === "object" && v !== null && SELECTION in v;
+}
+
+// A selector or `combine` function runs over the placeholder (a waiting slot
+// picks over it, an idle or failed read's missing data included), so one that
+// throws there is not a bug in the data: its slot is the placeholder, silently.
+// Over real data the throw is the app's.
+function guarded<T>(data: readonly unknown[], run: () => T): T {
+	try {
+		return bounded(run);
+	} catch (error) {
+		if (!data.some(isPlaceholder)) throw error;
+		return P;
+	}
+}
+
+// A selection is never a plain object: TanStack's structural sharing
+// (`replaceEqualDeep`, run over every `combine` result) rebuilds a changed
+// plain object from its string keys, which drops `SELECTION`; an object on a
+// prototype of its own passes through whole.
+const SELECTION_PROTOTYPE = {};
+
+function selection<T>(
+	reads: readonly Read<unknown>[],
+	quiet: readonly boolean[],
+	pick: (data: readonly unknown[], real: readonly boolean[]) => T,
+): Selection<T> {
+	return Object.assign(Object.create(SELECTION_PROTOTYPE) as Selection<T>, {
+		[SELECTION]: { reads, quiet, pick },
+		at: (fn) =>
+			selection(reads, quiet, (data, real) =>
+				guarded(data, () => fn(pick(data, real))),
+			),
+		or: (fallback) =>
+			selection(
+				reads,
+				reads.map(() => true),
+				(data, real) => (real.every(Boolean) ? pick(data, real) : fallback),
+			),
+	} satisfies Partial<Selection<T>>);
+}
+
+// stack's paginated envelope, the one output a `pages` read is made over.
+export type Page = { data: unknown[]; nextCursor: string | null };
+type Pages = { pages: readonly Page[] };
+
+// A window read's data has its pages by number, an infinite read's in an array.
+const isWindowState = (data: unknown): data is WindowState =>
+	!Array.isArray((data as Pages).pages);
+
+// The pages loaded from the start without a gap.
+function reached(state: WindowState): number {
+	let page = 0;
+	while (state.pages[page] !== undefined) page++;
+	return page;
+}
+
+// More pages remain when the last one names a cursor (a window: the rows
+// loaded from the start fall short of the total). False over the placeholder
+// and over no data.
+export function moreOf(data: unknown): boolean {
+	if (data === undefined || isPlaceholder(data)) return false;
+	if (isWindowState(data)) return reached(data) * data.size < data.total;
+	const last = (data as Pages).pages.at(-1);
+	return last !== undefined && last.nextCursor != null;
+}
+
+// A pages read's value is the flat list, so `Pane read={deploys}` with
+// `Section items={deploys}` is the same idiom as a plain read. A window's is
+// the rows loaded from the start. The placeholder stays itself, painted.
+function flatten(data: unknown): unknown {
+	if (data === undefined || isPlaceholder(data)) return data;
+	if (isWindowState(data)) {
+		return Array.from({ length: reached(data) }, (_, page) => [
+			...(data.pages[page] ?? []),
+		]).flat();
+	}
+	return (data as Pages).pages.flatMap((page) => page.data);
+}
+
+// A read that pages: its rows continue in a next page, or in the pages a
+// window has not loaded.
+const pages = (kind: ReadKind) => kind === "pages" || kind === "window";
+
+// A value as a string two equal values share, whatever the order of their
+// plain objects' keys.
+const stable = (value: unknown): string =>
+	JSON.stringify(value, (_, v: unknown) =>
+		isPlain(v)
+			? Object.fromEntries(Object.keys(v).sort().map((key) => [key, v[key]]))
+			: v,
+	);
+
+/** Whether two queries are one: a selection over a query holds only while the read still answers it. */
+export function sameQuery(a: unknown, b: unknown): boolean {
+	return stable([a ?? null]) === stable([b ?? null]);
+}
+
+export function combine<const S extends readonly Selection<unknown>[], R>(
+	selections: S,
+	fn: (
+		...values: {
+			-readonly [K in keyof S]: S[K] extends Selection<infer T> ? T : never;
+		}
+	) => R,
+): Selection<R> {
+	const parts = selections.map((s) => s[SELECTION]);
+	return selection(
+		parts.flatMap((p) => p.reads),
+		parts.flatMap((p) => p.quiet),
+		(data, real) =>
+			guarded(data, () => {
+				let from = 0;
+				const values = parts.map((p) => {
+					const to = from + p.reads.length;
+					const value = p.pick(data.slice(from, to), real.slice(from, to));
+					from = to;
+					return value;
+				});
+				return fn(...(values as never));
+			}),
+	);
+}
+
+// The part of `.stack/schema.ts` the sort reads: each procedure by dotted
+// path with its input as JSON Schema, whose `sort` property names the columns
+// a procedure that declares `sort` takes.
+export type SortSchema = Readonly<
+	Record<string, { readonly input: object | null } | undefined>
+>;
+
+// One read a hook observes through the binding. A painted one carries the
+// `placeholder` that marks its observer (`placeholderData` for a leaf that
+// draws it, `heldPlaceholder` for a holder); a quiet one carries none, so the
+// dev check never counts it. A `silent` observer re-renders on nothing.
+export interface Observed {
+	read: Read<unknown>;
+	placeholder?: () => unknown;
+	silent?: boolean;
+}
+
+// What the binding answers for one observed read: its result's fields the
+// model reads, and its data.
+export interface ReadAnswer extends ReadResult {
+	data: unknown;
+}
+
+// The pure core of both hooks. `reads` are the distinct queries the values
+// need, deduped by key (two observers of one key in one `QueriesObserver` warn);
+// `painted` are those some value uses plainly (the quiet ones are subscribed and
+// nothing more); `queries` are the observed reads, the painted ones given
+// `placeholder`; `draw` maps their answers back onto the values, in order.
+const isReal = (r: ReadAnswer) =>
+	!r.isPlaceholderData && r.data !== undefined;
+
+// Why a read has no data: it ended, nothing is coming, or the answer is.
+function phaseOf(r: ReadAnswer, read: Read<unknown>): DrawnPhase {
+	if (r.status === "error") return read.missing(r.error) ? "missing" : "failed";
+	return !r.isEnabled || r.fetchStatus === "paused" ? "still" : "waiting";
+}
+
+export function planSelections(values: readonly unknown[]): {
+	reads: readonly Read<unknown>[];
+	painted: readonly Read<unknown>[];
+	queries: (placeholder: () => unknown) => Observed[];
+	draw: (results: readonly ReadAnswer[]) => readonly Drawn<unknown>[];
+} {
+	const reads: Read<unknown>[] = [];
+	const slots = new Map<string, number>();
+	const slotOf = (r: Read<unknown>) => {
+		let slot = slots.get(r.key);
+		if (slot === undefined) slot = reads.push(r) - 1;
+		slots.set(r.key, slot);
+		return slot;
+	};
+	const plan = values.map((v) =>
+		isSelection(v)
+			? { ...v[SELECTION], at: v[SELECTION].reads.map(slotOf) }
+			: null,
+	);
+	const plain = new Set(
+		plan.flatMap((p) => p?.at.filter((_, k) => !p.quiet[k]) ?? []),
+	);
+
+	return {
+		reads,
+		painted: reads.filter((_, slot) => plain.has(slot)),
+		queries: (placeholder) =>
+			reads.map((read, slot) =>
+				plain.has(slot) ? { read, placeholder } : { read },
+			),
+		draw: (results) =>
+			values.map((value, i) => {
+				const p = plan[i];
+				if (!p) return { painted: false, value };
+				const inputs = p.at.map((slot) => results[slot] as ReadAnswer);
+				const real = inputs.map(isReal);
+				// Only a read the selection uses plainly holds it back: a quiet one
+				// that has no data gives its `or` fallback.
+				const open = inputs.flatMap((_, k) =>
+					p.quiet[k] || real[k] ? [] : [k],
+				);
+				if (open.length === 0) {
+					return {
+						painted: false,
+						value: p.pick(
+							inputs.map((r) => r.data),
+							real,
+						),
+					};
+				}
+				const phases = open.map((k) =>
+					phaseOf(inputs[k] as ReadAnswer, p.reads[k] as Read<unknown>),
+				);
+				const ended = phases.find((x) => x === "failed" || x === "missing");
+				// A waiting slot picks over the placeholder where a read has no data,
+				// so a selector walks P and never meets `undefined`; a combine keeps
+				// the real data of its other reads.
+				return {
+					painted: true,
+					phase: ended ?? (phases.includes("still") ? "still" : "waiting"),
+					value:
+						p.pick(
+							inputs.map((r) => r.data ?? P),
+							real,
+						) ?? P,
+				};
+			}),
+	};
+}
+
+// A read, as against a selection of it.
+export function isRead(v: unknown): v is Read<unknown> {
+	return isSelection(v) && v[SELECTION].reads[0] === v;
+}
+
+// The pure core of `useFrameRead`: the frame's selection planned like a leaf's,
+// and `combine` deriving the frame's state from its reads. The form comes from
+// every non-quiet read of the selection, held or not (a frame never reads its
+// form off a context). `enclosing` is the query hashes the frames above it
+// hold: the frame holds the first other non-quiet read, which draws its busy
+// mark and its stale and paused line, so a nested frame draws those only for
+// what its ancestors do not (a `combine` under a read-less Pane holds its read;
+// an `x.at()` under a holder of `x` holds none). A frame holds at most one:
+// `extra` are the further unheld ones, a mistake `holdReads` names in dev.
+// `query` looks up a read's query in the cache: a plain observer's result says
+// nothing of a next page being fetched, but the query's `fetchMeta` does.
+export function planFrame<S>(
+	selection: Selection<unknown> | undefined,
+	derive: (held: Held) => S,
+	query: (read: Read<unknown>) => { fetchMore?: boolean } | undefined,
+	enclosing: Holds = NO_HOLDS,
+): {
+	reads: readonly Read<unknown>[];
+	// The observed reads: every painted read carries `heldPlaceholder`, so the
+	// frame is a holder of each in the dev check, not a painter.
+	queries: Observed[];
+	held: Read<unknown> | undefined;
+	extra: readonly Read<unknown>[];
+	combine: (results: readonly ReadAnswer[]) => S;
+} {
+	const plan = planSelections(selection === undefined ? [] : [selection]);
+	const [held, ...extra] = plan.painted.filter((r) => !enclosing.has(r.key));
+	return {
+		reads: plan.reads,
+		queries: plan.queries(heldPlaceholder),
+		held,
+		extra,
+		combine: (results) => {
+			const reads = plan.reads.flatMap((r, i) => {
+				const result = results[i];
+				if (!plan.painted.includes(r) || !result) return [];
+				const forward = r.kind === "pages" && query(r)?.fetchMore === true;
+				// A next page that failed is the collection's line (its more row), not
+				// the read's: the frame holds the pages it has, so it is not stale.
+				const nextFailed =
+					forward && result.status === "error" && result.isRefetchError;
+				return [
+					{
+						result: {
+							...result,
+							...(nextFailed && {
+								status: "success" as const,
+								isRefetchError: false,
+								error: null,
+							}),
+							streamed: r.kind === "stream",
+							hasNextPage: pages(r.kind) && moreOf(result.data),
+							fetchingMore: forward && result.fetchStatus === "fetching",
+						},
+						missing: r.missing,
+						held: r === held,
+					},
+				];
+			});
+			return derive({
+				...(selection !== undefined && {
+					drawn: {
+						...(plan.draw(results)[0] as Drawn<unknown>),
+						more: plan.painted.some(
+							(r) =>
+								pages(r.kind) && moreOf(results[plan.reads.indexOf(r)]?.data),
+						),
+					},
+				}),
+				reads,
+			});
+		},
+	};
+}
+
+// The datum's one read, when it pages (a pages read, or a window): the
+// collection's more row fetches through it.
+export function pagesOf(v: unknown): Read<unknown> | undefined {
+	if (!isSelection(v)) return undefined;
+	const reads = v[SELECTION].reads;
+	const only = reads.length === 1 ? reads[0] : undefined;
+	return only && pages(only.kind) ? only : undefined;
+}
+
+// The datum itself, when it is a window read: a collection under a scroller
+// sizes it to the read's total (`useWindow`) instead of paging it in.
+export function windowOf(v: unknown): Read<unknown> | undefined {
+	return isRead(v) && v.kind === "window" ? v : undefined;
+}
+
+// A draft's value follows its selection until the viewer edits it; the edit
+// kept is this. `key` names the selection's reads, so an edit belongs to the
+// data it was made over: a different read key drops it. A constant has no key,
+// and its edit stays.
+export interface Kept<T> {
+	key: string | undefined;
+	value: T;
+}
+
+// The reads a value draws from: none for a constant.
+export function readsOf(v: unknown): readonly Read<unknown>[] {
+	return isSelection(v) ? v[SELECTION].reads : [];
+}
+
+export function readKey(v: unknown): string | undefined {
+	return isSelection(v)
+		? v[SELECTION].reads.map((r) => r.key).join("|")
+		: undefined;
+}
+
+export function draftFor<T>(
+	draft: Kept<T> | null,
+	key: string | undefined,
+): Kept<T> | null {
+	return draft && draft.key === key ? draft : null;
+}
+
+// Dev checks read the query cache's own observers: a leaf that draws a read is
+// an observer whose `placeholderData` is `placeholderData`, a frame (or a leaf
+// that draws the failure itself) one whose is `heldPlaceholder`.
+export const dev = () => process.env.NODE_ENV !== "production";
+
+// What a frame publishes to its body: the hashes it and the frames around it
+// hold. It places flags only (which frame draws a read's busy mark and its
+// stale and paused line); no frame's form reads it.
+export type Holds = ReadonlySet<string>;
+
+// What a frame outside every frame sees: nothing held.
+export const NO_HOLDS: Holds = new Set();
+
+// Holds are interned by their joined keys, so frames over the same keys
+// publish one identity and a context change re-renders nothing for them. The
+// table is bounded: a clear only costs one re-render.
+const interned = new Map<string, Holds>();
+const INTERNED_MAX = 256;
+
+export function holdsOf(
+	enclosing: Holds,
+	held: Read<unknown> | undefined,
+): Holds {
+	if (!held) return enclosing;
+	const keys = [...enclosing, held.key];
+	const id = keys.join("|");
+	let holds = interned.get(id);
+	if (!holds) {
+		if (interned.size >= INTERNED_MAX) interned.clear();
+		holds = new Set(keys);
+		interned.set(id, holds);
+	}
+	return holds;
+}
+
+// Frames that hold one read with none enclosing another (sibling Sections over
+// one read) each hold it and each draw its failed form, but its busy mark stands
+// once: at the first of them to take it, in mount order (document order for
+// siblings), passing to the next when that one leaves. `take` returns the
+// release; `marks` says whether `id` draws the mark of the read `hash`.
+export interface Marks {
+	take: (hash: string, id: string) => () => void;
+	marks: (hash: string, id: string) => boolean;
+	subscribe: (listener: () => void) => () => void;
+}
+
+export function createMarks(): Marks {
+	const held = new Map<string, string[]>();
+	const takers = createStore(held);
+	return {
+		take: (hash, id) => {
+			const list = held.get(hash) ?? [];
+			list.push(id);
+			held.set(hash, list);
+			takers.emit();
+			return () => {
+				const left = (held.get(hash) ?? []).filter((taker) => taker !== id);
+				if (left.length === 0) held.delete(hash);
+				else held.set(hash, left);
+				takers.emit();
+			};
+		},
+		marks: (hash, id) => held.get(hash)?.[0] === id,
+		subscribe: takers.subscribe,
+	};
+}
+
+// A frame holds one read. Given the frame's unheld non-quiet reads, the first is
+// the one it holds, so each further one is a mistake named by both keys: its
+// failure still draws (the form comes from every read) but its flags do not.
+// Sibling frames over one read are no mistake; each holds and fails, and the
+// first draws its busy mark (`createMarks`).
+export function holdReads(reads: readonly Read<unknown>[]): void {
+	if (!dev()) return;
+	const keys = reads.map((r) => r.key);
+	for (const key of keys.slice(1)) {
+		console.error(
+			`A frame holds one read, and this one has a second: ${keys[0]} and ${key}. Give each read its own Pane, Section, Sheet or Form, or use \`or\` for a read that only names or orders.`,
+		);
+	}
+}
+
+// A read over the binding's `options`, whose query is `key`: its own identity
+// selection, whose value is the flat list for a read that pages. The binding's
+// `read` builds it once it has made the options.
+export function readOf<T, Q = unknown>(
+	options: unknown,
+	key: string,
+	how: ReadHow<T, Q> & { missing: (error: unknown) => boolean },
+): Read<T, Q> {
+	const kind = how.kind ?? "query";
+	// The identity selection holds the read itself, so its reads list closes the
+	// loop once the read exists.
+	const reads: Read<unknown>[] = [];
+	// Assigned onto the selection, so the read keeps its prototype.
+	const self: Read<T, Q> = Object.assign(
+		selection<T>(
+			reads,
+			[false],
+			(data) => (pages(kind) ? flatten(data[0]) : data[0]) as T,
+		),
+		{
+			options,
+			key,
+			missing: how.missing,
+			kind,
+			query: how.query,
+			sorting: how.sorting,
+			page: how.page,
+		},
+	);
+	reads.push(self);
+	return self;
+}
+
+export interface More {
+	// Another page remains.
+	next: boolean;
+	fetching: boolean;
+	failed: boolean;
+	fetch: () => Promise<unknown>;
+}
+
+/** A window read's rows as a view can mount them. */
+export interface WindowView {
+	/** The rows the filter matches: the scroller's length. */
+	total: number;
+	/** Rows per page. */
+	size: number;
+	/** `total` long, the rows loaded in their places and holes elsewhere (read them by index, or `forEach` to skip the holes). */
+	rows: readonly unknown[];
+	/** These are the previous query's rows, kept drawn until the new query's first page lands. */
+	kept: boolean;
+	/** Loads the pages numbered (those not loaded, each once); rejects when one failed. */
+	ensure: (pages: readonly number[]) => Promise<void>;
 }
