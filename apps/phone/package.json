@@ -17,6 +17,7 @@
 		"@fcalell/plugin-db": "workspace:*",
 		"@fcalell/plugin-expo": "workspace:*",
 		"@fcalell/plugin-native-ui": "workspace:*",
+		"@fcalell/plugin-query": "workspace:*",
 		"@fcalell/ui-core": "workspace:*",
 		"@gorhom/bottom-sheet": "^5.2.14",
 		"@orpc/tanstack-query": "^1.14.4",

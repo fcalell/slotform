@@ -1,14 +1,14 @@
-import {
-	type Read,
-	read,
-	streamedQuery,
-	useQueryClient,
-} from "@fcalell/plugin-api/tanstack-query";
 import { Card } from "@fcalell/plugin-native-ui/components/card";
 import { Input } from "@fcalell/plugin-native-ui/components/input";
 import { Pane } from "@fcalell/plugin-native-ui/components/pane";
 import { Thread } from "@fcalell/plugin-native-ui/components/thread";
 import { toast } from "@fcalell/plugin-native-ui/lib/toast";
+import { read } from "@fcalell/plugin-query/read";
+import {
+	streamedQuery,
+	useQueryClient,
+} from "@fcalell/plugin-query/tanstack-query";
+import type { Read } from "@fcalell/ui-core/read";
 import { useEffect, useRef, useState } from "react";
 
 interface Turn {

@@ -1,4 +1,3 @@
-import { read } from "@fcalell/plugin-api/tanstack-query";
 import { BarChart } from "@fcalell/plugin-native-ui/components/bar-chart";
 import { Button } from "@fcalell/plugin-native-ui/components/button";
 import { Code } from "@fcalell/plugin-native-ui/components/code";
@@ -13,6 +12,7 @@ import { Switch } from "@fcalell/plugin-native-ui/components/switch";
 import { Text } from "@fcalell/plugin-native-ui/components/text";
 import { Toolbar } from "@fcalell/plugin-native-ui/components/toolbar";
 import { toast } from "@fcalell/plugin-native-ui/lib/toast";
+import { read } from "@fcalell/plugin-query/read";
 import {
 	loading,
 	setLoading,

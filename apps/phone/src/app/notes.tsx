@@ -1,12 +1,10 @@
-import {
-	preload as start,
-	useMutation,
-} from "@fcalell/plugin-api/tanstack-query";
 import { Pane } from "@fcalell/plugin-native-ui/components/pane";
 import { Section } from "@fcalell/plugin-native-ui/components/section";
 import { Sheet } from "@fcalell/plugin-native-ui/components/sheet";
 import { age } from "@fcalell/plugin-native-ui/lib/age";
 import { confirm } from "@fcalell/plugin-native-ui/lib/confirm";
+import { preload as start } from "@fcalell/plugin-query/preload";
+import { useMutation } from "@fcalell/plugin-query/tanstack-query";
 import type { Act } from "@fcalell/ui-core/descriptors";
 import type { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";

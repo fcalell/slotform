@@ -5,6 +5,7 @@ import { cloudflare } from "@fcalell/plugin-cloudflare";
 import { db } from "@fcalell/plugin-db";
 import { expo } from "@fcalell/plugin-expo";
 import { nativeUi } from "@fcalell/plugin-native-ui";
+import { query } from "@fcalell/plugin-query";
 
 export default defineConfig({
 	app: {
@@ -23,6 +24,7 @@ export default defineConfig({
 			],
 		}),
 		api(),
+		query(),
 		db({
 			dialect: "d1",
 			databaseId: "YOUR_D1_DATABASE_ID",
