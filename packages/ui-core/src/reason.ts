@@ -13,7 +13,7 @@ export function pressStands(
 
 // The text props of an act (or a link) that a selection may stand in for: a
 // label that counts ("Approve 3"), a reason from a read. Both platforms lift
-// them (`lift` in plugin-api) where they draw an act given as a datum.
+// them (`offered` in `./acts.ts`) where they draw an act given as a datum.
 export const ACT_TEXT = ["label", "blocked"] as const;
 export type ActText = (typeof ACT_TEXT)[number];
 

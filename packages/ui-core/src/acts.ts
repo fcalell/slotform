@@ -1,8 +1,10 @@
 // What an act is made of, apart from how it is drawn and what runs it: whether
-// an `onAct` hands back its promise so the act can hold it, the run and save
-// logic the hooks in `./react/acts.ts` wrap, and the marks a host leaves on a
-// rejection it drew. Pure, so the hooks and the binding share one core.
-import { dev, type Read } from "./read.ts";
+// an `onAct` hands back its promise so the act can hold it, an act as a slot
+// takes it (`Offered`), the run and save logic the hooks in `./react/acts.ts`
+// wrap, and the marks a host leaves on a rejection it drew. Pure, so the hooks
+// and the binding share one core.
+import { type Datum, dev, type Fielded, lift, type Read } from "./read.ts";
+import { ACT_TEXT, type ActText } from "./reason.ts";
 
 // One thing a procedure's input schema refused: the schema's own message as a
 // sentence, and the path of the value it refused (`["address", "city"]`, empty
@@ -31,6 +33,33 @@ export function drew(error: unknown): void {
 // Whether a host marked this rejection with `drew`.
 export function wasDrawn(error: unknown): boolean {
 	return typeof error === "object" && error !== null && drawn.has(error);
+}
+
+// Rejections whose every sentence already stands where it belongs (a form's
+// refused values, each under the field it names): the host that ran the act
+// draws no line and no toast of its own for one, so the sentence stands once.
+const placedErrors = new WeakSet<object>();
+
+/** Marks a rejection whose sentences its own host already draws in place: the act's holder draws no line or toast for it, the act ready again. */
+export function placed(error: unknown): void {
+	if (typeof error === "object" && error !== null) placedErrors.add(error);
+}
+
+// Whether a host marked this rejection with `placed`.
+export function isPlaced(error: unknown): boolean {
+	return typeof error === "object" && error !== null && placedErrors.has(error);
+}
+
+/** An act, a link or a list of them as a slot takes it: a constant, a selection of the whole, or a constant whose `label` or `blocked` is a selection (a reason from a read, a label that counts). */
+export type Offered<T> = Fielded<T, ActText>;
+
+/** An `Offered` made whole (a selection of the act with each text prop's value in its place), which the host draws as any act given as a datum. */
+export function offered<T>(given: Offered<T>): Datum<T>;
+export function offered<T>(given: Offered<T> | undefined): Datum<T> | undefined;
+export function offered<T>(
+	given: Offered<T> | undefined,
+): Datum<T> | undefined {
+	return lift<T, ActText>(given, ACT_TEXT);
 }
 
 export interface RunState<K> {

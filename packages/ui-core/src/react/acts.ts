@@ -8,9 +8,18 @@ import {
 	type RunState,
 	startRun,
 } from "../acts.ts";
-import { type Datum, draftFor, type Kept, readKey, readsOf } from "../read.ts";
+import {
+	type Datum,
+	draftFor,
+	endedReason,
+	type Kept,
+	readKey,
+	readsOf,
+} from "../read.ts";
 import { usePort } from "./port.ts";
 import { useSelections } from "./read.ts";
+import { usePressed } from "./reason.ts";
+import { useWords } from "./words.ts";
 
 export interface Draft<T> {
 	/** The value is not here (its read waits, stands still or ended): `value` is the placeholder. */
@@ -83,6 +92,53 @@ export function useDraft<T>(
 				: undefined,
 		value: live ? live.value : (drawn.value as T),
 		change,
+	};
+}
+
+// A draft over a read that ended stands with no value and blocked, like an act
+// over one: a change changes nothing and `say`s why, where its host draws a
+// refusal.
+export function blocked<T>(
+	draft: Draft<T>,
+	reason: string | undefined,
+	say: (reason: string) => void,
+): Draft<T> {
+	if (reason === undefined) return draft;
+	return {
+		...draft,
+		change: () => {
+			say(reason);
+			return undefined;
+		},
+	};
+}
+
+/** The draft a `FormField` hosts for its control's save, and the line the save's rejection draws in: the latest save's alone, cleared by the next change. Over a read that ended the control is blocked and the line holds the read's sentence once pressed, until the read answers. */
+export function useFieldDraft<T>(value: Datum<T>): {
+	draft: Draft<T>;
+	refused: string | undefined;
+} {
+	const port = usePort();
+	const words = useWords();
+	const [refused, refuse] = useState<string>();
+	const draft = useDraft(value, (error) =>
+		refuse(port.refusal(error) ?? words.actFailed),
+	);
+	const reason = endedReason(words, draft.ended);
+	const [pressed, press] = usePressed(reason);
+	return {
+		draft: blocked(
+			{
+				...draft,
+				change: (next, save) => {
+					refuse(undefined);
+					return draft.change(next, save);
+				},
+			},
+			reason,
+			press,
+		),
+		refused: refused ?? (pressed ? reason : undefined),
 	};
 }
 

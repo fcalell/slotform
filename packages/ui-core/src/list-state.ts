@@ -17,6 +17,7 @@ import type {
 	OptionGroup,
 	OptionLeading,
 	Picked,
+	RecordFact,
 	Route,
 	RowMark,
 	RowTitle,
@@ -32,6 +33,7 @@ import type {
 } from "./descriptors.ts";
 import { painting } from "./paint.ts";
 import { nounOf } from "./rules.ts";
+import { partText } from "./runs.ts";
 import {
 	MEASURE_CHARACTERS,
 	METER_NEAR,
@@ -1198,6 +1200,20 @@ export function pathCut(name: string): {
 	};
 }
 
+/** The glyph a file row leads with: the file, or whether the viewer has seen it. */
+export function glyph(seen: boolean | undefined): IconName {
+	if (seen === undefined) return "File";
+	return seen ? "CircleCheck" : "Circle";
+}
+
+// The path split after its last slash: the directory with its slash last, and
+// the name. The slash goes with the directory, so a directory that has given
+// way takes its separator with it and the name draws none.
+export function split(path: string): [string, string] {
+	const slash = path.lastIndexOf("/") + 1;
+	return [path.slice(0, slash), path.slice(slash)];
+}
+
 /** The direction a column sorts in first: words from A, figures and ages largest and newest first. */
 export function firstDirection(
 	column: Pick<TableColumn, "kind">,
@@ -1230,6 +1246,28 @@ export function isStatus(value: RowTitle | undefined): value is StatusMark {
 	return typeof value === "object" && value !== null && "tone" in value;
 }
 
+/** Whether a title is the absent word. */
+export function isAbsent(
+	value: RowTitle | undefined,
+): value is { absent: string } {
+	return typeof value === "object" && value !== null && "absent" in value;
+}
+
+/** Whether a title is a code the row copies: an identifier. */
+export function isCopy(
+	value: RowTitle | undefined,
+): value is { code: string; copy: true } {
+	return typeof value === "object" && value !== null && "copy" in value;
+}
+
+/** The words a title names, which name the row where it has no label. */
+export function titleWords(title: RowTitle): string {
+	if (isAbsent(title)) return title.absent;
+	if (typeof title === "object" && !Array.isArray(title) && "tone" in title)
+		return title.label ?? "";
+	return partText(title as Parameters<typeof partText>[0]);
+}
+
 // ── Facts ──────────────────────────────────────────────────────────────
 // A list of facts (`Fact`) is told apart by the keys its members carry. These
 // are the one reading of it; a component's drawing takes its facts through
@@ -1256,6 +1294,20 @@ export const isChipFact = (fact: unknown): fact is ChipMark =>
 /** Whether a fact is a boolean mark: a `ring` or a `flag`. */
 export const isMarkFact = (fact: unknown): fact is RowMark =>
 	keyed(fact, "ring", "flag");
+
+/** A record head's fact as its key among the facts it stands with: its kind and its words. */
+export function factKey<V extends string | null>(fact: RecordFact<V>): string {
+	if (typeof fact === "object" && "pick" in fact) return fact.pick.label;
+	if (typeof fact === "object" && ("onOpen" in fact || "href" in fact))
+		return partText(fact.label);
+	if (isStatusFact(fact)) return `${fact.tone} ${fact.label ?? ""}`;
+	if (isWarningFact(fact)) return `warning ${fact.warning}`;
+	if (isChipFact(fact)) return `${fact.family} ${fact.label}`;
+	if (isMarkFact(fact)) return `mark ${fact.label}`;
+	if (typeof fact === "object" && "count" in fact)
+		return `${fact.count} ${fact.label}`;
+	return partText(fact);
+}
 
 /** A list of facts by kind: its status (the first one, which leads the line and takes the row's lock after it; a further status is a badge in the list's own order), its warnings, chips and boolean marks in the order given, and its words, each one fact. */
 export interface FactParts {

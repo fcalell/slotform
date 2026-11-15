@@ -1,5 +1,10 @@
-// What a picker derives from its options and its value, in any of its fits: the search's threshold, the one-or-several split of a value, the option groups, the rows painted while they wait, the chip column's test and the link segment a location selects. Both platforms' `Picker` draws from it.
-import type { LinkSegment, Option, OptionGroup } from "./descriptors.ts";
+// What a picker derives from its options and its value, in any of its fits: the search's threshold, the one-or-several split of a value, the option groups, the rows painted while they wait, the chip column's test, whether segments are links and the link segment a location selects. Both platforms' `Picker` draws from it.
+import type {
+	ChoiceSegment,
+	LinkSegment,
+	Option,
+	OptionGroup,
+} from "./descriptors.ts";
 import { PAINT_ROWS } from "./paint.ts";
 import type { ChipFamily } from "./tokens.ts";
 
@@ -71,6 +76,12 @@ export const asChip = (
 
 /** The path of a location or an href: its query and its hash set aside. */
 const pathOf = (route: string) => route.replace(/[?#].*$/, "");
+
+/** Whether the segments are links: the tabs of a place. */
+export const linked = (
+	options: readonly (ChoiceSegment<string> | LinkSegment)[],
+): options is readonly LinkSegment[] =>
+	options.some((segment) => segment.href !== undefined);
 
 /** The link segment a location selects: the one whose href is the location's path or its nearest parent, the longest such href, so a section's own tab is selected below it and no tab is while the location is elsewhere. */
 export function linkAt(

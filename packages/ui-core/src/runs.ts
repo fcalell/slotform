@@ -12,6 +12,14 @@ const several = (part: Run | Runs): part is Runs => Array.isArray(part);
 export const runsOf = (part: Run | Runs): Runs =>
 	several(part) ? part : [part];
 
+// Runs are strings and objects of one of the run kinds, which a React element
+// never is.
+export const isRun = (part: unknown): part is Run =>
+	typeof part === "string" ||
+	(typeof part === "object" &&
+		part !== null &&
+		("strong" in part || "code" in part || "quoted" in part));
+
 /** Whether a part is one `{ code }` run, which a row cuts in its middle. */
 export function isCode(part: Run | Runs): part is { code: string } {
 	return typeof part === "object" && "code" in part;

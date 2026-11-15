@@ -56,6 +56,15 @@ export type OutputOf<P extends ProcedureCall> = P extends {
 	? O
 	: never;
 
+/** The path a procedure goes by: its mutation key's first part, dotted. */
+export function pathOf(act: ProcedureCall): string {
+	const [path] = act.mutationKey();
+	if (!Array.isArray(path) || path.length === 0) {
+		throw new Error("Form: `act` is not a procedure of the client");
+	}
+	return path.join(".");
+}
+
 /** What a field draws: a line of text (in the mono with the `mono` hint), a number, a date (a `date-time` is sent as a `Date`), a switch, a pick of one value, a pick of several, the prose and source hints' text areas, the one-time code boxes, the masked line, the file pick, a list as a line per item, or an object as json source. */
 export type Control =
 	| "text"

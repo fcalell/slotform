@@ -215,6 +215,11 @@ export function endedReason(words: Words, phase?: string): string | undefined {
 	return phase === "missing" ? words.missing : undefined;
 }
 
+/** The sentence a failed or missing row says under its label. */
+export function endedSentence(words: Words, ended: "failed" | "missing") {
+	return ended === "failed" ? words.readFailed : words.missing;
+}
+
 // The read handle: one query by its key plus how its failure reads as "not
 // found", and `Selection`s that pick from one or several reads. Pure, so the
 // hooks in `./react/read.ts` and the binding that runs the reads share one

@@ -173,6 +173,38 @@
 			"types": "./dist/react/scope.d.ts",
 			"default": "./dist/react/scope.js"
 		},
+		"./react/words": {
+			"types": "./dist/react/words.d.ts",
+			"default": "./dist/react/words.js"
+		},
+		"./react/clock": {
+			"types": "./dist/react/clock.d.ts",
+			"default": "./dist/react/clock.js"
+		},
+		"./react/arrive": {
+			"types": "./dist/react/arrive.d.ts",
+			"default": "./dist/react/arrive.js"
+		},
+		"./react/reason": {
+			"types": "./dist/react/reason.d.ts",
+			"default": "./dist/react/reason.js"
+		},
+		"./react/touched": {
+			"types": "./dist/react/touched.d.ts",
+			"default": "./dist/react/touched.js"
+		},
+		"./react/confirm": {
+			"types": "./dist/react/confirm.d.ts",
+			"default": "./dist/react/confirm.js"
+		},
+		"./react/frame": {
+			"types": "./dist/react/frame.d.ts",
+			"default": "./dist/react/frame.js"
+		},
+		"./react/field": {
+			"types": "./dist/react/field.d.ts",
+			"default": "./dist/react/field.js"
+		},
 		"./runs": {
 			"types": "./dist/runs.d.ts",
 			"default": "./dist/runs.js"
