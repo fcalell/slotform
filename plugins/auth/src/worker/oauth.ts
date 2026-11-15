@@ -37,18 +37,23 @@ import {
 	type Membership,
 	organization as organizationScope,
 } from "../scope.ts";
-import {
-	AUTH_PREFIX,
-	MCP_CONSENT_PAGE,
-	MCP_LOGIN_PAGE,
-	MCP_ORGANIZATION_PAGE,
-	MCP_RESOURCE_PATH,
-	MCP_SCOPE,
-	MCP_SCOPES,
-} from "../types.ts";
+import { AUTH_PREFIX } from "../types.ts";
 import { fetchClientMetadataResource } from "./cimd-transport.ts";
 import type { OAuthGrant } from "./outputs.ts";
 import { createTenancy, listOrganizations, type Tenancy } from "./tenancy.ts";
+
+// The protected resource an access token is bound to, under the app URL,
+// and the pages the authorization sends the member to. Pinned, not options:
+// the screens that serve them are the app's, built to these addresses.
+const MCP_RESOURCE_PATH = "/mcp";
+const MCP_LOGIN_PAGE = "/sign-in";
+const MCP_ORGANIZATION_PAGE = "/connect/organization";
+const MCP_CONSENT_PAGE = "/connect/consent";
+
+// The scopes an agent's grant holds: `mcp` is the whole tool list,
+// `offline_access` the refresh token.
+const MCP_SCOPE = "mcp";
+const MCP_SCOPES = [MCP_SCOPE, "offline_access"] as const;
 
 // Structural match with plugin-api's `RateLimitBinding` (procedure.ts).
 export interface RateLimitBinding {
@@ -82,22 +87,9 @@ const ACCESS_TOKEN_EXPIRES_IN = 3600;
 const REFRESH_TOKEN_EXPIRES_IN = 2592000;
 const REFRESH_TOKEN_REUSE_INTERVAL = 30;
 
-// The routes an authorization server serves that the app does not use: the
-// session-minted JWT, and the consumer's own listing and revocation of grants
-// that `consent` rows are reached through, never through a session.
-const DISABLED_PATHS = [
-	"/token",
-	"/oauth2/get-consent",
-	"/oauth2/get-consents",
-	"/oauth2/update-consent",
-	"/oauth2/delete-consent",
-];
-
-export const MCP_DISABLED_PATHS = DISABLED_PATHS;
-
 // The resource an access token is bound to and the issuer that signs it, from
 // the app URL. One derivation for the provider and the verifier.
-export function mcpResource(appUrl: string): string {
+function mcpResource(appUrl: string): string {
 	return `${appUrl.replace(/\/+$/, "")}${MCP_RESOURCE_PATH}`;
 }
 
@@ -236,7 +228,7 @@ interface AuthContextLike {
 	internalAdapter: Parameters<typeof createDpopReplayStore>[0];
 }
 
-export interface OAuthDeps {
+interface OAuthDeps {
 	auth: {
 		api: { getJwks(): Promise<unknown> };
 		$context: Promise<unknown>;
@@ -484,7 +476,7 @@ export function createOAuth(deps: OAuthDeps): OAuth {
 
 // ── The provider ────────────────────────────────────────────────────
 
-export interface McpPluginsDeps {
+interface McpPluginsDeps {
 	appUrl: string;
 	db: unknown;
 	roles: Record<string, unknown>;

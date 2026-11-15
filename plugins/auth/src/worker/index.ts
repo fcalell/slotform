@@ -44,25 +44,18 @@ import {
 } from "../scope.ts";
 import type {
 	AuthCallbackPayloads,
-	AuthRuntimeOptions,
 	AuthUser,
 	OtpType,
 	ResolvedSocialProvider,
 	SocialProviderName,
 } from "../types.ts";
-import {
-	AUTH_PREFIX,
-	OAUTH_DISCOVERY_PREFIXES,
-	SIGN_UP_CLOSED,
-	SIGN_UP_CLOSED_MESSAGE,
-} from "../types.ts";
-import { DEVICE_DISABLED_PATHS, devicePlugins } from "./devices.ts";
+import { AUTH_PREFIX, OAUTH_DISCOVERY_PREFIXES } from "../types.ts";
+import { devicePlugins } from "./devices.ts";
 import { emailKey } from "./email-key.ts";
 import { appUrlOf, type BakedPasskey, passkeyFor } from "./listener.ts";
 import {
 	createOAuth,
 	type GrantAdapter,
-	MCP_DISABLED_PATHS,
 	mcpPlugins,
 	type OAuth,
 	tooManyRequests,
@@ -82,6 +75,38 @@ import {
 } from "./procedures.ts";
 import { publishSessionEnded } from "./session-ended.ts";
 import { createTenancy, resolveGrants, type Tenancy } from "./tenancy.ts";
+
+// The code and sentence a refused sign-up answers with, on every way in. A
+// client reads the code (`data.code` of the `ORPCError`, `error.code` of
+// Better Auth's client) and shows its own words, or the sentence as it stands.
+const SIGN_UP_CLOSED = "SIGN_UP_CLOSED";
+const SIGN_UP_CLOSED_MESSAGE =
+	"Sign-up is closed. Ask for an invitation to join.";
+
+// The routes `devices` takes off HTTP: the plugin's key routes. The
+// `auth.devices` procedures call them on the server API, where the name,
+// count and expiry limits are enforced; over HTTP those limits would be
+// bypassed.
+const DEVICE_DISABLED_PATHS = [
+	"/api-key/create",
+	"/api-key/delete",
+	"/api-key/delete-all-expired-api-keys",
+	"/api-key/get",
+	"/api-key/list",
+	"/api-key/update",
+	"/api-key/verify",
+];
+
+// The routes an authorization server serves that the app does not use: the
+// session-minted JWT, and the consumer's own listing and revocation of grants
+// that `consent` rows are reached through, never through a session.
+const MCP_DISABLED_PATHS = [
+	"/token",
+	"/oauth2/get-consent",
+	"/oauth2/get-consents",
+	"/oauth2/update-consent",
+	"/oauth2/delete-consent",
+];
 
 // Better Auth's own helpers a sign-in flow of the app's own needs (an
 // endpoint, the session cookie it mints, fields added to the session),
@@ -181,7 +206,9 @@ export interface AuthCallbacks<TEnv = unknown> {
 	plugins?: BetterAuthPlugin[];
 }
 
-export interface AuthRuntimeInput extends AuthRuntimeOptions {
+export interface AuthRuntimeInput {
+	secretVar: string;
+	appUrlVar: string;
 	callbacks?: AuthCallbacks;
 	sameSite?: "strict" | "lax" | "none";
 	trustedOrigins?: string[];

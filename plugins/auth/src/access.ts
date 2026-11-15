@@ -1,12 +1,3 @@
-export interface AccessControlLike {
-	statements: Record<string, readonly string[]>;
-	newRole: (...args: never[]) => unknown;
-}
-
-export interface Statements {
-	[resource: string]: readonly string[];
-}
-
 export interface Role {
 	[resource: string]: readonly string[];
 }

@@ -8,7 +8,7 @@ export const CALLBACK_MARKERS = {
 	sendMagicLink: "// TODO: send the magic link email",
 } as const;
 
-export type StubbedCallback = keyof typeof CALLBACK_MARKERS;
+type StubbedCallback = keyof typeof CALLBACK_MARKERS;
 
 // The callbacks the options make required, in the order a consumer meets them.
 export function requiredCallbacks(options: {

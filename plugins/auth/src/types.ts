@@ -4,13 +4,6 @@ import { z } from "zod";
 // and the codegen contribution to `api.slots.routePrefixes` can never drift.
 export const AUTH_PREFIX = "/api/auth";
 
-// The code and sentence a refused sign-up answers with, on every way in. A
-// client reads the code (`data.code` of the `ORPCError`, `error.code` of
-// Better Auth's client) and shows its own words, or the sentence as it stands.
-export const SIGN_UP_CLOSED = "SIGN_UP_CLOSED";
-export const SIGN_UP_CLOSED_MESSAGE =
-	"Sign-up is closed. Ask for an invitation to join.";
-
 // The discovery documents an MCP client reads before it opens an
 // authorization: the authorization server's and the protected resource's.
 // Served by better-auth at the issuer-inserted and resource-inserted
@@ -19,19 +12,6 @@ export const OAUTH_DISCOVERY_PREFIXES = [
 	"/.well-known/oauth-authorization-server",
 	"/.well-known/oauth-protected-resource",
 ] as const;
-
-// The protected resource an access token is bound to, under the app URL,
-// and the pages the authorization sends the member to. Pinned, not options:
-// the screens that serve them are the app's, built to these addresses.
-export const MCP_RESOURCE_PATH = "/mcp";
-export const MCP_LOGIN_PAGE = "/sign-in";
-export const MCP_ORGANIZATION_PAGE = "/connect/organization";
-export const MCP_CONSENT_PAGE = "/connect/consent";
-
-// The scopes an agent's grant holds: `mcp` is the whole tool list,
-// `offline_access` the refresh token.
-export const MCP_SCOPE = "mcp";
-export const MCP_SCOPES = [MCP_SCOPE, "offline_access"] as const;
 
 const rateLimiterIpSchema = z
 	.object({
@@ -316,11 +296,6 @@ export function resolveSocialProviders(
 	const apple = resolveProvider(input.apple, CONVENTIONAL_PROVIDER_VARS.apple);
 	if (apple) out.apple = apple;
 	return out;
-}
-
-export interface AuthRuntimeOptions {
-	secretVar: string;
-	appUrlVar: string;
 }
 
 // better-auth's own `user` row as the deletion hook receives it. Mirrors

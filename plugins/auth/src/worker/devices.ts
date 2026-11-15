@@ -10,7 +10,7 @@ import { APIError, createAuthMiddleware } from "better-auth/api";
 
 // Every key starts with this, so a bearer that is not a device key (an
 // expo session token, an OAuth access token) is never mistaken for one.
-export const DEVICE_KEY_PREFIX = "stk_";
+const DEVICE_KEY_PREFIX = "stk_";
 
 // The random characters after the prefix: 48 letters, about 285 bits.
 const KEY_LENGTH = 48;
@@ -20,10 +20,8 @@ const KEY_LENGTH = 48;
 // stays far under it, and one that loops is the case it exists for.
 const RATE_LIMIT = { timeWindow: 60_000, maxRequests: 600 };
 
-// Longest name a member can give a device, and the most devices one member
-// holds at once.
+// Longest name a member can give a device.
 export const DEVICE_NAME_MAX = 40;
-export const DEVICES_MAX = 25;
 
 // Furthest a key's expiry may be set, in days; a key made without one does
 // not expire.
@@ -57,21 +55,7 @@ const DEVICE_ENDPOINTS = new Set([
 	"/organization/has-permission",
 ]);
 
-export const DEVICE_REFUSED = "DEVICE_CREDENTIAL_REFUSED";
-
-// The routes `devices` takes off HTTP: the plugin's key routes. The
-// `auth.devices` procedures call them on the server API, where the name,
-// count and expiry limits are enforced; over HTTP those limits would be
-// bypassed.
-export const DEVICE_DISABLED_PATHS = [
-	"/api-key/create",
-	"/api-key/delete",
-	"/api-key/delete-all-expired-api-keys",
-	"/api-key/get",
-	"/api-key/list",
-	"/api-key/update",
-	"/api-key/verify",
-];
+const DEVICE_REFUSED = "DEVICE_CREDENTIAL_REFUSED";
 
 // Registered before the key plugin, so it refuses before a key is spent.
 const guard: BetterAuthPlugin = {

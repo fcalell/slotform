@@ -10,11 +10,7 @@ import type { emailOTP } from "better-auth/plugins/email-otp";
 import type { magicLink } from "better-auth/plugins/magic-link";
 import type { DefaultOrganizationPlugin } from "better-auth/plugins/organization";
 import { unsafeCallbackField } from "./callback-url.ts";
-import {
-	DEVICE_EXPIRES_MAX_DAYS,
-	DEVICE_NAME_MAX,
-	DEVICES_MAX,
-} from "./devices.ts";
+import { DEVICE_EXPIRES_MAX_DAYS, DEVICE_NAME_MAX } from "./devices.ts";
 import { emailKey } from "./email-key.ts";
 import type { OAuth } from "./oauth.ts";
 import type {
@@ -28,6 +24,9 @@ import type {
 	RejectedInvitation,
 } from "./outputs.ts";
 import type { Tenancy } from "./tenancy.ts";
+
+// The most devices one member holds at once.
+const DEVICES_MAX = 25;
 
 // The oRPC face of better-auth: one procedure per endpoint a web app calls,
 // so the app never imports better-auth's client. Each runs the endpoint on
