@@ -35,6 +35,10 @@ import {
 	visibleColumns,
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS, painting } from "@fcalell/ui-core/paint";
+import { useClock } from "@fcalell/ui-core/react/clock";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useCollection } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	pagesOf,
@@ -71,29 +75,27 @@ import {
 	View,
 } from "react-native";
 import { age } from "../../lib/age";
-import { useClock } from "../../lib/clock";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
-import { type CellFit, FieldDisabled } from "../../lib/field";
+import type { CellFit } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import { MoreRow } from "../../lib/more";
 import { navigate, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
-import { FrameBody, FrameLine, useCollection } from "../../lib/read";
-import { Turn } from "../../lib/turn";
-import { useWords } from "../../lib/words";
+import { FrameBody, FrameLine } from "../../lib/read";
+import { ChipBase } from "../../parts/chip/base";
+import { Icon } from "../../parts/icon";
+import { LockMark } from "../../parts/row/lock";
+import { StatusBase } from "../../parts/status/base";
+import { ChangeMark } from "../../parts/status/change";
+import { HeldCheckbox } from "../../parts/switch/checkbox";
+import { Turn } from "../../parts/turn";
 import { Chip } from "../chip";
-import { ChipBase } from "../chip/base";
-import { Icon } from "../icon";
 import { HeldInput } from "../input/base";
 import { HeldPicker } from "../picker/base";
-import { LockMark } from "../row/lock";
 import type { RowItem } from "../section";
 import { Rows } from "../section/rows";
-import { StatusBase } from "../status/base";
-import { ChangeMark } from "../status/change";
-import { HeldCheckbox } from "../switch/checkbox";
 
 const ROOT = "grow";
 // The painted next page of the phone's list stands a rows gap under the loaded

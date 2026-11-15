@@ -1,11 +1,11 @@
 import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { More, Read } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { View } from "react-native";
 import { ButtonBase } from "../components/button/base";
 import { cn } from "./cn";
 import { StateLine } from "./read";
-import { useWords } from "./words";
 
 // The room under a row of the viewer's own pressing, as a state line carries.
 const SHOW = "flex-row items-center pb-gap";

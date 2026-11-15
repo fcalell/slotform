@@ -6,7 +6,14 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { PAINT_TURNS } from "@fcalell/ui-core/paint";
-import { FrameHolds, useFrameRead } from "@fcalell/ui-core/react/read";
+import { useStreamed } from "@fcalell/ui-core/react/arrive";
+import {
+	type Frame,
+	FrameHolds,
+	useCollection,
+	useFrameRead,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
@@ -25,23 +32,15 @@ import {
 	useState,
 } from "react";
 import { Platform, ScrollView, View } from "react-native";
-import { useStreamed } from "../../lib/arrive";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
 import { FootReturn, useFootRegion } from "../../lib/frame";
 import { Lifted } from "../../lib/hosts";
 import { FadingView, streamIn } from "../../lib/motion";
-import {
-	type Frame,
-	FrameBody,
-	FrameLine,
-	StateLine,
-	useCollection,
-} from "../../lib/read";
-import { useWords } from "../../lib/words";
+import { FrameBody, FrameLine, StateLine } from "../../lib/read";
+import { WaitingReply } from "../../parts/message/waiting";
 import { MessageBase } from "../message/base";
-import { WaitingReply } from "../message/waiting";
 import { MessageInput, type MessageInputProps } from "../message-input";
 import type { SheetProps } from "../sheet";
 import { SheetDocked } from "../sheet/docked";

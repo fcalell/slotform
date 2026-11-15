@@ -7,7 +7,10 @@ import type {
 	Runs,
 } from "@fcalell/ui-core/descriptors";
 import { markedRuns } from "@fcalell/ui-core/form";
+import { useFieldDraft } from "@fcalell/ui-core/react/acts";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { FieldDisabled, FieldOwned } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Datum } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
@@ -25,25 +28,24 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useMemo, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
-import { useFieldDraft } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import {
-	FieldDisabled,
 	FieldError,
 	type FieldedKey,
 	FieldFocus,
 	FieldNameContext,
-	FieldOwned,
 	GroupName,
 } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import { FadingText, lineIn } from "../../lib/motion";
 import { inertProps } from "../../lib/paint";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
+import { ChangeMark } from "../../parts/status/change";
+import type { CheckboxProps } from "../../parts/switch/checkbox";
+import { CheckboxBase } from "../../parts/switch/checkbox";
 import { Button } from "../button";
-import { Icon } from "../icon";
 import type { ProseProps, TextInputProps } from "../input";
 import { InputBase } from "../input/base";
 import { ProseBase } from "../input/prose";
@@ -57,11 +59,8 @@ import { PickerListBase } from "../picker/list";
 import { SegmentsBase } from "../picker/segments";
 import type { SliderProps } from "../slider";
 import { SliderBase } from "../slider/base";
-import { ChangeMark } from "../status/change";
 import type { SwitchProps } from "../switch";
 import { SwitchBase } from "../switch/base";
-import type { CheckboxProps } from "../switch/checkbox";
-import { CheckboxBase } from "../switch/checkbox";
 
 // The field is a row of its form at the touch density: the label over the
 // value line (the change mark, then the control filling the line, or a toggle

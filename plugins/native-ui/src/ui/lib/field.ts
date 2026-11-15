@@ -18,12 +18,6 @@ export interface Fielded {
 // The keys a `FormField` supplies to the control it draws.
 export type FieldedKey = keyof Fielded;
 
-// Set by an owner that names the controls standing in it (a `FormField`'s
-// children, a `Toolbar`'s acts): a control there draws no field of its own,
-// its `label` only its accessible name. Anywhere else a control placed alone
-// draws its field (`FieldBody` with `alone`).
-export const FieldOwned = createContext(false);
-
 // What names a typing control: the label of the `FormField` around it, else
 // the title of the `Sheet` it sits in bare, since a sheet holding a bare field
 // (the prose `Input` it grows full height for) is that field's editor. The
@@ -33,10 +27,6 @@ export const FieldNameContext = createContext<string | undefined>(undefined);
 export function useFieldName(): string | undefined {
 	return useContext(FieldNameContext);
 }
-
-// Whether the field around a control is disabled, the web's Base UI field
-// state: a disabled control answers no press and draws its disabled cells.
-export const FieldDisabled = createContext(false);
 
 // Whether the `FormField` around a typing control is in error, so the
 // control's box draws `edge-error`.

@@ -1,3 +1,4 @@
+import type { Offered } from "@fcalell/ui-core/acts";
 import type {
 	Band as BandData,
 	IconLinkAct,
@@ -7,7 +8,14 @@ import type {
 	Run,
 } from "@fcalell/ui-core/descriptors";
 import { factsOnly, listedRows, ownCount } from "@fcalell/ui-core/list-state";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	useCollection,
+	useFrame,
+	useOptions,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	combine,
 	type Datum,
@@ -19,21 +27,12 @@ import {
 import { SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
 import { type ReactNode, useMemo, useState } from "react";
 import { View } from "react-native";
-import type { Act, IconAct, MenuEntry, Offered, Sheeted } from "../../lib/act";
+import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
-import {
-	type Frame,
-	FrameBody,
-	FrameLine,
-	StateLine,
-	useCollection,
-	useFrame,
-	useOptions,
-} from "../../lib/read";
-import { useWords } from "../../lib/words";
-import { SheetCard } from "./card";
+import { FrameBody, FrameLine, StateLine } from "../../lib/read";
+import { SheetCard } from "../../parts/section/card";
 import { SectionHead } from "./head";
 import { Rows } from "./rows";
 

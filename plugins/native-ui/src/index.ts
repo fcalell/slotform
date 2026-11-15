@@ -159,7 +159,7 @@ function wordsProvider(opts: NativeUiOptions): ProviderSpec | undefined {
 	return {
 		imports: [
 			{
-				source: "@fcalell/plugin-native-ui/lib/words",
+				source: "@fcalell/ui-core/react/words",
 				named: ["WordsProvider"],
 			},
 		],

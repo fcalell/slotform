@@ -1,8 +1,8 @@
+import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import { text } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
-import { useWords } from "../../lib/words";
 import { Button } from "../button";
 
 const LINE = "flex-row flex-wrap items-center gap-gap";

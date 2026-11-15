@@ -11,9 +11,9 @@ import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
 import { Swap } from "../../lib/swap";
-import { Turn } from "../../lib/turn";
 import { Icon } from "../icon";
 import { Spinner } from "../spinner";
+import { Turn } from "../turn";
 
 const BOX = "items-center justify-center";
 // The press wash, drawn as an overlay that fades out on release (`Press`).

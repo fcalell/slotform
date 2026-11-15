@@ -1,10 +1,10 @@
+import { ShellHome } from "@fcalell/ui-core/react/frame";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { useContext } from "react";
 import { Button } from "../components/button";
 import { Gate } from "../components/gate";
 import { MissingBase } from "../components/missing/base";
 import { Pane } from "../components/pane";
-import { ShellHome } from "./frame";
-import { useWords } from "./words";
 
 // The page for an address nothing serves: the app's `+not-found` route, which
 // stack's generated file re-exports, so it stands where expo-router stands a

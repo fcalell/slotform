@@ -1,7 +1,7 @@
+import { useWords } from "@fcalell/ui-core/react/words";
 import { LOCK_GLYPH } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
 import { Ink } from "../../lib/ink";
-import { useWords } from "../../lib/words";
 import { IconBase } from "../icon";
 
 // A table's lock: the meta glyph named `Locked`, after a cell its row locks and

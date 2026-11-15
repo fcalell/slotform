@@ -1,8 +1,8 @@
 import type { Tone } from "@fcalell/ui-core/descriptors";
-import type { Closed } from "../../lib/closed";
-import { StatusBase } from "./base";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
+import type { Closed } from "../../lib/closed";
+import { StatusBase } from "../../parts/status/base";
 
 interface StatusProps extends Closed {
 	/** The state the mark and the default word name. A selection paints the mark, which takes no touch, until its read lands. */

@@ -3,8 +3,8 @@ import { LIST_BAND, text, textStrong } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { asIconAct, type IconAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
+import { CountBase } from "../../parts/count/base";
 import { Button } from "../button";
-import { CountBase } from "../count/base";
 
 const BAND = "flex-row items-center";
 // The label and its count stand together, the act at the end.

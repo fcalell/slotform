@@ -1,15 +1,15 @@
 import type { MultiPick, OptionPick } from "@fcalell/ui-core/descriptors";
 import { filterChip, filterEmpty } from "@fcalell/ui-core/list-state";
+import { useOptions } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Fielded, paints } from "@fcalell/ui-core/read";
 import type { OptionText } from "@fcalell/ui-core/reason";
 import { TOOLBAR_FILTERS } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import { View } from "react-native";
 import { useAct } from "../../lib/act";
-import { useOptions } from "../../lib/read";
-import { useWords } from "../../lib/words";
+import { ChipBase } from "../../parts/chip/base";
 import { ButtonBase } from "../button/base";
-import { ChipBase } from "../chip/base";
 import { FormField } from "../form-field";
 import { Sheet } from "../sheet";
 

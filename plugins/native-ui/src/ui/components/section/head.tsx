@@ -1,5 +1,11 @@
+import { type Offered, offered } from "@fcalell/ui-core/acts";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
-import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	useDrawsFailure,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
@@ -14,25 +20,18 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useState } from "react";
 import { Pressable, View } from "react-native";
-import {
-	asIconAct,
-	type IconAct,
-	type MenuEntry,
-	type Offered,
-	offered,
-} from "../../lib/act";
+import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
 import { titleBound } from "../../lib/bind";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { tokenPx } from "../../lib/frame";
 import { Ink } from "../../lib/ink";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
-import { BusyMark, type Frame, FrameLine, moreMenu } from "../../lib/read";
+import { BusyMark, FrameLine, moreMenu } from "../../lib/read";
 import { useCSSVariable } from "../../lib/theme";
-import { Turn } from "../../lib/turn";
-import { useWords } from "../../lib/words";
+import { IconButtonBase } from "../../parts/button/glyph";
+import { Turn } from "../../parts/turn";
 import { Button } from "../button";
-import { IconButtonBase } from "../button/glyph";
 import { Count } from "../count";
 import { MenuBase } from "../menu/base";
 import { Text } from "../text";

@@ -22,9 +22,9 @@ import { type ReactNode, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { ButtonLink } from "../button/link";
+import { ButtonLink } from "../../parts/button/link";
+import { PaintedProse } from "../../parts/prose/painted";
 import { Code } from "../code";
-import { PaintedProse } from "./painted";
 
 const COLUMN = "min-w-0";
 const ITEM = "flex-row";

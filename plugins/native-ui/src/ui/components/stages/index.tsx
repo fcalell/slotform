@@ -30,7 +30,7 @@ import {
 import { Strut } from "../../lib/strut";
 import { Swap } from "../../lib/swap";
 
-import { Icon } from "../icon";
+import { Icon } from "../../parts/icon";
 
 const LIST = "min-w-0";
 const ROW = "flex-row min-w-0";

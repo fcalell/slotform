@@ -1,8 +1,8 @@
 import type { IconName } from "@fcalell/ui-core/descriptors";
 import type { IconFit } from "@fcalell/ui-core/variants";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
-import { Icon } from "../components/icon";
-import { useToggle } from "./motion";
+import { useToggle } from "../lib/motion";
+import { Icon } from "./icon";
 
 // A quarter turn takes a chevron down to right (a fold closing); a half turn
 // takes an arrow or a chevron over to its opposite.

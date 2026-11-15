@@ -1,7 +1,7 @@
+import { useWords } from "@fcalell/ui-core/react/words";
 import { THREAD_LATEST } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
 import { FadingView, latestIn, latestOut } from "../../lib/motion";
-import { useWords } from "../../lib/words";
 import { Button } from "../button";
 
 // The layer covers the region over the docked foot, so the act centres on it

@@ -1,13 +1,13 @@
 import type { Decision, IconName } from "@fcalell/ui-core/descriptors";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { type ActSheetProps, useAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { FieldDisabled } from "../../lib/field";
+import { IconButtonBase } from "../../parts/button/glyph";
+import { ButtonLink } from "../../parts/button/link";
 import { ActSheet } from "../sheet/act";
 import { ButtonBase } from "./base";
-import { IconButtonBase } from "./glyph";
-import { ButtonLink } from "./link";
 
 interface Named extends Closed {
 	/** The act's accessible name and, in the labelled forms, its visible text (a short phrase; truncates). In the icon form it is read aloud, never drawn. */

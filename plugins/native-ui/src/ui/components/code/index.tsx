@@ -1,6 +1,7 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, type Drawn, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import { counted, named } from "@fcalell/ui-core/tokens";
@@ -25,9 +26,8 @@ import { useCopy } from "../../lib/copy";
 import { Ink } from "../../lib/ink";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { toast } from "../../lib/toast";
-import { useWords } from "../../lib/words";
-import { IconButtonBase } from "../button/glyph";
-import { Icon } from "../icon";
+import { IconButtonBase } from "../../parts/button/glyph";
+import { Icon } from "../../parts/icon";
 
 const FRAME = "min-w-0 overflow-hidden";
 const HEAD = "flex-row items-center";

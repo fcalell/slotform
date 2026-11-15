@@ -1,7 +1,7 @@
 import { levelOf } from "@fcalell/ui-core/list-state";
 import { METER_TRACK, ROW_PROGRESS } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { Fill } from "../stats/meter";
+import { Fill } from "../../parts/stats/meter";
 
 /** A row's progress: a running task's `value` of its `max` as the meter's bar along the row's foot, at the text column's start, a badge gap under the facts. It fills in the meta ink and turns the good tone once it reaches `max`, never amber. Outside the package's exports. */
 export function RowProgress(props: {

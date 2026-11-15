@@ -24,7 +24,7 @@ import { curve, FadingView } from "../../lib/motion";
 import { open, usePathname } from "../../lib/navigate";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { Press } from "../../lib/press";
-import { Icon } from "../icon";
+import { Icon } from "../../parts/icon";
 import type { PickerSegmentsProps } from "./index";
 
 // The segments keep their natural width and a label is never cut for room (a

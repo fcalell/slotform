@@ -12,11 +12,11 @@ import { FieldClaim } from "../../lib/field";
 import { DistanceContext } from "../../lib/frame";
 import { Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
+import { ToastRoom } from "../../parts/toast/room";
 import { type FormProps, useDerivedForm } from "../form";
 import { FormBody } from "../form/base";
 import { FrameHost } from "../shell/host";
 import { StepCount } from "../step-count";
-import { ToastRoom } from "../toast/room";
 
 // The scroll's content fills it, so the column stands in the page's top and
 // grows past the viewport when it does not fit.

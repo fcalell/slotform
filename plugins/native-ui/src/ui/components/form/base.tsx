@@ -1,3 +1,11 @@
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
+import { submitOf, useFrame } from "@fcalell/ui-core/react/read";
+import {
+	TouchedContext,
+	useTouched,
+	useTouchState,
+} from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
 	CARD,
@@ -10,22 +18,13 @@ import {
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Acting } from "../../lib/act";
-import { useArrivals } from "../../lib/arrive";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
 import { between } from "../../lib/group";
 import { useLeaveGuard } from "../../lib/leave";
 import { blockIn, FadingView } from "../../lib/motion";
-import {
-	BusyMark,
-	FrameBody,
-	FrameLine,
-	submitOf,
-	useFrame,
-} from "../../lib/read";
-import { TouchedContext, useTouched, useTouchState } from "../../lib/touched";
-import { useWords } from "../../lib/words";
+import { BusyMark, FrameBody, FrameLine } from "../../lib/read";
 import type { ActionBarProps } from "../action-bar";
 import { ActionBarBase } from "../action-bar/base";
 import { Text } from "../text";

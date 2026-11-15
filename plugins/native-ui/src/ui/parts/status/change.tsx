@@ -1,10 +1,10 @@
 import type { ChangeKind } from "@fcalell/ui-core/descriptors";
 import { CHANGE_GLYPH } from "@fcalell/ui-core/list-state";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { changeContentTone, changeMark } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { useWords } from "../../lib/words";
 import { IconBase } from "../icon";
 
 const BOX = "shrink-0 items-center justify-center";

@@ -1,4 +1,7 @@
 import { accepts, fileSize, kindsOf, pickerTypes } from "@fcalell/ui-core/file";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import {
 	FIELD_ERROR_LINE,
@@ -12,14 +15,12 @@ import * as DocumentPicker from "expo-document-picker";
 import { useContext, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
-import { FieldDisabled, FieldError, useFieldName } from "../../lib/field";
+import { FieldError, useFieldName } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import { FadingText, lineIn } from "../../lib/motion";
 import { pickedFromDocument } from "../../lib/picked";
-import { useTouched } from "../../lib/touched";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
 import { Button } from "../button";
-import { Icon } from "../icon";
 import type { FilePickProps } from "./index";
 
 // A field box that is the act: a press anywhere in it opens the system's

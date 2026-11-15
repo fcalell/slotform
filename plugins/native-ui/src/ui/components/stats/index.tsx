@@ -1,7 +1,8 @@
 import type { StatSpec } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { useRow, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { type Datum, endedSentence, paints } from "@fcalell/ui-core/read";
 import {
 	STATS,
 	STATS_CELL,
@@ -16,12 +17,11 @@ import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { navigate, useWarm } from "../../lib/navigate";
 import { inertProps } from "../../lib/paint";
-import { endedSentence, FailedMark, RetryMark, useRow } from "../../lib/read";
+import { FailedMark, RetryMark } from "../../lib/read";
 import { Decoded } from "../../lib/slot";
-import { useWords } from "../../lib/words";
-import { Icon } from "../icon";
-import { CountLinks } from "./count-links";
-import { Meter } from "./meter";
+import { Icon } from "../../parts/icon";
+import { CountLinks } from "../../parts/stats/count-links";
+import { Meter } from "../../parts/stats/meter";
 
 const CLIP = "overflow-hidden";
 // Each cell draws its own top and start hairline; the card's edge is drawn over

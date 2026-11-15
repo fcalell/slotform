@@ -7,6 +7,10 @@ import {
 } from "@fcalell/ui-core/list-state";
 import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { useDrawn } from "@fcalell/ui-core/react/arrive";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useOptions } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	OPTION_CHILDREN,
 	OPTION_GROUP_LABEL,
@@ -26,10 +30,9 @@ import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 import { useHeldDraft } from "../../lib/act";
-import { useDrawn } from "../../lib/arrive";
 import { cn } from "../../lib/cn";
 import { badgesOf } from "../../lib/facts";
-import { FieldDisabled, GroupName } from "../../lib/field";
+import { GroupName } from "../../lib/field";
 import {
 	blockIn,
 	dotIn,
@@ -46,12 +49,11 @@ import {
 	PaintView,
 } from "../../lib/paint";
 import { Press } from "../../lib/press";
-import { OptionsLine, useOptions } from "../../lib/read";
+import { OptionsLine } from "../../lib/read";
 import { Strut } from "../../lib/strut";
-import { useWords } from "../../lib/words";
-import { FactBadge } from "../row/badges";
-import { Leading } from "../row/leading";
-import { HeldCheckbox } from "../switch/checkbox";
+import { FactBadge } from "../../parts/row/badges";
+import { Leading } from "../../parts/row/leading";
+import { HeldCheckbox } from "../../parts/switch/checkbox";
 import type { PickerListBody, PickerListProps } from "./index";
 
 // The row is the target of its box or radio: a press anywhere toggles or

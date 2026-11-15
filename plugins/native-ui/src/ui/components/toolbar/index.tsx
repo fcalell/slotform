@@ -1,14 +1,14 @@
 import type { ToolbarChip, ToolbarSearch } from "@fcalell/ui-core/descriptors";
 import { filterSet, filtersFold } from "@fcalell/ui-core/list-state";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { TOOLBAR, TOOLBAR_CHIPS, TOOLBAR_ROW } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { CHIP_LINES } from "../../lib/chip-lines";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { FieldOwned } from "../../lib/field";
 import { blockIn, FadingView } from "../../lib/motion";
-import { useWords } from "../../lib/words";
 import { Chip } from "../chip";
 import { Input } from "../input";
 import type { PickerMenuProps } from "../picker";

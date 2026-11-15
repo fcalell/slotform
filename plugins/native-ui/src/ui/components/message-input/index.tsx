@@ -3,6 +3,8 @@ import type {
 	Notice,
 	PickedFile,
 } from "@fcalell/ui-core/descriptors";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	field,
 	fieldValue,
@@ -22,15 +24,13 @@ import { Pressable, Text as RNText, TextInput, View } from "react-native";
 import { asAct, useAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { FieldDisabled } from "../../lib/field";
 import { FootReturn } from "../../lib/frame";
 import { FadingView, lineIn } from "../../lib/motion";
 import { pickedFromDocument, pickedFromImage } from "../../lib/picked";
 import { useTokenColor } from "../../lib/theme";
-import { useWords } from "../../lib/words";
+import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
-import { IconButtonBase } from "../button/glyph";
 import { MenuSheet } from "../menu/sheet";
 import { Attachments } from "../message/attachments";
 

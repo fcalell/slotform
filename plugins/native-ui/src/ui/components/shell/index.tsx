@@ -4,6 +4,8 @@ import type {
 	OptionPick,
 	PlaceSpec,
 } from "@fcalell/ui-core/descriptors";
+import { ShellHome } from "@fcalell/ui-core/react/frame";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { placeAt } from "@fcalell/ui-core/route";
 import { tabCount } from "@fcalell/ui-core/tokens";
 import {
@@ -24,16 +26,14 @@ import { cn } from "../../lib/cn";
 import {
 	PlaceName,
 	PlaceRoute,
-	ShellHome,
 	ShellSwitcher,
 	ShellTabs,
 } from "../../lib/frame";
 import { Ink } from "../../lib/ink";
 import { isRoute, navigate, usePathname } from "../../lib/navigate";
 import { Press } from "../../lib/press";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
 import { Count } from "../count";
-import { Icon } from "../icon";
 import { Pane } from "../pane";
 import { Section } from "../section";
 import { FrameHost } from "./host";

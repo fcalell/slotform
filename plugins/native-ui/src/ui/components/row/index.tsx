@@ -5,9 +5,17 @@ import type {
 	Runs,
 } from "@fcalell/ui-core/descriptors";
 import { ROW_TITLE_LINES } from "@fcalell/ui-core/fold";
-import { isStatus, valueCut } from "@fcalell/ui-core/list-state";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { paints } from "@fcalell/ui-core/read";
+import {
+	isAbsent,
+	isCopy,
+	isStatus,
+	titleWords,
+	valueCut,
+} from "@fcalell/ui-core/list-state";
+import { useClock } from "@fcalell/ui-core/react/clock";
+import { useRow, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { endedSentence, paints } from "@fcalell/ui-core/read";
 import { isCurrent } from "@fcalell/ui-core/route";
 import { filled, isCode, META_TAIL, runsOf } from "@fcalell/ui-core/runs";
 import { sameBy } from "@fcalell/ui-core/same-by";
@@ -37,7 +45,6 @@ import {
 import { memo, type ReactNode, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { ageShort } from "../../lib/age";
-import { useClock } from "../../lib/clock";
 import { cn } from "../../lib/cn";
 import { CodeCut, RunText } from "../../lib/code";
 import { badgesOf, loneCode } from "../../lib/facts";
@@ -45,16 +52,25 @@ import { FieldError } from "../../lib/field";
 import { blockIn, FadingText, FadingView, lineIn } from "../../lib/motion";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
-import { endedSentence, FailedMark, RetryMark, useRow } from "../../lib/read";
-import { useWords } from "../../lib/words";
-import { IconButtonBase } from "../button/glyph";
+import { FailedMark, RetryMark } from "../../lib/read";
+import { IconButtonBase } from "../../parts/button/glyph";
+import { BadgeLine, RowValue } from "../../parts/row/badges";
+import {
+	First,
+	Leading,
+	RailWash,
+	type RowTree,
+	TreeFold,
+	TreeLead,
+} from "../../parts/row/leading";
+import { EndMark } from "../../parts/row/marks";
+import { StatusBase } from "../../parts/status/base";
+import { ChangeMark } from "../../parts/status/change";
+import { StatusDot } from "../../parts/status/dot";
 import { HeldInput } from "../input/base";
 import { MenuBase } from "../menu/base";
 import { HeldPicker } from "../picker/base";
 import type { RowItem as RowItemData } from "../section";
-import { StatusBase } from "../status/base";
-import { ChangeMark } from "../status/change";
-import { StatusDot } from "../status/dot";
 import { HeldSwitch } from "../switch/base";
 import {
 	ActButton,
@@ -65,17 +81,7 @@ import {
 	RowMore,
 	useReasonLine,
 } from "./acts";
-import { BadgeLine, RowValue } from "./badges";
-import { CopyAct, IdValue, isAbsent, isCopy, titleWords } from "./fact";
-import {
-	First,
-	Leading,
-	RailWash,
-	type RowTree,
-	TreeFold,
-	TreeLead,
-} from "./leading";
-import { EndMark } from "./marks";
+import { CopyAct, IdValue } from "./fact";
 import { RowProgress } from "./progress";
 
 // No facts: one list, so a row without any reads the same selections each render.

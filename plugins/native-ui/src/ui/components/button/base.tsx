@@ -1,4 +1,6 @@
 import { timings } from "@fcalell/ui-core/paint";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
 import {
 	type ButtonAct,
 	button,
@@ -16,13 +18,11 @@ import { Ink } from "../../lib/ink";
 import { FadingText, lineIn } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
-import { ReasonHostContext, usePressed } from "../../lib/reason";
-import { useTouched } from "../../lib/touched";
 
-import { CountBase } from "../count/base";
-import { Icon } from "../icon";
+import { CountBase } from "../../parts/count/base";
+import { Icon } from "../../parts/icon";
+import { Spinner } from "../../parts/spinner";
 import { ActSheet } from "../sheet/act";
-import { Spinner } from "../spinner";
 import type { ButtonRunProps } from "./index";
 
 const STACK = "items-start gap-gap";

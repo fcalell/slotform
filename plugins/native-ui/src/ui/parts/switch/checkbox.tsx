@@ -1,5 +1,6 @@
 import { STATES } from "@fcalell/ui-core/controls";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import type { Datum } from "@fcalell/ui-core/read";
 import { ICON_STROKE } from "@fcalell/ui-core/tokens";
 import { CHECKBOX_MARK, checkbox } from "@fcalell/ui-core/variants";
@@ -12,7 +13,6 @@ import Svg, { Path } from "react-native-svg";
 import { useResolveClassNames } from "uniwind";
 import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
-import { FieldDisabled } from "../../lib/field";
 import { markIn, markOut, usePress } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { Wash } from "../../lib/press";

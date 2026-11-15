@@ -1,4 +1,6 @@
 import type { EitherPick, Rule, RuleValue } from "@fcalell/ui-core/descriptors";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { isTyped, marked, pairSet, ruleName } from "@fcalell/ui-core/rules";
 import {
 	RULE_CARD,
@@ -10,15 +12,13 @@ import { View } from "react-native";
 import { type Act, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { FieldOwned } from "../../lib/field";
 import { Ink } from "../../lib/ink";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
+import { SheetEntries } from "../../parts/section/card";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
-import { Icon } from "../icon";
 import { HeldInput } from "../input/base";
 import { Picker } from "../picker";
-import { SheetEntries } from "../section/card";
 import { Text } from "../text";
 
 const STACK = "items-start gap-gap";

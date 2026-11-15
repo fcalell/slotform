@@ -1,8 +1,8 @@
 import type { Leave } from "@fcalell/ui-core/leave";
+import { askDiscard } from "@fcalell/ui-core/react/confirm";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { useNavigation } from "expo-router";
 import { useEffect } from "react";
-import { ask } from "./confirm";
-import { useWords } from "./words";
 
 // While a `Form` stands edited, leaving its screen (the back, a swipe, a
 // navigate) asks once: discard the edit, or keep editing. The screen's
@@ -18,21 +18,9 @@ export function useLeaveGuard(leave: Leave, guarded: boolean): void {
 			if (!leave.asks()) return;
 			event.preventDefault();
 			const { action } = event.data;
-			void leave
-				.attempt(() =>
-					ask({
-						title: words.discardEdit,
-						sentence: words.editUnsaved,
-						act: {
-							label: words.discard,
-							destructive: true,
-						},
-						cancel: words.keepEditing,
-					}),
-				)
-				.then((go) => {
-					if (go) navigation.dispatch(action);
-				});
+			void leave.attempt(() => askDiscard(words)).then((go) => {
+				if (go) navigation.dispatch(action);
+			});
 		});
 	}, [leave, guarded, words, navigation]);
 }

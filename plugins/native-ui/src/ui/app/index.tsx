@@ -1,9 +1,10 @@
+import { WordsProvider } from "@fcalell/ui-core/react/words";
+import type { Words } from "@fcalell/ui-core/tokens";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import type { ReactNode } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { type Words, WordsProvider } from "../lib/words";
 
 const FLEX_FILL = { flex: 1 } as const;
 

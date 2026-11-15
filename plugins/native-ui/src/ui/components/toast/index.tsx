@@ -1,6 +1,7 @@
 import { TOAST_GLYPHS } from "@fcalell/ui-core/banner";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
 import { tuned } from "@fcalell/ui-core/paint";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { SPACE_BASE, SPACING_RATIO, type Tone } from "@fcalell/ui-core/tokens";
 import { TOAST, text, toastContentTone } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
@@ -21,10 +22,9 @@ import { Ink } from "../../lib/ink";
 import { curve } from "../../lib/motion";
 import { RaisedGround } from "../../lib/raised";
 import { dismissToast, ToastEntry } from "../../lib/toast";
-import { useWords } from "../../lib/words";
+import { IconButtonBase } from "../../parts/button/glyph";
+import { Icon } from "../../parts/icon";
 import { ButtonBase } from "../button/base";
-import { IconButtonBase } from "../button/glyph";
-import { Icon } from "../icon";
 
 // The phone is touch: the toast is as wide as its words (a short report is a
 // pill, a long one fills the layer) and centred, as the web draws it on touch.

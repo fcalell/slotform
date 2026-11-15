@@ -1,6 +1,8 @@
+import type { Offered } from "@fcalell/ui-core/acts";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { FrameHolds } from "@fcalell/ui-core/react/read";
+import { useDrawn } from "@fcalell/ui-core/react/arrive";
+import { FrameHolds, hasBody, useFrame } from "@fcalell/ui-core/react/read";
 import { type Datum, NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
 import {
 	FOOT_DOCKED,
@@ -11,8 +13,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef } from "react";
 import { View } from "react-native";
-import type { IconAct, MenuEntry, Offered } from "../../lib/act";
-import { useDrawn } from "../../lib/arrive";
+import type { IconAct, MenuEntry } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
@@ -26,12 +27,12 @@ import {
 import { Lifted, Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
 import { useParentRoute } from "../../lib/navigate";
-import { FrameBody, hasBody, useFrame } from "../../lib/read";
+import { FrameBody } from "../../lib/read";
 import { useToasts } from "../../lib/toast";
+import { ToastRoom } from "../../parts/toast/room";
 import { ItemHeaderBase, type ItemHeaderParts } from "../item-header/base";
 import type { SheetProps } from "../sheet";
 import { SheetDocked } from "../sheet/docked";
-import { ToastRoom } from "../toast/room";
 import { PaneHead } from "./head";
 
 const PANE = "flex-1";

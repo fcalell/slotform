@@ -5,8 +5,8 @@ import { useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
+import { Icon } from "../../parts/icon";
 import { Avatar } from "../avatar";
-import { Icon } from "../icon";
 import { PickSheet, useOptionGroups } from "../picker/sheet";
 
 const TRIGGER = "flex-row items-center min-w-0";

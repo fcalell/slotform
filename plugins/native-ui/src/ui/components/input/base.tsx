@@ -1,5 +1,8 @@
 import { commitMoment } from "@fcalell/ui-core/commit";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	FIELD_UNIT,
 	FIGURES,
@@ -18,7 +21,6 @@ import { useCaretAtEnd } from "../../lib/caret";
 import { cn } from "../../lib/cn";
 import {
 	type CellFit,
-	FieldDisabled,
 	FieldError,
 	FieldFocus,
 	type InlineFit,
@@ -28,10 +30,8 @@ import {
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, PaintPressable } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
-import { useTouched } from "../../lib/touched";
-import { useWords } from "../../lib/words";
-import { IconButtonBase } from "../button/glyph";
-import { Icon } from "../icon";
+import { IconButtonBase } from "../../parts/button/glyph";
+import { Icon } from "../../parts/icon";
 import { ActSheet } from "../sheet/act";
 import type { InputKind, TextInputProps } from "./index";
 

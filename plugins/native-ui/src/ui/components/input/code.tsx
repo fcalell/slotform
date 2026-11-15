@@ -1,6 +1,8 @@
 import { drew, isThenable } from "@fcalell/ui-core/acts";
 import { useRun } from "@fcalell/ui-core/react/acts";
 import { usePort } from "@fcalell/ui-core/react/port";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	FIELD_ERROR_LINE,
 	OTP,
@@ -18,9 +20,7 @@ import {
 	useFieldName,
 } from "../../lib/field";
 import { FadingText, lineIn } from "../../lib/motion";
-import { useTouched } from "../../lib/touched";
-import { useWords } from "../../lib/words";
-import { Spinner } from "../spinner";
+import { Spinner } from "../../parts/spinner";
 import type { CodeInputProps } from "./index";
 
 // A one-time code: `length` boxes over one string of digits, standing at the

@@ -1,34 +1,10 @@
-import type { RowTitle } from "@fcalell/ui-core/descriptors";
-import { partText } from "@fcalell/ui-core/runs";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { FIGURES, text } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { useCopy } from "../../lib/copy";
 import { Decoded } from "../../lib/slot";
-import { useWords } from "../../lib/words";
 import { Button } from "../button";
-
-/** Whether a title is the absent word. */
-export function isAbsent(
-	value: RowTitle | undefined,
-): value is { absent: string } {
-	return typeof value === "object" && value !== null && "absent" in value;
-}
-
-/** Whether a title is a code the row copies: an identifier. */
-export function isCopy(
-	value: RowTitle | undefined,
-): value is { code: string; copy: true } {
-	return typeof value === "object" && value !== null && "copy" in value;
-}
-
-/** The words a title names, which name the row where it has no label. */
-export function titleWords(title: RowTitle): string {
-	if (isAbsent(title)) return title.absent;
-	if (typeof title === "object" && !Array.isArray(title) && "tone" in title)
-		return title.label ?? "";
-	return partText(title as Parameters<typeof partText>[0]);
-}
 
 // An identifier is the mono: too long for its room it cuts in its middle, its
 // stem truncating to the room and its tail standing whole (`valueCut`).

@@ -1,4 +1,5 @@
 import type { Attachment } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	IMAGE_REMOVE,
 	IMAGE_REMOVE_DISC,
@@ -11,9 +12,8 @@ import { CHIP_LINES } from "../../lib/chip-lines";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
 import { Chip } from "../chip";
-import { Icon } from "../icon";
 import { Image } from "../image";
 
 // Items align to the start, so a chip keeps its own height beside a thumbnail.

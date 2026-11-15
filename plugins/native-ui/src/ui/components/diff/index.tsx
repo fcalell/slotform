@@ -14,7 +14,8 @@ import {
 	tokenParts,
 } from "@fcalell/ui-core/line-diff";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import { counted } from "@fcalell/ui-core/tokens";
 import {
@@ -30,8 +31,7 @@ import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
-import { FrameBody, FrameLine, useFrame } from "../../lib/read";
-import { useWords } from "../../lib/words";
+import { FrameBody, FrameLine } from "../../lib/read";
 import { WordDiff } from "./word";
 
 const FRAME = "min-w-0 overflow-hidden";

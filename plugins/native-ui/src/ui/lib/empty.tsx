@@ -10,7 +10,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { ButtonBase } from "../components/button/base";
-import { Icon } from "../components/icon";
+import { Icon } from "../parts/icon";
 import type { Act } from "./act";
 import { asAct, wiringOf } from "./act";
 import { cn } from "./cn";

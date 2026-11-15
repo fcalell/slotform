@@ -1,4 +1,5 @@
 import { trackTime } from "@fcalell/ui-core/player";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	DOCK,
 	DOCK_BAR,
@@ -15,7 +16,6 @@ import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { player, usePlayer, usePlayerTime } from "../../lib/player";
 import { Press } from "../../lib/press";
-import { useWords } from "../../lib/words";
 import { Button } from "../button";
 import { PictureTile } from "../image/base";
 import { Sheet } from "../sheet";

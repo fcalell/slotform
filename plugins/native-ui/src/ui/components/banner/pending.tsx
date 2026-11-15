@@ -1,10 +1,12 @@
 import {
 	type PendingRun,
-	pendingRun,
 	pendingShare,
 	timeLeft,
 } from "@fcalell/ui-core/clock";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
+import { usePending } from "@fcalell/ui-core/react/clock";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
 import {
 	PENDING_BAR,
 	PENDING_FILL,
@@ -13,7 +15,7 @@ import {
 	PENDING_TRACK,
 	text,
 } from "@fcalell/ui-core/variants";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
 import Animated, {
 	cancelAnimation,
@@ -27,15 +29,12 @@ import Animated, {
 import { withUniwind } from "uniwind";
 import type { Act } from "../../lib/act";
 import { asAct, wiringOf } from "../../lib/act";
-import { useClock } from "../../lib/clock";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 
-import { ReasonHostContext, usePressed } from "../../lib/reason";
-import { useTouched } from "../../lib/touched";
+import { Spinner } from "../../parts/spinner";
 import { ButtonBase } from "../button/base";
-import { Spinner } from "../spinner";
 
 const TRACK = "relative flex-row items-center min-w-0 overflow-hidden";
 // The elapsed share: the track's full width, scaled from its start to the
@@ -78,19 +77,6 @@ export function Fill(props: { run: PendingRun; now: number }) {
 			style={[{ transformOrigin: "left" }, scaled]}
 		/>
 	);
-}
-
-// The run toward `until` and the clock's now. The shared clock ticks until the
-// end, never past it; a moved `until` carries the run on from the share it
-// reached. Unset, there is no run.
-export function usePending(until: Date | undefined) {
-	const end = until?.getTime();
-	const now = useClock((at) => at, end ?? 0);
-	const [run, setRun] = useState(() =>
-		end === undefined ? undefined : pendingRun(end, now),
-	);
-	if (end !== undefined && run?.end !== end) setRun(pendingRun(end, now, run));
-	return { end, run, now };
 }
 
 export interface PendingBarProps extends Closed {

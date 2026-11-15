@@ -22,10 +22,10 @@ import { RunText } from "../../lib/code";
 import { Ink } from "../../lib/ink";
 import { moment } from "../../lib/moment";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
-import { Turn } from "../../lib/turn";
-import { Icon } from "../icon";
+import { Icon } from "../../parts/icon";
+import { PaintedProse } from "../../parts/prose/painted";
+import { Turn } from "../../parts/turn";
 import { Prose } from "../prose";
-import { PaintedProse } from "../prose/painted";
 import { RowBase } from "../row";
 import { Attachments } from "./attachments";
 

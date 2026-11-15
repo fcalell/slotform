@@ -57,13 +57,11 @@
 		"./components/toolbar": "./src/ui/components/toolbar/index.tsx",
 		"./lib/act": "./src/ui/lib/act.ts",
 		"./lib/age": "./src/ui/lib/age.ts",
-		"./lib/confirm": "./src/ui/lib/confirm.ts",
 		"./lib/not-found": "./src/ui/lib/not-found.tsx",
 		"./lib/player": "./src/ui/lib/player.ts",
 		"./lib/room": "./src/ui/lib/room.tsx",
 		"./lib/theme": "./src/ui/lib/theme.ts",
-		"./lib/toast": "./src/ui/lib/toast.ts",
-		"./lib/words": "./src/ui/lib/words.tsx"
+		"./lib/toast": "./src/ui/lib/toast.ts"
 	},
 	"files": [
 		"dist",

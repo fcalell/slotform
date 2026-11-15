@@ -1,5 +1,6 @@
 import { toggled, treeRows } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
 import { HAIRLINE } from "@fcalell/ui-core/variants";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
@@ -11,7 +12,6 @@ import {
 	useState,
 } from "react";
 import { View } from "react-native";
-import { useArrivals } from "../../lib/arrive";
 import { cn } from "../../lib/cn";
 import { between } from "../../lib/group";
 import { MoreRow } from "../../lib/more";

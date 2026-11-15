@@ -5,13 +5,10 @@ import type {
 	RowMark,
 	Run,
 } from "@fcalell/ui-core/descriptors";
-import {
-	isChipFact,
-	isMarkFact,
-	isStatusFact,
-	isWarningFact,
-} from "@fcalell/ui-core/list-state";
+import { factKey, isMarkFact, isStatusFact } from "@fcalell/ui-core/list-state";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import { filled, META_TAIL, partRuns, partText } from "@fcalell/ui-core/runs";
 import {
@@ -25,7 +22,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Fragment } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
-import { useArrivals } from "../../lib/arrive";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { badgesOf, says, wordless } from "../../lib/facts";
@@ -35,12 +31,11 @@ import { blockIn, FadingView } from "../../lib/motion";
 import { navigate, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { Strut } from "../../lib/strut";
-import { useWords } from "../../lib/words";
-import { Icon } from "../icon";
+import { Icon } from "../../parts/icon";
+import { Badge, BadgeWords, FactBadge } from "../../parts/row/badges";
+import { EndMark } from "../../parts/row/marks";
 import { PictureTile } from "../image/base";
 import { HeldPicker } from "../picker/base";
-import { Badge, BadgeWords, FactBadge } from "../row/badges";
-import { EndMark } from "../row/marks";
 
 // A quiet fact (a mark with no words) stands at the end of the name's first
 // line, as a row's stands in its end group: the name's row is the name and the
@@ -88,19 +83,6 @@ export interface ItemHeaderParts {
 
 // A mark that does not hold (a ring that is false) says no fact.
 const isMark = isMarkFact;
-
-function factKey(fact: RecordFact): string {
-	if (typeof fact === "object" && "pick" in fact) return fact.pick.label;
-	if (typeof fact === "object" && ("onOpen" in fact || "href" in fact))
-		return partText(fact.label);
-	if (isStatusFact(fact)) return `${fact.tone} ${fact.label ?? ""}`;
-	if (isWarningFact(fact)) return `warning ${fact.warning}`;
-	if (isChipFact(fact)) return `${fact.family} ${fact.label}`;
-	if (isMarkFact(fact)) return `mark ${fact.label}`;
-	if (typeof fact === "object" && "count" in fact)
-		return `${fact.count} ${fact.label}`;
-	return partText(fact);
-}
 
 function FactPart({
 	fact,

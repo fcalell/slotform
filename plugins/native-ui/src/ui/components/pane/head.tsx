@@ -1,7 +1,13 @@
+import { type Offered, offered } from "@fcalell/ui-core/acts";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	useDrawsFailure,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
@@ -14,23 +20,16 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { View } from "react-native";
-import {
-	asIconAct,
-	type IconAct,
-	type MenuEntry,
-	type Offered,
-	offered,
-} from "../../lib/act";
+import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { ShellSwitcher } from "../../lib/frame";
 import { navigate } from "../../lib/navigate";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
-import { BusyMark, endedItems, type Frame, FrameLine } from "../../lib/read";
+import { BusyMark, endedItems, FrameLine } from "../../lib/read";
 import type { Route } from "../../lib/route";
-import { useWords } from "../../lib/words";
+import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
-import { IconButtonBase } from "../button/glyph";
 import { MenuBase } from "../menu/base";
 import { SwitcherPick } from "../shell/switcher";
 

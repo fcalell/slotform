@@ -825,7 +825,7 @@ the shift check reports that move and fails any other.
 ## Words are the config's, sentences are props
 
 A word a component draws on its own comes from `nativeUi({ words })`, read with
-`useWords()` from `@fcalell/plugin-native-ui/lib/words`; every sentence is a prop.
+`useWords()` from `@fcalell/ui-core/react/words`; every sentence is a prop.
 
 ## A text prop takes one of four sizes
 

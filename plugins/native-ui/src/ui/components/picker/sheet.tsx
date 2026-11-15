@@ -7,6 +7,7 @@ import {
 	type PickOptions,
 	SEARCH_PAST,
 } from "@fcalell/ui-core/pick";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	HAIRLINE,
@@ -24,14 +25,13 @@ import type { IconAct } from "../../lib/act";
 import { asIconAct, useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
+import { StatusDot } from "../../parts/status/dot";
 import { Avatar } from "../avatar";
 import { Chip } from "../chip";
-import { Icon } from "../icon";
 import { Input } from "../input";
 import { ActSheet } from "../sheet/act";
 import { SheetBase } from "../sheet/base";
-import { StatusDot } from "../status/dot";
 
 // The rows stand a pair under the head, and under the search fixed above
 // them, which stands a pair under the head.

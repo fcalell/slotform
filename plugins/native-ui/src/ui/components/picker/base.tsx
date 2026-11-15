@@ -2,6 +2,8 @@ import type { Option } from "@fcalell/ui-core/descriptors";
 import { optionLeading, toggled } from "@fcalell/ui-core/list-state";
 import { pickCurrent, type Several } from "@fcalell/ui-core/pick";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { useOptions } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	CHIPS_RUN,
@@ -27,11 +29,10 @@ import {
 	PaintPressable,
 	PaintView,
 } from "../../lib/paint";
-import { OptionsLine, useOptions } from "../../lib/read";
-import { Turn } from "../../lib/turn";
-import { useWords } from "../../lib/words";
+import { OptionsLine } from "../../lib/read";
+import { Icon } from "../../parts/icon";
+import { Turn } from "../../parts/turn";
 import { Chip } from "../chip";
-import { Icon } from "../icon";
 import { Status } from "../status";
 import type { PickerMenuProps, PickOneProps, PickSeveralProps } from "./index";
 import { NO_OPTIONS, PickSheet, useOptionGroups } from "./sheet";

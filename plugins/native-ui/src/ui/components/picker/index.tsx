@@ -6,13 +6,15 @@ import type {
 	OptionGroup,
 } from "@fcalell/ui-core/descriptors";
 import type { OptionSlots } from "@fcalell/ui-core/list-state";
+import { linked } from "@fcalell/ui-core/pick";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
 import type { Datum, Fielded as WithText } from "@fcalell/ui-core/read";
 import type { OptionText } from "@fcalell/ui-core/reason";
 import type { PickerFit } from "@fcalell/ui-core/variants";
 import { type ReactElement, type ReactNode, use } from "react";
 import type { IconAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { type Fielded, FieldOwned } from "../../lib/field";
+import type { Fielded } from "../../lib/field";
 import { FieldBody } from "../form-field";
 import { HeldPicker } from "./base";
 import { HeldList } from "./list";
@@ -185,12 +187,6 @@ export type PickerProps<V extends string | null = string, T = unknown> =
 	| PickerListProps<Extract<V, string>, T>
 	| PickerSegmentsProps<Extract<V, string>>
 	| PickerTabsProps;
-
-// Whether the segments are links: the tabs of a place.
-const linked = (
-	options: readonly (ChoiceSegment<string> | LinkSegment)[],
-): options is readonly LinkSegment[] =>
-	options.some((segment) => segment.href !== undefined);
 
 // The pick of a place's options. Placed alone, the field fit, a list and
 // choice segments draw their field (the label over them, the description or

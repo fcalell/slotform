@@ -1,4 +1,5 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
+import { isRun } from "@fcalell/ui-core/runs";
 import { type TextRole, text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText } from "react-native";
@@ -11,14 +12,6 @@ export interface TextProps extends Closed {
 	/** The text (text; wraps): words, or runs, where a `{ strong }` run is words at weight 500 and a `{ code }` run a span of code. */
 	children?: ReactNode | Run | Runs;
 }
-
-// Runs are strings and objects of one of the run kinds, which a React element
-// never is.
-const isRun = (part: unknown): part is Run =>
-	typeof part === "string" ||
-	(typeof part === "object" &&
-		part !== null &&
-		("strong" in part || "code" in part || "quoted" in part));
 
 function runsIn(children: TextProps["children"]): Runs | undefined {
 	if (Array.isArray(children) && children.every(isRun)) return children;

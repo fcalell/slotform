@@ -1,4 +1,5 @@
 import { paintText } from "@fcalell/ui-core/paint";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	CHIP_LABEL,
@@ -13,7 +14,6 @@ import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 import { Press } from "../../lib/press";
-import { useWords } from "../../lib/words";
 import { Icon } from "../icon";
 
 // A data value's tag, an outlined pill with a dot in its family's hue (the

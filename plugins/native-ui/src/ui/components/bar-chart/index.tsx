@@ -23,6 +23,7 @@ import {
 	unitSymbol,
 } from "@fcalell/ui-core/chart";
 import { formatterFor } from "@fcalell/ui-core/format";
+import { useCollection } from "@fcalell/ui-core/react/read";
 import type { Datum } from "@fcalell/ui-core/read";
 import { CHART_SERIES } from "@fcalell/ui-core/tokens";
 import {
@@ -64,7 +65,7 @@ import {
 	PaintText,
 	PaintView,
 } from "../../lib/paint";
-import { FrameBody, FrameLine, useCollection } from "../../lib/read";
+import { FrameBody, FrameLine } from "../../lib/read";
 import { Decoded } from "../../lib/slot";
 import { Strut } from "../../lib/strut";
 import { Swap } from "../../lib/swap";

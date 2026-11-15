@@ -1,4 +1,4 @@
-import { drew, type Issue } from "@fcalell/ui-core/acts";
+import { drew, type Issue, placed } from "@fcalell/ui-core/acts";
 import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
 import {
 	type Can,
@@ -16,6 +16,7 @@ import {
 	type OutputOf,
 	type PickWords,
 	type ProcedureCall,
+	pathOf,
 	pickWords,
 	readPicked,
 	requiredReason,
@@ -24,6 +25,7 @@ import {
 } from "@fcalell/ui-core/form";
 import { usePort } from "@fcalell/ui-core/react/port";
 import { useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
@@ -34,11 +36,10 @@ import {
 import { registeredScope } from "@fcalell/ui-core/scope";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { type Act, placed } from "../../lib/act";
+import type { Act } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import type { Empty } from "../../lib/empty";
 import { toast } from "../../lib/toast";
-import { useWords } from "../../lib/words";
 import { FormField } from "../form-field";
 import { Input } from "../input";
 import { FormBody, type FormFrameProps } from "./base";
@@ -99,15 +100,6 @@ export type FormProps<P extends ProcedureCall = ProcedureCall> = FormBase<P> &
 				groups: readonly FormGroupOf<InputOf<P>, Options, Datum<string>>[];
 		  }
 	);
-
-// The path a procedure goes by: its mutation key's first part.
-function pathOf(act: ProcedureCall): string {
-	const [path] = act.mutationKey();
-	if (!Array.isArray(path) || path.length === 0) {
-		throw new Error("Form: `act` is not a procedure of the client");
-	}
-	return path.join(".");
-}
 
 type Draft = Readonly<Record<string, Held>>;
 type Values = Readonly<Record<string, unknown>>;

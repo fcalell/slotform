@@ -1,12 +1,12 @@
 import { isThenable } from "@fcalell/ui-core/acts";
-import { useState } from "react";
 import {
 	type ConfirmEntry,
 	dismissConfirmation,
 	useConfirmations,
-} from "../../lib/confirm";
+} from "@fcalell/ui-core/react/confirm";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { useState } from "react";
 import { FieldFocus } from "../../lib/field";
-import { useWords } from "../../lib/words";
 import { FormField } from "../form-field";
 import { Input } from "../input";
 import { SheetBase } from "./base";

@@ -1,7 +1,10 @@
+import { type Offered, offered } from "@fcalell/ui-core/acts";
 import { GLYPHS } from "@fcalell/ui-core/banner";
 import { timeLeft } from "@fcalell/ui-core/clock";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
+import { usePending } from "@fcalell/ui-core/react/clock";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason } from "@fcalell/ui-core/read";
 import { partRuns } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
@@ -14,13 +17,7 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
-import {
-	type Act,
-	asAct,
-	type Offered,
-	offered,
-	wiringOf,
-} from "../../lib/act";
+import { type Act, asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
@@ -29,11 +26,10 @@ import { blockIn, FadingView } from "../../lib/motion";
 import { inertProps } from "../../lib/paint";
 import { SoftGround } from "../../lib/raised";
 import { Strut } from "../../lib/strut";
-import { useWords } from "../../lib/words";
+import { Icon, IconBase } from "../../parts/icon";
+import { Spinner } from "../../parts/spinner";
 import { ButtonBase } from "../button/base";
-import { Icon, IconBase } from "../icon";
-import { Spinner } from "../spinner";
-import { Fill, usePending } from "./pending";
+import { Fill } from "./pending";
 
 const BOX = "justify-center";
 // With a deadline the strip holds the fill along its foot, clipped to its radius.

@@ -1,7 +1,7 @@
+import { useWords } from "@fcalell/ui-core/react/words";
 import * as Clipboard from "expo-clipboard";
 import { useEffect, useState } from "react";
 import { toast } from "./toast";
-import { useWords } from "./words";
 
 const COPIED_MS = 2000;
 

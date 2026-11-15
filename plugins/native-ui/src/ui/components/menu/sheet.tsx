@@ -10,7 +10,7 @@ import {
 import { Pressable, Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { Icon } from "../icon";
+import { Icon } from "../../parts/icon";
 import { SheetBase } from "../sheet/base";
 
 const ROW = "flex-row items-center";

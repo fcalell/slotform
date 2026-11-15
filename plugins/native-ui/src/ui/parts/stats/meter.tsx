@@ -2,7 +2,9 @@ import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { levelOf, type MeterLevel } from "@fcalell/ui-core/list-state";
 import { paintText } from "@fcalell/ui-core/paint";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import { useRow, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { endedSentence } from "@fcalell/ui-core/read";
 import type { Datum } from "@fcalell/ui-core/read";
 import {
 	METER,
@@ -27,9 +29,8 @@ import {
 	PaintText,
 	PaintView,
 } from "../../lib/paint";
-import { endedSentence, FailedMark, RetryMark, useRow } from "../../lib/read";
+import { FailedMark, RetryMark } from "../../lib/read";
 import { Decoded } from "../../lib/slot";
-import { useWords } from "../../lib/words";
 import { CountLinks } from "./count-links";
 
 const STACK = "relative min-w-0";

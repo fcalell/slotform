@@ -1,6 +1,9 @@
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
 import { text } from "@fcalell/ui-core/variants";
@@ -10,12 +13,9 @@ import type { Act, IconAct, MenuEntry } from "../../lib/act";
 import { asIconAct, wiringOf } from "../../lib/act";
 import { FadingText, lineIn } from "../../lib/motion";
 import { moreMenu } from "../../lib/read";
-import { ReasonHostContext, usePressed } from "../../lib/reason";
-import { useTouched } from "../../lib/touched";
-import { useWords } from "../../lib/words";
+import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
-import { IconButtonBase } from "../button/glyph";
 import { MenuBase } from "../menu/base";
 
 const NOOP = () => {};

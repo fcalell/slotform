@@ -12,13 +12,13 @@ Each roster component is imported from its own subpath, its name in kebab case:
 import { Section } from "@fcalell/plugin-native-ui/components/section";
 import { Pane } from "@fcalell/plugin-native-ui/components/pane";
 import { toast } from "@fcalell/plugin-native-ui/lib/toast";
-import { useWords } from "@fcalell/plugin-native-ui/lib/words";
+import { useWords } from "@fcalell/ui-core/react/words";
 ```
 
 A component's props, each with what it draws on the phone, are its props type in
 `node_modules/@fcalell/plugin-native-ui/src/ui/components/<dir>/index.tsx`.
 
-`toast(sentence, { tone, act })` queues a toast for what no act started (an act's `done` toasts its own; `tone` how the thing it reports ended: `done` by default, `attention` or `failed`) and `confirm(confirmation)` (`lib/confirm`) asks
+`toast(sentence, { tone, act })` queues a toast for what no act started (an act's `done` toasts its own; `tone` how the thing it reports ended: `done` by default, `attention` or `failed`) and `confirm(confirmation)` (`@fcalell/ui-core/react/confirm`) asks
 for a decision no act starts (an act's `confirm` asks its own); the `Shell` draws each decision as a bottom sheet and the toasts at the screen's
 foot, over any open sheet. `age(moment, now)` (`lib/age`) words an ISO moment as its age from `now`
 ("2 minutes ago") and `ageShort(moment, now)` in its short form ("2 min"). `setTheme("light" | "dark" | "system")` (`lib/theme`) switches the mode at runtime. The

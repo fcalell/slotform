@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { MenuEntry } from "../../lib/act";
 import { asItem, useAct } from "../../lib/act";
-import { IconButtonBase } from "../button/glyph";
+import { IconButtonBase } from "../../parts/button/glyph";
 import { ActSheet } from "../sheet/act";
 import { MenuSheet } from "./sheet";
 

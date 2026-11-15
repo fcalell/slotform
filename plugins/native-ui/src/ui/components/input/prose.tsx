@@ -1,6 +1,8 @@
 import { commitMoment } from "@fcalell/ui-core/commit";
 import { wordCount } from "@fcalell/ui-core/controls";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useTouched } from "@fcalell/ui-core/react/touched";
 import {
 	fieldValue,
 	TEXT_AREA_VALUE,
@@ -12,10 +14,9 @@ import { Text as RNText, TextInput, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { useCaretAtEnd } from "../../lib/caret";
 import { cn } from "../../lib/cn";
-import { FieldDisabled, FieldError, useFieldName } from "../../lib/field";
+import { FieldError, useFieldName } from "../../lib/field";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
-import { useTouched } from "../../lib/touched";
 
 import type { ProseProps } from "./index";
 

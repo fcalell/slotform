@@ -1,5 +1,11 @@
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import {
+	TouchedContext,
+	usePageTurn,
+	useTouchState,
+} from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { dockedBodyMax } from "@fcalell/ui-core/tokens";
 import {
 	DOCKED_FLOOR_ROWS,
@@ -18,8 +24,6 @@ import { type FootRegionValue, FootReturn, tokenPx } from "../../lib/frame";
 import { Scroll, type ScrollRef } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
 import { useCSSVariable } from "../../lib/theme";
-import { TouchedContext, usePageTurn, useTouchState } from "../../lib/touched";
-import { useWords } from "../../lib/words";
 import { ActionBarBase } from "../action-bar/base";
 import { Button } from "../button";
 import { type FormProps, useDerivedForm } from "../form";

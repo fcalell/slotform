@@ -1,4 +1,5 @@
 import type { Tone } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { STATUS, STATUS_LABEL, statusDot } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
@@ -10,7 +11,6 @@ import {
 	PaintText,
 	PaintView,
 } from "../../lib/paint";
-import { useWords } from "../../lib/words";
 import { StatusDot } from "./dot";
 
 const BOX = "flex-row items-center min-w-0";

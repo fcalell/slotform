@@ -1,4 +1,5 @@
 import { useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	IMAGE_CLOSE,
@@ -19,9 +20,8 @@ import {
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
-import { useWords } from "../../lib/words";
+import { Icon } from "../../parts/icon";
 import { Button } from "../button";
-import { Icon } from "../icon";
 import { SheetBase } from "../sheet/base";
 
 // The picture and its full view, which an Image draws once and a Gallery once

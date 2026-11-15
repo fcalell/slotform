@@ -1,4 +1,5 @@
 import { stepStateOf } from "@fcalell/ui-core/list-state";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import {
 	STEP_COUNT,
@@ -9,7 +10,6 @@ import {
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { useWords } from "../../lib/words";
 
 const STACK = "min-w-0";
 const SEGMENTS = "flex-row";

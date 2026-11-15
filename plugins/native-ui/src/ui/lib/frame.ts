@@ -1,4 +1,4 @@
-import type { LinkAct, OptionPick } from "@fcalell/ui-core/descriptors";
+import type { OptionPick } from "@fcalell/ui-core/descriptors";
 import { DOCKED_LOG_FLOOR_ROWS } from "@fcalell/ui-core/variants";
 import {
 	createContext,
@@ -54,11 +54,6 @@ export function useToastBox() {
 	};
 	return { ref: box, onLayout };
 }
-
-// The way to the first of the Shell's places that is an address of the app:
-// where the page for an address nothing serves leads. `undefined` outside a
-// Shell, which is how that page knows whether it stands in one.
-export const ShellHome = createContext<LinkAct | undefined>(undefined);
 
 // The route of the Shell's current place, where a read with no Pane's `back`
 // around it leads back.
