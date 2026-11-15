@@ -2,6 +2,8 @@ import Database from "better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 
+// One cache serves every TSchema; each caller's schema is its own, so the
+// lookup casts the client back.
 const cache = new Map<string, unknown>();
 
 // How often a long-running process lets SQLite refresh its query-planner

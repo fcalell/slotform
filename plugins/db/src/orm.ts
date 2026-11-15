@@ -156,6 +156,8 @@ export function seedTable<T extends SQLiteTable>(
 	table: T,
 	rows: Array<InferInsertModel<T>>,
 ): SeedEntry {
+	// InferInsertModel<T> is a generic object type, which the compiler will not
+	// widen to a string-keyed record.
 	return { table, rows: rows as Array<Record<string, unknown>> };
 }
 

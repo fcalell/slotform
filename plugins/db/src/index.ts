@@ -63,6 +63,17 @@ function withReexports(template: string, modules: string[]): string {
 	return `${template.slice(0, end)}\n\n${lines}${template.slice(end)}`;
 }
 
+// What the CLI hands an init prompt: `select` and `text` of its prompt API.
+interface InitPromptCtx {
+	prompt: {
+		select: <T>(
+			msg: string,
+			options: { label: string; value: T }[],
+		) => Promise<T>;
+		text: (msg: string, opts?: { default?: string }) => Promise<string>;
+	};
+}
+
 // A COALESCING latch for local schema re-applies — NOT a serializer.
 //
 // Cross-process AND in-process *exclusion* is already owned by the underlying
@@ -198,7 +209,7 @@ export const db = plugin("db", {
 			},
 			handler: async (ctx, flags) => {
 				const custom = Boolean(flags.custom);
-				const name = flags.name as string | undefined;
+				const name = typeof flags.name === "string" ? flags.name : undefined;
 				if (name && !custom) {
 					ctx.log.error("`--name` applies to `--custom` only.");
 					return;
@@ -281,7 +292,8 @@ export const db = plugin("db", {
 					);
 					return;
 				}
-				const name = (flags.name as string | undefined) ?? basename(ctx.cwd);
+				const name =
+					typeof flags.name === "string" ? flags.name : basename(ctx.cwd);
 				ctx.log.info(`Creating D1 database "${name}"...`);
 				const result = createD1Database(name);
 				if (!result.ok) {
@@ -391,53 +403,22 @@ export const db = plugin("db", {
 		};
 
 		return [
-			// Init prompts: dialect + D1/SQLite-specific follow-up.
-			cliSlots.initPrompts.contribute((ctx) => ({
+			cliSlots.initPrompts.contribute(() => ({
 				plugin: "db",
-				ask: async (innerCtx) => {
-					const c = innerCtx as typeof ctx;
-					const dialect = await (
-						c as unknown as {
-							prompt: {
-								select: <T>(
-									msg: string,
-									options: { label: string; value: T }[],
-								) => Promise<T>;
-								text: (
-									msg: string,
-									opts?: { default?: string },
-								) => Promise<string>;
-							};
-						}
-					).prompt.select("Database dialect:", [
+				ask: async (ctx) => {
+					// PromptSpec types its ctx as unknown; the CLI passes its prompt API.
+					const { prompt } = ctx as InitPromptCtx;
+					const dialect = await prompt.select("Database dialect:", [
 						{ label: "D1 (Cloudflare)", value: "d1" as const },
 						{ label: "SQLite (local)", value: "sqlite" as const },
 					]);
 					const answers: Record<string, unknown> = { dialect };
 					if (dialect === "d1") {
-						answers.databaseId = await (
-							c as unknown as {
-								prompt: {
-									text: (
-										msg: string,
-										opts?: { default?: string },
-									) => Promise<string>;
-								};
-							}
-						).prompt.text("D1 database ID:", {
+						answers.databaseId = await prompt.text("D1 database ID:", {
 							default: D1_PLACEHOLDER_ID,
 						});
 					} else {
-						answers.path = await (
-							c as unknown as {
-								prompt: {
-									text: (
-										msg: string,
-										opts?: { default?: string },
-									) => Promise<string>;
-								};
-							}
-						).prompt.text("SQLite file path:", {
+						answers.path = await prompt.text("SQLite file path:", {
 							default: "./data/app.sqlite",
 						});
 					}
@@ -445,8 +426,6 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// The schema scaffold: the template, re-exporting every plugin's
-			// tables after its import block.
 			cliSlots.initScaffolds.contribute(async (ctx) => {
 				const template = await readFile(ctx.template("schema.ts"), "utf8");
 				const modules = await ctx.resolve(self.slots.schemaModules);
@@ -682,19 +661,13 @@ export const db = plugin("db", {
 							"No migrations to build the scratch database from: run `stack db generate`.",
 						);
 					}
+					let scratch = serve.state;
 					if (self.options.dialect === "sqlite") {
-						// The commands below read the file from the env var, as the server does.
-						const file = join(serve.dir, "database.sqlite");
-						process.env[self.options.fileVar] = file;
-						serve.env[self.options.fileVar] = file;
-						await applyMigrationsLocal(ctx.cwd, self.options);
-					} else {
-						await applyMigrationsLocal(ctx.cwd, self.options, serve.state);
+						scratch = join(serve.dir, "database.sqlite");
+						serve.env[self.options.fileVar] = scratch;
 					}
-					await applySeed(ctx.cwd, self.options, {
-						remote: false,
-						persist: serve.state,
-					});
+					await applyMigrationsLocal(ctx.cwd, self.options, scratch);
+					await applySeed(ctx.cwd, self.options, { remote: false, scratch });
 				},
 			})),
 
@@ -812,7 +785,6 @@ export const db = plugin("db", {
 				};
 			}),
 
-			// Clean up schema + migrations directories on `stack remove db`.
 			cliSlots.removeFiles.contribute(() => ["src/schema/", "src/migrations/"]),
 
 			// drizzle-kit writes the migrations (snapshots, journal) in its own

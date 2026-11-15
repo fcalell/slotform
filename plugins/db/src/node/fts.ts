@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+	FTS_KEY_NAME,
 	type FtsDefinition,
 	ftsConvergeStatements,
 	ftsDropMigrationSql,
@@ -35,18 +36,18 @@ export function loadFtsDefinitions(cwd: string): FtsDefinition[] {
 			"-e",
 			LOADER,
 			pathToFileURL(schema).href,
-			"@fcalell/plugin-db/fts",
+			FTS_KEY_NAME,
 		],
 		cwd,
 	);
 	const at = stdout.lastIndexOf("@@stack-fts@@");
 	if (at < 0) return [];
+	// LOADER prints the definitions the schema carries, which ftsTable built.
 	return JSON.parse(
 		stdout.slice(at + "@@stack-fts@@".length),
 	) as FtsDefinition[];
 }
 
-// The declared indexes after checking they can coexist.
 function assertUnique(defs: FtsDefinition[]): void {
 	const seen = new Set<string>();
 	for (const def of defs) {
@@ -67,11 +68,13 @@ export function migratedFts(migrationsDir: string): Map<string, string> {
 		.sort();
 	for (const file of files) {
 		const sql = readFileSync(join(migrationsDir, file), "utf-8");
-		for (const m of sql.matchAll(/^-- stack:fts (\S+) (\S+)$/gm)) {
-			state.set(m[1] as string, m[2] as string);
+		for (const [, name, hash] of sql.matchAll(
+			/^-- stack:fts (\S+) (\S+)$/gm,
+		)) {
+			if (name && hash) state.set(name, hash);
 		}
-		for (const m of sql.matchAll(/^-- stack:fts-drop (\S+)$/gm)) {
-			state.delete(m[1] as string);
+		for (const [, name] of sql.matchAll(/^-- stack:fts-drop (\S+)$/gm)) {
+			if (name) state.delete(name);
 		}
 	}
 	return state;
@@ -180,17 +183,16 @@ export async function existingFtsNames(file: string): Promise<string[]> {
 	const db = new Database(file, { readonly: true });
 	try {
 		const rows = db
-			.prepare(
+			.prepare<[], Row>(
 				"SELECT name FROM sqlite_master WHERE type = 'table' AND sql LIKE 'CREATE VIRTUAL TABLE%USING fts5%'",
 			)
-			.all() as Row[];
+			.all();
 		return rows.map((r) => r.name);
 	} finally {
 		db.close();
 	}
 }
 
-// The tables drizzle-kit must leave alone: each index and its shadow tables.
 export function ftsTablesFilter(names: string[]): string[] {
 	return names.flatMap((n) => [n, ...ftsShadowTables(n)]).map((t) => `!${t}`);
 }
@@ -212,17 +214,19 @@ export async function applyFtsLocal(
 	const db = new Database(path);
 	try {
 		const rows = db
-			.prepare(
+			.prepare<[], Row & { type: string }>(
 				"SELECT type, name, sql FROM sqlite_master WHERE type IN ('table', 'trigger')",
 			)
-			.all() as Array<Row & { type: string }>;
+			.all();
 		const statements: string[] = [];
 		for (const def of declared) {
 			const table = rows.find((r) => r.type === "table" && r.name === def.name);
 			const triggers = new Map(
-				rows
-					.filter((r) => r.type === "trigger" && r.sql !== null)
-					.map((r) => [r.name, r.sql as string]),
+				rows.flatMap((r) =>
+					r.type === "trigger" && r.sql !== null
+						? [[r.name, r.sql] as const]
+						: [],
+				),
 			);
 			statements.push(
 				...ftsConvergeStatements(def, {

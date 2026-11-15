@@ -1,6 +1,8 @@
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { type AnyD1Database, drizzle } from "drizzle-orm/d1";
 
+// One cache serves every TSchema; each caller's schema is its own, so the
+// lookup casts the client back.
 const cache = new WeakMap<object, unknown>();
 
 export function createClient<TSchema extends Record<string, unknown>>(

@@ -165,8 +165,6 @@ export function buildSeedSql(
 	return statements.length ? `${statements.join("\n")}\n` : "";
 }
 
-// What a seed run does to each table, for the deploy plan: the table, how many
-// rows the seed carries and the effect on rows outside it.
 export function describeSeed(
 	specs: TableSeedSpec[],
 	{ prune }: { prune: boolean },
@@ -229,6 +227,7 @@ function tableToSpec(
 					`Seed for table "${tableName}": unknown column "${jsKey}"`,
 				);
 			}
+			// mapToDriverValue returns unknown; a driver value is one of SqlPrimitive.
 			out[column.name] =
 				value === undefined || value === null
 					? null
@@ -261,6 +260,7 @@ interface LoadedSeed {
 export async function loadSeed(cwd: string): Promise<LoadedSeed | null> {
 	const seedPath = join(cwd, "src", "schema", "seed.ts");
 	if (!existsSync(seedPath)) return null;
+	// The consumer's module: `default` and `prune` are checked below.
 	const mod = (await import(pathToFileURL(seedPath).href)) as {
 		default?: unknown;
 		prune?: unknown;
@@ -277,14 +277,14 @@ export async function loadSeed(cwd: string): Promise<LoadedSeed | null> {
 		);
 	}
 	return {
+		// `defineSeed` returns SeedEntry[]; Array.isArray cannot see the element type.
 		specs: (entries as SeedEntry[]).map((e) => tableToSpec(e.table, e.rows)),
 		prune: mod.prune === true,
 	};
 }
 
-// Full pipeline: load + introspect + build. `null` when there's no seed file or
-// it produces no statements. `remote` builds what a deploy would run: it prunes
-// only when the seed file opts in.
+// `null` when there's no seed file or it produces no statements. `remote` builds
+// what a deploy would run: it prunes only when the seed file opts in.
 async function buildSeedSqlFromCwd(
 	cwd: string,
 	{ remote = false }: { remote?: boolean } = {},
@@ -298,12 +298,14 @@ async function buildSeedSqlFromCwd(
 // Apply the seed to the target database. d1 goes through
 // `wrangler d1 execute --file` (local hits the same miniflare D1 `wrangler dev`
 // reads; remote hits the deployed DB, upserting only unless the seed file
-// exports `prune = true`); sqlite executes directly against the file. Returns
-// `false` when there was nothing to seed.
+// exports `prune = true`); sqlite executes directly against the file.
+// `scratch` is a `stack screens serve` run's own database: the sqlite file, or
+// the d1 miniflare state directory. Returns `false` when there was nothing to
+// seed.
 export async function applySeed(
 	cwd: string,
 	options: DbOptions,
-	opts: { remote: boolean; persist?: string },
+	opts: { remote: boolean; scratch?: string },
 ): Promise<boolean> {
 	const sql = await buildSeedSqlFromCwd(cwd, { remote: opts.remote });
 	if (sql === null) return false;
@@ -315,7 +317,7 @@ export async function applySeed(
 			);
 		}
 		const { default: Database } = await import("better-sqlite3");
-		const db = new Database(sqliteFile(cwd, options));
+		const db = new Database(sqliteFile(cwd, options, opts.scratch));
 		try {
 			db.exec(sql);
 		} finally {
@@ -336,7 +338,7 @@ export async function applySeed(
 		databaseName,
 		opts.remote ? "remote" : "local",
 		seedFile,
-		opts.persist,
+		opts.scratch,
 	);
 	return true;
 }

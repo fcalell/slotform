@@ -59,6 +59,7 @@ function migrationsDirOf(cwd: string, options: DbOptions): string {
 function readJournal(migrationsDir: string): Journal | null {
 	const journalPath = join(migrationsDir, "meta", "_journal.json");
 	if (!existsSync(journalPath)) return null;
+	// drizzle-kit's journal file: every field is read as optional.
 	return JSON.parse(readFileSync(journalPath, "utf-8")) as Journal;
 }
 
@@ -66,6 +67,7 @@ function readSnapshot(migrationsDir: string, idx: number): Snapshot {
 	const name = `${String(idx).padStart(4, "0")}_snapshot.json`;
 	const snapshotPath = join(migrationsDir, "meta", name);
 	if (!existsSync(snapshotPath)) return {};
+	// drizzle-kit's snapshot file: every field is read as optional.
 	return JSON.parse(readFileSync(snapshotPath, "utf-8")) as Snapshot;
 }
 

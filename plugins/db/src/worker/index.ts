@@ -8,17 +8,21 @@ export default function dbRuntime<
 	binding: string;
 	schema?: TSchema;
 }): RuntimePlugin<"db", object, { db: DrizzleD1Database<TSchema> }> {
+	// `{}` is the schema-less TSchema, which the default cannot express.
 	const schema = (options.schema ?? {}) as TSchema;
+	// RuntimePlugin hands the env over as unknown: a Workers env is an object of bindings.
+	const binding = (env: unknown): unknown =>
+		(env as Record<string, unknown>)[options.binding];
 	return {
 		name: "db",
 		validateEnv(env: unknown) {
-			if (!(env as Record<string, unknown>)[options.binding]) {
+			if (!binding(env)) {
 				throw new Error(`Missing binding: ${options.binding}`);
 			}
 		},
 		context(env) {
-			const d1 = (env as Record<string, unknown>)[options.binding];
-			return { db: createClient(d1 as AnyD1Database, schema) };
+			// validateEnv has checked the binding is present; its type is Cloudflare's.
+			return { db: createClient(binding(env) as AnyD1Database, schema) };
 		},
 	};
 }

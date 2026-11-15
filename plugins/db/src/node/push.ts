@@ -34,14 +34,15 @@ import { executeSql, MIGRATIONS_TABLE, migrationsApply } from "./wrangler.ts";
 // The sqlite file a `stack db` command works on: the one the node server would
 // open. The `fileVar` env var (`DB_FILE`) names it, and `path` is its dev
 // default, so a command run with `DB_FILE=./scratch.sqlite` touches the
-// scratch copy and never the dev database. Relative to the project root, as
+// scratch copy and never the dev database. `scratch` is a `stack screens
+// serve` run's own file, in place of both. Relative to the project root, as
 // the server's is.
 export function sqliteFile(
 	cwd: string,
 	options: DbOptions,
-	env: Record<string, string | undefined> = process.env,
+	scratch?: string,
 ): string {
-	const named = env[options.fileVar ?? "DB_FILE"];
+	const named = scratch ?? process.env[options.fileVar ?? "DB_FILE"];
 	const file = named ? named : options.path;
 	if (!file) {
 		throw new Error(
@@ -54,11 +55,12 @@ export function sqliteFile(
 // drizzle-kit neither creates the file's directory nor fails without it
 // (a push into a missing `./data` reports success and writes nothing), so
 // the directory is made first.
-function sqliteLocalUrl(cwd: string, options: DbOptions): string {
-	const url =
-		options.dialect === "sqlite"
-			? sqliteFile(cwd, options)
-			: resolve(cwd, ".db-kit/local.db");
+function sqliteLocalUrl(
+	cwd: string,
+	options: DbOptions,
+	scratch?: string,
+): string {
+	const url = sqliteFile(cwd, options, scratch);
 	mkdirSync(dirname(url), { recursive: true });
 	return url;
 }
@@ -102,7 +104,6 @@ function ensureMiniflareD1(cwd: string, databaseId: string): string {
 	return path;
 }
 
-// The committed `.sql` migrations, sorted so listings are deterministic.
 export function listMigrationFiles(cwd: string, options: DbOptions): string[] {
 	const dir = join(cwd, options.migrations ?? "./src/migrations");
 	if (!existsSync(dir)) return [];
@@ -111,8 +112,6 @@ export function listMigrationFiles(cwd: string, options: DbOptions): string[] {
 		.sort();
 }
 
-// Whether the migrations dir holds at least one `.sql` file. Used to skip the
-// local d1 migrations-apply when the consumer hasn't generated a migration yet.
 export function migrationsExist(cwd: string, options: DbOptions): boolean {
 	return listMigrationFiles(cwd, options).length > 0;
 }
@@ -272,10 +271,13 @@ export async function applyMigrationsRemote(
 	});
 }
 
+// `scratch` is where a `stack screens serve` run keeps its database: the
+// sqlite file, or the d1 miniflare state directory. Without it the dev
+// database is the target.
 export async function applyMigrationsLocal(
 	cwd: string,
 	options: DbOptions,
-	persist?: string,
+	scratch?: string,
 ): Promise<void> {
 	// Both branches read the migrations dir; the sqlite branch additionally
 	// writes journal entries against the local DB. Serialize against any
@@ -290,7 +292,7 @@ export async function applyMigrationsLocal(
 			writeDrizzleConfig(configPath, {
 				schema: "./src/schema/index.ts",
 				out: options.migrations ?? "./src/migrations",
-				dbCredentials: { url: sqliteLocalUrl(cwd, options) },
+				dbCredentials: { url: sqliteLocalUrl(cwd, options, scratch) },
 			});
 
 			runDrizzleKit(cwd, ["migrate", "--config", configPath]);
@@ -307,6 +309,6 @@ export async function applyMigrationsLocal(
 		// `localD1Flags()` (plugin-cloudflare's `--persist-to` and
 		// `.stack/wrangler.toml`) so the migration lands in the exact
 		// miniflare D1 that `wrangler dev` reads.
-		migrationsApply(cwd, databaseName, "local", persist);
+		migrationsApply(cwd, databaseName, "local", scratch);
 	});
 }

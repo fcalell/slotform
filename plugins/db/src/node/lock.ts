@@ -80,6 +80,12 @@ function installExitHandlers(): void {
 	});
 }
 
+function errnoCode(err: unknown): string | undefined {
+	return err instanceof Error && "code" in err && typeof err.code === "string"
+		? err.code
+		: undefined;
+}
+
 function pidIsAlive(pid: number): boolean {
 	if (!Number.isFinite(pid) || pid <= 0) return false;
 	try {
@@ -89,9 +95,7 @@ function pidIsAlive(pid: number): boolean {
 		process.kill(pid, 0);
 		return true;
 	} catch (err) {
-		const code = (err as NodeJS.ErrnoException).code;
-		if (code === "EPERM") return true;
-		return false;
+		return errnoCode(err) === "EPERM";
 	}
 }
 
@@ -101,8 +105,7 @@ function tryAcquire(path: string): LockHandle | null {
 	try {
 		fd = openSync(path, "wx");
 	} catch (err) {
-		const code = (err as NodeJS.ErrnoException).code;
-		if (code !== "EEXIST") throw err;
+		if (errnoCode(err) !== "EEXIST") throw err;
 		// Stale-lock inspection: if the file's PID is dead, reclaim it.
 		// Atomicity: this read-then-rm-then-create window is protected by
 		// the in-process queue (any same-process contender waits on the
@@ -142,20 +145,25 @@ function tryAcquire(path: string): LockHandle | null {
 	};
 }
 
-// Poll the lock file with exponential-ish backoff, capped. The cap is
-// short enough to keep `stack dev` responsive and long enough to avoid
-// busy-spin under contention. No lock should normally be held more than
-// a few seconds (drizzle-kit generate is fast); the timeout guards
-// against a wedged process leaving the lock file behind.
-async function waitFor(path: string, timeoutMs: number): Promise<LockHandle> {
+// How long a writer waits for the lock: covers a slow `drizzle-kit generate`
+// on a large schema while still surfacing a wedged lock within a single CI
+// step.
+const LOCK_TIMEOUT_MS = 30_000;
+
+// Polls the lock file: another process releasing it by deleting the file
+// signals nothing this process can wait on. The backoff cap is short enough
+// to keep `stack dev` responsive and long enough to avoid busy-spin under
+// contention. No lock should normally be held more than a few seconds; the
+// timeout guards against a wedged process leaving the lock file behind.
+async function waitFor(path: string): Promise<LockHandle> {
 	const start = Date.now();
 	let delay = 25;
 	while (true) {
 		const handle = tryAcquire(path);
 		if (handle) return handle;
-		if (Date.now() - start > timeoutMs) {
+		if (Date.now() - start > LOCK_TIMEOUT_MS) {
 			throw new Error(
-				`plugin-db: timed out after ${timeoutMs}ms waiting for migration lock at \`${path}\`. ` +
+				`plugin-db: timed out after ${LOCK_TIMEOUT_MS}ms waiting for migration lock at \`${path}\`. ` +
 					`Another process appears to be holding it. If you're sure no other migration writer is running, ` +
 					`delete the file and retry.`,
 			);
@@ -165,29 +173,21 @@ async function waitFor(path: string, timeoutMs: number): Promise<LockHandle> {
 	}
 }
 
-interface MigrationLockOptions {
-	// Default 30s — covers a slow `drizzle-kit generate` on a large schema
-	// while still surfacing a wedged lock within a single CI step.
-	timeoutMs?: number;
-}
-
-// Run `task` while holding the migration lock at `lockPath`. Acquires the
-// in-process queue first (same-process serialization) and the file lock
-// second (cross-process exclusion). Both must be released, in reverse
-// order, even if the task throws.
+// Runs `task` while holding the migration lock at `lockPath`: the in-process
+// queue first (same-process serialization), the file lock second
+// (cross-process exclusion). Both are released, in reverse order, even if the
+// task throws.
 export async function withMigrationLock<T>(
 	lockPath: string,
 	task: () => Promise<T>,
-	opts: MigrationLockOptions = {},
 ): Promise<T> {
 	installExitHandlers();
-	const timeoutMs = opts.timeoutMs ?? 30_000;
 
 	// In-process queue: chain off the prior promise for this lockPath so
 	// same-process callers serialize without spinning on the file lock.
 	const prior = inProcessQueue.get(lockPath) ?? Promise.resolve();
 	const run = async () => {
-		const handle = await waitFor(lockPath, timeoutMs);
+		const handle = await waitFor(lockPath);
 		try {
 			return await task();
 		} finally {
@@ -196,10 +196,10 @@ export async function withMigrationLock<T>(
 	};
 	// Wrap with a `.catch()` so a single rejected operation doesn't poison
 	// the queue for every later caller — they should each be free to retry.
-	const tailMarker: Promise<unknown> = prior.then(run, run);
+	const tailMarker = prior.then(run, run);
 	inProcessQueue.set(lockPath, tailMarker);
 	try {
-		return (await tailMarker) as T;
+		return await tailMarker;
 	} finally {
 		// Clear the entry only if we're still the tail; otherwise a later
 		// caller has already chained on top of us and we'd evict their
@@ -211,8 +211,6 @@ export async function withMigrationLock<T>(
 	}
 }
 
-// Default lock path for the migrations directory. Lives under `.db-kit`,
-// plugin-db's gitignored dev directory.
 export function migrationLockPath(cwd: string): string {
 	return `${cwd}/.db-kit/migration.lock`;
 }

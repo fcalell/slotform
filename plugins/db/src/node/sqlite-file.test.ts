@@ -1,28 +1,39 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { afterEach, test } from "node:test";
 import { sqliteFile } from "./push.ts";
 
 const options = { dialect: "sqlite" as const, path: "./data/app.sqlite" };
+const saved = { DB_FILE: process.env.DB_FILE, TV_DB: process.env.TV_DB };
+
+function env(vars: Record<string, string | undefined>): void {
+	for (const key of Object.keys(saved)) {
+		const value = vars[key];
+		if (value === undefined) delete process.env[key];
+		else process.env[key] = value;
+	}
+}
+
+afterEach(() => env(saved));
 
 test("the dev path is the file when the env names none", () => {
-	assert.equal(sqliteFile("/app", options, {}), "/app/data/app.sqlite");
+	env({});
+	assert.equal(sqliteFile("/app", options), "/app/data/app.sqlite");
 });
 
 test("DB_FILE wins over the path, relative to the project root", () => {
-	assert.equal(
-		sqliteFile("/app", options, { DB_FILE: "./scratch.sqlite" }),
-		"/app/scratch.sqlite",
-	);
-	assert.equal(
-		sqliteFile("/app", options, { DB_FILE: "/var/lib/a.sqlite" }),
-		"/var/lib/a.sqlite",
-	);
+	env({ DB_FILE: "./scratch.sqlite" });
+	assert.equal(sqliteFile("/app", options), "/app/scratch.sqlite");
+	env({ DB_FILE: "/var/lib/a.sqlite" });
+	assert.equal(sqliteFile("/app", options), "/var/lib/a.sqlite");
 });
 
 test("a renamed var is the one read", () => {
 	const renamed = { ...options, fileVar: "TV_DB" };
-	assert.equal(
-		sqliteFile("/app", renamed, { DB_FILE: "/x.sqlite", TV_DB: "/y.sqlite" }),
-		"/y.sqlite",
-	);
+	env({ DB_FILE: "/x.sqlite", TV_DB: "/y.sqlite" });
+	assert.equal(sqliteFile("/app", renamed), "/y.sqlite");
+});
+
+test("a serve run's own file wins over the env var", () => {
+	env({ DB_FILE: "/x.sqlite" });
+	assert.equal(sqliteFile("/app", options, "/run/db.sqlite"), "/run/db.sqlite");
 });

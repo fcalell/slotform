@@ -20,7 +20,8 @@ import {
 // schema without sharing a module instance with it. This module is pure (no node
 // imports): the schema file loads it in the Workers bundle too.
 
-export const FTS_KEY = Symbol.for("@fcalell/plugin-db/fts");
+export const FTS_KEY_NAME = "@fcalell/plugin-db/fts";
+export const FTS_KEY = Symbol.for(FTS_KEY_NAME);
 
 const STATEMENT_BREAKPOINT = "--> statement-breakpoint";
 
@@ -216,8 +217,6 @@ const ftsDropMarker = (name: string): string => `-- stack:fts-drop ${name}`;
 const join = (statements: string[]): string =>
 	`${statements.join(`\n${STATEMENT_BREAKPOINT}\n`)}\n`;
 
-// A migration that creates the index, or replaces the one a changed
-// declaration supersedes.
 export function ftsMigrationSql(
 	def: FtsDefinition,
 	{ replace }: { replace: boolean },
@@ -271,7 +270,6 @@ export function ftsConvergeStatements(
 	];
 }
 
-// The tables SQLite keeps behind an FTS5 table.
 export const ftsShadowTables = (name: string): string[] =>
 	["data", "idx", "docsize", "config", "content"].map((s) => `${name}_${s}`);
 
@@ -318,11 +316,13 @@ export function ftsTable<
 	name: TName,
 	options: FtsTableOptions<TContent, TColumn>,
 ): FtsTable<TName, TColumn> {
+	// getTableColumns is keyed by the table's property names; TContent is generic.
 	const contentColumns = getTableColumns(options.content) as Record<
 		string,
 		SQLiteColumn
 	>;
 	const dbNames: string[] = [];
+	const selection: Record<string, unknown> = {};
 	for (const key of options.columns) {
 		const column = contentColumns[key];
 		if (!column) {
@@ -331,6 +331,7 @@ export function ftsTable<
 			);
 		}
 		dbNames.push(column.name);
+		selection[key] = text(column.name);
 	}
 	for (const length of options.prefix ?? []) {
 		if (!Number.isInteger(length) || length < 1) {
@@ -349,13 +350,11 @@ export function ftsTable<
 		tokenize: options.tokenize ?? "unicode61 remove_diacritics 2",
 	});
 
-	const selection: Record<string, unknown> = {};
-	options.columns.forEach((key, i) => {
-		selection[key] = text(dbNames[i] as string);
-	});
 	selection.rowid = integer("rowid").notNull();
 	selection.rank = real("rank").notNull();
 
+	// The selection is built at runtime from the column list, so the compiler sees
+	// neither its shape nor FtsTable's columns.
 	const view = sqliteView(
 		name,
 		selection as Record<string, never>,
@@ -383,12 +382,14 @@ export function bm25<TName extends string, TColumn extends string>(
 	const def = fts[FTS_KEY];
 	const name = sql.identifier(def.name);
 	if (!weights) return sql<number>`bm25(${name})`;
+	// FtsTable's columns are keyed by the generic TColumn, which `key` is not.
 	const view = fts as unknown as Record<string, SQLiteColumn>;
 	const values = Object.keys(weights).map((key) => {
 		const column = view[key];
 		if (!column) throw new Error(`bm25: "${def.name}" has no column "${key}"`);
 		return [
 			column.name,
+			// `key` comes from Object.keys, which types it string.
 			(weights as Record<string, number>)[key] ?? 1,
 		] as const;
 	});
@@ -408,6 +409,7 @@ export function highlight<TName extends string, TColumn extends string>(
 	close: string,
 ): SQL<string> {
 	const def = fts[FTS_KEY];
+	// FtsTable's columns are keyed by the generic TColumn, which `column` is.
 	const index = def.columns.indexOf(
 		((fts as unknown as Record<string, SQLiteColumn>)[column] as SQLiteColumn)
 			.name,

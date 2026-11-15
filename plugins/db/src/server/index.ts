@@ -17,10 +17,12 @@ export default function dbRuntime<
 	fileVar: string;
 	schema?: TSchema;
 }): RuntimePlugin<"db", object, { db: BetterSQLite3Database<TSchema> }> {
+	// `{}` is the schema-less TSchema, which the default cannot express.
 	const schema = (options.schema ?? {}) as TSchema;
 	// `context` checks too: better-sqlite3 opens an anonymous temporary
 	// database for an undefined path instead of failing.
 	const file = (env: unknown): string => {
+		// RuntimePlugin hands the env over as unknown: a node env is an object of vars.
 		const value = (env as Record<string, unknown>)[options.fileVar];
 		if (typeof value !== "string" || value === "") {
 			throw new Error(`Missing env var: ${options.fileVar}`);

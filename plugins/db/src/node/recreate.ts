@@ -10,7 +10,10 @@ import { join } from "node:path";
 // the migration: the added one takes its default, or null.
 
 interface Snapshot {
-	tables?: Record<string, { columns?: Record<string, unknown> }>;
+	tables?: Record<
+		string,
+		{ columns?: Record<string, { name?: string } | undefined> }
+	>;
 }
 
 /** The columns of each table in the newest drizzle snapshot of a migrations dir, or none where there is no snapshot. */
@@ -25,6 +28,7 @@ export function columnsBefore(
 		.sort()
 		.at(-1);
 	if (!newest) return out;
+	// drizzle-kit's snapshot file: every field is read as optional.
 	const snapshot = JSON.parse(
 		readFileSync(join(meta, newest), "utf-8"),
 	) as Snapshot;
@@ -32,10 +36,9 @@ export function columnsBefore(
 		out.set(
 			table,
 			new Set(
-				Object.entries(def.columns ?? {}).map(([key, column]) => {
-					const named = (column as { name?: string } | undefined)?.name;
-					return named ?? key;
-				}),
+				Object.entries(def.columns ?? {}).map(
+					([key, column]) => column?.name ?? key,
+				),
 			),
 		);
 	}
@@ -53,18 +56,27 @@ export function copyOnlyExisting(
 	sql: string,
 	before: Map<string, ReadonlySet<string>>,
 ): string {
-	return sql.replace(COPY, (whole, table, into, from, source) => {
-		const had = before.get(source as string);
-		if (!had || table !== source) return whole;
-		const targets = (into as string).split(",").map(unquote);
-		const reads = (from as string).split(",").map(unquote);
-		if (targets.length !== reads.length) return whole;
-		const keep = reads.flatMap((read, at) => (had.has(read) ? [at] : []));
-		if (keep.length === reads.length || keep.length === 0) return whole;
-		const quoted = (names: string[]) =>
-			keep.map((at) => `"${names[at]}"`).join(", ");
-		return `INSERT INTO \`__new_${table}\`(${quoted(targets)}) SELECT ${quoted(reads)} FROM \`${source}\`;`;
-	});
+	return sql.replace(
+		COPY,
+		(
+			whole: string,
+			table: string,
+			into: string,
+			from: string,
+			source: string,
+		) => {
+			const had = before.get(source);
+			if (!had || table !== source) return whole;
+			const targets = into.split(",").map(unquote);
+			const reads = from.split(",").map(unquote);
+			if (targets.length !== reads.length) return whole;
+			const keep = reads.flatMap((read, at) => (had.has(read) ? [at] : []));
+			if (keep.length === reads.length || keep.length === 0) return whole;
+			const quoted = (names: string[]) =>
+				keep.map((at) => `"${names[at]}"`).join(", ");
+			return `INSERT INTO \`__new_${table}\`(${quoted(targets)}) SELECT ${quoted(reads)} FROM \`${source}\`;`;
+		},
+	);
 }
 
 const INDEX =
@@ -75,13 +87,22 @@ export function expressionIndexes(
 	sql: string,
 	columns: Map<string, ReadonlySet<string>>,
 ): string {
-	return sql.replace(INDEX, (whole, head, table, list, tail) => {
-		const has = columns.get(table as string);
-		if (!has) return whole;
-		const fixed = (list as string).replace(
-			/`([^`]*)`/g,
-			(item, inner: string) => (has.has(inner) ? item : inner),
-		);
-		return `${head}${fixed}${tail}`;
-	});
+	return sql.replace(
+		INDEX,
+		(
+			whole: string,
+			head: string,
+			table: string,
+			list: string,
+			tail: string,
+		) => {
+			const has = columns.get(table);
+			if (!has) return whole;
+			const fixed = list.replace(
+				/`([^`]*)`/g,
+				(item, inner: string) => (has.has(inner) ? item : inner),
+			);
+			return `${head}${fixed}${tail}`;
+		},
+	);
 }
