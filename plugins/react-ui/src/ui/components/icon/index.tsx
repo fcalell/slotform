@@ -13,7 +13,7 @@ const GLYPH = "shrink-0";
 export const GLYPHS: Record<IconName, lucide.LucideIcon> = lucide;
 
 /** A Lucide glyph. */
-export interface IconProps extends Closed {
+interface IconProps extends Closed {
 	/** The glyph's Lucide name. */
 	name: IconName;
 	/** What it sits beside, which picks its size: `meta` text, `body` text (the default), or the inside of a `control`. */

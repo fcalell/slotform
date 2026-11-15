@@ -133,7 +133,7 @@ export function BadgesLine(props: {
 }
 
 /** The warning glyph, in the warn ink. */
-export function WarnGlyph({ painted }: { painted?: boolean }) {
+function WarnGlyph({ painted }: { painted?: boolean }) {
 	return (
 		<span className={cn(ROW_WARNING, GLYPH)}>
 			<IconBase

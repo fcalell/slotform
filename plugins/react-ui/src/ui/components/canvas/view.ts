@@ -1,7 +1,7 @@
 import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
 import type { Box, Size } from "./geometry.ts";
 
-export const ORIGIN: CanvasPoint = { x: 0, y: 0 };
+const ORIGIN: CanvasPoint = { x: 0, y: 0 };
 
 // The places a node's position can come from besides its own: a drag's live
 // one, a landing's, and the layout's.
@@ -132,7 +132,7 @@ export function shiftInto(
 }
 
 // The transform that puts the box's centre on the pane's centre at scale `k`.
-export function centredTransform(box: Box, k: number, pane: Size): Transform {
+function centredTransform(box: Box, k: number, pane: Size): Transform {
 	return {
 		k,
 		x: pane.width / 2 - (box.x + box.width / 2) * k,

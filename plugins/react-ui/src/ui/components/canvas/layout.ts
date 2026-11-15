@@ -79,7 +79,7 @@ export function spaces(chip: number): Space {
 // What the hidden probe measures: the height of a group head, how far each
 // group's head text reaches from its frame's left edge, and each chip's size,
 // by edge id.
-export interface Measures {
+interface Measures {
 	head: number;
 	reach: ReadonlyMap<string, number>;
 	labels: ReadonlyMap<string, Size>;

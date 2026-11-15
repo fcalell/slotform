@@ -35,7 +35,7 @@ import { TREE_DIVIDER } from "./card.tsx";
 import type { Band, Row, RowItem as RowItemData } from "./index.tsx";
 
 /** What the Section hands its rows; no app sets it, so it is outside `SectionProps`. */
-export interface RowsInternal {
+interface RowsInternal {
 	/** The items as the Section subscribed to them: real, or the placeholder while the read waits, which paints `PAINT_ROWS` rows. */
 	drawn: Drawn<readonly Row[]>;
 	/** The pages read the items come from, when it has pages: the sheet ends in its more row. */

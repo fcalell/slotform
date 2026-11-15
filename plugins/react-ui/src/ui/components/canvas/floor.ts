@@ -129,7 +129,7 @@ export function routeSide(zoom: number, glyph: number, step: number): number {
 }
 
 // Each box as a square of `side`, on the same centre: where its glyph stands.
-export function glyphBoxes(
+function glyphBoxes(
 	boxes: ReadonlyMap<string, Box>,
 	side: number,
 ): Map<string, Box> {

@@ -44,7 +44,7 @@ export const FIELDS =
 // press landing outside the region ends the hold; one inside begins it. The
 // removal of the focused element fires neither, so the hold survives it: that
 // is how a region learns its focus left with its own page.
-export function trackHold(
+function trackHold(
 	doc: Pick<Document, "addEventListener" | "removeEventListener">,
 	region: () => HTMLElement | null,
 	hold: { current: boolean },
@@ -100,7 +100,7 @@ export function rememberOpener(element: HTMLElement | null, now = Date.now()) {
 
 // The sheet that opens takes the remembered trigger once, if the act that
 // named it ran a moment ago.
-export function claimOpener(now = Date.now()): HTMLElement | null {
+function claimOpener(now = Date.now()): HTMLElement | null {
 	const held = opener;
 	opener = undefined;
 	return held && now - held.at <= OPENER_WINDOW ? held.element : null;
@@ -111,7 +111,7 @@ export function claimOpener(now = Date.now()): HTMLElement | null {
 // nobody has taken: once any element takes focus (a viewer's Tab, a field that
 // autofocuses, another region's hand-off) the sheet's claim is over, so a late
 // retry never pulls focus off where the viewer has since moved it.
-export function focusPage(tries = 5): void {
+function focusPage(tries = 5): void {
 	// Our own focus lands here too, which ends the chain on success.
 	let moved = false;
 	const note = () => {

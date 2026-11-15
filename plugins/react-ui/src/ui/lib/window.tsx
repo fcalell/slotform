@@ -52,7 +52,7 @@ const estimate = () => spacing("row");
 // How long a scroll is taken to run after its last event (ms).
 const SETTLED = 150;
 
-export interface WindowProps {
+interface WindowProps {
 	/** How many rows there are. */
 	count: number;
 	/** The key of the row at an index, which the virtualizer keeps its measures by. */

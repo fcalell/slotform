@@ -71,7 +71,6 @@
 		"./components/table": "./src/ui/components/table/index.tsx",
 		"./components/text": "./src/ui/components/text/index.tsx",
 		"./components/thread": "./src/ui/components/thread/index.tsx",
-		"./components/toast": "./src/ui/components/toast/index.tsx",
 		"./components/toolbar": "./src/ui/components/toolbar/index.tsx",
 		"./components/waveform": "./src/ui/components/waveform/index.tsx",
 		"./lib/act": "./src/ui/lib/act.ts",

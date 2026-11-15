@@ -58,7 +58,7 @@ const KEYS = "contents";
 type Status = "pending" | "loaded" | "failed";
 
 /** The picture's address and its box: the frame paints, waits, fails and opens as an Image's does. */
-export interface PictureTileProps {
+interface PictureTileProps {
 	src: Datum<string>;
 	alt: string;
 	fit: ImageFit;
@@ -155,7 +155,7 @@ export function PictureTile({
 }
 
 /** Previous and Next in a full view: each moves to the neighbouring picture, none past the ends. */
-export interface PictureSteps {
+interface PictureSteps {
 	onPrevious: (() => void) | undefined;
 	onNext: (() => void) | undefined;
 }

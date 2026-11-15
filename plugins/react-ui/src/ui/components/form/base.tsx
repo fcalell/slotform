@@ -54,7 +54,7 @@ const LEGEND = "flex items-center gap-gap";
 const NO_OUTER: readonly unknown[] = [];
 
 /** One group of fields a `Form` draws as a run of its rows under a band. */
-export interface FormGroup {
+interface FormGroup {
 	/** The group's name, on its band (a short phrase; wraps); without it the group is a run with no band, for fields that lead or close the form among titled groups. */
 	title?: string;
 	/** Under the title on the band (a sentence; wraps). */
@@ -98,7 +98,7 @@ export type FormFrameProps = FormBase &
 	);
 
 /** Where a form stands: on a `page` (a `Form`), a card of its own, its bar in the card's foot; in a `sheet`, its rows flush on the sheet and its foot stuck to the body's; in a `gate` step, its rows a card and its bar after the card, as the step's own acts stand. */
-export type FormIn = "page" | "sheet" | "gate";
+type FormIn = "page" | "sheet" | "gate";
 
 // One group: a run of the form's rows (a subgrid of the form's columns, so its
 // labels align with the rest), its legend a band, then its lead and its

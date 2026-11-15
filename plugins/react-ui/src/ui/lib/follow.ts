@@ -69,7 +69,7 @@ export function travel<T extends Record<string, number>>(
 const OWN = "input,textarea,select,[contenteditable='true']";
 
 /** What a drag along one axis is for: the element it carries, and the way it leaves. */
-export interface FollowArgs {
+interface FollowArgs {
 	/** The element the drag carries; its edge to edge along the axis is how far it has to go to be gone. */
 	target: RefObject<HTMLElement | null>;
 	axis: "x" | "y";

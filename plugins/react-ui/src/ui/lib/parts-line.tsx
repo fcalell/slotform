@@ -10,7 +10,7 @@ import type { ReactNode } from "react";
 // to its end, nothing marks a line's start for a dot to be clipped at. Facts
 // are no such text: a row's, a head's and a node's status are badges
 // (`BadgesLine`), which have no separator.
-export type PartsForm = "flow";
+type PartsForm = "flow";
 
 // The dot of one text, bound to the words beside it.
 const BOUND = " · ";

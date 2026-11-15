@@ -5,7 +5,7 @@ import { createContext } from "react";
 // `h2` and hands 3 to its body, so a Pane reads nothing of the Panes around
 // it; a Section hands the next level to its body; a Columns hands its columns
 // the level it stands at. HTML stops at `h6`.
-export type HeadingLevel = 2 | 3 | 4 | 5 | 6;
+type HeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 export const HeadingContext = createContext<HeadingLevel>(2);
 

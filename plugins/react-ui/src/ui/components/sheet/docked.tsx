@@ -62,7 +62,7 @@ const FOOT_ROW =
 const COLUMN = "max-w-measure touch:max-w-none";
 
 /** What a docked `Sheet` draws: the public `Sheet`'s props, standing in a foot, and the foot's measured `region`. Outside the package's exports: a `Pane` and a `Thread` draw it for their `sheet`. */
-export interface SheetDockedProps<P extends ProcedureCall = ProcedureCall> {
+interface SheetDockedProps<P extends ProcedureCall = ProcedureCall> {
 	open: boolean;
 	onClose: () => void;
 	title: string;

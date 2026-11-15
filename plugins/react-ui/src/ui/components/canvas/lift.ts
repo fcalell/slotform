@@ -18,7 +18,7 @@ export const SLOP = HOLD_SLOP;
 
 // Where a node stands after the pointer moved from `from` to `to` (client
 // pixels) since it stood at `start` (flow coordinates), at zoom `zoom`.
-export function carried(
+function carried(
 	start: CanvasPoint,
 	from: CanvasPoint,
 	to: CanvasPoint,
@@ -30,7 +30,7 @@ export function carried(
 	};
 }
 
-export interface Lift {
+interface Lift {
 	// A finger holds the node, which follows it.
 	lifted: boolean;
 	// Spread on the node's element, beside a touch finger's own handlers.

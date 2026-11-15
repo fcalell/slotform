@@ -32,7 +32,7 @@ interface Point extends Spot {
 }
 
 /** What the rail's column shows, by entry key, and the handlers that move it. Outside the package's exports. */
-export interface Preview {
+interface Preview {
 	/** The entry the column shows now, inked on the rail; none while the folded rail stands at rest. */
 	shown: string | undefined;
 	/** The entry the column holds: `shown`, else (folded, the column gone) the one it showed last, so a column on its way out keeps its places. */

@@ -11,7 +11,6 @@ import {
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Band as BandData,
-	FileItem as FileItemData,
 	IconLinkAct,
 	LinkAct,
 	Reorder,
@@ -88,8 +87,6 @@ export type Row<V extends string | null = string, Q = unknown> = WithReads<
 export type RowItem<V extends string | null = string, Q = unknown> = WithReads<
 	RowItemData<V, Q>
 >;
-/** A file row as the platform draws it. */
-export type FileItem = WithReads<FileItemData>;
 
 interface SectionHeadProps extends Closed {
 	/** Under the title (a sentence; wraps). It paints where it will stand while its selection waits; `""` and an undefined one draw no line. */

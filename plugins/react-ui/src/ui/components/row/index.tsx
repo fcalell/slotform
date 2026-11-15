@@ -401,7 +401,7 @@ const noDrag = (event: { preventDefault: () => void }) =>
 	event.preventDefault();
 
 /** What a Section hands the rows it draws; no app sets them, so they are outside the items. */
-export interface RowInternal {
+interface RowInternal {
 	/** The row's place in a tree `List`: its depth (the roots 0), for a branch whether its children are drawn and how to fold them, and whether it is the tree's one tab stop. */
 	tree?: RowTree;
 	/** The Section's items are not here: every part paints at its role, the row is inert and builds no hit. */
@@ -419,7 +419,7 @@ export interface RowInternal {
 }
 
 /** The fields a row takes: a list item's or a fact's, its reads widened to a `Datum`. */
-export type RowProps<V extends string | null = string> = Omit<
+type RowProps<V extends string | null = string> = Omit<
 	RowItemData<V>,
 	"key" | "children" | "group"
 > &
@@ -1339,7 +1339,7 @@ function rails(tree: RowTree | undefined): CSSProperties | undefined {
 }
 
 /** What a Section hands the RowItem it draws; no app sets it. */
-export interface RowItemProps {
+interface RowItemProps {
 	item: RowItemData;
 	/** The item's key, which a tree's keys find the row by. */
 	/** A painted row's place among the rows, which varies its fillers; a loaded row takes none, its place moving when a row lands above it. */

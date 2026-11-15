@@ -22,7 +22,7 @@ const GLYPHS =
 	"inline-flex shrink-0 items-center justify-center overflow-hidden animate-spinner-in";
 
 /** A spinner takes no props. */
-export interface SpinnerProps extends Closed {}
+interface SpinnerProps extends Closed {}
 
 /** A turning ring in the ink of its place (currentColor), the size of the glyph it replaces; hidden from assistive tech, since its owner announces the wait. Where the theme scrambles its text (`theme.loading`) it is three mono glyphs cycling at the tick in a box three glyphs wide, `···` under reduced motion. */
 export function Spinner(_: SpinnerProps) {

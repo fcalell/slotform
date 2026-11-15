@@ -37,7 +37,7 @@ export interface Source {
 }
 
 /** A collection's order, as a drag within it reads and moves it. */
-export interface Reordering {
+interface Reordering {
 	/** The row dragged. */
 	id: string;
 	/** The collection's box: only rows inside it are places to land. */

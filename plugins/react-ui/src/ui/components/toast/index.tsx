@@ -37,7 +37,7 @@ const SENTENCE = `min-w-0 grow ${YIELDS_FIRST}`;
 const ACT = "flex min-w-0 max-w-full";
 
 /** A short report of how an act went. */
-export interface ToastProps extends Closed {
+interface ToastProps extends Closed {
 	/** What happened (a sentence; wraps). */
 	sentence: string;
 	/** How the act it reports ended (`done`, the default): its glyph in the tone's ink. */

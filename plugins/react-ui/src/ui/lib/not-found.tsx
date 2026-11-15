@@ -10,7 +10,7 @@ import { useWords } from "./words.tsx";
 // The slice of the app's router the page for an unknown address needs, typed
 // structurally so react-ui imports no router. The generated entry hands the
 // app's router to `bindNotFound` right after creating it.
-export interface NotFoundRouter {
+interface NotFoundRouter {
 	update(options: { defaultNotFoundComponent: () => ReactNode }): void;
 }
 

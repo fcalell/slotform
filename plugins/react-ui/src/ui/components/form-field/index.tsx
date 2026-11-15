@@ -153,7 +153,7 @@ type OneOf<C> = {
 }[keyof C];
 
 /** One control with its label, its description and its error. The control is the one descriptor set (`input`, `textArea`, `picker`, `switch`, `checkbox`, `slider`, `options`, `segments`: the component's own props, less the label the field supplies), which the field draws in its value line (a switch or a checkbox at its end); or any other control as `children`. Unbound, the consumer gives the error and the control; bound, the form's field gives both, and the control is a function of the field's value: `{(control) => <Input {...control} />}`. */
-export type FormFieldProps<
+type FormFieldProps<
 	V = unknown,
 	S extends string | null = string,
 	O extends string = string,
@@ -188,7 +188,7 @@ export type FormFieldProps<
 	);
 
 // The props a field body reads, its descriptors at their widest.
-export type Body = FormFieldBase & {
+type Body = FormFieldBase & {
 	change?: ChangeKind;
 	field?: FieldBinding<unknown>;
 	error?: Run | Runs;

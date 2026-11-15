@@ -48,7 +48,7 @@ const COUNTS = "contents";
 const COUNT = "text-end wrap-normal";
 
 /** What a Section hands the row it draws while its items are not here; no app sets them. */
-export interface FileRowInternal {
+interface FileRowInternal {
 	/** The file is not here: the glyph, the path and the counts paint, never the chip, the row is inert and builds no hit. */
 	painted?: boolean;
 	/** The row's place among the painted rows, which varies the filler's lengths. */

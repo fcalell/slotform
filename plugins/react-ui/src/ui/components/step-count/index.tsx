@@ -15,7 +15,7 @@ const SEGMENTS = "flex";
 const SEGMENT = "flex-1";
 
 /** Where an onboarding flow stands in its steps. */
-export interface StepCountProps extends Closed {
+interface StepCountProps extends Closed {
 	/** The current step, counted from one. */
 	at: number;
 	/** How many steps the flow has, two to four. */

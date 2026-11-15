@@ -10,7 +10,7 @@ import {
 // The slice of the app's router that routing in place needs, typed
 // structurally so react-ui imports no router. The generated entry hands the
 // app's router to `bindRouter` right after creating it.
-export interface InPlaceRouter {
+interface InPlaceRouter {
 	navigate(options: { href: string }): unknown;
 	preloadRoute(options: { href: string }): unknown;
 	subscribe(event: "onResolved", listener: () => void): unknown;

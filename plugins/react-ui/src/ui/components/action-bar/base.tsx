@@ -64,7 +64,7 @@ const ALL_LABEL = "whitespace-nowrap";
 const SENTENCE = "shrink-0 whitespace-nowrap tabular-nums";
 const NUMBER = formatterFor("number");
 /** What a docked foot gives the bar it draws; no app sets it, so it is outside `ActionBarProps`. */
-export interface ActionBarInternal {
+interface ActionBarInternal {
 	/** The bar keeps the reason's line before a reason shows, so showing it never moves the act it describes. */
 	kept?: boolean;
 	/** The holder that hosts this bar's acts' run, when the bar is not the only host (a sheet holds its dismissal while its bar's act pends). Absent, the bar hosts its own. */

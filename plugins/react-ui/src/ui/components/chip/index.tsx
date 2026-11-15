@@ -8,7 +8,7 @@ import type { Closed } from "../../lib/closed.ts";
 import { ChipBase } from "./base.tsx";
 
 /** A data value's tag: an outlined pill with a dot in its family's hue; a neutral one is its word on a soft ground, no edge and no dot. */
-export interface ChipProps extends Closed {
+interface ChipProps extends Closed {
 	/** The value (a word; truncates past the short measure, 20 characters). A selection paints the pill, and the Chip is inert, until its read lands. */
 	label: Datum<string>;
 	/** The family of values it belongs to, one hue per family across screens. A selection paints the pill like a `label` does. */

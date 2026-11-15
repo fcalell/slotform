@@ -105,7 +105,7 @@ export interface CodegenAppCssPayload {
 // woff2 and declares `@font-face` (with fallback metrics). Which family the
 // contract binds to `sans` or `mono` is the theme's `fonts` knob; an entry
 // here only makes a family's file load.
-export const fontEntrySchema = z.object({
+const fontEntrySchema = z.object({
 	// CSS family name used in `font-family` declarations (e.g. "IBM Plex Sans").
 	family: z.string(),
 	// Node module path or workspace-relative path to the actual woff2 file

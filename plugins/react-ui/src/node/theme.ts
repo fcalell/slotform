@@ -254,7 +254,7 @@ export function modeLayer(resolved: ResolvedTheme): CssLayer {
 
 // Under reduced motion every duration rung is 0, so no transition or
 // animation that reads one moves.
-export const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
 export function motionLayer(): CssLayer {
 	return {

@@ -30,7 +30,7 @@ export const plexSans: FontEntry = {
 	fallback: plexSansFallback,
 };
 
-export const plexSansItalic: FontEntry = {
+const plexSansItalic: FontEntry = {
 	family: "IBM Plex Sans",
 	specifier:
 		"@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-italic.woff2",
@@ -145,7 +145,7 @@ function localSources(family: string): string {
 		.join(", ");
 }
 
-export function buildFontFaceCss(
+function buildFontFaceCss(
 	fonts: Array<{ font: FontEntry; href: string }>,
 ): string {
 	const blocks: string[] = [];

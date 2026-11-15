@@ -19,7 +19,7 @@ export interface Size {
 	height: number;
 }
 
-export interface GroupTree {
+interface GroupTree {
 	// Each group's members, in `holds` order: the nodes and the groups it owns.
 	nodes: Map<string, string[]>;
 	groups: Map<string, string[]>;
@@ -121,7 +121,7 @@ export function hollowRow(
 // frame.
 // `reach` holds the right edge a group's content must reach (before its
 // padding), where a back edge's corridor and label stand inside it.
-export function groupBoxes(
+function groupBoxes(
 	groups: readonly CanvasGroup[],
 	boxes: ReadonlyMap<string, Box>,
 	{
@@ -251,9 +251,9 @@ export const ARROW_REF = 7;
 
 // Where a stroke stands within its pixel: `crisp` puts a point on a pixel's
 // centre, half a pixel under a whole coordinate.
-export const PIXEL_CENTRE = 0.5;
+const PIXEL_CENTRE = 0.5;
 
-export interface Leg {
+interface Leg {
 	x: number;
 	top: number;
 	bottom: number;
@@ -275,7 +275,7 @@ export interface Routes {
 	bounds: Box;
 }
 
-export interface RouteInput {
+interface RouteInput {
 	boxes: ReadonlyMap<string, Box>;
 	edges: readonly Pick<CanvasEdge, "id" | "from" | "to">[];
 	// The ids of the edges that go back (`backEdges`).

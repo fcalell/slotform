@@ -3,7 +3,7 @@ import type { LintPlugin } from "@fcalell/cli/specs";
 
 // The `.grit` files of this package's `lint/`, each a rule of the web rules page
 // (`guide/rules.md`); a file's header states what it forbids.
-export const LINT_RULES = [
+const LINT_RULES = [
 	"no-class-on-component",
 	"no-host-look",
 	"no-arbitrary-value",

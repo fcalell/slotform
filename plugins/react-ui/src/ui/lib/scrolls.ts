@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { isTabbable } from "./focus.ts";
 
 /** Whether a region takes a tab stop of its own: it runs past its box vertically and holds nothing a keyboard reaches, so no other stop scrolls it. */
-export function takesStop(
+function takesStop(
 	box: { scrollHeight: number; clientHeight: number },
 	tabbable: boolean,
 ): boolean {
@@ -10,7 +10,7 @@ export function takesStop(
 }
 
 /** Whether a mutation changed `node`'s own children, the ones its size is watched on; a change deeper in the subtree only needs a re-measure. */
-export function changesChildren(
+function changesChildren(
 	records: ReadonlyArray<{ type: string; target: unknown }>,
 	node: unknown,
 ): boolean {

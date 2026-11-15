@@ -117,7 +117,7 @@ export interface Acknowledge {
 export type SheetSubmit = Act | Acknowledge;
 
 /** Whether a sheet's submit acknowledges: it neither runs nor opens anything. Outside the package's exports. */
-export function acknowledges(submit: SheetSubmit): submit is Acknowledge {
+function acknowledges(submit: SheetSubmit): submit is Acknowledge {
 	return submit.onAct === undefined && submit.sheet === undefined;
 }
 
@@ -127,7 +127,7 @@ export function submitAct(submit: SheetSubmit, close: () => void): Act {
 }
 
 /** What every sheet form draws: the public `Sheet`, the confirm and a touch `Menu`. Outside the package's exports. */
-export interface SheetBaseProps {
+interface SheetBaseProps {
 	open: boolean;
 	onClose: () => void;
 	/** Hears the sheet gone, its leave played (a cell's pick ends its edit). */

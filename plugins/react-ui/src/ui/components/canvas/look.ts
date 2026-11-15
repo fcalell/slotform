@@ -5,7 +5,7 @@ import type {
 	CanvasRole,
 } from "@fcalell/ui-core/descriptors";
 
-export type Surface =
+type Surface =
 	| "plain"
 	| "strong"
 	| "accent"
