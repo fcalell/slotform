@@ -272,7 +272,7 @@ The largest mechanisms, which the step 3 design has to stand behind:
 8. Tests and tooling wait on fixed time: 9 tests, 16 tooling timers, 27 frame-count waits. (T2-01,
    C4-01, C4-02)
 
-## Design (step 3; the four questions are answered, the kept table awaits the owner's yes)
+## Design (step 3; confirmed by the owner, kept table included)
 
 Target layering, most stable first. An import points up this list only.
 
@@ -412,8 +412,8 @@ Owner's answers:
 | --- | --- |
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
-| 3 Redesign | done except the kept table, which awaits the owner's yes |
-| 4 Fixes | not started |
+| 3 Redesign | done, confirmed |
+| 4 Fixes | F1 in progress |
 | 5 Fresh-agent checks | not started |
 
 ## Baseline
