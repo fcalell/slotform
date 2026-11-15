@@ -278,7 +278,7 @@ The largest mechanisms, which the step 3 design has to stand behind:
 | --- | --- |
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
-| 3 Redesign | not started |
+| 3 Redesign | in progress |
 | 4 Fixes | not started |
 | 5 Fresh-agent checks | not started |
 
@@ -291,7 +291,13 @@ Taken at 686cd3e1 before any change. Logs in `.refactor/baseline/`.
 | Gate | `pnpm check` | 0 | `check.log`: check-types 30 of 30 tasks, test 25 of 25 tasks, 537 tests pass, 0 fail, 0 skipped, Biome 937 files clean |
 | Release | `pnpm release:check` | 0 | `release-check.log`: "Release check passed."; web 475 packages, node 449, native 1081; one copy of each stack package |
 | Screens | `pnpm --filter showcase test-screens --all --mode dark --width 320,1920 --state data,empty --shots shots/baseline` | 1 | `test-screens.log`: no test ran; `CDP Emulation.setDeviceMetricsOverride timed out after 30000 ms` on `_app/deploys/$deployId`; not retried, the owner decides how (recommended: `stack screens browser stop`, then once more). `--shots` must be a folder inside the app |
-| Stories | showcase Storybook build and story run, sharded | not run yet | |
+| Stories | showcase Storybook build and story run, sharded | not taken | see below |
+
+Owner decision: the screen and story baselines are not taken up front. The gate and release
+baselines stand. Before the first UI fix group: `stack screens browser stop`, then one screen run on
+the screens that group reaches; a second timeout is reported, not retried. At the end: shoot
+`686cd3e1` in a worktree and the final commit on the touched screens in one sitting, and hand both
+sets to a critic agent that built neither.
 
 Tests per package: cli 38, ui-core 98, api 45, auth 29, cloudflare 16, db 27, native-ui 17, node 38,
 react 4, react-ui 73, screens 126, vite 26.
