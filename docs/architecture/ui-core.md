@@ -10,7 +10,11 @@ cells and roster. This page holds the architecture and the reasons for its shape
 
 Source map: `tokens.ts` (the sheet as data, `MOTION_KNOBS`, `MOVES`), `derive.ts`
 (`deriveTheme`), `variants.ts` / `variant-tables.ts` (the matrices and `FAMILIES`), `roster.ts`
-(`ROSTER`), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
+(`ROSTER`), `roster/<component>.ts` (one roster component's contract: its entry, the descriptors,
+matrices, cvas and cells it alone uses; `roster.ts`, `descriptors.ts`, `variants.ts` and
+`variant-tables.ts` declare what two or more components share and re-export the rest, so the
+subpaths keep their names; `roster/shared.ts` holds the values a component file needs from what
+is shared, so no module is evaluated in an import cycle), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
 `follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads.
 
 ## Tokens and theming
@@ -111,8 +115,8 @@ tune in one place).
   `data-loading-*` on the root, set by `themeModePlugin` before first paint; the phone through the
   generated `.stack/native-theme.ts`).
 - **Moves.** `MOVES` is the vocabulary. A roster entry's `motion` names the moves its component
-  makes (required; `[]` for none). The cells a move spells are the motion constants of
-  `variants.ts`; they are the one place a cell carries an interaction state, a transition-status
+  makes (required; `[]` for none). The cells a move spells are the motion constants
+  `variants.ts` exports; they are the one place a cell carries an interaction state, a transition-status
   attribute or an arbitrary property list.
 - **Answer, give, toggle.** Every cell a viewer points at or presses answers; a filled control
   gives (scales) on press, a wide surface never. The phone has no hover: a press lands a wash
@@ -339,7 +343,8 @@ where the row opens nothing), the Context Menu key (or Shift+F10) opens the menu
 - The roster is data: `ROSTER` in `packages/ui-core/src/roster.ts` names every component in four
   layers (atoms, layout, shared, content molecules) with its prop names, the cells it draws and the
   states it has a form for, the same in both plugins; an entry with `platforms` ships on those
-  alone (`Canvas` is web only). The showcase draws exactly those cells and states. A component's
+  alone (`Canvas` is web only). Each entry is declared in its component's
+  `src/roster/<component>.ts`. The showcase draws exactly those cells and states. A component's
   directory is `componentDir(name)`. A component draws another's place by composing it, never by
   spelling its cells.
 - A popup trigger renders the icon act's base (`icon-button/base.tsx`); the icon act's base names

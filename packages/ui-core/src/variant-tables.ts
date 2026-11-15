@@ -1,11 +1,71 @@
 // The variant matrices as data. A cva hides its config at runtime, so each
-// matrix is declared here and `#variants` builds the cva from it: the DESIGN.md
+// matrix is declared as data and `build` makes the cva from it: the DESIGN.md
 // emitter walks the same object the cva reads, so no enumeration can drift from
-// the matrix it describes. Internal to the package, with no subpath export.
+// the matrix it describes. The matrices two or more components draw are
+// declared here; one component's own stand in its `roster/<component>.ts`,
+// beside the cvas built from them, and are re-exported here. Internal to the
+// package, with no subpath export.
 //
 // Every cell is a class both a web and a native renderer can take: fills,
 // borders, ink, spacing roles, radius, type role, weight, family, a control's
 // size. Display, alignment and every interaction state stay with the plugins.
+
+import { ANSWER, FILL_X, GIVE, matrix } from "./roster/shared.ts";
+
+export { BANNER, BANNER_GLYPH } from "./roster/banner.ts";
+export {
+	CHART_BAND,
+	CHART_FILL,
+	FILL_Y,
+	TRAVEL_Y,
+} from "./roster/bar-chart.ts";
+export {
+	CANVAS_GROUP,
+	CANVAS_NODE,
+	CANVAS_NODE_GLYPH,
+	CANVAS_NODE_INK,
+	CANVAS_NODE_MARK,
+	CANVAS_NODE_NAME,
+	CANVAS_NODE_TEXT,
+	LIFT,
+	PATH_TONE,
+} from "./roster/canvas.ts";
+export { CODE_TEXT } from "./roster/code.ts";
+export { COLUMNS } from "./roster/columns.ts";
+export { DIFF_LINE, PROSE_DIFF_RUN } from "./roster/diff.ts";
+export { FILL_FADE, STEP_COUNT_SEGMENT } from "./roster/gate.ts";
+export { OTP_BOX, TEXT_AREA, TEXT_AREA_BUDGET } from "./roster/input.ts";
+export {
+	OPTION_RADIO,
+	PICKER,
+	RADIO_DOT,
+	SEGMENT,
+	SEGMENT_LABEL,
+} from "./roster/picker.ts";
+export { PROSE_MARKER } from "./roster/prose.ts";
+export { RULE_ARROW } from "./roster/rules.ts";
+export { FILE_COUNT, FILE_PATH_PART } from "./roster/section.ts";
+export { ANSWER, BUTTON_LABEL, FILL_X, GIVE, TEXT } from "./roster/shared.ts";
+export {
+	CURRENT_BAR,
+	CURRENT_ROOM,
+	PLACE_ROW,
+	PLACE_ROW_GLYPH,
+	PLACE_TAB,
+	PLACE_TAB_LABEL,
+} from "./roster/shell.ts";
+export { STAGE, STAGE_MARK, STAGE_RAIL } from "./roster/stages.ts";
+export { TRAVEL_X } from "./roster/stats.ts";
+export { SWITCH, SWITCH_THUMB, TOGGLE_THUMB } from "./roster/switch.ts";
+export {
+	TABLE_CHANGE_VALUE,
+	TABLE_FROZEN_CELL,
+	TABLE_HEAD,
+	TABLE_HEAD_LABEL,
+	TABLE_ROW,
+} from "./roster/table.ts";
+export { MESSAGE } from "./roster/thread.ts";
+export { TOAST_STATE } from "./roster/toast.ts";
 
 export type Axes = Record<string, Record<string, string>>;
 
@@ -16,59 +76,22 @@ export interface Matrix<T extends Axes> {
 	defaultVariants?: { [K in keyof T]?: keyof T[K] };
 }
 
-// Identity, for the contextual typing: it keeps each cell key literal so a
-// compound row or a default naming an absent key fails to compile.
-function matrix<T extends Axes>(config: Matrix<T>): Matrix<T> {
-	return config;
-}
-
 // ── Motion cells ────────────────────────────────────────────────────
 
 // The cells a move spells, composed into the
 // cells that make it so a component never writes a motion of its own. They are
 // the one place a cell carries an interaction state or an arbitrary property
 // list: a platform would otherwise overlay them.
-// A state's look eases in on `fast` and a press lands on `instant`; never
-// `outline`, since the focus ring snaps in and out and a key reads as a
-// position. The phone has no hover and answers a press in Reanimated
-// (`usePress`), which these classes leave alone.
-export const ANSWER =
-	"transition-[background-color,border-color,color,text-decoration-color,fill,stroke,opacity,scale] duration-fast ease-out active:duration-instant";
-// A filled control gives to the press scale under a press; it lets go on
-// ANSWER's `fast`.
-export const GIVE = "active:scale-(--scale-press)";
-// A toggle's thumb travels by transform on `fast`, in and out.
-export const TOGGLE_THUMB = "transition-transform duration-fast ease-in-out";
+
 // A checkbox's mark grows from 0.6 with its opacity on `fast` and leaves on
 // `instant` (Base UI keeps it mounted through the leave).
 export const CHECK_MARK =
 	"transition-[scale,opacity] duration-fast ease-out data-starting-style:scale-60 data-starting-style:opacity-0 data-ending-style:scale-60 data-ending-style:opacity-0 data-ending-style:duration-instant";
-// A radio's dot grows from nothing on `fast` and shrinks on `instant`.
-export const RADIO_DOT =
-	"transition-[scale] duration-fast ease-out data-starting-style:scale-0 data-ending-style:scale-0 data-ending-style:duration-instant";
+
 // A disclosure chevron turns by transform on `fast`, in and out, instead of
 // swapping glyphs; the site names the turn (`-rotate-90` closed).
 export const CHEVRON = "transition-transform duration-fast ease-in-out";
-// A fill is its full track scaled by transform, never a width or a height: the
-// site sets `--fill` (a share, 0 to 1), the fill moves on `slow` `in-out` and
-// its level colour cross-fades on `base`. One that mounts grows from its start
-// (`starting:`), the start edge following the writing direction. A bar stands
-// on the baseline, and `--stack` lifts a stacked part over the ones under it.
-export const FILL_X =
-	"origin-left rtl:origin-right scale-x-(--fill) starting:scale-x-0 transition-[scale,background-color] [transition-duration:var(--transition-duration-slow),var(--transition-duration-base)] ease-in-out";
-export const FILL_Y =
-	"origin-bottom scale-y-(--fill) -translate-y-(--stack) starting:scale-y-0 transition-[scale,translate,background-color] [transition-duration:var(--transition-duration-slow),var(--transition-duration-slow),var(--transition-duration-base)] ease-in-out";
-// A step count's segment that turns done cross-fades its fill on `base`.
-export const FILL_FADE = "transition-[background-color] duration-base ease-out";
-// A mark that rides a share of its track (a meter's tick) travels by
-// transform on `slow`; the site sets `--travel` (a share of the track's width).
-export const TRAVEL_X =
-	"translate-x-(--travel) transition-[translate] duration-slow ease-in-out";
-// A mark that rides a share of its column (a level's reading in a bar
-// chart) travels the same way down it; the site sets `--travel` (a share of
-// the mark's own box, the column's height).
-export const TRAVEL_Y =
-	"translate-y-(--travel) transition-[translate] duration-slow ease-in-out";
+
 // A value that changes while shown swaps old for new: the new enters over
 // `fast`, the old leaves over it, each by opacity and a transform the site
 // names with `--swap-y` (a figure's roll: the share of its own height the old
@@ -81,45 +104,7 @@ export const SWAP_IN =
 export const SWAP_OUT =
 	"swap-gone animate-[swap-out_var(--transition-duration-fast)_var(--ease-out)_both]";
 
-// A canvas node lifted by a long press scales to `lift` (a `scale` the answer
-// already eases) while its float shadow fades in on `fast`: the shadow is the
-// node's own `::after`, a box of its size that draws nothing but the shadow
-// outside it, so a node that is not lifted carries none. The site marks the
-// lift with `data-lifted`.
-export const LIFT =
-	"data-lifted:scale-(--scale-lift) after:absolute after:inset-0 after:rounded-card after:shadow-float after:opacity-0 after:pointer-events-none after:transition-opacity after:duration-fast after:ease-out data-lifted:after:opacity-100";
-// A path's tone (a taken edge against the rest dimmed, a node's words and its
-// chip) cross-fades its ink on `base`, slower than a state's answer: the whole
-// run changes at once.
-export const PATH_TONE = "transition-colors duration-base ease-out";
-
 // ── Text ────────────────────────────────────────────────────────────
-
-// The role is the only way to set type; its ink, family and figures ride
-// with it.
-// Every cell is spelled out: Tailwind reads source text, so a cell built from
-// a template would compile to nothing in a consumer build. c19 pins each cell
-// to TYPE_SCALE, so the two cannot drift.
-export const TEXT = matrix({
-	base: "",
-	variants: {
-		role: {
-			display:
-				"text-display leading-display tracking-display font-medium text-ink-body tabular-nums",
-			figure:
-				"text-figure leading-figure font-medium text-ink-body tabular-nums",
-			title:
-				"text-title leading-title tracking-title font-medium text-ink-body",
-			heading: "text-heading leading-heading font-medium text-ink-body",
-			body: "text-body leading-body font-normal text-ink-body",
-			meta: "text-meta leading-meta font-normal text-ink-meta",
-			caption:
-				"text-caption leading-caption tracking-caption font-normal text-ink-meta",
-			code: "text-code leading-code font-normal text-ink-body font-mono",
-		},
-	},
-	defaultVariants: { role: "body" },
-});
 
 // Emphasis inside a line: weight 500, never a size. `display`, `figure`,
 // `title` and `heading` already sit at or above it.
@@ -183,20 +168,6 @@ export const BUTTON = matrix({
 		},
 	},
 	defaultVariants: { act: "primary", fit: "body" },
-});
-
-export const BUTTON_LABEL = matrix({
-	base: `text-body leading-body font-medium ${ANSWER}`,
-	variants: {
-		act: {
-			primary: "text-on-act-accent",
-			danger: "text-on-act-danger",
-			secondary: "text-ink-body",
-			destructive: "text-danger",
-			quiet: "text-ink-meta",
-		},
-	},
-	defaultVariants: { act: "primary" },
 });
 
 // An icon-only act: square, no boundary at rest, in the meta ink. `field`
@@ -417,64 +388,7 @@ export const FIELD_VALUE = matrix({
 	defaultVariants: { kind: "text" },
 });
 
-// Many lines: the box grows with its value and stacks the budget under it.
-export const TEXT_AREA = matrix({
-	base: `rounded-control border px-pad py-gap bg-surface ${ANSWER}`,
-	variants: {
-		state: {
-			rest: "border-edge",
-			error: "border-edge-error",
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// The word budget's counter, in the error ink once over it.
-export const TEXT_AREA_BUDGET = matrix({
-	base: "text-caption leading-caption tracking-caption font-normal tabular-nums",
-	variants: {
-		state: {
-			rest: "text-ink-meta",
-			error: "text-ink-error",
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// ── One-time code ───────────────────────────────────────────────────
-
-// One box per digit; the row is one input and one target. A box is its digit's
-// line and the control's inset on both sides, square: it stands at that size
-// and shrinks, square, when its row is narrower than the boxes.
-export const OTP_BOX = matrix({
-	base: `w-[calc(var(--spacing-line-body)+2*var(--spacing-pad))] min-w-0 shrink aspect-square rounded-control border bg-surface ${ANSWER}`,
-	variants: {
-		state: {
-			rest: "border-edge",
-			error: "border-edge-error",
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
 // ── Switch and checkbox ─────────────────────────────────────────────
-
-// `on` draws `toggle-on`, the fill the checkbox and the slider share. The
-// track is the control's icon tall and two knobs wide, its knob the meta icon,
-// inset by half of what the one has over the other.
-export const SWITCH = matrix({
-	base: `p-[calc((var(--spacing-icon-control)-var(--spacing-icon-meta))/2)] w-[calc(var(--spacing-icon-meta)+var(--spacing-icon-control))] h-icon-control rounded-full ${ANSWER}`,
-	variants: { state: { off: "bg-switch-off", on: "bg-toggle-on" } },
-	defaultVariants: { state: "off" },
-});
-
-// The on thumb sits at the far end by transform, its own width along, the one
-// thing a toggle animates.
-export const SWITCH_THUMB = matrix({
-	base: `size-icon-meta rounded-full bg-switch-thumb ${TOGGLE_THUMB}`,
-	variants: { state: { off: "", on: "translate-x-full" } },
-	defaultVariants: { state: "off" },
-});
 
 // A box the control's icon square.
 export const CHECKBOX = matrix({
@@ -484,19 +398,6 @@ export const CHECKBOX = matrix({
 			unchecked: "border border-edge bg-surface",
 			checked: "bg-toggle-on",
 			mixed: "bg-toggle-on",
-		},
-	},
-	defaultVariants: { state: "unchecked" },
-});
-
-// A single-choice option's radio: a ring at the box's size, the chosen one
-// in the checkbox's fill around its dot (`OPTION_RADIO_DOT`).
-export const OPTION_RADIO = matrix({
-	base: `size-icon-control rounded-full border ${ANSWER}`,
-	variants: {
-		state: {
-			unchecked: "border-edge",
-			checked: "border-toggle-on",
 		},
 	},
 	defaultVariants: { state: "unchecked" },
@@ -595,214 +496,6 @@ export const LINE_BOX = matrix({
 	defaultVariants: { role: "body" },
 });
 
-// ── Table ───────────────────────────────────────────────────────────
-
-// A data table's row: a hairline under it, washed under the pointer and
-// pressed, and the open record selected (a step darker under the pointer).
-// The header row is the rest row.
-export const TABLE_ROW = matrix({
-	base: `border-b border-edge ${ANSWER}`,
-	variants: {
-		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
-			selected: "bg-wash-selected",
-			"selected-hover": "bg-wash-selected-hover",
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// A sortable column's header: a cell-wide act at the row's height behind a
-// transparent side border, so its label stands on the values' x.
-export const TABLE_HEAD = matrix({
-	base: `gap-gap py-gap border-x border-transparent px-pad ${ANSWER}`,
-	variants: {
-		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// A header's label at meta 500, never bold, in the meta ink, the body ink on
-// the column the table sorts by. Its sort glyph takes the label's ink.
-export const TABLE_HEAD_LABEL = matrix({
-	base: "text-meta leading-meta font-medium",
-	variants: {
-		sort: {
-			none: "text-ink-meta",
-			sorted: "text-ink-body",
-		},
-	},
-	defaultVariants: { sort: "none" },
-});
-
-// The frozen cells' content: the row's wash repeated over the frozen cell's
-// own surface (`TABLE_FROZEN`). The frozen cell that borders the cells which
-// scroll under it draws a hairline on that side: the end of the leading cell
-// (its transparent border takes the edge ink) and the start of the acts cell.
-export const TABLE_FROZEN_CELL = matrix({
-	base: ANSWER,
-	variants: {
-		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
-			selected: "bg-wash-selected",
-			"selected-hover": "bg-wash-selected-hover",
-		},
-		edge: {
-			none: "",
-			end: "border-e-edge",
-			start: "border-s border-edge",
-		},
-	},
-	defaultVariants: { state: "rest", edge: "none" },
-});
-
-// A change cell's value at the body role: the old value in the meta ink and
-// the new in the body ink, neither tinted; an added value on `ok-soft` and a
-// removed one on `danger-soft`, struck, each a soft pill.
-export const TABLE_CHANGE_VALUE = matrix({
-	base: "text-body leading-body font-normal",
-	variants: {
-		kind: {
-			before: "text-ink-meta",
-			after: "text-ink-body",
-			added: "rounded-chip bg-ok-soft px-gap text-ink-body",
-			removed: "rounded-chip bg-danger-soft px-gap text-ink-body line-through",
-		},
-	},
-	defaultVariants: { kind: "after" },
-});
-
-// ── Segmented control ───────────────────────────────────────────────
-
-// A segment flush in its track at the control height, the chosen one
-// in body ink; the selection wash is the track's one ground (`SEGMENT_GROUND`),
-// which slides from segment to segment. The box carries its ink for a web
-// glyph; the label repeats it, since a native Text inherits none.
-export const SEGMENT = matrix({
-	base: `rounded-control min-h-control px-pad ${ANSWER} ${GIVE}`,
-	variants: {
-		state: {
-			idle: "text-ink-meta",
-			selected: "text-ink-body",
-		},
-	},
-	defaultVariants: { state: "idle" },
-});
-
-export const SEGMENT_LABEL = matrix({
-	base: `text-body leading-body ${ANSWER}`,
-	variants: {
-		state: {
-			idle: "text-ink-meta font-normal",
-			selected: "text-ink-body font-medium",
-		},
-	},
-	defaultVariants: { state: "idle" },
-});
-
-// ── Picker ──────────────────────────────────────────────────────────
-
-// The pick's trigger by where it stands: a field box (`FIELD` at the bar
-// fit) in a toolbar, a field box that fills its column in a rule row (`bar`:
-// its value, or the chips of a several pick, wrap inside it), or a row's
-// trailing value in a `WORD_ACT` box, its ink the meta ink for the chevron beside
-// the value, or the context pill of a Pane's bar (`pill`), its chevron in the
-// mark ink.
-export const PICKER = matrix({
-	base: "",
-	variants: {
-		// A pick in a form keeps the field's ink; one in a bar (no form around
-		// it) is the field box in the meta ink, a word act in a row (the meta
-		// ink its chevron's, the value it shows in the body ink, `PICKER_VALUE`),
-		// a pill.
-		fit: {
-			field: "",
-			bar: "gap-gap text-ink-meta",
-			row: "gap-gap text-ink-meta",
-			pill: "gap-gap text-ink-mark",
-		},
-	},
-	defaultVariants: { fit: "field" },
-});
-
-// ── Rules ───────────────────────────────────────────────────────────
-
-// A pair row's arrow, in the meta ink while both sides are set and the
-// disabled ink while either is not.
-export const RULE_ARROW = matrix({
-	base: "",
-	variants: {
-		state: {
-			set: "text-ink-meta",
-			unset: "text-ink-disabled",
-		},
-	},
-	defaultVariants: { state: "set" },
-});
-
-// ── Banner ──────────────────────────────────────────────────────────
-
-// A page's notice on its tone's soft ground, a pair inset around its content
-// (the act's height on a line with an act); the tone's colour is its glyph's
-// alone. `running` wears `active`'s, `idle` wears `waiting`'s.
-export const BANNER = matrix({
-	base: "rounded-control px-pad py-gap gap-gap text-body leading-body text-ink-body",
-	variants: {
-		tone: {
-			active: "bg-accent-soft",
-			running: "bg-accent-soft",
-			waiting: "bg-chip-neutral-soft",
-			idle: "bg-chip-neutral-soft",
-			done: "bg-ok-soft",
-			attention: "bg-warn-soft",
-			failed: "bg-danger-soft",
-		},
-	},
-	defaultVariants: { tone: "active" },
-});
-
-export const BANNER_GLYPH = matrix({
-	base: "",
-	variants: {
-		tone: {
-			active: "text-accent-ink",
-			running: "text-accent-ink",
-			waiting: "text-ink-meta",
-			idle: "text-ink-meta",
-			done: "text-ok",
-			attention: "text-warn",
-			failed: "text-danger",
-		},
-	},
-	defaultVariants: { tone: "active" },
-});
-
-// ── Toast ───────────────────────────────────────────────────────
-
-// The tone is the glyph's ink alone; the toast's ground is every tone's.
-export const TOAST_STATE = matrix({
-	base: "",
-	variants: {
-		tone: {
-			active: "text-accent-ink",
-			running: "text-accent-ink",
-			waiting: "text-ink-meta",
-			idle: "text-ink-meta",
-			done: "text-ok",
-			attention: "text-warn",
-			failed: "text-danger",
-		},
-	},
-});
-
 // ── Menu ────────────────────────────────────────────────────────────
 
 // A menu's acts by its form: a popover at the popover's width (its ground
@@ -845,108 +538,6 @@ export const MENU_LABEL = matrix({
 	defaultVariants: { kind: "act" },
 });
 
-// ── Prose ───────────────────────────────────────────────────────────
-
-// A list item's marker in a slot the icon's width, in the meta ink: a
-// bullet, or an ordered item's figures at one width.
-export const PROSE_MARKER = matrix({
-	base: "min-w-icon text-body leading-body font-normal text-ink-meta",
-	variants: {
-		list: {
-			bullet: "",
-			ordered: "tabular-nums",
-		},
-	},
-	defaultVariants: { list: "bullet" },
-});
-
-// A Diff by word's runs on the diff's own grounds: the added run underlined, the
-// removed run struck through, each a cue besides its ground's hue. The added
-// run's underline is dotted in the `ok` ink, so it never reads as a link's.
-export const PROSE_DIFF_RUN = matrix({
-	base: "",
-	variants: {
-		kind: {
-			added: "bg-ok-soft underline decoration-dotted decoration-ok",
-			removed: "bg-danger-soft line-through",
-		},
-	},
-});
-
-// ── Code ────────────────────────────────────────────────────────────
-
-// The code's text at the box inset or, beside the copy act's own
-// column (no title), without the end inset that column carries.
-export const CODE_TEXT = matrix({
-	base: "",
-	variants: {
-		act: {
-			none: "p-pad",
-			beside: "py-pad pl-pad",
-		},
-	},
-	defaultVariants: { act: "none" },
-});
-
-// ── Diff ────────────────────────────────────────────────────────────
-
-// A unified diff's line at the code role, Code's line: its kind is its
-// ground; the mark of the lines a diff does not show (`elided`), where two
-// hunks part, on the group ground in the meta ink.
-export const DIFF_LINE = matrix({
-	base: "text-code leading-code font-normal font-mono",
-	variants: {
-		kind: {
-			context: "text-ink-body",
-			added: "text-ink-body bg-ok-soft",
-			removed: "text-ink-body bg-danger-soft",
-			elided: "bg-group text-ink-meta",
-		},
-	},
-	defaultVariants: { kind: "context" },
-});
-
-// ── File row ────────────────────────────────────────────────────────
-
-// A file's path split before its last slash: the directory in the meta
-// ink, the name (its slash first) at 500.
-export const FILE_PATH_PART = matrix({
-	base: "",
-	variants: {
-		part: {
-			directory: "text-ink-meta",
-			name: "font-medium text-ink-body",
-		},
-	},
-});
-
-// A count in its lane, four figures wide so the lanes line up down a list:
-// the diff's own marks, added in `ok`, removed in `danger`.
-export const FILE_COUNT = matrix({
-	base: "min-w-figures",
-	variants: {
-		kind: {
-			added: "text-ok",
-			removed: "text-danger",
-		},
-	},
-});
-
-// ── Message ─────────────────────────────────────────────────────────
-
-// A message by its author: yours and another's a pair over their parts, a
-// system line a row at the target height.
-export const MESSAGE = matrix({
-	base: "",
-	variants: {
-		author: {
-			you: "gap-gap",
-			other: "gap-gap",
-			system: "min-h-target",
-		},
-	},
-});
-
 // ── Stats meter ───────────────────────────────────────────────────────────
 
 // A meter's fill by its level (`METER_NEAR`): under in the meta ink, near in
@@ -963,107 +554,6 @@ export const METER_FILL = matrix({
 		},
 	},
 	defaultVariants: { level: "under" },
-});
-
-// ── Step count ──────────────────────────────────────────────────────
-
-// One segment of an onboarding step count at the meter's height, a gap: the steps
-// done and the current one in the meta ink, the later ones a wash; never the
-// accent. The segments share the row's width.
-export const STEP_COUNT_SEGMENT = matrix({
-	base: `h-gap rounded-chip ${FILL_FADE}`,
-	variants: {
-		state: {
-			done: "bg-ink-meta",
-			current: "bg-ink-meta",
-			later: "bg-fill-neutral",
-		},
-	},
-	defaultVariants: { state: "later" },
-});
-
-// ── Stages ──────────────────────────────────────────────────────────
-
-// A stage's label by where the rail stands at it: done at body, current at
-// body 500, later at meta, the terminal row at body 500 as the current one
-// is. The ink is the label's own in every state; a stage's hue is its mark's.
-export const STAGE = matrix({
-	base: "",
-	variants: {
-		state: {
-			done: "text-body leading-body font-normal text-ink-body",
-			current: "text-body leading-body font-medium text-ink-body",
-			later: "text-meta leading-meta font-normal text-ink-meta",
-			ended: "text-body leading-body font-medium text-ink-body",
-		},
-	},
-});
-
-// A stage's mark at the meta icon size, the shape saying where the rail
-// stands: done a filled disc (its check drawn on it, `STAGE_CHECK`), current
-// a ring in the accent, later a hollow ring in the meta ink. An ended rail's
-// mark is a cross (`STAGE_CROSS`) with no shape of its own.
-export const STAGE_MARK = matrix({
-	base: "size-icon-meta rounded-full",
-	variants: {
-		state: {
-			done: "bg-ink-meta",
-			current: "border-2 border-accent-ink",
-			later: "border border-ink-meta",
-		},
-	},
-	defaultVariants: { state: "later" },
-});
-
-// The rail from a stage's mark to the next: solid in the strong hairline
-// through the done stages, the plain hairline after.
-export const STAGE_RAIL = matrix({
-	base: "border-l",
-	variants: {
-		state: {
-			done: "border-edge-strong",
-			ahead: "border-edge",
-		},
-	},
-	defaultVariants: { state: "ahead" },
-});
-
-// ── Bar chart ───────────────────────────────────────────────────────
-
-// One of the four bands the plot's height splits into, its top a gridline
-// (the last band's bottom the baseline too); the axis beside the plot
-// stands the same bands with clear lines, so each tick centres on its line.
-export const CHART_BAND = matrix({
-	base: "",
-	variants: {
-		kind: {
-			grid: "border-edge",
-			axis: "border-transparent",
-		},
-		rule: {
-			top: "border-t",
-			both: "border-y",
-		},
-	},
-	defaultVariants: { kind: "grid", rule: "top" },
-});
-
-// A series' mark (a column, a stacked part, a key's dot) in the chart fills,
-// in `CHART_SERIES` order: one series takes the first.
-export const CHART_FILL = matrix({
-	base: "",
-	variants: {
-		series: {
-			teal: "bg-chart-teal",
-			violet: "bg-chart-violet",
-			amber: "bg-chart-amber",
-			pink: "bg-chart-pink",
-			green: "bg-chart-green",
-			red: "bg-chart-red",
-			neutral: "bg-chart-neutral",
-		},
-	},
-	defaultVariants: { series: "teal" },
 });
 
 // ── Image ───────────────────────────────────────────────────────────
@@ -1113,307 +603,6 @@ export const IMAGE_PICTURE = matrix({
 		},
 	},
 	defaultVariants: { fit: "content" },
-});
-
-// ── Canvas ──────────────────────────────────────────────────────────
-
-// A node's role is its shape (`role`: its radius, and a decision's compact
-// height) and its tone (`tone`: its ground and, at rest, its edge): `plain` the
-// plain card, `strong` a decision's stronger edge, `accent` a start's pill,
-// `attention` the wait on a person, `muted` an end's pill; `off` and
-// `dimmed` are the quiet a node draws over any role: an off node a filled card
-// in the meta ink, a node off the path a hairline on the canvas's ground. A glyph's shape (`CANVAS_NODE_GLYPH`) and a card hold the same tones.
-const NODE_GROUND = {
-	plain: "bg-group",
-	strong: "bg-group",
-	accent: "bg-accent-soft",
-	attention: "bg-warn-soft",
-	muted: "bg-canvas",
-	off: "bg-group",
-	dimmed: "bg-canvas",
-};
-
-// The edge a tone draws at rest; a selection and a warning take it over.
-const NODE_EDGES = [
-	{ state: "rest", tone: "plain", class: "border-edge" },
-	{ state: "rest", tone: "strong", class: "border-edge-strong" },
-	{ state: "rest", tone: "accent", class: "border-accent-edge" },
-	{ state: "rest", tone: "attention", class: "border-warn" },
-	{ state: "rest", tone: "muted", class: "border-edge" },
-	{ state: "rest", tone: "off", class: "border-edge" },
-	{ state: "rest", tone: "dimmed", class: "border-edge" },
-] as const;
-
-// The colour of a node's outline: the tone's, the selection's, or the
-// warning's. The path's `at` node draws `selected`.
-const NODE_STATE = {
-	rest: "",
-	selected: "border-selected-outline",
-	warning: "border-edge-error",
-};
-
-// A call node's second hairline, a step outside its edge: another graph runs
-// here.
-const CALL_EDGE = "outline-1 outline-offset-2 outline-edge";
-
-// A node's box on the canvas's ground: a card, a decision's compact card, or a
-// pill.
-export const CANVAS_NODE = matrix({
-	base: `w-node min-h-control gap-gap px-pad py-gap border ${ANSWER} ${LIFT}`,
-	variants: {
-		state: NODE_STATE,
-		role: {
-			step: "py-gap rounded-card",
-			start: "py-gap rounded-full",
-			decision: "py-gap rounded-card",
-			wait: "py-gap rounded-card",
-			call: `py-gap rounded-card ${CALL_EDGE}`,
-			end: "py-gap rounded-full",
-		},
-		tone: NODE_GROUND,
-	},
-	compoundVariants: [...NODE_EDGES],
-	defaultVariants: { state: "rest", role: "step", tone: "plain" },
-});
-
-// The ink of a node's icon by its tone, on the node's card and on its glyph
-// alone; its words take their own (`CANVAS_NODE_TEXT`). A node off the path
-// draws its icon in the mark ink (the non-text floor, 3:1), quieter than an
-// off node's. A card eases it with its
-// own answer; a glyph adds the path's tone, which never moves its scale.
-export const CANVAS_NODE_INK = matrix({
-	base: "",
-	variants: {
-		tone: {
-			plain: "text-ink-body",
-			strong: "text-ink-body",
-			accent: "text-accent-ink",
-			attention: "text-warn",
-			muted: "text-ink-meta",
-			off: "text-ink-meta",
-			dimmed: "text-ink-mark",
-		},
-	},
-	defaultVariants: { tone: "plain" },
-});
-
-// A node's text: the type role rides on the part, the ink on the tone. A rest
-// overline and line are meta, a rest title is body; off and dimmed recolour
-// every part they reach to meta, the quietest ink a word has: a node off the
-// path is a button that can be chosen, so its words stay above the text floor
-// and it reads as off by its title's step down, its missing marks and its
-// dimmed edges. A warning's words keep the rest ink.
-export const CANVAS_NODE_TEXT = matrix({
-	base: PATH_TONE,
-	variants: {
-		part: {
-			overline: "text-caption leading-caption tracking-caption font-normal",
-			title: "text-body leading-body font-medium",
-			line: "text-meta leading-meta font-normal",
-		},
-		tone: {
-			rest: "",
-			off: "text-ink-meta",
-			dimmed: "text-ink-meta",
-		},
-	},
-	compoundVariants: [
-		{ part: "overline", tone: "rest", class: "text-ink-meta" },
-		{ part: "line", tone: "rest", class: "text-ink-meta" },
-		{ part: "title", tone: "rest", class: "text-ink-body" },
-		// A node off the path is a hairline on the canvas's ground (`NODE_GROUND`)
-		// and its title stands at regular weight: it reads apart from an on-path
-		// node (a filled card, a title at 500 in the body ink) and from an off node
-		// (a filled card, a title at 500 in the meta ink, the word "Off").
-		{ part: "title", tone: "dimmed", class: "font-normal" },
-	],
-	defaultVariants: { part: "line", tone: "rest" },
-});
-
-// A node under the text floor: the shape behind its glyph alone, in the
-// control-sized box of its button, which holds the icon, the marks and the
-// name. It is the node's box (`CANVAS_NODE`) in the role's form: a card, a
-// circle for a pill, a square turned a quarter for a decision (a diamond, the
-// box's inset less its corners), at the node's tone and outline. The glyph holds
-// its size on screen by a scale the script sets with each zoom frame, so it
-// eases its colours alone (`PATH_TONE`), never `ANSWER`, whose property list
-// holds `scale`. A decision's mark on its card is the same shape.
-export const CANVAS_NODE_GLYPH = matrix({
-	base: `absolute -z-10 border ${PATH_TONE}`,
-	variants: {
-		state: NODE_STATE,
-		role: {
-			step: "inset-0 rounded-card",
-			start: "inset-0 rounded-full",
-			decision: "inset-gap rotate-45 rounded-chip",
-			wait: "inset-0 rounded-card",
-			call: `inset-0 rounded-card ${CALL_EDGE}`,
-			end: "inset-0 rounded-full",
-		},
-		tone: NODE_GROUND,
-	},
-	compoundVariants: [...NODE_EDGES],
-	defaultVariants: { state: "rest", role: "step", tone: "plain" },
-});
-
-// Where a node's mark seats on its glyph (a status above, a warning below), at
-// the glyph's right edge, keyed by the role's shape: a card's is flush in the
-// corner (the room clear of the icon), a circle's a gap in from the corner (a
-// circle's corner is outside its arc, a gap in is on it) and a diamond's flush
-// too: its corners are outside its edges, so the status above and the warning
-// below stand apart, never over its icon or on one another.
-const MARK_SEAT = {
-	step: "flush",
-	start: "inset",
-	decision: "flush",
-	wait: "flush",
-	call: "flush",
-	end: "inset",
-} as const;
-const MARK_ROLES = Object.keys(MARK_SEAT) as Array<keyof typeof MARK_SEAT>;
-export const CANVAS_NODE_MARK = matrix({
-	base: "absolute flex",
-	variants: {
-		role: {
-			step: "end-0",
-			start: "end-gap",
-			decision: "end-0",
-			wait: "end-0",
-			call: "end-0",
-			end: "end-gap",
-		},
-		place: { status: "", warning: "" },
-	},
-	compoundVariants: MARK_ROLES.flatMap((role) => [
-		{
-			role,
-			place: "status" as const,
-			class: MARK_SEAT[role] === "flush" ? "top-0" : "top-gap",
-		},
-		{
-			role,
-			place: "warning" as const,
-			class: MARK_SEAT[role] === "flush" ? "bottom-0" : "bottom-gap",
-		},
-	]),
-	defaultVariants: { role: "step", place: "status" },
-});
-
-// A node's name in the overview, between the full node and the glyph alone: the
-// meta role (the caption role is the same size; they differ by ink, weight and
-// place) in body ink at 500, on the canvas's own ground so an edge never strikes through
-// it, one line cut at the short measure. The tone recolours it as
-// it does the node's words (off and dimmed meta).
-export const CANVAS_NODE_NAME = matrix({
-	base: `max-w-measure-short truncate whitespace-nowrap px-gap bg-canvas text-meta leading-meta font-medium ${PATH_TONE}`,
-	variants: {
-		tone: {
-			rest: "text-ink-body",
-			off: "text-ink-meta",
-			dimmed: "text-ink-meta",
-		},
-	},
-	defaultVariants: { tone: "rest" },
-});
-
-// A group's dashed frame: the dash says a group, the outline's colour and a
-// second pixel of line say it is selected (one dashed hairline in the accent
-// reads faint on the dark ground). The second pixel is an inset outline over
-// the same 1 px border box, so selecting moves nothing inside the frame.
-export const CANVAS_GROUP = matrix({
-	base: "rounded-card border border-dashed",
-	variants: {
-		state: {
-			rest: "border-edge-strong",
-			selected:
-				"border-transparent outline-2 -outline-offset-2 outline-dashed outline-selected-outline",
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// ── Place ───────────────────────────────────────────────────────────
-
-// The current place carries the current bar: a 3 px accent bar at its start,
-// no rounded corner on that side. Every place holds the bar's width, clear, so
-// a label does not move as the bar arrives. Selection is never a fill of the
-// accent: the sidebar's place also takes the 6 percent wash.
-export const CURRENT_BAR = "border-s-3 border-accent rounded-s-none";
-// The bar's room at rest, drawn in nothing.
-export const CURRENT_ROOM = "border-s-3 border-transparent";
-
-// A place in the sidebar: a control-tall row under its state's wash; the label is
-// `TEXT.body` with the ink of `PLACE_ROW_GLYPH`.
-export const PLACE_ROW = matrix({
-	base: `gap-gap min-h-control px-pad rounded-row ${CURRENT_ROOM} ${ANSWER}`,
-	variants: {
-		state: {
-			rest: "",
-			hover: "bg-wash-hover",
-			active: "bg-wash-press",
-			selected: `bg-ink-body/6 ${CURRENT_BAR}`,
-			"selected-hover": `bg-ink-body/10 ${CURRENT_BAR}`,
-		},
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// The sidebar place's glyph and label: the meta ink until the place is selected.
-export const PLACE_ROW_GLYPH = matrix({
-	base: ANSWER,
-	variants: {
-		state: { rest: "text-ink-meta", selected: "text-ink-body" },
-	},
-	defaultVariants: { state: "rest" },
-});
-
-// A place in the tab bar: glyph over label, the box carrying the tab's ink
-// for the glyph inside it (currentColor on the web) and the label caption
-// repeating it, since a native Text inherits none. The box keeps no side
-// inset, so its label takes the tab's whole share of the bar.
-export const PLACE_TAB = matrix({
-	base: `py-gap rounded-none border-t-3 ${ANSWER} ${GIVE}`,
-	variants: {
-		state: {
-			idle: "border-transparent text-ink-meta",
-			selected: "border-accent text-ink-body",
-		},
-	},
-	defaultVariants: { state: "idle" },
-});
-
-// The selected tab's label steps to 500: ink alone is the only other cue.
-export const PLACE_TAB_LABEL = matrix({
-	base: `text-caption leading-caption tracking-caption ${ANSWER}`,
-	variants: {
-		state: {
-			idle: "font-normal text-ink-meta",
-			selected: "font-medium text-ink-body",
-		},
-	},
-	defaultVariants: { state: "idle" },
-});
-
-// ── Section ─────────────────────────────────────────────────────────
-
-// ── Columns ─────────────────────────────────────────────────────────
-
-// A page's sections side by side. `fit` is where they stand: `board` is a
-// row scrolling sideways from the page inset (a web overlay bleeds it to the
-// the place's edge and sets each child at the `column` width in a grid track;
-// the phone's children stand at their own width); `half` is two to a row filling the
-// body from the place's `desktop` width and stacking in order below it (a
-// web overlay), at the sections rhythm between rows and columns. The phone
-// stacks every fit.
-export const COLUMNS = matrix({
-	base: "",
-	variants: {
-		fit: {
-			board: "gap-stack px-page",
-			half: "gap-section",
-		},
-	},
-	defaultVariants: { fit: "board" },
 });
 
 // ── Paint ───────────────────────────────────────────────────────────

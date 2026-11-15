@@ -1,9 +1,61 @@
 // Framework-free descriptors: a composed region is data, so the owning
-// molecule renders it.
+// molecule renders it. A descriptor one component alone takes is declared in
+// its `roster/<component>.ts` and re-exported here.
 import type { IconName } from "./icon-name.ts";
 import type { ChipFamily, Tone } from "./tokens.ts";
 
-export type { ChipFamily, IconName, Tone };
+export type { IconName } from "./icon-name.ts";
+export type { ChosenCount } from "./roster/action-bar.ts";
+export type {
+	CanvasEdge,
+	CanvasGroup,
+	CanvasNode,
+	CanvasPath,
+	CanvasPoint,
+	CanvasRole,
+} from "./roster/canvas.ts";
+export type { DiffLine, Hunk } from "./roster/diff.ts";
+export type { Track } from "./roster/dock.ts";
+export type { RecordFact } from "./roster/pane.ts";
+export type { ChoiceSegment } from "./roster/picker.ts";
+export type {
+	EitherPick,
+	EitherValue,
+	Rule,
+	RuleTerms,
+	RuleValue,
+} from "./roster/rules.ts";
+export type {
+	Band,
+	FileItem,
+	Lock,
+	Row,
+	RowEntry,
+	RowItem,
+} from "./roster/section.ts";
+export type { GroupSpec, PlaceSpec } from "./roster/shell.ts";
+export type { Stage, StageEnd, StepState } from "./roster/stages.ts";
+export type { CountLink, MeterMark, StatSpec } from "./roster/stats.ts";
+export type {
+	CellValue,
+	ChangeCell,
+	ChoiceSlots,
+	ColumnWidth,
+	DragSource,
+	TableCell,
+	TableChoice,
+	TableColumn,
+	TablePick,
+	TableRowSlots,
+} from "./roster/table.ts";
+export type {
+	Attachment,
+	Message,
+	MessageDetail,
+	Notice,
+} from "./roster/thread.ts";
+export type { ToolbarChip, ToolbarSearch } from "./roster/toolbar.ts";
+export type { ChipFamily, Tone } from "./tokens.ts";
 
 // What every act is: the run it starts. A thenable `onAct` returns holds the
 // act pending until it settles; a rejection draws the server's refusal when it
@@ -98,22 +150,6 @@ export interface ChipMark {
 	label: string;
 }
 
-// A toolbar's search: the `search` `Input`'s value and the keystrokes it
-// hears, with the hint it draws while empty (the field's name is the slot word
-// `search`).
-export interface ToolbarSearch {
-	value: string;
-	onChange: (value: string) => void;
-	// The hint drawn while the value is empty (a short phrase; truncates).
-	placeholder?: string;
-}
-
-// An applied filter in a toolbar: a removable chip.
-export interface ToolbarChip extends ChipMark {
-	// Removes the filter.
-	onRemove: () => void;
-}
-
 // One filter of a toolbar, which draws it as a `Picker` while the toolbar
 // holds two or fewer filters on the desktop, and folds all of them behind one
 // Filters act at three or more there (`FOLD_FILTERS_AT`) and at touch whatever
@@ -165,16 +201,6 @@ export interface OptionGroup<V extends string | null = string> {
 	options: Option<V>[];
 }
 
-// One segment of a `Picker` in `fit: segments`: a choice (its `value`), or a
-// link (an `href` and no value), which the Picker marks selected while the
-// location is its href or below it, and opens when it is pressed. A Picker
-// holds choices or links, never both. A label is a word, up to the short
-// measure.
-export interface ChoiceSegment<V extends string = string> {
-	value: V;
-	label: string;
-	href?: never;
-}
 export interface LinkSegment {
 	href: string;
 	label: string;
@@ -237,16 +263,6 @@ export type RowMark =
 // tag; a list may hold several statuses, each its own badge with its tone mark (the first leads the line, and the row's lock follows it).
 export type Fact = Run | StatusMark | ChipMark | { warning: string } | RowMark;
 
-// A record head's fact: the base kinds and what only a head acts on: words
-// that open a sheet or go to a route, a status that moves (a pick whose options
-// carry states) and a count beside its word.
-export type RecordFact<V extends string | null = string> =
-	| Fact
-	| { label: Run; onOpen: () => void }
-	| { label: Run; href: Route; onOpen?: never }
-	| { pick: OptionPick<V> }
-	| { count: number; label: string };
-
 // A pick that applies at once where a value stands (a row's trailing, a
 // record's status fact, a toolbar's filter, the shell's switcher between a
 // workspace and an account), drawn as a `Picker` at the row fit. A promise
@@ -287,52 +303,6 @@ export interface MultiPick<V extends string | null = string> {
 	act?: IconAct | IconLinkAct;
 }
 
-// What a cell holds when it is a picked option or a typed value: the one
-// the viewer chose, `picked` unset while neither is.
-export type EitherValue<V extends string | null = string> =
-	| { picked?: V }
-	| { typed: string };
-
-// A picked option or a typed value in one cell: the pick, whose list ends
-// with the act that switches to typing, or the typed value, whose field ends
-// with the act that switches back to the pick.
-export interface EitherPick<V extends string | null = string> {
-	// What is picked, the trigger's name (a short phrase; read aloud, never drawn on the trigger).
-	label: string;
-	options: readonly Option<V>[] | readonly OptionGroup<V>[];
-	value: EitherValue<NoInfer<V>>;
-	onChange: (value: EitherValue<NoInfer<V>>) => void;
-	// The hint drawn while the typed value is empty (a short phrase; truncates).
-	placeholder?: string;
-}
-
-// One term of a rule: a pick, a pick of several, or a picked option or a
-// typed value.
-export type RuleValue<V extends string | null = string> =
-	| { pick: OptionPick<V>; picks?: never; either?: never }
-	| { picks: MultiPick<V>; pick?: never; either?: never }
-	| { either: EitherPick<V>; pick?: never; picks?: never };
-
-// A rule's terms, one of two rows: a pair (a source mapped to a target) or a
-// condition (a field, fixed operator words, a value).
-export type RuleTerms<V extends string | null = string> =
-	| { from: RuleValue<V>; to: RuleValue<V>; field?: never }
-	| {
-			field: OptionPick<V>;
-			// The fixed words between the field and the value (a word; wraps).
-			operator: string;
-			value: RuleValue<V>;
-			from?: never;
-	  };
-
-// One row of a `Rules` list: its `id`, unique in the list, its terms, and
-// `onRemove`, which draws the row's remove act.
-export interface Rule<V extends string | null = string> {
-	id: string;
-	terms: RuleTerms<V>;
-	onRemove?: () => void;
-}
-
 // A list row's trailing: a value that cannot change (an age, a count, a
 // word). An `age` is an ISO moment: the row words it short ("2 min")
 // and keeps it current from the shared clock. Its `beside` is a short value beside the age (a
@@ -343,22 +313,6 @@ export type RowTrailing =
 	| { count: number }
 	// A word: whole or gone on the web (the row leaves it once the title would hold under half its line), kept whole on the phone.
 	| { value: string };
-
-// A list row's entry: an input and the act that sends it, standing under the
-// title in the facts' place (a URL and its Import), the act's label whole
-// (on a line too narrow for both it stands under the input). `label` names the
-// input and `error` is the line under it; once the act settles the row is
-// given its result as `facts` in place of the entry.
-export interface RowEntry {
-	// The input's accessible name (a short phrase; read aloud, never drawn).
-	label: string;
-	field: FieldControl<string>;
-	// The hint drawn while the input is empty (a short phrase; truncates).
-	placeholder?: string;
-	act: Act;
-	// The line under the input (a sentence; wraps).
-	error?: string;
-}
 
 // A `FormField` whose question is answered: it folds to one summary row with
 // `answer` and an Edit act that `onEdit` hears; clearing it reopens the field.
@@ -378,107 +332,6 @@ export type RowTitle =
 	| { code: string; copy: true }
 	| { absent: string }
 	| StatusMark;
-
-// A row's lock: why the row cannot change here, a request that holds it ("Held
-// by CR-12, Ana") or a role that cannot. The lock is a glyph named by the
-// reason; with `href` it is a link to what holds the fact, without one inert.
-export interface Lock {
-	reason: string;
-	href?: Route;
-}
-
-/** A row of a Section's sheet: a row item or a file; `"path" in row` tells the last. */
-export type Row<V extends string | null = string, Q = unknown> =
-	| RowItem<V, Q>
-	| FileItem;
-
-/** One row of a Section's sheet, a fact or a thing alike: it draws whichever slots it fills, on one box. A row with a `label` stands in the sheet's two columns (the label in the first, as wide as the widest of the Pane); a row without one starts its text group at the row's start. */
-export interface RowItem<V extends string | null = string, Q = unknown> {
-	/** The row's React key, unique across the whole sheet, a tree's children included; the label's text, then the title's, when none is given. */
-	key?: string;
-	/** Where the row stands in a change set: its mark at the row's start, ahead of the leading mark (a set's untouched rows are `unchanged`, so the titles line up). */
-	change?: ChangeKind;
-	/** What the row is, in the aligned column ahead of its text (a short phrase; wraps to the room its title leaves), at the body role in the meta ink; `{ code }` is a machine name (a key, a path) in the code role, in the meta ink too. The column is as wide as the widest label of every list in the Pane. On touch a value stands under its label, and a label with no title, facts or entry (a switch's, an act's) stands on one line with the end group. */
-	label?: string | { code: string };
-	/** The row's leading mark: a glyph, a status, an avatar, a type's mark (its `label` names it) or a tick that chooses the row. */
-	leading?: RowLeading;
-	/** What the row names (a short phrase; truncates at its end, wraps whole while `wrap`, whether the row has a `label` or not); runs of words and `{ code }` draw the code bare in the mono, as a machine name in a row stands (voice 7); the platform widens it to a `Datum`. */
-	title?: RowTitle;
-	/** What the row says of itself, in the order given: its facts (`Fact`), each one fact and each drawn as one badge, a box that never breaks inside, whole badges wrapping to the next line with no separator between them (voice 19). A fact is short: a badge longer than its line is cut with an ellipsis inside its box, which touch cannot read, so a sentence is the row's `line`, never a fact. The badges follow the title on its line while the row is one line, and stand under it where the row is two (on touch, below the row's one-line width, or beside a mark). The words are a string (a middle dot inside it is text, not a separator) or a `{ code }` run in the mono; a `{ code }` fact alone is no badge but the row's value, the mono cut in its middle (`valueCut`) in a one-line row and whole in two. A status (`StatusMark`: its tone's mark and word; the first leads the line and the row's lock follows it, a further one is a badge of its own, as a table's several status columns on touch), what is wrong (`{ warning }`: the warning mark and its short phrase), a chip (`ChipMark`, a data value: its family's dot, none for neutral, and its word) and a boolean mark (`RowMark`: the required ring, a flag glyph, each its glyph and its `label`; with `words: false` the glyph stands alone in the end group, before the trailing value, its `label` the accessible name and the tooltip) are the marks, each its own badge with the mark inside, in the order given; the row's `lock` is a badge right after the status; a row with a mark stands its facts under its title at every width. A ring that does not hold draws nothing. The platform widens each fact, and the list, to a `Datum`. */
-	facts?: readonly Fact[];
-	/** The one sentence under the title: a remedy, a schedule, an error, what a setting does. It is text, never a badge: the meta ink at the meta role, runs (`Runs`, so it holds a `{ code }` or a `{ strong }` run) wrapping whole at every width, a code run moving whole to the next line. It stands after the facts' badges, and under the title where the row has no facts or they follow the title on its line, so a row with a line is at least two lines. Empty draws nothing. A fact is a short thing a row says (a word, a count, an age); a sentence goes here, never in `facts`, where it is one badge cut with an ellipsis at a narrow width, which touch cannot read. The platform widens it to a `Datum`; the painted form is a sentence's filler. */
-	line?: Run | Runs;
-	/** A value in the row's end group (an age, a count, a word), cut with an ellipsis to the room the end's controls and acts leave. */
-	trailing?: RowTrailing;
-	/** What the row holds or why it cannot change here, a lock mark among the marks after the status and the warning (a short phrase); with an `href` the lock links to what holds the fact. A locked row takes no act or open, and its switch stands disabled (greyed, and read as disabled by assistive tech). It stays a prop, not a fact: it changes what the row does. */
-	lock?: string | Lock;
-	/** An input and its act under the title, in the facts' place; give `facts` back once the act settles. */
-	entry?: RowEntry;
-	/** The steps of the work the row's act pends on, one line each in the facts' place. */
-	steps?: readonly StatusMark[];
-	/** How far a running task has got, as a bar along the row's foot, in the padding under its text, so the row's height is the same with it and without: `value` of `max` (a `max` of 0 or under draws none; a `value` past it is full). The bar fills in the meta ink and turns the good tone when it reaches `max`; it is named by the title. */
-	progress?: { value: number; max: number };
-	/** The row stands off a highlighted path: its title in the meta ink, still a hit and focusable. */
-	dim?: boolean;
-	/** The title is a passage read whole: it wraps to every line instead of truncating. */
-	wrap?: boolean;
-	/** A setting that changes the row's fact in place, named by the label; the platform widens `checked` to a `Datum`. */
-	switch?: { checked: boolean; onChange: (checked: boolean) => unknown };
-	/** A pick that chooses in place and applies at once, in the end group; the platform widens `options` and `value` to a `Datum`. */
-	pick?: Omit<OptionPick<V>, "act" | "several">;
-	/** The row's one act at its end, ahead of the more act, or a link to a route: an icon act, its label the accessible name and the tooltip; the row's other acts are its `more`. The platform widens it to a `Datum`. */
-	act?: IconAct | IconLinkAct;
-	/** The row's acts, in a menu under the more act at its end; the platform widens it to a `Datum`. */
-	more?: readonly MenuEntry[];
-	/** Where the row goes when opened; the row is current at it and at every address below it (`isCurrent`). */
-	href?: string;
-	/** Whether the row is current, whatever its `href`: `true` for the open record, or a place whose page has opened a record at an address outside its own; `false` for a second row of the open record's address (one listed twice, as a kind's page and again among the stale ones), so the record is current once. Absent, the row is current at its `href`. */
-	selected?: boolean;
-	/** Opens what the row names. */
-	onOpen?: () => void;
-	/** What a drag of the row carries to a drop: the kind the drops accept by and the rows (this row's id, or the pick it stands in). A row with one is dragged by a press that moves (a finger after a hold). */
-	drag?: Dragged;
-	/** The drop this row is: what a drag it accepts does when released on the row. */
-	drop?: Drop<Q>;
-	/** The row's children, which make the sheet a tree: they draw one level in under it, and its fold act folds them. */
-	children?: readonly RowItem<V, Q>[];
-	/** Whether the Section's head counts the row, Absent, a top-level row counts and a nested row (a part of its parent) does not. `false`: a top-level row that is no item of the list (an add row, a row that only points elsewhere). `true`: a nested row that is an item in its own right. */
-	counted?: boolean;
-	/** The key of the Section's `groups` entry the row stands in; a tree's group is its root rows', children following their parent. */
-	group?: string;
-}
-
-/** A band over a Section's rows: the rows whose `group` is its `key`, under its label, the count of those rows (none where it is the Section's one band and holds every row, the heading's count being the same) and its act. */
-export interface Band {
-	/** The key the rows' `group` names. */
-	key: string;
-	/** The band's label (a short phrase; truncates). */
-	label: string;
-	/** The band's one icon act at its end, or a link to a route. */
-	act?: IconAct | IconLinkAct;
-}
-
-/** A changed file in a review's sheet. */
-export interface FileItem {
-	/** The row's React key, unique across the sheet. */
-	key: string;
-	/** The file's path (the directory gives way first when it is too long, then the name's middle). */
-	path: string;
-	/** Lines added; zero draws nothing. */
-	added: number;
-	/** Lines removed; zero draws nothing. */
-	removed: number;
-	/** Whether the reviewer has seen the file: a tick when seen, a ring when not; absent, the file glyph leads. */
-	seen?: boolean;
-	/** Where the file stands in a change set: the change mark at the row's start. */
-	change?: ChangeKind;
-	/** Why the file is listed, a data value's chip between the path and the counts. */
-	chip?: ChipMark;
-	/** Where the row goes when opened; the row is selected at it. */
-	href?: string;
-	/** Opens the file. */
-	onOpen?: () => void;
-}
 
 // What a typing control inside a bound `FormField` takes: the field's value,
 // its change handler, and, when the binding autosaves, what hears each
@@ -546,146 +399,6 @@ export type Route = RouteRegistry extends { route: infer R extends string }
 	? R
 	: string;
 
-// A count that leads to its list: its figure drawn tabular beside its label,
-// the whole a link to `href`. Shared by every molecule that carries counts (a
-// bound stat's line under its bar, a stat strip's cell): zero is a count, drawn.
-export interface CountLink {
-	// What is counted (a word; wraps).
-	label: string;
-	value: number;
-	href: Route;
-}
-
-// A count in a strip: a label over its figure (zero is a count, drawn), an
-// optional unit beside the figure and `line` under it, then either the
-// whole cell a link to `href` (a chevron at its label's end) or sub-counts that are links of their own, never
-// both, since a cell inside a link cannot hold links. A count with a `bound`
-// is a share of a limit, how much of a quota is used (or, with `goal`, how much
-// of a target is reached): the cell draws the meter form, the label over the
-// share in percent as its figure, over a bar filling by the share, then its `line`
-// or its sub-counts. It has no unit, since the
-// share stands in the figure's place, and no `href`, since its sub-counts are
-// the links.
-export type StatSpec = {
-	// What the figure counts (a short phrase; wraps).
-	label: string;
-	value: number;
-	// Under the figure (a sentence; wraps).
-	line?: string;
-} & (
-	| ({
-			// What the figure counts, beside it (a word; wraps).
-			unit?: string;
-			bound?: never;
-			mark?: never;
-	  } & (
-			| { counts?: readonly CountLink[]; href?: never }
-			| { href: Route; counts?: never }
-	  ))
-	| {
-			// The limit: past it the share is over. With `goal`, the target the value reaches.
-			bound: number;
-			// The bound is a goal to reach (tests passing of all of them), not a limit to stay under: the fill stays in the meta ink short of it and turns the good tone once the value reaches it, never amber or over.
-			goal?: true;
-			// A tick across the bar at the mark's value, the point the fill turns amber at.
-			mark?: MeterMark;
-			counts?: readonly CountLink[];
-			unit?: never;
-			href?: never;
-	  }
-);
-
-// The point a meter marks on its track: a tick at `value` of its max. Once the
-// meter's value reaches it the fill turns `warn`.
-export interface MeterMark {
-	value: number;
-}
-
-// Where a flow stands at one of its steps: done, the current one, or still to
-// come. A step count's segments and a rail's stages both read it.
-export type StepState = "done" | "current" | "later";
-
-// One stage of a rail of fixed states: its label and where the rail stands at
-// it. A done or current stage may carry the moment it was reached or began
-// (`at`, an ISO moment); a later one has none to give.
-// The `label` is a short phrase: it wraps.
-export type Stage =
-	| { label: string; state: Exclude<StepState, "later">; at?: string }
-	| { label: string; state: "later"; at?: never };
-
-// How a rail ended short of its last stage: the terminal row that stands in
-// place of every stage after the last done one, its reason under its label.
-export interface StageEnd {
-	// The terminal row's text (a short phrase; wraps).
-	label: string;
-	// Why the rail ended (a sentence; wraps), when it says one; empty or absent, the row draws its label alone.
-	reason?: string;
-}
-
-// A place in the shell: a route, a label, an icon, an optional count, and where it stands in the sidebar.
-export interface PlaceSpec<Q = unknown> {
-	route: Route;
-	// The place's name (a word; truncates).
-	label: string;
-	icon: IconName;
-	count?: number;
-	// The name of the group the place stands in (a word; truncates), which the
-	// Shell's `groups` lists. A group is an entry on the sidebar's rail and the
-	// column that entry shows; a place with none stands in the ungrouped run, the
-	// rail's first entry. The tab bar and the More page ignore it.
-	group?: string;
-	// The place stands in the footer group at the sidebar's bottom (settings, an
-	// exit), after the others and under no label. The tab bar and the More page
-	// ignore it.
-	end?: boolean;
-	// The drop this place is (a board): a drag of a kind it accepts released
-	// on it runs its `onDrop`. The tab bar ignores it.
-	drop?: Drop<Q>;
-	// The places standing under this one (a folder's boards), each with
-	// children of its own to any depth: the place is a branch, its sidebar row
-	// opens and folds them one level in. A branch is a place like any other
-	// (its route, its count, its `drop`); its row also carries the viewer's
-	// choice of open or folded, which the browser keeps. Unchosen, a branch is
-	// open when the current place is under it, else folded. A branch is the
-	// current place's ancestor, drawn as on its path. A place named by `group`
-	// carries its children into that group's run; `end` places have none. The
-	// phone's tab bar and More page are flat: they draw the top level only and
-	// ignore `children`, except that a route under a branch selects its tab.
-	children?: readonly PlaceSpec<Q>[];
-}
-
-// A group of places in the sidebar, named by `PlaceSpec.group`; a Shell lists
-// every group its places name. Its entry on the rail carries the `icon` and,
-// while the rail is docked or expanded, the `label` beside it; the touch layer heads the group's places with the `label`. One with a `switcher` is a scope (a
-// project) whose places follow its pick: the pick stands as a row before the
-// places.
-export interface GroupSpec {
-	// The group's name (a word; truncates), as the places' `group` names it.
-	label: string;
-	// The group's entry on the rail, its label the entry's name.
-	icon: IconName;
-	switcher?: OptionPick;
-}
-
-// One line of a diff hunk; `before` and `after` are line numbers.
-export interface DiffLine {
-	kind: "context" | "added" | "removed";
-	// The line's code (text; wraps under itself).
-	text: string;
-	before?: number;
-	after?: number;
-}
-
-export interface Hunk {
-	// The hunk's header in git's form (`@@ -12,7 +12,9 @@ export function total`),
-	// optional. Its ranges are never drawn: the lines' numbers say where a hunk
-	// stands and an elided mark parts it from the hunk before. What git writes
-	// after the ranges (the enclosing function, a short phrase; truncates) stands
-	// in that mark; a header in no git form stands there whole.
-	header?: string;
-	lines: DiffLine[];
-}
-
 // A file the viewer chose or dropped, the same on both platforms so one
 // upload serves both: the web wraps its `File` (`blob` resolves to it), the
 // phone the document picker's asset (`blob` reads its uri). `size` is in
@@ -703,137 +416,7 @@ export interface PickedFile {
 	src?: string;
 }
 
-// A file that goes with a message: a chip of its name, or, with `src` (an
-// image's address), a thumbnail that opens full size.
-export interface Attachment {
-	id: string;
-	// The file's name: the chip's label (a word; truncates past the short
-	// measure, 20 characters), or a thumbnail's accessible name.
-	name: string;
-	src?: string;
-}
-
-// A sentence and an act under a message input.
-export interface Notice {
-	// What it says (a sentence; wraps).
-	sentence: string;
-	act?: Act | LinkAct;
-}
-
-// What stands under a system message's line, exactly one of three: `row`,
-// what the line names as one list row in a hairline card, opening its record;
-// `code`, a tool call's arguments in the code role under the line, its name;
-// `fold`, lines (split on newlines) the line opens in place, its chevron
-// turning down.
-export type MessageDetail =
-	| {
-			row: {
-				leading?: RowLeading;
-				title: Run;
-				facts?: readonly Fact[];
-				line?: Run | Runs;
-				href?: Route;
-				onOpen?: () => void;
-			};
-			code?: never;
-			fold?: never;
-	  }
-	| { code: string; row?: never; fold?: never }
-	| { fold: string; row?: never; code?: never };
-
 // ── Table ───────────────────────────────────────────────────────────
-
-// A column's width: the short measure of a label or a quarter of the table's
-// width. A column with none shares what the others leave, except a column of
-// figures (`number`, `age`), which stands at half the short measure.
-export type ColumnWidth = "measure-short" | "1/4";
-
-interface ColumnBase {
-	key: string;
-	// The column's head (a short phrase; truncates).
-	label: string;
-	width?: ColumnWidth;
-	sortable?: boolean;
-	// The column's cells wrap onto further lines and hyphenate, as a long
-	// value reads whole, instead of truncating. The row grows to its tallest
-	// cell. Below `tablet` a wrapping column's cell is the row's `line`, never
-	// a fact (a cut badge would hide the sentence), several such cells joined
-	// by "; " as the changes' are, and a painted row paints one filler line. A
-	// column that does not wrap gives the row a fact until a value is too long
-	// for one (`TOUCH_FACT_FITS`): that value is the row's line too.
-	wrap?: boolean;
-	// The column is read only in this table: its cells never edit (its `edit` is
-	// ignored) and its head draws a lock glyph.
-	locked?: boolean;
-	// The column starts out of the grid: the viewer shows it from the table's
-	// columns menu, and what the viewer chose is kept for the next visit. The
-	// leading column, the row's name, is never hidden.
-	hidden?: boolean;
-}
-
-// A column by the kind of value its cells hold, each kind with the edits
-// that fit it: `text`, `source` (mono) and `number` are typed; `chip` (a value
-// drawn on the column's family), `status`, `age` (an ISO moment) and `change` (a
-// value before and after, sorted by its after) are read only. Its
-// `cell` reads its value from an item. Bare (`T` never), it is a column over
-// any item, its cell taking none.
-export type TableColumn<T = never> = (
-	| (ColumnBase & { kind?: "text" | "source" | "number"; edit?: "input" })
-	| (ColumnBase & { kind: "chip"; family: ChipFamily; edit?: never })
-	| (ColumnBase & { kind: "status" | "age" | "change"; edit?: never })
-) & { cell: (item: T) => TableCell };
-
-// A `change` cell's value: what it was and what it is. A null `before` is a
-// value added, a null `after` a value removed.
-export interface ChangeCell {
-	// Each value is a short phrase; it truncates.
-	before: string | null;
-	after: string | null;
-}
-
-// A cell's value, by its column's kind: a string (`text`, `source`, `chip`,
-// `age`), a number, a status mark, a change or, in a `chip` column, a chip
-// mark naming its own family; null is an empty cell.
-// A string cell is a short phrase: it truncates (a `chip` cell a word,
-// truncating past the short measure, 20 characters). A `chip` cell given as a
-// string draws on the column's `family`; one given as `{ label, family }`
-// draws on its own, as a column of kinds takes each kind's hue.
-export type TableCell =
-	| string
-	| number
-	| StatusMark
-	| ChipMark
-	| ChangeCell
-	| null;
-
-// A selection bar's count of the rows a list chooses: `count` of `of` (the rows
-// that can be chosen), its numbers formatted. `onAll` adds the acts beside the
-// count: one that clears the rows while any are chosen (it hears `false`) and one
-// that chooses every row while some stand unchosen (`true`).
-export interface ChosenCount {
-	count: number;
-	of: number;
-	// What the rows are called in the sentence (a plural word, "items"): "2 of 4 items chosen"; without it "2 of 4 chosen".
-	noun?: string;
-	onAll?: (all: boolean) => void;
-}
-
-// What a table says of a row beside its tick: `blocked` the reason a row
-// cannot be ticked and `moved` the reason a rule moved its tick; each reason is
-// a short phrase under the row's leading cell, truncating. What the rows are
-// called in the count is the selection bar's (`ChosenCount`'s `noun`).
-export interface ChoiceSlots<T> {
-	blocked?: (item: T) => string | undefined;
-	moved?: (item: T) => string | undefined;
-}
-
-// The rows a table chooses, controlled: `chosen` the ids ticked and
-// `onChange` hearing the set the viewer's tick or the head tick makes, which
-// the consumer applies its rule to and hands back through `chosen`.
-export interface TableChoice<T> extends ChoiceSlots<T> {
-	chosen: readonly string[];
-	onChange: (ids: string[]) => void;
-}
 
 // The rows a mutation acts on, as the table holds them and as the server
 // takes them (`selector()` of plugin-api): the ids ticked, or every row the
@@ -842,20 +425,6 @@ export interface TableChoice<T> extends ChoiceSlots<T> {
 export type Picked<Q = unknown> =
 	| { ids: string[] }
 	| { query: Q; except: string[] };
-
-// The rows a table chooses over a paginated read, controlled: `picked` is what
-// a mutation takes whole, and `onPick` hears the pick the viewer's tick makes.
-// A tick on a row changes the ids (or, once the head tick chose the query, the
-// ids unticked); the head tick over a read that pages chooses the query, every
-// row it matches, loaded or not. A changed query ends a pick of the old one.
-export interface TablePick<T, Q = unknown> extends ChoiceSlots<T> {
-	picked: Picked<Q>;
-	onPick: (picked: Picked<Q>) => void;
-}
-
-// What one committed edit hands back: the column's new value, null for a
-// number cleared.
-export type CellValue = string | number | null;
 
 // Where a record, a row or a field stands in a change set: added, changed,
 // removed, `unchanged` (so a marked set lines up) or `stale` (the change set
@@ -868,148 +437,7 @@ export type ChangeKind =
 	| "unchanged"
 	| "stale";
 
-// A table row's own slots, each read from the item: its id, unique in the
-// table; `href`, its leading cell's link, so it opens in a new tab; `editable`,
-// whether its cells edit in place (false: they draw the plain value, no mark
-// and no act, a row that is simply not editable); `locked`, the columns whose
-// cells it draws read only with a lock, the hold of an open change set;
-// `warning`, what is wrong with
-// the row, drawn after its leading cell's name (a warn glyph and the
-// sentence; the phone's row carries it as a `ListRow` warning); and `change`,
-// where the row stands in a change set, its mark ahead of the leading cell's
-// name (the phone's row carries it as a `ListRow` change).
-export interface TableRowSlots<T, Q = unknown> {
-	id: (item: T) => string;
-	href?: (item: T) => Route | undefined;
-	editable?: (item: T) => boolean;
-	locked?: (item: T) => readonly string[] | undefined;
-	// The warning's label (a short phrase; truncates).
-	warning?: (item: T) => string | undefined;
-	change?: (item: T) => ChangeKind | undefined;
-	// The row's one act, at its end: an icon act (its label the accessible name
-	// and the tooltip) or a link to a route, carrying its own wiring (`confirm`,
-	// `done`, `to`). Shift+Enter on the active row runs it, and Enter does where
-	// the row opens nothing.
-	act?: (item: T) => IconAct | IconLinkAct | undefined;
-	// The row's other acts, in a menu after its act (the Context Menu key opens
-	// it). A table that reorders or drags adds its keyboard alternatives to it.
-	more?: (item: T) => readonly MenuEntry[] | undefined;
-	// The drop this row is, as a `RowItem`'s `drop`.
-	drop?: (item: T) => Drop<Q> | undefined;
-}
-
-// A point on the canvas, in its own coordinates.
-export interface CanvasPoint {
-	x: number;
-	y: number;
-}
-
-// What a node is in its graph, drawn in its shape and tone: `start` a pill in
-// the accent, `step` the plain card, `decision` a compact card with a diamond
-// (its answers are its out-edges' labels), `wait` a card in the attention
-// tone (something waits for a person), `call` a card with a double edge
-// (another graph runs here), `end` a quiet pill.
-export type CanvasRole =
-	| "start"
-	| "step"
-	| "decision"
-	| "wait"
-	| "call"
-	| "end";
-
-// One node: its glyph, its words and the one figure in its trailing slot,
-// `number` (a place in a sequence) over `count`. A `warning` is drawn in
-// place of `line`; an `off` node is drawn quiet over its role. Without a
-// `position` the canvas places it.
-export interface CanvasNode {
-	id: string;
-	icon: IconName;
-	// What the node is, in its shape and tone (`step`, the plain card, without one).
-	role?: CanvasRole;
-	// A `call` node's graph: it draws an open act that goes there without choosing the node.
-	href?: Route;
-	// Over the title (a short phrase; truncates).
-	overline?: string;
-	// The node's name (a short phrase; truncates).
-	title: string;
-	// Under the title (a phrase; wraps to a second line, then truncates).
-	line?: string;
-	number?: number;
-	count?: number;
-	// The node's status: its dot and its `label`, leading the line under the title (a word or two; whole up to the short measure, then truncates).
-	status?: StatusMark;
-	// What is wrong with the node, in `line`'s place (a short phrase; truncates).
-	warning?: string;
-	off?: boolean;
-	position?: CanvasPoint;
-}
-
-// An edge from one node's id to another's, its `label` drawn on it; a
-// `handoff` edge carries its glyph beside the label. An end may name a group
-// that holds nothing present, which stands in the path as a node does.
-export interface CanvasEdge {
-	id: string;
-	from: string;
-	to: string;
-	// Drawn on the edge in a chip (a word; truncates past the short measure, 20 characters).
-	label?: string;
-	handoff?: boolean;
-}
-
-// A frame round the nodes and groups it `holds`, by id; a group may hold a
-// group. A group holding nothing present is a frame of its head alone.
-export interface CanvasGroup {
-	id: string;
-	// The frame's heading (a short phrase; truncates).
-	head: string;
-	holds: readonly string[];
-}
-
-// A run or scenario's taken path, by id; everything else dims. `at` is the
-// node the run stands at.
-export interface CanvasPath {
-	nodes: readonly string[];
-	edges: readonly string[];
-	at?: string;
-}
-
 // ── Thread ──────────────────────────────────────────────────────────
-
-// One message of a thread, by its author: `you`, a bubble at the column's end;
-// `other`, a reply read as Prose under its name; `system`, one line
-// centred in the thread. A turn takes `name`, `attachments`, `from` and
-// `streaming`; a system line takes `onOpen` and `detail`.
-export type Message = {
-	// What was said (text; wraps): plain text for `you` and `system`, markdown for `other`.
-	body: string;
-	// When it was said, an ISO moment: drawn as the time today, the day's word and the time a day either side, else the date and time (its year only when it is not this year's).
-	at?: string;
-} & (
-	| {
-			author: "you" | "other";
-			// Who said it: drawn over `other`'s reply; yours draws none (a short phrase; wraps).
-			name?: string;
-			// What came with it, one row over the bubble or the reply: an attachment with `src` a thumbnail that opens full size, one without a chip of its name.
-			attachments?: readonly Attachment[];
-			// Where it came from ("via email", "Front desk"), joined by a middle dot before the time (each a short phrase; the line breaks between a part's words, never at a dot; a dot inside a part is text).
-			from?: Runs;
-			// The reply is still arriving: a marker left open at its end (an emphasis, a strong run, a code span, a link, a fence) is drawn in its own form from its first character, and its closing marker changes nothing already drawn; unset or `false`, an unmatched marker is text. Yours is always whole.
-			streaming?: boolean;
-			onOpen?: never;
-			detail?: never;
-	  }
-	| {
-			author: "system";
-			// Opens what the line names: the line becomes the act, a chevron after it.
-			onOpen?: () => void;
-			// What stands under the line, one of three: a row in a hairline card that opens its record, a tool call's arguments in the code role, or lines the line opens in place (it takes no `onOpen` then).
-			detail?: MessageDetail;
-			name?: never;
-			streaming?: never;
-			attachments?: never;
-			from?: never;
-	  }
-);
 
 // A waveform's precomputed amplitude, drawn from the first value to the last
 // across the track's length: one 0..1 magnitude per value, or with `paired`
@@ -1018,25 +446,6 @@ export type Message = {
 export interface Peaks {
 	values: ArrayLike<number>;
 	paired?: boolean;
-}
-
-// What the player plays and the waveform draws: one audio file and what is
-// known of it. `Peaks` make the dock draw a waveform where it would draw a plain
-// seek slider.
-export interface Track {
-	// The audio's address (an http(s) URL, a blob or data URL).
-	src: string;
-	// The track's name (a short phrase; truncates).
-	title: string;
-	// What stands under the name, an artist or an album (a short phrase; truncates).
-	line?: string;
-	// A picture's address, drawn at the avatar's size in the dock; a track without one stands as a picture that did not load.
-	image?: string;
-	// The length in seconds, where it is known before the file answers (so the dock draws the total, and a waveform its scale, from the first frame).
-	duration?: number;
-	peaks?: Peaks;
-	// Identifies the track in a queue where `src` does not (a signed URL that changes); `src` without one.
-	key?: string;
 }
 
 // ── Drag and drop ───────────────────────────────────────────────────
@@ -1048,12 +457,6 @@ export interface Track {
 export interface Dragged<Q = unknown> {
 	kind: string;
 	picked: Picked<Q>;
-}
-
-// A collection's rows as a drag's source: the kind of what a row carries. A
-// row of a table that is ticked drags the whole pick, an unticked one itself.
-export interface DragSource {
-	kind: string;
 }
 
 // A place that takes a drag, as data: the kinds it `accepts`, the `label` of

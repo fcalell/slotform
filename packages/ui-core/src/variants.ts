@@ -1,20 +1,19 @@
 // The public matrix layer: one cva per table, the axis types a component
 // declares its props with, the single-cell constants, and the family registry
 // with its cell enumeration. The tables themselves stay internal to the
-// package.
-import { cva } from "class-variance-authority";
+// package. What one component alone draws is declared in its
+// `roster/<component>.ts` and re-exported here; a motion cell is spelled
+// beside the matrices that compose it and read from here.
 import type { ClassValue } from "clsx";
 import type { ChangeKind } from "./descriptors.ts";
-import { COLOR_NAMES, type ColorName, type Tone } from "./tokens.ts";
+import { BANNER, BANNER_GLYPH, banner, bannerGlyph } from "./roster/banner.ts";
 import {
-	ANSWER,
-	AVATAR,
-	AVATAR_LABEL,
-	type Axes,
-	BANNER,
-	BANNER_GLYPH,
-	BUTTON,
-	BUTTON_LABEL,
+	CHART_BAND,
+	CHART_FILL,
+	chartBand,
+	chartFill,
+} from "./roster/bar-chart.ts";
+import {
 	CANVAS_GROUP,
 	CANVAS_NODE,
 	CANVAS_NODE_GLYPH,
@@ -22,83 +21,492 @@ import {
 	CANVAS_NODE_MARK,
 	CANVAS_NODE_NAME,
 	CANVAS_NODE_TEXT,
-	CHANGE_MARK,
-	CHART_BAND,
-	CHART_FILL,
-	CHECK_MARK,
-	CHECKBOX,
-	CHEVRON,
-	CHIP,
-	CHIP_DOT,
-	CODE_TEXT,
-	COLUMNS,
-	CURRENT_BAR,
-	CURRENT_ROOM,
+	canvasGroup,
+	canvasNode,
+	canvasNodeGlyph,
+	canvasNodeInk,
+	canvasNodeMark,
+	canvasNodeName,
+	canvasNodeText,
+} from "./roster/canvas.ts";
+import { CODE_TEXT, codeText } from "./roster/code.ts";
+import { COLUMNS, columns } from "./roster/columns.ts";
+import {
 	DIFF_LINE,
-	FIELD,
-	FIELD_VALUE,
+	diffLine,
+	PROSE_DIFF_RUN,
+	proseDiffRun,
+} from "./roster/diff.ts";
+import { STEP_COUNT_SEGMENT, stepCountSegment } from "./roster/gate.ts";
+import {
+	OTP_BOX,
+	otpBox,
+	TEXT_AREA,
+	TEXT_AREA_BUDGET,
+	textArea,
+	textAreaBudget,
+} from "./roster/input.ts";
+import {
+	OPTION_RADIO,
+	optionRadio,
+	PICKER,
+	picker,
+	SEGMENT,
+	SEGMENT_LABEL,
+	segment,
+	segmentLabel,
+} from "./roster/picker.ts";
+import { PROSE_MARKER, proseMarker } from "./roster/prose.ts";
+import { RULE_ARROW, ruleArrow } from "./roster/rules.ts";
+import {
 	FILE_COUNT,
 	FILE_PATH_PART,
-	FILL_FADE,
-	FILL_X,
-	FILL_Y,
+	fileCount,
+	filePathPart,
+} from "./roster/section.ts";
+import {
+	ANSWER,
+	BUTTON_LABEL,
+	build,
 	GIVE,
+	SUBGRID,
+	TEXT,
+	text,
+	toneOf,
+} from "./roster/shared.ts";
+import {
+	PLACE_ROW,
+	PLACE_ROW_GLYPH,
+	PLACE_TAB,
+	PLACE_TAB_LABEL,
+	placeRow,
+	placeRowGlyph,
+	placeTab,
+	placeTabLabel,
+} from "./roster/shell.ts";
+import {
+	STAGE,
+	STAGE_MARK,
+	STAGE_RAIL,
+	stage,
+	stageMark,
+	stageRail,
+} from "./roster/stages.ts";
+import {
+	SWITCH,
+	SWITCH_THUMB,
+	switchThumb,
+	switchTrack,
+} from "./roster/switch.ts";
+import {
+	TABLE_CHANGE_VALUE,
+	TABLE_FROZEN_CELL,
+	TABLE_HEAD,
+	TABLE_HEAD_LABEL,
+	TABLE_ROW,
+	tableChangeValue,
+	tableFrozenCell,
+	tableHead,
+	tableHeadLabel,
+	tableRow,
+} from "./roster/table.ts";
+import { MESSAGE, message } from "./roster/thread.ts";
+import { TOAST_STATE, toastState } from "./roster/toast.ts";
+import type { ColorName, Tone } from "./tokens.ts";
+import {
+	AVATAR,
+	AVATAR_LABEL,
+	type Axes,
+	BUTTON,
+	CHANGE_MARK,
+	CHECK_MARK,
+	CHECKBOX,
+	CHIP,
+	CHIP_DOT,
+	FIELD,
+	FIELD_VALUE,
 	ICON,
 	ICON_BUTTON,
 	IMAGE,
 	IMAGE_PICTURE,
-	LIFT,
 	LINE_BOX,
 	LINK,
 	type Matrix,
 	MENU,
 	MENU_GROUP,
 	MENU_LABEL,
-	MESSAGE,
 	METER_FILL,
-	OPTION_RADIO,
-	OTP_BOX,
 	PAINT,
-	PATH_TONE,
-	PICKER,
-	PLACE_ROW,
-	PLACE_ROW_GLYPH,
-	PLACE_TAB,
-	PLACE_TAB_LABEL,
-	PROSE_DIFF_RUN,
-	PROSE_MARKER,
-	RADIO_DOT,
 	ROW,
 	ROW_MARK,
 	ROW_STEP,
 	ROW_TITLE,
-	RULE_ARROW,
-	SEGMENT,
-	SEGMENT_LABEL,
-	STAGE,
-	STAGE_MARK,
-	STAGE_RAIL,
 	STATE_CHIP,
 	STATUS_DOT,
-	STEP_COUNT_SEGMENT,
-	SWAP_IN,
-	SWAP_OUT,
-	SWITCH,
-	SWITCH_THUMB,
-	TABLE_CHANGE_VALUE,
-	TABLE_FROZEN_CELL,
-	TABLE_HEAD,
-	TABLE_HEAD_LABEL,
-	TABLE_ROW,
-	TEXT,
-	TEXT_AREA,
-	TEXT_AREA_BUDGET,
 	TEXT_STRONG,
-	TOAST_STATE,
-	TOGGLE_THUMB,
-	TRAVEL_X,
-	TRAVEL_Y,
 } from "./variant-tables.ts";
+
+export {
+	ACTION_BAR_ALL,
+	ACTION_BAR_CHOSEN,
+	ACTION_BAR_SELECTION,
+	type ActionBarFit,
+} from "./roster/action-bar.ts";
+export {
+	BANNER_MAIN,
+	BANNER_ROW,
+	banner,
+	bannerContentTone,
+	bannerGlyph,
+	PENDING_FILL,
+	PENDING_LEFT,
+	PENDING_ROW,
+	PENDING_TRACK,
+} from "./roster/banner.ts";
+export {
+	CHART,
+	CHART_BAR,
+	CHART_BODY,
+	CHART_CONTROLS,
+	CHART_DOT,
+	CHART_GRID,
+	CHART_HEAD,
+	CHART_KEY,
+	CHART_KEY_DOT,
+	CHART_KEYS,
+	CHART_LEVEL,
+	CHART_MAIN,
+	CHART_PARTIAL,
+	CHART_SELECTED,
+	CHART_TICK_LANE,
+	CHART_TOTAL,
+	chartBand,
+	chartFill,
+	FILL_Y,
+	TRAVEL_Y,
+} from "./roster/bar-chart.ts";
+export {
+	type ButtonAct,
+	type ButtonFit,
+	buttonContentTone,
+	type IconButtonFit,
+	LAYER_TOOLTIP,
+	TOOLTIP,
+	TOOLTIP_CUT,
+} from "./roster/button.ts";
+export {
+	CANVAS_GROUND,
+	CANVAS_GROUP_HEAD,
+	CANVAS_PORT,
+	CANVAS_PORT_HIT,
+	CANVAS_ZOOM,
+	canvasGroup,
+	canvasNode,
+	canvasNodeGlyph,
+	canvasNodeInk,
+	canvasNodeMark,
+	canvasNodeName,
+	canvasNodeText,
+	LIFT,
+	PATH_TONE,
+} from "./roster/canvas.ts";
+export { CARD_BODY } from "./roster/card.ts";
+export {
+	CODE_ACT,
+	CODE_FOLD,
+	CODE_HEAD,
+	CODE_UNDER_HEAD,
+	codeText,
+} from "./roster/code.ts";
+export { type ColumnsFit, columns } from "./roster/columns.ts";
+export {
+	DIFF_CODE,
+	DIFF_GUTTER,
+	DIFF_HANG,
+	DIFF_HUNK,
+	DIFF_MARK,
+	diffLine,
+	PROSE_DIFF_BODY,
+	PROSE_DIFF_TEXT,
+	proseDiffRun,
+} from "./roster/diff.ts";
+export {
+	DOCK,
+	DOCK_BAR,
+	DOCK_PROGRESS,
+	DOCK_TEXT,
+	DOCK_TIME,
+	DOCK_VOLUME,
+} from "./roster/dock.ts";
+export {
+	FORM_FOOT,
+	FORM_FOOT_STUCK,
+	FORM_GROUP,
+	GROUP_ITEM,
+} from "./roster/form.ts";
+export { GALLERY, GALLERY_TILE } from "./roster/gallery.ts";
+export {
+	FILL_FADE,
+	GATE,
+	GATE_COLUMN,
+	GATE_LOGO,
+	GATE_MARK_ROW,
+	STEP_COUNT,
+	STEP_COUNT_SEGMENTS,
+	stepCountSegment,
+} from "./roster/gate.ts";
+export { IMAGE_CAP_LINES, imageContentTone } from "./roster/image.ts";
+export {
+	FIELD_UNIT,
+	type FieldKind,
+	OTP,
+	OTP_DIGIT,
+	otpBox,
+	TEXT_AREA_VALUE,
+	textArea,
+	textAreaBudget,
+} from "./roster/input.ts";
+export {
+	ITEM_FACT,
+	ITEM_FACTS,
+	ITEM_HEADER,
+	ITEM_HEADER_PICTURE,
+	ITEM_OVERLINE,
+	PAGE_BODY,
+	PAGE_BODY_OVER_FOOT,
+	PAGE_BODY_TOAST_ROOM,
+	PAGE_BODY_UNDER_TOAST,
+	PAGE_CONTEXT,
+	PAGE_HEAD,
+	PAGE_HEAD_ROOM,
+	PAGE_TOP_BAR,
+	PAGE_TOP_BAR_END,
+	PAGE_TOP_BAR_START,
+	PAGE_WITHIN,
+	PAGE_WITHIN_SEP,
+	ROWS_MEASURED,
+	TITLE_CODE,
+} from "./roster/pane.ts";
+export {
+	CHIPS_RUN,
+	CHIPS_TRIGGER,
+	FIELD_QUIET,
+	ITEM_PILL_HEAD,
+	ITEM_PILL_HIT,
+	ITEM_PILL_STATE_ACT,
+	OPTION_CHILDREN,
+	OPTION_GROUP_LABEL,
+	OPTION_INDENT,
+	OPTION_LINE,
+	OPTION_LIST,
+	OPTION_RADIO_DOT,
+	optionRadio,
+	PICKER_EMPTY,
+	PICKER_PILL,
+	PICKER_POPOVER,
+	PICKER_VALUE,
+	type PickerFit,
+	picker,
+	RADIO_DOT,
+	SEGMENT_CHOSEN,
+	SEGMENT_GROUND,
+	SEGMENT_IDLE,
+	SEGMENT_TRACK,
+	SEGMENTED_CONTROL,
+	segment,
+	segmentLabel,
+} from "./roster/picker.ts";
+export {
+	PROSE,
+	PROSE_BLOCKS,
+	PROSE_EMPHASIS,
+	PROSE_ITEM,
+	PROSE_LIST,
+	PROSE_PART,
+	PROSE_QUOTE,
+	PROSE_RULE,
+	PROSE_STRIKE,
+	proseMarker,
+} from "./roster/prose.ts";
+export { QR_CODE, QR_CODE_INK } from "./roster/qr-code.ts";
+export {
+	RULE_CARD,
+	RULE_ROW,
+	RULES,
+	ruleArrow,
+	ruleArrowContentTone,
+} from "./roster/rules.ts";
+export {
+	FILE_COUNT_YIELD,
+	FILE_COUNTS,
+	FILE_PATH,
+	fileCount,
+	filePathPart,
+	GROUP,
+	SECTION,
+	SECTION_ACTS,
+	SECTION_BODY,
+	SECTION_HEAD,
+	SECTION_HEAD_ROW,
+	SECTION_LABEL,
+	SECTION_TITLE,
+	SECTION_TOGGLE,
+} from "./roster/section.ts";
+export {
+	ANSWER,
+	CARD,
+	CARD_PART,
+	FIGURES,
+	FILL_X,
+	GIVE,
+	IMAGE_FAILED_INK,
+	ROWS,
+	ROWS_HOST,
+	SUBGRID,
+	text,
+} from "./roster/shared.ts";
+export {
+	DOCKED_FLOOR_ROWS,
+	LAYER_SHEET_BOTTOM,
+	SHEET,
+	SHEET_CENTERED,
+	SHEET_DESKTOP,
+	SHEET_DOCKED_BODY,
+	SHEET_DOCKED_FLOOR,
+	SHEET_DOCKED_FOOT,
+	SHEET_DOCKED_HEAD,
+	SHEET_FOOT,
+	SHEET_HEAD,
+	SHEET_HEAD_ROW,
+	SHEET_PARTS_END,
+} from "./roster/sheet.ts";
+export {
+	CURRENT_BAR,
+	CURRENT_ROOM,
+	DRAG_GHOST,
+	PLACE_NEST,
+	type PlaceTabState,
+	placeRow,
+	placeRowGlyph,
+	placeTab,
+	placeTabContentTone,
+	placeTabLabel,
+	SHELL_BANNER,
+	SHELL_COLUMN,
+	SHELL_COLUMN_AT,
+	SHELL_COLUMN_FLOAT,
+	SHELL_COLUMN_MOTION,
+	SHELL_COLUMN_PHONE,
+	SHELL_FOOT,
+	SHELL_FRAME,
+	SHELL_GROUP_LABEL,
+	SHELL_INSET,
+	SHELL_LAYER,
+	SHELL_MARK,
+	SHELL_PAGE_SLIDE,
+	SHELL_PLACES,
+	SHELL_RAIL,
+	SHELL_RAIL_ENTRY,
+	SHELL_RAIL_GLYPH,
+	SHELL_RAIL_MOTION,
+	SHELL_RAIL_PANEL,
+	SHELL_RAIL_SLOT,
+	SHELL_SIDEBAR,
+	SHELL_SIDEBAR_SLOT,
+	SHELL_TAB_BAR,
+	SWITCHER,
+	SWITCHER_SLOT,
+	TOASTS,
+} from "./roster/shell.ts";
+export {
+	SLIDER,
+	SLIDER_HEAD,
+	SLIDER_LABEL,
+	SLIDER_VALUE,
+} from "./roster/slider.ts";
+export {
+	STAGE_CHECK,
+	STAGE_CROSS,
+	STAGE_ROW,
+	STAGE_WORDS,
+	stage,
+	stageContentTone,
+	stageMark,
+	stageRail,
+} from "./roster/stages.ts";
+export {
+	COUNT_LINKS,
+	METER,
+	METER_MARK,
+	STATS,
+	STATS_CELL,
+	STATS_EDGE,
+	STATS_FIGURE,
+	STATS_OPENS,
+	TRAVEL_X,
+} from "./roster/stats.ts";
+export { switchThumb, switchTrack, TOGGLE_THUMB } from "./roster/switch.ts";
+export {
+	TABLE,
+	TABLE_CELL,
+	TABLE_CHANGE,
+	TABLE_FROZEN,
+	TABLE_NAME,
+	type TableRowState,
+	tableChangeValue,
+	tableFrozenCell,
+	tableHead,
+	tableHeadLabel,
+	tableRow,
+} from "./roster/table.ts";
+export type { TextRole } from "./roster/text.ts";
+export {
+	IMAGE_REMOVE,
+	IMAGE_REMOVE_DISC,
+	MESSAGE_ATTACH_SLOT,
+	MESSAGE_ATTACHMENTS,
+	MESSAGE_BUBBLE,
+	MESSAGE_CODE,
+	MESSAGE_ENTRY,
+	MESSAGE_FOLD,
+	MESSAGE_HEAD,
+	MESSAGE_INPUT,
+	MESSAGE_INPUT_BOX,
+	MESSAGE_INPUT_CHIPS,
+	MESSAGE_INPUT_FIELD_CHIPS,
+	MESSAGE_INPUT_FIELD_VALUE,
+	MESSAGE_INPUT_FOOT,
+	MESSAGE_INPUT_ROW,
+	MESSAGE_INPUT_TEXT,
+	MESSAGE_INPUT_VALUE,
+	MESSAGE_LINE,
+	MESSAGE_NOTICE,
+	MESSAGE_NOTICE_TEXT,
+	MESSAGE_OPEN,
+	message,
+	STREAM_IN,
+	STREAM_LATEST,
+	THREAD,
+	THREAD_LATEST,
+} from "./roster/thread.ts";
+export {
+	LAYER_TOAST,
+	TOAST,
+	toastContentTone,
+	toastState,
+} from "./roster/toast.ts";
+export {
+	TOOLBAR,
+	TOOLBAR_CHIPS,
+	TOOLBAR_FILTERS,
+	TOOLBAR_FILTERS_POPOVER,
+	TOOLBAR_LINE,
+	TOOLBAR_ROW,
+	TOOLBAR_SEARCH,
+	TOOLBAR_TABS,
+} from "./roster/toolbar.ts";
+export { WAVEFORM_RECORD } from "./roster/waveform.ts";
+export { CHECK_MARK, CHEVRON, SWAP_IN, SWAP_OUT } from "./variant-tables.ts";
 
 // A variant's props: one optional pick per axis, and the class or the
 // className a caller merges in, never both. The shape is cva's own, spelled
@@ -115,18 +523,6 @@ export type VariantProps<T extends Axes> = {
 } & ClassProp;
 export type Variant<T extends Axes> = (props?: VariantProps<T>) => string;
 
-// The only way a cva is built here. Taking the whole matrix leaves no second
-// argument to get wrong, so a cva cannot end up rendering another table's cells
-// or dropping its own base. cva's own config and prop types are conditional
-// on a concrete axis set, which is why one generic helper has to widen both.
-function build<T extends Axes>(table: Matrix<T>): Variant<T> {
-	return cva<T>(
-		table.base,
-		table as unknown as Parameters<typeof cva<T>>[1],
-	) as Variant<T>;
-}
-
-export const text = build(TEXT);
 export const textStrong = build(TEXT_STRONG);
 export const icon = build(ICON);
 export const button = build(BUTTON);
@@ -142,61 +538,18 @@ export const chip = build(CHIP);
 export const chipDot = build(CHIP_DOT);
 export const field = build(FIELD);
 export const fieldValue = build(FIELD_VALUE);
-export const textArea = build(TEXT_AREA);
-export const textAreaBudget = build(TEXT_AREA_BUDGET);
-export const otpBox = build(OTP_BOX);
-export const switchTrack = build(SWITCH);
-export const switchThumb = build(SWITCH_THUMB);
 export const checkbox = build(CHECKBOX);
-export const optionRadio = build(OPTION_RADIO);
 export const row = build(ROW);
 export const rowTitle = build(ROW_TITLE);
 export const rowStep = build(ROW_STEP);
 export const rowMark = build(ROW_MARK);
 export const lineBox = build(LINE_BOX);
-export const tableRow = build(TABLE_ROW);
-export const tableHead = build(TABLE_HEAD);
-export const tableHeadLabel = build(TABLE_HEAD_LABEL);
-export const tableFrozenCell = build(TABLE_FROZEN_CELL);
-export const tableChangeValue = build(TABLE_CHANGE_VALUE);
-export const segment = build(SEGMENT);
-export const segmentLabel = build(SEGMENT_LABEL);
-export const picker = build(PICKER);
-export const ruleArrow = build(RULE_ARROW);
-export const banner = build(BANNER);
-export const bannerGlyph = build(BANNER_GLYPH);
-export const toastState = build(TOAST_STATE);
 export const menu = build(MENU);
 export const menuGroup = build(MENU_GROUP);
 export const menuLabel = build(MENU_LABEL);
-export const proseMarker = build(PROSE_MARKER);
-export const proseDiffRun = build(PROSE_DIFF_RUN);
-export const codeText = build(CODE_TEXT);
-export const diffLine = build(DIFF_LINE);
-export const filePathPart = build(FILE_PATH_PART);
-export const fileCount = build(FILE_COUNT);
-export const message = build(MESSAGE);
 export const meterFill = build(METER_FILL);
-export const chartBand = build(CHART_BAND);
-export const chartFill = build(CHART_FILL);
-export const stage = build(STAGE);
-export const stageMark = build(STAGE_MARK);
-export const stageRail = build(STAGE_RAIL);
 export const image = build(IMAGE);
 export const imagePicture = build(IMAGE_PICTURE);
-export const canvasGroup = build(CANVAS_GROUP);
-export const canvasNode = build(CANVAS_NODE);
-export const canvasNodeText = build(CANVAS_NODE_TEXT);
-export const canvasNodeGlyph = build(CANVAS_NODE_GLYPH);
-export const canvasNodeMark = build(CANVAS_NODE_MARK);
-export const canvasNodeInk = build(CANVAS_NODE_INK);
-export const canvasNodeName = build(CANVAS_NODE_NAME);
-export const placeRow = build(PLACE_ROW);
-export const placeRowGlyph = build(PLACE_ROW_GLYPH);
-export const placeTab = build(PLACE_TAB);
-export const placeTabLabel = build(PLACE_TAB_LABEL);
-export const stepCountSegment = build(STEP_COUNT_SEGMENT);
-export const columns = build(COLUMNS);
 export const paint = build(PAINT);
 
 // ── The family registry and its cells ──────────────────────────────
@@ -230,7 +583,7 @@ function family<T extends Axes>(
 	};
 }
 
-// Every matrix this module builds, under its table's name.
+// Every matrix this module exports, under its table's name.
 export const FAMILIES: readonly Family[] = [
 	family("TEXT", TEXT, text),
 	family("TEXT_STRONG", TEXT_STRONG, textStrong),
@@ -396,15 +749,10 @@ export const FIELD_OPTIONAL_NAME = "items-start pt-gap touch:pt-0";
 // word span the control's line and that one, so the line stands right under
 // the control rather than under the word.
 export const FIELD_OPTIONAL_LABEL = "row-span-2";
-// A field's unit after its value, cut at the short measure, and its glyph
-// (search, chevron).
-export const FIELD_UNIT =
-	"max-w-measure-short text-body leading-body font-normal text-ink-meta";
+
+// A field's glyph (search, chevron).
 export const FIELD_GLYPH = "text-ink-meta";
-// A bar pick that holds no value is quiet: no edge, the wash under the pointer;
-// set, it takes the field box and its value in the body ink.
-export const FIELD_QUIET =
-	"border-transparent bg-transparent hover:bg-wash-hover";
+
 // The label of a chip: bounded, so a long chip truncates before the row's title
 // does, in the body ink.
 export const CHIP_LABEL =
@@ -412,35 +760,13 @@ export const CHIP_LABEL =
 // The word of a state chip: the chip's caption look in the state's ink.
 export const STATE_CHIP_LABEL =
 	"max-w-measure-short text-caption leading-caption tracking-caption font-normal";
-// A pick of several's chips wrap in a run inside its field box, a badge's
-// room above and below them: one line of chips centres in the control, and a
-// wrapped run keeps that room at the box's edges. The trigger beside the run
-// reaches across the box's border, so its hit is the box's height.
-export const CHIPS_RUN = "py-badge";
-export const CHIPS_TRIGGER = "-my-hairline py-hairline";
-// A text area's value: three body lines at least, a line more for each past them.
-export const TEXT_AREA_VALUE = "min-h-[calc(3*var(--spacing-line-body))]";
-// A one-time code's row of boxes and the digit in each.
-export const OTP = "gap-gap";
-// An option group's label over its rows, inset to the rows' text.
-export const OPTION_GROUP_LABEL = "px-pad pt-gap";
+
 // An option's row in a popover or a list of choices (Menu, Picker,
 // list Picker): its wash at the control's inset, in place of the row's own card
 // inset, and the row's floor, so on touch it stands at the target as a list's
 // row does. Unheld, drawn by each that has one.
 export const OPTION_ROW = "px-pad min-h-row";
-export const OTP_DIGIT =
-	"text-heading leading-heading font-medium text-ink-body font-mono";
-// A slider: its label line (the label, its value trailing, cut at the short
-// measure) over the track, the fill up to the thumb and the rest after it.
-// The label is a field's label, the body role in the meta ink, and the value
-// it names stands in the body ink at the body role, as a fact's value does
-// (voice 7, 11).
-export const SLIDER = "gap-gap";
-export const SLIDER_HEAD = "gap-stack";
-export const SLIDER_LABEL = "text-body leading-body font-normal text-ink-meta";
-export const SLIDER_VALUE =
-	"max-w-measure-short tabular-nums text-body leading-body font-normal text-ink-body";
+
 // The track stands on a body line, as the label over it does, so the room
 // under the rail is the room over the label's line and a card holding the
 // slider reads even at its inset. Its hit box is still the target: each
@@ -456,73 +782,22 @@ export const SLIDER_REST =
 // The thumb is the meta icon's square, as a switch's knob is.
 export const SLIDER_THUMB = `size-icon-meta rounded-full border border-edge-strong bg-surface ${ANSWER}`;
 // A waveform: the peaks drawn on a canvas in a box of the control's height in a
-// bar (the player dock), two controls tall as a record's. Its columns, played
-// and unplayed ink and the playhead are drawn from the colour tokens, not cells.
+// bar (the player dock). Its columns, played and unplayed ink and the playhead
+// are drawn from the colour tokens, not cells.
 export const WAVEFORM_BAR = "h-control rounded-control";
-export const WAVEFORM_RECORD =
-	"h-[calc(2*var(--spacing-control))] rounded-control";
-// The player's Dock, which an app gives a Shell's `foot`: the surface over a
-// hairline at the page inset, a bar of controls (the bar's gaps above and
-// below), the name over its line, the elapsed and total times in the meta ink at
-// the figures' width, the volume at the short measure. The phone's dock draws the
-// progress as a hairline along the bar's top, over the border.
-export const DOCK = "bg-surface border-t border-edge px-page";
-export const DOCK_BAR = "gap-gap py-gap";
-export const DOCK_TEXT = "gap-0";
-export const DOCK_TIME =
-	"min-w-figures tabular-nums text-code leading-code font-normal font-mono text-ink-meta";
-export const DOCK_VOLUME = "w-measure-short";
-export const DOCK_PROGRESS = "h-hairline bg-toggle-on";
-// A picker's empty choice and its control with no value: a placeholder's
-// look.
-export const PICKER_EMPTY = "text-ink-meta";
-// The value a row's pick shows in its box (`PICKER {fit: row}`), bounded as a
-// status' label is so a long one truncates before the title beside it does,
-// in the body ink: it is the value the row's label names (voice 7, 11), as a
-// plain value beside it is, its chevron alone in the trigger's meta ink. The
-// field fit's value is `FIELD_VALUE`'s.
-export const PICKER_VALUE =
-	"max-w-measure-short tabular-nums text-meta leading-meta font-normal text-ink-body";
-// The pick's popover at the popover's width (its ground and inset are
-// `POPOVER`'s).
-export const PICKER_POPOVER = "w-popover";
-// The pick of a Pane's bar (`PICKER {fit: pill}`): the field box at the bar
-// fit (the control height, the control radius, a hairline border on
-// the surface) under the hover wash in place of the hover edge, held to the
-// popover's width so a long label truncates.
-export const PICKER_PILL = "max-w-popover hover:bg-wash-hover";
-// A list of rules on the desktop: rows of flex terms sharing one basis, so the
-// columns align across rows, a pair rhythm between rows and the inside gap
-// between terms. A rule's terms keep the inside gap on touch too, stacked in
-// its card (`RULE_CARD`'s inset, a sheet holding the cards).
-export const RULES = "gap-y-gap";
-export const RULE_ROW = "gap-gap";
-export const RULE_CARD = "px-pad py-gap";
+
 // A popover: raised on the float shadow inside its hairline, its rows inset
 // by the float inset so a row's wash sits just inside the edge.
 export const POPOVER =
 	"gap-gap p-gap bg-raised border border-edge-raised rounded-popover shadow-float";
-// `w-max` because a popup mounts in a zero-size container, where its shrink-to-fit
-// width would be its longest word.
-const NAME_GROUND =
-	"w-max px-gap py-gap bg-raised border border-edge-raised rounded-control shadow-float text-meta leading-meta font-normal text-ink-body";
-// An icon act's name, shown on a rest or the keyboard: the popover's ground and
-// hairline round one line of meta ink, the width of its words up to a short
-// measure.
-export const TOOLTIP = `${NAME_GROUND} max-w-measure-short`;
-// Cut text's whole text, in the same ground: a sentence, not a name, so it may
-// grow to the full measure.
-export const TOOLTIP_CUT = `${NAME_GROUND} max-w-measure`;
+
 // Drag and drop. The line where a dragged row lands: the accent, two
 // hairlines tall (a slider's track), between two rows. A drop the drag is over takes the selected wash under
-// the ring's outline, drawn inset; a table row takes the wash alone. The label
-// that follows the pointer is the tooltip's ground round the row's name or the
-// count dragged, up to a short measure.
+// the ring's outline, drawn inset; a table row takes the wash alone.
 export const DROP_LINE =
 	"h-[calc(2*var(--spacing-hairline))] rounded-full bg-accent";
 export const DROP_ON =
 	"bg-wash-selected outline-2 -outline-offset-2 outline-ring";
-export const DRAG_GHOST = `${NAME_GROUND} max-w-measure-short truncate`;
 export const HAIRLINE = "border-edge";
 // The check or the dash on a checked box, at the meta glyph's size.
 export const CHECKBOX_MARK = `size-icon-meta text-on-accent ${CHECK_MARK}`;
@@ -632,13 +907,7 @@ export const ROW_STEPS = "gap-gap";
 // A list row's entry: the title, the input with its act and the error line a
 // pair apart, the error (`FIELD_ERROR_LINE`) under the input.
 export const ROW_ENTRY = "gap-gap";
-// What lays a box out in its run of rows' columns, the tokens every class
-// list built on them keeps whatever a component merges over them (the walk's
-// grid exceptions name these): a run of rows is a grid that marks itself the
-// rows' host (`ROWS_HOST`), and a definition row or a form's group a subgrid of
-// its columns (`SUBGRID`).
-export const ROWS_HOST = "rows-host grid";
-export const SUBGRID = "grid grid-cols-subgrid";
+
 // A definition row subgrids the two columns of the rows grid it stands in
 // (`ROWS`): its label in the first, as wide as the widest label of the run,
 // and its value line (the change mark, the value, the end group) in the
@@ -708,19 +977,7 @@ export const ROW_RETRY = "size-control";
 // head or on a row's meta line: the meta ink; what it follows stands an inside
 // gap from it.
 export const LOCK_GLYPH = "shrink-0 text-ink-meta";
-// A record's head under the Pane's bar: the overline and the facts line a pair apart;
-// the facts wrap at the fields rhythm, a counted fact its word beside its
-// count. The line stands at the meta line's height whichever facts it holds:
-// a fact that acts or changes (a pick, an opening fact) keeps its
-// target-height hit box and reaches past the line above and below it
-// (`factReach`), so a fact that opens joining the line moves nothing under it.
-export const ITEM_HEADER = "gap-gap";
-// A record head's picture beside its text: the thumbnail tile and the head's
-// column a stack gap apart, the tile at the top of the head (each platform
-// sets the direction and the alignment, which are overlays).
-export const ITEM_HEADER_PICTURE = "gap-stack";
-export const ITEM_FACTS = "gap-x-stack gap-y-gap";
-export const ITEM_FACT = "gap-gap";
+
 // On the web a fact that acts (one that opens, a pick) is an outlined control
 // pill at the badge's own height, the meta line (`1lh` of the caption role,
 // which is the meta role's size and leading): on the surface under a hairline,
@@ -738,106 +995,19 @@ export const ITEM_PILL =
 	"rounded-chip border border-edge bg-surface px-gap gap-gap text-ink-body";
 export const ITEM_PILL_GLYPH = "shrink-0 text-ink-meta";
 export const ITEM_FACT_HIT = `group min-h-target min-w-target -my-[calc((var(--spacing-target)-1lh)/2)] focus-visible:outline-none ${text({ role: "caption" })}`;
-// A row's pick that is a pill keeps the target's hit box around the pill, the
-// caption line between its hairlines, pulled back by what the target has over
-// it, so its row keeps its height.
-export const ITEM_PILL_HIT = `group min-h-target min-w-target -my-[calc((var(--spacing-target)-1lh)/2-var(--spacing-hairline))] focus-visible:outline-none ${text({ role: "caption" })}`;
+
 export const ITEM_PILL_ACT = `group-hover:bg-wash-hover group-active:bg-wash-press in-data-[modality=keyboard]:group-focus-visible:outline-2 group-focus-visible:outline-ring ${ANSWER}`;
-// A head's pick fact whose chosen option carries a state is the state pill
-// itself (`STATE_CHIP`) with its chevron, one box: under the pointer and
-// pressed its hairline darkens to the state's ink, as an outlined control's
-// darkens to the strong edge (voice 5), so its soft fill keeps its hue.
-export const ITEM_PILL_STATE_ACT = `gap-gap group-hover:border-current group-active:border-current in-data-[modality=keyboard]:group-focus-visible:outline-2 group-focus-visible:outline-ring ${ANSWER}`;
-// In a head a pill, outlined or a state's, stands at the badge's height, the
-// meta line, its hairlines inside it; in a row it is a chip's, the caption
-// line between its hairlines.
-export const ITEM_PILL_HEAD = "h-lh";
+
 // A folded question is one row (`ROW`), its glyph in the `ok` ink, its label,
 // its answer and its edit act an inside apart.
 export const FORM_FIELD_SUMMARY_GLYPH = "text-ok";
-// A list of options, several or one chosen: its option groups on a hairline
-// card at the float inset; an option's box or radio beside its label, and
-// the children under a chosen option inset past the box.
-export const OPTION_LIST =
-	"gap-gap p-gap rounded-card border border-edge bg-surface";
-export const OPTION_LINE = "gap-gap";
-export const OPTION_CHILDREN = "ms-icon-control px-pad pb-gap";
-// The children stand in past the box by the box's width (the group's margin)
-// and the gap after it (the body's): room is a margin on a box that draws,
-// never an empty element.
-export const OPTION_INDENT = "ms-gap";
-// The chosen radio's dot, centred in its ring.
-export const OPTION_RADIO_DOT = `size-dot rounded-full bg-toggle-on ${RADIO_DOT}`;
-// The segments' track: flush, so the control stands at a segment's height.
-export const SEGMENTED_CONTROL = "rounded-control bg-group";
-// The web's track has no ground and no border: its segments stand an inside
-// gap apart, the chosen one under a 2 px ink underline on its own box (a web
-// overlay: the phone keeps its ground).
-export const SEGMENT_TRACK = "gap-gap";
-export const SEGMENT_CHOSEN =
-	"rounded-b-none border-b-2 border-ink-body hover:bg-wash-hover active:bg-wash-press";
-// A segment that is not chosen holds the underline's room, clear.
-export const SEGMENT_IDLE =
-	"rounded-b-none border-b-2 border-transparent hover:bg-wash-hover active:bg-wash-press";
-// The selection wash of a segmented control: one ground under the chosen
-// segment, which moves from the old segment to the new (a view transition on
-// the web, a layout transition on the phone) instead of one segment's fill
-// switching off as another's switches on. Under the pointer it is a step
-// darker (a platform overlay on the web; the phone has no hover).
-export const SEGMENT_GROUND = "rounded-control bg-wash-selected min-h-control";
-// A toast at its width, raised and floating, its end inset tighter for the
-// dismiss act's own box; its state is its glyph's ink (`toastState`).
-export const TOAST =
-	"w-toast pl-pad pr-gap py-gap gap-gap rounded-card bg-raised border border-edge-raised shadow-float";
-// A banner's line (its glyph beside the rest) and the rest (the sentence
-// beside its act, the act under it only where the sentence's floor leaves it
-// no room; the phone always draws the act under).
-export const BANNER_ROW = "gap-gap";
-export const BANNER_MAIN = "gap-gap";
-// A sheet on touch, raised from the bottom edge; on the desktop a card
-// (`SHEET_DESKTOP`, a form at the sheet's width, the sheet pattern's 610 to 730,
-// not the dialog's) or a decision centred at the dialog's width, its one region
-// at the card inset.
-export const SHEET =
-	"bg-raised border-t border-edge-raised rounded-t-sheet shadow-modal";
-export const SHEET_DESKTOP =
-	"w-sheet bg-raised border border-edge-raised rounded-sheet shadow-modal";
-export const SHEET_CENTERED =
-	"gap-stack w-dialog p-pad bg-raised border border-edge-raised rounded-sheet shadow-modal";
+
 export const SCRIM = "bg-scrim";
-// A sheet's regions in every form but the centred one: the head over a
-// hairline (its row, then a blocked submit's reason on touch), the body's
-// parts at the card inset, its sections a sections gap apart (`SHEET_PARTS`;
-// the body's form stands after them, its rows flush, the body scrolling both),
-// the foot under a hairline (its
-// line centred beside the acts) on the sheet's own ground, since on touch it
-// stands over the end of the scrolling body.
-export const SHEET_HEAD = "gap-gap px-pad py-gap border-b border-edge";
-// The head's row: the lead act, the title over the description, the end act,
-// the title centred on the acts, which set the row's height.
-export const SHEET_HEAD_ROW = "gap-gap";
+
 export const SHEET_PARTS = "gap-section p-pad";
-// A sheet with no foot ends on its last part, so the body's end keeps a sections
-// gap under it (the docked body's), not the card inset it keeps at the sides: a
-// banner or a code that closes the body stands off the sheet's bottom edge.
-export const SHEET_PARTS_END = "pb-section";
-export const SHEET_FOOT =
-	"gap-gap px-pad py-pad border-t border-edge bg-raised";
-// A sheet docked in a foot (`FOOT_DOCKED`): the foot is the raised cell, so the
-// head, the body and the foot carry no surface, radius, shadow, hairline or
-// side inset of their own, so all three share the foot's edge; the head's back
-// act stands before one column, so the title and the description share one
-// start: the title over the description a pair apart; the body keeps its sections a
-// sections gap apart, the card inset above and a sections gap below (the last row clears the submit by the gap the rows keep), the foot's line
-// beside or over the acts an acts gap apart.
-export const SHEET_DOCKED_HEAD = "gap-gap";
-export const SHEET_DOCKED_BODY = "gap-section pt-pad pb-section";
-export const SHEET_DOCKED_FOOT = "gap-gap";
-// In a foot the body's content keeps its floor whatever the head, the foot line and the log hold; the scroller around it, bounded by `dockedBodyMax`, gives below it where the region is short.
-// The floor is `DOCKED_FLOOR_ROWS` rows; under a log, `DOCKED_LOG_FLOOR_ROWS`.
-export const DOCKED_FLOOR_ROWS = 3;
+
 export const DOCKED_LOG_FLOOR_ROWS = 2;
-export const SHEET_DOCKED_FLOOR = "min-h-[calc(3*var(--spacing-row))]";
+
 // An empty state: its column at the empty width (the mark, the text, the
 // act a fields gap apart), the title over the sentence a pair apart.
 export const EMPTY_COLUMN = "gap-stack w-full max-w-empty";
@@ -855,455 +1025,49 @@ export const EMPTY_MARK = "size-control rounded-full bg-fill-neutral";
 export const EMPTY_LINE = "flex flex-col items-center text-center gap-gap";
 export const EMPTY_PART = "p-pad";
 export const EMPTY_SENTENCE = "text-ink-meta max-w-measure";
-// The pending work: in an action bar's place the bar over a blocked act's
-// reason, its row (the track beside the act) and the track; and, shared with a
-// Banner that has a deadline, the elapsed share as a line along the foot and
-// the time left.
+// The pending work in an action bar's place: the bar over a blocked act's
+// reason.
 export const PENDING_BAR = "gap-gap";
-export const PENDING_ROW = "gap-gap";
-export const PENDING_TRACK =
-	"rounded-control bg-group min-h-control px-pad gap-gap";
-export const PENDING_FILL = `h-[calc(2*var(--spacing-hairline))] bg-ink-meta ${FILL_X}`;
-export const PENDING_LEFT =
-	"tabular-nums text-meta leading-meta font-normal text-ink-meta";
-// Figures at one width, beside the type role of the line they stand in (a
-// table's number and age, a meter's share, a chart's total, ticks and times).
-export const FIGURES = "tabular-nums";
-// A record head's overline: the meta role on one line (each platform draws the
-// one line: a truncating box on the web, `numberOfLines` on the phone), its
-// figures at one width so an age that changes moves nothing beside it.
-export const ITEM_OVERLINE = `${TEXT.variants.role.meta} ${FIGURES}`;
 
 // ── Content ─────────────────────────────────────────────────────────
 
-// A card: the surface inside a hairline edge at the card radius. Every part
-// of a Section's body is one (a sheet's rows flush on it, a Form's
-// rows, a Table's; anything else, a Prose, a Stages, at the card's inset:
-// `CARD_PART`), and so is a block a reader reads whole (Code, Diff:
-// a diff's soft grounds sit on the surface wherever it stands), a Message's
-// card and an empty state outside a card.
-export const CARD = "rounded-card border border-edge bg-surface";
-export const CARD_PART = `p-pad ${CARD}`;
-// A `Card`'s parts (a sentence over its act, a field over a field) stand a
-// fields gap apart, as a Section's do.
-export const CARD_BODY = "gap-stack";
-// Prose: its column at the measure, its headed parts a sections gap apart,
-// a heading a pair over the blocks it heads, the blocks a fields gap apart;
-// a list's items a pair apart (an item's line and its nested list too), each
-// marker (`proseMarker`) an inside gap from its text; inline code on the
-// neutral fill in its sentence's ink; a quote behind a strong hairline; a
-// rule a hairline.
-export const PROSE = "gap-section max-w-measure text-body leading-body";
-export const PROSE_PART = "gap-gap";
-export const PROSE_BLOCKS = "gap-stack";
-export const PROSE_LIST = "gap-gap";
-export const PROSE_ITEM = "gap-gap";
 export const PROSE_CODESPAN =
 	"rounded-chip bg-fill-neutral px-gap text-code leading-code font-normal font-mono";
 // A name that is code (a field, an event, a key) standing as a row's title or a
 // record's name: the mono at the code role, bare, so a list of names is not a
 // column of boxes.
 export const CODE_NAME = "text-code leading-code font-normal font-mono";
-// A record's name, or a Pane's title, that is code: the title role in the mono family.
-export const TITLE_CODE = "font-mono";
-export const PROSE_QUOTE = "gap-stack border-l border-edge-strong pl-pad";
-export const PROSE_RULE = "border-t border-edge";
-export const PROSE_EMPHASIS = "italic";
-export const PROSE_STRIKE = "line-through";
-// Code: the head a bar at the strip's height (its title, its copy act a
-// float inset from the end), the hairline on the part under it; the copy
-// act's own column beside the first line when there is no title; the fold, a
-// band at the target height over the shown lines.
-export const CODE_HEAD = "gap-gap py-gap pl-pad pr-gap";
-export const CODE_UNDER_HEAD = "border-t border-edge";
-export const CODE_ACT = "pt-pad pl-gap pr-gap";
-export const CODE_FOLD = `gap-gap min-h-target px-pad border-b border-edge text-ink-meta ${ANSWER}`;
-// Diff: the elided mark's cells, a gap over and under its line; the hang a
-// wrapped line's continuation starts in by (its first line pulled back by a
-// web overlay); the number columns, four code figures each; the marker; the
-// code's end inset.
-export const DIFF_HUNK = "py-gap";
-export const DIFF_HANG = "pl-pad";
-export const DIFF_GUTTER = "min-w-figures pl-gap tabular-nums text-ink-meta";
-export const DIFF_MARK = "px-gap text-ink-meta";
-export const DIFF_CODE = "pr-gap";
-// Diff by word: the text at the card inset, at the measure.
-export const PROSE_DIFF_BODY = "p-pad";
-export const PROSE_DIFF_TEXT = "max-w-measure";
-// A file row: the path at the code role (its parts in `filePathPart`), the
-// counts at meta in their lanes (`fileCount`).
-export const FILE_PATH = "text-code leading-code font-mono";
-export const FILE_COUNTS =
-	"gap-gap tabular-nums text-meta leading-meta font-normal";
-// The web's counts give way once the path stands at its floor, before the
-// chip's label truncates: each lane, a flex item of the row (its block stands
-// as `display: contents`), shrinks at a weight (10^5) between the path's (10^7)
-// and the chip's (1), from its four figures down to its own text. A lane keeps
-// four figures while the row has the room, so the lanes line up down a list.
-// (A phone's flex items do not shrink: its lanes keep their width.)
-export const FILE_COUNT_YIELD = "basis-figures shrink-100000 min-w-min";
-// Table: the grid on a card (`CARD`), its rows on hairlines, the last on the
-// card's edge; its columns read at body. A cell is
-// the row's height behind a transparent side border, so the `Input` that
-// edits it in place (the field's bar fit) puts its text where the cell's
-// stands. The frozen leading column's cell stands on the surface.
-// A change cell's values and the arrow between them stand an inside gap
-// apart, the arrow in the meta ink (the values' inks are `TABLE_CHANGE_VALUE`).
-export const TABLE = "text-body";
-export const TABLE_CELL = "py-gap border-x border-transparent px-pad";
-export const TABLE_FROZEN = "bg-surface";
-export const TABLE_CHANGE = "gap-gap text-ink-meta";
-// A leading cell's name and its warning a gap apart.
-export const TABLE_NAME = "gap-gap";
-// Message: yours in a bubble on the neutral fill; the name beside the time;
-// a system line's words beside its time, wrapping; the line that opens, a
-// pill at the target height with the pointer's washes. Under a system line,
-// its card: one list row on a card (`CARD`); a tool call's code
-// and its fold's lines start-aligned across the column at the pill's inset,
-// the code in the meta ink, ranking under its name. Its attachments stand in
-// one wrapping row a gap apart, over the bubble at the column's end (the
-// `Thread`'s composer draws the same row over its text), and its provenance line
-// (`from`) leads the time. A line and its card are one entry a pair apart, the
-// label over its content.
-export const MESSAGE_BUBBLE = "rounded-card bg-fill-neutral px-pad py-gap";
-export const MESSAGE_HEAD = "gap-gap";
-export const MESSAGE_LINE = "gap-x-gap";
-export const MESSAGE_OPEN = `gap-gap rounded-control px-gap min-h-target text-ink-meta ${ANSWER}`;
-export const MESSAGE_ATTACHMENTS = "gap-gap";
-export const MESSAGE_ENTRY = "gap-gap";
-export const MESSAGE_CODE = "px-gap text-ink-meta";
-export const MESSAGE_FOLD = "px-gap";
-// Thread's composer: the composer over its notice. On the desktop one box (the
-// field's boundary at the card radius), its attachments, its text at the
-// field's inset (capped at eight lines, scrolling past them) and its foot
-// (attach, Stop while an answer comes, Send); its notice at the text's x. On
-// touch one row (attach, the field at its bar fit growing upward, Stop's icon
-// act at the bar fit while an answer comes, Send's icon act) and the notice's row under
-// it in the same columns, its sentence at the field's text (the attach slot
-// held, the field's hairline counted).
-export const MESSAGE_INPUT = "gap-gap";
-export const MESSAGE_INPUT_BOX =
-	"rounded-card border border-edge bg-surface p-gap";
-export const MESSAGE_INPUT_CHIPS = "px-gap pt-gap";
-// The text is the textarea itself, inset above and below by its value's own
-// padding and beside by the text's (the touch field's own sides do that
-// there), so a press anywhere on the text area lands on it.
-export const MESSAGE_INPUT_TEXT = "px-gap";
-// The text grows to eight body lines and its inset, then scrolls.
-export const MESSAGE_INPUT_VALUE =
-	"py-gap max-h-[calc(8*var(--spacing-line-body)+2*var(--spacing-gap))]";
-export const MESSAGE_INPUT_FOOT = "gap-gap";
-export const MESSAGE_INPUT_ROW = "gap-gap";
-// The touch field holds no inset of its own above and below the text, which the
-// text takes; its chips keep one above.
-export const MESSAGE_INPUT_FIELD_CHIPS = "pt-gap";
-// On touch the text is the field's one control, so it stands at the control's
-// height, the touch target: it reaches across the box's border and its inset
-// above and below centres one body line in the control, where the gap would
-// leave it the border and the target's surplus short.
-export const MESSAGE_INPUT_FIELD_VALUE =
-	"-my-hairline py-[calc((var(--spacing-control)-var(--spacing-line-body))/2)]";
-export const MESSAGE_NOTICE =
-	"gap-gap pl-pad pr-gap border-x border-transparent";
-export const MESSAGE_NOTICE_TEXT = "px-pad border-x border-transparent";
-export const MESSAGE_ATTACH_SLOT = "w-control";
-// Stats meter: the label over its share as the figure over the bar over the meta
-// line; the bar a track one wash step off the ground, its fill by level (`meterFill`).
-export const METER = "gap-gap";
+
 export const METER_TRACK = "h-gap rounded-chip bg-fill-neutral";
-// A meter's mark: a tick across the track centred on the mark's share (so one
-// at the max stands on the track's end), standing proud of the track by
-// `inside` above and below. It sits outside the track, which clips.
-export const METER_MARK =
-	"w-[calc(2*var(--spacing-hairline))] bg-ink-body -inset-y-gap -translate-x-1/2";
-// A line of counts that lead to their lists: standalone links a gap apart
-// with no glyph between (a meter's line under its bar, a stats cell's line
-// under its figure). Each link's box is the target height (`LINK_TARGET`),
-// and the line waits as one such box with a bar centred in it.
-export const COUNT_LINKS = "gap-x-gap";
+
 // A standalone link's box at the target height: the web's anchor carries it,
 // the phone's pressable (a text's own box takes no touch past its words'
 // centre). Unheld, drawn by each that has one: the Link and a count line's
 // waiting form.
 export const LINK_TARGET = "min-h-target";
-// Stats: the card on the surface holding the cells. A cell draws its own top
-// and start hairlines, so the strip splits wherever its cells wrap; the card's
-// outer edge is `STATS_EDGE`, drawn over the cells. The cell is the label over
-// the figure (and its unit) over the meta line, or over its counts.
-export const STATS = "relative rounded-card bg-surface";
-export const STATS_CELL = `gap-gap p-pad border-t border-l border-edge ${ANSWER}`;
-// The card's outer edge, drawn over its cells: their own top and start
-// hairlines at the card's edge sit under it, so the edge is one hairline at
-// every density, with no cell pulled back by a width of its own.
-export const STATS_EDGE = "absolute inset-0 rounded-card border border-edge";
-export const STATS_FIGURE = "gap-gap";
-// A cell that opens: the chevron at the end of its label's first line, in the mark ink, as a record head's fact that opens carries one (voice 12).
-export const STATS_OPENS = "shrink-0 text-ink-mark";
-// BarChart: the card on the surface holding the head (the total and its unit,
-// then the series' keys) over the body (the axis beside the plot over its
-// times). The plot is the chart's
-// height in four bands (`chartBand`); a stacked part over another is split
-// from it by a clear line. The axis is a lane four figures wide, the widest
-// tick, loaded or loading, so the plot never moves when the data lands.
-export const CHART = `gap-stack ${CARD_PART}`;
-export const CHART_HEAD = "gap-gap";
-export const CHART_TOTAL = "gap-gap";
-export const CHART_KEYS = "gap-x-stack gap-y-gap";
-export const CHART_KEY = "gap-gap";
-export const CHART_KEY_DOT = "size-dot rounded-full";
-export const CHART_BODY = "gap-gap";
-// The plot is `CHART_CONTROLS` controls tall.
-export const CHART_CONTROLS = 4;
-export const CHART_GRID = "h-[calc(4*var(--spacing-control))]";
-export const CHART_MAIN = "gap-gap";
-export const CHART_TICK_LANE = "w-figures";
-// Thread: the messages a sections gap apart, one rung above Prose's block
-// gap, and under them the input; on the desktop a `Thread`'s composer stands in a
-// measure-wide column, so a Pane's docked foot spans the body and the field
-// keeps the column. A column cell is a width and nothing else: the region
-// that owns its frame's width centres it (a docked foot), and among sections
-// it keeps the region's start, as a paragraph's measure does.
-export const THREAD = "gap-section";
+
 export const THREAD_COLUMN = "w-full max-w-measure";
-// The way back to the newest message, floating over the log a pair above the
-// foot while the reader is scrolled up: a lifted ground under the secondary
-// act's hairline, at its radius.
-export const THREAD_LATEST = "mb-gap rounded-control bg-raised shadow-float";
-// Stages: a rail of fixed states. A stage is its mark beside its words, the
-// words the label with one meta line under it; a hairline in the edge ink
-// runs from each mark to the next (`STAGE_RAIL`), and the room between two
-// stages is the words' own bottom inset, so the rail runs unbroken. A row
-// stands at least the two-line row's height (`STAGE_ROW`: 48, 64 on touch,
-// the state rail's rows), so a later row of one meta line keeps the pace of a
-// done one. A done mark's check stands on its disc in the canvas ink
-// (`STAGE_CHECK`), an ended rail's cross is the danger ink (`STAGE_CROSS`).
-export const STAGE_ROW = "gap-gap py-gap";
-export const STAGE_WORDS = "pb-gap";
-export const STAGE_CHECK = "text-canvas";
-export const STAGE_CROSS = "text-danger";
+
 // Image: its full view stands on the scrim with no frame, the picture inside
 // the page inset; the close act is a lifted ground at the control radius over
 // the picture, as the Latest act floats over a log.
 export const IMAGE_FULL = "p-page";
 export const IMAGE_CLOSE = "rounded-control bg-raised shadow-float";
-// A failed image's glyph, in the meta ink its alt text is drawn in.
-export const IMAGE_FAILED_INK = "text-ink-meta";
-// QrCode: a square tile at its container's width down to the image's height
-// cap, centred where the cap narrows it, so the code is never cropped; light
-// in both modes at the card's radius, its quiet zone the tile's own ground
-// (`QR_CODE`). Its modules are the dark ink (`QR_CODE_INK`).
-// Gallery: its tiles wrap a gap apart, each a picture over its caption, a
-// badge's gap between them, at the tile's width. A tile's box is held no narrower
-// than `IMAGE_TILE_NARROWEST`, so a phone's page stands at three to four,
-// cropped to its top; a caption is cut to the tile's width.
-export const GALLERY = "flex flex-row flex-wrap items-start gap-gap";
-export const GALLERY_TILE = "flex min-w-0 max-w-full flex-col gap-badge";
+
 export const IMAGE_TILE_NARROWEST = 3 / 4;
-
-// The tallest an image grows, and a QR code's widest: `IMAGE_CAP_LINES` body
-// lines.
-export const IMAGE_CAP_LINES = 20;
-export const QR_CODE =
-	"w-full max-w-[calc(20*var(--spacing-line-body))] aspect-square self-center rounded-card bg-qr-tile";
-export const QR_CODE_INK = "text-qr-ink";
-// StepCount: its segments a gap apart over its words.
-export const STEP_COUNT = "gap-gap";
-export const STEP_COUNT_SEGMENTS = "gap-gap";
-
-// A thumbnail's remove act (an attachment's, in the `Thread`'s composer): a hit box
-// the target's size (24, 44 on touch) a gap in from the thumbnail's corner
-// (`IMAGE_REMOVE`), the `REMOVE_HIT` disc centred in it on the raised ground
-// inside a hairline, the glyph a gap clear all round, so it stays legible over
-// any picture (`IMAGE_REMOVE_DISC`).
-export const IMAGE_REMOVE = "m-gap min-h-target min-w-target rounded-full";
-export const IMAGE_REMOVE_DISC = "p-gap border border-edge bg-raised";
-
-// Canvas: the ground the nodes stand on, one step off the page; a port, a
-// hollow ring on the node's edge inside a hit box the target's size (24, 44 on
-// touch); a group's dashed frame and its head on the group ground; the zoom
-// stack's box. The dot grid, the edge strokes and the zoom's buttons (icon `Button`)
-// are not cells.
-export const CANVAS_GROUND = "bg-canvas";
-export const CANVAS_PORT = `size-[calc(2*var(--spacing-badge))] rounded-full border border-edge-strong bg-surface ${ANSWER}`;
-export const CANVAS_PORT_HIT = "size-target";
-export const CANVAS_GROUP_HEAD =
-	"gap-gap px-pad py-gap min-h-target rounded-t-card border border-transparent bg-group text-meta leading-meta font-normal text-ink-meta";
-export const CANVAS_ZOOM = "rounded-control border border-edge bg-surface";
 
 // ── Layout ──────────────────────────────────────────────────────────
 
-// The shell on the desktop: the sidebar a slate column (the dark calibration of
-// the tokens, pinned in both modes by the `dark` scope, on the surface ground
-// of that scope) beside the column on the canvas. The sidebar insets its rows
-// by an acts gap at the sides and the foot; its first row is the switcher slot,
-// a bar as the page's (the strip height, its row centred), so the switcher and
-// the page title share one line with no number set for it.
-export const SHELL_SIDEBAR = "dark w-sidebar bg-surface";
-// The rows' inset in the sidebar and on the places layer alike: an acts gap at
-// the sides and the foot.
-export const SHELL_INSET = "px-gap pb-gap";
-export const SHELL_COLUMN = "bg-canvas";
-// The phone's column is the canvas too: the sheets stand on it at the page inset.
-export const SHELL_COLUMN_PHONE = "bg-canvas";
-// The column's banner slot: a `Banner` at the page inset all round, so its
-// edge meets the Pane title's and the page gap stands under it, above the
-// header.
-export const SHELL_BANNER = "p-page";
-// The switcher slot: the strip height as a Pane's bar (a control's row, an
-// acts gap over and under it), empty or not, the places starting at its foot.
-// It holds the app's mark in the row's glyph slot and the switcher's trigger
-// after it; the rail and its column each lead with one, so the column's
-// switcher stands level with the app's and its first place with the rail's
-// first entry.
-export const SWITCHER_SLOT = "box-content min-h-control py-gap";
-// The app's mark in a place row's glyph slot: the icon size, its image fit
-// inside.
-export const SHELL_MARK = "size-icon object-contain";
-// The places scroll between the switcher bar and the footer group, which stay
-// fixed, so no place is ever clipped; each run of consecutive places under one
-// group stands a fields gap from the next.
-export const SHELL_PLACES = "grow min-h-0 overflow-y-auto gap-stack";
-// The footer group (settings and exits) stands fixed at the sidebar's bottom,
-// a fields gap under the places.
-export const SHELL_FOOT = "shrink-0 pt-stack";
-// A Shell that names groups draws its sidebar as one body on the sidebar's
-// rung (`SHELL_RAIL_PANEL`): a rail of entries on the same slate at the
-// sidebar's inset (`SHELL_INSET`), a hairline at its end, and a group's column (`SHELL_SIDEBAR`) at the open rail's end
-// (`SHELL_COLUMN_AT`). Open (`data-expanded`) the rail is as wide as its
-// labels, a short label's measure (`--rail-open`), with the column beside it;
-// shut, it is its icon strip, an entry's control square wide (`--rail-slot`),
-// and the column is gone. Docked, the body stands open in the room the frame
-// keeps for all of it (`SHELL_SIDEBAR_SLOT`); folded, the frame keeps the
-// strip's room (`SHELL_RAIL_SLOT`) and the body opens over the page. The frame
-// names the widths, the body's travel (how far its end moves between shut and
-// open) and the inline direction's sign (`SHELL_FRAME`).
-// An entry is a place row whose glyph keeps the control square at its start, its
-// label after it.
-export const SHELL_FRAME =
-	"[--dir:1] rtl:[--dir:-1] [--rail-slot:calc(var(--spacing-control)+2*var(--spacing-gap)+var(--spacing-hairline))] [--rail-open:calc(var(--container-measure-short)+2*var(--spacing-gap))] [--sidebar-travel:calc(var(--rail-open)+var(--container-sidebar)-var(--rail-slot))]";
-export const SHELL_RAIL_SLOT = "w-(--rail-slot)";
-export const SHELL_SIDEBAR_SLOT =
-	"w-[calc(var(--rail-open)+var(--container-sidebar))]";
-export const SHELL_RAIL =
-	"dark bg-surface border-e border-edge w-(--rail-slot) data-expanded:w-(--rail-open)";
-export const SHELL_RAIL_PANEL =
-	"absolute inset-y-0 start-0 z-(--layer-sidebar) flex pointer-events-none";
-export const SHELL_COLUMN_AT = "absolute inset-y-0 start-(--rail-open)";
-export const SHELL_RAIL_ENTRY =
-	"h-control w-full justify-start gap-0 px-0 text-start overflow-hidden";
-export const SHELL_RAIL_GLYPH =
-	"flex size-control shrink-0 items-center justify-center";
-// The body opens and shuts as one, on `base` `out` both ways, and no size
-// moves through layout. The rail's clip uncovers its labels from the strip's
-// end; it takes its open width at once on the way open and the strip's once
-// shut (a snap, never an interpolation), so a shut strip's entries are its
-// boxes and a tooltip stands on them. The column slides out from behind the
-// rail, its start clipped on the same curve a hairline under the rail's moving
-// end, so no seam opens between them, and its end is the body's end. The
-// hairline that parts the two is the column's, at its clipped start; the
-// rail's own stands at its end only while it is shut, against the page, and
-// snaps in once shut. Where the column stands over the page it draws a
-// hairline at its end (`SHELL_COLUMN_FLOAT`). Reduced motion snaps them.
-export const SHELL_RAIL_MOTION =
-	"[clip-path:inset(0_calc(max(0,var(--dir))*(100%-var(--rail-slot)))_0_calc(max(0,-1*var(--dir))*(100%-var(--rail-slot))))] data-expanded:[clip-path:inset(0)] data-expanded:border-e-transparent [transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s_var(--transition-duration-base),border-color_0s_var(--transition-duration-base)] data-expanded:[transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s,border-color_0s] motion-reduce:transition-none";
-export const SHELL_COLUMN_MOTION =
-	"invisible translate-x-[calc(var(--dir)*-1*var(--sidebar-travel))] [clip-path:inset(0_calc(max(0,-1*var(--dir))*(100%-var(--spacing-hairline)))_0_calc(max(0,var(--dir))*(100%-var(--spacing-hairline))))] transition-[translate,clip-path,visibility] duration-base ease-out data-expanded:visible data-expanded:translate-x-0 data-expanded:[clip-path:inset(0_calc(max(0,-1*var(--dir))*-1*var(--spacing-hairline))_0_calc(max(0,var(--dir))*-1*var(--spacing-hairline)))] data-expanded:pointer-events-auto before:absolute before:inset-y-0 before:start-0 before:w-hairline before:bg-edge before:translate-x-[calc(var(--dir)*var(--container-sidebar))] data-expanded:before:translate-x-0 before:transition-[translate] before:duration-base before:ease-out motion-reduce:transition-none motion-reduce:before:transition-none";
-export const SHELL_COLUMN_FLOAT = "border-e border-edge";
-// As the viewer docks or folds the sidebar, the page takes its new room at
-// once and slides from where it stood (`data-slide` on the frame: `dock` from
-// the strip's end, `fold` from the body's), its end moving with the body's
-// end, on the body's `base` `out`; the `page-slide` keyframes are in the web's
-// `globals.css`. Each part of the page carries it (the banner, the place, the
-// foot), since the frame, the column and `main` hold no transform.
-export const SHELL_PAGE_SLIDE =
-	"in-data-[slide=dock]:[--page-from:calc(var(--dir)*-1*var(--sidebar-travel))] in-data-[slide=fold]:[--page-from:calc(var(--dir)*var(--sidebar-travel))] in-data-slide:animate-[page-slide_var(--transition-duration-base)_var(--ease-out)]";
-// A group's label, at the rows' inline inset, a pair over its rows.
-export const SHELL_GROUP_LABEL =
-	"px-pad pb-gap text-caption leading-caption tracking-label font-medium uppercase text-ink-meta";
-// A nested place's run of rails: the first part of a row that is `--level`
-// deep, one `stack` step per level (a tree row's, `TREE_RAIL`) less the row's
-// gap after it (so the row's own padding stays an inset role and its label
-// stands one step in per level), a hairline rail per level in the edge colour
-// under the middle of the parent's glyph. It is painted on its own box and runs
-// unbroken down a branch's rows whatever they hold.
-export const PLACE_NEST =
-	"shrink-0 self-stretch w-[calc(var(--level)*var(--spacing-stack)-var(--spacing-gap))] bg-[image:repeating-linear-gradient(to_right,transparent_0,transparent_calc(var(--spacing-icon)/2-var(--spacing-hairline)),var(--color-edge)_calc(var(--spacing-icon)/2-var(--spacing-hairline)),var(--color-edge)_calc(var(--spacing-icon)/2),transparent_calc(var(--spacing-icon)/2),transparent_var(--spacing-stack))]";
-// The shell on touch: the tab bar, the sidebar turned on its side (the dark
-// scope on its surface), under a hairline; each tab is the dock's height and
-// carries the current bar on its top. The bar clips its tabs' count badges:
-// nothing paints above its hairline.
-export const SHELL_TAB_BAR =
-	"dark px-gap bg-surface border-t border-edge overflow-hidden";
-// The shell on the web's touch density: no tab bar; the places stand on a
-// layer over the whole viewport (the sidebar's slate, clear of the safe
-// insets, its rows at the sidebar's inset), opened by the menu act that leads a Pane's bar and closed
-// by its close act, Escape or going to a place.
-export const SHELL_LAYER = "dark bg-surface pt-safe pb-safe";
-// A page outside the shell, a Gate: the surface ground at the page inset, one
-// column at the `auth` width (a column cell is a width; the region centres
-// it). A step with a title is one stack, a fields gap between every part: the
-// mark, the count, the title, the description, the banner and the body. The mark is the avatar's size, and a
-// drawn lockup in the Gate stands taller, at `gate-mark`.
-export const GATE = "bg-surface p-page";
-export const GATE_COLUMN = "w-full max-w-auth";
 export const GATE_STEP = "gap-stack";
 export const GATE_MARK =
 	"size-[calc(var(--spacing-line-body)+var(--spacing-badge))]";
-// The app's mark is a lockup, the logo (`GATE_MARK`, the avatar's size) and the
-// app's name a row apart, a row of the step.
-export const GATE_MARK_ROW = "gap-gap";
-// An app's drawn lockup stands in the row in place of the logo and the name,
-// its width from its own proportion, held to the row, two body lines tall.
-export const GATE_LOGO =
-	"h-[calc(2*var(--spacing-line-body))] w-auto max-w-full";
-// The switcher's trigger leading a touch Pane's bar, which reaches across the
-// page inset (`PAGE_TOP_BAR_START`) by the inset it keeps; in the sidebar it is a
-// `PLACE_ROW` with the name at body 500.
-// Its inset is what an icon act has round its glyph, half of what the control
-// has over the control's icon.
-export const SWITCHER =
-	"gap-gap px-[calc((var(--spacing-control)-var(--spacing-icon-control))/2)] min-h-target rounded-control";
-// The toasts' layer over the column (the desktop shell) or at a touch
-// screen's foot, each toast a pair apart.
-export const TOASTS = "p-page gap-gap";
-// A Pane. Its head insets its bar at the page inset over one hairline: the
-// back act or (on touch) the switcher, the title, then the acts, in one row.
-// The bar is at a set height, a floor as a row's. The body insets its
-// sections at the page inset.
-export const PAGE_HEAD = "px-page border-b border-edge bg-surface";
-// A room Pane stands its head a pad off the top, on the table: the ten-foot
-// safe area is what the head's text keeps from the edge, the pad and the bar's
-// own gap over its line, so the safe area is no band of the head's surface (the
-// page inset all round would take 48 of the canvas's 540 over the bar). The
-// table shows above the bar; the bar's surface starts at the pad.
-export const PAGE_HEAD_ROOM = "pt-pad";
-// A bar is a row of controls: the control height and the gap above and below
-// (the floor counts the padding, so it is spelt as that sum).
-export const PAGE_TOP_BAR =
-	"gap-gap py-gap min-h-[calc(var(--spacing-control)+2*var(--spacing-gap))]";
-// A record's place in the bar before its name: the meta ink, parted from the name
-// by a slash in the mark ink. The slash is drawn, not written: it is a mark at
-// the 3:1 floor, and a written one would be text to the 4.5:1 check and to a
-// reader of the heading.
-export const PAGE_WITHIN = "text-ink-meta";
-export const PAGE_WITHIN_SEP = "text-ink-mark px-gap before:content-['/']";
-// On touch the back act or the switcher reaches the page inset by its start,
-// the acts by their end, and the title stands at the inset.
-// Each reaches by what an icon act has round its glyph.
-export const PAGE_TOP_BAR_START =
-	"-ms-[calc((var(--spacing-control)-var(--spacing-icon-control))/2)]";
-export const PAGE_TOP_BAR_END =
-	"-me-[calc((var(--spacing-control)-var(--spacing-icon-control))/2)]";
+
 // A Pane's head is one line at every width. The title truncates and holds at
 // least two fifths of the row (a structural fraction, never a width); the first
 // act stands and the rest stand in the more menu (`actsSplit`), whatever the
 // room. On touch the head takes a step of block padding over the row.
 export const PAGE_TITLE_FLOOR = "min-w-2/5 basis-0";
-// A bar that holds a context pick (a scope) keeps the same floor: the pick
-// keeps its content up to three fifths of the row (`PAGE_CONTEXT`, the floor's
-// complement) and its label truncates before the title is cut below its floor.
-export const PAGE_CONTEXT = "max-w-3/5";
-export const PAGE_BODY = "gap-section p-page";
+
 // A docked foot (a Pane's `foot`) is one cell: a
 // region of its own under what scrolls past it, a raised surface (the raised
 // step under a hairline), at the page inset at the
@@ -1316,32 +1080,7 @@ export const PAGE_BODY = "gap-section p-page";
 // sheet's pinned parts.
 export const FOOT_DOCKED =
 	"border-t border-edge-raised bg-raised px-page py-gap max-h-full min-h-0";
-export const PAGE_BODY_OVER_FOOT = "pb-section";
-// A body with no foot ends where the toasts' layer stands over it, so while a
-// toast stands (`[data-toast]` in the web frame's `main`; a queued toast on the
-// phone) the body's end takes the toasts' reach as well: two lines of a toast
-// and its gaps, the layer's inset above and below, so the page's last line
-// scrolls clear of it.
-export const PAGE_BODY_TOAST_ROOM =
-	"pb-[calc(2*var(--spacing-control)+2*var(--spacing-gap)+2*var(--spacing-page))]";
-export const PAGE_BODY_UNDER_TOAST =
-	"in-[main:has([data-toast])]:pb-[calc(2*var(--spacing-control)+2*var(--spacing-gap)+2*var(--spacing-page))]";
-// A section: its head paired to its body; the body's parts, each a card of
-// its own, stand a fields gap apart (`SECTION_BODY`).
-export const SECTION = "gap-gap";
-// A section's head: the head row over a blocked
-// act's reason, the title centred on the act, which sets the row's height.
-// The fold toggle's wash overhangs its start only, where its chevron stands
-// (a web overlay pulls it back).
-export const SECTION_HEAD = "gap-gap";
-// A section's title: the caption size at 500, uppercase and tracked, in the
-// meta ink. The count after it keeps its own caption look.
-export const SECTION_LABEL =
-	"text-caption leading-caption tracking-label font-medium uppercase text-ink-meta";
-export const SECTION_HEAD_ROW = "gap-stack";
-// The head's act and its more stand the gap a list row's do (`ROW_ACTS`), so the
-// more's wash does not meet the act's border.
-export const SECTION_ACTS = "gap-gap";
+
 // A section's labelled act is words in the accent ink, as an empty state's act
 // is: the one filled act of a page is its bar's. One that removes or ends
 // something is in the danger ink.
@@ -1350,46 +1089,7 @@ export const ICON_BUTTON_DESTRUCTIVE = "text-danger";
 // An icon act that is the one its bar is for (play): the accent fill, with its
 // own hover, press and blocked looks in place of the wash.
 export const ICON_BUTTON_PRIMARY = "bg-act-accent text-on-act-accent";
-export const SECTION_BODY = "gap-stack";
-export const SECTION_TITLE = "gap-gap";
-export const SECTION_TOGGLE = `gap-gap min-h-target px-gap rounded-row ${ANSWER}`;
-// Every run of rows (a sheet's, a Form's) is one grid of two
-// columns, so a definition row's label column is as wide as the widest label
-// of the run; the grid places each entry across both columns, and a
-// definition row alone subgrids them (`DEFINITION_BOX`). A form's group is a
-// run inside the form's (`FORM_GROUP`, a subgrid, so its labels align with
-// the rest). The two columns are one chain down a Pane: its body, a Section,
-// the Section's body, the sheet or the Form each stand in `ROWS`, which is
-// its own two columns, and a subgrid of its parent's where the parent is a
-// `rows-host` (the marker is on every `ROWS` grid; a Pane body that fills is
-// a flex column and carries none), so every
-// definition list in a Pane shares the label column of the widest label among
-// them, and a run standing alone (a Sheet's, a Column's) keeps its own. The run draws the hairline between its rows once, so no row
-// carries one: a child selector is one uniwind drops, so native draws that
-// hairline per row and the web draws it as an overlay on the run (a
-// pseudo-element on each entry but the last, so a rounded row keeps a
-// straight hairline). The label column is as wide as the widest label, no
-// wider than one short measure: a longer label wraps at its words, and since a
-// row needs two short measures the value column keeps one at least, so a long
-// label never starves a pick of its words.
-// Wide content (a Table, a line Diff, a code block, a Canvas, a chart) marks itself
-// `data-wide` and spans every track of the run it stands in, and so does each
-// part of the chain that holds it: it stands at the body's width, past the
-// reading width's third track (`ROWS_MEASURED`), while the rows beside it keep
-// the reading width. Content decides it, so no Pane or Section is told.
-const WIDE_SPANS =
-	"[&>[data-wide]]:col-span-full [&>:has([data-wide])]:col-span-full";
-export const ROWS = `${ROWS_HOST} grid-cols-[fit-content(var(--container-measure-short))_minmax(0,1fr)] [.rows-host>&]:grid-cols-subgrid col-span-2 *:col-span-2 ${WIDE_SPANS} gap-x-0`;
-export const FORM_GROUP = `${SUBGRID} *:col-span-2`;
-// A sheet: its rows on a card.
-export const GROUP = `${CARD} ${ROWS}`;
-// The run of rows with a third track after its two: the rows end at the reading
-// width and the track takes the rest. A subgrid draws in its parent's columns, so
-// a cap on each part's box would not bound its rows, the columns do. It is
-// `ROWS` with its columns replaced, so no `!` is needed to beat them.
-export const ROWS_MEASURED = `${ROWS_HOST} [grid-template-columns:fit-content(var(--container-measure-short))_minmax(0,1fr)_max(0px,calc(100%-var(--container-reading)))] col-span-2 *:col-span-2 ${WIDE_SPANS} gap-x-0`;
-// The box of a part that is no row (a form group's lead), at the card's inset.
-export const GROUP_ITEM = "p-pad";
+
 // A group's band in a list with `groups`: the band ground at the band height,
 // across the list's width (which bleeds the card), its text at the rows' inline
 // inset, the label, its count and its act a gap apart; no radius; closed by a
@@ -1408,103 +1108,24 @@ export const TREE_RAIL = "w-stack border-r border-edge";
 // too), so a level's rail is unbroken from row to row, through the hairline
 // between two rows: the bleed is that padding's negative.
 export const TREE_BLEED = "-my-gap";
-// A form's foot: its action bar, the last row of the form under a hairline
-// across it, at the rows' inset; in a sheet it sticks to the scroller's foot
-// on the raised ground, so what scrolls under it shows in no gutter.
-export const FORM_FOOT = "border-t border-edge p-pad";
-export const FORM_FOOT_STUCK = "sticky bottom-0 bg-raised";
+
 // An action bar: the acts row over a blocked act's reason, the acts an acts
 // gap apart. Where the bar stands (`fit`: at the end of its container at the
 // acts' natural width, or across it with each act at the field's height) is
 // structure and the `Button` fit the bar passes, so it carries no cell.
 export const ACTION_BAR = "gap-gap";
 export const ACTION_BAR_ACTS = "gap-gap";
-// A selection bar's gaps, a pair apart: the row holding the count and its
-// acts (the count at the start and the acts at the end, or stacked on touch)
-// and the count's own row with its choose-all act.
-export const ACTION_BAR_CHOSEN = "gap-gap";
-// A selection bar's column: the body's column, at its start, where it docks in
-// a Pane's foot (the reading width; the body's width where the body holds wide
-// content, which sets `--foot-column` to it), so it stands on the page's grid with the rows it counts.
-export const ACTION_BAR_SELECTION =
-	"w-full self-start max-w-[var(--foot-column,var(--container-reading))]";
-// The act beside a selection bar's count that chooses or clears every row:
-// words at the control radius, as the filled act beside it, washed at the
-// pointer.
-export const ACTION_BAR_ALL = `rounded-control px-gap min-h-target ${ANSWER}`;
-// A toolbar's band over a list, in a page's body, so its controls stand at the
-// body's own inset (no inset of its own: a second one put them a page inset
-// past the headings and the list under it) and its hairline spans the same
-// width: its controls and acts in wrapping rows at the acts rhythm, the
-// applied filters' chips at the pair rhythm.
-export const TOOLBAR = "gap-gap border-b border-edge";
-export const TOOLBAR_ROW = "gap-gap";
-export const TOOLBAR_LINE =
-	"py-gap min-h-[calc(var(--spacing-control)+2*var(--spacing-gap))]";
-// The tabs stand first in the row; on touch, where the row wraps, they take
-// the first line whole and the control scrolls sideways inside it.
-export const TOOLBAR_TABS = "min-w-0 touch:w-full";
-// The search grows from a basis of the short measure up to the `column`
-// width (the filters' range), so the row wraps only when the search cannot
-// keep that measure beside the acts (voice 14: one row, the search leading and
-// the filters a glyph), never on the input's own width. On the desktop the
-// acts keep the row's end past it; on touch it takes the width they leave.
-export const TOOLBAR_SEARCH =
-	"grow min-w-0 basis-[min(100%,var(--container-measure-short))] max-w-column touch:max-w-none";
-export const TOOLBAR_CHIPS = "gap-gap";
-// A toolbar's folded filters: the labelled picks in one column a fields gap
-// apart, in the desktop popover at the column's width (the filters pattern's
-// range is 300 to 500) at the inside inset past the popover's own float inset.
-export const TOOLBAR_FILTERS = "gap-stack";
-export const TOOLBAR_FILTERS_POPOVER = "w-column p-gap";
 
-// The roles `Text` draws: a primary line and a secondary one. The other roles
-// are drawn by the molecule that owns their place.
-export type TextRole = Extract<
-	keyof (typeof TEXT)["variants"]["role"],
-	"body" | "meta"
->;
 // What an icon sits beside, which picks its size: meta or caption text, body
 // text, or the inside of a control.
 export type IconFit = keyof (typeof ICON)["variants"]["fit"];
-export type ButtonAct = keyof (typeof BUTTON)["variants"]["act"];
-// What a button, an icon button or a link sits in, which picks its height
-// (and a link's underline): the composing molecule sets it.
-export type ButtonFit = keyof (typeof BUTTON)["variants"]["fit"];
-export type IconButtonFit = keyof (typeof ICON_BUTTON)["variants"]["fit"];
+
 export type LinkFit = keyof (typeof LINK)["variants"]["fit"];
-export type FieldKind = keyof (typeof FIELD_VALUE)["variants"]["kind"];
-export type TableRowState = keyof (typeof TABLE_ROW)["variants"]["state"];
 export type ImageFit = keyof (typeof IMAGE)["variants"]["fit"];
 export type ImageState = keyof (typeof IMAGE)["variants"]["state"];
 export type AvatarStep = keyof (typeof AVATAR)["variants"]["step"];
-export type PlaceTabState = keyof (typeof PLACE_TAB)["variants"]["state"];
-export type ColumnsFit = keyof (typeof COLUMNS)["variants"]["fit"];
-// Where an action bar stands: at the end of its container at the acts' width,
-// or across it, each act at the field's height (structure, no cell).
-export type ActionBarFit = "end" | "full";
-export type PickerFit = keyof (typeof PICKER)["variants"]["fit"];
 
 export type ContentTone = ColorName;
-
-const COLOR_SET: ReadonlySet<string> = new Set(COLOR_NAMES);
-
-// The matrices already carry the answer, so the tint a plugin hands to its
-// own glyph or spinner is read back off a cell's colour instead of being
-// written a second time.
-function toneOf(cell: string, property = "text|bg|border"): ContentTone {
-	const read = new RegExp(`^(?:${property})-(.+)$`);
-	const tone = cell
-		.split(/\s+/)
-		.map((name) => read.exec(name)?.[1])
-		.find((name) => name !== undefined && COLOR_SET.has(name));
-	// Every cell these read names a contract colour, which c22 pins.
-	return (tone ?? "ink-body") as ContentTone;
-}
-
-export function buttonContentTone(act: ButtonAct): ContentTone {
-	return toneOf(BUTTON_LABEL.variants.act[act]);
-}
 
 // A list row's title form: the name, off a highlighted path (`dim`) or not.
 export function rowTitleForm(
@@ -1524,16 +1145,6 @@ export function changeContentTone(kind: ChangeKind): ContentTone {
 	return toneOf(CHANGE_MARK.variants.kind[kind]);
 }
 
-// A stage mark's glyph ink: the done mark's check, the ended mark's cross.
-export function stageContentTone(glyph: "check" | "cross"): ContentTone {
-	return toneOf(glyph === "check" ? STAGE_CHECK : STAGE_CROSS);
-}
-
-// A failed image's glyph ink.
-export function imageContentTone(): ContentTone {
-	return toneOf(IMAGE_FAILED_INK);
-}
-
 // The aspect an image's box stands at in every state: a content image's is
 // its consumer's, a thumbnail's and a mini's is its square, which its size fixes, and a
 // tile's its consumer's held no narrower than `IMAGE_TILE_NARROWEST`.
@@ -1546,11 +1157,6 @@ export function imageAspect(
 	return aspect;
 }
 
-// A toast's glyph ink, its tone's.
-export function toastContentTone(tone: Tone): ContentTone {
-	return toneOf(TOAST_STATE.variants.tone[tone]);
-}
-
 // A folded question's glyph ink.
 export function summaryContentTone(): ContentTone {
 	return toneOf(FORM_FIELD_SUMMARY_GLYPH);
@@ -1561,77 +1167,12 @@ export function rowWarningContentTone(): ContentTone {
 	return toneOf(ROW_WARNING);
 }
 
-// A place tab's content ink, its state's: the glyph reads it, and the label
-// repeats it. The cell also draws a border, so the text colour is the one read.
-export function placeTabContentTone(state: PlaceTabState): ContentTone {
-	return toneOf(PLACE_TAB.variants.state[state], "text");
-}
-
-// A banner's glyph ink, its tone's.
-export function bannerContentTone(tone: Tone): ContentTone {
-	return toneOf(BANNER_GLYPH.variants.tone[tone]);
-}
-
-// A pair row's arrow ink, its state's.
-export function ruleArrowContentTone(
-	state: keyof (typeof RULE_ARROW)["variants"]["state"],
-): ContentTone {
-	return toneOf(RULE_ARROW.variants.state[state]);
-}
-
 // A stable step for a name, so one name keeps one fill everywhere.
 export function avatarStep(name: string): AvatarStep {
 	let hash = 0;
 	for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
 	return String((hash % 8) + 1) as AvatarStep;
 }
-
-// The motion cells are spelled in
-// `variant-tables.ts`, where the matrices compose them, and read from here.
-export {
-	ANSWER,
-	CHECK_MARK,
-	CHEVRON,
-	CURRENT_BAR,
-	CURRENT_ROOM,
-	FILL_FADE,
-	FILL_X,
-	FILL_Y,
-	GIVE,
-	LIFT,
-	PATH_TONE,
-	RADIO_DOT,
-	SWAP_IN,
-	SWAP_OUT,
-	TOGGLE_THUMB,
-	TRAVEL_X,
-	TRAVEL_Y,
-};
-
-// A bar chart's bar (or one part of a stacked bar): the plot's full height,
-// scaled from the baseline to its share (`--fill`) and lifted over the parts
-// under it (`--stack`). Each part after the first is lifted one more hairline,
-// the clear line between parts, which a scaled border could not hold.
-export const CHART_BAR = `absolute inset-0 ${FILL_Y}`;
-// A level's reading (a temperature, a share), which the chart draws as a dot
-// against the axis's floor-to-top run instead of a bar from zero: the
-// plot's full height travelled down from its top by the share it stands under
-// the top (`--travel`), its dot (`CHART_DOT`, the key's dot) centred on its
-// top edge, so a reading moves by transform.
-export const CHART_LEVEL = `absolute inset-0 ${TRAVEL_Y}`;
-export const CHART_DOT =
-	"absolute inset-x-0 top-0 mx-auto size-dot rounded-full -translate-y-1/2";
-// A bar whose period is not over (this month so far): its column hatched at
-// 45°, stripes two hairlines wide and two apart, by a mask on the unscaled
-// column, so the hatch keeps its angle at any share and the ground (a selected
-// slot's wash too) shows between the stripes; each stripe is the series fill,
-// which holds the 3:1 mark floor.
-export const CHART_PARTIAL =
-	"[mask-image:repeating-linear-gradient(45deg,black_0,black_calc(2*var(--spacing-hairline)),transparent_calc(2*var(--spacing-hairline)),transparent_calc(4*var(--spacing-hairline)))]";
-// The slot of the bar whose record is open beside the chart: the selection
-// wash over the plot's height, as a selected row or table row carries it (no
-// radius: it is a band of the plot, as a table row is).
-export const CHART_SELECTED = "bg-wash-selected";
 
 // A painted fill's whole animation: the appear fade after `--wait-delay`
 // (`paint-in`), then the breath on the fill's alpha (`pulse-fill`, both
@@ -1657,26 +1198,15 @@ export const SCRAMBLE =
 // (below it, else rising from the side it flipped to) and returns to it.
 export const LAYER_POPOVER =
 	"transition-[opacity,translate] duration-base ease-out data-starting-style:-translate-y-gap data-[side=top]:data-starting-style:translate-y-gap data-starting-style:opacity-0 data-ending-style:-translate-y-gap data-[side=top]:data-ending-style:translate-y-gap data-ending-style:opacity-0 data-ending-style:ease-in";
-// A tooltip fades on `fast` once its rest has run and leaves at once (no
-// ending style, so nothing holds it); one that opens with no rest (a second
-// within the last's 300 ms, the keyboard's focus) shows with no fade either.
-export const LAYER_TOOLTIP =
-	"transition-opacity duration-fast ease-out data-starting-style:opacity-0 data-instant:transition-none";
+
 // A centred sheet, a desktop card and a full view rise a pair as they fade in
 // and sink it as they fade out.
 export const LAYER_CARD =
 	"transition-[opacity,translate] duration-base ease-out data-starting-style:translate-y-gap data-starting-style:opacity-0 data-ending-style:translate-y-gap data-ending-style:opacity-0 data-ending-style:ease-in";
-// A bottom sheet slides from its edge and back to it.
-export const LAYER_SHEET_BOTTOM =
-	"transition-transform duration-base ease-out data-starting-style:translate-y-full data-ending-style:translate-y-full data-ending-style:ease-in";
+
 // The scrim fades on its sheet's rung and curves, in and out.
 export const LAYER_SCRIM =
 	"transition-opacity duration-base ease-out data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:ease-in";
-// A toast rises a pair as it fades in (`transform`, opacity: ease-out) and
-// sinks it fading out (ease-in); the stack closes up on `translate`
-// (ease-in-out), so the two motions keep their own curves.
-export const LAYER_TOAST =
-	"transition-[translate,transform,opacity] duration-base [transition-timing-function:var(--ease-in-out),var(--ease-out),var(--ease-out)] data-starting-style:[transform:translateY(var(--spacing-gap))] data-starting-style:opacity-0 data-ending-style:[transform:translateY(var(--spacing-gap))] data-ending-style:opacity-0 data-ending-style:[transition-timing-function:var(--ease-in-out),var(--ease-in),var(--ease-in)]";
 
 // A line that appears in flow (a blocked act's reason, a field's error, a
 // checking line, a notice, a stage's moment) fades in on `fast` `out` and
@@ -1691,15 +1221,3 @@ export const LINE_IN =
 // brings in or takes out lands at once.
 export const BLOCK_IN =
 	"animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_both]";
-
-// A message that arrives at the end of a log (the viewer's own or another's)
-// rises a `pair` as it fades in on `base` `out`, and pushes nothing but the
-// end of the log, which follows it. The keyframes are in the web's
-// `globals.css`; the phone rises it in Reanimated (`streamIn`).
-export const STREAM_IN =
-	"animate-[stream-in_var(--transition-duration-base)_var(--ease-out)_both]";
-// The act back to the newest message fades in rising a `pair` on `fast` `out`
-// as the reader scrolls away (its starting style), and leaves on `fast` `in`
-// the same way back (`data-leaving`); it stays mounted until it has gone.
-export const STREAM_LATEST =
-	"transition-[opacity,translate] duration-fast ease-out starting:opacity-0 starting:translate-y-gap data-[leaving]:ease-in data-[leaving]:opacity-0 data-[leaving]:translate-y-gap";

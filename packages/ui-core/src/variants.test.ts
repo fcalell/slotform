@@ -1,14 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { TEXT } from "./variant-tables.ts";
-import {
-	FIGURES,
-	ITEM_OVERLINE,
-	placeTabContentTone,
-	YIELDS_FIRST,
-	YIELDS_LAST,
-	YIELDS_LAST_EACH,
-} from "./variants.ts";
+import { ITEM_OVERLINE } from "./roster/pane.ts";
+import { FIGURES, TEXT } from "./roster/shared.ts";
+import { placeTabContentTone } from "./roster/shell.ts";
+import { YIELDS_FIRST, YIELDS_LAST, YIELDS_LAST_EACH } from "./variants.ts";
 
 const weight = (name: string) =>
 	Number(/shrink-\[?([\d.]+)\]?/.exec(name)?.[1]);
