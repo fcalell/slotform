@@ -58,8 +58,11 @@ test("stopAll kills what a stubborn process started after the grace", async () =
 });
 
 test("stopAll waits for the processes to exit", async () => {
-	const proc = sleeper("sleepy", "setInterval(() => {}, 1000)");
-	await new Promise((r) => setTimeout(r, 300));
+	const proc = sleeper(
+		"sleepy",
+		"console.log('up'); setInterval(() => {}, 1000)",
+	);
+	await new Promise((r) => proc.current()?.stdout?.once("data", r));
 	await stopAll([proc], 3000);
 	assert.equal(proc.current()?.signalCode, "SIGTERM");
 });

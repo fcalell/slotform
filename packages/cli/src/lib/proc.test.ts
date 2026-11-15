@@ -81,6 +81,10 @@ const settles = <T>(promise: Promise<T>) =>
 
 test("a restart relaunches a running process whatever its policy", async () => {
 	const launches: number[] = [];
+	let relaunched!: () => void;
+	const second = new Promise<void>((resolve) => {
+		relaunched = resolve;
+	});
 	let printed!: () => void;
 	const up = new Promise<void>((resolve) => {
 		printed = resolve;
@@ -93,19 +97,15 @@ test("a restart relaunches a running process whatever its policy", async () => {
 			restart: "never",
 		},
 		onOutput: () => printed(),
-		onLaunch: (attempt) => launches.push(attempt),
+		onLaunch: (attempt) => {
+			launches.push(attempt);
+			if (launches.length === 2) relaunched();
+		},
 	});
 	await up;
 	const first = proc.current();
 	proc.restart();
-	await settles(
-		new Promise<void>((resolve) => {
-			const poll = setInterval(() => {
-				if (launches.length === 2) resolve();
-			}, 20);
-			poll.unref();
-		}),
-	);
+	await settles(second);
 	assert.notEqual(proc.current(), first);
 	assert.equal(first?.signalCode, "SIGTERM");
 	proc.stop();

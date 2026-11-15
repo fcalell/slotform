@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { configUrl, loadConfig } from "./config.ts";
 
 const source = (name: string) =>
-	`export default { name: ${JSON.stringify(name)}, plugins: [], validate() { return []; } };`;
+	`export default { app: { name: ${JSON.stringify(name)}, domain: "example.com" }, plugins: [], validate() { return []; } };`;
 
 test("configUrl is a file URL, and a reload gets a fresh one each time", () => {
 	assert.match(configUrl("stack.config.ts"), /^file:\/\//);
@@ -19,15 +19,13 @@ test("a reload sees the edited file, a plain load the cached module", async () =
 	try {
 		const file = join(dir, "stack.config.mjs");
 		writeFileSync(file, source("one"));
-		const first = (await loadConfig(file)) as unknown as { name: string };
-		assert.equal(first.name, "one");
+		const first = await loadConfig(file);
+		assert.equal(first.app.name, "one");
 		writeFileSync(file, source("two"));
-		const cached = (await loadConfig(file)) as unknown as { name: string };
-		assert.equal(cached.name, "one");
-		const fresh = (await loadConfig(file, { reload: true })) as unknown as {
-			name: string;
-		};
-		assert.equal(fresh.name, "two");
+		const cached = await loadConfig(file);
+		assert.equal(cached.app.name, "one");
+		const fresh = await loadConfig(file, { reload: true });
+		assert.equal(fresh.app.name, "two");
 	} finally {
 		rmSync(dir, { recursive: true, force: true });
 	}
