@@ -9,7 +9,7 @@ const app: ServeWorker = {
 	},
 };
 const env = {};
-const ask = (worker: ServeWorker, path: string) =>
+const ask = async (worker: ServeWorker, path: string) =>
 	worker.fetch(
 		new Request(`http://localhost:1${path}`),
 		env as never,
