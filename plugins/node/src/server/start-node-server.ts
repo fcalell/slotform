@@ -5,9 +5,9 @@ import {
 	createNodeServer,
 	type NodeServer,
 	type NodeServerOptions,
-	type NodeWorker,
 } from "./create-node-server.ts";
 import type { ServiceSpec } from "./service.ts";
+import type { NodeWorker } from "./worker.ts";
 
 export interface NodeServerBootOptions
 	extends Omit<NodeServerOptions, "worker" | "services" | "staticRoot"> {

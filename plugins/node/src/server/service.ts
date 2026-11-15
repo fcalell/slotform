@@ -1,9 +1,5 @@
+import type { ServiceLogger } from "./log.ts";
 import type { ConnectionSession, WsHub } from "./ws-hub.ts";
-
-export interface ServiceLogger {
-	info(message: string): void;
-	error(message: string): void;
-}
 
 export interface ServiceHttp {
 	// The port the node server listens on (fixed from config before listen).

@@ -5,8 +5,9 @@ import createWorker from "@fcalell/plugin-api/runtime";
 import { WebSocket } from "ws";
 import { z } from "zod";
 import { defineChannel } from "../ws/index.ts";
-import { createNodeServer, type NodeWorker } from "./create-node-server.ts";
+import { createNodeServer } from "./create-node-server.ts";
 import { defineService } from "./service.ts";
+import type { NodeWorker } from "./worker.ts";
 import {
 	hasAuth,
 	SESSION_ENDED_CHANNEL,

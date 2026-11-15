@@ -13,7 +13,9 @@ import {
 	mainAdmits,
 	originOf,
 } from "./listeners.ts";
-import type { ServiceLogger, ServiceSpec, ServiceStop } from "./service.ts";
+import type { ServiceLogger } from "./log.ts";
+import type { ServiceSpec, ServiceStop } from "./service.ts";
+import type { NodeWorker } from "./worker.ts";
 import {
 	authorizeUpgrade,
 	hasAuth,
@@ -25,21 +27,6 @@ import {
 	createWsHub,
 	type HubSocket,
 } from "./ws-hub.ts";
-
-// The worker shape emitted by plugin-api's `.stack/worker.ts` (its
-// `WorkerExport`), reduced to what this target calls. On Node, `env` is
-// `process.env` and there is no execution context; the worker runtime
-// degrades both gracefully.
-export interface NodeWorker {
-	fetch(
-		request: Request,
-		env: unknown,
-		ctx: unknown,
-	): Response | Promise<Response>;
-	// The worker's env check (`WorkerExport.checkEnv`): runs before the
-	// server listens and throws a message naming every missing var.
-	checkEnv?(env: unknown): void;
-}
 
 // A further port the server answers on, for one origin of its own (the
 // app at a proxy's named address beside its loopback port, say). Its origin

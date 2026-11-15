@@ -1,4 +1,4 @@
-import type { NodeWorker } from "./create-node-server.ts";
+import type { NodeWorker } from "./worker.ts";
 import type { ConnectionSession } from "./ws-hub.ts";
 
 // plugin-auth mounts better-auth under this worker path (its `AUTH_PREFIX`).

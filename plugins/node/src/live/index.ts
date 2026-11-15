@@ -1,17 +1,13 @@
 import { holdOf, type Read, read } from "@fcalell/plugin-api/read";
 import type { QueryClient } from "@tanstack/react-query";
 import type { z } from "zod";
-import type { WsClient } from "../client/index.ts";
+import { PAUSE_AFTER, type WsClient } from "../client/index.ts";
 import type { ChannelDef, MessageSchemas } from "../ws/index.ts";
 
 // A channel as a read: its frames fold into one value, written to the query
 // cache as they arrive, so a frame holds it like any other read (`states.md`
 // §8). The queryFn stays in flight for the subscription's life: that is what
 // ties the subscription to the observers, ending it when the last one leaves.
-
-// How long the socket may stay down before the read is paused: long enough
-// that a load's connecting and a blink of the network say nothing.
-export const PAUSE_AFTER = 2000;
 
 // One handler per message type; a type without one is ignored. The first
 // value a handler returns is the read's first data (the snapshot). A handler

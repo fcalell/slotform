@@ -2,9 +2,12 @@ import type { Reach } from "@fcalell/plugin-api/acts";
 import { type Read, read } from "@fcalell/plugin-api/read";
 import { createStore } from "@fcalell/ui-core/store";
 import type { z } from "zod";
-import { PAUSE_AFTER } from "../live/index.ts";
 import type { ChannelDef, ClientFrame, MessageSchemas } from "../ws/index.ts";
 import { serverFrameSchema } from "../ws/index.ts";
+
+// How long the socket may stay down before the read is paused: long enough
+// that a load's connecting and a blink of the network say nothing.
+export const PAUSE_AFTER = 2000;
 
 export type WsStatus = "connecting" | "open" | "closed";
 

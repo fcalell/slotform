@@ -4,7 +4,7 @@ import { request } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { createNodeServer, type NodeWorker } from "./create-node-server.ts";
+import { createNodeServer } from "./create-node-server.ts";
 import {
 	boundHost,
 	hostOf,
@@ -13,6 +13,7 @@ import {
 	mainAdmits,
 	originOf,
 } from "./listeners.ts";
+import type { NodeWorker } from "./worker.ts";
 
 test("hostOf normalises a Host header for its scheme and refuses junk", () => {
 	assert.equal(hostOf("Example.COM", "https:"), "example.com");
