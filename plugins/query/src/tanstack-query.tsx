@@ -16,6 +16,7 @@ import type {
 	ScopedRouterClient,
 } from "@fcalell/plugin-api/types";
 import {
+	ability,
 	composeAbility,
 	orgRules,
 	type PackedRulesLike,
@@ -23,7 +24,10 @@ import {
 import {
 	guardReach,
 	heldAct,
+	issues,
 	type Reach,
+	refusal,
+	retries,
 	watchActs,
 	whenSettled,
 } from "@fcalell/plugin-query/acts";
@@ -36,6 +40,7 @@ import {
 	withRead,
 } from "@fcalell/plugin-query/read";
 import { scoped as scopedBy, withScope } from "@fcalell/plugin-query/scope";
+import type { InputOf, OutputOf, ProcedureCall } from "@fcalell/ui-core/form";
 import type { QueryListeners } from "@fcalell/ui-core/listen";
 import { PortProvider, type ReadPort } from "@fcalell/ui-core/react/port";
 import {
@@ -61,8 +66,10 @@ import {
 	type SkipToken,
 	skipToken,
 	type UseInfiniteQueryOptions,
+	type UseMutationOptions,
 	type UseQueryOptions,
 	useInfiniteQuery,
+	useMutation,
 	useQueries,
 	useQuery,
 } from "@tanstack/react-query";
@@ -203,11 +210,6 @@ export function scoped<U>(utils: U, scope: ScopeIds): U {
 	return scopedBy(utils, scope, SCHEMA);
 }
 
-/** One procedure of the generated schema (`.stack/schema.ts`) by dotted path, or undefined before the first `stack generate`. */
-export function schemaOf(path: string): (typeof SCHEMA)[string] | undefined {
-	return SCHEMA[path];
-}
-
 // A read's options as an observer takes them: a painted read's carry the
 // placeholder that marks the observer, a silent one's notify on nothing.
 const optionsOf = (o: Observed): Read<unknown>["options"] => ({
@@ -221,9 +223,9 @@ const IDLE = {
 	queryFn: skipToken,
 };
 
-// The read hooks' port over one query client: each observing member is
-// TanStack's hook given that client, so a read observes the provider's cache
-// wherever its hook renders.
+// The port over one query client: each member that is a hook is TanStack's
+// hook given that client, so a read observes, and a submit runs in, the
+// provider's cache wherever its hook renders.
 function readPort(client: QueryClient): ReadPort {
 	return {
 		useReads<R>(
@@ -287,6 +289,34 @@ function readPort(client: QueryClient): ReadPort {
 			return (
 				<QueryClientProvider client={client}>{children}</QueryClientProvider>
 			);
+		},
+		refusal,
+		retries,
+		issues,
+		useSubmit<P extends ProcedureCall>(act: P | undefined) {
+			const mutation = useMutation(
+				// The utils' `mutationOptions()` is typed by its procedure, which the
+				// structural `ProcedureCall` does not carry.
+				(act?.mutationOptions() ?? {}) as UseMutationOptions<
+					OutputOf<P>,
+					Error,
+					InputOf<P>
+				>,
+				client,
+			);
+			return mutation.mutateAsync;
+		},
+		schemaOf(path) {
+			return SCHEMA[path];
+		},
+		may(organizationId, can) {
+			return ability(organizationId).at((rules) => rules.can(can[0], can[1]));
+		},
+		// A route file's `preload` export takes the client and the route's params.
+		warm(route, params) {
+			if (!("preload" in route)) return;
+			const { preload } = route;
+			if (typeof preload === "function") preload(client, params);
 		},
 	};
 }

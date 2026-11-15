@@ -10,7 +10,7 @@ Query plugin for the `@fcalell/stack` framework: the api's procedures as TanStac
 stack add query
 ```
 
-It requires `api`. The consumer declares `@orpc/tanstack-query` (the plugin's `dependencies`); React and TanStack Query come with the app's React or Expo plugins.
+It requires `api`. The consumer declares `@orpc/tanstack-query` (the plugin's `dependencies`); TanStack Query comes with plugin-react on the web and with native-ui on the phone, which also brings the `expo-network` that `./net` listens to.
 
 ## Guide
 
@@ -27,20 +27,21 @@ Drawing the api's reads lives in `guide/`, indexed into a consumer's `.stack/gui
 | `vite.slots.optimizeExclude` | `@fcalell/plugin-query/tanstack-query`, which imports `virtual:stack-schema` |
 | `cliSlots.initDeps` | `@orpc/tanstack-query` |
 
-On the phone, native-ui contributes the `QueryProvider` to `expo.slots.providers`.
+On the phone, native-ui contributes the `QueryProvider` to `expo.slots.providers`, with `listen` from `./net`.
 
 ## Exports
 
 | Subpath | Purpose |
 |---------|---------|
 | `@fcalell/plugin-query` | `query()` |
-| `@fcalell/plugin-query/tanstack-query` | `QueryProvider` (the client and the read hooks' port), `createQueryClient()`, `createApiQueryUtils()`, `ApiQueryUtils`, `scoped()`, `schemaOf()`, `useRead()`, `useAbility()`, and TanStack Query's `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery`, `useQueryClient`, `QueryClient`, `QueryClientProvider`, `streamedQuery` (source, for the bundler) |
+| `@fcalell/plugin-query/tanstack-query` | `QueryProvider` (the client and the port ui-core's hooks and the UI components run on), `createQueryClient()`, `createApiQueryUtils()`, `ApiQueryUtils`, `scoped()`, `useRead()`, `useAbility()`, and TanStack Query's `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery`, `useQueryClient`, `QueryClient`, `QueryClientProvider`, `streamedQuery` (source, for the bundler) |
 | `@fcalell/plugin-query/read` | `read()`, `withRead()`, `ensurePages()`, `holdOf()`, `withHold()`, `retryOnce()`, `isStreamQuery()`, `watchUnheld()` |
 | `@fcalell/plugin-query/acts` | `issues()`, `refusal()`, `retries()`, `heldAct()`, `watchActs()`, `whenSettled()`, `guardReach()`, `Reach` |
 | `@fcalell/plugin-query/scope` | `withScope()`, `scoped()` -- the registered scope merged into the utils' inputs |
 | `@fcalell/plugin-query/ability-client` | `ability()`, `orgRules()`, `composeAbility()`, `fetchOrgRules()`, `ORG_RULES_QUERY_KEY`, `orgRulesQueryKey()`, `PackedRulesLike` |
 | `@fcalell/plugin-query/listen` | `listenQueries()` -- TanStack's online and focus managers on the platform's listeners |
 | `@fcalell/plugin-query/preload` | `preload()` -- a route's reads warmed before it mounts |
+| `@fcalell/plugin-query/net` | `listen` -- the phone's network (`expo-network`) and foreground (`AppState`) for `QueryProvider listen` (source, for the bundler) |
 
 The model these build on (`Read`, `Selection`, `Datum`, `combine`, the hooks) is `@fcalell/ui-core`'s `read`, `acts`, `scope` and `react/*` subpaths.
 
