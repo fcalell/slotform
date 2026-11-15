@@ -14,6 +14,7 @@ import {
 	type Selection,
 	turnOf,
 } from "@fcalell/ui-core/read";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import { THREAD } from "@fcalell/ui-core/variants";
 import {
 	memo,
@@ -38,7 +39,6 @@ import {
 	StateLine,
 	useCollection,
 } from "../../lib/read";
-import { sameBy } from "../../lib/same-by";
 import { useWords } from "../../lib/words";
 import { MessageBase } from "../message/base";
 import { WaitingReply } from "../message/waiting";

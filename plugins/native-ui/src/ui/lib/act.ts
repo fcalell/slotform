@@ -1,4 +1,3 @@
-import { refusal, retries } from "@fcalell/plugin-query/acts";
 import { drew, isThenable } from "@fcalell/ui-core/acts";
 import type {
 	Act as ActData,
@@ -10,6 +9,7 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { type Draft, useDraft, useRun } from "@fcalell/ui-core/react/acts";
+import { usePort } from "@fcalell/ui-core/react/port";
 import {
 	type Datum,
 	endedReason,
@@ -153,10 +153,11 @@ export function asItem(entry: MenuEntry): Act {
 
 /** A holder's run of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one; a refusal the server answered (a 4xx) has no Retry, as it would answer the same again; an act refused for the connection draws the generic one, with no Retry either, and the connection's own sentence is the offline banner's alone. */
 export function useAct<K = true>(where: "line" | "toast"): Acting<K> {
+	const port = usePort();
 	const words = useWords();
 	const run = useRun<K>();
 	const [opened, setOpened] = useState<{ key: K; open: boolean }>();
-	const sentenceOf = (error: unknown) => refusal(error) ?? words.actFailed;
+	const sentenceOf = (error: unknown) => port.refusal(error) ?? words.actFailed;
 	const { pending, failure } = run;
 	// The act's work: `onAct`, then `done`, then `to`, each once the one before
 	// resolved (at once for an `onAct` that returns nothing).
@@ -188,7 +189,7 @@ export function useAct<K = true>(where: "line" | "toast"): Acting<K> {
 				if (isPlaced(error)) return;
 				toast(sentenceOf(error), {
 					tone: "failed",
-					act: retries(error)
+					act: port.retries(error)
 						? { label: words.retry, onAct: () => work(act) }
 						: undefined,
 				});
@@ -239,11 +240,14 @@ function blocked<T>(
 
 /** A bare control's draft: its rejection toasts, and the toast's Retry saves the same value again, unless the server refused it (a 4xx). Over a read that ended the control is blocked and the press toasts the read's sentence. A control in a `FormField` is handed the field's draft instead (`useFieldDraft`), so the field's line draws the rejection. */
 export function useHeldDraft<T>(value: Datum<T>): Draft<T> {
+	const port = usePort();
 	const words = useWords();
 	const draft = useDraft(value, (error, again) => {
-		toast(refusal(error) ?? words.actFailed, {
+		toast(port.refusal(error) ?? words.actFailed, {
 			tone: "failed",
-			act: retries(error) ? { label: words.retry, onAct: again } : undefined,
+			act: port.retries(error)
+				? { label: words.retry, onAct: again }
+				: undefined,
 		});
 	});
 	const reason = endedReason(words, draft.ended);
@@ -264,10 +268,11 @@ export function useFieldDraft<T>(value: Datum<T>): {
 	draft: Draft<T>;
 	refused: string | undefined;
 } {
+	const port = usePort();
 	const words = useWords();
 	const [refused, refuse] = useState<string>();
 	const draft = useDraft(value, (error) =>
-		refuse(refusal(error) ?? words.actFailed),
+		refuse(port.refusal(error) ?? words.actFailed),
 	);
 	const reason = endedReason(words, draft.ended);
 	const [pressed, press] = usePressed(reason);

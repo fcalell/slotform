@@ -2,6 +2,7 @@ import type { FileItem, IconName } from "@fcalell/ui-core/descriptors";
 import { DIRECTORY_LEAD, pathCut } from "@fcalell/ui-core/list-state";
 import { isCurrent } from "@fcalell/ui-core/route";
 
+import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	FILE_COUNTS,
 	FILE_PATH,
@@ -16,7 +17,6 @@ import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
-import { sameBy } from "../../lib/same-by";
 import { Roll, Swap } from "../../lib/swap";
 import { useCSSVariable } from "../../lib/theme";
 

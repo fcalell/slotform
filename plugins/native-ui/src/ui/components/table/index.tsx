@@ -41,6 +41,7 @@ import {
 	placeholderData,
 	type Read,
 } from "@fcalell/ui-core/read";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import { createStore, type Store } from "@fcalell/ui-core/store";
 import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
 import {
@@ -80,7 +81,6 @@ import { MoreRow } from "../../lib/more";
 import { navigate, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { FrameBody, FrameLine, useCollection } from "../../lib/read";
-import { sameBy } from "../../lib/same-by";
 import { Turn } from "../../lib/turn";
 import { useWords } from "../../lib/words";
 import { Chip } from "../chip";

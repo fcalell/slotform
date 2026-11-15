@@ -10,6 +10,7 @@ import { useSelections } from "@fcalell/ui-core/react/read";
 import { paints } from "@fcalell/ui-core/read";
 import { isCurrent } from "@fcalell/ui-core/route";
 import { filled, isCode, META_TAIL, runsOf } from "@fcalell/ui-core/runs";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	CODE_NAME,
 	DEFINITION_ABSENT,
@@ -45,7 +46,6 @@ import { blockIn, FadingText, FadingView, lineIn } from "../../lib/motion";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { endedSentence, FailedMark, RetryMark, useRow } from "../../lib/read";
-import { sameBy } from "../../lib/same-by";
 import { useWords } from "../../lib/words";
 import { IconButtonBase } from "../button/glyph";
 import { HeldInput } from "../input/base";

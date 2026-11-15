@@ -1,4 +1,4 @@
-import type { QueryClient } from "@tanstack/react-query";
+import type { ReadPort } from "@fcalell/ui-core/react/port";
 
 // The parts of expo-router's store a press-in reads: the route tree (a node per
 // route file, loaded on demand) and the router's own match of an href against
@@ -50,20 +50,18 @@ function moduleOf(
 }
 
 // A press-in on a route starts the reads its screen is about to make: the route
-// file's `preload` export, called with the app's client and the href's params,
-// as a web route's `loader` is. A route with no `preload` has nothing to start.
-// Navigation never waits on it, and one that fails to start must not stop it.
+// file's `preload` export, which the binding calls with its client and the
+// href's params, as a web route's `loader` is. A route with no `preload` has
+// nothing to start. Navigation never waits on it, and one that fails to start
+// must not stop it.
 export function warm(
-	client: QueryClient,
+	start: ReadPort["warm"],
 	matches: Matches,
 	href: string,
 ): void {
 	try {
 		const found = moduleOf(matches, href);
-		if (found && "preload" in found.module) {
-			const { preload } = found.module;
-			if (typeof preload === "function") preload(client, found.params);
-		}
+		if (found) start(found.module, found.params);
 	} catch (error) {
 		console.error(error);
 	}

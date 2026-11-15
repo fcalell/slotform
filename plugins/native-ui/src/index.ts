@@ -186,7 +186,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 				named: ["holdFor"],
 			},
 			{
-				source: "@fcalell/plugin-native-ui/lib/net",
+				source: "@fcalell/plugin-query/net",
 				named: ["listen"],
 			},
 			{ source: mod.source, named: [mod.export] },
@@ -199,7 +199,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 				// (`timings.waitMin`).
 				{ name: "hold", value: { kind: "identifier", name: "holdFor" } },
 				// The phone has no window events: the managers listen to the
-				// network and the app's foreground (`lib/net.ts`).
+				// network and the app's foreground (`@fcalell/plugin-query/net`).
 				{ name: "listen", value: { kind: "identifier", name: "listen" } },
 			],
 		},

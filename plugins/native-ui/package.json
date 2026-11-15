@@ -58,7 +58,6 @@
 		"./lib/act": "./src/ui/lib/act.ts",
 		"./lib/age": "./src/ui/lib/age.ts",
 		"./lib/confirm": "./src/ui/lib/confirm.ts",
-		"./lib/net": "./src/ui/lib/net.ts",
 		"./lib/not-found": "./src/ui/lib/not-found.tsx",
 		"./lib/player": "./src/ui/lib/player.ts",
 		"./lib/room": "./src/ui/lib/room.tsx",
@@ -87,7 +86,6 @@
 	"peerDependencies": {
 		"@better-auth/expo": "1.7.7",
 		"@gorhom/bottom-sheet": "^5.2.14",
-		"@tanstack/react-query": "^5.100.2",
 		"lucide-react-native": "^1.49.0",
 		"react": "^19.2.0",
 		"react-native": "^0.85.0",
@@ -103,8 +101,7 @@
 		"expo-file-system": "~56.0.7",
 		"expo-sharing": "~56.0.16",
 		"expo-document-picker": "~56.0.4",
-		"expo-image-picker": "~56.0.16",
-		"expo-network": "~56.0.0"
+		"expo-image-picker": "~56.0.16"
 	},
 	"peerDependenciesMeta": {
 		"expo-audio": {
@@ -116,7 +113,6 @@
 		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-auth": "workspace:^",
 		"@fcalell/plugin-expo": "workspace:^",
-		"@fcalell/plugin-query": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
 		"class-variance-authority": "^0.7.1",
 		"lucide": "^1.49.0",
@@ -129,7 +125,6 @@
 		"@fcalell/typescript-config": "workspace:^",
 		"@gorhom/bottom-sheet": "^5.2.14",
 		"@tailwindcss/cli": "^4.1.7",
-		"@tanstack/react-query": "^5.104.0",
 		"@types/node": "^25.5.0",
 		"@types/react": "^19.2.16",
 		"lucide-react-native": "^1.49.0",
@@ -151,7 +146,6 @@
 		"expo-sharing": "~56.0.16",
 		"expo-document-picker": "~56.0.4",
 		"expo-image-picker": "~56.0.16",
-		"expo-network": "~56.0.0",
 		"@types/diff": "^8.0.0"
 	}
 }

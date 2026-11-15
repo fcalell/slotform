@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { usePort } from "@fcalell/ui-core/react/port";
 import { router, usePathname } from "expo-router";
 import { store } from "expo-router/build/global-state/router-store";
 import { useCallback } from "react";
@@ -61,12 +61,12 @@ export function useParentRoute(): Route | undefined {
 // under way. One function serves every press, since each route's `preload` is
 // read from its file; an external URL has no route to warm.
 export function useWarm(): (href: string) => void {
-	const client = useQueryClient();
+	const port = usePort();
 	return useCallback(
 		(href) => {
 			if (!isRoute(href)) return;
 			warm(
-				client,
+				port.warm,
 				{
 					routeNode: store.routeNode,
 					getStateForHref: (at) => store.getStateForHref(at as Route),
@@ -74,6 +74,6 @@ export function useWarm(): (href: string) => void {
 				href,
 			);
 		},
-		[client],
+		[port],
 	);
 }

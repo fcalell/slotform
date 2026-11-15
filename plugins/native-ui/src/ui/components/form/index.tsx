@@ -1,6 +1,3 @@
-import { ability } from "@fcalell/plugin-query/ability-client";
-import { issues, refusal } from "@fcalell/plugin-query/acts";
-import { schemaOf, useMutation } from "@fcalell/plugin-query/tanstack-query";
 import { drew, type Issue } from "@fcalell/ui-core/acts";
 import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
 import {
@@ -19,13 +16,13 @@ import {
 	type OutputOf,
 	type PickWords,
 	type ProcedureCall,
-	type ProcedureSchema,
 	pickWords,
 	readPicked,
 	requiredReason,
 	toInput,
 	toShown,
 } from "@fcalell/ui-core/form";
+import { usePort } from "@fcalell/ui-core/react/port";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import {
 	type Datum,
@@ -35,7 +32,6 @@ import {
 	type Selection,
 } from "@fcalell/ui-core/read";
 import { registeredScope } from "@fcalell/ui-core/scope";
-import type { UseMutationOptions } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { type Act, placed } from "../../lib/act";
@@ -150,14 +146,9 @@ export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P> | undefined,
 	open?: boolean,
 ): FormFrameProps | undefined {
+	const port = usePort();
 	const words = useWords();
-	const mutation = useMutation(
-		(props?.act.mutationOptions() ?? {}) as UseMutationOptions<
-			OutputOf<P>,
-			Error,
-			InputOf<P>
-		>,
-	);
+	const send = port.useSubmit(props?.act);
 	const [draft, setDraft] = useState<Draft>({});
 	const [refused, setRefused] = useState<readonly Issue[]>([]);
 	// The saved secrets the viewer is replacing: their field is the empty input.
@@ -175,10 +166,9 @@ export function useDerivedForm<P extends ProcedureCall>(
 	// under until it lands; no organization answers no.
 	const can = props?.can;
 	const organizationId = registeredScope().organizationId;
-	const mayHere = can
-		? ability(organizationId).at((rules) =>
-				rules.can(can[0], can[1]) ? (true as const) : words.denied,
-			)
+	const may = can && port.may(organizationId, can);
+	const mayHere = may
+		? may.at((yes) => (yes ? (true as const) : words.denied))
 		: true;
 	const [loaded, allowed] = useSelections([props?.values, mayHere] as const);
 	// A field's description may be a read of its own ("Saved, ends in 1234"): it
@@ -195,7 +185,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	const { act, given, values, submit, onDone, read, empty } = props;
 	const byField = props.commit === "field";
 	const path = pathOf(act);
-	const entry = schemaOf(path) as ProcedureSchema | undefined;
+	const entry = port.schemaOf(path);
 	if (!entry) {
 		throw new Error(`Form: no schema for ${path}; run \`stack generate\``);
 	}
@@ -416,7 +406,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			made[key] = one.value;
 		}
 		const input = await wire(made);
-		const output = await mutation.mutateAsync(input);
+		const output = await send(input);
 		setReplacing((all) => all.filter((each) => each !== key));
 		if (!isSelection(values)) {
 			setDraft((all) => ({ ...all, [key]: next }));
@@ -431,7 +421,9 @@ export function useDerivedForm<P extends ProcedureCall>(
 			await commitField(key, derived, next);
 		} catch (error) {
 			drew(error);
-			setRefused([{ path: [key], message: refusal(error) ?? words.actFailed }]);
+			setRefused([
+				{ path: [key], message: port.refusal(error) ?? words.actFailed },
+			]);
 		}
 	};
 
@@ -442,7 +434,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			...given_,
 			[key]: derived.nullable ? null : "",
 		});
-		const output = await mutation.mutateAsync(input);
+		const output = await send(input);
 		setReplacing((all) => all.filter((each) => each !== key));
 		setDraft((all) =>
 			Object.fromEntries(Object.entries(all).filter(([each]) => each !== key)),
@@ -455,14 +447,14 @@ export function useDerivedForm<P extends ProcedureCall>(
 	const onAct = async () => {
 		try {
 			const input = await wire(sent);
-			const output = await mutation.mutateAsync(input);
+			const output = await send(input);
 			setDraft({});
 			setRefused([]);
 			setReplacing([]);
 			onDone?.(output, input);
 			return output;
 		} catch (error) {
-			const found = issues(error);
+			const found = port.issues(error);
 			if (found.length > 0) {
 				setRefused(found);
 				drew(error);
