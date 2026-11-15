@@ -16,9 +16,9 @@ export async function loadModules(
 	const names = readdirSync(dir).filter(isListedModule).sort();
 	const out: Record<string, Record<string, unknown>> = {};
 	for (const file of names) {
-		out[file.replace(/\.m?ts$/, "")] = (await import(
+		out[file.replace(/\.m?ts$/, "")] = await import(
 			pathToFileURL(`${dir}${dir.endsWith("/") ? "" : "/"}${file}`).href
-		)) as Record<string, unknown>;
+		);
 	}
 	return out;
 }

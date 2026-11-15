@@ -11,6 +11,7 @@ import {
 } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import type { Plugin } from "esbuild";
+import { z } from "zod";
 import { isListedModule } from "../listed.ts";
 import type { BundleEntry } from "../types.ts";
 
@@ -62,12 +63,14 @@ function isNative(dir: string): boolean {
 	);
 }
 
+const manifestSchema = z.object({
+	version: z.string().optional(),
+	dependencies: z.record(z.string(), z.string()).optional(),
+	optionalDependencies: z.record(z.string(), z.string()).optional(),
+});
+
 const readJson = (file: string) =>
-	JSON.parse(readFileSync(file, "utf8")) as {
-		version?: string;
-		dependencies?: Record<string, string>;
-		optionalDependencies?: Record<string, string>;
-	};
+	manifestSchema.parse(JSON.parse(readFileSync(file, "utf8")));
 
 // A native package's own sources and docs are build-time weight (better-sqlite3
 // carries its 10 MB SQLite amalgamation in `deps/`), its binary and loader are not.
@@ -101,7 +104,6 @@ function copyPackage(from: string, to: string): void {
 	});
 }
 
-// Copies a native package and the packages it needs to run beside the bundle.
 function keepNative(
 	name: string,
 	dir: string,

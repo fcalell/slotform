@@ -187,6 +187,7 @@ export function createWsClient(
 		}, delay);
 	}
 
+	// `reach` is handed the data of the read that carries it: this read's.
 	const reach: Reach = (data) => (data as Connection).state === "lost";
 
 	const connection = read<Connection>(
@@ -221,6 +222,7 @@ export function createWsClient(
 					signal.addEventListener("abort", () => {
 						clearTimeout(timer);
 						unwatch();
+						// The key was written above, and its gcTime never expires it.
 						settle(client.getQueryData<Connection>(key) as Connection);
 					});
 				}),
@@ -238,6 +240,8 @@ export function createWsClient(
 	return {
 		connection,
 		subscribe(def, handlers) {
+			// The set holds subscriptions of every schema: the generics are erased
+			// here, and each frame is parsed by its own channel's schemas.
 			const live: LiveSubscription = {
 				def: def as ChannelDef,
 				handlers: handlers as SubscriptionHandlers<MessageSchemas>,

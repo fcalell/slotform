@@ -80,6 +80,9 @@ export async function startNodeServer(
 				},
 			});
 		}
+		// A module loaded by URL is untyped: the generated entry points
+		// `workerModule` at the worker's default export and `servicesModule` at the
+		// barrel's `services`.
 		const worker =
 			modules?.worker ??
 			(workerModule

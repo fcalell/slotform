@@ -95,7 +95,6 @@ interface WsHubInternal {
 
 export function createWsHub(log: ServiceLogger): WsHubInternal {
 	const channels = new Map<string, RegisteredChannel>();
-	// Every open socket and the session it opened with.
 	const open = new Map<HubSocket, ConnectionSession | null>();
 	const ids = new WeakMap<HubSocket, string>();
 	let nextId = 0;
@@ -139,6 +138,8 @@ export function createWsHub(log: ServiceLogger): WsHubInternal {
 			if (channels.has(def.name)) {
 				throw new Error(`ws channel ${def.name}: already registered`);
 			}
+			// The registry holds channels of every schema: the generics are erased
+			// here, and each frame is parsed by its own channel's schemas.
 			const registered: RegisteredChannel = {
 				def: def as ChannelDef,
 				handlers: handlers as ChannelHandlers<MessageSchemas, MessageSchemas>,

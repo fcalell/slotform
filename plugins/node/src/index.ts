@@ -23,7 +23,6 @@ import {
 
 const SOURCE = "node";
 
-// Resolved server port. Defaults to 8788; overrideable via options.port.
 const serverPort = slot.value<number, NodeOptions>({
 	source: SOURCE,
 	name: "serverPort",
@@ -301,11 +300,10 @@ export const node = plugin("node", {
 					const id = basename(serve.dir);
 					const worker = `serve-${id}.worker.ts`;
 					const server = `serve-${id}.server.ts`;
-					const files = [worker, server].map((file) =>
-						join(ctx.cwd, ".stack", file),
-					);
+					const workerPath = join(ctx.cwd, ".stack", worker);
+					const serverPath = join(ctx.cwd, ".stack", server);
 					writeFileSync(
-						files[0] as string,
+						workerPath,
 						[
 							'import { fixtureControls } from "@fcalell/plugin-screens/serve";',
 							...serve.controls.map(
@@ -317,7 +315,7 @@ export const node = plugin("node", {
 						].join("\n"),
 					);
 					writeFileSync(
-						files[1] as string,
+						serverPath,
 						aggregateServer({
 							port: serve.port,
 							host: "127.0.0.1",
@@ -361,7 +359,9 @@ export const node = plugin("node", {
 					);
 					return async () => {
 						await stop();
-						for (const file of files) rmSync(file, { force: true });
+						for (const file of [workerPath, serverPath]) {
+							rmSync(file, { force: true });
+						}
 					};
 				},
 			};
@@ -435,8 +435,6 @@ export const node = plugin("node", {
 			() => "@fcalell/plugin-node/screens",
 		),
 
-		// Services barrel watcher — regenerates when service files appear or
-		// disappear (api's route watcher pattern).
 		cliSlots.devWatchers.contribute((ctx: ContributionCtx) => ({
 			name: "services",
 			paths: "src/server/services/**",
@@ -454,7 +452,6 @@ export const node = plugin("node", {
 			},
 		})),
 
-		// Remove: clean the services directory on `stack remove node`.
 		cliSlots.removeFiles.contribute(() => "src/server/"),
 	],
 });

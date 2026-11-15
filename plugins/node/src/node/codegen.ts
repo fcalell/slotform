@@ -5,7 +5,7 @@ import {
 	type TsImportSpec,
 	type TsSourceFile,
 } from "@fcalell/cli/ast";
-import type { CodegenServerPayload, NodeListenerOptions } from "../types.ts";
+import type { CodegenServerPayload } from "../types.ts";
 
 function moduleUrl(relativePath: string): TsExpression {
 	return {
@@ -64,14 +64,15 @@ export function aggregateServer(payload: CodegenServerPayload): string {
 			items: payload.origins.map((o) => ({ kind: "string", value: o })),
 		},
 	});
-	const listenerNames = Object.keys(payload.listeners).sort();
-	if (listenerNames.length > 0) {
+	const listeners = Object.entries(payload.listeners).sort(([a], [b]) =>
+		a < b ? -1 : 1,
+	);
+	if (listeners.length > 0) {
 		properties.push({
 			key: "listeners",
 			value: {
 				kind: "object",
-				properties: listenerNames.map((name) => {
-					const listener = payload.listeners[name] as NodeListenerOptions;
+				properties: listeners.map(([name, listener]) => {
 					return {
 						key: name,
 						value: {
@@ -169,18 +170,17 @@ export function aggregateServer(payload: CodegenServerPayload): string {
 					? moduleUrl(bundle.staticDir ?? "../client")
 					: { kind: "string", value: payload.staticRoot },
 	});
-	const headerNames = Object.keys(payload.clientHeaders).sort();
-	if (payload.staticRoot !== null && headerNames.length > 0) {
+	const headers = Object.entries(payload.clientHeaders).sort(([a], [b]) =>
+		a < b ? -1 : 1,
+	);
+	if (payload.staticRoot !== null && headers.length > 0) {
 		properties.push({
 			key: "clientHeaders",
 			value: {
 				kind: "object",
-				properties: headerNames.map((name) => ({
+				properties: headers.map(([name, value]) => ({
 					key: name,
-					value: {
-						kind: "string",
-						value: payload.clientHeaders[name] as string,
-					},
+					value: { kind: "string", value },
 				})),
 			},
 		});

@@ -89,7 +89,7 @@ async function workerSession(
 	worker: NodeWorker | null,
 	env: unknown,
 	request: Request,
-	credentials: readonly string[] = ["cookie", "authorization"],
+	credentials: readonly string[],
 ): Promise<ConnectionSession | null> {
 	if (!worker) return null;
 	const headers = new Headers({ accept: "application/json" });

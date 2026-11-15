@@ -9,6 +9,8 @@ import type { ServerFrame } from "./ws/index.ts";
 // browser loads.
 const socket = ws.link("*/ws");
 
+// The story is plugin-screens' one module-level selection: a handler reads it
+// when a socket opens and again on each frame.
 export default [
 	// The error story's server is down: it closes the socket before it opens, as a
 	// refused connection does. A socket that opened and closed on the subscribe
@@ -21,6 +23,7 @@ export default [
 			try {
 				frame = JSON.parse(event.data);
 			} catch {
+				// A frame that is not JSON is no `sub`; the real server drops it too.
 				return;
 			}
 			if (frame.t !== "sub" || typeof frame.ch !== "string") return;

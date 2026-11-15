@@ -87,9 +87,6 @@ export interface BundleEntry {
 	}>;
 }
 
-// Pure aggregator input consumed by `aggregateServer` (node/codegen.ts),
-// wired from slot values by the plugin index. First-class type so the
-// aggregator stays testable in isolation.
 export interface CodegenServerPayload {
 	port: number;
 	host: string | null;

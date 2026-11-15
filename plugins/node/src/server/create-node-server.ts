@@ -1,11 +1,11 @@
 import { subscribe, unsubscribe } from "node:diagnostics_channel";
 import type { ServerResponse } from "node:http";
-import type { AddressInfo } from "node:net";
 import { serve, upgradeWebSocket } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { WebSocketServer } from "ws";
+import { z } from "zod";
 import {
 	boundHost,
 	listenerAdmits,
@@ -22,11 +22,7 @@ import {
 	mountSession,
 	SESSION_ENDED_CHANNEL,
 } from "./ws-guard.ts";
-import {
-	type ConnectionSession,
-	createWsHub,
-	type HubSocket,
-} from "./ws-hub.ts";
+import { type ConnectionSession, createWsHub } from "./ws-hub.ts";
 
 // A further port the server answers on, for one origin of its own (the
 // app at a proxy's named address beside its loopback port, say). Its origin
@@ -71,7 +67,11 @@ export interface NodeServerOptions {
 	// Entries may be a single spec or an array of specs (the generated
 	// consumer barrel hands over its whole `services` array as one entry).
 	services?: ReadonlyArray<ServiceSpec | readonly ServiceSpec[]>;
+	// The env the worker and the Host rule read; the process env by default.
+	// A host that embeds the server passes its own.
 	env?: Record<string, string | undefined>;
+	// Where the server's lines go; the console by default. A host that embeds
+	// the server captures or silences them.
 	log?: ServiceLogger;
 }
 
@@ -95,6 +95,8 @@ interface ListenerBinding {
 	bound: string | null;
 	originVar: string | null;
 }
+
+const sessionEndedSchema = z.object({ sessionId: z.string() });
 
 type Bindings = Record<string | symbol, unknown> & {
 	listener: ListenerBinding;
@@ -239,15 +241,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 			c.set("wsSession", decision.session);
 			return next();
 		},
-		upgradeWebSocket((c) => {
-			const handlers = connectionHandlers(c.get("wsSession") ?? null);
-			return {
-				onOpen: (event, ws) => handlers.onOpen(event, ws as HubSocket),
-				onMessage: (event, ws) => handlers.onMessage(event, ws as HubSocket),
-				onClose: (event, ws) => handlers.onClose(event, ws as HubSocket),
-				onError: (event, ws) => handlers.onError(event, ws as HubSocket),
-			};
-		}),
+		upgradeWebSocket((c) => connectionHandlers(c.get("wsSession") ?? null)),
 	);
 
 	// Service raw-route mounts, after /ws and before the worker/static/SPA:
@@ -292,8 +286,8 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 	// A session auth ends (a sign-out, a revoke) closes its sockets: the
 	// session a socket opened with is read once, at the upgrade.
 	const onSessionEnded = (message: unknown) => {
-		const sessionId = (message as { sessionId?: unknown } | null)?.sessionId;
-		if (typeof sessionId === "string") hub.closeSession(sessionId);
+		const ended = sessionEndedSchema.safeParse(message);
+		if (ended.success) hub.closeSession(ended.data.sessionId);
 	};
 
 	const stops: Array<{ name: string; stop: ServiceStop }> = [];
@@ -375,9 +369,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 					// The bindings object is the one the upgrade path keys its
 					// socket on, so the listener rides on it rather than a copy.
 					fetch: (request, bindings) => {
-						const own = bindings as unknown as Bindings;
-						own.listener = listener;
-						return app.fetch(request, own);
+						return app.fetch(request, Object.assign(bindings, { listener }));
 					},
 					port: listenPort,
 					hostname: listenHost,
@@ -385,7 +377,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 					websocket: { server: wss },
 				},
 				(info) => {
-					const bound = (info as AddressInfo).port;
+					const bound = info.port;
 					listener.bound = boundHost(listenHost, bound);
 					resolve(bound);
 				},

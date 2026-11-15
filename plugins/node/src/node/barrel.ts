@@ -21,7 +21,6 @@ function servicesDir(cwd: string): string {
 	return join(cwd, "src", "server", "services");
 }
 
-// "board-watcher.ts" -> "boardWatcher": a valid import identifier per file.
 function identifierFor(file: string): string {
 	const base = file.replace(/\.ts$/, "");
 	return base.replace(/-([a-z0-9])/g, (_, ch: string) => ch.toUpperCase());
@@ -42,13 +41,25 @@ function renderServices(identifiers: string[]): string {
 	return `export const services = [\n${lines}\n];`;
 }
 
-export function generateServiceBarrel(cwd: string): string {
-	let entries: string[];
+// A missing services directory (or a path component that is a file) holds no
+// services; any other read error stops the generate.
+function serviceFiles(cwd: string): string[] {
 	try {
-		entries = readdirSync(servicesDir(cwd)).filter(isServiceFile).sort();
-	} catch {
-		entries = [];
+		return readdirSync(servicesDir(cwd)).filter(isServiceFile).sort();
+	} catch (error) {
+		if (
+			error instanceof Error &&
+			"code" in error &&
+			(error.code === "ENOENT" || error.code === "ENOTDIR")
+		) {
+			return [];
+		}
+		throw error;
 	}
+}
+
+export function generateServiceBarrel(cwd: string): string {
+	const entries = serviceFiles(cwd);
 
 	const imports = entries
 		.map((file) => {
@@ -65,9 +76,5 @@ export function generateServiceBarrel(cwd: string): string {
 // use this to skip emitting a header-only barrel (and the server's barrel
 // import) for consumers without services.
 export function hasServiceFiles(cwd: string): boolean {
-	try {
-		return readdirSync(servicesDir(cwd)).some(isServiceFile);
-	} catch {
-		return false;
-	}
+	return serviceFiles(cwd).length > 0;
 }

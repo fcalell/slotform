@@ -43,6 +43,8 @@ export function channelRead<
 					let loading = client.getQueryData<T>(queryKey) === undefined;
 					let unwritten: T | undefined;
 					let due: ReturnType<typeof setTimeout> | undefined;
+					// The fold is keyed by message type at run time: Object.entries drops
+					// each type's payload type, which its schema has already parsed.
 					const onMessage: Record<string, (payload: never) => void> = {};
 					for (const [type, handler] of Object.entries(
 						fold as Record<string, NonNullable<Fold<S, T>[string]>>,

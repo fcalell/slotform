@@ -70,6 +70,7 @@ export function mainAdmits(input: {
 		try {
 			url = new URL(origin);
 		} catch {
+			// An entry that is not a URL names no Host, so it admits none.
 			continue;
 		}
 		if (hostOf(host, url.protocol) === url.host) return true;
