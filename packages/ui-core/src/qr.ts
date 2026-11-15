@@ -7,7 +7,7 @@ import { correction, generate } from "lean-qr";
 // The light modules around the code, the four the standard asks for: a
 // reader finds the code's corners by the ground around them, so the tile
 // keeps them at any size.
-export const QR_QUIET = 4;
+const QR_QUIET = 4;
 
 export interface QrModules {
 	// The tile's side in modules, the quiet zone on both sides included: the

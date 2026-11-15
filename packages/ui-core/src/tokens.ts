@@ -77,15 +77,8 @@ export const SIZE_MAX = 18;
 
 // The six hued chip families, in hue order (25, 85, 145, 195, 305, 350),
 // the accent's 215–290 band left out so no family ever wears it.
-export const CHIP_HUES = [
-	"red",
-	"amber",
-	"green",
-	"teal",
-	"violet",
-	"pink",
-] as const;
-export type ChipHue = (typeof CHIP_HUES)[number];
+const CHIP_HUES = ["red", "amber", "green", "teal", "violet", "pink"] as const;
+type ChipHue = (typeof CHIP_HUES)[number];
 
 // Every chip family: the six hues and `neutral`, the resting neutral ground
 // under the body ink (an applied filter, a tag without a category), which
@@ -904,11 +897,6 @@ export const SPACING_ROLES = [
 ] as const;
 export type SpacingRole = (typeof SPACING_ROLES)[number];
 
-// The roles a container may put between its children; the other two are
-// insets. A cell spells a gap only on one of these.
-export const GAP_ROLES = ["gap", "badge", "stack", "section"] as const;
-export type GapRole = (typeof GAP_ROLES)[number];
-
 // Multiples of `SPACE_BASE`. Touch is the same roles one rung looser, except
 // the float inset, the acts gap and the badge gap, which hold, and the page inset, which a
 // phone narrows. Room is the touch set with the page inset at the safe area
@@ -1218,7 +1206,7 @@ export const PULSE_LOW = 0.55;
 
 // How long a read runs before its paint shows, how long an act runs before
 // its pending look shows, and how long a shown paint stays at least (ms).
-// The defaults of `paint.ts`'s `WAIT_DELAY`, `ACT_DELAY` and `WAIT_MIN`.
+// The defaults of `paint.ts`'s `WAIT_DELAY`, `ACT_DELAY` and `waitMin`.
 const WAIT_DELAY_MS = 400;
 const ACT_DELAY_MS = 300;
 const WAIT_MIN_MS = 0;

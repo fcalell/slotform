@@ -36,7 +36,7 @@ function labToLinear(lab: Lab): [number, number, number] {
 }
 
 // Linear-light sRGB channels in [0, 1], clamped to the gamut.
-export function oklchToLinear(
+function oklchToLinear(
 	l: number,
 	c: number,
 	h: number,
@@ -102,7 +102,7 @@ export function contrastRatio(a: number, b: number): number {
 
 const EPSILON = 0.0005;
 
-export function inGamut(l: number, c: number, h: number): boolean {
+function inGamut(l: number, c: number, h: number): boolean {
 	return labToLinear(oklchToLab(l, c, h)).every(
 		(x) => x >= -EPSILON && x <= 1 + EPSILON,
 	);

@@ -7,7 +7,7 @@ import { SEEK } from "./waveform.ts";
 
 // Past this many seconds in, Previous returns to the track's start; before it,
 // it goes to the track before.
-export const PREVIOUS_RESTART = 3;
+const PREVIOUS_RESTART = 3;
 
 // A time as the dock draws it: `3:07`, and `1:02:03` from an hour.
 export function trackTime(seconds: number): string {
@@ -43,7 +43,7 @@ export interface QueueProvider {
 /** What Next and Previous walk: the tracks in order, or a provider. */
 export type TrackQueue = readonly Track[] | QueueProvider;
 
-export const isProvider = (queue: TrackQueue): queue is QueueProvider =>
+const isProvider = (queue: TrackQueue): queue is QueueProvider =>
 	!Array.isArray(queue);
 
 export type Shortcut = { to: "toggle" } | { to: "skip"; by: number };

@@ -150,13 +150,13 @@ export function densityTokens(
 // ── The room set ────────────────────────────────────────────────────
 
 // The custom property that holds the room unit on the web.
-export const ROOM_UNIT = "--room-unit";
+const ROOM_UNIT = "--room-unit";
 
 // The room unit as a CSS length: the screen over `ROOM_CANVAS` on the tighter
 // axis, so a portrait or ultrawide screen stays inside the canvas, and never
 // under 1 px, so a small window keeps the touch set at least. At 1920 × 1080
 // it is 2 px. `vw` ignores browser zoom: the screen is read, never zoomed.
-export function roomUnit(): string {
+function roomUnit(): string {
 	const { width, height } = ROOM_CANVAS;
 	return `max(1px, min(100vw / ${width}, 100dvh / ${height}))`;
 }
@@ -225,9 +225,7 @@ export function roomMeasureTokens<T>(
 
 // The focus ring's width and offset in the room, which the web's base rule
 // reads; native draws no ring.
-export function roomRingTokens<T>(
-	scale: (units: number) => T,
-): Record<string, T> {
+function roomRingTokens<T>(scale: (units: number) => T): Record<string, T> {
 	return {
 		"--focus-ring": scale(RING_PX),
 		"--focus-ring-offset": scale(RING_OFFSET_PX),

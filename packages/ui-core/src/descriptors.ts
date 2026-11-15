@@ -1,9 +1,9 @@
 // Framework-free descriptors: a composed region is data, so the owning
 // molecule renders it.
 import type { IconName } from "./icon-name.ts";
-import type { ChipFamily, Tone, Width, Words } from "./tokens.ts";
+import type { ChipFamily, Tone } from "./tokens.ts";
 
-export type { ChipFamily, IconName, Tone, Width, Words };
+export type { ChipFamily, IconName, Tone };
 
 // What every act is: the run it starts. A thenable `onAct` returns holds the
 // act pending until it settles; a rejection draws the server's refusal when it

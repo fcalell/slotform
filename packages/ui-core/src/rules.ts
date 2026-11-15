@@ -51,9 +51,7 @@ function labelsOf<V extends string | null>(
 
 // What a rule's term holds, in words: the labels of its picked options, or the
 // typed text; none while it holds nothing.
-export function termHeld<V extends string | null>(
-	value: RuleValue<V>,
-): string[] {
+function termHeld<V extends string | null>(value: RuleValue<V>): string[] {
 	if (value.pick) {
 		const { options, value: held } = value.pick;
 		return held === undefined ? [] : labelsOf(options, [held]);

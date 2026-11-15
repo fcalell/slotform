@@ -14,7 +14,7 @@ import type {
 	Width,
 } from "./tokens.ts";
 
-export const LAYERS = ["atom", "layout", "shared", "content"] as const;
+const LAYERS = ["atom", "layout", "shared", "content"] as const;
 export type Layer = (typeof LAYERS)[number];
 
 export const PLATFORMS = ["web", "native"] as const;

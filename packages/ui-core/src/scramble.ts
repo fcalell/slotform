@@ -57,11 +57,11 @@ export function seedOf(id: string): number {
 }
 
 // The shortest and longest a place holds a character, in ticks.
-export const CADENCE = { min: 1, max: 2.5 } as const;
+const CADENCE = { min: 1, max: 2.5 } as const;
 
 // How many ticks place `at` of the slot `seed` holds each of its characters:
 // from `CADENCE.min` to `CADENCE.max`.
-export function cadence(seed: number, at: number): number {
+function cadence(seed: number, at: number): number {
 	return (
 		CADENCE.min + ((mix(seed, at, 1) % 151) / 150) * (CADENCE.max - CADENCE.min)
 	);

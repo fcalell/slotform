@@ -1093,13 +1093,11 @@ export const IMAGE_FAILED_INK = "text-ink-meta";
 // in both modes at the card's radius, its quiet zone the tile's own ground
 // (`QR_CODE`). Its modules are the dark ink (`QR_CODE_INK`).
 // Gallery: its tiles wrap a gap apart, each a picture over its caption, a
-// badge's gap between them, at the tile's width. A tile's box is
-// `IMAGE_TILE_LINES` body lines tall at the picture's aspect, held no narrower
+// badge's gap between them, at the tile's width. A tile's box is held no narrower
 // than `IMAGE_TILE_NARROWEST`, so a phone's page stands at three to four,
 // cropped to its top; a caption is cut to the tile's width.
 export const GALLERY = "flex flex-row flex-wrap items-start gap-gap";
 export const GALLERY_TILE = "flex min-w-0 max-w-full flex-col gap-badge";
-export const IMAGE_TILE_LINES = 8;
 export const IMAGE_TILE_NARROWEST = 3 / 4;
 
 // The tallest an image grows, and a QR code's widest: `IMAGE_CAP_LINES` body
@@ -1476,23 +1474,10 @@ export type ButtonFit = keyof (typeof BUTTON)["variants"]["fit"];
 export type IconButtonFit = keyof (typeof ICON_BUTTON)["variants"]["fit"];
 export type LinkFit = keyof (typeof LINK)["variants"]["fit"];
 export type FieldKind = keyof (typeof FIELD_VALUE)["variants"]["kind"];
-export type FieldState = keyof (typeof FIELD)["variants"]["state"];
-export type OtpBoxState = keyof (typeof OTP_BOX)["variants"]["state"];
-export type RowState = keyof (typeof ROW)["variants"]["state"];
-export type SwitchState = keyof (typeof SWITCH)["variants"]["state"];
 export type TableRowState = keyof (typeof TABLE_ROW)["variants"]["state"];
-export type CheckboxState = keyof (typeof CHECKBOX)["variants"]["state"];
-export type SegmentState = keyof (typeof SEGMENT)["variants"]["state"];
 export type ImageFit = keyof (typeof IMAGE)["variants"]["fit"];
 export type ImageState = keyof (typeof IMAGE)["variants"]["state"];
-// The states a status draws as a dot: every one but `running`, whose mark
-// is a spinner.
-export type StatusDotTone = keyof (typeof STATUS_DOT)["variants"]["tone"];
-export type DiffLineKind = keyof (typeof DIFF_LINE)["variants"]["kind"];
-export type MessageAuthor = keyof (typeof MESSAGE)["variants"]["author"];
 export type AvatarStep = keyof (typeof AVATAR)["variants"]["step"];
-export type ChipCell = keyof (typeof CHIP_DOT)["variants"]["family"];
-export type PlaceRowState = keyof (typeof PLACE_ROW)["variants"]["state"];
 export type PlaceTabState = keyof (typeof PLACE_TAB)["variants"]["state"];
 export type ColumnsFit = keyof (typeof COLUMNS)["variants"]["fit"];
 // Where an action bar stands: at the end of its container at the acts' width,

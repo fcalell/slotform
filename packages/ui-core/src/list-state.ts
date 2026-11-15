@@ -255,7 +255,7 @@ export interface SetChoice<V extends string> {
 export type OptionChoice<V extends string> = OneChoice<V> | SetChoice<V>;
 
 // The form a value picks: a set is several choices, one value or null one.
-export function isOneChoice<V extends string>(
+function isOneChoice<V extends string>(
 	choice: OptionChoice<V>,
 ): choice is OneChoice<V> {
 	return !Array.isArray(choice.value);
@@ -707,7 +707,7 @@ const CHIP_INSET = "2 * var(--spacing-pad) + 2 * var(--spacing-hairline)";
 const WORD_KINDS: readonly (string | undefined)[] = ["chip", "status"];
 
 /** The width a column stands at when its kind gives it one: a figure column with no `width` (an age at the characters of its longest word, `age`). Others take their `width` or share the room. */
-export function figureWidth(
+function figureWidth(
 	column: Pick<TableColumn, "width" | "kind">,
 	age: number,
 ): string | undefined {
@@ -817,7 +817,7 @@ export function gridFloor(
 
 // A table with this many columns, or any column that starts `hidden`, draws a
 // columns menu in its head; fewer fit the page and have nothing to hide.
-export const COLUMNS_MENU_FROM = 8;
+const COLUMNS_MENU_FROM = 8;
 
 // The viewer's say over the columns, by key: `true` shows a column, `false`
 // hides it. A column the viewer has not decided stands as its own `hidden`

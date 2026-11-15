@@ -6,7 +6,7 @@ import { KNOB_DEFAULTS, MEASURE_CHARACTERS, SANS_ADVANCE } from "./tokens.ts";
 // at its icon where it is a head's or a row's, and the rest fold into the more
 // menu, in their order. It is a rule, not a measure: what stands never depends
 // on the room, so a head or a row reads the same at every width.
-export const ACTS_STAND = 1;
+const ACTS_STAND = 1;
 
 // The acts that stand and those the more menu holds, in their order.
 export function actsSplit<T>(acts: readonly T[]): {
@@ -48,7 +48,7 @@ export function rowOneLine(size = KNOB_DEFAULTS.size): number {
 // control's box for its act), the arrow or operator and the remove act at a
 // control's width, and the row's gap between the four. A list narrower than it
 // stacks each rule's terms rather than cut a term under its floor.
-export const RULE_TERM_CHARACTERS = 12;
+const RULE_TERM_CHARACTERS = 12;
 export function rulesOneRow(size = KNOB_DEFAULTS.size): number {
 	const gap = spacingOf("desktop", "gap", size);
 	const control = sizePx("desktop", "control", size);

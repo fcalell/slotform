@@ -29,10 +29,6 @@ export const WAIT_DELAY = DEFAULTS.waitDelay;
 // at the press, and one the server answers at once never flashes a spinner.
 export const ACT_DELAY = DEFAULTS.actDelay;
 
-// How long a read that showed its paint keeps it at least (ms): 0, so a
-// read's answer lands the moment it comes.
-export const WAIT_MIN = DEFAULTS.waitMin;
-
 // The live tuning record, every knob of the motion contract: the phone's
 // source for a number the web reads from a CSS variable, set by the bench and
 // applied on the next read, as the variables are. A reader that must follow a
