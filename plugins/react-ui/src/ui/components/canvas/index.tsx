@@ -8,7 +8,7 @@ import type {
 	CanvasPoint,
 	LinkAct,
 } from "@fcalell/ui-core/descriptors";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
@@ -30,7 +30,7 @@ import {
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useTouch } from "../../lib/media.ts";
-import { FrameBody, FrameLine, useFrame } from "../../lib/read.tsx";
+import { FrameBody, FrameLine } from "../../lib/read.tsx";
 import { ConnectionLine } from "./connection.tsx";
 import { EdgeLayer } from "./edges.tsx";
 import {

@@ -1,9 +1,9 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { StatusMark } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { lineBox, STATUS, STATUS_LABEL } from "@fcalell/ui-core/variants";
 import { Painted } from "../../lib/paint.tsx";
-import { useWords } from "../../lib/words.tsx";
-import { StatusDot } from "../status/dot.tsx";
+import { StatusDot } from "../../parts/status/dot.tsx";
 
 // The dot's lane: one facts line tall, the dot centred on it.
 const LANE = "flex shrink-0 items-center h-[1lh]";

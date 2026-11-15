@@ -10,7 +10,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { use } from "react";
 import { ActFace } from "../components/button/face.tsx";
-import { Icon } from "../components/icon/index.tsx";
+import { Icon } from "../parts/icon/index.tsx";
 import type { Act } from "./act.ts";
 import { PageTitle } from "./frame.ts";
 

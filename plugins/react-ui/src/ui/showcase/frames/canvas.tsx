@@ -1,4 +1,5 @@
 import type { CanvasNode } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { useEffect, useRef, useState } from "react";
 import { Canvas } from "../../components/canvas/index.tsx";
 import { LIFT_MS, SLOP } from "../../components/canvas/lift.ts";
@@ -7,7 +8,6 @@ import { Sheet } from "../../components/sheet/index.tsx";
 import { FrameHost, FrameMain } from "../../components/shell/host.tsx";
 import { Place } from "../../components/shell/place.tsx";
 import { spacing } from "../../lib/media.ts";
-import { useWords } from "../../lib/words.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import {
 	ANSWERS_THREE,

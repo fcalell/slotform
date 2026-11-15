@@ -1,5 +1,6 @@
 import { Toast as Control } from "@base-ui/react/toast";
 import { cn } from "@fcalell/ui-core/cn";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { TONES } from "@fcalell/ui-core/tokens";
 import { TOASTS } from "@fcalell/ui-core/variants";
 import { useEffect, useRef, useState } from "react";
@@ -15,7 +16,6 @@ import {
 import { Place } from "../../components/shell/place.tsx";
 import { ToastList } from "../../components/toast/layer.tsx";
 import type { ToastData } from "../../lib/toast.ts";
-import { useWords } from "../../lib/words.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { StandInList } from "./layout-context.tsx";
 import { Stage } from "./overlay-stage.tsx";

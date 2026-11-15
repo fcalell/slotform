@@ -1,8 +1,8 @@
 import type { Act } from "@fcalell/ui-core/descriptors";
 import { GATE_COLUMN } from "@fcalell/ui-core/variants";
 import { ActionBar } from "../../components/action-bar/index.tsx";
-import { Reason } from "../../components/button/reason.tsx";
 import { Text } from "../../components/text/index.tsx";
+import { Reason } from "../../parts/button/reason.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { fail, hang, Pressed } from "./pending.tsx";
 

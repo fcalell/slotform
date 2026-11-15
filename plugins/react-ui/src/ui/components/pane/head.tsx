@@ -1,8 +1,14 @@
+import { type Offered, offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Route, Run } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	useDrawsFailure,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
 import { isCode, partRuns, partText } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
@@ -17,26 +23,14 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { use } from "react";
-import {
-	type IconAct,
-	type MenuEntry,
-	type Offered,
-	offered,
-	wiringOf,
-} from "../../lib/act.ts";
+import { type IconAct, type MenuEntry, wiringOf } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
 import { ShellMenu } from "../../lib/frame.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
-import {
-	BusyMark,
-	endedItems,
-	type Frame,
-	FrameLine,
-} from "../../lib/read.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { BusyMark, endedItems, FrameLine } from "../../lib/read.tsx";
+import { IconButtonBase, IconButtonLink } from "../../parts/button/glyph.tsx";
 import { IconActFace } from "../button/face.tsx";
-import { IconButtonBase, IconButtonLink } from "../button/glyph.tsx";
 import { Button } from "../button/index.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";

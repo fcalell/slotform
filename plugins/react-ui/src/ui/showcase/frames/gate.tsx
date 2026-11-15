@@ -1,8 +1,8 @@
+import { confirm } from "@fcalell/ui-core/react/confirm";
 import { text } from "@fcalell/ui-core/variants";
 import { Banner } from "../../components/banner/index.tsx";
 import { Gate } from "../../components/gate/index.tsx";
 import { Section } from "../../components/section/index.tsx";
-import { confirm } from "../../lib/confirm.ts";
 import { type AppMark, MarkProvider } from "../../lib/mark.tsx";
 import { toast } from "../../lib/toast.ts";
 import type { ShowcaseFrame } from "../cells.ts";

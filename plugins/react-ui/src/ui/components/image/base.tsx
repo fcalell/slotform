@@ -1,6 +1,7 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { cn } from "@fcalell/ui-core/cn";
 import { useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	IMAGE_CLOSE,
@@ -14,9 +15,8 @@ import {
 import { type CSSProperties, useState } from "react";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 import { IMAGE_FRAME } from "../../lib/walk-classes.ts";
-import { useWords } from "../../lib/words.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { SheetBase } from "../sheet/base.tsx";
 
 // The picture and its full view, which an Image draws once and a Gallery once

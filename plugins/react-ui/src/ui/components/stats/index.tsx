@@ -2,8 +2,9 @@ import { Button as BaseButton } from "@base-ui/react/button";
 import { cn } from "@fcalell/ui-core/cn";
 import type { StatSpec } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { useRow, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { type Datum, endedSentence, paints } from "@fcalell/ui-core/read";
 import {
 	lineBox,
 	STATS,
@@ -15,15 +16,9 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { Closed } from "../../lib/closed.ts";
 import { follow } from "../../lib/navigate.ts";
-import {
-	endedSentence,
-	FailedMark,
-	RetryMark,
-	useRow,
-} from "../../lib/read.tsx";
+import { FailedMark, RetryMark } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/slot.tsx";
-import { useWords } from "../../lib/words.tsx";
-import { Icon } from "../icon/index.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { CountLinks } from "./count-links.tsx";
 import { Meter } from "./meter.tsx";
 import { FIGURE, FIGURE_DIGITS, LABEL } from "./parts.ts";

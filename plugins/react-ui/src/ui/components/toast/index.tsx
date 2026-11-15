@@ -2,6 +2,7 @@ import { Toast as Control } from "@base-ui/react/toast";
 import { TOAST_GLYPHS } from "@fcalell/ui-core/banner";
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
 	LAYER_TOAST,
@@ -15,10 +16,9 @@ import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useFollow } from "../../lib/follow.ts";
 import { ToastEntry } from "../../lib/toast.ts";
-import { useWords } from "../../lib/words.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { ActFace } from "../button/face.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
 
 // A swipe along the line is the toast's; the page keeps the vertical pan.
 const BOX = "flex items-center max-w-full pointer-events-auto touch-pan-y";

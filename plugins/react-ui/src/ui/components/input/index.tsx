@@ -1,9 +1,10 @@
 import type { PickedFile } from "@fcalell/ui-core/descriptors";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
 import type { Datum } from "@fcalell/ui-core/read";
 import { use } from "react";
 import type { IconAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { type Fielded, FieldOwned } from "../../lib/field.ts";
+import type { Fielded } from "../../lib/field.ts";
 import { FieldBody } from "../form-field/index.tsx";
 import { HeldInput } from "./base.tsx";
 import { CodeField } from "./code.tsx";

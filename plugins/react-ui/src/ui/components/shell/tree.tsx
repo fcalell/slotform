@@ -2,6 +2,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { Drop, PlaceSpec } from "@fcalell/ui-core/descriptors";
 import { accepts } from "@fcalell/ui-core/drag";
 import { treeMove, treeRows, treeStop } from "@fcalell/ui-core/list-state";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { placesFolded } from "@fcalell/ui-core/route";
 import {
 	DROP_ON,
@@ -20,9 +21,8 @@ import {
 import { useDrop, useHold, useListedDrops } from "../../lib/drag.ts";
 import { useFolds } from "../../lib/folds.ts";
 import { follow, isRoute } from "../../lib/navigate.ts";
-import { useWords } from "../../lib/words.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import {
 	GLYPH,
 	LABEL,

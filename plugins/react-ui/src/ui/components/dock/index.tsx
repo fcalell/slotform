@@ -1,6 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { Track } from "@fcalell/ui-core/descriptors";
 import { shortcut, trackTime } from "@fcalell/ui-core/player";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	DOCK,
 	DOCK_BAR,
@@ -14,7 +15,6 @@ import { useEffect } from "react";
 import { useHeldDraft } from "../../lib/act.ts";
 import { useTouch } from "../../lib/media.ts";
 import { player, usePlayer, usePlayerTime } from "../../lib/player.ts";
-import { useWords } from "../../lib/words.tsx";
 import { Button } from "../button/index.tsx";
 import { PictureTile } from "../image/base.tsx";
 import { SliderBase } from "../slider/base.tsx";

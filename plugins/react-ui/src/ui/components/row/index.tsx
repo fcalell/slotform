@@ -9,16 +9,21 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import { stepOf } from "@fcalell/ui-core/drag";
 import {
+	isAbsent,
 	isChipFact,
+	isCopy,
 	isMarkFact,
 	isStatus,
 	isStatusFact,
 	isWarningFact,
 	splitFacts,
+	titleWords,
 	valueCut,
 } from "@fcalell/ui-core/list-state";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { paints } from "@fcalell/ui-core/read";
+import { useClock } from "@fcalell/ui-core/react/clock";
+import { useRow, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { endedSentence, paints } from "@fcalell/ui-core/read";
 import { isCurrent } from "@fcalell/ui-core/route";
 import { filled, isCode, META_TAIL, runsOf } from "@fcalell/ui-core/runs";
 import { sameBy } from "@fcalell/ui-core/same-by";
@@ -64,33 +69,41 @@ import {
 	useState,
 } from "react";
 import { ageShort } from "../../lib/age.ts";
-import { useClock } from "../../lib/clock.ts";
 import { CodeCut, CodeWhole, RunText, Soft } from "../../lib/code.tsx";
 import { press, useDrop, useOffers } from "../../lib/drag.ts";
 import { DistanceContext, useTouch } from "../../lib/media.ts";
 import { follow, navigate, useRoute } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
-import {
-	endedSentence,
-	FailedMark,
-	RetryMark,
-	useRow,
-} from "../../lib/read.tsx";
+import { FailedMark, RetryMark } from "../../lib/read.tsx";
 import {
 	type Edge,
 	type Movable,
 	movesOf,
 	stepKey,
 } from "../../lib/reorder.ts";
-import { useWords } from "../../lib/words.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import {
+	BadgesLine,
+	FactBadge,
+	LockBadge,
+	PaintedBadge,
+	WordsBadge,
+} from "../../parts/row/badges.tsx";
+import {
+	First,
+	Leading,
+	type RowTree,
+	TreeLead,
+	treeFold,
+} from "../../parts/row/leading.tsx";
+import { EndMark, says, wordless } from "../../parts/row/marks.tsx";
+import { StatusBase } from "../../parts/status/base.tsx";
+import { ChangeMark } from "../../parts/status/change.tsx";
+import { StatusDot } from "../../parts/status/dot.tsx";
 import { HeldInput } from "../input/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
 import type { RowItem as RowItemData } from "../section/index.tsx";
-import { StatusBase } from "../status/base.tsx";
-import { ChangeMark } from "../status/change.tsx";
-import { StatusDot } from "../status/dot.tsx";
 import { HeldSwitch } from "../switch/base.tsx";
 import {
 	ActButton,
@@ -101,22 +114,7 @@ import {
 	RowMore,
 	useReasonLine,
 } from "./acts.tsx";
-import {
-	BadgesLine,
-	FactBadge,
-	LockBadge,
-	PaintedBadge,
-	WordsBadge,
-} from "./badges.tsx";
-import { CopyAct, IdValue, isAbsent, isCopy, titleWords } from "./fact.tsx";
-import {
-	First,
-	Leading,
-	type RowTree,
-	TreeLead,
-	treeFold,
-} from "./leading.tsx";
-import { EndMark, says, wordless } from "./marks.tsx";
+import { CopyAct, IdValue } from "./fact.tsx";
 import { RowProgress } from "./progress.tsx";
 import { RowStatusDot, RowStatusWord, StatusValue } from "./status.tsx";
 

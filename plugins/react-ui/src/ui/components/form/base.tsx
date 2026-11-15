@@ -1,5 +1,12 @@
 import { cn } from "@fcalell/ui-core/cn";
-import { usePainted } from "@fcalell/ui-core/react/read";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
+import { submitOf, useFrame, usePainted } from "@fcalell/ui-core/react/read";
+import {
+	TouchedContext,
+	useTouched,
+	useTouchState,
+} from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
@@ -17,26 +24,13 @@ import {
 import type { ReactNode } from "react";
 import { Children, useId, useState } from "react";
 import type { Acting } from "../../lib/act.ts";
-import { useArrivals } from "../../lib/arrive.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useLeaveGuard } from "../../lib/leave.ts";
-import {
-	BusyMark,
-	FrameBody,
-	FrameLine,
-	submitOf,
-	useFrame,
-} from "../../lib/read.tsx";
-import {
-	TouchedContext,
-	useTouched,
-	useTouchState,
-} from "../../lib/touched.ts";
-import { useWords } from "../../lib/words.tsx";
+import { BusyMark, FrameBody, FrameLine } from "../../lib/read.tsx";
+import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import type { ActionBarProps } from "../action-bar/index.tsx";
-import { DIVIDER } from "../section/card.tsx";
 import { Text } from "../text/index.tsx";
 
 // The form is its rows over its foot: a `ROWS` run of its own columns, or of the

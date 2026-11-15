@@ -1,7 +1,12 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { cn } from "@fcalell/ui-core/cn";
-import type { FileItem, IconName } from "@fcalell/ui-core/descriptors";
-import { DIRECTORY_LEAD, pathCut } from "@fcalell/ui-core/list-state";
+import type { FileItem } from "@fcalell/ui-core/descriptors";
+import {
+	DIRECTORY_LEAD,
+	glyph,
+	pathCut,
+	split,
+} from "@fcalell/ui-core/list-state";
 import { isCurrent } from "@fcalell/ui-core/route";
 import { sameBy } from "@fcalell/ui-core/same-by";
 import {
@@ -18,9 +23,9 @@ import { memo } from "react";
 import { follow, useRoute } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { Roll, Swap } from "../../lib/swap.tsx";
-import { ChipBase } from "../chip/base.tsx";
-import { IconBase } from "../icon/index.tsx";
-import { ChangeMark } from "../status/change.tsx";
+import { ChipBase } from "../../parts/chip/base.tsx";
+import { IconBase } from "../../parts/icon/index.tsx";
+import { ChangeMark } from "../../parts/status/change.tsx";
 
 // A row's floor, as a list row's: on touch it stands at the target.
 const ROW = "relative flex items-center min-h-row";
@@ -53,19 +58,6 @@ interface FileRowInternal {
 	painted?: boolean;
 	/** The row's place among the painted rows, which varies the filler's lengths. */
 	at?: number;
-}
-
-function glyph(seen: boolean | undefined): IconName {
-	if (seen === undefined) return "File";
-	return seen ? "CircleCheck" : "Circle";
-}
-
-// The path split after its last slash: the directory with its slash last, and
-// the name. The slash goes with the directory, so a directory that has given
-// way takes its separator with it and the name draws none.
-function split(path: string): [string, string] {
-	const slash = path.lastIndexOf("/") + 1;
-	return [path.slice(0, slash), path.slice(slash)];
 }
 
 // The path fits by layout: the directory takes the room the name leaves,

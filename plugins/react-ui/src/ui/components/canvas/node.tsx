@@ -1,5 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { named } from "@fcalell/ui-core/tokens";
 import {
 	BLOCK_IN,
@@ -24,12 +25,11 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useWords } from "../../lib/words.tsx";
-import { IconButtonLink } from "../button/glyph.tsx";
+import { IconButtonLink } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { StatusBadge } from "../../parts/row/badges.tsx";
+import { StatusDot } from "../../parts/status/dot.tsx";
 import { Count } from "../count/index.tsx";
-import { Icon } from "../icon/index.tsx";
-import { StatusBadge } from "../row/badges.tsx";
-import { StatusDot } from "../status/dot.tsx";
 import { UNZOOM } from "./floor.ts";
 import type { Size } from "./geometry.ts";
 import { hit } from "./hit.ts";

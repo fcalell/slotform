@@ -1,7 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconName } from "@fcalell/ui-core/descriptors";
 import { CHEVRON, type IconFit } from "@fcalell/ui-core/variants";
-import { Icon } from "../components/icon/index.tsx";
+import { Icon } from "./icon/index.tsx";
 
 // A quarter turn takes a chevron down to right (a fold closing); a half turn
 // takes an arrow or a chevron over to its opposite.

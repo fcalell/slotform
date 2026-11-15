@@ -2,7 +2,7 @@ import { Tooltip } from "@base-ui/react/tooltip";
 import { useEffect, useState } from "react";
 import { useTouch } from "../../lib/media.ts";
 import { hid, recently } from "../../lib/rest.ts";
-import { NamePopup, SHOW_AFTER } from "../button/glyph.tsx";
+import { NamePopup, SHOW_AFTER } from "../../parts/button/glyph.tsx";
 
 // A truncating element: one line cut with an ellipsis (`truncate`), or a line
 // clamp. Cut only when its text runs past its box.

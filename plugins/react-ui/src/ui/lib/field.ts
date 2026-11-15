@@ -1,11 +1,6 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { createContext } from "react";
 
-// Whether the field around an act is disabled. Base UI's field context is
-// internal and its Button reads none, so a field hands its state to the acts
-// inside it through this one.
-export const FieldDisabled = createContext(false);
-
 // A toggle a row's label targets (a FormField's checkbox form, a list Picker
 // row), handed to the Checkbox the row draws: it draws its box with no hit box
 // of its own, so the box sits on the label's first line. A row that wraps the
@@ -29,12 +24,6 @@ export interface Fielded {
 
 /** The keys a `FormField` supplies to the control it draws. */
 export type FieldedKey = keyof Fielded;
-
-// Set by an owner that names the controls standing in it (a `FormField`'s
-// children, a `Toolbar`'s acts): a control there draws no field of its own,
-// its `label` only its accessible name. Anywhere else a control placed alone
-// draws its field (`FieldBody` with `alone`).
-export const FieldOwned = createContext(false);
 
 // Set by a `FormField` around a group of controls (a list Picker, a
 // segments Picker): the id of its label, which names the group. No field

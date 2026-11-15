@@ -1,8 +1,8 @@
 import { HANDOFF_GLYPH } from "@fcalell/ui-core/canvas";
 import { cn } from "@fcalell/ui-core/cn";
 import { PATH_TONE } from "@fcalell/ui-core/variants";
-import { ChipBase } from "../chip/base.tsx";
-import { Icon } from "../icon/index.tsx";
+import { ChipBase } from "../../parts/chip/base.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import type { Box } from "./geometry.ts";
 import type { EdgeTone } from "./look.ts";
 

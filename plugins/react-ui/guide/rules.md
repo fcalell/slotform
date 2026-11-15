@@ -618,7 +618,7 @@ presence and its `onClose` clearing it. The app holds no open flag for it.
 ## Words are the config's, sentences are props
 
 A word a component draws on its own comes from `reactUi({ words })`, read with
-`useWords()` from `@fcalell/plugin-react-ui/lib/words`; every sentence the app shows is a prop.
+`useWords()` from `@fcalell/ui-core/react/words`; every sentence the app shows is a prop.
 
 ## A text prop takes one of four sizes
 

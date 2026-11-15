@@ -1,8 +1,13 @@
+import { type Offered, offered } from "@fcalell/ui-core/acts";
 import { GLYPHS } from "@fcalell/ui-core/banner";
 import { timeLeft } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
+import { usePending } from "@fcalell/ui-core/react/clock";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason } from "@fcalell/ui-core/read";
 import { partRuns } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
@@ -17,18 +22,15 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { useMemo } from "react";
-import { type Act, type Offered, offered } from "../../lib/act.ts";
+import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
-import { ReasonHostContext, usePressed } from "../../lib/reason.ts";
-import { useTouched } from "../../lib/touched.ts";
-import { useWords } from "../../lib/words.tsx";
+import { Reason } from "../../parts/button/reason.tsx";
+import { Icon, IconBase } from "../../parts/icon/index.tsx";
+import { Spinner } from "../../parts/spinner/index.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { ActFace } from "../button/face.tsx";
-import { Reason } from "../button/reason.tsx";
-import { Icon, IconBase } from "../icon/index.tsx";
-import { Spinner } from "../spinner/index.tsx";
-import { Fill, usePending } from "./pending.tsx";
+import { Fill } from "./pending.tsx";
 
 const BOX = "flex flex-col justify-center";
 // With a deadline the strip holds the fill along its foot, clipped to its radius.

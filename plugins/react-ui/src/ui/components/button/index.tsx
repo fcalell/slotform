@@ -1,5 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { Decision, IconName } from "@fcalell/ui-core/descriptors";
+import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import {
 	type ButtonAct,
 	type ButtonFit,
@@ -8,11 +9,10 @@ import {
 import { use } from "react";
 import { type ActSheetProps, useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { ReasonHostContext } from "../../lib/reason.ts";
+import { IconButtonBase, IconButtonLink } from "../../parts/button/glyph.tsx";
+import { ButtonLink, TEXT_PRESS } from "../../parts/button/link.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import { ButtonBase } from "./base.tsx";
-import { IconButtonBase, IconButtonLink } from "./glyph.tsx";
-import { ButtonLink, TEXT_PRESS } from "./link.tsx";
 
 interface Named extends Closed {
 	/** The act's accessible name and, in the labelled forms, its visible text (a short phrase; truncates). In the icon form it is read aloud and shown in a tooltip, never drawn. */

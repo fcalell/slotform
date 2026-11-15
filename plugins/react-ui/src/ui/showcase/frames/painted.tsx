@@ -1,8 +1,8 @@
 import { Field } from "@base-ui/react/field";
 import { cn } from "@fcalell/ui-core/cn";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
 import { text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
-import { FieldOwned } from "../../lib/field.ts";
 import type { ShowcaseFrame } from "../cells.ts";
 
 /** Whether the frame draws a `PAINT` cell: an atom's painted form beside its loaded one. */

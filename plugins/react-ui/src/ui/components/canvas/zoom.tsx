@@ -1,10 +1,10 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { CANVAS_ZOOM } from "@fcalell/ui-core/variants";
 import type { Act } from "../../lib/act.ts";
-import { useWords } from "../../lib/words.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { ActFace } from "../button/face.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
 import { EXTENT } from "./view.ts";
 import { type About, useViewportValue, type Viewport } from "./viewport.ts";
 

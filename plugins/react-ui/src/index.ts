@@ -355,7 +355,7 @@ export const reactUi = plugin("react-ui", {
 			return {
 				imports: [
 					{
-						source: "@fcalell/plugin-react-ui/lib/words",
+						source: "@fcalell/ui-core/react/words",
 						named: ["WordsProvider"],
 					},
 				],

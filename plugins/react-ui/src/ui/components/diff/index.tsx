@@ -15,7 +15,8 @@ import {
 	tokenParts,
 } from "@fcalell/ui-core/line-diff";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import { counted } from "@fcalell/ui-core/tokens";
 import {
@@ -31,8 +32,7 @@ import { Fragment, useMemo } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { FrameBody, FrameLine, stillOf, useFrame } from "../../lib/read.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { WordDiff } from "./word.tsx";
 
 const FRAME = "flex flex-col shrink-0 min-w-0 overflow-hidden";

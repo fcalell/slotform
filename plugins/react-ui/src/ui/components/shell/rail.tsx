@@ -9,8 +9,8 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { PointerEvent } from "react";
 import { follow } from "../../lib/navigate.ts";
-import { Named } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
+import { Named } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { GLYPH, LABEL, ROW_BOX, ROW_PRESS, ROW_SELECTED_PRESS } from "./row.ts";
 
 // The group's entry is a place row cut to an icon: the current bar and wash

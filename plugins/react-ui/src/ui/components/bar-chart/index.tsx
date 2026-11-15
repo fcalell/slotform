@@ -22,6 +22,7 @@ import {
 } from "@fcalell/ui-core/chart";
 import { cn } from "@fcalell/ui-core/cn";
 import { formatterFor } from "@fcalell/ui-core/format";
+import { useCollection } from "@fcalell/ui-core/react/read";
 import type { Datum } from "@fcalell/ui-core/read";
 import { CHART_SERIES } from "@fcalell/ui-core/tokens";
 import {
@@ -59,12 +60,7 @@ import {
 } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
-import {
-	FrameBody,
-	FrameLine,
-	stillOf,
-	useCollection,
-} from "../../lib/read.tsx";
+import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/slot.tsx";
 import { Swap } from "../../lib/swap.tsx";
 import { BAR_CHART_BODY } from "../../lib/walk-classes.ts";

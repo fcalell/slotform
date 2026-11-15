@@ -1,7 +1,13 @@
+import type { Offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { FrameHolds, usePainted } from "@fcalell/ui-core/react/read";
+import {
+	FrameHolds,
+	hasBody,
+	useFrame,
+	usePainted,
+} from "@fcalell/ui-core/react/read";
 import { type Datum, NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
@@ -20,7 +26,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import type { IconAct, MenuEntry, Offered } from "../../lib/act.ts";
+import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useFootFocus, usePaneFocus } from "../../lib/focus.ts";
@@ -34,7 +40,7 @@ import {
 import { HeadingContext } from "../../lib/heading.ts";
 import { DistanceContext } from "../../lib/media.ts";
 import { useParentRoute, useReturnRoute } from "../../lib/navigate.ts";
-import { FrameBody, hasBody, useFrame } from "../../lib/read.tsx";
+import { FrameBody } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
 import { ItemHeaderBase, type ItemHeaderParts } from "../item-header/base.tsx";

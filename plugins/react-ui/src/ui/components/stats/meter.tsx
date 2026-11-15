@@ -4,8 +4,9 @@ import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { levelOf } from "@fcalell/ui-core/list-state";
 import { type PaintRole, paintText } from "@fcalell/ui-core/paint";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import type { Datum } from "@fcalell/ui-core/read";
+import { useRow, useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { type Datum, endedSentence } from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,
@@ -18,14 +19,8 @@ import {
 import type { CSSProperties } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
-import {
-	endedSentence,
-	FailedMark,
-	RetryMark,
-	useRow,
-} from "../../lib/read.tsx";
+import { FailedMark, RetryMark } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/slot.tsx";
-import { useWords } from "../../lib/words.tsx";
 import { CountLinks } from "./count-links.tsx";
 import { FIGURE, FIGURE_DIGITS, LABEL } from "./parts.ts";
 

@@ -1,6 +1,9 @@
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
 import { useMemo } from "react";
@@ -11,13 +14,10 @@ import {
 	wiringOf,
 } from "../../lib/act.ts";
 import { moreMenu } from "../../lib/read.tsx";
-import { ReasonHostContext, usePressed } from "../../lib/reason.ts";
-import { useTouched } from "../../lib/touched.ts";
-import { useWords } from "../../lib/words.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Reason } from "../../parts/button/reason.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { IconActFace } from "../button/face.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Reason } from "../button/reason.tsx";
 import { MenuBase } from "../menu/base.tsx";
 
 const NOOP = () => {};

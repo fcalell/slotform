@@ -4,6 +4,8 @@ import type {
 	Notice,
 	PickedFile,
 } from "@fcalell/ui-core/descriptors";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	field,
 	fieldValue,
@@ -36,16 +38,14 @@ import {
 } from "react";
 import { useAct, wiringOf } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { FieldDisabled } from "../../lib/field.ts";
 import { ActInert } from "../../lib/form.ts";
 import { useTouch } from "../../lib/media.ts";
 import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
 import { attachedFrom } from "../../lib/picked.ts";
-import { useWords } from "../../lib/words.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { ButtonLink } from "../../parts/button/link.tsx";
 import { ButtonBase } from "../button/base.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
 import { Button } from "../button/index.tsx";
-import { ButtonLink } from "../button/link.tsx";
 import { Attachments } from "../message/attachments.tsx";
 
 const ROOT = "flex flex-col w-full";

@@ -7,7 +7,14 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { PAINT_TURNS } from "@fcalell/ui-core/paint";
-import { FrameHolds, useFrameRead } from "@fcalell/ui-core/react/read";
+import { useStreamed } from "@fcalell/ui-core/react/arrive";
+import {
+	type Frame,
+	FrameHolds,
+	useCollection,
+	useFrameRead,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
@@ -28,25 +35,16 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useStreamed } from "../../lib/arrive.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useFootFocus } from "../../lib/focus.ts";
 import { PageTitle, useFootRegion } from "../../lib/frame.ts";
 import { useTouch } from "../../lib/media.ts";
-import {
-	type Frame,
-	FrameBody,
-	FrameLine,
-	StateLine,
-	stillOf,
-	useCollection,
-} from "../../lib/read.tsx";
+import { FrameBody, FrameLine, StateLine, stillOf } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { WaitingReply } from "../../parts/message/waiting.tsx";
 import { MessageBase } from "../message/base.tsx";
-import { WaitingReply } from "../message/waiting.tsx";
 import {
 	MessageInput,
 	type MessageInputProps,

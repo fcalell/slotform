@@ -1,6 +1,12 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import {
+	TouchedContext,
+	usePageTurn,
+	useTouchState,
+} from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { dockedBodyMax } from "@fcalell/ui-core/tokens";
 import {
 	BLOCK_IN,
@@ -25,18 +31,12 @@ import { useAct } from "../../lib/act.ts";
 import { focusFirst } from "../../lib/focus.ts";
 import type { FootRegionValue } from "../../lib/frame.ts";
 import { useScrolls } from "../../lib/scrolls.ts";
-import {
-	TouchedContext,
-	usePageTurn,
-	useTouchState,
-} from "../../lib/touched.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import { Button } from "../button/index.tsx";
 import { FormBody } from "../form/base.tsx";
 import { type FormProps, useDerivedForm } from "../form/index.tsx";
-import { DIVIDER } from "../section/card.tsx";
 import { type SheetSubmit, submitAct } from "./base.tsx";
 
 // The sheet fills its foot: the head and the foot keep their height and the

@@ -1,13 +1,13 @@
 import { Toast as ToastControl } from "@base-ui/react/toast";
 import { Tooltip } from "@base-ui/react/tooltip";
 import { cn } from "@fcalell/ui-core/cn";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { TOASTS } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useState } from "react";
 import { useModality } from "../../lib/modality.ts";
 import { PortalContainer, PortalHosted, PortalSlot } from "../../lib/portal.ts";
 import { RECENT } from "../../lib/rest.ts";
 import { toasts } from "../../lib/toast.ts";
-import { useWords } from "../../lib/words.tsx";
 import { Confirmations } from "../sheet/confirm.tsx";
 import { ToastList } from "../toast/layer.tsx";
 import { CutText } from "./cut.tsx";

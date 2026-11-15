@@ -7,6 +7,7 @@ import {
 	treeStop,
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
@@ -22,15 +23,14 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { useArrivals } from "../../lib/arrive.ts";
 import { MoreRow, useReach } from "../../lib/more.tsx";
 import { ListedRoute, useRoute } from "../../lib/navigate.ts";
 import { edgeOf, type Movable } from "../../lib/reorder.ts";
 import { Window } from "../../lib/window.tsx";
+import { TREE_DIVIDER } from "../../parts/section/card.tsx";
 import { FileRowItem } from "../file-row/index.tsx";
 import { RowItem } from "../row/index.tsx";
 import { BandHead } from "./band.tsx";
-import { TREE_DIVIDER } from "./card.tsx";
 import type { Band, Row, RowItem as RowItemData } from "./index.tsx";
 
 /** What the Section hands its rows; no app sets it, so it is outside `SectionProps`. */

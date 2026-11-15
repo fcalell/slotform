@@ -1,6 +1,8 @@
 import { Input as Control } from "@base-ui/react/input";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	FIELD_GLYPH,
 	FIELD_UNIT,
@@ -13,16 +15,11 @@ import type { KeyboardEvent, MouseEvent } from "react";
 import { useAct, useHeldDraft } from "../../lib/act.ts";
 import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";
-import {
-	type CellFit,
-	FieldDisabled,
-	type InlineFit,
-} from "../../lib/field.ts";
+import type { CellFit, InlineFit } from "../../lib/field.ts";
 import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
-import { useWords } from "../../lib/words.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import type { InputKind, TextInputProps } from "./index.tsx";
 

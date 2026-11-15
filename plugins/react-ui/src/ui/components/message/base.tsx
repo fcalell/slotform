@@ -23,10 +23,10 @@ import { RunText } from "../../lib/code.tsx";
 import { moment } from "../../lib/moment.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { PartsLine } from "../../lib/parts-line.tsx";
-import { Turn } from "../../lib/turn.tsx";
-import { Icon } from "../icon/index.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { PaintedProse } from "../../parts/prose/painted.tsx";
+import { Turn } from "../../parts/turn.tsx";
 import { Prose } from "../prose/index.tsx";
-import { PaintedProse } from "../prose/painted.tsx";
 import { RowBase } from "../row/index.tsx";
 import { Attachments } from "./attachments.tsx";
 

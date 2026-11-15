@@ -2,7 +2,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import { CANVAS_GROUND, canvasNode } from "@fcalell/ui-core/variants";
 import { useId } from "react";
 import { Painted } from "../../lib/paint.tsx";
-import { IconBase } from "../icon/index.tsx";
+import { IconBase } from "../../parts/icon/index.tsx";
 import { DOT, PITCH } from "./viewport.ts";
 
 // Under `tablet` the region keeps half of the column it stands in, so the

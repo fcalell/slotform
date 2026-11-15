@@ -1,6 +1,14 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { cn } from "@fcalell/ui-core/cn";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import { askDiscard } from "@fcalell/ui-core/react/confirm";
+import { hasBody, submitOf, useFrame } from "@fcalell/ui-core/react/read";
+import {
+	TouchedContext,
+	usePageTurn,
+	useTouchState,
+} from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
 	LAYER_CARD,
@@ -23,30 +31,16 @@ import { type Acting, useAct } from "../../lib/act.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { FIELDS, firstTabbable, useReturnFocus } from "../../lib/focus.ts";
 import { useFollow } from "../../lib/follow.ts";
-import { askDiscard } from "../../lib/leave.ts";
 import { useTouch } from "../../lib/media.ts";
 import { PortalContainer, PortalHosted } from "../../lib/portal.ts";
-import {
-	BusyMark,
-	FrameBody,
-	FrameLine,
-	hasBody,
-	submitOf,
-	useFrame,
-} from "../../lib/read.tsx";
+import { BusyMark, FrameBody, FrameLine } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
-import {
-	TouchedContext,
-	usePageTurn,
-	useTouchState,
-} from "../../lib/touched.ts";
 import { SHEET_BACKDROP } from "../../lib/walk-classes.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
 import { Button } from "../button/index.tsx";
-import { DIVIDER } from "../section/card.tsx";
 
 // The layer the sheet stands on over the scrim: from the bottom edge on
 // touch, centred on the desktop.

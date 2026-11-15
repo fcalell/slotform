@@ -3,6 +3,7 @@ import { drew, isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import { useRun } from "@fcalell/ui-core/react/acts";
 import { usePort } from "@fcalell/ui-core/react/port";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	FIELD_ERROR_LINE,
 	LINE_IN,
@@ -13,8 +14,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useId, useState } from "react";
 import { useModality } from "../../lib/modality.ts";
-import { useWords } from "../../lib/words.tsx";
-import { Spinner } from "../spinner/index.tsx";
+import { Spinner } from "../../parts/spinner/index.tsx";
 import type { CodeInputProps } from "./index.tsx";
 
 // The checking line stands one `pair` under the row.

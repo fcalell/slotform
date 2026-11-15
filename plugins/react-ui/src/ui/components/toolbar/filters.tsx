@@ -3,6 +3,8 @@ import { Popover } from "@base-ui/react/popover";
 import { cn } from "@fcalell/ui-core/cn";
 import type { MultiPick, OptionPick } from "@fcalell/ui-core/descriptors";
 import { filterChip, filterEmpty } from "@fcalell/ui-core/list-state";
+import { useOptions } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Fielded, paints } from "@fcalell/ui-core/read";
 import type { OptionText } from "@fcalell/ui-core/reason";
 import {
@@ -16,11 +18,9 @@ import { useAct } from "../../lib/act.ts";
 import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing, useTouch } from "../../lib/media.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { useOptions } from "../../lib/read.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { ChipBase } from "../../parts/chip/base.tsx";
 import { ButtonBase } from "../button/base.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { ChipBase } from "../chip/base.tsx";
 import { FormField } from "../form-field/index.tsx";
 import { SheetBase } from "../sheet/base.tsx";
 

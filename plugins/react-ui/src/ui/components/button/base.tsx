@@ -1,5 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { cn } from "@fcalell/ui-core/cn";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
 import {
 	type ButtonAct,
 	type ButtonFit,
@@ -11,15 +13,13 @@ import { useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { ActInert, endSubmit, SubmitContext } from "../../lib/form.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
-import { ReasonHostContext, usePressed } from "../../lib/reason.ts";
-import { useTouched } from "../../lib/touched.ts";
-import { CountBase } from "../count/base.tsx";
-import { Icon } from "../icon/index.tsx";
+import { BOX, LABEL, PRESS } from "../../parts/button/link.tsx";
+import { Reason } from "../../parts/button/reason.tsx";
+import { CountBase } from "../../parts/count/base.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { Spinner } from "../../parts/spinner/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
-import { Spinner } from "../spinner/index.tsx";
 import type { ButtonRunProps } from "./index.tsx";
-import { BOX, LABEL, PRESS } from "./link.tsx";
-import { Reason } from "./reason.tsx";
 
 const STACK =
 	"flex flex-col items-start gap-gap min-w-0 max-w-full *:max-w-full";

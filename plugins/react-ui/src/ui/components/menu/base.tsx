@@ -19,8 +19,8 @@ import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing, useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import { SheetBase } from "../sheet/base.tsx";
 

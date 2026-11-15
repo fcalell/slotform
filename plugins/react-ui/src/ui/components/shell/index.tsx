@@ -6,7 +6,13 @@ import type {
 	PlaceSpec,
 } from "@fcalell/ui-core/descriptors";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { FrameHolds, useSelections } from "@fcalell/ui-core/react/read";
+import { ShellHome } from "@fcalell/ui-core/react/frame";
+import {
+	FrameHolds,
+	useFrame,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, isSelection, paints } from "@fcalell/ui-core/read";
 import { flatPlaces, placeAt, placeTrail } from "@fcalell/ui-core/route";
 import {
@@ -41,15 +47,14 @@ import {
 import { type ReactNode, type Ref, useMemo, useState } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { useDocked } from "../../lib/folds.ts";
-import { PlaceRoute, ShellHome, ShellMenu } from "../../lib/frame.ts";
+import { PlaceRoute, ShellMenu } from "../../lib/frame.ts";
 import { type AppMark, useMark } from "../../lib/mark.tsx";
 import { useTouch } from "../../lib/media.ts";
 import { isRoute, useRoute } from "../../lib/navigate.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
-import { FrameBody, useFrame } from "../../lib/read.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { FrameBody } from "../../lib/read.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { Button } from "../button/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { FrameHost, FrameMain } from "./host.tsx";
 import { Place } from "./place.tsx";
 import { usePreview } from "./preview.ts";

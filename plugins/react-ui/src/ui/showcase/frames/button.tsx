@@ -1,10 +1,10 @@
 import { createLeave } from "@fcalell/ui-core/leave";
+import { TouchedContext } from "@fcalell/ui-core/react/touched";
 import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
 import { ButtonBase } from "../../components/button/base.tsx";
-import { IconButtonBase } from "../../components/button/glyph.tsx";
 import { Button, type ButtonRunProps } from "../../components/button/index.tsx";
 import { Text } from "../../components/text/index.tsx";
-import { TouchedContext } from "../../lib/touched.ts";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import type { ShowcaseFrame } from "../cells.ts";
 import { beside, isPaint } from "./painted.tsx";
 import { hang, Pressed } from "./pending.tsx";

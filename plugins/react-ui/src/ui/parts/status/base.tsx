@@ -1,4 +1,5 @@
 import { cn } from "@fcalell/ui-core/cn";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
 	STATE_CHIP_LABEL,
@@ -8,7 +9,6 @@ import {
 	statusDot,
 } from "@fcalell/ui-core/variants";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
-import { useWords } from "../../lib/words.tsx";
 import { StatusDot } from "./dot.tsx";
 
 const BOX = "inline-flex items-center min-w-0 max-w-full";

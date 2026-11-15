@@ -1,5 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { stepStateOf } from "@fcalell/ui-core/list-state";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import {
 	STEP_COUNT,
@@ -8,7 +9,6 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import type { Closed } from "../../lib/closed.ts";
-import { useWords } from "../../lib/words.tsx";
 
 const STACK = "flex flex-col min-w-0";
 const SEGMENTS = "flex";

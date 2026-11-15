@@ -2,8 +2,8 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { LIST_BAND, text, textStrong } from "@fcalell/ui-core/variants";
 import type { IconAct } from "../../lib/act.ts";
+import { CountBase } from "../../parts/count/base.tsx";
 import { IconActFace } from "../button/face.tsx";
-import { CountBase } from "../count/base.tsx";
 
 // The row hairline the sheet draws under its children (`DIVIDER`) is not the
 // band's: the band closes with its own rule.

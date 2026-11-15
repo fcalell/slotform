@@ -1,12 +1,12 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { More, Read } from "@fcalell/ui-core/read";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ButtonBase } from "../components/button/base.tsx";
 import { StateLine } from "./read.tsx";
-import { useWords } from "./words.tsx";
 
 // The room under a row of the viewer's own pressing, as a state line carries.
 const SHOW = "flex items-center pb-gap";

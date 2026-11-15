@@ -8,12 +8,15 @@ import type {
 	Runs,
 } from "@fcalell/ui-core/descriptors";
 import {
+	factKey,
 	isChipFact,
 	isMarkFact,
 	isStatusFact,
 	isWarningFact,
 } from "@fcalell/ui-core/list-state";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useSelections } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	factParts,
@@ -37,17 +40,12 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
-import { useArrivals } from "../../lib/arrive.ts";
 import { RunText } from "../../lib/code.tsx";
 import { useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { PartsLine } from "../../lib/parts-line.tsx";
-import { useWords } from "../../lib/words.tsx";
-import { Count } from "../count/index.tsx";
-import { Icon } from "../icon/index.tsx";
-import { PictureTile } from "../image/base.tsx";
-import { HeldPicker } from "../picker/base.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import {
 	Badge,
 	ChipBadge,
@@ -55,8 +53,11 @@ import {
 	StatusBadge,
 	WarningBadge,
 	WordsBadge,
-} from "../row/badges.tsx";
-import { EndMark, says, wordless } from "../row/marks.tsx";
+} from "../../parts/row/badges.tsx";
+import { EndMark, says, wordless } from "../../parts/row/marks.tsx";
+import { Count } from "../count/index.tsx";
+import { PictureTile } from "../image/base.tsx";
+import { HeldPicker } from "../picker/base.tsx";
 
 const HEAD = "flex flex-col";
 // The overline is a text line: one line at every density, cut at its end with
@@ -109,19 +110,6 @@ export interface ItemHeaderParts<V extends string | null = string> {
 
 // A mark that does not hold (a ring that is false) says no fact.
 const isMark = isMarkFact;
-
-function factKey<V extends string | null>(fact: RecordFact<V>): string {
-	if (typeof fact === "object" && "pick" in fact) return fact.pick.label;
-	if (typeof fact === "object" && ("onOpen" in fact || "href" in fact))
-		return partText(fact.label);
-	if (isStatusFact(fact)) return `${fact.tone} ${fact.label ?? ""}`;
-	if (isWarningFact(fact)) return `warning ${fact.warning}`;
-	if (isChipFact(fact)) return `${fact.family} ${fact.label}`;
-	if (isMarkFact(fact)) return `mark ${fact.label}`;
-	if (typeof fact === "object" && "count" in fact)
-		return `${fact.count} ${fact.label}`;
-	return partText(fact);
-}
 
 // A fact is a block of the line, fading in if it came on its own once the
 // header was drawn, held from the first render. A status is the Status's own.

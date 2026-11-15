@@ -1,10 +1,10 @@
 import { Field } from "@base-ui/react/field";
 import { cn } from "@fcalell/ui-core/cn";
 import type { RowLeading } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily, Words } from "@fcalell/ui-core/tokens";
 import { rowMark, TREE_BLEED, TREE_RAIL } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
-import { useWords } from "../../lib/words.tsx";
 import { AvatarBase } from "../avatar/base.tsx";
 import { IconButtonBase, Named } from "../button/glyph.tsx";
 import { Icon, IconBase } from "../icon/index.tsx";

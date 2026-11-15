@@ -1,7 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import { text } from "@fcalell/ui-core/variants";
-import { useWords } from "../../lib/words.tsx";
 import { Button } from "../button/index.tsx";
 
 const LINE = "flex min-w-0 grow items-center gap-gap";

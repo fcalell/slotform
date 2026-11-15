@@ -6,6 +6,7 @@ import {
 	columnShown,
 	columnsChanged,
 } from "@fcalell/ui-core/list-state";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	LAYER_POPOVER,
 	menu,
@@ -20,9 +21,8 @@ import { use } from "react";
 import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing } from "../../lib/media.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { useWords } from "../../lib/words.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Icon } from "../icon/index.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 
 const POPUP = "flex flex-col max-h-(--available-height) overflow-y-auto";
 const POSITIONER = "z-(--layer-popover)";

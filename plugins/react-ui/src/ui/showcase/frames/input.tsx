@@ -1,4 +1,5 @@
 import { Field } from "@base-ui/react/field";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
 import { text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FormBody } from "../../components/form/base.tsx";
@@ -6,7 +7,6 @@ import { FormField } from "../../components/form-field/index.tsx";
 import { HeldInput } from "../../components/input/base.tsx";
 import { Input, type InputKind } from "../../components/input/index.tsx";
 import { Pane } from "../../components/pane/index.tsx";
-import { FieldOwned } from "../../lib/field.ts";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
 import { waitingText } from "../waiting.ts";
 import { drawFormField } from "./form-field.tsx";

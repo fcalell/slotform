@@ -1,4 +1,5 @@
 import { Collapsible } from "@base-ui/react/collapsible";
+import type { Offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Band as BandData,
@@ -10,7 +11,14 @@ import type {
 	Run,
 } from "@fcalell/ui-core/descriptors";
 import { factsOnly, listedRows, ownCount } from "@fcalell/ui-core/list-state";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	useCollection,
+	useFrame,
+	useOptions,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	combine,
 	type Datum,
@@ -21,28 +29,13 @@ import {
 } from "@fcalell/ui-core/read";
 import { ROWS, SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useId, useMemo, useRef, useState } from "react";
-import type {
-	Act,
-	IconAct,
-	MenuEntry,
-	Offered,
-	Sheeted,
-} from "../../lib/act.ts";
+import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { DEEPER, HeadingContext } from "../../lib/heading.ts";
-import {
-	type Frame,
-	FrameBody,
-	FrameLine,
-	StateLine,
-	useCollection,
-	useFrame,
-	useOptions,
-} from "../../lib/read.tsx";
+import { FrameBody, FrameLine, StateLine } from "../../lib/read.tsx";
 import { useMovable } from "../../lib/reorder.ts";
-import { useWords } from "../../lib/words.tsx";
-import { SheetCard } from "./card.tsx";
+import { SheetCard } from "../../parts/section/card.tsx";
 import { SectionHead } from "./head.tsx";
 import { keyOf, Rows } from "./rows.tsx";
 

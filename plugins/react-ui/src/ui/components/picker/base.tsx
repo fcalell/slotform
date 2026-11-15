@@ -18,6 +18,8 @@ import {
 	type Several,
 } from "@fcalell/ui-core/pick";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { useOptions } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { nounOf } from "@fcalell/ui-core/rules";
 import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
 import {
@@ -77,20 +79,19 @@ import { spacing, useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
 import { PortalContainer } from "../../lib/portal.ts";
-import { OptionsLine, useOptions } from "../../lib/read.tsx";
-import { Turn } from "../../lib/turn.tsx";
+import { OptionsLine } from "../../lib/read.tsx";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { Named } from "../../parts/button/glyph.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { StatusBase } from "../../parts/status/base.tsx";
+import { StatusDot } from "../../parts/status/dot.tsx";
+import { Turn } from "../../parts/turn.tsx";
 import { Avatar } from "../avatar/index.tsx";
-import { Named } from "../button/glyph.tsx";
 import { Chip } from "../chip/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { BOX_DISABLED, BOX_HOVER } from "../input/base.tsx";
 import { Input } from "../input/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import { SheetBase } from "../sheet/base.tsx";
-import { StatusBase } from "../status/base.tsx";
-import { StatusDot } from "../status/dot.tsx";
 import type {
 	PickerMenuProps,
 	PickOneProps,

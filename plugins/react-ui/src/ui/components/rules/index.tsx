@@ -1,5 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { EitherPick, Rule, RuleValue } from "@fcalell/ui-core/descriptors";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { isTyped, marked, pairSet, ruleName } from "@fcalell/ui-core/rules";
 import {
 	BLOCK_IN,
@@ -10,16 +12,14 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Fragment, useMemo, useRef, useState } from "react";
 import { type Act, wiringOf } from "../../lib/act.ts";
-import { useArrivals } from "../../lib/arrive.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useTouch } from "../../lib/media.ts";
-import { useWords } from "../../lib/words.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { SheetCard } from "../../parts/section/card.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { Button } from "../button/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { HeldInput } from "../input/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
-import { SheetCard } from "../section/card.tsx";
 import { Text } from "../text/index.tsx";
 
 // From `tablet` each rule is one flex row: its two terms share the row's

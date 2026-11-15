@@ -13,6 +13,7 @@ import {
 } from "@fcalell/ui-core/list-state";
 import type { PaintRole } from "@fcalell/ui-core/paint";
 import { paintText } from "@fcalell/ui-core/paint";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { isCode, partRuns } from "@fcalell/ui-core/runs";
 import {
 	BADGE,
@@ -31,7 +32,6 @@ import type { ReactNode } from "react";
 import { CodeCut, RunText } from "../../lib/code.tsx";
 import { follow } from "../../lib/navigate.ts";
 import { PAINT_BOX } from "../../lib/paint.tsx";
-import { useWords } from "../../lib/words.tsx";
 import { IconBase } from "../icon/index.tsx";
 import { StatusDot } from "../status/dot.tsx";
 

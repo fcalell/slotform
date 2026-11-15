@@ -1,7 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { STREAM_LATEST, THREAD_LATEST } from "@fcalell/ui-core/variants";
 import { useEffect, useRef, useState } from "react";
-import { useWords } from "../../lib/words.tsx";
 import { Button } from "../button/index.tsx";
 
 // The layer covers the region over the docked foot, so the act centres on it

@@ -1,6 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Attachment } from "@fcalell/ui-core/descriptors";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	ANSWER,
 	BLOCK_IN,
@@ -12,9 +13,8 @@ import {
 import type { ReactNode, RefObject } from "react";
 import { useRef } from "react";
 import { CHIP_LINES } from "../../lib/chip-lines.ts";
-import { useWords } from "../../lib/words.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { Chip } from "../chip/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { Image } from "../image/index.tsx";
 
 // Items align to the start, so a chip keeps its own height beside a thumbnail.

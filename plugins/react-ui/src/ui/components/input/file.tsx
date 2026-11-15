@@ -2,6 +2,8 @@ import { Input as Control } from "@base-ui/react/input";
 import { cn } from "@fcalell/ui-core/cn";
 import { accepts, fileSize, kindsOf } from "@fcalell/ui-core/file";
 import { pathCut } from "@fcalell/ui-core/list-state";
+import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import {
 	FIELD_ERROR_LINE,
@@ -15,12 +17,10 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { type ChangeEvent, type DragEvent, useId, useState } from "react";
-import { FieldDisabled } from "../../lib/field.ts";
 import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { pickedFrom } from "../../lib/picked.ts";
-import { useWords } from "../../lib/words.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { Button } from "../button/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { BOX, BOX_DISABLED, BOX_HOVER_VALUE } from "./base.tsx";
 import type { FilePickProps } from "./index.tsx";
 

@@ -1,4 +1,4 @@
-import { drew, isThenable } from "@fcalell/ui-core/acts";
+import { drew, isPlaced, isThenable } from "@fcalell/ui-core/acts";
 import type {
 	Act as ActData,
 	ActBase,
@@ -7,38 +7,23 @@ import type {
 	LinkAct,
 } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { type Draft, useDraft, useRun } from "@fcalell/ui-core/react/acts";
-import { usePort } from "@fcalell/ui-core/react/port";
 import {
-	type Datum,
-	endedReason,
-	type Fielded,
-	lift,
-} from "@fcalell/ui-core/read";
-import { ACT_TEXT, type ActText, pressStands } from "@fcalell/ui-core/reason";
+	blocked,
+	type Draft,
+	useDraft,
+	useRun,
+} from "@fcalell/ui-core/react/acts";
+import { ask } from "@fcalell/ui-core/react/confirm";
+import { usePort } from "@fcalell/ui-core/react/port";
+import { useWords } from "@fcalell/ui-core/react/words";
+import { type Datum, endedReason } from "@fcalell/ui-core/read";
+import { pressStands } from "@fcalell/ui-core/reason";
 import { useState } from "react";
 import type { ActSheetProps } from "../components/sheet/index.tsx";
-import { ask } from "./confirm.ts";
 import { navigate } from "./navigate.ts";
-import { usePressed } from "./reason.ts";
 import { toast } from "./toast.ts";
-import { useWords } from "./words.tsx";
 
 export type { ActSheetProps };
-
-// Rejections whose every sentence already stands where it belongs (a form's
-// refused values, each under the field it names): the host that ran the act
-// draws no line and no toast of its own for one, so the sentence stands once.
-const placedErrors = new WeakSet<object>();
-
-/** Marks a rejection whose sentences its own host already draws in place: the act's holder draws no line or toast for it, the act ready again. */
-export function placed(error: unknown): void {
-	if (typeof error === "object" && error !== null) placedErrors.add(error);
-}
-
-function isPlaced(error: unknown): boolean {
-	return typeof error === "object" && error !== null && placedErrors.has(error);
-}
 
 /** A sheet for an act's `sheet`, typed by the procedure its form submits: `P` is read off the form's `act`, so `onDone` hears that procedure's output and the fields are checked against its input. An act's slot holds acts of different procedures, which a type cannot follow, so the sheet leaves here as the procedure-less `ActSheetProps` the slot takes. */
 export function sheetOf<P extends ProcedureCall>(
@@ -66,18 +51,6 @@ export type Sheeted<T> = T extends readonly (infer E)[]
 export type IconAct = Act & { icon: IconName };
 /** What a menu holds: acts that run and links that go. */
 export type MenuEntry = Act | LinkAct;
-
-/** An act, a link or a list of them as a slot takes it: a constant, a selection of the whole, or a constant whose `label` or `blocked` is a selection (a reason from a read, a label that counts). */
-export type Offered<T> = Fielded<T, ActText>;
-
-/** An `Offered` made whole (a selection of the act with each text prop's value in its place), which the host draws as any act given as a datum. */
-export function offered<T>(given: Offered<T>): Datum<T>;
-export function offered<T>(given: Offered<T> | undefined): Datum<T> | undefined;
-export function offered<T>(
-	given: Offered<T> | undefined,
-): Datum<T> | undefined {
-	return lift<T, ActText>(given, ACT_TEXT);
-}
 
 /** The wiring an act carries beside its `onAct`, which a host hands to the control that draws it. */
 export interface Wiring {
@@ -183,24 +156,6 @@ export function useAct<K = true>(where: "line" | "toast"): Acting<K> {
 	};
 }
 
-// A draft over a read that ended stands with no value and blocked, like an act
-// over one: a change changes nothing and `say`s why, where its host draws a
-// refusal.
-function blocked<T>(
-	draft: Draft<T>,
-	reason: string | undefined,
-	say: (reason: string) => void,
-): Draft<T> {
-	if (reason === undefined) return draft;
-	return {
-		...draft,
-		change: () => {
-			say(reason);
-			return undefined;
-		},
-	};
-}
-
 /** A bare control's draft: its rejection toasts, and the toast's Retry saves the same value again, unless the server refused it (a 4xx). Over a read that ended the control is blocked and the press toasts the read's sentence. A control in a `FormField` is handed the field's draft instead (`useFieldDraft`), so the field's line draws the rejection. */
 export function useHeldDraft<T>(value: Datum<T>): Draft<T> {
 	const port = usePort();
@@ -224,33 +179,4 @@ export function useHeldDraft<T>(value: Datum<T>): Draft<T> {
 		setSaid(sentence);
 		toast(sentence, { tone: "failed", onGone: () => setSaid(undefined) });
 	});
-}
-
-/** The draft a `FormField` hosts for its control's save, and the line the save's rejection draws in: the latest save's alone, cleared by the next change. Over a read that ended the control is blocked and the line holds the read's sentence once pressed, until the read answers. */
-export function useFieldDraft<T>(value: Datum<T>): {
-	draft: Draft<T>;
-	refused: string | undefined;
-} {
-	const port = usePort();
-	const words = useWords();
-	const [refused, refuse] = useState<string>();
-	const draft = useDraft(value, (error) =>
-		refuse(port.refusal(error) ?? words.actFailed),
-	);
-	const reason = endedReason(words, draft.ended);
-	const [pressed, press] = usePressed(reason);
-	return {
-		draft: blocked(
-			{
-				...draft,
-				change: (next, save) => {
-					refuse(undefined);
-					return draft.change(next, save);
-				},
-			},
-			reason,
-			press,
-		),
-		refused: refused ?? (pressed ? reason : undefined),
-	};
 }

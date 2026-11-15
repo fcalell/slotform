@@ -1,6 +1,7 @@
 import { rowOneLine } from "@fcalell/ui-core/fold";
 import { createLeave } from "@fcalell/ui-core/leave";
 import { setLoading } from "@fcalell/ui-core/paint";
+import { TouchedContext } from "@fcalell/ui-core/react/touched";
 import {
 	type ReactNode,
 	useEffect,
@@ -14,10 +15,9 @@ import { FormField } from "../../components/form-field/index.tsx";
 import { Input } from "../../components/input/index.tsx";
 import { Pane } from "../../components/pane/index.tsx";
 import { RowBase } from "../../components/row/index.tsx";
-import { SheetCard } from "../../components/section/card.tsx";
 import { type Row, Section } from "../../components/section/index.tsx";
 import { Place } from "../../components/shell/place.tsx";
-import { TouchedContext } from "../../lib/touched.ts";
+import { SheetCard } from "../../parts/section/card.tsx";
 import { ago } from "../ago.ts";
 import type { ShowcaseFrame } from "../cells.ts";
 import {

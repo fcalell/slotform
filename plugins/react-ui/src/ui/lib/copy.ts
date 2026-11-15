@@ -1,6 +1,6 @@
+import { useWords } from "@fcalell/ui-core/react/words";
 import { useEffect, useState } from "react";
 import { toast } from "./toast.ts";
-import { useWords } from "./words.tsx";
 
 const COPIED_MS = 2000;
 

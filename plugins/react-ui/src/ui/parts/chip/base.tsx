@@ -1,6 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { cn } from "@fcalell/ui-core/cn";
 import { paintText } from "@fcalell/ui-core/paint";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	BLOCK_IN,
@@ -10,7 +11,6 @@ import {
 	REMOVE_HIT,
 } from "@fcalell/ui-core/variants";
 import { PAINT_BOX } from "../../lib/paint.tsx";
-import { useWords } from "../../lib/words.tsx";
 import { Icon } from "../icon/index.tsx";
 
 const BOX = "inline-flex items-center min-w-0 whitespace-nowrap";

@@ -20,9 +20,9 @@ import {
 import type { ReactNode } from "react";
 import type { IconAct } from "../../lib/act.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { AvatarBase } from "../avatar/base.tsx";
+import { AvatarBase } from "../../parts/avatar/base.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
 import { Avatar } from "../avatar/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { HeldPicker } from "../picker/base.tsx";
 
 const ROW_PRESS = "hover:bg-wash-hover active:bg-wash-press";

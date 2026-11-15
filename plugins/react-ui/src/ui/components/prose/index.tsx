@@ -22,9 +22,9 @@ import { lexer, type Token, type Tokens } from "marked";
 import { type ReactNode, use, useMemo } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { HeadingContext } from "../../lib/heading.ts";
-import { ButtonLink } from "../button/link.tsx";
+import { ButtonLink } from "../../parts/button/link.tsx";
+import { PaintedProse } from "../../parts/prose/painted.tsx";
 import { Code } from "../code/index.tsx";
-import { PaintedProse } from "./painted.tsx";
 
 // An unbroken token too long for the column (a URL) wraps anywhere; every
 // paragraph, item and quote inherits it.

@@ -55,7 +55,9 @@ import {
 	turnedOver,
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS, painting } from "@fcalell/ui-core/paint";
-import { useWindow } from "@fcalell/ui-core/react/read";
+import { useClock } from "@fcalell/ui-core/react/clock";
+import { useCollection, useWindow } from "@fcalell/ui-core/react/read";
+import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	isRead,
@@ -104,7 +106,6 @@ import {
 } from "react";
 import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import { age, ageWidest } from "../../lib/age.ts";
-import { useClock } from "../../lib/clock.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useColumns } from "../../lib/columns.ts";
 import { draggedLabel, press, useDrop, useOffers } from "../../lib/drag.ts";
@@ -115,12 +116,7 @@ import { useTouch } from "../../lib/media.ts";
 import { MoreRow } from "../../lib/more.tsx";
 import { follow, navigate } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
-import {
-	FrameBody,
-	FrameLine,
-	stillOf,
-	useCollection,
-} from "../../lib/read.tsx";
+import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import {
 	type Edge,
 	edgeOf,
@@ -129,23 +125,22 @@ import {
 	stepKey,
 	useMovable,
 } from "../../lib/reorder.ts";
-import { Turn } from "../../lib/turn.tsx";
 import { Scroller, Window } from "../../lib/window.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { ChipBase } from "../../parts/chip/base.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { LockMark } from "../../parts/row/lock.tsx";
+import { WarningMark } from "../../parts/row/marks.tsx";
+import { SheetCard } from "../../parts/section/card.tsx";
+import { StatusBase } from "../../parts/status/base.tsx";
+import { ChangeMark } from "../../parts/status/change.tsx";
+import { HeldCheckbox } from "../../parts/switch/checkbox.tsx";
+import { Turn } from "../../parts/turn.tsx";
 import { IconActFace } from "../button/face.tsx";
-import { ChipBase } from "../chip/base.tsx";
-import { Icon } from "../icon/index.tsx";
 import { HeldInput } from "../input/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
-import { LockMark } from "../row/lock.tsx";
-import { WarningMark } from "../row/marks.tsx";
-import { SheetCard } from "../section/card.tsx";
 import type { RowItem } from "../section/index.tsx";
 import { Rows } from "../section/rows.tsx";
-import { StatusBase } from "../status/base.tsx";
-import { ChangeMark } from "../status/change.tsx";
-import { HeldCheckbox } from "../switch/checkbox.tsx";
 import { ColumnsMenu } from "./columns.tsx";
 
 // The table fills what its column leaves. Where the density is desktop the grid

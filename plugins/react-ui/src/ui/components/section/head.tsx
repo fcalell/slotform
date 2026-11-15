@@ -1,7 +1,15 @@
 import { Collapsible } from "@base-ui/react/collapsible";
+import { type Offered, offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
-import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	useDrawsFailure,
+	useSelections,
+} from "@fcalell/ui-core/react/read";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
@@ -15,24 +23,16 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useMemo } from "react";
-import {
-	type IconAct,
-	type MenuEntry,
-	type Offered,
-	offered,
-} from "../../lib/act.ts";
+import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
 import { HeadingContext } from "../../lib/heading.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { BusyMark, type Frame, FrameLine, moreMenu } from "../../lib/read.tsx";
-import { ReasonHostContext, usePressed } from "../../lib/reason.ts";
-import { useTouched } from "../../lib/touched.ts";
-import { Turn } from "../../lib/turn.tsx";
-import { useWords } from "../../lib/words.tsx";
+import { BusyMark, FrameLine, moreMenu } from "../../lib/read.tsx";
+import { IconButtonBase } from "../../parts/button/glyph.tsx";
+import { Reason } from "../../parts/button/reason.tsx";
+import { Turn } from "../../parts/turn.tsx";
 import { IconActFace } from "../button/face.tsx";
-import { IconButtonBase } from "../button/glyph.tsx";
-import { Reason } from "../button/reason.tsx";
 import { Count } from "../count/index.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { Text } from "../text/index.tsx";

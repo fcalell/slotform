@@ -1,7 +1,7 @@
 import { createLeave } from "@fcalell/ui-core/leave";
+import { TouchedContext } from "@fcalell/ui-core/react/touched";
 import { TONES } from "@fcalell/ui-core/tokens";
 import { Banner } from "../../components/banner/index.tsx";
-import { TouchedContext } from "../../lib/touched.ts";
 import type { ShowcaseFrame } from "../cells.ts";
 import { Wide } from "./layout-context.tsx";
 import { hang, Pressed } from "./pending.tsx";

@@ -9,7 +9,9 @@ import type {
 	Runs,
 } from "@fcalell/ui-core/descriptors";
 import { markedRuns } from "@fcalell/ui-core/form";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import { type Draft, useFieldDraft } from "@fcalell/ui-core/react/acts";
+import { FieldOwned } from "@fcalell/ui-core/react/field";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { Datum } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
@@ -45,14 +47,15 @@ import {
 	textStrong,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useEffect, useId, useMemo, useRef } from "react";
-import { useFieldDraft } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
-import { type FieldedKey, FieldOwned, GroupName } from "../../lib/field.ts";
+import { type FieldedKey, GroupName } from "../../lib/field.ts";
 import { focusFirst } from "../../lib/focus.ts";
-import { useWords } from "../../lib/words.tsx";
+import { Icon } from "../../parts/icon/index.tsx";
+import { ChangeMark } from "../../parts/status/change.tsx";
+import type { CheckboxProps } from "../../parts/switch/checkbox.tsx";
+import { CheckboxBase } from "../../parts/switch/checkbox.tsx";
 import { Button } from "../button/index.tsx";
-import { Icon } from "../icon/index.tsx";
 import { InputBase } from "../input/base.tsx";
 import type { ProseProps, TextInputProps } from "../input/index.tsx";
 import { ProseBase } from "../input/prose.tsx";
@@ -83,10 +86,7 @@ import {
 } from "../row/index.tsx";
 import { SliderBase } from "../slider/base.tsx";
 import type { SliderProps } from "../slider/index.tsx";
-import { ChangeMark } from "../status/change.tsx";
 import { SwitchBase } from "../switch/base.tsx";
-import type { CheckboxProps } from "../switch/checkbox.tsx";
-import { CheckboxBase } from "../switch/checkbox.tsx";
 import type { SwitchProps } from "../switch/index.tsx";
 
 const DISABLED = "text-ink-disabled";

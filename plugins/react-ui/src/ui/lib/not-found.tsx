@@ -1,11 +1,12 @@
+import { ShellHome } from "@fcalell/ui-core/react/frame";
+import { useWords } from "@fcalell/ui-core/react/words";
 import type { ReactNode } from "react";
 import { use } from "react";
 import { Button } from "../components/button/index.tsx";
 import { Gate } from "../components/gate/index.tsx";
 import { MissingBase } from "../components/missing/base.tsx";
 import { Pane } from "../components/pane/index.tsx";
-import { InPane, ShellHome } from "./frame.ts";
-import { useWords } from "./words.tsx";
+import { InPane } from "./frame.ts";
 
 // The slice of the app's router the page for an unknown address needs, typed
 // structurally so react-ui imports no router. The generated entry hands the

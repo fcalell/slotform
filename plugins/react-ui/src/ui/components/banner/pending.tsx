@@ -1,11 +1,13 @@
 import {
 	type PendingRun,
-	pendingRun,
 	pendingShare,
 	timeLeft,
 } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
+import { usePending } from "@fcalell/ui-core/react/clock";
+import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
 import {
 	PENDING_BAR,
 	PENDING_FILL,
@@ -17,14 +19,11 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type CSSProperties, useMemo, useState } from "react";
 import type { Act } from "../../lib/act.ts";
-import { useClock } from "../../lib/clock.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useReducedMotion } from "../../lib/media.ts";
-import { ReasonHostContext, usePressed } from "../../lib/reason.ts";
-import { useTouched } from "../../lib/touched.ts";
+import { Reason } from "../../parts/button/reason.tsx";
+import { Spinner } from "../../parts/spinner/index.tsx";
 import { ActFace } from "../button/face.tsx";
-import { Reason } from "../button/reason.tsx";
-import { Spinner } from "../spinner/index.tsx";
 
 // The bar over a blocked act's reason, at the end on the desktop; on touch
 // the track stacks over the act as an ActionBar's acts do.
@@ -67,19 +66,6 @@ export function Fill(props: { run: PendingRun; now: number }) {
 			}
 		/>
 	);
-}
-
-// The run toward `until` and the clock's now. The shared clock ticks until the
-// end, never past it; a moved `until` carries the run on from the share it
-// reached. Unset, there is no run.
-export function usePending(until: Date | undefined) {
-	const end = until?.getTime();
-	const now = useClock((at) => at, end ?? 0);
-	const [run, setRun] = useState(() =>
-		end === undefined ? undefined : pendingRun(end, now),
-	);
-	if (end !== undefined && run?.end !== end) setRun(pendingRun(end, now, run));
-	return { end, run, now };
 }
 
 /** Work the page waits on, in an ActionBar's place: the `pending` an `ActionBar` takes, at the bar's own height. Outside the package's exports; a place that held no bar draws a `Banner` with `until`. */

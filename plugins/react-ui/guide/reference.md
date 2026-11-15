@@ -13,15 +13,15 @@ Each roster component is imported from its own subpath, its name in kebab case:
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import { useWords } from "@fcalell/plugin-react-ui/lib/words";
+import { useWords } from "@fcalell/ui-core/react/words";
 ```
 
 `navigate(route)` (`lib/navigate`) opens a route of the app from a handler the way a `Button` with an `href` does, in the router with no document load. `toast(sentence, { tone, act })` queues a toast for what no act started (an act's `done` toasts its own), `tone` being how the thing it reports ended
-(`done` by default, `attention` or `failed`), and `confirm(confirmation)` (`lib/confirm`) asks for a decision no act starts (an act's `confirm` asks its own)
+(`done` by default, `attention` or `failed`), and `confirm(confirmation)` (`@fcalell/ui-core/react/confirm`) asks for a decision no act starts (an act's `confirm` asks its own)
 in a sheet; only a page inside the `Shell` can call either, since the `Shell` draws both.
 `age(moment, now)` (`lib/age`) words an ISO moment as its age from `now` ("2 minutes ago") and
 `ageShort(moment, now)` in its short form ("2 min", for a meta like "Waiting for you · 12 min");
-read `now` from the shared clock, `useClock((now) => age(moment, now))` (`lib/clock`), and the age
+read `now` from the shared clock, `useClock((now) => age(moment, now))` (`@fcalell/ui-core/react/clock`), and the age
 ticks on its own, the part drawing again only when its words change. A row's trailing age takes
 the ISO moment itself, `trailing: { age: item.madeAt }`: the row words it short and ticks it, so
 pass the moment, never a worded string. `useTouch()` (`lib/media`) says whether the touch density is

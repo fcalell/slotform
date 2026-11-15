@@ -1,33 +1,9 @@
 import { cn } from "@fcalell/ui-core/cn";
-import type { RowTitle } from "@fcalell/ui-core/descriptors";
-import { partText } from "@fcalell/ui-core/runs";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { CODE_NAME, FIGURES } from "@fcalell/ui-core/variants";
 import { useCopy } from "../../lib/copy.ts";
 import { Decoded } from "../../lib/slot.tsx";
-import { useWords } from "../../lib/words.tsx";
 import { Button } from "../button/index.tsx";
-
-/** Whether a definition's value is the absent word. */
-export function isAbsent(
-	value: RowTitle | undefined,
-): value is { absent: string } {
-	return typeof value === "object" && value !== null && "absent" in value;
-}
-
-/** Whether a title is a code the row copies: an identifier. Outside the package's exports. */
-export function isCopy(
-	value: RowTitle | undefined,
-): value is { code: string; copy: true } {
-	return typeof value === "object" && value !== null && "copy" in value;
-}
-
-/** The words a title names, which name the row where it has no label. Outside the package's exports. */
-export function titleWords(title: RowTitle): string {
-	if (isAbsent(title)) return title.absent;
-	if (typeof title === "object" && !Array.isArray(title) && "tone" in title)
-		return title.label ?? "";
-	return partText(title as Parameters<typeof partText>[0]);
-}
 
 // An identifier (`copyable`) is the mono, carrying the body ink as the value
 // beside it; too long for its room it cuts in its middle, its stem truncating
