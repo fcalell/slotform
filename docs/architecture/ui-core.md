@@ -372,14 +372,15 @@ the index's `node_modules/@fcalell/ui-core/guide/` paths resolve. A platform's r
 ## The showcase and Storybook
 
 `apps/showcase` is a stack consumer. Its routes are the token page and the television page
-(`/foundations`, `/tv`) and the places of one app composed from the built components, called
+(`/foundations`, `/tv`, drawn by `src/screens/`) and the places of one app composed from the built components, called
 through typed stub procedures (`src/worker/routes/`) whose fixtures live in `src/app/fixtures.ts`.
 The screens workbench (`stack screens dev`) draws every route in data, loading, error, empty and
 not found, light and dark, at either density.
 
-The roster is in Storybook. react-ui's `./showcase/cells`, `./showcase/frame` and
-`./showcase/frames/*` export the frame data, the `Frame` wrapper and one drawer per component;
-`.storybook/` imports them. A story is a component in one state drawing every cell through `Frame`,
+The roster is in Storybook. The app's `src/roster/` holds the frame data (`cells.ts`), the
+`Frame` wrapper (`frame.tsx`) and one drawer per component (`frames/<dir>.tsx`); `.storybook/` generates the stories from them. A
+frame imports react-ui through its `exports`; a part no entry reaches (a painted act, a stage's
+portal) it imports by a relative path into the plugin. A story is a component in one state drawing every cell through `Frame`,
 light and dark side by side. Pointer and focus states stay in the roster and draw no story (the web
 variants match only real pseudo-classes). `Motion tuning` (the phone app) is the one place every
 timing is tuned. The Storybook preview fails any story that trips a dev check. Nothing runs the

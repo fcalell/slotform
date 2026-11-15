@@ -1,7 +1,7 @@
 # showcase
 
-The app that serves `@fcalell/plugin-react-ui`'s showcase, and the first consumer of the screens
-workbench (`@fcalell/plugin-screens`).
+The app that shows `@fcalell/plugin-react-ui`: its roster, its foundations and one app composed
+from its components. It is the first consumer of the screens workbench (`@fcalell/plugin-screens`).
 
 ```bash
 pnpm showcase                  # from the repo root: builds the workspace chain, then stack dev on :3000
@@ -10,7 +10,9 @@ pnpm --filter showcase build   # stack build
 
 ## The app
 
-The routes (`src/app/routes/`) are one app composed from the built components, plus two pages:
+The routes (`src/app/routes/`) are one app composed from the built components, plus two pages
+whose screens are `src/screens/` (outside `src/app/`, where react-ui's lint rules for app screens
+run):
 
 - `/foundations`: the token page, every role of the contract on the emitted `app.css`, light and
   dark side by side. `/` redirects to it. The URL holds the view: `?mode=<light|dark>` sets the
@@ -65,6 +67,19 @@ to browse one cell. Hover, press and focus are drawn nowhere: drive the real com
 ```bash
 pnpm stories        # from the repo root: builds the workspace chain, then Storybook on :6006
 ```
+
+A frame is one function per component in `src/roster/frames/<dir>.tsx`, `draw<Name>`: it takes
+the frame and returns the real component in that cell and state, or `undefined` for a cell the
+component has no form for. A state the component takes as a prop (`disabled` through `blocked`,
+`loading`, `error`, `selected`, `empty`) is drawn by passing it. A frame imports react-ui through
+its `exports`; a part no entry reaches (a painted act, a stage's portal) it imports by a relative
+path into the plugin. `src/roster/cells.ts` lists the frames: `showcaseFrames()`, one per matrix
+cell a roster component draws (the families its entry's `draws` names, enumerated by
+`matrixCells`) and drawn state its entry's `states` lists, in both modes and both densities, each
+drawn in `Frame` (`src/roster/frame.tsx`: its
+`data-cell="<component>/<cell>/<state>/<mode>/<density>"`, its mode's class and the canvas ground;
+the component's name and the cell's strings where there is no drawer). A frame that judges its own
+edge waits for its layout through `src/roster/judge.ts` and logs an error where the edge breaks.
 
 `.storybook/` holds the roster's own config: the story globs, `rosterPlugin` and the generator of
 `stories/` (from the roster, gitignored). Its Vite config is `.stack/storybook.vite.config.ts`, which

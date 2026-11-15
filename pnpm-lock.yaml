@@ -868,15 +868,9 @@ importers:
       '@fcalell/cli':
         specifier: workspace:^
         version: link:../../packages/cli
-      '@fcalell/plugin-api':
-        specifier: workspace:^
-        version: link:../api
       '@fcalell/plugin-auth':
         specifier: workspace:^
         version: link:../auth
-      '@fcalell/plugin-query':
-        specifier: workspace:^
-        version: link:../query
       '@fcalell/plugin-react':
         specifier: workspace:^
         version: link:../react

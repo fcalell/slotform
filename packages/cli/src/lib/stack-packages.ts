@@ -113,9 +113,7 @@ export const STACK_PACKAGES = {
 		dir: "plugins/react-ui",
 		dependencies: [
 			"@fcalell/cli",
-			"@fcalell/plugin-api",
 			"@fcalell/plugin-auth",
-			"@fcalell/plugin-query",
 			"@fcalell/plugin-react",
 			"@fcalell/plugin-screens",
 			"@fcalell/plugin-vite",

@@ -1,4 +1,4 @@
-import { showcaseFrames } from "@fcalell/plugin-react-ui/showcase/cells";
+import { showcaseFrames } from "../src/roster/cells.ts";
 
 // Runs in a child process so each listing reads the roster fresh: Node caches
 // an ES module for the life of a process, and the roster is edited while

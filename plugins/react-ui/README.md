@@ -2,8 +2,7 @@
 
 The web half of the stack design system: the CLI plugin that renders `@fcalell/ui-core`'s
 contract into `.stack/app.css` on Tailwind v4, loads the fonts, sets the mode before first paint,
-and mounts the words. It also ships the showcase: one
-page that frames every roster component in every cell, state, mode and density.
+and mounts the words.
 
 ## Install
 
@@ -125,35 +124,6 @@ and `style` as `?: never`) and declares exactly the roster's prop names.
   decisions). The first field of a step takes focus as the page opens and as `title`
   changes (`focusFirst` in `./lib/focus`). Its `form` (a `Form`'s props, over the step's procedure) is drawn in the column by the
   Gate (`components/form/base.tsx`, `in` the auth column), its bar set `full`.
-
-## The showcase
-
-The roster is drawn in Storybook (`apps/showcase`, `pnpm stories`) from data this package exports:
-
-- `@fcalell/plugin-react-ui/showcase/cells`: `showcaseFrames()`, one frame per matrix cell a roster
-  component draws (the families its entry's `draws` names, enumerated by `matrixCells`) and drawn
-  state its entry's `states` lists (`rest`, `disabled`, `loading`, `error`, `empty`, `selected`; the
-  pointer and focus states stay in the roster and draw no frame), in both modes and both densities;
-  `showcaseCells()`, every frame's id. Every frame carries
-  `data-cell="<component>/<cell>/<state>/<mode>/<density>"`.
-- `@fcalell/plugin-react-ui/showcase/frame`: `Frame`, the wrapper a frame is drawn in: its
-  `data-cell`, its mode's class and the canvas ground. It takes the frame and
-  a drawer, and draws the component's name and the cell's strings where there is none.
-- `@fcalell/plugin-react-ui/showcase/frames/<dir>`: one component's drawer, `draw<Name>`.
-
-A component's frames are drawn by one function in `src/ui/showcase/frames/<dir>.tsx`: it takes the
-frame and returns the real component in that cell and state, or `undefined` for a cell the
-component has no form for. The frames stay out of the component directory, so a component never
-depends on the showcase. A state the component takes as a prop (`disabled` through `blocked`,
-`loading`, `error`, `selected`, `empty`) is drawn by passing it. A pointer or focus look is drawn
-nowhere: the real component takes it from the pointer and the keyboard, and the critique drives it
-there.
-
-The other pages (`/foundations`, `/tv`) are `./showcase/foundations` and `./showcase/tv`;
-the URL holds `/foundations`' view (`?mode=dark&density=desktop`) and its toggles set those two
-parameters, keeping the rest and storing nothing. The places of one app composed from the
-components are the showcase app's own routes (`apps/showcase/src/app/routes`), drawn by the screens
-workbench.
 
 ## Slots
 

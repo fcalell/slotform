@@ -1,7 +1,7 @@
 {
 	"name": "@fcalell/plugin-react-ui",
 	"version": "0.1.0",
-	"description": "The web half of the stack design system: the @fcalell/ui-core contract rendered on Tailwind v4, with the roster and a showcase.",
+	"description": "The web half of the stack design system: the @fcalell/ui-core contract rendered on Tailwind v4, with the roster.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
@@ -82,12 +82,7 @@
 		"./lib/navigate": "./src/ui/lib/navigate.ts",
 		"./lib/not-found": "./src/ui/lib/not-found.tsx",
 		"./lib/player": "./src/ui/lib/player.ts",
-		"./lib/toast": "./src/ui/lib/toast.ts",
-		"./showcase/foundations": "./src/ui/showcase/foundations.tsx",
-		"./showcase/tv": "./src/ui/showcase/tv.tsx",
-		"./showcase/cells": "./src/ui/showcase/cells.ts",
-		"./showcase/frame": "./src/ui/showcase/frame.tsx",
-		"./showcase/frames/*": "./src/ui/showcase/frames/*.tsx"
+		"./lib/toast": "./src/ui/lib/toast.ts"
 	},
 	"files": [
 		"dist",
@@ -124,9 +119,7 @@
 	"dependencies": {
 		"@base-ui/react": "^1.8.0",
 		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-auth": "workspace:^",
-		"@fcalell/plugin-query": "workspace:^",
 		"@fcalell/plugin-react": "workspace:^",
 		"@fcalell/plugin-screens": "workspace:^",
 		"@fcalell/plugin-vite": "workspace:^",

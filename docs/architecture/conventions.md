@@ -29,15 +29,13 @@ before (there is no `prepublishOnly`); `files` lists `dist` and `src` (and the
 `guide`, `templates` or `lint` a package ships, never a test or a `tsconfig`); `clear` removes `dist`. How the
 packages are versioned, which peers a stack package may state and the publish order: `releasing.md`.
 
-Each `exports` entry a bundler compiles (`.tsx`, `.css`, anything under `src/ui/`, the
-`./showcase/frames/*` pattern) points at source; every other entry is
-`{ "types": "./dist/<path>.d.ts", "default": "./dist/<path>.js" }`. A source entry reaches a
+Each `exports` entry a bundler compiles (`.tsx`, `.css`, anything under `src/ui/`) points at
+source; every other entry is `{ "types": "./dist/<path>.d.ts", "default": "./dist/<path>.js" }`. A source entry reaches a
 sibling module that also ships compiled through the package's own name, never a relative path,
 or the bundle holds two copies of that module. An entry's target is one string, never an array: a
 bundler takes an array's first target whether or not the file exists, where tsc tries each, so an
-array type-checks and fails the consumer's build. A pattern names one extension
-(`"./showcase/frames/*": "./src/ui/showcase/frames/*.tsx"`) and each module of the other extension gets its own entry
-(`"./lib/words": "./src/ui/lib/words.tsx"`).
+array type-checks and fails the consumer's build. A source entry names one module
+(`"./lib/toast": "./src/ui/lib/toast.ts"`), never a pattern.
 Vite's dev optimizer skips a `.tsx` entry unless told otherwise, so plugin-vite's generated config
 adds `.tsx` to `optimizeDeps.extensions`.
 

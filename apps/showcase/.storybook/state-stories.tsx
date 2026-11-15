@@ -1,6 +1,6 @@
-import { showcaseFrames } from "@fcalell/plugin-react-ui/showcase/cells";
-import { type Draw, Frame } from "@fcalell/plugin-react-ui/showcase/frame";
 import type { StoryObj } from "@storybook/react-vite";
+import { showcaseFrames } from "../src/roster/cells.ts";
+import { type Draw, Frame } from "../src/roster/frame.tsx";
 
 const FRAMES = showcaseFrames();
 
