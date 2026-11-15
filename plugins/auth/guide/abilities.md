@@ -39,8 +39,8 @@ denial copy.
 ## On the client
 
 Return `packAbility(ability)` on the query's output, typed `PackedRuleSet`, and pass it to
-`useAbility(organizationId, data?.rules)`, which layers it over the caller's role (api's
-abilities page, `node_modules/@fcalell/plugin-api/guide/abilities.md`). Outside an organization, `unpackAbility(rules)`
+`useAbility(organizationId, data?.rules)`, which layers it over the caller's role (the query plugin's
+abilities page, `node_modules/@fcalell/plugin-query/guide/abilities.md`). Outside an organization, `unpackAbility(rules)`
 rebuilds it.
 
 ## Rules

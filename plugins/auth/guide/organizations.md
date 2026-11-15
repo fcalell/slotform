@@ -103,7 +103,7 @@ app as an `ORPCError` (`FORBIDDEN`, with Better Auth's `data.code`).
 ## Abilities
 
 `auth({ organization })` serves the caller's compiled rules per organization, and the client's
-`useAbility(organizationId)` reads them (api's abilities page, `node_modules/@fcalell/plugin-api/guide/abilities.md`).
+`useAbility(organizationId)` reads them (the query plugin's abilities page, `node_modules/@fcalell/plugin-query/guide/abilities.md`).
 Rules from a record's own data are in [abilities](./abilities.md).
 
 **Check:** `stack generate`, then `pnpm check` passes.
