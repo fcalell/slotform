@@ -275,11 +275,6 @@ export const vite = plugin("vite", {
 				args: [],
 			}),
 		),
-		// plugin-api's `tanstack-query` imports `virtual:stack-schema`, which `schemaPlugin`
-		// serves.
-		self.slots.optimizeExclude.contribute(() => [
-			"@fcalell/plugin-api/tanstack-query",
-		]),
 
 		// Contribute the dev-server localhost origin to the dev-only CORS list
 		// unless the consumer has overridden `app.origins` entirely. Reads
