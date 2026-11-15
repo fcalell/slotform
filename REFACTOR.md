@@ -413,8 +413,35 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 done; F2 done for the stable packages; F3 done where rows are derivable now; F4 next (see Step 4 log) |
+| 4 Fixes | F1 to F3 done and gated; F4 committed, unverified; phase 1 of the orchestration running (see Orchestration and Step 4 log) |
 | 5 Fresh-agent checks | not started |
+
+## Orchestration (owner's instruction, given after F4)
+
+Work is parallel: the main session orchestrates agents whose perimeters do not overlap. **No build
+and no check runs until all the work is in**; the gate, `release:check`, the screen comparison and
+the fresh-agent checks happen once, at the end. Every commit from F4 on is therefore unverified
+until then, and the final gate is expected to need a fix-up round.
+
+Every agent reads `.refactor/agent-rules.md` (perimeter, no build or check, no git state change,
+self-review pass, report sections) and its own brief. Work that needs a file outside an agent's
+perimeter comes back in its report and is applied by the next phase. A commit is made per agent
+perimeter when it reports.
+
+| Phase | Agents (model) and perimeter | Brief | State |
+| --- | --- | --- | --- |
+| 1 | F5 core (Opus): `plugins/api`, new `plugins/query`, ui-core except the four roster files, cli `stack-packages.ts`, `scripts/release-check.ts`, `slot-catalog.md`, `runtime.md`. Writes `.refactor/f5/map.md` | `.refactor/f5/core-brief.md` | running |
+| 1 | F6 roster split (Opus): ui-core `roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`, `design-md.ts`, `roster/`, `docs/architecture/ui-core.md` | `.refactor/f6/brief.md` | running |
+| 1 | F10 row rules (Sonnet), one each: cli (not `stack-packages.ts`); cloudflare, expo, react, vite; db; node; auth; screens | `.refactor/f10/brief.md` | running |
+| 2 | F5 apply (Sonnet), one each from the map: react-ui; native-ui; screens, node, expo, vite, auth; the apps. F7 core (Opus): the shared logic's home in ui-core's per-concept modules, plus `.refactor/f7/map.md` | to write when the map exists | waits for phase 1 |
+| 3 | Per UI plugin (Opus), one each: apply the F7 map, then F8 (parts layer, cycles, walk-exception owners for react-ui with `plugins/screens/src/ui/walk.ts`). Stream stop and the reply helper (P7). F10 and the F2 leftovers for api and ui-core. F10 for the apps | to write | waits for phase 2 |
+| 4 | F9 showcase leaves react-ui for `apps/showcase` (Opus). Then F10 and the F2 leftovers for react-ui; native-ui in parallel | to write | waits for phase 3 |
+| 5 | F11 tests per package; F12 docs sweep, including every `docs to change` row the agents reported | to write | waits for phase 4 |
+| 6 | Main session: `pnpm install`, `pnpm check`, fix-ups, `pnpm release:check`, the screen comparison against `686cd3e1`, step 5 | | last |
+
+F7 refinement: shared derivations go into ui-core's per-concept model modules (the style of
+`action-bar.ts`, `form.ts`, `pick.ts`), not into the roster contract files, so F6 and F7 do not
+write the same files.
 
 ## Step 4 log
 
@@ -426,6 +453,7 @@ Owner's answers:
 | F2 part 2, slots | closed: kept by the owner's decision | | Table `.refactor/f2/slots.md`: 54 slots, none unread, 32 used across packages, 22 touched only by their own plugin. No slot changed; two catalog rows added |
 | F2 part 2, volatile packages | after F5 to F9 | | The same row kinds, and the one-importer rows N1-01, N1-05, N1-13, N1-16, in api, ui-core, react-ui, native-ui |
 | F3 derived lists, part done now | done (`b60912e4`, `14fa7fb2`, `b3ed1912`) | exit 0: 30 type tasks, 25 test tasks, 538 tests, Biome 929 files; `release:check` exit 0, and exit 1 with `FAIL @fcalell/plugin-expo is in no consumer` when expo is dropped from its consumer (run with `--only none --no-build`, then restored) | Of the 29 H5 rows: **3 done** (`MOTION_CELLS` removed, nothing read it and DESIGN.md is unchanged; the Storybook breath pattern no story id matches and the `behaviour` include of a missing folder removed; `release:check` now fails a plugin in none of its three consumers). **5 kept with the fact:** the Lucide `IconName` union (written by `scripts/icon-name.ts`, its test holds it to Lucide), `YIELDS_LAST_EACH` (Tailwind reads a class as written, so it cannot be composed), `apply-motion` SITES (a typed record that throws on a miss), auth `BASE_CONTEXT` (held by `keyof`), auth `CALLBACK_MARKERS` (strings of an on-disk template; the test is the link). **16 move with their files:** roster against component folders, `draws`, `owns`, `FAMILIES` and the 72 `build(X)` exports in F6; the walk-exception owners (5 rows) in F8; the six showcase rows in F9; the plugin-api `exports`, `slots` and `guide` lists after F5. **1 is a test:** the auth DDL, in F11. **4 await the owner:** `STACK_PACKAGES` |
+| F4 file cycles | committed (`29e4ce97` to `e50311f4`), **not verified** | The one gate run failed: `@fcalell/plugin-node#check-types` exit 2, two tests imported `NodeWorker` from `create-node-server.ts`. Both now import it from `server/worker.ts`; fixed by reading, not re-run. The run stopped there, so the rest of F4 is unverified too | File cycles 8 to 3 (the three left are the UI plugins' component cycles, F8). cli: `src/config.ts` is a leaf, `src/index.ts` is the package entry. ui-core: `kindOf` and `scrambles` moved from `scramble.ts` to `paint.ts`. node: `PAUSE_AFTER` in the client, `ServiceLogger` in `server/log.ts`, `NodeWorker` in `server/worker.ts`. Public moves, stead uses 0 each: `kindOf` `ui-core/scramble` to `ui-core/paint`; `PAUSE_AFTER` `plugin-node/live` to `plugin-node/client`. Kept: `add` importing `uninstall` from the `remove` command (commands call each other's operations, as four do with `generate`); `lib/` and `templates/` importing each other at folder level (no file cycle). N1-24's native-ui row goes to F8 |
 
 Owner's decisions after F2 part 1 (applied in `7d0fbdc9`, `7ebe81fb`, `6f4786d9`; gate exit 0, 538 tests; `release:check` exit 0):
 
