@@ -24,7 +24,6 @@ import {
 	serverTypesSource as renderServerTypes,
 	SERVER_MANIFEST,
 	SERVER_SCHEMA,
-	serverRoot,
 } from "./node/server-client.ts";
 import {
 	type CallbackSpec,
@@ -906,7 +905,7 @@ export const api = plugin("api", {
 			if (server === undefined) return undefined;
 			return {
 				name: "server-schema",
-				paths: posix.join(serverRoot(server), SERVER_SCHEMA),
+				paths: posix.join(posix.normalize(server), SERVER_SCHEMA),
 				debounce: 300,
 				async handler() {
 					await writeFile(

@@ -15,8 +15,6 @@ import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { ApiError } from "../error.ts";
 
 export const DEFAULT_LIMIT = 20;
-// What a paginated procedure accepts unless it names its own `maxLimit`.
-export const MAX_LIMIT = 100;
 // What no procedure may name as its `maxLimit`: a page this large is a table
 // scan the client asked for by mistake.
 export const LIMIT_CEILING = 10_000;

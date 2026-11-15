@@ -1,6 +1,6 @@
 import { ORPCError, os } from "@orpc/server";
 import { z } from "zod";
-import { DEFAULT_LIMIT, LIMIT_CEILING, MAX_LIMIT } from "./lib/cursor.ts";
+import { DEFAULT_LIMIT, LIMIT_CEILING } from "./lib/cursor.ts";
 import type { Procedure } from "./types.ts";
 import {
 	ENTITY_NAME_RE,
@@ -660,6 +660,9 @@ function createEntityHeadersMiddleware(
 		return result;
 	};
 }
+
+// What a paginated procedure accepts unless it names its own `maxLimit`.
+const MAX_LIMIT = 100;
 
 // The input a paginated procedure adds: the page (a cursor, or an offset) and
 // its size, and the sort when columns are declared. A `maxLimit` below the
