@@ -61,8 +61,6 @@ function jsonSchema(schema: z.ZodType): JsonSchema {
 	}) as JsonSchema;
 }
 
-// A procedure declared with no `.input`, or with `.input(z.undefined())` or
-// `.input(z.void())`, takes no input: the empty object.
 function takesNoInput(schema: z.ZodType | undefined): schema is undefined {
 	if (schema === undefined) return true;
 	const type = schema._zod.def.type;

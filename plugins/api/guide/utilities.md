@@ -38,7 +38,7 @@ number of order columns answers `BAD_REQUEST`.
 key it names, and `id` and the order columns always stay because the cursor reads them. A malformed
 cursor (not base64, no separator, a non-numeric time, an empty id) answers `BAD_REQUEST`, before
 any query. `clampLimit(limit)` keeps a limit within 1 to
-`MAX_LIMIT` (100), defaulting to `DEFAULT_LIMIT` (20).
+`LIMIT_CEILING` (10 000), defaulting to `DEFAULT_LIMIT` (20).
 
 ## Window pagination
 

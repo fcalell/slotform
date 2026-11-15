@@ -23,6 +23,7 @@ export function isLocalOrigin(origin: string): boolean {
 		if (hostname === "localhost.localdomain") return true;
 		return false;
 	} catch {
+		// A string `URL` cannot parse is not a local origin.
 		return false;
 	}
 }

@@ -77,9 +77,8 @@ function splitHeaderValue(value: string): string[] {
 		.filter((entity) => entity.length > 0);
 }
 
-// Derives the "todos/list" pathKey from an oRPC operation key's path segment
-// (index 0 of the `[path, options]` tuple `@orpc/tanstack-query` produces for
-// both query and mutation keys).
+// The "todos/list" pathKey sits at index 0 of the `[path, options]` tuple
+// `@orpc/tanstack-query` produces for both query and mutation keys.
 function pathKeyFromOperationKey(
 	key: readonly unknown[] | undefined,
 ): string | undefined {

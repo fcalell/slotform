@@ -22,8 +22,6 @@ const INTERNAL = {
 	message: "Internal server error",
 };
 
-// ---------- Tools ----------
-
 interface McpTool {
 	name: string;
 	description: string;
@@ -38,6 +36,7 @@ type Convert = (value: unknown) => unknown;
 
 // The schemas a walk of `def` reaches below the one holding it.
 function children(schema: z.ZodType): z.ZodType[] {
+	// zod's `def` is a union keyed by `type`; the walk reads each member's own fields by name.
 	const def = schema._zod.def as unknown as Record<string, unknown>;
 	const found: unknown[] = [];
 	switch (def.type) {
@@ -225,8 +224,6 @@ export function buildMcpTools(
 	return tools;
 }
 
-// ---------- A call ----------
-
 interface CallExtra {
 	// What the procedure runs with: the stack context, the pinned tenancy and
 	// the verified caller.
@@ -269,8 +266,6 @@ async function runTool(
 		return toResult(INTERNAL, true);
 	}
 }
-
-// ---------- The endpoint ----------
 
 type Sdk = typeof import("@modelcontextprotocol/server");
 
@@ -366,8 +361,7 @@ export function createMcpEndpoint(options: {
 	};
 }
 
-// ---------- The route ----------
-
+// The two guards live in ./index.ts, which imports this module, so they come in as dependencies.
 interface McpRouteDeps {
 	endpoint: McpEndpoint;
 	// A browser Origin the worker's CORS list does not carry.

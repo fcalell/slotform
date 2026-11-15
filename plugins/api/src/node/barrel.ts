@@ -28,20 +28,32 @@ function basenameWithoutExt(file: string): string {
 	return file.replace(/\.tsx?$/, "");
 }
 
-export function generateRouteBarrel(cwd: string): string {
-	const routesDir = join(cwd, "src", "worker", "routes");
-	let entries: string[];
-
+// A missing routes directory (or a file standing where a parent directory
+// should be) is an app with no routes; any other read failure is not.
+function routeFiles(cwd: string): string[] {
 	try {
 		// `withFileTypes: false` (the default) — we only want top-level
 		// regular files. Nested directories appear here as plain names and
 		// are filtered out by the extension check.
-		entries = readdirSync(routesDir).filter(isRouteFile);
-	} catch {
-		entries = [];
+		return readdirSync(join(cwd, "src", "worker", "routes")).filter(
+			isRouteFile,
+		);
+	} catch (error) {
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"code" in error &&
+			(error.code === "ENOENT" || error.code === "ENOTDIR")
+		) {
+			return [];
+		}
+		throw error;
 	}
+}
 
-	// Detect ambiguous basenames before sorting/dedupe collapses them.
+export function generateRouteBarrel(cwd: string): string {
+	const entries = routeFiles(cwd);
+
 	const byBasename = new Map<string, string[]>();
 	for (const entry of entries) {
 		const base = basenameWithoutExt(entry);
@@ -73,15 +85,8 @@ export function generateRouteBarrel(cwd: string): string {
 	return `${GENERATED_HEADER}\n${exports ? `${exports}\n` : ""}`;
 }
 
-// Returns true when there is at least one routable file in the consumer's
-// `src/worker/routes` directory. The plugin's source slot uses this to
-// short-circuit emission — there's no point writing a header-only barrel
-// when no routes exist (and downstream imports have nothing to consume).
+// The plugin's source slot short-circuits emission on false: a header-only
+// barrel has nothing downstream to consume.
 export function hasRoutableFiles(cwd: string): boolean {
-	const routesDir = join(cwd, "src", "worker", "routes");
-	try {
-		return readdirSync(routesDir).some(isRouteFile);
-	} catch {
-		return false;
-	}
+	return routeFiles(cwd).length > 0;
 }

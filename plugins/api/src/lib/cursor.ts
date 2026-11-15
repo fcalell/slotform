@@ -105,12 +105,9 @@ export function decodeCursor(cursor: string): {
 	return { values: values as CursorValue[], id };
 }
 
-/** A limit within 1 and `max` (`LIMIT_CEILING`, since the procedure's own `maxLimit` already bounded what it took), defaulting to `DEFAULT_LIMIT`. */
-export function clampLimit(
-	limit: number | undefined,
-	max: number = LIMIT_CEILING,
-): number {
-	return Math.max(1, Math.min(limit ?? DEFAULT_LIMIT, max));
+/** A limit within 1 and `LIMIT_CEILING` (the procedure's own `maxLimit` already bounded what it took), defaulting to `DEFAULT_LIMIT`. */
+export function clampLimit(limit: number | undefined): number {
+	return Math.max(1, Math.min(limit ?? DEFAULT_LIMIT, LIMIT_CEILING));
 }
 
 /** Drizzle's relational `columns`, narrowed to exclusion so `id` stays; the order columns stay too, whatever it names. */
@@ -141,8 +138,7 @@ export interface PaginatedResult<T> {
 	nextCursor: string | null;
 }
 
-// The order columns of a page: the caller's sort, else the default. An
-// unknown sort column answers BAD_REQUEST (a procedure that declares `sort`
+// An unknown sort column answers BAD_REQUEST (a procedure that declares `sort`
 // already refuses it at the schema).
 function orderOf(options: PageOptions<unknown, string>): Order[] {
 	const { sort, idColumn } = options;
@@ -175,7 +171,6 @@ function isColumn(value: Orderable): value is SQLiteColumn {
 	return is(value, Column);
 }
 
-// The row key each order column is read from: the table's key for it.
 function keysOf(orders: readonly Order[], idColumn: SQLiteColumn): string[] {
 	const columns = Object.entries(getTableColumns(idColumn.table));
 	return orders.map(({ column }) => {
@@ -212,6 +207,8 @@ function after(
 			value: cursor.id,
 		},
 	];
+	// Each step's column is of some type the value must match; `SQLiteColumn`
+	// does not carry it, so the comparison takes the value as `never`.
 	const branches = steps.map((step, at) => {
 		const equal = steps
 			.slice(0, at)

@@ -117,9 +117,7 @@ export function createClient<TRouter>(
 				...init,
 				credentials: config?.credentials ?? "include",
 			});
-			// Capture the entity headers
-			// for cache invalidation. Never let a capture failure break the
-			// response passed back to the RPC link.
+			// Never let a capture failure break the response passed back to the RPC link.
 			try {
 				captureEntityHeaders(
 					pathKeyFromRequestUrl(request.url, urlNow()),
@@ -143,10 +141,8 @@ export function createClient<TRouter>(
 
 	const client = createORPCClient<RouterClient<TRouter>>(link);
 
-	// The first client any consumer
-	// creates becomes `useAbility()`'s default target, zero config. A later
-	// `createClient` call never overwrites it; an explicit `registerApiClient`
-	// always does (see the registration above).
+	// A later `createClient` call never overwrites the registered client; an
+	// explicit `registerApiClient` always does.
 	if (getRegisteredApiClient() === undefined) {
 		registerApiClient(client);
 	}

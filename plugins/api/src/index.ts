@@ -79,8 +79,6 @@ export const apiOptionsSchema = z.object({
 
 export type ApiOptions = z.input<typeof apiOptionsSchema>;
 
-// ── Slot declarations ──────────────────────────────────────────────
-//
 // Every worker fragment the plugin owns is a slot; peer plugins contribute
 // into them by importing `api.slots.*` and calling `.contribute(fn)`. The
 // final `.stack/worker.ts` comes out of the `workerSource` derivation, which
@@ -136,7 +134,6 @@ const middlewareCalls = slot.derived({
 		aggregateMiddleware({ entries: inp.entries }).calls,
 });
 
-// Derived view of middleware imports (deduplicated).
 const middlewareImports = slot.derived({
 	source: SOURCE,
 	name: "middlewareImports",
@@ -275,7 +272,6 @@ function handlerMount<TIdentifier extends string>(
 	});
 }
 
-// The queue consumer's mount (`src/worker/queue.ts`).
 const queueHandler = handlerMount("queueHandler", QUEUE_FILE, "queue");
 
 // The cron handler's mount (`src/worker/scheduled.ts`).

@@ -5,12 +5,10 @@ import type { MiddlewareHandler } from "hono";
 // read's input (an email, an id, a search term) in the worker's logs. This one
 // prints the method and the pathname only.
 
-// "12ms" under a second, "1.2s" from there.
 function formatDuration(ms: number): string {
 	return ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(1)}s`;
 }
 
-// The request line: the url's pathname, never its search or hash.
 export function pathnameOf(url: string): string {
 	const end = url.search(/[?#]/);
 	const head = end === -1 ? url : url.slice(0, end);
@@ -33,6 +31,7 @@ export function formatRequestLog(line: {
 	return `--> ${line.method} ${path} ${line.status} ${formatDuration(line.ms)}`;
 }
 
+// `print` is the test's seam: the worker prints through the console.
 export function requestLogger(
 	print: (line: string) => void = console.log,
 ): MiddlewareHandler {

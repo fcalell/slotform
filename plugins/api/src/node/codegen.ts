@@ -12,8 +12,6 @@ import type {
 	WorkerPayload,
 } from "./types.ts";
 
-// ── aggregateWorker ─────────────────────────────────────────────────
-//
 // Pure aggregator — ported unchanged from the event-bus era. Used as the
 // compute function for the derived `api.slots.workerSource` slot. Callbacks
 // are keyed by plugin name so the aggregator can splice them into the
@@ -140,8 +138,6 @@ export function aggregateWorker(payload: WorkerPayload): string {
 	const rendered = renderTsSourceFile(spec);
 	return rendered;
 }
-
-// ── aggregateMiddleware ─────────────────────────────────────────────
 
 const MIDDLEWARE_PHASE_ORDER: Record<
 	MiddlewarePayload["entries"][number]["phase"],

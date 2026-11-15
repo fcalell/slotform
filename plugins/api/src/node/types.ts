@@ -42,9 +42,7 @@ export interface CallbackSpec {
 	identifier: string;
 }
 
-// Models the .stack/worker.ts builder chain (internal to the worker source
-// derivation). Exposed as the input type of the `aggregateWorker` pure
-// function.
+// The input type of the `aggregateWorker` pure function.
 export interface WorkerPayload {
 	imports: TsImportSpec[];
 	base: TsExpression | null;
@@ -71,7 +69,6 @@ export interface MiddlewareCall {
 	method: "use" | "useAfterContext";
 }
 
-// Collects ordered middleware call expressions plus the imports they need.
 // The aggregator sorts entries by phase then `order` and feeds the result
 // into WorkerPayload's middlewareChain.
 export interface MiddlewarePayload {

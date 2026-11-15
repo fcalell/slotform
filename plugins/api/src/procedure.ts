@@ -53,8 +53,6 @@ export type Middleware<
 	TExtra extends Record<string, unknown>,
 > = (opts: { context: TContext; input: unknown }) => Promisable<TExtra>;
 
-// ---------- Option types ----------
-
 type Rbac<TStatements extends DefaultStatements> = {
 	[R in keyof TStatements & string]: readonly [
 		R,
@@ -141,15 +139,11 @@ export type ProcedureConfig<
 	| AuthOnlyOptions<TEntity>
 	| ScopedOptions<TStatements, TEntity>;
 
-// ---------- Rate limit types ----------
-
 export interface RateLimitBinding {
 	limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
 export type RateLimitKind = "ip" | "email";
-
-// ---------- Type derivation ----------
 
 type InferAuthContext<TContext> = TContext extends {
 	auth: {
@@ -247,8 +241,6 @@ type OutputSides<TSchema extends z.ZodType> = Sides<
 	z.output<TSchema>,
 	z.input<TSchema>
 >;
-
-// ---------- Builder interfaces ----------
 
 interface ProcedureWithInputOutput<
 	TContext,
@@ -377,8 +369,6 @@ export type ProcedureFactory<
 >(
 	config?: O,
 ) => ProcedureBuilder<ResolvedContext<O, TBase>, InputAdditions<O>>;
-
-// ---------- Middleware factories ----------
 
 // The refusal an auth layer's session lookup throws for a credential it
 // rejects, read structurally (api never imports the auth library): an error
@@ -671,8 +661,6 @@ function createEntityHeadersMiddleware(
 	};
 }
 
-// ---------- Runtime implementation ----------
-
 // The input a paginated procedure adds: the page (a cursor, or an offset) and
 // its size, and the sort when columns are declared. A `maxLimit` below the
 // default limit lowers the default with it.
@@ -736,7 +724,6 @@ function normalizeRateLimits(
 	return Array.isArray(rateLimit) ? rateLimit : [rateLimit as RateLimitKind];
 }
 
-// ---------- Internal oRPC chain shape ----------
 // We call a small subset of methods on the oRPC Builder / ProcedureBuilder*.
 // Modeling the full oRPC generic chain here would force us to re-derive all
 // of oRPC's internal type machinery; instead we describe just the surface we
@@ -855,7 +842,6 @@ function createBuilder<
 		return chain.handler(fn);
 	}
 
-	// The three terminal calls of a chain ending at `end`.
 	function terminals(end: (fn: OrpcHandlerFn) => OrpcTerminal) {
 		return {
 			handler: (fn: OrpcHandlerFn) =>
@@ -1009,14 +995,15 @@ export function createProcedure<
 		});
 	}
 
+	// `procedure` takes a config and returns a builder, but `ProcedureFactory`'s
+	// return type is derived from the config's literal type, which one runtime
+	// signature cannot state.
 	return procedure as unknown as ProcedureFactory<
 		TContext,
 		TStatements,
 		TEntity
 	>;
 }
-
-// ---------- Background jobs ----------
 
 // A queue batch as a handler sees it. Structural, so this package takes no
 // dependency on Cloudflare's types: a `MessageBatch` satisfies it.

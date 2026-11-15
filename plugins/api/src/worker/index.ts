@@ -59,8 +59,6 @@ async function ipLimited(
 	return !result.success;
 }
 
-// ---------- Worker export ----------
-
 export interface WorkerExport<
 	TRouter extends Record<string, unknown> = Record<string, unknown>,
 > {
@@ -86,8 +84,6 @@ export interface WorkerExport<
 	) => Promise<void>;
 	_router: TRouter;
 }
-
-// ---------- Builder types ----------
 
 interface PluginEntry {
 	// biome-ignore lint/suspicious/noExplicitAny: plugins have varying types
@@ -232,8 +228,6 @@ type JobScheduledHandler = (
 	context: never,
 ) => Promise<void>;
 
-// ---------- Base context ----------
-
 // `TEnv` is the env type the deploy target names (`Env` on Cloudflare), baked
 // into the generated `createWorker<Env>(...)`; `unknown` without one.
 export type BaseContext<TEnv = unknown> = {
@@ -247,8 +241,6 @@ export type BaseContext<TEnv = unknown> = {
 	executionCtx: { waitUntil(promise: Promise<unknown>): void };
 	[key: string]: unknown;
 };
-
-// ---------- ApiOptions (plain) ----------
 
 // One env var the worker asserts before serving. Baked at codegen
 // from `api.slots.env` and each entry's validation hints.
@@ -307,6 +299,7 @@ function assertEnvChecks(checks: EnvCheckSpec[], env: unknown): void {
 			try {
 				parsed = new URL(value);
 			} catch {
+				// A `devLocalhost` check alone judges no value that is not a URL.
 				if (!check.url) continue;
 				throw new Error(`Env var ${check.name} must be a valid URL`);
 			}
@@ -331,8 +324,6 @@ function workersContext(ctx: unknown): {
 	if (typeof given?.waitUntil !== "function") return { waitUntil: () => {} };
 	return { waitUntil: (promise) => given.waitUntil(promise) };
 }
-
-// ---------- createWorker ----------
 
 export default function createWorker<TEnv = unknown>(
 	options?: ApiWorkerOptions,
@@ -740,6 +731,8 @@ function createAppBuilder<
 				buildContext(env, {
 					executionCtx: workersContext(ctx),
 				});
+			// A mounted handler declares its own context type (`never` here, so any
+			// handler is assignable); the compiler cannot relate it to the built one.
 			const queueRun = mount?.queue;
 			const scheduledRun = mount?.scheduled;
 
@@ -767,8 +760,6 @@ function createAppBuilder<
 		},
 	} as AppBuilder<TContext>;
 }
-
-// ---------- Consumer helpers ----------
 
 // The injected plugin context (`db`, `auth`, `env`, …), for post-context
 // middleware and raw Hono routes. Annotate the call with the generated

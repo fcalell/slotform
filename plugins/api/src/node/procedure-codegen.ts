@@ -10,8 +10,6 @@ import {
 	ROUTES_BARREL_IMPORT_SOURCE,
 } from "./types.ts";
 
-// ── aggregateProcedure ────────────────────────────────────────────────
-//
 // Renders `.stack/procedure.ts` — the `virtual:stack-procedure` target the
 // README documents. Consumer route files (`src/worker/routes/*.ts`) import
 // `procedure` from here via a tsconfig `paths` alias (see
