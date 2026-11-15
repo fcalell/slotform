@@ -27,8 +27,7 @@ const logged = console.error;
 // roster's loading states, a screen's waiting form) spends its frames there
 // and every wait on one runs several times slower. A story judges a frame,
 // not the loop, so the breath is still (`--pulse-name: none`, what reduced
-// motion sets) except in the stories that test it.
-const BREATHES = /^behaviour-(wait-motion|motion-tuning)--/;
+// motion sets).
 
 const preview: Preview = {
 	beforeEach: () => {
@@ -63,9 +62,7 @@ const preview: Preview = {
 			document.documentElement.dataset.density = String(
 				context.globals.density,
 			);
-			if (BREATHES.test(context.id))
-				document.documentElement.style.removeProperty("--pulse-name");
-			else document.documentElement.style.setProperty("--pulse-name", "none");
+			document.documentElement.style.setProperty("--pulse-name", "none");
 			return (
 				<Providers>
 					<Story />

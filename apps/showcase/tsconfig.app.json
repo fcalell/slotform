@@ -9,7 +9,6 @@
 	},
 	"include": [
 		"src",
-		"behaviour",
 		"stories",
 		".stack/routes.d.ts",
 		".storybook",
