@@ -413,7 +413,7 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 done; F2 part 1 done; two questions open with the owner (see Step 4 log) |
+| 4 Fixes | F1 done; F2 part 1 done; F2 part 2 next (see Step 4 log) |
 | 5 Fresh-agent checks | not started |
 
 ## Step 4 log
@@ -424,21 +424,15 @@ Owner's answers:
 | F2 part 1: exports, files, subpaths | done (commits `26d34e1f` to `63d6724f`, plus the native-ui Menu entry) | exit 0: 30 type tasks uncached, 25 test tasks, 538 tests, Biome 923 files; `release:check` exit 0 | Ten Sonnet agents, one per package group, brief `.refactor/f2-brief.md`, per-row reports `.refactor/f2/*.md`. 906 rows (agents' counts): deleted 44, unexported 207, moved 48, kept stead 25, kept documented 108, kept signature 202, kept used 64 (the audit was wrong), kept test 45, kept one importer 129, not done 39 (showcase, F9). Checked apart from the agents by `.refactor/f2-verify.mjs`: stead imports none of the removed public names (2168 `@fcalell` specifier occurrences); no body line of the 16 deleted files is lost. `@fcalell/cli/codegen` restored: the cli agent deleted it though the README lists it. Files 866 to 852; cycles unchanged (8 all-import, 2 value) |
 | F2 part 2: slots, unions, shallow modules, pass-throughs | not started | | S2-02, S2-03, S2-04, S2-05, N4-01 to N4-04, S1-01, S1-03, S1-06, N1-32. One-importer rows in api, ui-core, react-ui, native-ui (N1-01, N1-05, N1-13, N1-16) wait until F5 to F9 have moved those files |
 
-Open with the owner after F2 part 1:
+Owner's decisions after F2 part 1 (applied in `7d0fbdc9`, `7ebe81fb`, `6f4786d9`; gate exit 0, 538 tests; `release:check` exit 0):
 
-1. One-importer moves. The rule "what one file imports is not exported" gave two outcomes. Four
-   agents kept single-importer modules (129 rows) because `conventions.md` fixes the package layout
-   or the module shares private helpers. Two agents emptied modules into their importer:
-   `packages/cli/src/templates/` keeps 3 of 8 templates (5 are in `commands/init.ts`, 439 to 615
-   lines; `lib/guide.ts` and `lintConfig` are in `lib/build-graph.ts`), and
-   `apps/showcase/src/app/fixtures/` keeps 2 of 6 files (4 are in `fixtures.ts`, 485 to 860 lines).
-   Recommended: a symbol moves beside its single importer when its home file stays or its whole kind
-   moves with it; a module is not emptied into its importer while siblings of its kind stay behind.
-   That undoes those three merges and keeps the other moves.
-2. Documented public surface nothing uses (108 rows, listed per package in `.refactor/f2/*.md` as
-   `kept documented`): api `./lib/cursor`, `./lib/window`, `./lib/selection`, `./mcp`; db's 17
-   unused `./orm` re-exports; native-ui's 16 component subpaths; `@fcalell/cli/codegen` (one helper,
-   `hasRuntimeExport`, no caller). Recommended: keep all but `cli/codegen`.
+- One-importer rule, replacing F2's "what one file imports is not exported": a symbol moves beside
+  its single importer when its home file stays, or when its whole kind moves with it. A module is
+  not emptied into its importer while siblings of its kind stay behind. The init templates,
+  `lib/guide.ts` with `lintConfig`, and the four showcase fixture files are separate modules
+  again. The 129 `kept one importer` rows stay kept, each with its reason in `.refactor/f2/*.md`.
+- Documented public surface nothing uses (108 rows) stays, except `@fcalell/cli/codegen`, which is
+  removed (stead uses: 0).
 
 Public names removed in F2 part 1 (stead uses of each: 0): plugin-api `./node/codegen`,
 `./node/types`, `WINDOW_PAGES`, `withPage`, `fetchScope`, `scopeQueryKey`, `ScopeLookupInput`,
