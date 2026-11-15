@@ -151,7 +151,7 @@ const wranglerToml = slot.derived({
 	source: SOURCE,
 	name: "wranglerToml",
 	inputs: wranglerInputs,
-	compute: (inp, ctx): string => renderWrangler(inp, ctx),
+	compute: renderWrangler,
 });
 
 // The config of a `stack screens serve` run: the same toml with the run's own
