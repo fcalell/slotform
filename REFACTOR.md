@@ -192,14 +192,14 @@ Every agent read `.refactor/brief.md`. N2 is `.refactor/volatility.ts` over `gra
 | `U14-U15.md` | both apps | 68 of 68, 19 of 19 |
 | `U16.md` | root, turbo, manifests | manifests by field dump |
 | `U17.md` | every Markdown file | path, command and count statements only |
-| `U17b.md`, `U17c.md`, `U17d.md` | behaviour claims: architecture docs; server guides; UI guides | running |
+| `U17b.md`, `U17c.md`, `U17d.md` | behaviour claims: architecture docs; server guides; UI guides | 25 pages read, claims sampled; 62 pages read; by script. Not merged into `problems/`: read them directly |
 | `X1.md` | react-ui against native-ui | from diffs and export lists |
 | `X3.md` | plugin-api against its importers | 11 files in full |
 | `N2.md` | volatility | script |
 
 Consolidation: four Sonnet agents merge the findings by question group into
 `.refactor/problems/{hidden,needless,surplus,special-tests}.md` following `.refactor/consolidate.md`
-(rows recounted, grouped into problems by mechanism, no fixes). State: running.
+(rows recounted, grouped into problems by mechanism, no fixes). State: done.
 
 Corrections the audit made to earlier statements in this file:
 
@@ -214,12 +214,70 @@ Corrections the audit made to earlier statements in this file:
 - The `stopAll` failure is in the test: `packages/cli/src/commands/dev.test.ts:72` sleeps 500 ms
   instead of waiting for the child's `up` line.
 
+## Problem list (step 2 result)
+
+`.refactor/problems/INDEX.md` lists every problem on one line (id, mechanism, rows). The rows are in
+`.refactor/problems/{hidden,needless,surplus,special-tests}.md`; each problem names its findings files.
+Step 3 starts from INDEX.md, opens a problem's rows only when designing its fix, and writes each fix
+above the problem ids it resolves.
+
+| Group | Code | Rows | Problems |
+| --- | --- | --- | --- |
+| Hidden links | H1 copies | 405 | 8 |
+| | H2 state another module sets | 177 | 8 |
+| | H3 features split by layer | 119 | 4 |
+| | H4 call orders | 109 | 5 |
+| | H5 pinned lists | 29 | 4 |
+| Needless links | N1 non-public imports, one-caller exports | 1207 | 33 |
+| | N2 uphill imports | 1108 of 2820 edges; 818 cross-package | tables in `needless.md` and `findings/N2.md` |
+| | N3 one-caller parameters | 204 | 6 |
+| | N4 shallow modules | 64 | 5 |
+| Surplus | S1 pass-through | 121 | 6 |
+| | S2 extension points that never vary | 145 | 6 |
+| | S3 no importer | 763 | 28 |
+| | S4 comments restating code | 573 in 266 files (a floor; 21,855 comment lines exist) | 1 |
+| Special cases | C1 one-value branches | 275 | 9 |
+| | C2 one-caller flags | 78 | 3 |
+| | C3 swallowed catches | 67 | 5 |
+| | C4 timers for events | 55 | 4 |
+| | C5 suppressions | 286 | 14 |
+| Tests | T1 pass when broken | 21 | 3 |
+| | T2 time, order, machine | 32 | 5 |
+| | T3 untested branching modules | 176 | 11 |
+| Docs | disproved statements | 43 (U17 9, U17b 10, U17c 9, U17d 15; floors) | in the findings files |
+
+Row counts are what the audits listed, recounted by the merge. Known limits: copies between the two UI
+plugins are partly counted twice (two audits, different line ranges); no-importer exports are word-grep
+results and are proven by the compiler at removal; `needless.md` dropped U12c-4's cycle-edge list as a
+repeat of U12c-2's, which is checked at the start of step 3.
+
+The largest mechanisms, which the step 3 design has to stand behind:
+
+1. One roster component lives in five places: ui-core data (`roster.ts`, `descriptors.ts`,
+   `variants.ts`, `variant-tables.ts`), a react-ui folder, a native-ui folder, plugin `lib/` and a
+   showcase frame. 70 of 77 `roster.ts` commits also touch a react-ui component; 52 touch both UI
+   plugins. (H1-01, H1-02, H3-02, H3-03, N2)
+2. ui-core is the most imported and the most changed package: 8.2 commits per file against 1.7 to
+   5.3 elsewhere; 546 of 818 uphill cross-package edges point at it.
+3. The UI plugins import plugin-api 155 times; about four fifths of the names are model shapes, one
+   fifth read and act hooks. plugin-api's `read.ts`, `acts.ts`, `ability-client.ts`, `scope.ts` mix
+   wire and model. (N1-06, N1-11, N1-12, N1-25; owner preference P1)
+4. Component folders import each other's internals and form one value-import cycle per UI plugin
+   (65 closing edges in react-ui, 22 in native-ui). (N1-03, N1-04, N1-07, N1-18)
+5. Generated and gitignored state feeds the gate: `.stack/**` is a turbo output of `generate` and
+   the `tsc -b` emit folder; the showcase type-checks `stories/` that only `pnpm stories` writes.
+   (H2-02, H4-03, the baseline failures)
+6. Public surface nobody uses: 52 `exports` subpaths and about 580 exported symbols with no importer.
+7. Checks outside the gate, and 13 package `check` scripts that write. (P6)
+8. Tests and tooling wait on fixed time: 9 tests, 16 tooling timers, 27 frame-count waits. (T2-01,
+   C4-01, C4-02)
+
 ## Progress
 
 | Step | State |
 | --- | --- |
 | 1 Additions | done |
-| 2 Problem list and checklist | audit done (28 agents); consolidation and the second docs audit running; problem list not yet presented |
+| 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | not started |
 | 4 Fixes | not started |
 | 5 Fresh-agent checks | not started |
