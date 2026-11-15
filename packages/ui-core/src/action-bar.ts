@@ -2,7 +2,6 @@
 import type { Act, ChosenCount } from "./descriptors.ts";
 import type { ActionBarFit, ButtonAct, ButtonFit } from "./variants.ts";
 
-/** The button fit an action bar's fit draws its acts at. */
 export const FIT: Record<ActionBarFit, ButtonFit> = {
 	end: "body",
 	full: "field",

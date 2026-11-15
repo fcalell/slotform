@@ -106,10 +106,8 @@ export interface LinkAct {
 	blocked?: string;
 }
 
-// An act of a slot that requires its glyph.
 export type IconAct = Act & { icon: IconName };
 
-// A link of a slot that requires its glyph.
 export type IconLinkAct = LinkAct & { icon: IconName };
 
 // A run of text: plain words, a quoted name (`quoted`: words given verbatim, in typographic

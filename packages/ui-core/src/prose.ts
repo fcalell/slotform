@@ -41,6 +41,7 @@ export function parts(tokens: readonly Token[]): Part {
 	for (const [token, key] of keyed(tokens, "b")) {
 		if (token.type === "space") continue;
 		if (token.type === "heading") {
+			// `marked`'s `Token` has a generic member, so the type test leaves the union wide.
 			const heading = token as Tokens.Heading;
 			const part: Part = { heading, key, blocks: [], parts: [] };
 			if (heading.depth <= 2) {
@@ -52,6 +53,7 @@ export function parts(tokens: readonly Token[]): Part {
 			// A deeper part stands among its holder's blocks, by a marker token.
 			const holder = top ?? root;
 			holder.parts.push(part);
+			// The marker carries only what a block's `type` and `raw` name.
 			holder.blocks.push({ type: "part", raw: key } as Tokens.Generic);
 			deep = part;
 			continue;

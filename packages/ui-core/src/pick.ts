@@ -27,10 +27,14 @@ export type PickOptions<V extends string | null> =
 export function groupsOf<V extends string | null>(
 	options: PickOptions<V>,
 ): readonly Grouped<V>[] {
+	return isGrouped(options) ? options : [{ options }];
+}
+
+function isGrouped<V extends string | null>(
+	options: PickOptions<V>,
+): options is readonly OptionGroup<V>[] {
 	const first = options[0];
-	if (first === undefined || !("options" in first))
-		return [{ options: options as readonly Option<V>[] }];
-	return options as readonly OptionGroup<V>[];
+	return first !== undefined && "options" in first;
 }
 
 /** The option a pick holds: the one equal to `value`; a pick of one holding nothing (`undefined`, as a form's untouched optional pick) holds the empty choice (the `null` option) when the list offers one, so it reads as that choice and never as a blank box. A pick of several holding nothing holds none. */
@@ -51,6 +55,7 @@ export function paintedGroups<V extends string | null>(
 	slots: { description?: unknown; group?: unknown } = {},
 ): PickOptions<V> {
 	const options = Array.from({ length: PAINT_ROWS }, (_, at) => ({
+		// A painted option's value is filler nobody reads, whatever `V` is.
 		value: `painted-${at}` as V,
 		label: "",
 		description: slots.description === undefined ? undefined : "",

@@ -1,3 +1,4 @@
+import { record } from "./record.ts";
 import {
 	BODY_SIZE,
 	type Density,
@@ -69,14 +70,10 @@ export function typeFor(
 	density: Density,
 	size = KNOB_DEFAULTS.size,
 ): Record<TypeRole, { size: string; leading: string }> {
-	const out = {} as Record<TypeRole, { size: string; leading: string }>;
-	for (const role of TYPE_ROLES) {
-		out[role] = {
-			size: `${sizeOf(density, role, size)}px`,
-			leading: `${leadingOf(density, role, size)}px`,
-		};
-	}
-	return out;
+	return record(TYPE_ROLES, (role) => ({
+		size: `${sizeOf(density, role, size)}px`,
+		leading: `${leadingOf(density, role, size)}px`,
+	}));
 }
 
 // A role is its multiple of the base, the base following the body size from
@@ -94,10 +91,10 @@ export function spacingFor(
 	density: Density,
 	size = KNOB_DEFAULTS.size,
 ): Record<SpacingRole, string> {
-	const out = {} as Record<SpacingRole, string>;
-	for (const role of SPACING_ROLES)
-		out[role] = `${spacingOf(density, role, size)}px`;
-	return out;
+	return record(
+		SPACING_ROLES,
+		(role) => `${spacingOf(density, role, size)}px`,
+	);
 }
 
 // A px width: a unit width is its count of the space base, which the `size`
@@ -158,9 +155,7 @@ export function sizesFor(
 	density: Density,
 	size = KNOB_DEFAULTS.size,
 ): Record<Size, string> {
-	const out = {} as Record<Size, string>;
-	for (const name of SIZES) out[name] = `${sizePx(density, name, size)}px`;
-	return out;
+	return record(SIZES, (name) => `${sizePx(density, name, size)}px`);
 }
 
 // Native's short measure in px: its characters at the sans figure advance of

@@ -799,7 +799,6 @@ export const DROP_LINE =
 export const DROP_ON =
 	"bg-wash-selected outline-2 -outline-offset-2 outline-ring";
 export const HAIRLINE = "border-edge";
-// The check or the dash on a checked box, at the meta glyph's size.
 export const CHECKBOX_MARK = `size-icon-meta text-on-accent ${CHECK_MARK}`;
 // A row's leading (an avatar, a glyph, a tick's box, a status mark) sizes to
 // what it holds and stands in the row's gap rhythm: no slot reserves room for
@@ -809,7 +808,6 @@ export const CHECKBOX_MARK = `size-icon-meta text-on-accent ${CHECK_MARK}`;
 export const ROW_LEADING =
 	"shrink-0 me-[calc(var(--spacing-pad)-var(--spacing-gap))]";
 export const ROW_LEADING_STATUS = "shrink-0";
-// A row's first line: its title (an option's label) and what trails it.
 export const ROW_TITLE_LINE = "gap-gap";
 // A one-line row's text: the title, then its facts' words an inside gap after it
 // on the same line.
@@ -1084,7 +1082,6 @@ export const FOOT_DOCKED =
 // A section's labelled act is words in the accent ink, as an empty state's act
 // is: the one filled act of a page is its bar's. One that removes or ends
 // something is in the danger ink.
-// An icon act that removes or ends something: the danger ink.
 export const ICON_BUTTON_DESTRUCTIVE = "text-danger";
 // An icon act that is the one its bar is for (play): the accent fill, with its
 // own hover, press and blocked looks in place of the wash.
@@ -1127,20 +1124,17 @@ export type AvatarStep = keyof (typeof AVATAR)["variants"]["step"];
 
 export type ContentTone = ColorName;
 
-// A list row's title form: the name, off a highlighted path (`dim`) or not.
 export function rowTitleForm(
 	dim: boolean,
 ): keyof (typeof ROW_TITLE)["variants"]["form"] {
 	return dim ? "dim" : "name";
 }
 
-// A status's colour: the dot's, or the running spinner's.
 export function statusContentTone(tone: Tone): ContentTone {
 	if (tone === "running") return toneOf(STATUS_SPINNER);
 	return toneOf(STATUS_DOT.variants.tone[tone]);
 }
 
-// A change mark's glyph ink, its kind's.
 export function changeContentTone(kind: ChangeKind): ContentTone {
 	return toneOf(CHANGE_MARK.variants.kind[kind]);
 }
@@ -1157,12 +1151,10 @@ export function imageAspect(
 	return aspect;
 }
 
-// A folded question's glyph ink.
 export function summaryContentTone(): ContentTone {
 	return toneOf(FORM_FIELD_SUMMARY_GLYPH);
 }
 
-// A row's warning glyph ink.
 export function rowWarningContentTone(): ContentTone {
 	return toneOf(ROW_WARNING);
 }
@@ -1171,6 +1163,7 @@ export function rowWarningContentTone(): ContentTone {
 export function avatarStep(name: string): AvatarStep {
 	let hash = 0;
 	for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	// `1` to `8` are the keys of the `AVATAR` matrix's `step`.
 	return String((hash % 8) + 1) as AvatarStep;
 }
 

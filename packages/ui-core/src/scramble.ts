@@ -63,6 +63,7 @@ function pick(
 	const epoch = Math.floor(
 		(tick + phase * cadence(seed, at)) / cadence(seed, at),
 	);
+	// The index is taken modulo the set's length, and no set is empty.
 	return set[mix(seed, at, 3 + epoch) % set.length] as string;
 }
 
@@ -151,33 +152,20 @@ export interface Ticker {
 	readonly size: number;
 }
 
-export interface Timers {
-	set(run: () => void, ms: number): unknown;
-	clear(handle: unknown): void;
-}
-
-const REAL: Timers = {
-	set: (run, ms) => setTimeout(run, ms),
-	clear: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
-};
-
 // A ticker over `interval()` ms, read at every step so a tuned `tick` reaches
 // the next one. One timer runs however many slots listen: twenty scrambles
 // cost one.
-export function createTicker(
-	interval: () => number,
-	timers: Timers = REAL,
-): Ticker {
-	let handle: unknown;
+export function createTicker(interval: () => number): Ticker {
+	let handle: ReturnType<typeof setTimeout> | undefined;
 	const ticks = createStore(0, {
 		source: (store) => {
 			const step = () => {
 				store.set(store.get() + 1);
-				handle = store.size > 0 ? timers.set(step, interval()) : undefined;
+				handle = store.size > 0 ? setTimeout(step, interval()) : undefined;
 			};
-			handle = timers.set(step, interval());
+			handle = setTimeout(step, interval());
 			return () => {
-				timers.clear(handle);
+				clearTimeout(handle);
 				handle = undefined;
 			};
 		},

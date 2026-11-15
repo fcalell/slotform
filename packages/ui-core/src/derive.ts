@@ -9,6 +9,7 @@ import {
 	oklchToRgb,
 	veiledLuminance,
 } from "./oklch.ts";
+import { record } from "./record.ts";
 import {
 	nativeMeasurePx,
 	sizesFor,
@@ -112,7 +113,6 @@ export interface ResolvedTheme {
 	};
 }
 
-// A knob's default, which the motion record carries.
 function motionKnob(name: MotionKnobName): number {
 	const knob = MOTION_KNOBS.find((entry) => entry.name === name);
 	if (!knob) throw new Error(`no motion knob ${name}`);
@@ -257,32 +257,20 @@ function resolveMode(mode: Mode, knobs: Knobs): Record<ColorName, string> {
 		memo.set(name, color);
 		return color;
 	};
-	const out = {} as Record<ColorName, string>;
-	for (const name of COLOR_NAMES) out[name] = format(resolve(name));
-	return out;
+	return record(COLOR_NAMES, (name) => format(resolve(name)));
 }
 
 function shadowsFor(mode: Mode, knobs: Knobs): Record<ShadowLevel, string> {
 	const ink = SHADOW_INK[mode];
 	const [r, g, b] = oklchToRgb(ink.l, ink.c, hueOf(ink.hue, knobs));
-	const out = {} as Record<ShadowLevel, string>;
-	for (const level of SHADOW_LEVELS) {
-		out[level] = SHADOW_LAYERS[level][mode]
+	return record(SHADOW_LEVELS, (level) =>
+		SHADOW_LAYERS[level][mode]
 			.map(
 				({ y, blur, alpha }) =>
 					`0 ${y}px ${blur}px rgba(${r}, ${g}, ${b}, ${alpha})`,
 			)
-			.join(", ");
-	}
-	return out;
-}
-
-function perDensity<T>(
-	build: (density: PixelDensity) => T,
-): Record<PixelDensity, T> {
-	const out = {} as Record<PixelDensity, T>;
-	for (const density of PIXEL_DENSITIES) out[density] = build(density);
-	return out;
+			.join(", "),
+	);
 }
 
 function knobsOf(parsed: ParsedTheme): Knobs {
@@ -309,34 +297,23 @@ function fontStack(family: string, role: FontRole): string {
 	return `${quoted(family)}, ${quoted(fallbackFace(family))}, ${FONT_FALLBACKS[role]}`;
 }
 
-function record<K extends string, V>(
-	keys: readonly K[],
-	value: (key: K) => V,
-): Record<K, V> {
-	const out = {} as Record<K, V>;
-	for (const key of keys) out[key] = value(key);
-	return out;
-}
-
 export function deriveTheme(theme: Theme = {}): ResolvedTheme {
 	const parsed = parseTheme(theme);
 	const knobs = knobsOf(parsed);
-	const colors = {} as Record<Mode, Record<ColorName, string>>;
-	const shadows = {} as Record<Mode, Record<ShadowLevel, string>>;
-	for (const mode of MODES) {
-		colors[mode] = resolveMode(mode, knobs);
-		shadows[mode] = shadowsFor(mode, knobs);
-	}
+	const colors = record(MODES, (mode) => resolveMode(mode, knobs));
+	const shadows = record(MODES, (mode) => shadowsFor(mode, knobs));
 	return {
 		defaultMode: parsed.defaultMode,
 		loading: record(LOADING_SLOTS, (slot) => parsed.loading?.[slot] ?? "pulse"),
 		knobs,
 		colors,
 		shadows,
-		type: perDensity((density) => typeFor(density, knobs.size)),
+		type: record(PIXEL_DENSITIES, (density) => typeFor(density, knobs.size)),
 		tracking: record(TRACKED_ROLES, (role) => TYPE_TRACKING[role]),
-		spacing: perDensity((density) => spacingFor(density, knobs.size)),
-		sizes: perDensity((density) => sizesFor(density, knobs.size)),
+		spacing: record(PIXEL_DENSITIES, (density) =>
+			spacingFor(density, knobs.size),
+		),
+		sizes: record(PIXEL_DENSITIES, (density) => sizesFor(density, knobs.size)),
 		radii: record(RADIUS_ROLES, (role) => `${radiusPx(role, knobs.radius)}px`),
 		widths: {
 			...record(MEASURES, (width) => `${MEASURE_CHARACTERS[width]}ch`),

@@ -4,7 +4,6 @@
 
 import type { CanvasEdge, CanvasNode, IconName } from "./descriptors.ts";
 
-// A handoff edge's glyph, drawn beside its label.
 export const HANDOFF_GLYPH: IconName = "ArrowRightLeft";
 
 // The edges between known nodes, as indices into `edges`, grouped by source

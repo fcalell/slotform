@@ -114,7 +114,6 @@ export const canvasEntry: RosterEntry = {
 	},
 };
 
-// A point on the canvas, in its own coordinates.
 export interface CanvasPoint {
 	x: number;
 	y: number;
@@ -354,6 +353,7 @@ const MARK_SEAT = {
 	call: "flush",
 	end: "inset",
 } as const;
+// `Object.keys` types its keys as `string`.
 const MARK_ROLES = Object.keys(MARK_SEAT) as Array<keyof typeof MARK_SEAT>;
 export const CANVAS_NODE_MARK = matrix({
 	base: "absolute flex",

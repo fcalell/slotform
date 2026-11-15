@@ -9,6 +9,7 @@ export interface CommitMoment<V> {
 	focus(value: V): void;
 	// Enter: `onCommit` hears `value` when it moved since focus, and it is
 	// the value the next commit compares against.
+	// With no `focus` before it, nothing commits.
 	commit(value: V, onCommit: (value: V) => void): void;
 	// The field lost focus: a commit, then the edit is over.
 	leave(value: V, onCommit: (value: V) => void): void;

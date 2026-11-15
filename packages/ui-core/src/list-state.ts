@@ -379,6 +379,8 @@ export function tableRecords<T>(
 	choose?: ChoiceSlots<T>,
 	painted = false,
 ): TableRecord[] {
+	// A slot that throws on filler answers the item itself, which a painted row
+	// reads as filler whatever `R` is.
 	const slot = <R>(fn: (item: T) => R, item: T): R =>
 		painted ? (painting(fn, item) as R) : fn(item);
 	return items.map((item) => ({
@@ -447,7 +449,6 @@ export function chooseHead(
 	return ticked === reach.length ? true : "mixed";
 }
 
-// A row's tick: its id in the chosen set, or out of it.
 export function chooseRow(
 	chosen: readonly string[],
 	id: string,
@@ -619,6 +620,8 @@ export function touchNamed(
 // elsewhere), and at any depth below them the rows marked `counted: true`
 // (a nested row that is an item in its own right). A nested
 // row is otherwise a part of its row, never counted.
+// A row is an `object` here: the descriptors the Section lists carry these
+// two members when they have them.
 type Counted = { counted?: boolean; children?: readonly object[] };
 export function listedRows(rows: readonly object[]): readonly object[] {
 	const nested = (row: object): readonly object[] =>
@@ -802,8 +805,9 @@ export function gridFloor(
 	let fractions = 0;
 	for (const [at, column] of columns.entries()) {
 		const { width } = column;
-		if (width !== undefined && width in FRACTION) {
-			fractions += FRACTION[width] as number;
+		const fraction = width === undefined ? undefined : FRACTION[width];
+		if (fraction !== undefined) {
+			fractions += fraction;
 		} else {
 			parts.push(columnFloor(column, age, fits[at]));
 		}
@@ -885,7 +889,6 @@ export function columnShown(
 	return place === 0 || (choice[column.key] ?? column.hidden !== true);
 }
 
-/** The columns that stand, in order. */
 export function visibleColumns<C extends Pick<TableColumn, "key" | "hidden">>(
 	columns: readonly C[],
 	choice: ColumnChoice,
@@ -1046,7 +1049,6 @@ export function sorted(
 // after); none when it holds neither, drawing nothing.
 export type ChangeCellKind = Exclude<ChangeKind, "unchanged" | "stale">;
 
-// A table cell that holds a change (the object with a `before`).
 export function isChangeCell(cell: TableCell | undefined): cell is ChangeCell {
 	return typeof cell === "object" && cell !== null && "before" in cell;
 }
@@ -1279,6 +1281,7 @@ export function splitFacts(facts: readonly unknown[] | undefined): FactParts {
 		else if (isWarningFact(fact)) parts.warnings.push(fact.warning);
 		else if (isChipFact(fact)) parts.chips.push(fact);
 		else if (isMarkFact(fact)) parts.marks.push(fact);
+		// Every member that is no mark is words.
 		else parts.words.push(fact as Run);
 	}
 	return parts;

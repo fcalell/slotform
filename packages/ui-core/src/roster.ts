@@ -99,7 +99,6 @@ export interface RosterEntry {
 	props: readonly string[];
 	draws: readonly string[];
 	states: readonly State[];
-	// The motion moves it makes (`MOVES`).
 	motion: readonly Move[];
 	owns?: Owns;
 	// The platforms that ship it; absent means both.
@@ -155,7 +154,6 @@ export function componentDir(name: string): string {
 	return name.replace(/(?<!^)[A-Z]/g, (ch) => `-${ch}`).toLowerCase();
 }
 
-// With a platform, only the entries that ship on it.
 export function rosterEntries(
 	platform?: Platform,
 ): Array<[Layer, string, RosterEntry]> {

@@ -5,7 +5,6 @@ import { PAINT_ROWS } from "./paint.ts";
 
 export type RailState = "done" | "ahead";
 
-// The rail below a stage: solid through the done ones.
 export const railBelow = (state: StepState | "ended"): RailState =>
 	state === "done" ? "done" : "ahead";
 

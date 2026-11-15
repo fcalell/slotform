@@ -11,6 +11,7 @@ function decode(text: string): string {
 	try {
 		return decodeURIComponent(text.replaceAll("+", " "));
 	} catch {
+		// A malformed escape (`%E0%A4`) stays as written.
 		return text;
 	}
 }
@@ -99,6 +100,7 @@ export function flatPlaces<P extends PlaceNode<string>>(
 	const out: P[] = [];
 	const walk = (level: readonly PlaceNode<string>[]) => {
 		for (const place of level) {
+			// `children` holds places of the same kind as their parent, `P`.
 			out.push(place as P);
 			if (place.children) walk(place.children);
 		}

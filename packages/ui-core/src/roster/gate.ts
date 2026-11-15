@@ -74,7 +74,6 @@ export const STEP_COUNT_SEGMENT = matrix({
 
 export const stepCountSegment = build(STEP_COUNT_SEGMENT);
 
-// StepCount: its segments a gap apart over its words.
 export const STEP_COUNT = "gap-gap";
 export const STEP_COUNT_SEGMENTS = "gap-gap";
 

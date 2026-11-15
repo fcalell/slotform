@@ -359,5 +359,9 @@ export type PlaceTabState = keyof (typeof PLACE_TAB)["variants"]["state"];
 // A place tab's content ink, its state's: the glyph reads it, and the label
 // repeats it. The cell also draws a border, so the text colour is the one read.
 export function placeTabContentTone(state: PlaceTabState): ContentTone {
-	return toneOf(PLACE_TAB.variants.state[state], "text");
+	const ink = PLACE_TAB.variants.state[state]
+		.split(" ")
+		.filter((name) => name.startsWith("text-"))
+		.join(" ");
+	return toneOf(ink);
 }

@@ -113,6 +113,7 @@ export function closeOpenRuns(markdown: string): string {
 			const strong: Opener = char === "~" ? "~~" : char === "*" ? "**" : "__";
 			while (left > 0) {
 				const two = left >= 2 ? stack.lastIndexOf(strong) : -1;
+				// Past the `~` test `char` is `*` or `_`, each an opener of its own.
 				const one = char === "~" ? -1 : stack.lastIndexOf(char as Opener);
 				if (two >= 0) {
 					stack.length = two;
@@ -131,6 +132,7 @@ export function closeOpenRuns(markdown: string): string {
 				stack.push(char === "*" ? "**" : "__");
 				left -= 2;
 			}
+			// `char` is `*` or `_` here, each an opener of its own.
 			if (left === 1) stack.push(char as Opener);
 		}
 	}

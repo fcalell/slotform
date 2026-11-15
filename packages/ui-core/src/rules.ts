@@ -15,7 +15,6 @@ import type {
 // glyph, which marks the value as a field and not typed text.
 export const PICKED_GLYPH: IconName = "Braces";
 
-// A typed form is the only one that carries `typed`.
 export function isTyped<V extends string | null>(
 	value: EitherValue<V>,
 ): value is { typed: string } {
@@ -31,7 +30,6 @@ export function termSet<V extends string | null>(value: RuleValue<V>): boolean {
 	return isTyped(either) ? either.typed !== "" : either.picked !== undefined;
 }
 
-// What a rule's term picks.
 export function termLabel<V extends string | null>(
 	value: RuleValue<V>,
 ): string {
@@ -99,6 +97,7 @@ export function marked<V extends string | null>(
 			? option
 			: { ...option, leading: { icon: PICKED_GLYPH } };
 	const first = options[0];
+	// A list is all options or all groups; its first member says which.
 	if (first === undefined || !("options" in first))
 		return (options as readonly Option<V>[]).map(mark);
 	return (options as readonly OptionGroup<V>[]).map((group) => ({

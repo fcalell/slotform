@@ -89,7 +89,6 @@ export function eased(curve: Easing, progress: number): number {
 	return bezier(EASING[curve], progress);
 }
 
-// The value `progress` of the way from `from` to `to`.
 export function mix(from: number, to: number, progress: number): number {
 	return from + (to - from) * progress;
 }

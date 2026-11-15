@@ -59,7 +59,6 @@ export const toastState = build(TOAST_STATE);
 export const TOAST =
 	"w-toast pl-pad pr-gap py-gap gap-gap rounded-card bg-raised border border-edge-raised shadow-float";
 
-// A toast's glyph ink, its tone's.
 export function toastContentTone(tone: Tone): ContentTone {
 	return toneOf(TOAST_STATE.variants.tone[tone]);
 }

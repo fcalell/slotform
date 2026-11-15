@@ -6,6 +6,10 @@ import type { DiffLine, Hunk } from "./descriptors.ts";
 // The lines of context a hunk keeps around its change, as git shows them.
 const CONTEXT = 3;
 
+// Every `as` below that reads a list at an index (`lines[at]`, `ops[start]`,
+// `numbers[at]`) reads inside the list: each loop bounds its index, and
+// `noUncheckedIndexedAccess` cannot see that.
+
 // One line of the edit: kept on both sides, or added or removed, its text with
 // its line end, so a last line without one differs from the same line with one.
 interface Op {

@@ -60,7 +60,6 @@ export const imageEntry: RosterEntry = {
 // lines.
 export const IMAGE_CAP_LINES = 20;
 
-// A failed image's glyph ink.
 export function imageContentTone(): ContentTone {
 	return toneOf(IMAGE_FAILED_INK);
 }

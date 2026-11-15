@@ -193,7 +193,6 @@ export const COLOR_NAMES: readonly ColorName[] =
 	Object.values(COLOR_GROUPS).flat();
 export type ColorName = (typeof COLOR_GROUPS)[ColorGroup][number];
 
-// A literal hue in degrees, the accent knob, or the cast knob.
 export type Hue = number | "accent" | "cast";
 
 // A contrast contract a role keeps at any accent or cast hue: the derivation lowers
@@ -317,6 +316,7 @@ type ChipColor =
 	| `chip-${ChipFamily}-ink`;
 
 function chipColors(): Record<ChipColor, ColorDeclaration> {
+	// The loop below declares the other keys.
 	const out = {
 		"chip-neutral-soft": { alias: "fill-neutral" },
 		"chip-neutral-ink": { alias: "ink-body" },
@@ -362,6 +362,7 @@ function chartColors(): Record<
 	`chart-${ChipHue | "neutral"}`,
 	ColorDeclaration
 > {
+	// The loop declares each hue's key and `chart-neutral` follows it.
 	const out = {} as Record<`chart-${ChipHue | "neutral"}`, ColorDeclaration>;
 	for (const family of CHIP_HUES) {
 		const { hue } = CHIP[family];
@@ -398,6 +399,7 @@ const AVATAR: Record<
 type AvatarColor = `avatar-${AvatarStep}` | `avatar-${AvatarStep}-ink`;
 
 function avatarColors(): Record<AvatarColor, ColorDeclaration> {
+	// The loop declares each step's two keys.
 	const out = {} as Record<AvatarColor, ColorDeclaration>;
 	for (const step of AVATAR_STEPS) {
 		const { hue, fill, ink } = AVATAR[step];
@@ -741,7 +743,7 @@ export type TypeRole = (typeof TYPE_ROLES)[number];
 export const TRACKED_ROLES = ["display", "title", "caption"] as const;
 export type TrackedRole = (typeof TRACKED_ROLES)[number];
 
-export type FontWeight = "regular" | "medium" | "semibold";
+export type FontWeight = "regular" | "medium";
 
 // The body size per density at the default `size` knob, the one base of the
 // scale: the knob is the desktop's, and touch and the room keep its ratio to

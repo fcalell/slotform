@@ -61,7 +61,6 @@ import {
 const WEIGHT: Record<FontWeight, number> = {
 	regular: 400,
 	medium: 500,
-	semibold: 600,
 };
 
 // What each color role is for, by use. A family's three and an avatar's two
@@ -194,7 +193,6 @@ const EASING_USE: Record<(typeof EASINGS)[number], string> = {
 	"in-out": "what moves between two places",
 };
 
-// What each move answers for the viewer.
 const MOVE_USE: Record<Move, string> = {
 	answer: "a state's look eases in: hover, selected, disabled, open, error",
 	give: "a filled control scales to the press under the finger",

@@ -110,6 +110,7 @@ export function moveEntry<T>(
 ): T[] {
 	const next = [...list];
 	const [entry] = next.splice(from, 1);
+	// `from` indexes the list, so the splice removed an entry.
 	next.splice(to, 0, entry as T);
 	return next;
 }

@@ -149,7 +149,6 @@ export function densityTokens(
 
 // ── The room set ────────────────────────────────────────────────────
 
-// The custom property that holds the room unit on the web.
 const ROOM_UNIT = "--room-unit";
 
 // The room unit as a CSS length: the screen over `ROOM_CANVAS` on the tighter
@@ -212,29 +211,20 @@ export function roomTokens<T>(
 // Native's short measure in the room: the px `nativeMeasureTokens` declares,
 // scaled. Native reads no `ch`, so there they scale with the room instead of
 // following the type.
-export function roomMeasureTokens<T>(
-	scale: (units: number) => T,
+export function roomMeasureTokens(
+	scale: (units: number) => number,
 	size: number,
-): Record<string, T> {
-	const tokens: Record<string, T> = {};
+): Record<string, number> {
+	const tokens: Record<string, number> = {};
 	for (const measure of MEASURES) {
 		tokens[`--container-${measure}`] = scale(nativeMeasurePx(measure, size));
 	}
 	return tokens;
 }
 
-// The focus ring's width and offset in the room, which the web's base rule
-// reads; native draws no ring.
-function roomRingTokens<T>(scale: (units: number) => T): Record<string, T> {
-	return {
-		"--focus-ring": scale(RING_PX),
-		"--focus-ring-offset": scale(RING_OFFSET_PX),
-		"--focus-ring-edge-offset": scale(RING_EDGE_OFFSET_PX),
-	};
-}
-
 // What the web declares under a room scope: the unit, then every room value
-// as a `calc` over it.
+// as a `calc` over it, then the focus ring's width and offset, which the web's
+// base rule reads (native draws no ring).
 export function roomScope(
 	radius: number,
 	size: number,
@@ -243,7 +233,9 @@ export function roomScope(
 	return {
 		[ROOM_UNIT]: roomUnit(),
 		...roomTokens(scale, radius, size),
-		...roomRingTokens(scale),
+		"--focus-ring": scale(RING_PX),
+		"--focus-ring-offset": scale(RING_OFFSET_PX),
+		"--focus-ring-edge-offset": scale(RING_EDGE_OFFSET_PX),
 	};
 }
 
@@ -297,6 +289,7 @@ export function shadowUtilities(): Record<
 	ShadowUtility,
 	Record<string, string>
 > {
+	// The loop declares each level's key.
 	const utilities = {} as Record<ShadowUtility, Record<string, string>>;
 	for (const level of SHADOW_LEVELS) {
 		utilities[`shadow-${level}`] = { "box-shadow": `var(--shadow-${level})` };

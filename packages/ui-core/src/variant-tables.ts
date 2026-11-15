@@ -375,7 +375,6 @@ export const FIELD = matrix({
 	defaultVariants: { trailing: "none", state: "rest" },
 });
 
-// The value a field holds, typed or chosen: body, or mono code.
 export const FIELD_VALUE = matrix({
 	base: "",
 	variants: {
@@ -390,7 +389,6 @@ export const FIELD_VALUE = matrix({
 
 // ── Switch and checkbox ─────────────────────────────────────────────
 
-// A box the control's icon square.
 export const CHECKBOX = matrix({
 	base: `size-icon-control rounded-chip ${ANSWER}`,
 	variants: {

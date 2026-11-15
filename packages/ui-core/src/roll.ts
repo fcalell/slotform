@@ -7,15 +7,9 @@
 export type Roll = "rise" | "fall";
 
 // The roll from `from` to `to`, by the sign of the change; none when the
-// figure is the same or is not a number. A clock's tick (a countdown, an age,
-// the time left) switches at once, since a roll a second is noise.
-export function rollOf(
-	from: number,
-	to: number,
-	clock = false,
-): Roll | undefined {
-	if (clock || Number.isNaN(from) || Number.isNaN(to) || from === to)
-		return undefined;
+// figure is the same or is not a number.
+export function rollOf(from: number, to: number): Roll | undefined {
+	if (Number.isNaN(from) || Number.isNaN(to) || from === to) return undefined;
 	return to > from ? "rise" : "fall";
 }
 

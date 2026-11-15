@@ -106,7 +106,6 @@ export const PENDING_FILL = `h-[calc(2*var(--spacing-hairline))] bg-ink-meta ${F
 export const PENDING_LEFT =
 	"tabular-nums text-meta leading-meta font-normal text-ink-meta";
 
-// A banner's glyph ink, its tone's.
 export function bannerContentTone(tone: Tone): ContentTone {
 	return toneOf(BANNER_GLYPH.variants.tone[tone]);
 }

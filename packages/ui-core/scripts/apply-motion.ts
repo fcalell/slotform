@@ -85,7 +85,9 @@ if (import.meta.main) {
 	try {
 		values = parseValues(readFileSync(file ?? 0, "utf8"));
 	} catch (error) {
-		console.error(`refused: ${(error as Error).message}`);
+		console.error(
+			`refused: ${error instanceof Error ? error.message : String(error)}`,
+		);
 		process.exit(1);
 	}
 	const tokens = new URL("../src/tokens.ts", import.meta.url);

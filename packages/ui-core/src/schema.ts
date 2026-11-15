@@ -92,7 +92,7 @@ export const wordsSchema = z.strictObject({
 
 // Throws an Error whose message names every offending key by its path, so a
 // consumer reads which knob it got wrong without decoding a ZodError.
-export function parseTheme(theme: Theme = {}): ParsedTheme {
+export function parseTheme(theme: Theme): ParsedTheme {
 	const result = themeSchema.safeParse(theme);
 	if (result.success) return result.data;
 	const detail = result.error.issues

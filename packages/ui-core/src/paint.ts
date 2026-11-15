@@ -4,6 +4,7 @@
 // form measures the same everywhere and the same filler comes back for the
 // same slot.
 
+import { record } from "./record.ts";
 import { createTicker, groupZeros } from "./scramble.ts";
 import { createStore } from "./store.ts";
 import {
@@ -15,7 +16,8 @@ import {
 } from "./tokens.ts";
 
 // The knobs' defaults (`MOTION_KNOBS` is the one source of every motion
-// number), by name.
+// number), by name. `fromEntries` types its keys as `string`; `MOTION_KNOBS`
+// names every `MotionKnobName`.
 const DEFAULTS = Object.fromEntries(
 	MOTION_KNOBS.map((knob) => [knob.name, knob.default]),
 ) as Record<MotionKnobName, number>;
@@ -48,9 +50,10 @@ export const subscribeMotion = motion.subscribe;
 
 // The paint each glyph slot's waiting form takes, set once from
 // `theme.loading` (omitted, all pulse).
-export const loading: Record<LoadingSlot, LoadingPaint> = Object.fromEntries(
-	LOADING_SLOTS.map((slot) => [slot, "pulse"]),
-) as Record<LoadingSlot, LoadingPaint>;
+export const loading: Record<LoadingSlot, LoadingPaint> = record(
+	LOADING_SLOTS,
+	(): LoadingPaint => "pulse",
+);
 
 export function setLoading(next: Partial<Record<LoadingSlot, LoadingPaint>>) {
 	Object.assign(loading, next);
@@ -84,26 +87,17 @@ export function scrambled(role: PaintRole): boolean {
 // `tuned.tick`.
 export const ticker = createTicker(() => tuned.tick);
 
-// The three waits as the older bench set them: one object whose members are
-// the knobs of the same names, so the two never disagree.
+// The three waits as live reads of the knobs of the same names, so the two
+// never disagree.
 export const timings = {
 	get waitDelay() {
 		return tuned.waitDelay;
 	},
-	set waitDelay(value: number) {
-		tune("waitDelay", value);
-	},
 	get actDelay() {
 		return tuned.actDelay;
 	},
-	set actDelay(value: number) {
-		tune("actDelay", value);
-	},
 	get waitMin() {
 		return tuned.waitMin;
-	},
-	set waitMin(value: number) {
-		tune("waitMin", value);
 	},
 };
 

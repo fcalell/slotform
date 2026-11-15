@@ -8,7 +8,6 @@ import { COLOR_NAMES } from "../tokens.ts";
 import type { Axes, Matrix } from "../variant-tables.ts";
 import type { ContentTone, Variant } from "../variants.ts";
 
-// A pressable control's four.
 export const PRESS = ["rest", "hover", "focus", "active"] as const;
 
 // Identity, for the contextual typing: it keeps each cell key literal so a
@@ -149,11 +148,10 @@ export const COLOR_SET: ReadonlySet<string> = new Set(COLOR_NAMES);
 // The matrices already carry the answer, so the tint a plugin hands to its
 // own glyph or spinner is read back off a cell's colour instead of being
 // written a second time.
-export function toneOf(cell: string, property = "text|bg|border"): ContentTone {
-	const read = new RegExp(`^(?:${property})-(.+)$`);
+export function toneOf(cell: string): ContentTone {
 	const tone = cell
 		.split(/\s+/)
-		.map((name) => read.exec(name)?.[1])
+		.map((name) => /^(?:text|bg|border)-(.+)$/.exec(name)?.[1])
 		.find((name) => name !== undefined && COLOR_SET.has(name));
 	// Every cell these read names a contract colour, which c22 pins.
 	return (tone ?? "ink-body") as ContentTone;

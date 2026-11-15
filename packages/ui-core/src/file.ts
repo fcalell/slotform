@@ -67,7 +67,7 @@ export function pickerTypes(accept: readonly string[]): string[] {
 // ("39 bytes"), then kilobytes, megabytes and gigabytes at one decimal below
 // ten ("9.1 kB", "12 kB"). Both platforms read it, so one file reads the same.
 const SIZE_UNITS = ["byte", "kilobyte", "megabyte", "gigabyte"] as const;
-export function fileSize(bytes: number, lang?: string): string {
+export function fileSize(bytes: number): string {
 	let value = Math.max(0, bytes);
 	let at = 0;
 	// 999.5 and above would round to 1000 in its own unit.
@@ -75,7 +75,7 @@ export function fileSize(bytes: number, lang?: string): string {
 		value /= 1000;
 		at++;
 	}
-	return formatterFor("number", lang, {
+	return formatterFor("number", undefined, {
 		style: "unit",
 		unit: SIZE_UNITS[at],
 		unitDisplay: at === 0 ? "long" : "short",

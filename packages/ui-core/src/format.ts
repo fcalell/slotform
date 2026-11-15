@@ -24,6 +24,7 @@ export function formatterFor<K extends FormatterKind>(
 	const key = `${kind}\n${lang ?? ""}\n${JSON.stringify(options ?? {})}`;
 	let formatter = made.get(key);
 	if (formatter === undefined) {
+		// TypeScript cannot correlate `kind` with its builder's parameters.
 		const build = BUILD[kind] as (
 			lang?: string,
 			options?: Parameters<Build[K]>[1],

@@ -563,6 +563,7 @@ export function windowQueue<Row>(
 		let block = blocks.get(start);
 		if (!block) {
 			block = page(start).then(async (answer) => {
+				// `WindowRead` types a page's rows `unknown`: they are the read's `Row`.
 				const made = await Promise.all(
 					answer.data.map((row) => options.track(row as Row)),
 				);
