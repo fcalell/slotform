@@ -163,7 +163,6 @@ const routerPlugin = slot.derived({
 		inp.options === null ? null : routerPluginFor(inp.options),
 });
 
-// Rendered `.stack/entry.tsx`; null when no mount is contributed.
 const entrySource = slot.derived({
 	source: SOURCE,
 	name: "entrySource",
@@ -172,7 +171,6 @@ const entrySource = slot.derived({
 		aggregateEntry({ imports: inp.imports, mount: inp.mount }),
 });
 
-// Rendered `.stack/index.html`.
 const htmlSource = slot.derived({
 	source: SOURCE,
 	name: "htmlSource",
@@ -181,7 +179,6 @@ const htmlSource = slot.derived({
 		aggregateHtml({ shell: inp.shell, head: inp.head, bodyEnd: inp.bodyEnd }),
 });
 
-// Rendered `.stack/virtual-providers.tsx`.
 const providersSource = slot.derived({
 	source: SOURCE,
 	name: "providersSource",
@@ -190,7 +187,6 @@ const providersSource = slot.derived({
 		aggregateProviders({ providers: inp.providers }),
 });
 
-// Rendered `.stack/routes.d.ts`; null when routing is off.
 const routesDtsSource = slot.derived({
 	source: SOURCE,
 	name: "routesDtsSource",
@@ -450,6 +446,7 @@ export const react = plugin("react", {
 						"\treturn <RouterProvider router={router} context={{ queryClient }} />;",
 						"}",
 						"",
+						// getElementById types the shell's `#app` as nullable; the shell always has it.
 						'createRoot(document.getElementById("app") as HTMLElement).render(',
 						"\t<StrictMode>",
 						"\t\t<Providers>",

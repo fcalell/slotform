@@ -111,7 +111,8 @@ function tokens(path: string): string[] {
 // The first URL segment a route file serves, or null for the root route,
 // the index, a param, and an ignored file. A pathless layout (`_auth`) and a
 // group (`(app)`) add no segment, so the next token decides; a trailing `_`
-// only un-nests the route and is not part of its path.
+// only un-nests the route and is not part of its path. `__root`, `index`,
+// `route` and `lazy` are TanStack Router's file keywords and serve no segment.
 function firstSegment(path: string): string | null {
 	for (const token of tokens(path)) {
 		if (token.startsWith("-") || token === "__root") return null;
@@ -125,8 +126,6 @@ function firstSegment(path: string): string | null {
 	return null;
 }
 
-// The static first segments of the app's URLs (`login`, `settings`), sorted.
-// Empty when the routes directory does not exist.
 export function topLevelSegments(cwd: string, dir: string): string[] {
 	const abs = join(cwd, dir);
 	if (!existsSync(abs)) return [];

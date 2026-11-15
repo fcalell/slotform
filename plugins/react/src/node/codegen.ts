@@ -128,8 +128,7 @@ export function aggregateProviders(
 	return renderTsSourceFile(spec);
 }
 
-// Renders `.stack/index.html` by loading the shell template and splicing
-// head + bodyEnd injections. Returns null when no plugin claims a shell.
+// Returns null when no plugin claims a shell.
 export async function aggregateHtml(
 	payload: CodegenHtmlPayload,
 ): Promise<string | null> {
