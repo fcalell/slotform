@@ -25,10 +25,7 @@ export const STACK_PACKAGES = {
 	},
 	"@fcalell/biome-config": { dir: "packages/biome-config", dependencies: [] },
 	"@fcalell/ui-core": { dir: "packages/ui-core", dependencies: [] },
-	"@fcalell/plugin-api": {
-		dir: "plugins/api",
-		dependencies: ["@fcalell/cli", "@fcalell/ui-core"],
-	},
+	"@fcalell/plugin-api": { dir: "plugins/api", dependencies: ["@fcalell/cli"] },
 	"@fcalell/plugin-auth": {
 		dir: "plugins/auth",
 		dependencies: [
@@ -84,6 +81,7 @@ export const STACK_PACKAGES = {
 			"@fcalell/plugin-api",
 			"@fcalell/plugin-auth",
 			"@fcalell/plugin-expo",
+			"@fcalell/plugin-query",
 			"@fcalell/ui-core",
 		],
 	},
@@ -92,7 +90,18 @@ export const STACK_PACKAGES = {
 		dependencies: [
 			"@fcalell/cli",
 			"@fcalell/plugin-api",
+			"@fcalell/plugin-query",
 			"@fcalell/plugin-screens",
+			"@fcalell/plugin-vite",
+			"@fcalell/ui-core",
+		],
+	},
+	"@fcalell/plugin-query": {
+		dir: "plugins/query",
+		dependencies: [
+			"@fcalell/cli",
+			"@fcalell/plugin-api",
+			"@fcalell/plugin-react",
 			"@fcalell/plugin-vite",
 			"@fcalell/ui-core",
 		],
@@ -107,6 +116,7 @@ export const STACK_PACKAGES = {
 			"@fcalell/cli",
 			"@fcalell/plugin-api",
 			"@fcalell/plugin-auth",
+			"@fcalell/plugin-query",
 			"@fcalell/plugin-react",
 			"@fcalell/plugin-screens",
 			"@fcalell/plugin-vite",
@@ -118,6 +128,7 @@ export const STACK_PACKAGES = {
 		dependencies: [
 			"@fcalell/cli",
 			"@fcalell/plugin-api",
+			"@fcalell/plugin-query",
 			"@fcalell/plugin-react",
 			"@fcalell/plugin-vite",
 			"@fcalell/ui-core",

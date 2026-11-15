@@ -36,6 +36,7 @@ export const FIRST_PARTY_PLUGINS = [
 	{ name: "db", package: "@fcalell/plugin-db" },
 	{ name: "auth", package: "@fcalell/plugin-auth" },
 	{ name: "api", package: "@fcalell/plugin-api" },
+	{ name: "query", package: "@fcalell/plugin-query" },
 	{ name: "node", package: "@fcalell/plugin-node" },
 	{ name: "vite", package: "@fcalell/plugin-vite" },
 	{ name: "react", package: "@fcalell/plugin-react" },
