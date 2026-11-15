@@ -79,7 +79,7 @@ Volatility order from churn, most stable first: typescript-config, biome-config,
 vite, expo, node, db, auth, cli, api, screens, ui-core, native-ui, react-ui, then the apps.
 ui-core is imported by eight packages and is the third most changed.
 
-## Checklist (step 2, awaiting confirmation)
+## Checklist (step 2, confirmed by the owner)
 
 ### Units
 
@@ -168,12 +168,46 @@ H1: 4
 not answered: <question> | <why>
 ```
 
+### Audit assignments (confirmed by the owner; N2 is measured by a Haiku agent's script)
+
+Every agent reads `.refactor/brief.md` and writes `.refactor/findings/<file>.md`. N2 is not asked of
+the unit agents: `.refactor/volatility.ts` answers it for all units into `findings/N2.md`.
+
+| Findings file | Slice | Model | State |
+| --- | --- | --- | --- |
+| `U01.md` | `packages/cli` (+ the flaky `stopAll` test, the 5-file cycle) | Sonnet | launched |
+| `U02a.md` | ui-core contract: tokens, schema, derive, emit, scales, oklch, variants, variant-tables, roster, descriptors, design-md, manifest, rules, cn, icon-name, scripts | Sonnet | launched |
+| `U02b.md` | ui-core models: every other `src` module | Sonnet | launched |
+| `U03.md` | `plugins/api` (+ wire/model/binding split, stream stop) | Sonnet | launched |
+| `U04.md` | `plugins/auth` | Sonnet | launched |
+| `U05-U07-U09-U10.md` | cloudflare, expo, react, vite | Sonnet | launched |
+| `U06-U08.md` | db, node (+ node's three cycles) | Sonnet | launched |
+| `U11.md` | `plugins/screens` (+ who removes stale stories) | Sonnet | launched |
+| `U12ab.md` | react-ui outside `ui/`, and `ui/lib` | Sonnet | launched |
+| `U12c-1.md` | react-ui `components/canvas` | Sonnet | launched |
+| `U12c-2.md` | react-ui picker, table, row, shell | Sonnet | launched |
+| `U12c-3.md` | react-ui section, form, button, sheet, input, bar-chart, pane, form-field, thread, stats, item-header | Sonnet | launched |
+| `U12c-4.md` | react-ui remaining 32 component folders | Sonnet | launched |
+| `U12d.md` | react-ui `ui/showcase` | Sonnet | launched |
+| `U14-U15.md` | `apps/showcase`, `apps/phone` | Sonnet | launched |
+| `U13a.md` | native-ui outside `ui/components` | Sonnet | launched |
+| `U13b-1.md` | native-ui row, picker, table, form, sheet, section, input, bar-chart | Sonnet | launched |
+| `U13b-2.md` | native-ui remaining component folders | Sonnet | launched |
+| `U16.md` | root, turbo, manifests, config packages (+ P6, the turbo output overlap) | Sonnet | launched |
+| `U17.md` | every Markdown file | Sonnet | launched |
+| `X1.md` | react-ui against native-ui (the 133 same-named files) | Sonnet | not launched: 20-agent limit |
+| `X3.md` | plugin-api against its importers | Sonnet | not launched: 20-agent limit |
+| `N2.md` | volatility script over `graph.json` and `churn.txt` | Haiku | not launched: 20-agent limit |
+
+The three prompts not yet launched are in the session that wrote this row; a cold session rewrites
+them from the checklist rows X1, X3 and N2 and the questions P1, P2, P7.
+
 ## Progress
 
 | Step | State |
 | --- | --- |
 | 1 Additions | done |
-| 2 Problem list and checklist | checklist written, awaiting confirmation; audit not run |
+| 2 Problem list and checklist | checklist confirmed; audit running (20 of 23 agents launched) |
 | 3 Redesign | not started |
 | 4 Fixes | not started |
 | 5 Fresh-agent checks | not started |
