@@ -14,8 +14,11 @@ export const NOT_FOUND_FILE = "+not-found.tsx";
 export function hasNotFoundRoute(root: string, appDir: string): boolean {
 	try {
 		return readdirSync(join(root, appDir)).some((name) => OWN.test(name));
-	} catch {
-		return false;
+	} catch (err) {
+		// A missing routes directory (or a file where it should be) is no route.
+		const code = err instanceof Error && "code" in err ? err.code : undefined;
+		if (code === "ENOENT" || code === "ENOTDIR") return false;
+		throw err;
 	}
 }
 

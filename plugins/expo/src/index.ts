@@ -32,6 +32,7 @@ import {
 	type MetroRequireSpec,
 	type MetroWrapperSpec,
 } from "./types.ts";
+import { VERSION_GATE_METRICS_BINDING } from "./version-gate-shared.ts";
 
 const SOURCE = "expo";
 
@@ -64,12 +65,8 @@ function sdkVersions(names: readonly string[]): Record<string, string> {
 	);
 }
 
-// Version-gate telemetry: the Analytics Engine binding the gate
-// writes its walled / header-less counters to. The dataset name carries the
-// app slug — dataset names are account-global, and two apps sharing one
-// would mix their canaries.
-const VERSION_GATE_METRICS_BINDING = "VERSION_GATE_METRICS";
-
+// The dataset name carries the app slug: dataset names are account-global, and
+// two apps sharing one would mix their canaries.
 function versionGateDataset(appName: string): string {
 	const slug = appName
 		.toLowerCase()
@@ -268,7 +265,6 @@ const easBuildProfiles = slot.value<string[], ExpoOptions>({
 	},
 });
 
-// Default EAS Update channel (`eas update --channel <name>`).
 const easUpdateChannel = slot.value<string, ExpoOptions>({
 	source: SOURCE,
 	name: "easUpdateChannel",
@@ -277,8 +273,6 @@ const easUpdateChannel = slot.value<string, ExpoOptions>({
 		return opts.updateChannel ?? DEFAULT_UPDATE_CHANNEL;
 	},
 });
-
-// ── Derived sources ────────────────────────────────────────────────
 
 const metroConfig = slot.derived({
 	source: SOURCE,
@@ -341,17 +335,8 @@ interface RunResult {
 	ok: boolean;
 }
 
-function runInherit(
-	command: string,
-	args: string[],
-	cwd: string,
-	env?: Record<string, string>,
-): RunResult {
-	const result = spawnSync(command, args, {
-		cwd,
-		stdio: "inherit",
-		env: { ...process.env, ...env },
-	});
+function runInherit(args: string[], cwd: string): RunResult {
+	const result = spawnSync("npx", args, { cwd, stdio: "inherit" });
 	return { ok: !result.error && result.status === 0 };
 }
 
@@ -467,10 +452,14 @@ export const expo = plugin("expo", {
 				if (flags.clear) args.push("--clear");
 				// Expo's TypeScript setup rewrites the generated tsconfig.json
 				// (`extends`, `include`), which stack owns.
-				const { ok } = runInherit("npx", args, ctx.cwd, {
-					EXPO_NO_TYPESCRIPT_SETUP: "1",
+				const result = spawnSync("npx", args, {
+					cwd: ctx.cwd,
+					stdio: "inherit",
+					env: { ...process.env, EXPO_NO_TYPESCRIPT_SETUP: "1" },
 				});
-				if (!ok) throw new Error("expo start failed");
+				if (result.error || result.status !== 0) {
+					throw new Error("expo start failed");
+				}
 			},
 		},
 		prebuild: {
@@ -492,7 +481,7 @@ export const expo = plugin("expo", {
 				if (typeof flags.platform === "string") {
 					args.push("--platform", flags.platform);
 				}
-				const { ok } = runInherit("npx", args, ctx.cwd);
+				const { ok } = runInherit(args, ctx.cwd);
 				if (!ok) throw new Error("expo prebuild failed");
 			},
 		},
@@ -521,7 +510,6 @@ export const expo = plugin("expo", {
 				const platform =
 					typeof flags.platform === "string" ? flags.platform : "all";
 				const { ok } = runInherit(
-					"npx",
 					["eas", "build", "--profile", profile, "--platform", platform],
 					ctx.cwd,
 				);
@@ -549,7 +537,7 @@ export const expo = plugin("expo", {
 				if (typeof flags.message === "string") {
 					args.push("--message", flags.message);
 				}
-				const { ok } = runInherit("npx", args, ctx.cwd);
+				const { ok } = runInherit(args, ctx.cwd);
 				if (!ok) throw new Error("eas update failed");
 			},
 		},
@@ -613,13 +601,6 @@ export const expo = plugin("expo", {
 												kind: "string" as const,
 												value: prefix,
 											})),
-										},
-									},
-									{
-										key: "metricsBinding",
-										value: {
-											kind: "string",
-											value: VERSION_GATE_METRICS_BINDING,
 										},
 									},
 								],

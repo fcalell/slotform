@@ -2,6 +2,7 @@ import type { MiddlewareHandler } from "hono";
 import {
 	CLIENT_BUILD_HEADER,
 	CLIENT_PLATFORM_HEADER,
+	VERSION_GATE_METRICS_BINDING,
 } from "../version-gate-shared.ts";
 
 // Wire contract for the client version gate. `@fcalell/plugin-expo/client`
@@ -40,11 +41,6 @@ export interface VersionGateOptions {
 	// stale client hitting it must not newly get a 426 it never asked for.
 	// Liveness (`/`) falls outside every prefix and so is never gated.
 	prefixes: string[];
-	// Env binding name of an Analytics Engine dataset. When the
-	// binding is live, the gate counts walled and fail-open (header-less /
-	// malformed) requests — the canary that measures how many clients the
-	// gate cannot wall. Absent binding = no telemetry, never an error.
-	metricsBinding?: string;
 }
 
 // Structural slice of Cloudflare's AnalyticsEngineDataset — the worker types
@@ -57,18 +53,29 @@ interface MetricsDataset {
 	}): void;
 }
 
+function isMetricsDataset(value: unknown): value is MetricsDataset {
+	return (
+		typeof value === "object" &&
+		value !== null &&
+		"writeDataPoint" in value &&
+		typeof value.writeDataPoint === "function"
+	);
+}
+
+// Counts walled and fail-open (header-less / malformed) requests in the
+// Analytics Engine dataset bound as `VERSION_GATE_METRICS_BINDING`: the canary
+// that measures how many clients the gate cannot wall. An absent binding is no
+// telemetry, never an error.
 function writeMetric(
 	env: unknown,
-	binding: string | undefined,
 	event: "walled" | "headerless",
 	platform: string | undefined,
 	build: string | undefined,
 ): void {
-	if (!binding) return;
-	const dataset = (env as Record<string, unknown> | null | undefined)?.[
-		binding
-	] as MetricsDataset | undefined;
-	if (typeof dataset?.writeDataPoint !== "function") return;
+	if (typeof env !== "object" || env === null) return;
+	if (!(VERSION_GATE_METRICS_BINDING in env)) return;
+	const dataset = env[VERSION_GATE_METRICS_BINDING];
+	if (!isMetricsDataset(dataset)) return;
 	try {
 		dataset.writeDataPoint({
 			blobs: [event, platform ?? "", build ?? ""],
@@ -91,7 +98,7 @@ export function versionGate(options: VersionGateOptions): MiddlewareHandler {
 		const build = c.req.header(CLIENT_BUILD_HEADER);
 		const platform = c.req.header(CLIENT_PLATFORM_HEADER);
 		if (!build || !platform || !BUILD_NUMBER_RE.test(build)) {
-			writeMetric(c.env, options.metricsBinding, "headerless", platform, build);
+			writeMetric(c.env, "headerless", platform, build);
 			return next();
 		}
 
@@ -102,12 +109,12 @@ export function versionGate(options: VersionGateOptions): MiddlewareHandler {
 					? options.android
 					: null;
 		if (floor === null) {
-			writeMetric(c.env, options.metricsBinding, "headerless", platform, build);
+			writeMetric(c.env, "headerless", platform, build);
 			return next();
 		}
 
 		if (Number(build) < floor) {
-			writeMetric(c.env, options.metricsBinding, "walled", platform, build);
+			writeMetric(c.env, "walled", platform, build);
 			return c.json(
 				{
 					code: "UPGRADE_REQUIRED",

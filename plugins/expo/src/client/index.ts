@@ -34,10 +34,8 @@ export function versionHeaders(): Record<string, string> {
 
 const updateRequired = createStore(undefined);
 
-// Subscribes to the 426 update-wall signal raised by
-// `createVersionGatedFetch`. Returns an unsubscribe function. Rendering the
-// wall itself (a screen, a modal) is app/native-ui territory; this module
-// only carries the signal.
+// Rendering the update wall (a screen, a modal) is app/native-ui territory;
+// this module only carries the signal.
 export function onUpdateRequired(cb: () => void): () => void {
 	return updateRequired.subscribe(cb);
 }

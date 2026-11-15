@@ -72,7 +72,6 @@ export function aggregateMetroConfig(payload: CodegenMetroPayload): string {
 	lines.push('const projectRoot = path.resolve(__dirname, "..");');
 	lines.push("");
 
-	// `const` when nothing reassigns it; `let` + reassignment for each wrapper.
 	const binding = wrappers.length > 0 ? "let" : "const";
 	lines.push(`${binding} config = getDefaultConfig(projectRoot);`);
 	for (const wrapper of wrappers) {
