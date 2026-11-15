@@ -14,16 +14,12 @@ import { fileURLToPath } from "node:url";
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 
-export const STORIES_DIR = path.join(dirname, "..", "stories");
+const STORIES_DIR = path.join(dirname, "..", "stories");
 // The showcase's own source, reached through the workspace link.
 export const CELLS_FILE = require.resolve(
 	"@fcalell/plugin-react-ui/showcase/cells",
 );
 export const FRAMES_DIR = path.join(path.dirname(CELLS_FILE), "frames");
-// ui-core's built roster and variants: a roster edit lands here.
-export const UI_CORE_DIST = path.dirname(
-	require.resolve("@fcalell/ui-core/roster"),
-);
 
 interface RosterComponent {
 	layer: string;
