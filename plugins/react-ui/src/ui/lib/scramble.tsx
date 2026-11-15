@@ -1,5 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import {
+	kindOf,
 	loading,
 	type PaintRole,
 	paintShape,
@@ -12,7 +13,6 @@ import {
 	busy,
 	decode,
 	frame,
-	kindOf,
 	lockedAt,
 	seedOf,
 } from "@fcalell/ui-core/scramble";
