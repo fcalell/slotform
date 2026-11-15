@@ -42,7 +42,11 @@ const FRAMEWORK_MANAGED = new Set<string>([
 	"assets",
 ]);
 
-const CONSUMER_MERGED_LISTS = new Set<string>(["routes", "r2_buckets"]);
+const CONSUMER_MERGED_LISTS = new Set<string>([
+	"routes",
+	"r2_buckets",
+	"queues",
+]);
 
 const GENERATED_MAIN_VALUES = new Set([
 	"worker.ts",
@@ -112,7 +116,6 @@ export function aggregateWrangler(opts: {
 	for (const [k, v] of Object.entries(consumerParsed)) {
 		if (FRAMEWORK_MANAGED.has(k)) continue;
 		if (CONSUMER_MERGED_LISTS.has(k)) continue;
-		if (k === "queues") continue;
 		// `vars` is special: consumer keys pass through here, framework keys
 		// will overlay below with collision checks.
 		root[k] = v;
@@ -239,9 +242,6 @@ export function aggregateWrangler(opts: {
 		pushRoute(entry, "consumer wrangler.toml");
 	}
 
-	// `[vars]` overlay — merge framework keys onto consumer keys, with cross-
-	// stream collision detection (consumer-vars × framework-vars × secrets ×
-	// var-bindings). Consumer vars survive only if they don't conflict.
 	overlayVars(root, opts.payload);
 
 	const doc: TomlDocument = { root, arrayTables };
@@ -254,6 +254,7 @@ function parseConsumerWrangler(
 ): Record<string, TomlValue> {
 	if (!source) return {};
 	try {
+		// smol-toml types a table's values as unknown; every value it parses is a TomlValue.
 		return parseToml(source) as Record<string, TomlValue>;
 	} catch (err) {
 		const msg = err instanceof Error ? err.message : String(err);
@@ -276,7 +277,7 @@ function rejectFrameworkManagedSections(
 					typeof u === "object" &&
 					u !== null &&
 					!Array.isArray(u) &&
-					Array.isArray((u as Record<string, TomlValue>).bindings)
+					Array.isArray(u.bindings)
 				) {
 					offenders.push("unsafe.bindings");
 				}
@@ -311,15 +312,14 @@ function extractConsumerR2(
 				"Invalid [[r2_buckets]] entry in wrangler.toml: each entry must be a table.",
 			);
 		}
-		const entry = e as Record<string, TomlValue>;
 		for (const key of ["binding", "bucket_name"] as const) {
-			if (typeof entry[key] !== "string" || entry[key].length === 0) {
+			if (typeof e[key] !== "string" || e[key].length === 0) {
 				throw new Error(
 					`Invalid [[r2_buckets]] entry in wrangler.toml: \`${key}\` is required and must be a non-empty string.`,
 				);
 			}
 		}
-		return entry;
+		return e;
 	});
 }
 
@@ -348,13 +348,12 @@ function extractConsumerRoutes(
 				"Invalid [[routes]] entry in wrangler.toml: each entry must be a table or a pattern string.",
 			);
 		}
-		const entry = e as Record<string, TomlValue>;
-		if (typeof entry.pattern !== "string" || entry.pattern.length === 0) {
+		if (typeof e.pattern !== "string" || e.pattern.length === 0) {
 			throw new Error(
 				"Invalid [[routes]] entry in wrangler.toml: `pattern` is required and must be a non-empty string.",
 			);
 		}
-		return entry;
+		return e;
 	});
 }
 
@@ -374,7 +373,7 @@ function extractConsumerQueues(
 			"Invalid wrangler.toml: `queues` must be a table holding [[queues.producers]] and [[queues.consumers]].",
 		);
 	}
-	const { producers, consumers, ...rest } = raw as Record<string, TomlValue>;
+	const { producers, consumers, ...rest } = raw;
 	if (Object.keys(rest).length > 0) {
 		throw new Error(
 			`Invalid wrangler.toml: \`queues\` holds only producers and consumers (got ${Object.keys(rest).join(", ")}).`,
@@ -397,13 +396,12 @@ function extractConsumerQueues(
 					`Invalid [[queues.${section}]] entry in wrangler.toml: each entry must be a table.`,
 				);
 			}
-			const entry = e as Record<string, TomlValue>;
-			if (typeof entry[required] !== "string" || entry[required].length === 0) {
+			if (typeof e[required] !== "string" || e[required].length === 0) {
 				throw new Error(
 					`Invalid [[queues.${section}]] entry in wrangler.toml: \`${required}\` is required and must be a non-empty string.`,
 				);
 			}
-			return entry;
+			return e;
 		});
 	};
 	return {
@@ -425,7 +423,7 @@ function assertTriggersMatchHandler(
 		if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
 			throw new Error("Invalid wrangler.toml: `triggers` must be a table.");
 		}
-		const value = (raw as Record<string, TomlValue>).crons;
+		const value = raw.crons;
 		if (value !== undefined) {
 			if (!Array.isArray(value) || value.some((c) => typeof c !== "string")) {
 				throw new Error(
@@ -492,7 +490,7 @@ function overlayVars(
 		consumerVarsRaw &&
 		typeof consumerVarsRaw === "object" &&
 		!Array.isArray(consumerVarsRaw)
-			? { ...(consumerVarsRaw as Record<string, TomlValue>) }
+			? { ...consumerVarsRaw }
 			: {};
 
 	const frameworkVarBindings = payload.bindings.filter(
@@ -506,7 +504,6 @@ function overlayVars(
 		Object.keys(frameworkExtraVars).length > 0;
 
 	if (!hasFrameworkVars && Object.keys(consumerVars).length === 0) {
-		// Nothing to write; remove a trailing empty-vars artifact if any.
 		if (consumerVarsRaw === undefined) return;
 		root.vars = consumerVars;
 		return;

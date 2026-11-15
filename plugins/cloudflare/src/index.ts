@@ -121,7 +121,7 @@ type WranglerInputs = {
 function renderWrangler(
 	inp: WranglerInputs,
 	ctx: ContributionCtx,
-	serve?: { main: string; clientDir: string },
+	serve: { main: string; clientDir: string } | undefined,
 ): string {
 	const consumerWranglerPath = join(ctx.cwd, "wrangler.toml");
 	const consumerWrangler = existsSync(consumerWranglerPath)
@@ -151,7 +151,7 @@ const wranglerToml = slot.derived({
 	source: SOURCE,
 	name: "wranglerToml",
 	inputs: wranglerInputs,
-	compute: renderWrangler,
+	compute: (inp, ctx) => renderWrangler(inp, ctx, undefined),
 });
 
 // The config of a `stack screens serve` run: the same toml with the run's own
@@ -212,8 +212,6 @@ export const cloudflare = plugin("cloudflare", {
 	},
 
 	contributes: (self) => [
-		// Emit `.stack/wrangler.toml` — the derived slot handles every
-		// binding/route/var/env contribution structurally.
 		emitArtifact(".stack/wrangler.toml", self.slots.wranglerToml),
 
 		// Dedicated blanket per-IP volume limiter for the api worker's whole
@@ -332,8 +330,7 @@ export const cloudflare = plugin("cloudflare", {
 		// watcher never sees the directory.
 		vite.slots.watchIgnored.contribute(() => "**/.wrangler/**"),
 
-		// Dev wrangler process — the worker target's local runtime. `--config`
-		// points at the generated `.stack/wrangler.toml` (the consumer root has
+		// `--config` points at the generated `.stack/wrangler.toml` (the consumer root has
 		// no wrangler config), and `--persist-to` fixes the local D1 so schema
 		// pushes, seeds, and the running worker all share one miniflare
 		// database. The state lives outside `.stack/`, which is Vite's root:
@@ -422,7 +419,6 @@ export const cloudflare = plugin("cloudflare", {
 			};
 		}),
 
-		// Deploy step: push the worker up via wrangler.
 		cliSlots.deploySteps.contribute(async (ctx) => ({
 			name: "Worker",
 			phase: "main",
@@ -487,7 +483,7 @@ export const cloudflare = plugin("cloudflare", {
 				try {
 					rmSync(dtsPath, { force: true });
 				} catch {
-					/* best-effort — surfacing the wrangler error is the priority */
+					/* a failed removal (a locked file) must not mask the wrangler error being reported */
 				}
 			};
 
@@ -515,9 +511,9 @@ export const cloudflare = plugin("cloudflare", {
 			}
 			if (result.error) {
 				removeStaleDts();
-				const err = result.error as NodeJS.ErrnoException;
+				const err = result.error;
 				const hint =
-					err.code === "ENOENT"
+					"code" in err && err.code === "ENOENT"
 						? "npx not found on PATH; install Node.js or wrangler and re-run `stack generate`."
 						: err.message;
 				ctx.log.warn(
