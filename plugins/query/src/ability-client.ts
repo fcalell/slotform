@@ -52,8 +52,6 @@ function registeredRoute(
 	) as (input: unknown) => Promise<unknown>;
 }
 
-// ---------- Org rules fetch ----------
-
 // The caller's rules in one organization: their role there, never the
 // session's active organization. `useAbility`'s query runs with
 // `staleTime: Infinity`, so a missing client throws rather than caching a
@@ -77,8 +75,6 @@ export async function fetchOrgRules(
 		throw error;
 	}
 }
-
-// ---------- Ability composition ----------
 
 // Deny-all default, memoized per (orgRules, recordRules) array
 // identity. `useAbility` composes on every call; recreating a `MongoAbility`
@@ -128,8 +124,6 @@ export function composeAbility(
 	return ability;
 }
 
-// ---------- Query key ----------
-
 // Shaped like `@orpc/tanstack-query`'s operation keys (`[path, { input }]`)
 // so the entity-based invalidation registry
 // (`@fcalell/plugin-api/query-invalidation`), which
@@ -143,8 +137,6 @@ export const ORG_RULES_QUERY_KEY = [ORG_RULES_PATH] as const;
 export function orgRulesQueryKey(organizationId: string) {
 	return [ORG_RULES_PATH, { input: { organizationId } }] as const;
 }
-
-// ---------- Ability as a read ----------
 
 // The caller's rules in one organization, cached per organization
 // (`staleTime: Infinity`); a role change invalidates them when its mutation

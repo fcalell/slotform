@@ -28,6 +28,7 @@ export function preload(
 		}
 		// biome-ignore lint/suspicious/noExplicitAny: a read's options are one type for every output (variance)
 		const options = r.options as any;
+		// A pages read's options are infinite ones.
 		void (r.kind === "pages"
 			? client.prefetchInfiniteQuery(options)
 			: client.prefetchQuery(options));

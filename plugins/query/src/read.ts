@@ -156,11 +156,14 @@ export function withHold(
 // this read's own write waits (never TanStack's scheduler), a refetch or a
 // later page is not held, and a cancelled fetch is let go at once: TanStack
 // ignores what it settles.
-function held<F extends (...args: never[]) => unknown>(queryFn: F): F {
+function held<F extends (ctx: QueryFunctionContext) => unknown>(
+	queryFn: F,
+): F {
+	// The wrapper has `queryFn`'s own signature; the compiler cannot see that through `F`.
 	return (async (ctx: QueryFunctionContext) => {
 		const first = ctx.client.getQueryData(ctx.queryKey) === undefined;
 		const start = Date.now();
-		const data = await queryFn(ctx as never);
+		const data = await queryFn(ctx);
 		if (!first) return data;
 		const wait = holdOf(ctx.client, Date.now() - start);
 		if (wait <= 0 || ctx.signal.aborted) return data;
@@ -211,8 +214,6 @@ export function read<T, E = unknown, Q = unknown>(
 	});
 }
 
-const NO_SORT: SortSchema = {};
-
 // The columns a procedure declares to sort by, from its input's JSON Schema.
 function sortColumns(
 	schema: SortSchema,
@@ -247,8 +248,18 @@ type Sort = { column: string; direction: "asc" | "desc" } | undefined;
 export function withRead(
 	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
 	target: any,
-	schema: SortSchema = NO_SORT,
-	path: readonly string[] = [],
+	schema: SortSchema,
+	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
+): any {
+	return readsAt(target, schema, []);
+}
+
+// `path` is the procedure the utils belong to, as the schema names it.
+function readsAt(
+	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
+	target: any,
+	schema: SortSchema,
+	path: readonly string[],
 	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
 ): any {
 	const columns = sortColumns(schema, path);
@@ -297,7 +308,7 @@ export function withRead(
 	return new Proxy(target, {
 		get(_, key) {
 			if (key === "read" || key === "pages" || key === "window") {
-				const child = withRead(Reflect.get(target, key), schema, [
+				const child = readsAt(Reflect.get(target, key), schema, [
 					...path,
 					key,
 				]);
@@ -307,7 +318,7 @@ export function withRead(
 			if (typeof key !== "string") return value;
 			return value !== null &&
 				(typeof value === "object" || typeof value === "function")
-				? withRead(value, schema, [...path, key])
+				? readsAt(value, schema, [...path, key])
 				: value;
 		},
 	});
@@ -366,6 +377,7 @@ function windowRead(target: any, input: unknown, how: ReadHow): Read<unknown> {
 									at(p * size)
 										.queryFn({ signal: context.signal })
 										.then((answer: WindowPage) => [p, answer.data] as const)
+										// A held page that fails is left out: `ensurePages` loads it again when the viewer asks for it.
 										.catch(() => undefined),
 								),
 							);

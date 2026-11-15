@@ -12,6 +12,16 @@ import { isStreamQuery, read } from "./read.ts";
 
 const one = read({ queryKey: ["one"], queryFn: async () => 1 });
 
+const pickOf = (selection: unknown, data: unknown[]) =>
+	(
+		selection as {
+			[key: symbol]: { pick: (d: unknown[], r: boolean[]) => unknown };
+		}
+	)[Symbol.for("@fcalell/ui-core/selection")]?.pick(
+		data,
+		data.map(() => true),
+	);
+
 // TanStack's structural sharing runs over every `combine` result a leaf draws:
 // a selection it rebuilds must still be one.
 test("a selection survives structural sharing", () => {
@@ -33,9 +43,16 @@ test("a selection survives structural sharing", () => {
 
 test("a read is its own selection", () => {
 	assert.equal(isSelection(one), true);
-	assert.equal(isSelection(one.or(0)), true);
-	assert.equal(typeof one.at, "function");
 	assert.equal(one.kind, "query");
+	assert.equal(pickOf(one, [2]), 2);
+	assert.equal(
+		pickOf(
+			one.at((n) => n + 1),
+			[2],
+		),
+		3,
+	);
+	assert.equal(pickOf(one.or(0), [2]), 2);
 });
 
 test("a stream read's query carries meta.stream beside its own meta, a query read's does not", () => {
@@ -146,16 +163,6 @@ test("the sample is a placeholder, and a walk over it that never ends is cut off
 	});
 	assert.deepEqual(sampleOf(walk), { depth: 0 });
 });
-
-const pickOf = (selection: unknown, data: unknown[]) =>
-	(
-		selection as {
-			[key: symbol]: { pick: (d: unknown[], r: boolean[]) => unknown };
-		}
-	)[Symbol.for("@fcalell/ui-core/selection")]?.pick(
-		data,
-		data.map(() => true),
-	);
 
 test("lift makes a constant whose text props hold selections one selection", () => {
 	const reason = one.at((n) => (n > 1 ? "Too many" : undefined));

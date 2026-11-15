@@ -8,6 +8,7 @@ import { focusManager, onlineManager } from "@tanstack/react-query";
 // The managers' own defaults (they keep them private), put back when the
 // provider that replaced them unmounts.
 const windowOnline: NonNullable<QueryListeners["online"]> = (set) => {
+	// No window on the server, as in TanStack's own defaults.
 	if (typeof window === "undefined" || !window.addEventListener) {
 		return () => {};
 	}

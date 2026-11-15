@@ -1,5 +1,6 @@
 import {
 	mergeScope,
+	registeredScope,
 	type ScopeIds,
 	type ScopeSchema,
 } from "@fcalell/ui-core/scope";
@@ -31,19 +32,20 @@ type Fn = (...args: unknown[]) => unknown;
 
 /**
  * oRPC's query utils with the scope key of each scoped procedure (`schema`) set
- * from `ids()` in the input of every call: `queryOptions`, `infiniteOptions`, the
- * keys, `call`, and the `mutationFn` of `mutationOptions`. The merge precedes the
- * key, which carries the id. A procedure the schema does not name, or names with
- * no scope, is left as it is.
+ * from the registered scope in the input of every call: `queryOptions`,
+ * `infiniteOptions`, the keys, `call`, and the `mutationFn` of `mutationOptions`.
+ * The merge precedes the key, which carries the id. A procedure the schema does
+ * not name, or names with no scope, is left as it is. `schema` is a parameter
+ * because `virtual:stack-schema` resolves only in the bundler, which builds
+ * `./tanstack-query.tsx` and not this file.
  */
 export function withScope(
 	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
 	target: any,
-	ids: () => ScopeIds,
 	schema: ScopeSchema,
 	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
 ): any {
-	return layer(target, ids, schema, [], false);
+	return layer(target, registeredScope, schema, [], false);
 }
 
 function layer(
@@ -52,6 +54,7 @@ function layer(
 	ids: () => ScopeIds,
 	schema: ScopeSchema,
 	path: readonly string[],
+	// A `scoped` layer leaves a key it does not hold to the layers beneath; the `withScope` layer is the last and throws.
 	lenient: boolean,
 	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed
 ): any {
@@ -113,6 +116,7 @@ function methodOf(
 				...rest,
 			);
 	}
+	// These take the input as their first argument.
 	if (key === "call" || key === "read" || key === "pages") {
 		return (input, ...rest) => value(merge(input), ...rest);
 	}

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { beforeEach, test } from "node:test";
 import type { Procedure, ScopedRouterClient } from "@fcalell/plugin-api/types";
 import {
 	registeredScope,
@@ -31,9 +31,12 @@ const schema: ScopeSchema = {
 const utils: any = withScope(
 	// biome-ignore lint/suspicious/noExplicitAny: the fake client is untyped
 	createTanstackQueryUtils(fakeClient() as any),
-	registeredScope,
 	schema,
 );
+
+beforeEach(() => {
+	releaseScope(registeredScope(), {}, 0);
+});
 
 test("two registered scopes build two query keys for the same call", () => {
 	registerScope({ organizationId: "org-a" });
@@ -157,5 +160,4 @@ test("an outer boundary registering after the inner never replaces it; releasing
 	assert.deepEqual(registeredScope(), next);
 	releaseScope(next, org, 1);
 	assert.deepEqual(registeredScope(), org);
-	registerScope({});
 });

@@ -4,6 +4,7 @@
 // bundler while its siblings, plugin-api's client and ui-core ship compiled
 // from dist, so a relative import would load a second copy of the registered
 // client, the entity registry and the model's state.
+// `virtual:stack-schema` is `.stack/schema.ts`, which `stack generate` writes and the bundler serves.
 import { SCHEMA } from "virtual:stack-schema";
 import type { MongoAbility } from "@casl/ability";
 import { registerOperationContext } from "@fcalell/plugin-api/client";
@@ -52,7 +53,7 @@ import {
 	type Selection,
 	type WindowState,
 } from "@fcalell/ui-core/read";
-import { registeredScope, type ScopeIds } from "@fcalell/ui-core/scope";
+import type { ScopeIds } from "@fcalell/ui-core/scope";
 import {
 	createTanstackQueryUtils,
 	OPERATION_CONTEXT_SYMBOL,
@@ -197,7 +198,7 @@ export function createApiQueryUtils<TRouter>(
 ): ApiQueryUtils<TRouter> {
 	registerOperationContext(OPERATION_CONTEXT_SYMBOL);
 	return withRead(
-		withScope(createTanstackQueryUtils(client), registeredScope, SCHEMA),
+		withScope(createTanstackQueryUtils(client), SCHEMA),
 		SCHEMA,
 	) as ApiQueryUtils<TRouter>;
 }

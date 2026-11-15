@@ -89,7 +89,7 @@ export function retries(error: unknown): boolean {
 	return status < 400 || status >= 500;
 }
 
-// The mutation caches `watchActs` watches, which `heldAct` looks in.
+// A registry: `heldAct` runs from the port's `act` with no cache in hand, so it looks in the caches `watchActs` was given.
 const watched = new Set<MutationCache>();
 
 // An act's `onAct`, called. In dev it names a mutation the call started
