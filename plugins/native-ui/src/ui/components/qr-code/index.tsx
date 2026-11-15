@@ -1,9 +1,6 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { qrModules } from "@fcalell/ui-core/qr";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import { QR_CODE, QR_CODE_INK } from "@fcalell/ui-core/variants";
 import { useMemo } from "react";
 import { View } from "react-native";

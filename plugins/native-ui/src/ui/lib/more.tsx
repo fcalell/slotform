@@ -1,9 +1,5 @@
-import {
-	type More,
-	type Read,
-	useMore,
-	useWindowMore,
-} from "@fcalell/plugin-api/tanstack-query";
+import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
+import type { More, Read } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { View } from "react-native";
 import { ButtonBase } from "../components/button/base";

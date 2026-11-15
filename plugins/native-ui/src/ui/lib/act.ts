@@ -1,22 +1,21 @@
-import { drew, isThenable, refusal, retries } from "@fcalell/plugin-api/acts";
-import {
-	type Datum,
-	type Draft,
-	type Fielded,
-	lift,
-	useDraft,
-	useRun,
-} from "@fcalell/plugin-api/tanstack-query";
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
+import { refusal, retries } from "@fcalell/plugin-query/acts";
+import { drew, isThenable } from "@fcalell/ui-core/acts";
 import type {
-	ActBase,
 	Act as ActData,
+	ActBase,
 	Decision,
 	IconLinkAct,
 	IconName,
 	LinkAct,
 } from "@fcalell/ui-core/descriptors";
-import { endedReason } from "@fcalell/ui-core/read";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
+import { type Draft, useDraft, useRun } from "@fcalell/ui-core/react/acts";
+import {
+	type Datum,
+	endedReason,
+	type Fielded,
+	lift,
+} from "@fcalell/ui-core/read";
 import { ACT_TEXT, type ActText, pressStands } from "@fcalell/ui-core/reason";
 import { useState } from "react";
 import type { ActSheetProps } from "../components/sheet";

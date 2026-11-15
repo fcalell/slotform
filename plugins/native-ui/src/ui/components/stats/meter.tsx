@@ -1,8 +1,9 @@
-import { type Datum, useSelections } from "@fcalell/plugin-api/tanstack-query";
 import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { levelOf, type MeterLevel } from "@fcalell/ui-core/list-state";
 import { paintText } from "@fcalell/ui-core/paint";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import type { Datum } from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,

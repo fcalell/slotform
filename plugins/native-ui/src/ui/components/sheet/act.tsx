@@ -1,6 +1,6 @@
-import { isThenable } from "@fcalell/plugin-api/acts";
 import type { Acting, ActSheetProps } from "../../lib/act";
 import { Sheet } from ".";
+import { isThenable } from "@fcalell/ui-core/acts";
 
 // The sheet an act of its holder opened: drawn by the holder beside the
 // control that drew the act, open from the press until it is dismissed or its

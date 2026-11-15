@@ -1,11 +1,6 @@
-import {
-	type Datum,
-	paints,
-	useDrawsFailure,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
-import { endedReason } from "@fcalell/ui-core/read";
+import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,

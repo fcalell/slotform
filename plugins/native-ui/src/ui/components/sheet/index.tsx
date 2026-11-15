@@ -1,7 +1,6 @@
-import { NO_HOLDS } from "@fcalell/plugin-api/read";
-import type { Selection } from "@fcalell/plugin-api/tanstack-query";
-import { FrameHolds } from "@fcalell/plugin-api/tanstack-query";
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
+import { FrameHolds } from "@fcalell/ui-core/react/read";
+import { NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
 import { type ReactNode, useRef } from "react";
 import type { TextInput } from "react-native";
 import { useAct } from "../../lib/act";

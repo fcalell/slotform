@@ -1,5 +1,5 @@
-import type { ProcedureCall } from "@fcalell/plugin-api/types";
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
+import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { runsOf } from "@fcalell/ui-core/runs";
 import { GATE, GATE_COLUMN, GATE_STEP, text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef, useState } from "react";

@@ -1,6 +1,6 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { commitMoment } from "@fcalell/ui-core/commit";
 import { wordCount } from "@fcalell/ui-core/controls";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	fieldValue,
 	TEXT_AREA_VALUE,

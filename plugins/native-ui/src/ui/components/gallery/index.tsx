@@ -1,4 +1,4 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
+import type { Datum } from "@fcalell/ui-core/read";
 import {
 	GALLERY,
 	GALLERY_TILE,

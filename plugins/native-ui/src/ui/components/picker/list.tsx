@@ -1,4 +1,3 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import {
 	choose,
 	chosenOf,
@@ -7,6 +6,7 @@ import {
 	optionsOf,
 } from "@fcalell/ui-core/list-state";
 import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	OPTION_CHILDREN,
 	OPTION_GROUP_LABEL,

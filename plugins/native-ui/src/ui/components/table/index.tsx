@@ -1,9 +1,3 @@
-import { placeholderData } from "@fcalell/plugin-api/read";
-import {
-	type Datum,
-	pagesOf,
-	type Read,
-} from "@fcalell/plugin-api/tanstack-query";
 import type {
 	CellValue,
 	Fact,
@@ -41,6 +35,12 @@ import {
 	visibleColumns,
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS, painting } from "@fcalell/ui-core/paint";
+import {
+	type Datum,
+	pagesOf,
+	placeholderData,
+	type Read,
+} from "@fcalell/ui-core/read";
 import { createStore, type Store } from "@fcalell/ui-core/store";
 import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
 import {
@@ -64,8 +64,8 @@ import {
 import { memo, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
 	Pressable,
-	Text as RNText,
 	ScrollView,
+	Text as RNText,
 	useWindowDimensions,
 	View,
 } from "react-native";

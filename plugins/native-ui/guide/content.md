@@ -47,7 +47,7 @@ A conversation: `items` drawn through `message`, over a `composer`.
 - `composer`: `value`, `onChange`, `attachments`, `onAttach`, `onDetach`, `placeholder`, `notice`, `working`, `onSend`, `onStop`, `disabled`.
 - `sheet`: docks in the input's place. A `Pane`'s `foot` takes the input on its own, a `Composer` with the same props.
 - `replying`: a reply from the other author is on its way; the loaded log ends on a waiting message of theirs until it is cleared.
-- `reply`: the turn being written, a stream the app declares (`node_modules/@fcalell/plugin-api/guide/pages-and-streams.md`). It draws after the items and steps aside once the last item has its key.
+- `reply`: the turn being written, a stream the app declares (`node_modules/@fcalell/plugin-query/guide/pages-and-streams.md`). It draws after the items and steps aside once the last item has its key.
 - `empty`: the sentence, and the act that makes the first message.
 
 ```tsx

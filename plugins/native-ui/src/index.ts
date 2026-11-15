@@ -178,7 +178,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 	return {
 		imports: [
 			{
-				source: "@fcalell/plugin-api/tanstack-query",
+				source: "@fcalell/plugin-query/tanstack-query",
 				named: ["QueryProvider"],
 			},
 			{
@@ -315,7 +315,9 @@ export const nativeUi = plugin("native-ui", {
 	// server it is a client of with `api({ server })`. auth is imported for its
 	// slots and provider subpath but stays optional, since a client app has no
 	// `auth()` of its own; the Auth provider stands when the app's server has it.
-	requires: ["expo", "api"],
+	// The query plugin holds the client its QueryProvider mounts and the port the
+	// components' reads run on.
+	requires: ["expo", "api", "query"],
 
 	guide: [
 		{
@@ -382,7 +384,6 @@ export const nativeUi = plugin("native-ui", {
 		"expo-image-picker": "~56.0.16",
 		"expo-secure-store": "~56.0.0",
 		"@tanstack/react-query": "^5.101.0",
-		"@orpc/tanstack-query": "^1.14.4",
 		"@better-auth/expo": "1.7.7",
 		// @better-auth/expo's client statically imports expo-constants +
 		// expo-linking and dynamically imports expo-network + expo-web-browser.

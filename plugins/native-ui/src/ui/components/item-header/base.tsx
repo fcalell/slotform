@@ -1,8 +1,3 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import { factReach } from "@fcalell/ui-core/chart";
 import type {
 	OptionPick,
@@ -16,6 +11,8 @@ import {
 	isStatusFact,
 	isWarningFact,
 } from "@fcalell/ui-core/list-state";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import { filled, META_TAIL, partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	BADGE_LINE,

@@ -1,7 +1,7 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import type { LinkSegment } from "@fcalell/ui-core/descriptors";
 import { tuned } from "@fcalell/ui-core/paint";
 import { linkAt, scrollEdges } from "@fcalell/ui-core/pick";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	SEGMENT_GROUND,
 	SEGMENTED_CONTROL,
@@ -12,8 +12,8 @@ import { useContext, useEffect, useRef, useState } from "react";
 import {
 	type NativeScrollEvent,
 	type NativeSyntheticEvent,
-	Text as RNText,
 	ScrollView,
+	Text as RNText,
 	View,
 } from "react-native";
 import { LinearTransition, ReduceMotion } from "react-native-reanimated";

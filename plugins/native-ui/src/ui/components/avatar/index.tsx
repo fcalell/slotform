@@ -1,10 +1,7 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import type { Closed } from "../../lib/closed";
 import { AvatarBase } from "./base";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 
 interface AvatarProps extends Closed {
 	/** The person's name: the accessible name, and the initials of its first two words without an image (a short phrase; only the initials draw). A selection paints the circle until its read lands. */

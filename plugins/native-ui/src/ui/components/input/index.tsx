@@ -1,5 +1,5 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
 import type { PickedFile } from "@fcalell/ui-core/descriptors";
+import type { Datum } from "@fcalell/ui-core/read";
 import { use } from "react";
 import type { IconAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";

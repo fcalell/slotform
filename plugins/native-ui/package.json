@@ -87,7 +87,6 @@
 	"peerDependencies": {
 		"@better-auth/expo": "1.7.7",
 		"@gorhom/bottom-sheet": "^5.2.14",
-		"@orpc/tanstack-query": "^1.14.4",
 		"@tanstack/react-query": "^5.100.2",
 		"lucide-react-native": "^1.49.0",
 		"react": "^19.2.0",
@@ -117,6 +116,7 @@
 		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-auth": "workspace:^",
 		"@fcalell/plugin-expo": "workspace:^",
+		"@fcalell/plugin-query": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
 		"class-variance-authority": "^0.7.1",
 		"lucide": "^1.49.0",
@@ -128,7 +128,6 @@
 		"@better-auth/expo": "1.7.7",
 		"@fcalell/typescript-config": "workspace:^",
 		"@gorhom/bottom-sheet": "^5.2.14",
-		"@orpc/tanstack-query": "^1.14.4",
 		"@tailwindcss/cli": "^4.1.7",
 		"@tanstack/react-query": "^5.104.0",
 		"@types/node": "^25.5.0",

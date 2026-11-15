@@ -1,4 +1,4 @@
-import type { Selection } from "@fcalell/plugin-api/tanstack-query";
+import type { Selection } from "@fcalell/ui-core/read";
 import {
 	CARD,
 	FORM_FOOT,

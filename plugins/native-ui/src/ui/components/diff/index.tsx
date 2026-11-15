@@ -1,8 +1,3 @@
-import {
-	type Datum,
-	isSelection,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import type { DiffLine, Hunk } from "@fcalell/ui-core/descriptors";
 import {
 	BOTH,
@@ -19,6 +14,8 @@ import {
 	tokenParts,
 } from "@fcalell/ui-core/line-diff";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import { counted } from "@fcalell/ui-core/tokens";
 import {
 	CARD,

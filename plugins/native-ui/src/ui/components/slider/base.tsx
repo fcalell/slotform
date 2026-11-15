@@ -1,5 +1,5 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { formatterFor } from "@fcalell/ui-core/format";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	SLIDER,
 	SLIDER_FILL,

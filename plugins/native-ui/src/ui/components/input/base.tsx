@@ -1,5 +1,5 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import { commitMoment } from "@fcalell/ui-core/commit";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import {
 	FIELD_UNIT,
 	FIGURES,

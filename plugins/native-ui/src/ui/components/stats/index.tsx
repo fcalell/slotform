@@ -1,10 +1,7 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import type { StatSpec } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	STATS,
 	STATS_CELL,

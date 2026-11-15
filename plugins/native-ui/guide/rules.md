@@ -1,7 +1,7 @@
 # Rules for the phone UI
 
 Each phone `.tsx` obeys these rules. Its design system is the roster
-(`node_modules/@fcalell/ui-core/src/roster.ts`, web prop names; cells, states and tokens in
+(`node_modules/@fcalell/ui-core/src/roster.ts`, each component's entry in `src/roster/<component>.ts`, web prop names; cells, states and tokens in
 ui-core's `DESIGN.md`) plus the app's own `ui/` directory (any `ui/` path segment); the rest
 composes components and never restyles them.
 
@@ -371,7 +371,7 @@ never `mutate()`. The act renderer holds the run, so the app passes no `loading`
 - a rejection is drawn by the host, in its line (a bar's kept line, a `Sheet`'s, a
   standing `Button`'s under itself) and otherwise in a failed toast whose Retry runs the whole act
   again, a navigation included; a refusal the server answered (a 4xx other than 408 and 429,
-  `retries(error)` false) draws no Retry, as the same act would be refused again. The sentence is `refusal(error)` from `@fcalell/plugin-api/acts` (a 4xx the procedure worded itself,
+  `retries(error)` false) draws no Retry, as the same act would be refused again. The sentence is `refusal(error)` from `@fcalell/plugin-query/acts` (a 4xx the procedure worded itself,
   except 401, 403, 404 and 429; for an input the procedure's schema refused, the schema's first issue
   message), else "That didn't go through."
   (`words.actFailed`). `issues(error)` from the same module gives every issue's message and path, so

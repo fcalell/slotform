@@ -1,4 +1,4 @@
-import type { QueryListeners } from "@fcalell/plugin-api/tanstack-query";
+import type { QueryListeners } from "@fcalell/ui-core/listen";
 import { addNetworkStateListener } from "expo-network";
 import { AppState } from "react-native";
 

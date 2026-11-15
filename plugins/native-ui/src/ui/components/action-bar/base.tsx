@@ -1,10 +1,10 @@
-import { isThenable } from "@fcalell/plugin-api/acts";
 import {
 	chosenAbsent,
 	FIT,
 	kindOf,
 	NO_FAILURE,
 } from "@fcalell/ui-core/action-bar";
+import { isThenable } from "@fcalell/ui-core/acts";
 import type { ChosenCount } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
 import { markedRuns } from "@fcalell/ui-core/form";

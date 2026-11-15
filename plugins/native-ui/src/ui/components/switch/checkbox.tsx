@@ -1,5 +1,6 @@
-import type { Datum, Draft } from "@fcalell/plugin-api/tanstack-query";
 import { STATES } from "@fcalell/ui-core/controls";
+import type { Draft } from "@fcalell/ui-core/react/acts";
+import type { Datum } from "@fcalell/ui-core/read";
 import { ICON_STROKE } from "@fcalell/ui-core/tokens";
 import { CHECKBOX_MARK, checkbox } from "@fcalell/ui-core/variants";
 import { Check, type IconNode, Minus } from "lucide";

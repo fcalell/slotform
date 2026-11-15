@@ -1,7 +1,6 @@
-import { placeholderData } from "@fcalell/plugin-api/read";
-import type { Drawn, Read } from "@fcalell/plugin-api/tanstack-query";
 import { toggled, treeRows } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
 import { HAIRLINE } from "@fcalell/ui-core/variants";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {

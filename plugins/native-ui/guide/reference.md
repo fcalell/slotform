@@ -39,8 +39,8 @@ inverted log; the web windows a long one (`VIRTUAL_FROM`), the phone's waits on 
 
 ## Acts
 
-`refusal(error)` comes from `@fcalell/plugin-api/acts`; `useRun()` and
-`useDraft` from `@fcalell/plugin-api/tanstack-query`. The pending look waits `ACT_DELAY` (300 ms, from
+`refusal(error)` comes from `@fcalell/plugin-query/acts`; `useRun()` and
+`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `ACT_DELAY` (300 ms, from
 `@fcalell/ui-core/paint`; the phone's fill snaps in).
 
 An `Act` (`@fcalell/ui-core/descriptors`) carries its wiring as data: `confirm` (`{ title, sentence }`, asked
@@ -85,7 +85,7 @@ plugins: [expo({ scheme: "vault" }), api({ server: "../hub" }), nativeUi()],
 ```ts
 // src/lib/api.ts
 import { createClient } from "@fcalell/plugin-api/client";
-import { createApiQueryUtils } from "@fcalell/plugin-api/tanstack-query";
+import { createApiQueryUtils } from "@fcalell/plugin-query/tanstack-query";
 import type { AppRouter } from "../../.stack/server";
 import { server } from "./server"; // the app's own: where the address is kept
 
@@ -111,7 +111,7 @@ export const orpc = createApiQueryUtils(client);
 `stack init` (or `stack add native-ui`) scaffolds two files once; they are yours to edit.
 
 - `src/lib/query.ts` exports `queryClient`, made by `createQueryClient()` from
-  `@fcalell/plugin-api/tanstack-query` with a single retry and a short stale window; pass a
+  `@fcalell/plugin-query/tanstack-query` with a single retry and a short stale window; pass a
   `QueryClientConfig` to tune it.
 - `src/lib/auth.ts` exports `authClient`; the phone's sign-in is
   `node_modules/@fcalell/plugin-expo/guide/native-auth.md`.

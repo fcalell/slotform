@@ -1,4 +1,3 @@
-import { paints, useSelections } from "@fcalell/plugin-api/tanstack-query";
 import type {
 	RowTitle,
 	RowTrailing,
@@ -7,6 +6,8 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import { ROW_TITLE_LINES } from "@fcalell/ui-core/fold";
 import { isStatus, valueCut } from "@fcalell/ui-core/list-state";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { paints } from "@fcalell/ui-core/read";
 import { isCurrent } from "@fcalell/ui-core/route";
 import { filled, isCode, META_TAIL, runsOf } from "@fcalell/ui-core/runs";
 import {

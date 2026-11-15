@@ -1,8 +1,5 @@
-import {
-	type Datum,
-	paints,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	IMAGE_CLOSE,
 	IMAGE_FULL,
@@ -14,8 +11,8 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import {
-	Pressable,
 	Image as RNImage,
+	Pressable,
 	Text as RNText,
 	View,
 } from "react-native";

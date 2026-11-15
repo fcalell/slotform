@@ -1,5 +1,5 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
 import type { IconName, LinkAct } from "@fcalell/ui-core/descriptors";
+import type { Datum } from "@fcalell/ui-core/read";
 import {
 	CARD_PART,
 	EMPTY_COLUMN,

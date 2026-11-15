@@ -1,12 +1,3 @@
-import {
-	combine,
-	type Datum,
-	isSelection,
-	pagesOf,
-	type Selection,
-	sampleOf,
-	useSelections,
-} from "@fcalell/plugin-api/tanstack-query";
 import type {
 	Band as BandData,
 	IconLinkAct,
@@ -16,6 +7,15 @@ import type {
 	Run,
 } from "@fcalell/ui-core/descriptors";
 import { factsOnly, listedRows, ownCount } from "@fcalell/ui-core/list-state";
+import { useSelections } from "@fcalell/ui-core/react/read";
+import {
+	combine,
+	type Datum,
+	isSelection,
+	pagesOf,
+	type Selection,
+	sampleOf,
+} from "@fcalell/ui-core/read";
 import { SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
 import { type ReactNode, useMemo, useState } from "react";
 import { View } from "react-native";

@@ -1,4 +1,4 @@
-import { createQueryClient } from "@fcalell/plugin-api/tanstack-query";
+import { createQueryClient } from "@fcalell/plugin-query/tanstack-query";
 
 // The TanStack Query client wired into the app by `<QueryProvider>` (see the
 // generated `.stack/entry.tsx`). The starter uses mobile-friendly defaults

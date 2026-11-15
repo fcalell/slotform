@@ -1,4 +1,4 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import { switchThumb, switchTrack } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { Pressable } from "react-native";

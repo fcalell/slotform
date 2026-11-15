@@ -1,4 +1,3 @@
-import type { Datum, Draft } from "@fcalell/plugin-api/tanstack-query";
 import type {
 	Answered,
 	ChangeKind,
@@ -8,6 +7,8 @@ import type {
 	Runs,
 } from "@fcalell/ui-core/descriptors";
 import { markedRuns } from "@fcalell/ui-core/form";
+import type { Draft } from "@fcalell/ui-core/react/acts";
+import type { Datum } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	DEFINITION_LINE,

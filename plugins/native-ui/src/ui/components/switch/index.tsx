@@ -1,4 +1,4 @@
-import type { Datum } from "@fcalell/plugin-api/tanstack-query";
+import type { Datum } from "@fcalell/ui-core/read";
 import { use } from "react";
 import type { Closed } from "../../lib/closed";
 import { type Fielded, FieldOwned } from "../../lib/field";

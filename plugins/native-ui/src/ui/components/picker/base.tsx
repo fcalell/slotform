@@ -1,7 +1,7 @@
-import type { Draft } from "@fcalell/plugin-api/tanstack-query";
 import type { Option } from "@fcalell/ui-core/descriptors";
 import { optionLeading, toggled } from "@fcalell/ui-core/list-state";
 import { pickCurrent, type Several } from "@fcalell/ui-core/pick";
+import type { Draft } from "@fcalell/ui-core/react/acts";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	CHIPS_RUN,
