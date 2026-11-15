@@ -15,7 +15,7 @@ matrices, cvas and cells it alone uses; `roster.ts`, `descriptors.ts`, `variants
 `variant-tables.ts` declare what two or more components share and re-export the rest, so the
 subpaths keep their names; `roster/shared.ts` holds the values a component file needs from what
 is shared, so no module is evaluated in an import cycle), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
-`follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads.
+`follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads.
 
 ## Tokens and theming
 

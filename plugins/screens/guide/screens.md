@@ -26,7 +26,10 @@ Storybook 10 and Vitest 5, which `stack add screens` installs.
 Every command drives one headless Chrome per machine, over the DevTools protocol. Its address
 (`{ port, pid }`) is `chrome.json` in `$XDG_RUNTIME_DIR/stack/` (the OS tmp dir without it). A
 command connects to it, or starts it under a lock when none runs, so two commands at once share one
-Chrome; a stale file (a dead pid, a port that does not answer) is replaced. Each command opens its
+Chrome; a stale file (a dead pid, a port that does not answer) is replaced. `chrome.json` also holds
+`kept` when `stack screens browser` started the browser. A `chrome.lock` file, taken by exclusive
+create, orders every start and every last-one-out check; a lock whose owner is gone is removed. A
+connect that fails because the browser has just closed starts it once more. Each command opens its
 own browser context and its tabs inside it, and disposes the context when it ends, on failure and
 on SIGINT or SIGTERM, so commands share the browser and nothing else. A browser a command started
 closes when the last context is gone. `stack screens browser` starts one that stays, for a

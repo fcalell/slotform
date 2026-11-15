@@ -94,4 +94,4 @@ Before writing one, check [sign-in](./sign-in.md): a flow every app needs is a g
 (`node_modules/@fcalell/cli/guide/gap.md`).
 
 **Check:** `stack generate`, then `pnpm check` passes, and under `pnpm dev` a sign-in code
-reaches `sendOTP`; `stack deploy` no longer stops at the `// TODO` marker.
+reaches `sendOTP`; `stack deploy` stops at the `// TODO` marker until the stub is replaced.

@@ -67,8 +67,7 @@ plugin-react-ui ──────────> cli + ui-core, requires react + 
                                   resolvedTheme/appCssSource;
                                   contributes to vite.slots.configImports/pluginCalls/fsAllow,
                                   react.slots.providers/entryImports, auth.slots.reservedSlugs
-                                  (from react.slots.topLevelRoutes), screens.slots.previewGlobals,
-                                  cliSlots.buildSteps)
+                                  (from react.slots.topLevelRoutes), screens.slots.previewGlobals)
 plugin-expo ──────────────> cli (owns expo.slots.metroConfig/expoConfig/entrySource,
                                  providers, easBuildProfiles/easUpdateChannel;
                                  contributes to api.slots.devCorsOrigins for the Metro dev origin,
@@ -93,6 +92,6 @@ plugin-node ──────────────> cli, requires api
 plugin-native-ui ─────────> cli + ui-core, requires expo, api and query (a deploy target only for an app that owns its server; `api({ server })` makes it a client of another app; auth is optional)
                                  (owns nativeUi.slots.appCssImports/appCssSource/resolvedTheme/fonts;
                                   contributes to expo.slots.metroConfigImports/metroPluginCalls/
-                                  expoConfigPlugins/providers, cliSlots.buildSteps/initScaffolds/
+                                  expoConfigPlugins/providers, cliSlots.initScaffolds/
                                   removeFiles/tsconfigTypes)
 ```

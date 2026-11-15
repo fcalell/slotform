@@ -50,7 +50,8 @@ that needs another names it, and a missing one fails with the plugin to add:
 | Plugin | Needs |
 | --- | --- |
 | `react()` | `vite()` |
-| `reactUi()` | `react()`, `vite()`, `query()` |
+| `reactUi()` | `react()`, `vite()` |
+| `screens()` | `react()`, `api()` |
 | `nativeUi()` | `expo()`, `api()`, `query()` |
 | `auth()` | `api()`, `db()` |
 | `db()`, `node()`, `query()` | `api()` |

@@ -93,9 +93,7 @@ and `style` as `?: never`) and declares exactly the roster's prop names.
 
 - **Look.** A part's `className` is `cn(cell(props), OVERLAY)`: the ui-core cva (or single-cell
   constant) first, then the overlay, so an overlay colour replaces the cell's. `cn` is
-  `@fcalell/ui-core/cn`. An overlay is a module constant spelled verbatim, never a class built from a variable, and
-  every overlay class other than a state variant over a token is listed in
-  `scripts/overlays.ts`.
+  `@fcalell/ui-core/cn`. An overlay is a module constant spelled verbatim, never a class built from a variable.
 - **States.** Hover, press and focus are the web variants `hover:`, `active:` and
   `focus-visible:`; a disabled control `disabled:` or `aria-disabled:`, a pending act
   `aria-busy:`. The focus ring draws for keyboard navigation alone: the root's `data-modality` is
