@@ -77,7 +77,7 @@ export interface WsHub {
 
 // The per-connection event handlers create-node-server hands to
 // upgradeWebSocket. Own minimal shape so this module never imports hono.
-export interface HubConnectionHandlers {
+interface HubConnectionHandlers {
 	onOpen(event: unknown, ws: HubSocket): void;
 	onMessage(event: { data: unknown }, ws: HubSocket): void;
 	onClose(event: unknown, ws: HubSocket): void;
@@ -90,7 +90,7 @@ interface RegisteredChannel {
 	sockets: Set<HubSocket>;
 }
 
-export interface WsHubInternal {
+interface WsHubInternal {
 	hub: WsHub;
 	connectionHandlers(session: ConnectionSession | null): HubConnectionHandlers;
 }

@@ -16,7 +16,7 @@ export function hasAuth(workerPaths: readonly string[]): boolean {
 	return workerPaths.includes(AUTH_PREFIX);
 }
 
-export type WsUpgradeDecision =
+type WsUpgradeDecision =
 	| { allow: true; session: ConnectionSession | null }
 	| { allow: false; reason: "origin" | "session" };
 
@@ -53,7 +53,7 @@ export function wsUpgradeDecision(input: {
 // `isForbiddenOrigin` guard does (production origins, plus the dev origins
 // only under STACK_DEV), so no second list exists to drift. A worker with
 // no CORS, or none at all, trusts no browser origin.
-export async function workerAllowsOrigin(
+async function workerAllowsOrigin(
 	worker: NodeWorker | null,
 	env: unknown,
 	url: URL,
@@ -85,7 +85,7 @@ export async function workerAllowsOrigin(
 // session revoked a moment ago opens nothing. Anything but a session is
 // null: an error refuses the socket. `credentials` names the request headers
 // it forwards.
-export async function workerSession(
+async function workerSession(
 	worker: NodeWorker | null,
 	env: unknown,
 	request: Request,

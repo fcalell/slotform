@@ -24,7 +24,7 @@ import type { BundleEntry } from "../types.ts";
 // are all followed at build). Every module of `src/bin/` is a second kind of entry,
 // bundled the same way to `bin/<name>.mjs`: a tool run by hand on that box.
 
-export interface BundleOptions {
+interface BundleOptions {
 	cwd: string;
 	// The generated entry (`.stack/server.bundle.ts`).
 	entry: string;

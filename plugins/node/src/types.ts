@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // A further port the server answers on for one origin of its own, which the
 // server reads from the env var `originVar` on every request.
-export const nodeListenerSchema = z.object({
+const nodeListenerSchema = z.object({
 	port: z.number().int().min(1).max(65535),
 	host: z.string().min(1).optional(),
 	originVar: z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/),
