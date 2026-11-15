@@ -135,8 +135,9 @@ tune in one place).
   on a consumer, and the anchor apps animate none of this). Failed forms arrive as loaded ones,
   with no shake.
 - **Scramble and decode.** When the theme scrambles a slot's kind, the slot paints generated
-  characters in the filler's length (`@fcalell/ui-core/scramble`: `kindOf`, `frame`, `decode`,
-  `createTicker`; one ticker per page); a figure or id that waited then decodes by locking its
+  characters in the filler's length (`@fcalell/ui-core/scramble`: `frame`, `decode`,
+  `createTicker`, over the kind `@fcalell/ui-core/paint`'s `kindOf` gives a role; one ticker per
+  page); a figure or id that waited then decodes by locking its
   characters across `slow`. `Decoded` (`lib/slot`) draws both forms as one instance. A wrapping slot
   always pulses. The spinner shows three cycling mono glyphs where `text` scrambles.
 - **Navigate and stream.** A path change lands at once: the router runs no transition, a Pane

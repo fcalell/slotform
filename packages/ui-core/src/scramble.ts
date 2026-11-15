@@ -3,25 +3,8 @@
 // Every function is pure over the tick it is given, so both platforms draw the
 // same frame for the same slot, and one ticker serves every slot of a page.
 
-import type { PaintRole } from "./paint.ts";
 import { createStore } from "./store.ts";
 import type { LoadingSlot } from "./tokens.ts";
-
-// The paint kind of a role: titles, names and prose are text, a figure is a
-// figure and an id is an id.
-export function kindOf(role: PaintRole): LoadingSlot {
-	if (role === "figure" || role === "id") return role;
-	return "text";
-}
-
-// Roles whose slot wraps over several lines: a scrambled box is one clipped
-// line, so these always pulse, each of their lines a bar.
-const WRAPS: ReadonlySet<PaintRole> = new Set(["sentence", "paragraph"]);
-
-// Whether a role's slot can be scrambled: the one-line ones.
-export function scrambles(role: PaintRole): boolean {
-	return !WRAPS.has(role);
-}
 
 // The characters each kind cycles through, Latin whatever the data's script:
 // the scramble never meets the loaded string.

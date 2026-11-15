@@ -4,7 +4,7 @@
 // form measures the same everywhere and the same filler comes back for the
 // same slot.
 
-import { createTicker, groupZeros, kindOf, scrambles } from "./scramble.ts";
+import { createTicker, groupZeros } from "./scramble.ts";
 import { createStore } from "./store.ts";
 import {
 	LOADING_SLOTS,
@@ -55,6 +55,22 @@ export const loading: Record<LoadingSlot, LoadingPaint> = Object.fromEntries(
 export function setLoading(next: Partial<Record<LoadingSlot, LoadingPaint>>) {
 	Object.assign(loading, next);
 	motion.emit();
+}
+
+// The paint kind of a role: titles, names and prose are text, a figure is a
+// figure and an id is an id.
+export function kindOf(role: PaintRole): LoadingSlot {
+	if (role === "figure" || role === "id") return role;
+	return "text";
+}
+
+// Roles whose slot wraps over several lines: a scrambled box is one clipped
+// line, so these always pulse, each of their lines a bar.
+const WRAPS: ReadonlySet<PaintRole> = new Set(["sentence", "paragraph"]);
+
+// Whether a role's slot can be scrambled: the one-line ones.
+function scrambles(role: PaintRole): boolean {
+	return !WRAPS.has(role);
 }
 
 // Whether a role's waiting slot is scrambled, not pulsing: its kind's paint is
