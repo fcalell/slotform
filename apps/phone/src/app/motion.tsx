@@ -199,7 +199,7 @@ function Loader() {
 					options={LOADING_PAINTS.map((one) => ({ value: one, label: one }))}
 					value={paint[slot]}
 					onChange={(value) => {
-						setLoading({ [slot]: value as LoadingPaint });
+						setLoading({ [slot]: value });
 						setPaint({ ...loading });
 						setRun(run + 1);
 					}}

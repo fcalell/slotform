@@ -16,8 +16,6 @@ const ICONS = { start: "Play", step: "Cog", end: "Flag" } as const;
 // screen run's axe holds at the text floor.
 const RUN = { nodes: ["start", "build"], edges: ["start-build"], at: "build" };
 
-// A small flow on a canvas that fills the Pane: its nodes and links from one
-// read, the canvas placing them.
 function Flow() {
 	const graph = orpc.flow.graph.read();
 	return (

@@ -28,10 +28,11 @@ const scatter = (n: number) => Math.abs(Math.sin(n * 12.9898) * 43758.5453) % 1;
 let all: Request[] | undefined;
 export function requests(): Request[] {
 	all ??= Array.from({ length: TOTAL }, (_, index) => {
-		const path = PATHS[index % PATHS.length] as string;
+		const path = PATHS[index % PATHS.length] ?? "/";
 		return {
 			id: `req-${index}`,
 			method: METHODS[Math.floor(scatter(index) * METHODS.length)] ?? "GET",
+			// The root stays bare: a numbered root is no root.
 			path: `${path}${path === "/" ? "" : `/${index % 97}`}`,
 			state: STATES[Math.floor(scatter(index + 1) * STATES.length)] ?? "done",
 			took: Math.round(8 + scatter(index + 2) * 900),

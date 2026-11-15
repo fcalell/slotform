@@ -14,7 +14,6 @@ const logs = read({
 	staleTime: Number.POSITIVE_INFINITY,
 });
 
-// A page with nothing in it yet.
 function Logs() {
 	return (
 		<Pane

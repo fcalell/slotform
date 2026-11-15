@@ -40,8 +40,6 @@ function requestsBy(sort: Sort | undefined) {
 	return rows;
 }
 
-// ── Releases ────────────────────────────────────────────────────────
-
 const RELEASES: AppRouter["releases"]["list"]["__output"] = [
 	{ id: "r1", name: "2.8.0", stage: "review", state: "waiting", age: ago(30) },
 	{
@@ -87,8 +85,6 @@ const STAGES = {
 	],
 };
 
-// ── Usage ───────────────────────────────────────────────────────────
-
 // Build minutes a day, the last 30 days, each day timed.
 const MINUTES = [
 	140, 160, 170, 150, 120, 110, 150, 170, 180, 160, 170, 120, 110, 160, 190,
@@ -122,8 +118,6 @@ const REQUESTS: Day[] = WEEK.map(([day, values]) => ({
 	),
 	at: day,
 }));
-
-// ── Members ─────────────────────────────────────────────────────────
 
 const MEMBERS: Member[] = [
 	{
@@ -172,8 +166,6 @@ const MEMBERS: Member[] = [
 		active: ago(60 * 24 * 9),
 	},
 ];
-
-// ── Assistant ───────────────────────────────────────────────────────
 
 // A moment today at a clock time, as the ISO string a Message formats.
 function today(time: string): string {

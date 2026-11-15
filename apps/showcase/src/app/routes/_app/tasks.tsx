@@ -62,7 +62,6 @@ const ROW = {
 
 const BY_ID = new Map(TASKS.map((task) => [task.id, task]));
 
-// The queue's row: a task, dragged to a board, completed from its icon.
 const toRow = (task: Task): Row => ({
 	key: task.id,
 	title: task.title,

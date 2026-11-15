@@ -27,7 +27,6 @@ export const Route = createFileRoute("/_app/usage")({
 	component: Usage,
 });
 
-// A day's figure, its parts by project when the chart stacks.
 type Day = AppRouter["usage"]["requests"]["__output"][number];
 
 const BAR: BarSlots<Day> = {
@@ -37,10 +36,8 @@ const BAR: BarSlots<Day> = {
 	at: (day) => day.at,
 };
 
-// The places of the three meters the plan reads.
 const METERS = [0, 1, 2];
 
-// The projects a week's requests are split by.
 const PROJECTS = ["acme-web", "acme-api", "acme-docs"];
 
 // Each section reads its own query and holds it as its frame, so a failure

@@ -10,11 +10,7 @@ import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
 import { Table } from "@fcalell/plugin-react-ui/components/table";
 import { confirm } from "@fcalell/plugin-react-ui/lib/confirm";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import type {
-	CellValue,
-	Option,
-	TableColumn,
-} from "@fcalell/ui-core/descriptors";
+import type { Option, TableColumn } from "@fcalell/ui-core/descriptors";
 import type { Read } from "@fcalell/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
@@ -181,13 +177,6 @@ function Record(props: { member?: Member; onClose: () => void }) {
 	);
 }
 
-// What one cell's edit changes on its member: the team, the one column that
-// edits in place.
-function edited(key: string, value: CellValue): Pick<Partial<Member>, "team"> {
-	if (key === "team") return { team: String(value ?? "") };
-	return {};
-}
-
 // The members read, its answer updated in place by each edit as a query's
 // cache is: the mutations own the cache they change. The Section around the
 // table holds the read; the open record's member is the app's own view of it.
@@ -212,8 +201,9 @@ function MemberTable(props: { members: Read<readonly Member[]> }) {
 				row={ROW}
 				selected={open}
 				onOpen={setOpen}
-				onEdit={(id, key, value) =>
-					update.mutateAsync({ id, ...edited(key, value) })
+				// The team is the one column that edits in place.
+				onEdit={(id, _key, value) =>
+					update.mutateAsync({ id, team: String(value ?? "") })
 				}
 			/>
 			<Record

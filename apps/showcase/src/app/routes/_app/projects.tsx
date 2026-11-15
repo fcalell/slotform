@@ -22,7 +22,6 @@ const STAGES = [
 const projectsOf = (stage: (typeof STAGES)[number]["stage"]) =>
 	orpc.projects.list.read({ stage });
 
-// A stage's projects, from their own read, on the stage's card.
 function Stage(props: { stage: (typeof STAGES)[number] }) {
 	const { stage, title } = props.stage;
 	const projects = projectsOf(stage);

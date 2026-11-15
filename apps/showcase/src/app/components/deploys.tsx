@@ -32,7 +32,6 @@ type Deploys = AppRouter["deploys"];
 type Deploy = Deploys["list"]["__output"]["data"][number];
 type OpenDeploy = Deploys["get"]["__output"];
 
-// Deploys a page holds: the list pages in fives, behind "Show more".
 const PAGE = 5;
 
 // The reads of the Deploys place, built here so a route's loader and the
@@ -273,7 +272,6 @@ export function DeployStep(props: { deployId: string; stepId: string }) {
 	);
 }
 
-// The open deploy's details, sections of the deploy's own Pane.
 function DeployDetails(props: { deploy: Selection<OpenDeploy> }) {
 	const { deploy } = props;
 	const remove = useMutation(orpc.deploys.remove.mutationOptions());
@@ -327,7 +325,6 @@ function DeployDetails(props: { deploy: Selection<OpenDeploy> }) {
 	);
 }
 
-// The Deploys place's first Pane: the deploys, a row opening one beside it.
 export function DeployList() {
 	const queryClient = useQueryClient();
 	const deploys = deploysPage();

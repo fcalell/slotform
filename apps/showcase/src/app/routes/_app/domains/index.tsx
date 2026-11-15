@@ -29,6 +29,7 @@ function Domains() {
 						// The state is said nowhere else, so it is a status fact.
 						facts: [{ tone: domain.state }, ...domain.meta.split(" · ")],
 						href: `#${domain.name}`,
+						// Only a domain still waiting has a record to verify.
 						more: [
 							...(domain.state === "waiting"
 								? [
