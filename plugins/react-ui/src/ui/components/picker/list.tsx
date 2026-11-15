@@ -13,6 +13,7 @@ import {
 } from "@fcalell/ui-core/list-state";
 import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
 import type { Draft } from "@fcalell/ui-core/react/acts";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	BLOCK_IN,
 	LINE_IN,
@@ -43,7 +44,6 @@ import { useDrawn } from "../../lib/arrive.ts";
 import { GroupName } from "../../lib/field.ts";
 import { PAINT_CONTROL, Painted } from "../../lib/paint.tsx";
 import { OptionsLine, useOptions } from "../../lib/read.tsx";
-import { sameBy } from "../../lib/same-by.ts";
 import { Window } from "../../lib/window.tsx";
 import { useWords } from "../../lib/words.tsx";
 import { MarkBadge } from "../row/badges.tsx";

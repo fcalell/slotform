@@ -3,6 +3,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { FileItem, IconName } from "@fcalell/ui-core/descriptors";
 import { DIRECTORY_LEAD, pathCut } from "@fcalell/ui-core/list-state";
 import { isCurrent } from "@fcalell/ui-core/route";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	FILE_COUNT_YIELD,
 	FILE_COUNTS,
@@ -16,7 +17,6 @@ import {
 import { memo } from "react";
 import { follow, useRoute } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { sameBy } from "../../lib/same-by.ts";
 import { Roll, Swap } from "../../lib/swap.tsx";
 import { ChipBase } from "../chip/base.tsx";
 import { IconBase } from "../icon/index.tsx";

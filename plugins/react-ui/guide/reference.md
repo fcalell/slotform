@@ -37,7 +37,10 @@ the router like a `Link`. A record's tabs render inside its `Pane`'s body, the t
 
 ## Reads
 
-The web needs no `QueryProvider listen`, since TanStack reads the window's online and visibility events.
+A read, a `Form` and an act's refusal run on the `QueryProvider` that `query()` mounts; without
+`query()` in the config a component given plain values still draws, and a read or a `Form` throws
+naming the provider. The web needs no `QueryProvider listen`, since TanStack reads the window's
+online and visibility events.
 
 ## Long collections
 

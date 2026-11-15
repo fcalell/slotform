@@ -149,7 +149,7 @@ export const reactUi = plugin("react-ui", {
 
 	schema: reactUiOptionsSchema,
 
-	requires: ["react", "vite", "query"],
+	requires: ["react", "vite"],
 
 	dependencies: {
 		// The guide's index points into the consumer's node_modules for

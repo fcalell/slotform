@@ -15,6 +15,7 @@ import {
 	type Selection,
 	turnOf,
 } from "@fcalell/ui-core/read";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import { THREAD, THREAD_COLUMN } from "@fcalell/ui-core/variants";
 import {
 	memo,
@@ -41,7 +42,6 @@ import {
 	stillOf,
 	useCollection,
 } from "../../lib/read.tsx";
-import { sameBy } from "../../lib/same-by.ts";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
 import { useWords } from "../../lib/words.tsx";

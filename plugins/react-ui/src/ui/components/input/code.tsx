@@ -1,8 +1,8 @@
 import { Input as Control } from "@base-ui/react/input";
-import { refusal } from "@fcalell/plugin-query/acts";
 import { drew, isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import { useRun } from "@fcalell/ui-core/react/acts";
+import { usePort } from "@fcalell/ui-core/react/port";
 import {
 	FIELD_ERROR_LINE,
 	LINE_IN,
@@ -40,6 +40,7 @@ export function CodeField({
 	useModality();
 	const words = useWords();
 	const run = useRun();
+	const port = usePort();
 	// The check's refusal stands in the control's own line until the next digit.
 	const [refused, refuse] = useState<string>();
 	const line = useId();
@@ -51,7 +52,7 @@ export function CodeField({
 		if (!isThenable(result)) return result;
 		return Promise.resolve(result).catch((error: unknown) => {
 			drew(error);
-			refuse(refusal(error) ?? words.actFailed);
+			refuse(port.refusal(error) ?? words.actFailed);
 		});
 	};
 	const complete = (code: string) => run.run(true, () => attempt(code));

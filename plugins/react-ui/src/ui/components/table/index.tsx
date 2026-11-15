@@ -66,6 +66,7 @@ import {
 	sameQuery,
 	windowOf,
 } from "@fcalell/ui-core/read";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	CARD,
 	FIGURES,
@@ -128,7 +129,6 @@ import {
 	stepKey,
 	useMovable,
 } from "../../lib/reorder.ts";
-import { sameBy } from "../../lib/same-by.ts";
 import { Turn } from "../../lib/turn.tsx";
 import { Scroller, Window } from "../../lib/window.tsx";
 import { useWords } from "../../lib/words.tsx";

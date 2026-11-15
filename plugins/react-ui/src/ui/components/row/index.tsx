@@ -21,6 +21,7 @@ import { useSelections } from "@fcalell/ui-core/react/read";
 import { paints } from "@fcalell/ui-core/read";
 import { isCurrent } from "@fcalell/ui-core/route";
 import { filled, isCode, META_TAIL, runsOf } from "@fcalell/ui-core/runs";
+import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	BLOCK_IN,
 	CODE_NAME,
@@ -81,7 +82,6 @@ import {
 	movesOf,
 	stepKey,
 } from "../../lib/reorder.ts";
-import { sameBy } from "../../lib/same-by.ts";
 import { useWords } from "../../lib/words.tsx";
 import { IconButtonBase } from "../button/glyph.tsx";
 import { HeldInput } from "../input/base.tsx";
