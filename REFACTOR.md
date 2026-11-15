@@ -614,3 +614,17 @@ F9 (showcase move), gate green (`pnpm check` exit 0, 32 and 27 tasks, Biome 976 
 - 34 frame imports still reach 19 plugin modules by relative path (`grep -rho "plugins/react-ui/src[^\"]*" apps/showcase/src | sort | uniq -c`): 23 have no public way to stage the edge (`FormField` 9, `PortalContainer` 3, `FormBody` 2, `SheetCard` 2, shell host 2, `ButtonBase`/`IconButtonBase` painted 2, `ToastList`, `RowBase`, `FileRowBase`), 9 have a public route that draws a different tree (needs a look), 2 read `graphs.ts`.
 - `apps/showcase/tsconfig.app.json` sets `"rootDir": "../.."` so those relative imports compile; it goes when the last one goes.
 - `plugins/react-ui/src/ui/showcase/graphs.ts` stays: `components/canvas/open.test.ts` and two frames both read it.
+
+F9 part 2 (owner: the showcase is a consumer), commit `915aab1c`. Gate: check-types 32 of 32, test 27 of 27, Biome 977 files clean (Biome re-run alone after an import-order fix). The three open items above are closed: imports from the app into plugin source 34 to 0, no `rootDir` override, `plugins/react-ui/src/ui/showcase/` gone, canvas test data at `components/canvas/__fixtures__/graphs.ts` (6 graphs), app copy at `apps/showcase/src/roster/graphs.ts` (24). No new `exports` entry. Stories 114 before and after. **Nobody looked at any drawing.**
+
+To look at when visual checks are allowed (52 stories whose drawing changed): `shared-actionbar--error`, `atom-button--rest`, `content-canvas--rest`, `layout-form--*` (7), `content-gallery--rest`, `content-image--rest|loading|error`, `atom-input--rest|disabled|error|empty`, `layout-pane--rest`, `shared-picker--rest|loading|selected|disabled|error`, `layout-section--*` (9), `shared-sheet--*` (9), `atom-switch--rest|disabled`, `content-table--*` (6), `content-thread--rest`, `shared-toast--rest`. First risk: an overlay stage now holds a `Gate` (`h-dvh`), where the stage was 600 px tall; sheets in stages are now modal.
+
+Edges dropped because no consumer can draw them (owner decides whether a component should offer each):
+- a form group with a read of its own (`plugins/react-ui/guide/rules.md` says a group can be given its read; the public `Form` groups take none)
+- a field's `answered` fold, `change` mark, and a checkbox field
+- a control disabled while placed alone (`Input`, `Picker`, `Switch` take no `disabled`)
+- a decision (`confirm()`) or a toast staged beside others on one page: one queue each, every root frame draws it; the confirm frames and the one-toast-per-tone cells went
+- a file pick shown chosen and disabled; a painted file row; the painted mini image tile
+- a popup outside a root frame drawing its frame's mode
+
+For the react-ui F10/F11 pass: `components/sheet/base.tsx` `scoped` branch and `PortalHosted` in `lib/portal.ts` are dead now that only root frames name a portal (and the comment on `PortalHosted` still names a showcase stage).
