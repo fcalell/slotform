@@ -362,7 +362,7 @@ no frontmatter, so a headless job that loads no Claude Code settings reads the s
 
 A consumer's screens are its own: stack composes no product screen. ui-core's screen recipe
 designs each in code: compose from the contract and roster installed at the consumer's version
-(`node_modules/@fcalell/ui-core/DESIGN.md` and `src/roster.ts`), open the anchor screen the voice
+(`node_modules/@fcalell/ui-core/DESIGN.md` and `src/roster.ts`, each entry in `src/roster/<component>.ts`), open the anchor screen the voice
 page pins, draw every state the spec names, then stand the render beside the anchor screen and ask
 which looks better; rework until the answer is "ours" or "the same", and fcalell signs off on the
 render. There are no artboards.

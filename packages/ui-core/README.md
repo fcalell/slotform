@@ -4,7 +4,7 @@ The design system both stack UI plugins render from: one closed token contract, 
 foundations sheet as data behind six knobs, the words the molecules speak, the platform-invariant
 variant matrices, the roster every component and its props are pinned to, and the laws that say
 which token to pick. The contract subpaths export build-time data only, so each plugin renders its
-own CSS from the same records and ui-core stays framework-free. One subpath is Node-only:
+own CSS from the same records and ui-core stays framework-free outside `react/*`. One subpath is Node-only:
 `./manifest`, the guide pages the UI plugins index.
 
 ## Install
@@ -50,9 +50,11 @@ The subpaths:
 - `@fcalell/ui-core/rules`: what the Rules editor and the Picker decide before they draw, free of
   any framework: `termSet`, `pairSet`, `termLabel`, `isTyped` and `marked` (with `PICKED_GLYPH`).
 - `@fcalell/ui-core/streaming`: `closeOpenRuns`, a still-arriving reply's Markdown with the runs open at its end closed, free of any framework.
-- `@fcalell/ui-core/read`: `readState`, a read's phase (idle, waiting, ready, failed, missing) and flags
-  (busy, stale, more, streaming, paused) from the few fields of a query's result it names, free of any
-  framework and of TanStack.
+- `@fcalell/ui-core/read`: the read model, free of any framework and of TanStack: `readState`, a read's phase (idle, waiting, ready, failed, missing) and flags (busy, stale, more, streaming, paused) from the few fields of a query's result it names; `frameOf` and `turnOf`; the `Read` handle (`key`, `kind`, `missing`), `Selection`, `Datum`, `combine`, `lift`, `Drawn` and `paints`, the placeholder and the sample, the frame's holds and marks, and `planSelections`/`planFrame`, the pure core of the hooks. The binding that runs the reads builds a `Read` with `readOf`.
+- `@fcalell/ui-core/acts`: what an act is made of apart from what runs it: `isThenable`, `drew`/`wasDrawn`, `startRun`, `holdSave`, `Issue`, `Unreached`.
+- `@fcalell/ui-core/scope`: the route's registered scope (`registerScope`, `releaseScope`, `registeredScope`, `ScopeIds`) and `mergeScope`.
+- `@fcalell/ui-core/listen`: `QueryListeners`, the shape of the query provider's `listen`.
+- `@fcalell/ui-core/react/port`, `/react/read`, `/react/acts`, `/react/scope` (React, an optional peer): the read hooks (`useSelections`, `useFrameRead`, `useMore`, `useWindow`, `useDraft`, `useRun`, ...), `FrameHolds`, `ScopeBoundary`, and `ReadPort`, the port a binding (`@fcalell/plugin-query`) provides them through.
 - `@fcalell/ui-core/paint`: what a part draws while its data is not here, free of any framework:
   `paintText` (deterministic filler of a role's length), `painting` (a slot over a painted item, a
   throw painting the slot), `WAIT_DELAY`, `PAINT_ROWS` and `PAINT_TURNS`, and `timings` (the live `waitDelay`,

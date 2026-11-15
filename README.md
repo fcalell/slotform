@@ -72,7 +72,8 @@ Consumers never install or import `drizzle-orm`, `hono`, `zod`, `vite`, or `tail
 | [`@fcalell/plugin-node`](plugins/node) | A long-running Node server target: one process serves the API, the built web client and background services | `node()` |
 | [`@fcalell/plugin-db`](plugins/db) | Drizzle ORM clients (D1/SQLite), schema tooling, migrations | `db()` |
 | [`@fcalell/plugin-auth`](plugins/auth) | Better Auth integration, RBAC, access control | `auth()` |
-| [`@fcalell/plugin-api`](plugins/api) | Hono + oRPC, procedure builder, typed client | `api()` |
+| [`@fcalell/plugin-api`](plugins/api) | The wire: Hono + oRPC, procedure builder, the worker runtime, the typed client, schema and errors | `api()` |
+| [`@fcalell/plugin-query`](plugins/query) | The client side of the api: TanStack Query reads and acts over the typed client, the query provider, and the port ui-core's read hooks run on | `query()` |
 | [`@fcalell/plugin-vite`](plugins/vite) | Framework-agnostic Vite lifecycle | `vite()` |
 | [`@fcalell/plugin-react`](plugins/react) | React on the web: Vite + React Compiler, TanStack Router file routes, the app entry, providers, and the HTML shell with its `<head>` metadata | `react()` |
 | [`@fcalell/plugin-react-ui`](plugins/react-ui) | The design system on the web: `.stack/app.css` from the ui-core contract on Tailwind v4, fonts, the mode script, words, and the showcase data Storybook draws the roster from | `reactUi()` |

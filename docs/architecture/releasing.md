@@ -5,15 +5,15 @@ The owner publishes; nothing in the repository logs in to npm or publishes on it
 
 ## What is published
 
-Fifteen packages, all `@fcalell/*`, all at one version:
+Sixteen packages, all `@fcalell/*`, all at one version:
 
 | Package | Directory | A consumer installs it because |
 |---------|-----------|--------------------------------|
 | `@fcalell/cli` | `packages/cli` | the `stack` binary and the slot graph; every app's devDependency |
-| `@fcalell/ui-core` | `packages/ui-core` | the design contract; both UI plugins depend on it and the guide index lists its pages |
+| `@fcalell/ui-core` | `packages/ui-core` | the design contract and the read model with its hooks; both UI plugins depend on it and the guide index lists its pages |
 | `@fcalell/typescript-config` | `packages/typescript-config` | the scaffold's `tsconfig` presets (every app's devDependency) |
 | `@fcalell/biome-config` | `packages/biome-config` | the scaffold's Biome preset (every app's devDependency outside stack's workspace) |
-| `@fcalell/plugin-api`, `-auth`, `-cloudflare`, `-db`, `-expo`, `-native-ui`, `-node`, `-react`, `-react-ui`, `-screens`, `-vite` | `plugins/<name>` | one per domain, named in `stack.config.ts` |
+| `@fcalell/plugin-api`, `-auth`, `-cloudflare`, `-db`, `-expo`, `-native-ui`, `-node`, `-query`, `-react`, `-react-ui`, `-screens`, `-vite` | `plugins/<name>` | one per domain, named in `stack.config.ts` |
 
 Private, never published: the root (`@fcalell/stack`) and the two apps, `apps/showcase` and
 `apps/phone`, which are stack consumers inside the checkout (`.changeset/config.json` ignores
@@ -22,7 +22,7 @@ every app's `package.json`, and `.stack/biome.json` extends the Biome one.
 
 A tarball holds what its `files` lists and nothing more: `dist/` (JavaScript with `.d.ts` and
 maps), `src/` (the entries a bundler compiles resolve to it, `ui-core`'s guide sends a reader to
-`src/roster.ts`, and the maps point into it), `guide/*.md` (a consumer's `stack generate` indexes
+`src/roster.ts` and `src/roster/`, and the maps point into it), `guide/*.md` (a consumer's `stack generate` indexes
 them), `DESIGN.md` for ui-core, `templates/` and `lint/` where a plugin scaffolds or contributes
 them, the README and the LICENSE. Test files, `tsconfig*.json` and ui-core's maintainer scripts
 stay out. Every entry Node loads resolves through `exports` into `dist/` (Node refuses to strip
@@ -32,7 +32,7 @@ types under `node_modules`); only `.tsx`, `.css` and `src/ui/` entries resolve t
 ## The version rule
 
 - **One version for every public package** (`fixed` in `.changeset/config.json`). A release
-  publishes all fifteen or none; never a subset.
+  publishes all sixteen or none; never a subset.
 - **Stack-to-stack ranges are carets of that version.** A package depends on another with
   `workspace:^`, which `pnpm pack` and `pnpm publish` write as `^<version>`. On `0.x` a caret
   holds the minor (`^0.1.0` is `>=0.1.0 <0.2.0`), so a breaking change bumps the minor and
@@ -77,7 +77,7 @@ awk '/^snapshots:/{s=1} s && /^  .?@fcalell\//' pnpm-lock.yaml \
 ## The check
 
 `pnpm release:check` (`scripts/release-check.ts`) proves the tarballs, with no server and no
-login. It builds, packs the fifteen packages, and checks each tarball (MIT, a LICENSE, a
+login. It builds, packs the sixteen packages, and checks each tarball (MIT, a LICENSE, a
 `repository.directory`, `publishConfig.access: public`, no `workspace:` range left, no test file,
 every `exports` and `bin` target present). It then makes three consumers with `stack init`
 (a worker web app, a Node-target web app, a native app), each installing **only** from the

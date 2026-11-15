@@ -26,7 +26,8 @@ runtime export.
 | `@fcalell/plugin-cloudflare` | Cloudflare bindings, wrangler.toml codegen, `wrangler types` Env generation | `cloudflare()` |
 | `@fcalell/plugin-db` | Drizzle ORM clients and runtimes (D1 on cloudflare, SQLite on node), schema tooling, migrations | `db()` |
 | `@fcalell/plugin-auth` | Better Auth integration (email OTP, magic links, OAuth, passkeys, an OAuth authorization server for MCP clients with grant verification and revocation, device keys for headless machines, consumer plugins), RBAC, access control, web and native clients | `auth()` |
-| `@fcalell/plugin-api` | API framework: Hono + oRPC, procedure builder, typed client | `api()` |
+| `@fcalell/plugin-api` | The wire: Hono + oRPC, procedure builder, the worker runtime, the typed client, schema and errors, with no React | `api()` |
+| `@fcalell/plugin-query` | The client side of the api: TanStack Query reads and acts over the typed client, the query provider, the org-rules ability, and the port ui-core's read hooks run on | `query()` |
 | `@fcalell/plugin-node` | Long-running Node server target: serves the worker + static SPA, background services, typed WebSocket surface | `node()` |
 | `@fcalell/plugin-vite` | Framework-agnostic Vite lifecycle (providers virtual module) | `vite()` |
 | `@fcalell/plugin-react` | React on the web: Vite + React Compiler, TanStack Router file routes, app entry, providers, HTML shell and `<head>` metadata | `react()` |
@@ -61,7 +62,7 @@ plugin-screens ───────────> cli, requires react + api
                                   derives from vite's input slots, react.slots.routesDir/routerOptions/entryImports/
                                   routerBindings and api.slots.routePrefixes;
                                   contributes to cliSlots.artifactFiles/postWrite (the story files)/removeFiles; reads, never writes, the app's Vite config)
-plugin-react-ui ──────────> cli + ui-core, requires react + vite
+plugin-react-ui ──────────> cli + ui-core, requires react + vite + query
                                  (owns reactUi.slots.appCssImports/appCssBlocks/appCssLayers/fonts/
                                   resolvedTheme/appCssSource;
                                   contributes to vite.slots.configImports/pluginCalls/fsAllow,
@@ -83,11 +84,13 @@ plugin-auth ──────────────> cli, requires api + db
 plugin-api ───────────────> cli, requires exactly one of cloudflare or node (default cloudflare), none with `server` (a client of another app's server)
                                  (owns api.slots.workerImports/pluginRuntimes/middlewareEntries/cors/nativeScheme/callbacks/env/workerSource;
                                  never imports a deploy target)
+plugin-query ─────────────> cli + api + ui-core, requires api
+                                 (owns no slot; contributes to react.slots.providers (QueryProvider) and vite.slots.optimizeExclude)
 plugin-node ──────────────> cli, requires api
                                  (owns node.slots.serverPort/services/serverSource;
                                   derives from api.slots.workerSource/routePrefixes/cors/env;
                                   contributes to vite.slots.serverProxy for same-origin dev)
-plugin-native-ui ─────────> cli + ui-core, requires expo and api (a deploy target only for an app that owns its server; `api({ server })` makes it a client of another app; auth is optional)
+plugin-native-ui ─────────> cli + ui-core, requires expo, api and query (a deploy target only for an app that owns its server; `api({ server })` makes it a client of another app; auth is optional)
                                  (owns nativeUi.slots.appCssImports/appCssSource/resolvedTheme/fonts;
                                   contributes to expo.slots.metroConfigImports/metroPluginCalls/
                                   expoConfigPlugins/providers, cliSlots.buildSteps/initScaffolds/

@@ -258,7 +258,7 @@ fails `tsc` and the schema. It is a plugin option beside `theme`; each plugin co
 - An act's run: pending shows after `ACT_DELAY`; a host's line or a failed toast reports a refusal;
   presses offline are held; a control's save keeps the latest and rolls back on failure; a link's
   intent preloads its route and navigation is never held.
-- The phone wires TanStack's managers (`QueryProvider listen` takes `online` and `focus`).
+- The phone wires TanStack's managers (`QueryProvider listen` takes `online` and `focus`, a `QueryListeners` from `@fcalell/ui-core/listen`).
 - Forms: a `Form` is derived from the procedure it submits: `form.ts` holds what both platforms share (the
   `FieldSpec`, `FormFields` and `FormGroupOf` types, and the derivation of a field's control,
   optionality, options and coercion from the input's JSON Schema, and the read of a picked file), the platforms draw. A `Sheet`'s
