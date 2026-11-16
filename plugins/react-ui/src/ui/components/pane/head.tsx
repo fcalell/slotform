@@ -1,4 +1,4 @@
-import { type Offered, offered } from "@fcalell/ui-core/acts";
+import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Route, Run } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
@@ -33,7 +33,7 @@ import { RunText } from "../../lib/code.tsx";
 import { ShellMenu } from "../../lib/frame.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { BusyMark, endedItems, FrameLine } from "../../lib/read.tsx";
+import { BusyMark, FrameLine } from "../../lib/read.tsx";
 import { IconButtonBase, IconButtonLink } from "../../parts/button/glyph.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Button } from "../button/index.tsx";

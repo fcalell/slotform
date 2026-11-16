@@ -1,5 +1,6 @@
 import type { Dialog } from "@base-ui/react/dialog";
 import { cn } from "@fcalell/ui-core/cn";
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { askDiscard } from "@fcalell/ui-core/react/confirm";
 import { hasBody, submitOf, useFrame } from "@fcalell/ui-core/react/read";
 import {
@@ -16,7 +17,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import type { Act } from "../../lib/act.ts";
-import { type Acting, useAct } from "../../lib/act.ts";
+import { useAct } from "../../lib/act.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { FIELDS, firstTabbable } from "../../lib/focus.ts";
 import { useTouch } from "../../lib/media.ts";

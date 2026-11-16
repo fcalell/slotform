@@ -1,3 +1,4 @@
+import { moreMenu } from "@fcalell/ui-core/acts";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
@@ -13,7 +14,6 @@ import {
 	type MenuEntry,
 	wiringOf,
 } from "../../lib/act.ts";
-import { moreMenu } from "../../lib/read.tsx";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { Reason } from "../../parts/button/reason.tsx";
 import { ButtonBase } from "../button/base.tsx";

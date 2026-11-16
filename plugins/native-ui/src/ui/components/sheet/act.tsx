@@ -1,5 +1,6 @@
 import { isThenable } from "@fcalell/ui-core/acts";
-import type { Acting, ActSheetProps } from "../../lib/act";
+import type { Acting } from "@fcalell/ui-core/react/acts";
+import type { ActSheetProps } from "../../lib/act";
 import { Sheet } from ".";
 
 // The sheet an act of its holder opened: drawn by the holder beside the

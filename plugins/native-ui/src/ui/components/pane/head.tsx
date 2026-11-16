@@ -1,4 +1,4 @@
-import { type Offered, offered } from "@fcalell/ui-core/acts";
+import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
@@ -31,7 +31,7 @@ import { RunText } from "../../lib/code";
 import { ShellSwitcher } from "../../lib/frame";
 import { navigate } from "../../lib/navigate";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
-import { BusyMark, endedItems, FrameLine } from "../../lib/read";
+import { BusyMark, FrameLine } from "../../lib/read";
 import type { Route } from "../../lib/route";
 import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";

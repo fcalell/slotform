@@ -32,6 +32,7 @@ import type {
 	ToolbarFilter,
 } from "./descriptors.ts";
 import { painting } from "./paint.ts";
+import { isSelection, type Selection } from "./read.ts";
 import { nounOf } from "./rules.ts";
 import { partText } from "./runs.ts";
 import {
@@ -644,6 +645,25 @@ export function ownCount(rows: readonly object[]): boolean {
 	return (
 		listed.length === rows.length && listed.every((row, at) => row === rows[at])
 	);
+}
+
+// A row of a Section's sheet as its picks are read: a row item with the pick
+// and children it has, or a file row (`"path" in row`), which has neither.
+type PickingRow =
+	| { pick?: { options?: unknown }; children?: readonly PickingRow[] }
+	| { path: string };
+
+// The selections a pick row draws its options from, a tree's children too: the
+// reads the sheet says once, where each row's picker would say it again.
+export function optionReads(rows: readonly PickingRow[]): Selection<unknown>[] {
+	return rows.flatMap((row) => {
+		if ("path" in row) return [];
+		const own = row.pick?.options;
+		return [
+			...(isSelection(own) ? [own] : []),
+			...optionReads(row.children ?? []),
+		];
+	});
 }
 
 // The most characters a touch row's fact holds: the short measure. A fact is no

@@ -5,14 +5,7 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import {
-	type Datum,
-	type Drawn,
-	endedReason,
-	isEnded,
-	lift,
-} from "@fcalell/ui-core/read";
-import type { Words } from "@fcalell/ui-core/tokens";
+import { type Datum, type Drawn, isEnded, lift } from "@fcalell/ui-core/read";
 import { ROW_RETRY, row } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { ButtonBase } from "../components/button/base.tsx";
@@ -21,7 +14,7 @@ import { Text } from "../components/text/index.tsx";
 import { IconButtonBase } from "../parts/button/glyph.tsx";
 import { Icon } from "../parts/icon/index.tsx";
 import { Spinner } from "../parts/spinner/index.tsx";
-import type { Act, MenuEntry } from "./act.ts";
+import type { Act } from "./act.ts";
 import { wiringOf } from "./act.ts";
 import { type Empty, EmptyBase, type EmptyFit } from "./empty.tsx";
 
@@ -71,25 +64,6 @@ export function RetryMark({ busy }: { busy: boolean }) {
 			)}
 		</span>
 	);
-}
-
-/** What a more menu holds and whether it paints: its own items, or the one blocked item once their read ended. The items are the datum the leaf already subscribed to (`useSelections`); a menu with no items and nothing painting draws no menu. A refusal is the item's own blocked reason, so it toasts or shows as the menu does for any blocked item. */
-export function moreMenu(
-	words: Words,
-	offer: Drawn<readonly MenuEntry[] | undefined>,
-): { painted: boolean; items: readonly MenuEntry[] } {
-	if (!offer.painted) return { painted: false, items: offer.value ?? [] };
-	const ended = endedReason(words, offer.phase);
-	if (ended === undefined) return { painted: true, items: [] };
-	return { painted: false, items: endedItems(words, ended) };
-}
-
-// A blocked act is never pressed; its type still asks for the run.
-const NEVER_PRESSED = (): void => undefined;
-
-/** The one blocked item a menu stands as while its read has ended: nothing can be taken from it, and its reason says why. */
-export function endedItems(words: Words, reason: string): readonly Act[] {
-	return [{ label: words.more, blocked: reason, onAct: NEVER_PRESSED }];
 }
 
 // The empty form. Its sentence may be a read of its own (a selection of what

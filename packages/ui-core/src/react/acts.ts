@@ -1,13 +1,16 @@
 // The hooks a host holds its acts' runs and a control its saves with (the
-// model is `../acts.ts`), over the binding's port.
+// model is `../acts.ts`), over the binding's port, and `createActs`, which
+// binds the act sequence to a platform's toast and its way of opening a route.
 import { useRef, useState } from "react";
 import {
 	drew,
 	holdSave,
+	isPlaced,
 	isThenable,
 	type RunState,
 	startRun,
 } from "../acts.ts";
+import type { Act, ActBase, Decision } from "../descriptors.ts";
 import {
 	type Datum,
 	draftFor,
@@ -17,6 +20,9 @@ import {
 	readKey,
 	readsOf,
 } from "../read.ts";
+import { pressStands } from "../reason.ts";
+import type { Tone } from "../tokens.ts";
+import { ask } from "./confirm.ts";
 import { usePort } from "./port.ts";
 import { useSelections } from "./read.ts";
 import { usePressed } from "./reason.ts";
@@ -166,4 +172,149 @@ export function useRun<K = true>(): Run<K> {
 			);
 		},
 	};
+}
+
+/** What a platform's toast offers: how the act it reports ended, an act (a route or a retry), and a call once it has left. */
+export interface ToastOptions {
+	tone?: Tone;
+	act?: Act;
+	onGone?: () => void;
+}
+
+/** The two calls the act sequence makes of its platform: a toast, and the opening of an act's `to`. */
+export interface ActPlatform {
+	toast(sentence: string, options?: ToastOptions): void;
+	open(href: string): unknown;
+}
+
+/** What `run` takes: the `onAct`, its wiring (`confirm`, `done`, `to`, and the `sheet` it opens instead of running), and the label and `destructive` a `confirm`'s decision draws its act with. */
+export type Runnable = Partial<ActBase> & {
+	confirm?: Decision;
+	done?: string;
+	to?: string;
+	sheet?: unknown;
+	label?: string;
+	destructive?: boolean;
+};
+
+// What an act's holder reads: which act pends (inert at once; the pending look
+// comes after `ACT_DELAY`), whether it holds its siblings (while one pends),
+// the line its failure is drawn in, the call that runs an act, and which act's
+// sheet is open (drawn by the holder through `ActSheet`, from that act's current
+// `sheet`: the open state is all the holder keeps).
+export interface Acting<K> {
+	pending: K | undefined;
+	holds: boolean;
+	line: string | undefined;
+	run(key: K, act: Runnable): void;
+	sheet: { key: K; open: boolean; close: () => void } | undefined;
+}
+
+/** The act hooks over a platform's toast and route opening: `useAct`, a holder's run of its acts, and `useHeldDraft`, a bare control's draft. */
+export function createActs(platform: ActPlatform): {
+	useAct: <K = true>(where: "line" | "toast") => Acting<K>;
+	useHeldDraft: <T>(value: Datum<T>) => Draft<T>;
+} {
+	/** A holder's run of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one; a refusal the server answered (a 4xx) has no Retry, as it would answer the same again; an act refused for the connection draws the generic one, with no Retry either, and the connection's own sentence is the offline banner's alone. */
+	function useAct<K = true>(where: "line" | "toast"): Acting<K> {
+		const port = usePort();
+		const words = useWords();
+		const run = useRun<K>();
+		const [opened, setOpened] = useState<{ key: K; open: boolean }>();
+		const sentenceOf = (error: unknown) =>
+			port.refusal(error) ?? words.actFailed;
+		const { pending, failure } = run;
+		// The act's work: `onAct`, then `done`, then `to`, each once the one before
+		// resolved (at once for an `onAct` that returns nothing).
+		const work = (act: Runnable): unknown => {
+			const result = act.onAct?.();
+			const finish = () => {
+				if (act.done) platform.toast(act.done);
+				if (act.to) platform.open(act.to);
+			};
+			if (!isThenable(result)) {
+				finish();
+				return result;
+			}
+			return Promise.resolve(result).then((value) => {
+				finish();
+				return value;
+			});
+		};
+		const go = (key: K, act: Runnable) => {
+			if (act.sheet) {
+				setOpened({ key, open: true });
+				return;
+			}
+			run.run(key, () => {
+				const result = work(act);
+				if (where === "line" || !isThenable(result)) return result;
+				return Promise.resolve(result).catch((error: unknown) => {
+					drew(error);
+					if (isPlaced(error)) return;
+					platform.toast(sentenceOf(error), {
+						tone: "failed",
+						act: port.retries(error)
+							? { label: words.retry, onAct: () => work(act) }
+							: undefined,
+					});
+				});
+			});
+		};
+		return {
+			pending,
+			holds: pending !== undefined,
+			line:
+				failure && !isPlaced(failure.error)
+					? sentenceOf(failure.error)
+					: undefined,
+			run: (key, act) => {
+				if (!act.confirm) return go(key, act);
+				ask({
+					...act.confirm,
+					act: {
+						label: act.label ?? words.done,
+						destructive: act.destructive,
+					},
+				}).then((taken) => {
+					if (taken) go(key, act);
+				});
+			},
+			sheet: opened && {
+				key: opened.key,
+				open: opened.open,
+				close: () => setOpened({ key: opened.key, open: false }),
+			},
+		};
+	}
+
+	/** A bare control's draft: its rejection toasts, and the toast's Retry saves the same value again, unless the server refused it (a 4xx). Over a read that ended the control is blocked and the press toasts the read's sentence. A control in a `FormField` is handed the field's draft instead (`useFieldDraft`), so the field's line draws the rejection. */
+	function useHeldDraft<T>(value: Datum<T>): Draft<T> {
+		const port = usePort();
+		const words = useWords();
+		const draft = useDraft(value, (error, again) => {
+			platform.toast(port.refusal(error) ?? words.actFailed, {
+				tone: "failed",
+				act: port.retries(error)
+					? { label: words.retry, onAct: again }
+					: undefined,
+			});
+		});
+		const reason = endedReason(words, draft.ended);
+		// One sentence stands at a time: a drag or a run of keystrokes over it does
+		// not stack toasts, and it is said again once its toast has left (or the
+		// read has answered).
+		const [saidUnder, setSaid] = useState<string>();
+		const said = pressStands(reason, saidUnder);
+		return blocked(draft, reason, (sentence) => {
+			if (said) return;
+			setSaid(sentence);
+			platform.toast(sentence, {
+				tone: "failed",
+				onGone: () => setSaid(undefined),
+			});
+		});
+	}
+
+	return { useAct, useHeldDraft };
 }

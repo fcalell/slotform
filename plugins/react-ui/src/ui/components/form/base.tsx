@@ -1,4 +1,5 @@
 import { cn } from "@fcalell/ui-core/cn";
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import {
 	type Frame,
@@ -19,7 +20,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
-import type { Acting } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useLeaveGuard } from "../../lib/leave.ts";

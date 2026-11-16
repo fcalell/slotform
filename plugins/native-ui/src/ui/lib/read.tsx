@@ -12,7 +12,6 @@ import {
 	lift,
 	type Selection,
 } from "@fcalell/ui-core/read";
-import type { Words } from "@fcalell/ui-core/tokens";
 import { ROW_RETRY, text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
@@ -20,7 +19,7 @@ import { ButtonBase } from "../components/button/base";
 import { MissingBase } from "../components/missing/base";
 import { Icon } from "../parts/icon";
 import { Spinner } from "../parts/spinner";
-import type { Act, MenuEntry } from "./act";
+import type { Act } from "./act";
 import { wiringOf } from "./act";
 import { cn } from "./cn";
 import { type Empty, EmptyBase, type EmptyFit } from "./empty";
@@ -58,30 +57,6 @@ export function RetryMark({ busy }: { busy: boolean }) {
 			</Ink.Provider>
 		</View>
 	);
-}
-
-// What a more menu holds and whether it paints: its own items, or the one
-// blocked item once their read ended. The items are the datum the leaf already
-// subscribed to (`useSelections`); a menu with no items and nothing painting
-// draws no menu. A refusal is the item's own blocked reason, so it shows as the
-// menu does for any blocked item.
-export function moreMenu(
-	words: Words,
-	offer: Drawn<readonly MenuEntry[] | undefined>,
-): { painted: boolean; items: readonly MenuEntry[] } {
-	if (!offer.painted) return { painted: false, items: offer.value ?? [] };
-	const ended = endedReason(words, offer.phase);
-	if (ended === undefined) return { painted: true, items: [] };
-	return { painted: false, items: endedItems(words, ended) };
-}
-
-// A blocked act is never pressed; its type still asks for the run.
-const NEVER_PRESSED = (): void => undefined;
-
-// The one blocked item a menu stands as while its read has ended: nothing
-// can be taken from it, and its reason says why.
-export function endedItems(words: Words, reason: string): readonly Act[] {
-	return [{ label: words.more, blocked: reason, onAct: NEVER_PRESSED }];
 }
 
 // `submitOf` for a bar whose frame stands elsewhere: a sheet's foot holds its

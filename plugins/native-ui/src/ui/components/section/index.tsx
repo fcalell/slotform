@@ -7,7 +7,12 @@ import type {
 	RowItem as RowItemData,
 	Run,
 } from "@fcalell/ui-core/descriptors";
-import { factsOnly, listedRows, ownCount } from "@fcalell/ui-core/list-state";
+import {
+	factsOnly,
+	listedRows,
+	optionReads,
+	ownCount,
+} from "@fcalell/ui-core/list-state";
 import {
 	type Frame,
 	useCollection,
@@ -207,19 +212,6 @@ function PartsSection(props: Parts) {
 	return <Titled {...props} list={false} frame={frame} body={body} />;
 }
 
-// The selections a pick row draws its options from, a tree's children too: the
-// reads the sheet says once, where each row's picker would say it again.
-function optionsOf(rows: readonly RowData[]): Selection<unknown>[] {
-	return rows.flatMap((row) => {
-		if ("path" in row) return [];
-		const own = row.pick?.options;
-		return [
-			...(isSelection(own) ? [own] : []),
-			...optionsOf(row.children ?? []),
-		];
-	});
-}
-
 // One row given alone is a value, not a list.
 function lone<V extends string | null>(
 	items: Sheet<V>["items"],
@@ -312,7 +304,7 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 // retry stand here, a line over the sheet, never repeated in every row.
 function PicksLine({ rows }: { rows: readonly RowData[] }) {
 	const words = useWords();
-	const options = optionsOf(rows);
+	const options = optionReads(rows);
 	const picks = options.length === 0 ? undefined : combine(options, () => null);
 	const { drawn, retry } = useOptions(picks);
 	if (!drawn.painted) return null;

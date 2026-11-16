@@ -1,3 +1,4 @@
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { type Frame, submitOf, useFrame } from "@fcalell/ui-core/react/read";
 import { type Touched, TouchedContext } from "@fcalell/ui-core/react/touched";
@@ -13,7 +14,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
-import type { Acting } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";

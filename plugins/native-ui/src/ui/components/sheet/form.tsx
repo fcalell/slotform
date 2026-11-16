@@ -1,6 +1,6 @@
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useFrame } from "@fcalell/ui-core/react/read";
 import { useTouched } from "@fcalell/ui-core/react/touched";
-import type { Acting } from "../../lib/act";
 import {
 	type FormFrameProps,
 	FormRows,

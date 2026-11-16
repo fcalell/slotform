@@ -4,6 +4,7 @@ import { isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { ChosenCount, LinkAct } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -19,7 +20,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import type { Act } from "../../lib/act.ts";
-import { type Acting, useAct } from "../../lib/act.ts";
+import { useAct } from "../../lib/act.ts";
 import { ActInert, SubmitContext } from "../../lib/form.ts";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { ButtonLink } from "../../parts/button/link.tsx";

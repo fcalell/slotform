@@ -1,3 +1,4 @@
+import { moreMenu } from "@fcalell/ui-core/acts";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
@@ -11,7 +12,6 @@ import { Text as RNText } from "react-native";
 import type { Act, IconAct, MenuEntry } from "../../lib/act";
 import { asIconAct, wiringOf } from "../../lib/act";
 import { FadingText, lineIn } from "../../lib/motion";
-import { moreMenu } from "../../lib/read";
 import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";

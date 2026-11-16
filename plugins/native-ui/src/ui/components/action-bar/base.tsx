@@ -9,6 +9,7 @@ import type { ChosenCount } from "@fcalell/ui-core/descriptors";
 import { actsSplit } from "@fcalell/ui-core/fold";
 import { markedRuns } from "@fcalell/ui-core/form";
 import { formatterFor } from "@fcalell/ui-core/format";
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -27,7 +28,7 @@ import {
 import { useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import type { Act } from "../../lib/act";
-import { type Acting, useAct } from "../../lib/act";
+import { useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { ActInert } from "../../lib/form";

@@ -1,5 +1,5 @@
 import { Collapsible } from "@base-ui/react/collapsible";
-import { type Offered, offered } from "@fcalell/ui-core/acts";
+import { moreMenu, type Offered, offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import {
@@ -28,7 +28,7 @@ import { RunText } from "../../lib/code.tsx";
 import { HeadingContext } from "../../lib/heading.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { BusyMark, FrameLine, moreMenu } from "../../lib/read.tsx";
+import { BusyMark, FrameLine } from "../../lib/read.tsx";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { Reason } from "../../parts/button/reason.tsx";
 import { Turn } from "../../parts/turn.tsx";

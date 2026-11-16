@@ -1,5 +1,6 @@
 import { isThenable } from "@fcalell/ui-core/acts";
-import type { Acting, ActSheetProps } from "../../lib/act.ts";
+import type { Acting } from "@fcalell/ui-core/react/acts";
+import type { ActSheetProps } from "../../lib/act.ts";
 import { Sheet } from "./index.tsx";
 
 /** The sheet an act of its holder opened: drawn by the holder beside the control that drew the act, open from the press until it is dismissed or its `submit` has resolved. The holder keeps only the open state: `of` answers the opened act's *current* `sheet` (the holder draws it again with its act), so the sheet follows what the act holds now, not what it held at the press. Outside the package's exports: a holder that runs acts draws it. */

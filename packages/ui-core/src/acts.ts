@@ -1,10 +1,20 @@
 // What an act is made of, apart from how it is drawn and what runs it: whether
 // an `onAct` hands back its promise so the act can hold it, an act as a slot
 // takes it (`Offered`), the run and save logic the hooks in `./react/acts.ts`
-// wrap, and the marks a host leaves on a rejection it drew. Pure, so the hooks
-// and the binding share one core.
-import { type Datum, dev, type Fielded, lift, type Read } from "./read.ts";
+// wrap, the marks a host leaves on a rejection it drew, and what a more menu
+// holds. Pure, so the hooks and the binding share one core.
+import type { Act } from "./descriptors.ts";
+import {
+	type Datum,
+	type Drawn,
+	dev,
+	endedReason,
+	type Fielded,
+	lift,
+	type Read,
+} from "./read.ts";
 import { ACT_TEXT, type ActText } from "./reason.ts";
+import type { Words } from "./tokens.ts";
 
 // One thing a procedure's input schema refused: the schema's own message as a
 // sentence, and the path of the value it refused (`["address", "city"]`, empty
@@ -135,4 +145,23 @@ export class Unreached extends Error {
 		super("The server is out of reach.");
 		this.name = "Unreached";
 	}
+}
+
+/** What a more menu holds and whether it paints: its own items, or the one blocked item once their read ended. The items are the datum the leaf already subscribed to (`useSelections`); a menu with no items and nothing painting draws no menu. A refusal is the item's own blocked reason, so it toasts or shows as the menu does for any blocked item. */
+export function moreMenu<E>(
+	words: Words,
+	offer: Drawn<readonly E[] | undefined>,
+): { painted: boolean; items: readonly (E | Act)[] } {
+	if (!offer.painted) return { painted: false, items: offer.value ?? [] };
+	const ended = endedReason(words, offer.phase);
+	if (ended === undefined) return { painted: true, items: [] };
+	return { painted: false, items: endedItems(words, ended) };
+}
+
+// A blocked act is never pressed; its type still asks for the run.
+const NEVER_PRESSED = (): void => undefined;
+
+/** The one blocked item a menu stands as while its read has ended: nothing can be taken from it, and its reason says why. */
+export function endedItems(words: Words, reason: string): readonly Act[] {
+	return [{ label: words.more, blocked: reason, onAct: NEVER_PRESSED }];
 }

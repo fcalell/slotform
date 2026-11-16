@@ -16,7 +16,7 @@ import {
 	SEARCH_PAST,
 	type Several,
 } from "@fcalell/ui-core/pick";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import type { Acting, Draft } from "@fcalell/ui-core/react/acts";
 import { useOptions } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { isEnded } from "@fcalell/ui-core/read";
@@ -71,7 +71,7 @@ import {
 	useState,
 } from "react";
 import type { IconAct } from "../../lib/act.ts";
-import { type Acting, useAct, useHeldDraft } from "../../lib/act.ts";
+import { useAct, useHeldDraft } from "../../lib/act.ts";
 import { CHIP_LINES } from "../../lib/chip-lines.ts";
 import { expandedTrigger, rememberOpener } from "../../lib/focus.ts";
 import { useQuietGuards } from "../../lib/guards.ts";

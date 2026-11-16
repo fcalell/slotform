@@ -1,9 +1,9 @@
 import { cn } from "@fcalell/ui-core/cn";
+import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useFrame } from "@fcalell/ui-core/react/read";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import { FORM_FOOT, FORM_FOOT_STUCK, ROWS } from "@fcalell/ui-core/variants";
 import { useState } from "react";
-import type { Acting } from "../../lib/act.ts";
 import {
 	type FormFrameProps,
 	FormRows,
