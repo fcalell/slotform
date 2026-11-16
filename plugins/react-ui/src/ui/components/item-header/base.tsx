@@ -130,7 +130,7 @@ function FactPart<V extends string | null>({
 				onClick={follow}
 				className={cn(ITEM_FACT_HIT, HIT, fades && BLOCK_IN)}
 			>
-				<Badge underlined className={ITEM_PILL_ACT}>
+				<Badge hit>
 					<RunText runs={partRuns(fact.label)} fit="name" />
 				</Badge>
 			</a>

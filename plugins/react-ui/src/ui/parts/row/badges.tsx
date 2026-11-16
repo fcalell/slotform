@@ -24,6 +24,7 @@ import {
 	BADGE_WORDS,
 	chipDot,
 	FIGURES,
+	ITEM_PILL_ACT,
 	ROW_FLAG,
 	ROW_WARNING,
 	text,
@@ -53,16 +54,13 @@ export function Badge(props: {
 	glyph?: ReactNode;
 	children?: ReactNode;
 	href?: string;
-	/** The words stand underlined as a link's do, in a badge that an element around it links (a record head's link fact keeps its target's hit box). */
-	underlined?: boolean;
-	/** Classes of the box: the washes a hit box around it gives it. */
-	className?: string;
+	/** A badge an element around it links: its words underlined, the hit box's washes on it (a record head's link fact keeps its target's hit box). */
+	hit?: true;
 	painted?: boolean;
 	/** The filler's role and place while `painted`. */
 	paint?: { role: PaintRole; at?: number };
 }) {
-	const { glyph, children, href, underlined, className, painted, paint } =
-		props;
+	const { glyph, children, href, hit, painted, paint } = props;
 	const linked = href !== undefined && !painted;
 	const filler = paint ?? { role: "phrase" as const };
 	// A painted badge is one bar: its box is the filler, and its glyph and its
@@ -78,7 +76,7 @@ export function Badge(props: {
 					aria-hidden={painted || undefined}
 					className={cn(
 						BADGE_WORDS,
-						(linked || underlined) && LINK_WORDS,
+						(linked || hit) && LINK_WORDS,
 						painted && UNSEEN,
 					)}
 				>
@@ -92,7 +90,7 @@ export function Badge(props: {
 		FACE,
 		text({ role: "meta" }),
 		FIGURES,
-		className,
+		hit && ITEM_PILL_ACT,
 		painted && PAINT_BOX,
 	);
 	if (!linked) return <span className={box}>{face}</span>;
