@@ -35,7 +35,7 @@ On the phone, native-ui contributes the `QueryProvider` to `expo.slots.providers
 |---------|---------|
 | `@fcalell/plugin-query` | `query()` |
 | `@fcalell/plugin-query/tanstack-query` | `QueryProvider` (the client and the port ui-core's hooks and the UI components run on), `createQueryClient()`, `createApiQueryUtils()`, `ApiQueryUtils`, `scoped()`, `useRead()`, `useAbility()`, and TanStack Query's `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery`, `useQueryClient`, `QueryClient`, `QueryClientProvider`, `streamedQuery` (source, for the bundler) |
-| `@fcalell/plugin-query/read` | `read()`, `withRead()`, `ensurePages()`, `holdOf()`, `withHold()`, `retryOnce()`, `isStreamQuery()`, `watchUnheld()` |
+| `@fcalell/plugin-query/read` | `read()`, `streamRead()`, `StreamRead`, `withRead()`, `ensurePages()`, `holdOf()`, `withHold()`, `retryOnce()`, `isStreamQuery()`, `watchUnheld()` |
 | `@fcalell/plugin-query/acts` | `issues()`, `refusal()`, `retries()`, `heldAct()`, `watchActs()`, `whenSettled()`, `guardReach()`, `Reach` |
 | `@fcalell/plugin-query/scope` | `withScope()`, `scoped()` -- the registered scope merged into the utils' inputs |
 | `@fcalell/plugin-query/ability-client` | `ability()`, `orgRules()`, `composeAbility()`, `fetchOrgRules()`, `ORG_RULES_QUERY_KEY`, `orgRulesQueryKey()`, `PackedRulesLike` |

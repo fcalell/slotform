@@ -15,11 +15,17 @@ import type {
 	Query,
 	QueryCache,
 	QueryClient,
+	QueryFunction,
 	QueryFunctionContext,
 	QueryKey,
+	SkipToken,
 	UseQueryOptions,
 } from "@tanstack/react-query";
-import { hashKey, skipToken } from "@tanstack/react-query";
+import {
+	hashKey,
+	skipToken,
+	experimental_streamedQuery as streamedQuery,
+} from "@tanstack/react-query";
 
 // The TanStack half of a read: the query options a read carries, built from a
 // procedure of oRPC's utils, the first-load hold, the window's page loads and
@@ -183,33 +189,128 @@ function held<F extends (ctx: QueryFunctionContext) => unknown>(queryFn: F): F {
 export const isStreamQuery = (query: { meta?: Record<string, unknown> }) =>
 	query.meta?.stream === true;
 
+/** A stream read: `stop` ends the run in flight, whose query lands success with the data so far, and resolves with that data; with no run in flight it resolves with `undefined`. */
+export interface StreamRead<T, Q = unknown> extends Read<T, Q> {
+	stop(): Promise<T | undefined>;
+}
+
+// A stream's query function, each run under its own controller that aborts
+// with TanStack's signal or with `stop`. Reading `context.signal` tells
+// TanStack the signal is consumed, so it still cancels the run when the last
+// observer leaves.
+function stoppable<T>(
+	queryFn: QueryFunction<T, QueryKey> | SkipToken | undefined,
+): {
+	queryFn: QueryFunction<T, QueryKey> | SkipToken | undefined;
+	stop: () => Promise<T | undefined>;
+} {
+	let current: { controller: AbortController; run: Promise<T> } | undefined;
+	const stop = async (): Promise<T | undefined> => {
+		if (!current) return undefined;
+		current.controller.abort();
+		return current.run;
+	};
+	if (typeof queryFn !== "function") return { queryFn, stop };
+	return {
+		queryFn: (context) => {
+			const controller = new AbortController();
+			const { signal } = context;
+			const abort = () => controller.abort();
+			signal.addEventListener("abort", abort, { once: true });
+			if (signal.aborted) abort();
+			const run = (async () => {
+				try {
+					return await queryFn({ ...context, signal: controller.signal });
+				} finally {
+					signal.removeEventListener("abort", abort);
+					if (current?.controller === controller) current = undefined;
+				}
+			})();
+			current = { controller, run };
+			return run;
+		},
+		stop,
+	};
+}
+
 // The error type is the options' own: oRPC's `queryOptions` names its `Error`,
 // and a `refetchInterval` callback typed on it would not fit `unknown`.
 export function read<T, E = unknown, Q = unknown>(
 	options: UseQueryOptions<T, E, T, QueryKey>,
+	how: ReadHow<T, Q> & { kind: "stream" },
+): StreamRead<T, Q>;
+export function read<T, E = unknown, Q = unknown>(
+	options: UseQueryOptions<T, E, T, QueryKey>,
+	how?: ReadHow<T, Q>,
+): Read<T, Q>;
+export function read<T, E = unknown, Q = unknown>(
+	options: UseQueryOptions<T, E, T, QueryKey>,
 	how: ReadHow<T, Q> = {},
-): Read<T, Q> {
+): Read<T, Q> | StreamRead<T, Q> {
 	const kind = how.kind ?? "query";
-	// A stream is not a load: its first write is the channel's own to hold.
+	const bound = (queryOptions: Read<T>["options"]) =>
+		readOf<T, Q>(queryOptions, hashKey(queryOptions.queryKey), {
+			...how,
+			kind,
+			missing: how.missing ?? isNotFound,
+		});
 	const queryFn = options.queryFn;
-	// Its query carries `meta.stream`, the one marker of a read that stays
-	// fetching while it is subscribed (`isStreamQuery`).
+	if (kind === "stream") {
+		// A stream is not a load: its first write is the channel's own to hold.
+		// Its query carries `meta.stream`, the one marker of a read that stays
+		// fetching while it is subscribed (`isStreamQuery`).
+		const runs = stoppable(queryFn);
+		return Object.assign(
+			bound({
+				...options,
+				queryFn: runs.queryFn,
+				meta: { ...options.meta, stream: true },
+			}),
+			{ stop: runs.stop },
+		);
+	}
 	const own =
-		kind === "stream"
-			? { ...options, meta: { ...options.meta, stream: true } }
-			: typeof queryFn === "function"
-				? { ...options, queryFn: held(queryFn) }
-				: options;
+		typeof queryFn === "function"
+			? { ...options, queryFn: held(queryFn) }
+			: options;
 	// A pages read's options are infinite ones. `_type` makes the query infinite
 	// whichever observer creates it, a leaf's plain `useQueries` included (a
 	// TanStack internal, since 5.100.2).
-	const queryOptions: Read<T>["options"] =
-		kind === "pages" ? { ...own, _type: "infinite" } : own;
-	return readOf<T, Q>(queryOptions, hashKey(queryOptions.queryKey), {
-		...how,
-		kind,
-		missing: how.missing ?? isNotFound,
+	return bound(kind === "pages" ? { ...own, _type: "infinite" } : own);
+}
+
+/** A stream read whose value folds the chunks of `stream` from `initialValue` through `reducer`, written to its query as each arrives. `onDone` gets the whole value when the stream ends on its own, never after `stop` or a cancel. */
+export function streamRead<C, T>({
+	queryKey,
+	stream,
+	reducer,
+	initialValue,
+	onDone,
+}: {
+	queryKey: QueryKey;
+	stream: (signal: AbortSignal) => AsyncIterable<C>;
+	reducer: (value: T, chunk: C) => T;
+	initialValue: T;
+	onDone?: (value: T) => void;
+}): StreamRead<T> {
+	const streamed = streamedQuery<C, T>({
+		streamFn: ({ signal }) => stream(signal),
+		reducer,
+		initialValue,
 	});
+	return read<T>(
+		{
+			queryKey,
+			queryFn: async (context) => {
+				const value = await streamed(context);
+				if (!context.signal.aborted) onDone?.(value);
+				return value;
+			},
+			staleTime: Number.POSITIVE_INFINITY,
+			retry: false,
+		},
+		{ kind: "stream" },
+	);
 }
 
 // The columns a procedure declares to sort by, from its input's JSON Schema.

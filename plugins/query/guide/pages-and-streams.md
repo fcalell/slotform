@@ -55,27 +55,25 @@ window (or `pages`) read picks the query itself; see `selector()` in plugin-api'
 ## Streams
 
 A read that stays fetching while it writes is `kind: "stream"`: fetching with data is writing,
-not busy. Build it with `read` (`@fcalell/plugin-query/read`) on TanStack's `streamedQuery`
-(re-exported by `@fcalell/plugin-query/tanstack-query`) and hand it to a `Thread`'s
-`reply`; the oRPC form for a procedure that yields is
-`read(orpc.x.experimental_streamedOptions({ input }), { kind: "stream" })`.
+not busy. Build one from an async iterable with `streamRead` (`@fcalell/plugin-query/read`),
+which folds each chunk into the read's value and calls `onDone` with the whole value when the
+stream ends on its own, and hand it to a `Thread`'s `reply`; the oRPC form for a procedure that
+yields is `read(orpc.x.experimental_streamedOptions({ input }), { kind: "stream" })`.
 
 ```tsx
-const answer = read<Turn>(
-  {
-    queryKey: ["assistant", "answer", id],
-    queryFn: streamedQuery<string, Turn>({
-      streamFn: ({ signal }) => words(signal),
-      reducer: (turn, word) => ({ ...turn, body: turn.body + word }),
-      initialValue: { id, author: "other", body: "", at: new Date().toISOString() },
-    }),
-    staleTime: Number.POSITIVE_INFINITY,
-    retry: false,
-  },
-  { kind: "stream" },
-);
+const answer = streamRead<string, Turn>({
+  queryKey: ["assistant", "answer", id],
+  stream: (signal) => words(signal),
+  reducer: (turn, word) => ({ ...turn, body: turn.body + word }),
+  initialValue: { id, author: "other", body: "", at: new Date().toISOString() },
+  onDone: (turn) => record(turn),
+});
 <Thread items={history} reply={answer} message={{ key: (t) => t.id, author: (t) => t.author, body: (t) => t.body }} />
 ```
+
+Every stream read has `stop()`: it ends the run in flight, whose query lands with the data so
+far, and resolves with that data (`undefined` with no run in flight), so a composer's stop keeps
+the partial turn with `const partial = await answer.stop()`. `onDone` never runs after `stop`.
 
 A WebSocket channel is a stream read too: `channelRead` in `@fcalell/plugin-node/live`
 (`plugins/node/guide/live.md`).
