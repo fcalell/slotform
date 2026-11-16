@@ -11,7 +11,9 @@ import {
 } from "./player.ts";
 
 const track = (n: number): Track => ({ src: `/t${n}.mp3`, title: `T${n}` });
-const settle = () => new Promise((resolve) => setTimeout(resolve, 5));
+// Every provider answer is a promise chain: the check phase runs once the
+// microtasks are drained.
+const settle = () => new Promise((resolve) => setImmediate(resolve));
 
 const host: PlayerHost = {
 	recall: () => undefined,
@@ -57,7 +59,7 @@ test("windowQueue takes a track made later, as a signed address is", async () =>
 	};
 	const queue = windowQueue(read, {
 		track: async (row: { n: number }) => {
-			await new Promise((resolve) => setTimeout(resolve, 1));
+			await Promise.resolve();
 			const made = track(row.n);
 			return { ...made, key: made.src, src: `https://x/${row.n}?sig=1` };
 		},

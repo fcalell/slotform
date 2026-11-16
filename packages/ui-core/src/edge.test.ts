@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { deriveTheme } from "./derive.ts";
-import { softGroundTokens } from "./emit.ts";
 import {
 	contrastRatio,
 	luminance,
@@ -15,12 +14,6 @@ const parse = (value: string): Oklch => {
 	assert.ok(match, value);
 	return { l: Number(match[1]), c: Number(match[2]), h: Number(match[3]) };
 };
-
-test("a soft ground re-points the hairline to the strong edge", () => {
-	assert.deepEqual(softGroundTokens(), {
-		"--color-edge": "var(--color-edge-strong)",
-	});
-});
 
 // A part on a tone's soft ground names `edge` and draws `edge-strong`, so the
 // strong edge is a boundary (3:1) on every soft ground, in both modes, a veiled

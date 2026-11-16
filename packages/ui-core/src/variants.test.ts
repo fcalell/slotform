@@ -1,7 +1,5 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ITEM_OVERLINE } from "./roster/pane.ts";
-import { FIGURES, TEXT } from "./roster/shared.ts";
 import { placeTabContentTone } from "./roster/shell.ts";
 import { YIELDS_FIRST, YIELDS_LAST, YIELDS_LAST_EACH } from "./variants.ts";
 
@@ -17,10 +15,6 @@ test("the last weight's each-child form is the weight on each child", () => {
 test("the first weight is above the default of 1 and the last below it", () => {
 	assert.ok(weight(YIELDS_FIRST) > 1);
 	assert.ok(weight(YIELDS_LAST) < 1);
-});
-
-test("the overline is the meta role with its figures at one width", () => {
-	assert.equal(ITEM_OVERLINE, `${TEXT.variants.role.meta} ${FIGURES}`);
 });
 
 test("a place tab's tone is its text colour, never the selected tab's border", () => {

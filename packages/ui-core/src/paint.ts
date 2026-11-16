@@ -48,8 +48,9 @@ export function tune(name: MotionKnobName, value: number): void {
 
 export const subscribeMotion = motion.subscribe;
 
-// The paint each glyph slot's waiting form takes, set once from
-// `theme.loading` (omitted, all pulse).
+// The paint each glyph slot's waiting form takes: module state, set from
+// `theme.loading` as the app starts (omitted, all pulse) and live by the bench,
+// read by every painted slot through `scrambled`.
 export const loading: Record<LoadingSlot, LoadingPaint> = record(
 	LOADING_SLOTS,
 	(): LoadingPaint => "pulse",

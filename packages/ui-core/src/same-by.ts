@@ -33,9 +33,10 @@ function sameDeep(was: unknown, now: unknown, depth: number): boolean {
 /** `memo`'s comparison for a collection's row: its props are equal when each is the same one, and its `by` prop (the row's item) is deeply equal to the last; a prop in `ignored` is read once, when the row mounts, and never renders it again. A read shares unchanged items only by position, so an item landing at the top hands every row below it a copy of the item above's old place; compared by value, those rows draw nothing again. */
 export function sameBy<K extends string>(by: K, ...ignored: string[]) {
 	return <P extends Record<K, unknown>>(was: P, now: P): boolean => {
+		const both: readonly Walked[] = [was, now];
 		for (const key of new Set([...Object.keys(was), ...Object.keys(now)])) {
 			if (ignored.includes(key)) continue;
-			const [a, b] = [was, now].map((props) => props[key as keyof P]);
+			const [a, b] = both.map((props) => props[key]);
 			if (key === by ? !sameDeep(a, b, 0) : !Object.is(a, b)) return false;
 		}
 		return true;

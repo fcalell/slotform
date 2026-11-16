@@ -4,7 +4,7 @@ import {
 	rosterEntries,
 	type State,
 } from "@fcalell/ui-core/roster";
-import { FAMILIES, matrixCells } from "@fcalell/ui-core/variants";
+import { matrixCells } from "@fcalell/ui-core/variants";
 
 export const MODES = ["light", "dark"] as const;
 export type ShowcaseMode = (typeof MODES)[number];
@@ -48,7 +48,7 @@ export type DrawnState = (typeof DRAWN_STATES)[number];
 const isDrawn = (state: State): state is DrawnState =>
 	DRAWN_STATES.some((drawn) => drawn === state);
 
-const CELLS = matrixCells(FAMILIES);
+const CELLS = matrixCells();
 const BASE: ShowcaseCell = { name: "base", classes: [] };
 
 // A component shows every cell of a family it draws and each family cell it

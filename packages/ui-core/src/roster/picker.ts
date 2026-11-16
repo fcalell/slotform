@@ -9,7 +9,7 @@ import { ANSWER, build, GIVE, matrix, PRESS, text } from "./shared.ts";
 // above six options; an option may lead with its avatar, and one act
 // (the act that makes a new option) ends the list under a hairline. At
 // the `bar` fit the field box fills its column. At the `bar` fit, outside
-// a table cell and a rule's row (a toolbar's pick), a pick that is set reads its
+// a rule's row (a toolbar's pick), a pick that is set reads its
 // label, a colon and its value ("Work type: Change"), so a value other
 // filters could share is told apart; unset, or on its `null` option (the
 // empty choice, "All kinds"), it reads its label alone, in the

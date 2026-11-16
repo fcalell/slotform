@@ -197,9 +197,7 @@ function unwrap(schema: JsonSchema): { schema: JsonSchema; nullable: boolean } {
 		return {
 			schema: {
 				type: "string",
-				enum: kept.flatMap((one) =>
-					one.enum ? [...one.enum] : [one.const as unknown],
-				),
+				enum: kept.flatMap((one) => (one.enum ? [...one.enum] : [one.const])),
 			},
 			nullable,
 		};
@@ -207,13 +205,16 @@ function unwrap(schema: JsonSchema): { schema: JsonSchema; nullable: boolean } {
 	throw new Error("it is a union the form cannot draw");
 }
 
-const LINE_KINDS: readonly string[] = [
-	"string",
-	"number",
-	"integer",
-	"boolean",
-	"null",
-];
+const LINE_KINDS: Record<LineKind, true> = {
+	string: true,
+	number: true,
+	integer: true,
+	boolean: true,
+	null: true,
+};
+
+const isLineKind = (kind: string): kind is LineKind =>
+	Object.hasOwn(LINE_KINDS, kind);
 
 // The types an items schema allows, or undefined where one is not a line's.
 function kindsOf(schema: JsonSchema | undefined): LineKind[] | undefined {
@@ -221,10 +222,8 @@ function kindsOf(schema: JsonSchema | undefined): LineKind[] | undefined {
 	const union = members(schema);
 	const own = schema.type === undefined ? [] : [schema.type].flat();
 	const all = [...own, ...(union ?? []).flatMap((one) => kindsOf(one) ?? [""])];
-	if (all.length === 0 || !all.every((one) => LINE_KINDS.includes(one))) {
-		return undefined;
-	}
-	return all as LineKind[];
+	if (all.length === 0 || !all.every(isLineKind)) return undefined;
+	return all;
 }
 
 // Whether a schema is an object, a list of objects, or any value.
@@ -244,11 +243,11 @@ function isJson(schema: JsonSchema): boolean {
 	);
 }
 
-const strings = (values: readonly unknown[]): string[] => {
+const strings = (values: readonly unknown[]): readonly string[] => {
 	if (!values.every((value) => typeof value === "string")) {
 		throw new Error("it is an enum of something other than strings");
 	}
-	return values as string[];
+	return values;
 };
 
 /** Derives the field `key` of an input schema. A pick or a switch whose schema has a `default` (zod `.default()`) always holds a value, so it is `required` (never labelled optional, no empty choice), though the input schema leaves it out of `required`. `listed` is whether the field's spec gives `options`: they make a list of strings a pick of several. Throws, naming why, when no control draws it. */
@@ -385,6 +384,7 @@ export function toHeld(derived: Derived, value: unknown): Held | undefined {
 		case "switch":
 			return value === true;
 		case "several":
+			// `derive` makes a several only over a list of strings.
 			return Array.isArray(value) ? (value as string[]) : undefined;
 		case "date":
 			return value instanceof Date ? day(value) : String(value);
@@ -418,7 +418,7 @@ export function toShown(derived: Derived, value: unknown): Held | undefined {
 export function isEmpty(derived: Derived, shown: Held | undefined): boolean {
 	if (shown === undefined || shown === null) return true;
 	if (derived.control === "several")
-		return (shown as readonly string[]).length === 0 && derived.fewest > 0;
+		return Array.isArray(shown) && shown.length === 0 && derived.fewest > 0;
 	return typeof shown === "string" && shown.trim() === "";
 }
 
@@ -448,10 +448,11 @@ export function toInput(
 	shown: Held,
 	words: Words,
 ): { value: unknown } | { issue: string } | "invalid" {
+	if (typeof shown !== "string") return { value: shown };
 	switch (derived.control) {
 		case "lines": {
 			const items: unknown[] = [];
-			const lines = (shown as string).split(/\r?\n/);
+			const lines = shown.split(/\r?\n/);
 			for (const [at, text] of lines.entries()) {
 				const line = text.trim();
 				if (line === "") continue;
@@ -465,29 +466,24 @@ export function toInput(
 		}
 		case "json":
 			try {
-				return { value: JSON.parse(shown as string) };
+				return { value: JSON.parse(shown) };
 			} catch (error) {
 				return {
 					issue: error instanceof Error ? error.message : String(error),
 				};
 			}
 		case "number": {
-			const value = Number((shown as string).trim());
+			const value = Number(shown.trim());
 			return Number.isNaN(value) ? "invalid" : { value };
 		}
 		case "date": {
-			const text = (shown as string).trim();
+			const text = shown.trim();
 			if (!derived.instant) return { value: text };
 			const value = new Date(text);
 			return Number.isNaN(value.getTime()) ? "invalid" : { value };
 		}
 		case "code":
-			return (shown as string).length === derived.length
-				? { value: shown }
-				: "invalid";
-		case "switch":
-		case "several":
-			return { value: shown };
+			return shown.length === derived.length ? { value: shown } : "invalid";
 		default:
 			return { value: shown };
 	}
@@ -577,5 +573,5 @@ export function pickWords(
 
 /** What a pick over a string is handed for the value it holds: a string over options holds the empty string untouched; it holds nothing. */
 export function heldPick<T>(value: T): T | undefined {
-	return (value as unknown) === "" ? undefined : value;
+	return value === "" ? undefined : value;
 }

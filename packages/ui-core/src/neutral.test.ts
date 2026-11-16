@@ -30,8 +30,11 @@ const CONSUMER_WORDS: RegExp[] = [
 function children(dir: string): string[] {
 	try {
 		return readdirSync(dir);
-	} catch {
-		return [];
+	} catch (error) {
+		// A package has no `guide` or `templates`, or the entry is a file.
+		const code = error instanceof Error && "code" in error && error.code;
+		if (code === "ENOENT" || code === "ENOTDIR") return [];
+		throw error;
 	}
 }
 

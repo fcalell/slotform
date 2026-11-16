@@ -121,17 +121,18 @@ export interface FrameState {
 // paused are the held reads'; the frame stands still when any read is idle or
 // paused with no data.
 export function frameOf(held: Held): FrameState {
-	const all = (held.reads ?? []).map((r) => readState(r.result, r.missing));
-	const states = (held.reads ?? []).flatMap((r, i) =>
-		r.held ? [all[i] as ReadState] : [],
-	);
+	const reads = held.reads ?? [];
+	const all = reads.map((r) => readState(r.result, r.missing));
+	const states = all.filter((_, i) => reads[i]?.held);
 	const busy = states.some((s) => s.busy);
 	const stale = states.some((s) => s.stale);
 	const paused = states.some((s) => s.paused);
-	const ended = all.find((s) => s.phase === "failed" || s.phase === "missing");
+	const ended = all
+		.map((s) => s.phase)
+		.find((phase) => phase === "failed" || phase === "missing");
 	if (ended) {
 		return {
-			form: ended.phase as FrameForm,
+			form: ended,
 			count: undefined,
 			busy,
 			stale,
@@ -716,6 +717,8 @@ export function combine<const S extends readonly Selection<unknown>[], R>(
 					from = to;
 					return value;
 				});
+				// Each part's value is its selection's `T`, which the mapped parameter
+				// type of `fn` states and `parts.map` loses.
 				return fn(...(values as never));
 			}),
 	);
@@ -827,7 +830,6 @@ export function planSelections(values: readonly unknown[]): {
 	};
 }
 
-// A read, as against a selection of it.
 export function isRead(v: unknown): v is Read<unknown> {
 	return isSelection(v) && v[SELECTION].reads[0] === v;
 }
@@ -847,7 +849,7 @@ export function planFrame<S>(
 	selection: Selection<unknown> | undefined,
 	derive: (held: Held) => S,
 	query: (read: Read<unknown>) => { fetchMore?: boolean } | undefined,
-	enclosing: Holds = NO_HOLDS,
+	enclosing: Holds,
 ): {
 	reads: readonly Read<unknown>[];
 	// The observed reads: every painted read carries `heldPlaceholder`, so the
@@ -931,7 +933,6 @@ export interface Kept<T> {
 	value: T;
 }
 
-// The reads a value draws from: none for a constant.
 export function readsOf(v: unknown): readonly Read<unknown>[] {
 	return isSelection(v) ? v[SELECTION].reads : [];
 }
@@ -951,7 +952,8 @@ export function draftFor<T>(
 
 // Dev checks read the query cache's own observers: a leaf that draws a read is
 // an observer whose `placeholderData` is `placeholderData`, a frame (or a leaf
-// that draws the failure itself) one whose is `heldPlaceholder`.
+// that draws the failure itself) one whose is `heldPlaceholder`. The bundler
+// inlines `process.env.NODE_ENV`, so a production build drops them.
 export const dev = () => process.env.NODE_ENV !== "production";
 
 // What a frame publishes to its body: the hashes it and the frames around it

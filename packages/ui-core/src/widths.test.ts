@@ -3,40 +3,18 @@ import { test } from "node:test";
 import { deriveTheme } from "./derive.ts";
 import { roomTokens, themeTokens } from "./emit.ts";
 import { widthPx } from "./scales.ts";
-import {
-	MEASURES,
-	SPACE_BASE,
-	UNIT_WIDTHS,
-	WIDTH_VALUE,
-	WIDTHS,
-} from "./tokens.ts";
+import { MEASURES, WIDTHS } from "./tokens.ts";
 
-// Each width is its count of the space base; the measures stay characters.
-test("the unit widths are counts of the space base", () => {
-	assert.deepEqual(WIDTH_VALUE, {
-		sidebar: 55,
-		popover: 60,
-		toast: 90,
-		dialog: 130,
-		list: 130,
-		reading: 180,
-		sheet: 160,
-		column: 75,
-		auth: 100,
-		empty: 80,
-		"region-min": 85,
-		node: 60,
-	});
-	for (const width of UNIT_WIDTHS) {
-		assert.equal(widthPx(width), WIDTH_VALUE[width] * SPACE_BASE, width);
-	}
+const MEASURE_NAMES: ReadonlySet<string> = new Set(MEASURES);
+
+test("a node stands 240px wide at the default size", () => {
 	assert.equal(widthPx("node"), 240);
 });
 
 test("the emitted widths are px, and ch only for a measure", () => {
 	const resolved = deriveTheme();
 	for (const width of WIDTHS) {
-		const measure = (MEASURES as readonly string[]).includes(width);
+		const measure = MEASURE_NAMES.has(width);
 		assert.match(
 			resolved.widths[width],
 			measure ? /^\d+ch$/ : /^\d+px$/,

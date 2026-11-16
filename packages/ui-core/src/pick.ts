@@ -1,4 +1,4 @@
-// What a picker derives from its options and its value, in any of its fits: the search's threshold, the one-or-several split of a value, the option groups, the rows painted while they wait, the chip column's test, whether segments are links and the link segment a location selects. Both platforms' `Picker` draws from it.
+// What a picker derives from its options and its value, in any of its fits: the search's threshold, the one-or-several split of a value, the option groups, the rows painted while they wait, whether segments are links and the link segment a location selects. Both platforms' `Picker` draws from it.
 import type {
 	ChoiceSegment,
 	LinkSegment,
@@ -6,7 +6,6 @@ import type {
 	OptionGroup,
 } from "./descriptors.ts";
 import { PAINT_ROWS } from "./paint.ts";
-import type { ChipFamily } from "./tokens.ts";
 
 /** The option count past which a picker's search leads the list. */
 export const SEARCH_PAST = 6;
@@ -67,12 +66,6 @@ export function paintedGroups<V extends string | null>(
 	}));
 	return slots.group === undefined ? options : [{ label: "", options }];
 }
-
-/** Whether a chip column's option draws as its chip alone, its description unsaid. */
-export const asChip = (
-	option: Option<string | null>,
-	chip?: ChipFamily,
-): chip is ChipFamily => chip !== undefined && option.value !== null;
 
 /** The path of a location or an href: its query and its hash set aside. */
 const pathOf = (route: string) => route.replace(/[?#].*$/, "");

@@ -44,8 +44,7 @@ import { OPTION_TEXT, type OptionText } from "../reason.ts";
 import type { Words } from "../tokens.ts";
 import { usePort } from "./port.ts";
 
-// A datum's value type: a selection's, or the constant itself. Distributive,
-// so a `Datum<T>` prop gives `T`.
+// Distributive, so a `Datum<T>` prop gives `T`.
 type Unwrap<D> = D extends Selection<infer T> ? T : D;
 
 // The leaf's one subscription: each value that is a selection is read, the
@@ -61,6 +60,8 @@ export function useSelections<const V extends readonly unknown[]>(
 } {
 	const port = usePort();
 	const plan = useMemo(() => planSelections(values), [values]);
+	// `draw` answers `Drawn<unknown>` per value; each is its value's type, which
+	// the plan, built over `readonly unknown[]`, does not carry.
 	return port.useReads(plan.queries(placeholderData), plan.draw) as never;
 }
 
@@ -108,7 +109,6 @@ export function FrameHolds(props: { holds: Holds; children?: ReactNode }) {
 	return createElement(HoldsContext, { value: props.holds }, props.children);
 }
 
-// Which of the frames holding one read draws its busy mark: the first to take it.
 const MARKS = createMarks();
 
 // A frame's one subscription: the same observation a leaf makes (placeholder
@@ -187,6 +187,7 @@ export type Frame = ReturnType<typeof useFrame>;
 export function useCollection<T>(items: Datum<readonly T[]>) {
 	const [drawn] = useSelections([items] as const);
 	const frame = useFrame(isSelection(items) ? items : undefined);
+	// `Unwrap` over a generic `T` stays unresolved; it is `readonly T[]`.
 	return { drawn: drawn as Drawn<readonly T[]>, frame };
 }
 
@@ -212,16 +213,13 @@ const NO_FLAGS = () => null;
 
 /** A control's subscription to its options: what it draws (the placeholder while its read waits, with the phase it stands in) and the retry. It holds the read no frame above holds, so a control in a toolbar outside any frame says its failure itself, but draws no busy or stale flag. A constant draws as given, and a constant whose `label`, `line` or `blocked` is a selection draws as the selection of the whole (`lift`). */
 export function useOptions<O>(given: Fielded<O, OptionText>) {
-	const options = lift<O, OptionText>(
-		given,
-		OPTION_TEXT,
-		"options",
-	) as Datum<O>;
+	const options = lift<O, OptionText>(given, OPTION_TEXT, "options");
 	const [drawn] = useSelections([options] as const);
 	const { retry } = useFrameRead(
 		isSelection(options) ? options : undefined,
 		NO_FLAGS,
 	);
+	// `Unwrap` over a generic `O` stays unresolved; it is `O`.
 	return { drawn: drawn as Drawn<O>, retry };
 }
 

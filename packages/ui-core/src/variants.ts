@@ -666,11 +666,9 @@ export function classes(value: string): string[] {
 // One axis value's cell is what its rendering adds over the rendering every
 // other value of that axis shares. A compound row folds into the axis it
 // keys off, which is what makes `bg-accent` reachable as BUTTON's primary cell.
-export function matrixCells(
-	families: readonly Family[],
-): Map<string, Set<string>> {
+export function matrixCells(): Map<string, Set<string>> {
 	const out = new Map<string, Set<string>>();
-	for (const family of families) {
+	for (const family of FAMILIES) {
 		for (const [axis, values] of Object.entries(family.axes)) {
 			const sets = values.map(
 				(value) => new Set(classes(family.cva({ [axis]: value }))),
