@@ -6,8 +6,8 @@ import type {
 	RowLeading,
 	Run,
 	Runs,
-} from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
+} from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix } from "./shared.ts";
 
 // A collection: its messages from `items` through the `message` map,

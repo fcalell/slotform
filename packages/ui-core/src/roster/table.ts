@@ -1,3 +1,4 @@
+import type { ChipFamily } from "../tokens.ts";
 import type {
 	ChangeKind,
 	ChipMark,
@@ -8,9 +9,8 @@ import type {
 	Picked,
 	Route,
 	StatusMark,
-} from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
-import type { ChipFamily } from "../tokens.ts";
+} from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix, PRESS } from "./shared.ts";
 
 // A comparison is a Table whose cells hold a value per column: the leading

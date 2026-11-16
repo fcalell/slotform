@@ -1,7 +1,6 @@
-import type { Drop, OptionPick, Route } from "../descriptors.ts";
 import type { IconName } from "../icon-name.ts";
-import type { RosterEntry } from "../roster.ts";
-import type { ContentTone } from "../variants.ts";
+import type { Drop, OptionPick, Route } from "./descriptors.ts";
+import type { ContentTone, RosterEntry } from "./shared.ts";
 import {
 	ANSWER,
 	build,

@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { SUBGRID } from "./shared.ts";
 
 // A form is its procedure and its field labels. `act` is the procedure it

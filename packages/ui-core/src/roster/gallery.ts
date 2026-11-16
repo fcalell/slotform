@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { PRESS } from "./shared.ts";
 
 // Pictures side by side, each a tile that opens full size: `items`, each

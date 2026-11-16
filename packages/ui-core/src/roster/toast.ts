@@ -1,6 +1,5 @@
-import type { RosterEntry } from "../roster.ts";
 import type { Tone } from "../tokens.ts";
-import type { ContentTone } from "../variants.ts";
+import type { ContentTone, RosterEntry } from "./shared.ts";
 import { build, matrix, toneOf } from "./shared.ts";
 
 export const toastEntry: RosterEntry = {

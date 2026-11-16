@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 
 // A card for a part of a Section's body that draws none of its own (a
 // Prose, a Stats, a Table, a Stages, an Image): the surface inside a

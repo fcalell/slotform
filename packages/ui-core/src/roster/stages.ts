@@ -1,5 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
-import type { ContentTone } from "../variants.ts";
+import type { ContentTone, RosterEntry } from "./shared.ts";
 import { build, matrix, toneOf } from "./shared.ts";
 
 // A known sequence with a position in it, top to bottom on a hairline

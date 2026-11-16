@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix, PRESS } from "./shared.ts";
 
 // The one boolean control: a track and its thumb, drawn inside a

@@ -1,5 +1,5 @@
-import type { Fact, OptionPick, Route, Run } from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
+import type { Fact, OptionPick, Route, Run } from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 import { FIGURES, ROWS_HOST, TEXT, WIDE_SPANS } from "./shared.ts";
 
 // A column of the Shell's place, of two kinds: the place's own Pane,

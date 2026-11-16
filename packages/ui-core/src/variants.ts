@@ -4,7 +4,6 @@
 // package. What one component alone draws is declared in its
 // `roster/<component>.ts` and re-exported here; a motion cell is spelled
 // beside the matrices that compose it and read from here.
-import type { ClassValue } from "clsx";
 import type { ChangeKind } from "./descriptors.ts";
 import { BANNER, BANNER_GLYPH, banner, bannerGlyph } from "./roster/banner.ts";
 import {
@@ -64,6 +63,7 @@ import {
 	fileCount,
 	filePathPart,
 } from "./roster/section.ts";
+import type { ContentTone, Variant } from "./roster/shared.ts";
 import {
 	ANSWER,
 	BUTTON_LABEL,
@@ -112,7 +112,7 @@ import {
 } from "./roster/table.ts";
 import { MESSAGE, message } from "./roster/thread.ts";
 import { TOAST_STATE, toastState } from "./roster/toast.ts";
-import type { ColorName, Tone } from "./tokens.ts";
+import type { Tone } from "./tokens.ts";
 import {
 	AVATAR,
 	AVATAR_LABEL,
@@ -352,6 +352,12 @@ export {
 	SECTION_TITLE,
 	SECTION_TOGGLE,
 } from "./roster/section.ts";
+export type {
+	ClassProp,
+	ContentTone,
+	Variant,
+	VariantProps,
+} from "./roster/shared.ts";
 export {
 	ANSWER,
 	CARD,
@@ -507,21 +513,6 @@ export {
 } from "./roster/toolbar.ts";
 export { WAVEFORM_RECORD } from "./roster/waveform.ts";
 export { CHECK_MARK, CHEVRON, SWAP_IN, SWAP_OUT } from "./variant-tables.ts";
-
-// A variant's props: one optional pick per axis, and the class or the
-// className a caller merges in, never both. The shape is cva's own, spelled
-// here so the declarations this file emits name this package's types alone:
-// cva keeps its prop types in a `types` module the emit would otherwise have
-// to import by path, which is not portable and fails wherever the package is
-// built inside a pnpm virtual store.
-export type ClassProp =
-	| { class: ClassValue; className?: never }
-	| { class?: never; className: ClassValue }
-	| { class?: never; className?: never };
-export type VariantProps<T extends Axes> = {
-	[K in keyof T]?: keyof T[K] | null | undefined;
-} & ClassProp;
-export type Variant<T extends Axes> = (props?: VariantProps<T>) => string;
 
 export const textStrong = build(TEXT_STRONG);
 export const icon = build(ICON);
@@ -1119,8 +1110,6 @@ export type LinkFit = keyof (typeof LINK)["variants"]["fit"];
 export type ImageFit = keyof (typeof IMAGE)["variants"]["fit"];
 export type ImageState = keyof (typeof IMAGE)["variants"]["state"];
 export type AvatarStep = keyof (typeof AVATAR)["variants"]["step"];
-
-export type ContentTone = ColorName;
 
 export function rowTitleForm(
 	dim: boolean,

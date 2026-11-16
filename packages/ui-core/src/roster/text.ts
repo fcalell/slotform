@@ -1,5 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
-import type { TEXT } from "./shared.ts";
+import type { RosterEntry, TEXT } from "./shared.ts";
 
 // A paragraph in a type role, its `kind` (`body` or `meta`); `children` are runs: words, with `{ strong }` runs at
 // weight 500 (only the weight, the line's role, ink and family inherited) and

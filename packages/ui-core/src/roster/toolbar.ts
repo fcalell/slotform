@@ -1,5 +1,5 @@
-import type { ChipMark } from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
+import type { ChipMark } from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 
 // The tabs, the search, the filters, the acts and the applied filters' chips
 // over a list. `tabs` are links, each a label and an href, drawn as a

@@ -26,6 +26,7 @@ import { proseEntry } from "./roster/prose.ts";
 import { qrCodeEntry } from "./roster/qr-code.ts";
 import { rulesEntry } from "./roster/rules.ts";
 import { sectionEntry } from "./roster/section.ts";
+import type { Platform, RosterEntry } from "./roster/shared.ts";
 import { sheetEntry } from "./roster/sheet.ts";
 import { shellEntry } from "./roster/shell.ts";
 import { sliderEntry } from "./roster/slider.ts";
@@ -38,72 +39,18 @@ import { threadEntry } from "./roster/thread.ts";
 import { toastEntry } from "./roster/toast.ts";
 import { toolbarEntry } from "./roster/toolbar.ts";
 import { waveformEntry } from "./roster/waveform.ts";
-import type {
-	ColorName,
-	Move,
-	RadiusRole,
-	ShadowLevel,
-	Size,
-	SpacingRole,
-	TypeRole,
-	Width,
-} from "./tokens.ts";
+
+export {
+	type Owns,
+	PLATFORMS,
+	type Platform,
+	type RosterEntry,
+	STATES,
+	type State,
+} from "./roster/shared.ts";
 
 const LAYERS = ["atom", "layout", "shared", "content"] as const;
 export type Layer = (typeof LAYERS)[number];
-
-export const PLATFORMS = ["web", "native"] as const;
-export type Platform = (typeof PLATFORMS)[number];
-
-// The states a component can be drawn in: the eight interaction states, plus
-// `empty` for a component with an empty form, and the states a read puts a
-// frame or collection in: busy, stale, paused, more, streaming. The showcase
-// draws each component in exactly the states its entry lists.
-export const STATES = [
-	"rest",
-	"hover",
-	"focus",
-	"active",
-	"disabled",
-	"loading",
-	"pending",
-	"error",
-	"selected",
-	"empty",
-	"busy",
-	"stale",
-	"paused",
-	"more",
-	"streaming",
-] as const;
-export type State = (typeof STATES)[number];
-
-// The tokens a component may draw, by namespace: type roles, colours,
-// radii, spacing roles, sizes and widths, shadow levels. A colour is a name,
-// or a family prefix ending in `-` (`chip-` covers every chip role); every
-// other namespace names its tokens. A namespace left out owns nothing.
-export interface Owns {
-	roles?: readonly TypeRole[];
-	colors?: readonly (ColorName | `${string}-`)[];
-	radii?: readonly RadiusRole[];
-	spacing?: readonly SpacingRole[];
-	sizes?: readonly (Size | Width)[];
-	elevation?: readonly ShadowLevel[];
-}
-
-// A component's prop names, the cells it draws (a `FAMILIES` name for every
-// cell of that family, `FAMILY.axis.value` for one of its cells, or a
-// single-cell constant of `./variants`), the states it has a form for and the
-// tokens it owns.
-export interface RosterEntry {
-	props: readonly string[];
-	draws: readonly string[];
-	states: readonly State[];
-	motion: readonly Move[];
-	owns?: Owns;
-	// The platforms that ship it; absent means both.
-	platforms?: readonly Platform[];
-}
 
 export const ROSTER: Record<Layer, Record<string, RosterEntry>> = {
 	atom: {

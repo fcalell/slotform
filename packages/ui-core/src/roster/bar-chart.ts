@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { build, CARD_PART, matrix } from "./shared.ts";
 
 // A collection on a card of its own: columns over time in the chip marks, stacked by one

@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { PRESS } from "./shared.ts";
 
 // A number along a range, its name and value over the track: a field as

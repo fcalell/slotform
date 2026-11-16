@@ -1,6 +1,6 @@
-import type { Route, StatusMark } from "../descriptors.ts";
 import type { IconName } from "../icon-name.ts";
-import type { RosterEntry } from "../roster.ts";
+import type { Route, StatusMark } from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix } from "./shared.ts";
 
 // A graph of nodes and edges on a pannable ground, the web's alone: the

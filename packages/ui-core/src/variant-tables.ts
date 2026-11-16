@@ -10,7 +10,7 @@
 // borders, ink, spacing roles, radius, type role, weight, family, a control's
 // size. Display, alignment and every interaction state stay with the plugins.
 
-import { ANSWER, FILL_X, GIVE, matrix } from "./roster/shared.ts";
+import { ANSWER, FILL_X, matrix } from "./roster/shared.ts";
 
 export { BANNER, BANNER_GLYPH } from "./roster/banner.ts";
 export {
@@ -19,6 +19,7 @@ export {
 	FILL_Y,
 	TRAVEL_Y,
 } from "./roster/bar-chart.ts";
+export { BUTTON, ICON_BUTTON } from "./roster/button.ts";
 export {
 	CANVAS_GROUP,
 	CANVAS_NODE,
@@ -34,7 +35,12 @@ export { CODE_TEXT } from "./roster/code.ts";
 export { COLUMNS } from "./roster/columns.ts";
 export { DIFF_LINE, PROSE_DIFF_RUN } from "./roster/diff.ts";
 export { FILL_FADE, STEP_COUNT_SEGMENT } from "./roster/gate.ts";
-export { OTP_BOX, TEXT_AREA, TEXT_AREA_BUDGET } from "./roster/input.ts";
+export {
+	FIELD_VALUE,
+	OTP_BOX,
+	TEXT_AREA,
+	TEXT_AREA_BUDGET,
+} from "./roster/input.ts";
 export {
 	OPTION_RADIO,
 	PICKER,
@@ -45,6 +51,7 @@ export {
 export { PROSE_MARKER } from "./roster/prose.ts";
 export { RULE_ARROW } from "./roster/rules.ts";
 export { FILE_COUNT, FILE_PATH_PART } from "./roster/section.ts";
+export type { Axes, Matrix } from "./roster/shared.ts";
 export { ANSWER, BUTTON_LABEL, FILL_X, GIVE, TEXT } from "./roster/shared.ts";
 export {
 	CURRENT_BAR,
@@ -66,15 +73,6 @@ export {
 } from "./roster/table.ts";
 export { MESSAGE } from "./roster/thread.ts";
 export { TOAST_STATE } from "./roster/toast.ts";
-
-export type Axes = Record<string, Record<string, string>>;
-
-export interface Matrix<T extends Axes> {
-	base: string;
-	variants: T;
-	compoundVariants?: Array<{ [K in keyof T]?: keyof T[K] } & { class: string }>;
-	defaultVariants?: { [K in keyof T]?: keyof T[K] };
-}
 
 // ── Motion cells ────────────────────────────────────────────────────
 
@@ -135,51 +133,6 @@ export const ICON = matrix({
 			meta: "size-icon-meta",
 			body: "size-icon",
 			control: "size-icon-control",
-		},
-	},
-	defaultVariants: { fit: "body" },
-});
-
-// ── Button ──────────────────────────────────────────────────────────
-
-// `act` is the button's kind: `primary` the accent fill (one per screen),
-// `danger` the danger fill (a confirm's one filled act), `secondary` a
-// hairline with no fill, `destructive` the hairline with its label in
-// `danger`, `quiet` words in the meta ink with no fill and no hairline (a
-// resend, a skip). `fit` is its container's: a control on its own, or full
-// width at a field's height under the field it submits. min-h,
-// never h: the label must be able to grow the control under OS font scaling.
-// The fill carries the act's ink for the web's glyph and spinner
-// (currentColor); the label repeats it, since a native Text inherits none.
-export const BUTTON = matrix({
-	base: `gap-gap rounded-control px-pad ${ANSWER}`,
-	variants: {
-		act: {
-			primary: "bg-act-accent text-on-act-accent",
-			danger: "bg-act-danger text-on-act-danger",
-			secondary: "border border-edge text-ink-body",
-			destructive: "border border-edge text-danger",
-			quiet: "text-ink-meta",
-		},
-		fit: {
-			body: `min-h-control ${GIVE}`,
-			// Across its container: a wide surface scaling reads as a wobble.
-			field: "min-h-control w-full",
-		},
-	},
-	defaultVariants: { act: "primary", fit: "body" },
-});
-
-// An icon-only act: square, no boundary at rest, in the meta ink. `field`
-// sits inside a field's end, at the control square, reaching across the box's
-// border so a bar-fit box (the control height, border included)
-// holds it at its own height.
-export const ICON_BUTTON = matrix({
-	base: `rounded-control text-ink-meta ${ANSWER} ${GIVE}`,
-	variants: {
-		fit: {
-			body: "size-control",
-			field: "size-control -my-hairline",
 		},
 	},
 	defaultVariants: { fit: "body" },
@@ -373,18 +326,6 @@ export const FIELD = matrix({
 		},
 	},
 	defaultVariants: { trailing: "none", state: "rest" },
-});
-
-export const FIELD_VALUE = matrix({
-	base: "",
-	variants: {
-		kind: {
-			text: "text-body leading-body font-normal text-ink-body",
-			code: "text-code leading-code font-normal font-mono text-ink-body",
-			search: "text-body leading-body font-normal text-ink-body",
-		},
-	},
-	defaultVariants: { kind: "text" },
 });
 
 // ── Switch and checkbox ─────────────────────────────────────────────

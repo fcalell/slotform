@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, GIVE, matrix, PRESS, text } from "./shared.ts";
 
 // The pick outside a form that applies at once: a field box, or (a row's

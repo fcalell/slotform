@@ -17,8 +17,8 @@ import type {
 	Run,
 	Runs,
 	StatusMark,
-} from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
+} from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, CARD, matrix, ROWS } from "./shared.ts";
 
 // The fold toggle is the title line; a blocked act's reason stands on

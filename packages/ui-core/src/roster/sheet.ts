@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 
 // A sheet holds a task (a form, a decision, an acknowledgement): a record is
 // read in its Pane, never in a sheet.

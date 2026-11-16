@@ -1,7 +1,14 @@
-import type { RosterEntry } from "../roster.ts";
-import type { BUTTON, ICON_BUTTON } from "../variant-tables.ts";
-import type { ContentTone } from "../variants.ts";
-import { BUTTON_LABEL, NAME_GROUND, PRESS, toneOf } from "./shared.ts";
+import {
+	ANSWER,
+	BUTTON_LABEL,
+	type ContentTone,
+	GIVE,
+	matrix,
+	NAME_GROUND,
+	PRESS,
+	type RosterEntry,
+	toneOf,
+} from "./shared.ts";
 
 // One act in three forms. Labelled it runs: its label, a glyph before it
 // and a count after it, pending after the press, blocked with a reason.
@@ -83,6 +90,49 @@ export const TOOLTIP = `${NAME_GROUND} max-w-measure-short`;
 // Cut text's whole text, in the same ground: a sentence, not a name, so it may
 // grow to the full measure.
 export const TOOLTIP_CUT = `${NAME_GROUND} max-w-measure`;
+
+// `act` is the button's kind: `primary` the accent fill (one per screen),
+// `danger` the danger fill (a confirm's one filled act), `secondary` a
+// hairline with no fill, `destructive` the hairline with its label in
+// `danger`, `quiet` words in the meta ink with no fill and no hairline (a
+// resend, a skip). `fit` is its container's: a control on its own, or full
+// width at a field's height under the field it submits. min-h,
+// never h: the label must be able to grow the control under OS font scaling.
+// The fill carries the act's ink for the web's glyph and spinner
+// (currentColor); the label repeats it, since a native Text inherits none.
+export const BUTTON = matrix({
+	base: `gap-gap rounded-control px-pad ${ANSWER}`,
+	variants: {
+		act: {
+			primary: "bg-act-accent text-on-act-accent",
+			danger: "bg-act-danger text-on-act-danger",
+			secondary: "border border-edge text-ink-body",
+			destructive: "border border-edge text-danger",
+			quiet: "text-ink-meta",
+		},
+		fit: {
+			body: `min-h-control ${GIVE}`,
+			// Across its container: a wide surface scaling reads as a wobble.
+			field: "min-h-control w-full",
+		},
+	},
+	defaultVariants: { act: "primary", fit: "body" },
+});
+
+// An icon-only act: square, no boundary at rest, in the meta ink. `field`
+// sits inside a field's end, at the control square, reaching across the box's
+// border so a bar-fit box (the control height, border included)
+// holds it at its own height.
+export const ICON_BUTTON = matrix({
+	base: `rounded-control text-ink-meta ${ANSWER} ${GIVE}`,
+	variants: {
+		fit: {
+			body: "size-control",
+			field: "size-control -my-hairline",
+		},
+	},
+	defaultVariants: { fit: "body" },
+});
 
 export type ButtonAct = keyof (typeof BUTTON)["variants"]["act"];
 // What a button, an icon button or a link sits in, which picks its height

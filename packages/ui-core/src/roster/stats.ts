@@ -1,5 +1,5 @@
-import type { Route } from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
+import type { Route } from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER } from "./shared.ts";
 
 // A strip of counts in one hairline card, its cells split by hairlines:

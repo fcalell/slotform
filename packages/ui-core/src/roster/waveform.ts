@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { PRESS } from "./shared.ts";
 
 // A track's precomputed peaks drawn on a canvas, the web's alone (the phone

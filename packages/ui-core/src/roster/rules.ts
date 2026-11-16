@@ -3,9 +3,8 @@ import type {
 	Option,
 	OptionGroup,
 	OptionPick,
-} from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
-import type { ContentTone } from "../variants.ts";
+} from "./descriptors.ts";
+import type { ContentTone, RosterEntry } from "./shared.ts";
 import { build, matrix, toneOf } from "./shared.ts";
 
 // Rules, one per row, each a pair (a source mapped to a target: from, an

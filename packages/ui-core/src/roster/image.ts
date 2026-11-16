@@ -1,5 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
-import type { ContentTone } from "../variants.ts";
+import type { ContentTone, RosterEntry } from "./shared.ts";
 import { IMAGE_FAILED_INK, PRESS, toneOf } from "./shared.ts";
 
 // A picture a press opens full size: a square tile (`thumb`) or its

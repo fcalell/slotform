@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 
 // A code a camera reads: `value` is the text it carries, `label` what it
 // is for, its accessible name (the text is never drawn nor read aloud).

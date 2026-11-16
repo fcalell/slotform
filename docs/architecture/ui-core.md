@@ -13,8 +13,10 @@ Source map: `tokens.ts` (the sheet as data, `MOTION_KNOBS`, `MOVES`), `derive.ts
 (`ROSTER`), `roster/<component>.ts` (one roster component's contract: its entry, the descriptors,
 matrices, cvas and cells it alone uses; `roster.ts`, `descriptors.ts`, `variants.ts` and
 `variant-tables.ts` declare what two or more components share and re-export the rest, so the
-subpaths keep their names; `roster/shared.ts` holds the values a component file needs from what
-is shared, so no module is evaluated in an import cycle), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
+subpaths keep their names; a component file takes what it shares from `roster/shared.ts` (values
+and types, `RosterEntry` among them) or `roster/descriptors.ts` (the descriptors two or more
+components take, `RouteRegistry` among them), never from the four, so no ui-core file is in an
+import cycle), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
 `follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads. `acts.ts` also holds `moreMenu` and `endedItems`, what a more menu holds and the one blocked item it stands as once its read ended. `list-state.ts` also holds `optionReads`, the reads a Section's pick rows draw their options from, which its sheet says once. `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it once. `react/form.ts` holds `useFormModel`, a form's model over its procedure (`FormModel`: its fields' state, each field as a `FieldModel`, the input they make, the bar with its submit, the reads the bar paints under and `clear`), read from `FormModelProps`; each plugin maps every `FieldModel` to its `FormField`.
 
 ## Tokens and theming

@@ -1,6 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
-import type { FIELD_VALUE } from "../variant-tables.ts";
-import { ANSWER, build, matrix } from "./shared.ts";
+import { ANSWER, build, matrix, type RosterEntry } from "./shared.ts";
 
 // What is typed or picked, by `kind`. A line of text (`text`, `search`,
 // `secret`, `source`, `number`, `email`, `date`); `prose`, many lines in a box that
@@ -149,5 +147,17 @@ export const OTP = "gap-gap";
 
 export const OTP_DIGIT =
 	"text-heading leading-heading font-medium text-ink-body font-mono";
+
+export const FIELD_VALUE = matrix({
+	base: "",
+	variants: {
+		kind: {
+			text: "text-body leading-body font-normal text-ink-body",
+			code: "text-code leading-code font-normal font-mono text-ink-body",
+			search: "text-body leading-body font-normal text-ink-body",
+		},
+	},
+	defaultVariants: { kind: "text" },
+});
 
 export type FieldKind = keyof (typeof FIELD_VALUE)["variants"]["kind"];

@@ -1,6 +1,5 @@
-import type { RosterEntry } from "../roster.ts";
 import type { Tone } from "../tokens.ts";
-import type { ContentTone } from "../variants.ts";
+import type { ContentTone, RosterEntry } from "./shared.ts";
 import { build, FILL_X, matrix, toneOf } from "./shared.ts";
 
 // A sentence about the state of the page in the flow: a tinted strip, the

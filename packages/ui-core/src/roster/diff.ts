@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { build, matrix } from "./shared.ts";
 
 // By line (the default), unified, long lines wrapped between tokens (after a

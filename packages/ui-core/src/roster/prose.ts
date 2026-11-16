@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { build, matrix } from "./shared.ts";
 
 // Markdown at the measure: headings, paragraphs, lists, quotes, rules, inline

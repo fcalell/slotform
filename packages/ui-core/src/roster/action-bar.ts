@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER } from "./shared.ts";
 
 // The acts that close a form, a sheet or a decision, or that apply to the

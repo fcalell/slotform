@@ -1,5 +1,5 @@
-import type { Peaks } from "../descriptors.ts";
-import type { RosterEntry } from "../roster.ts";
+import type { Peaks } from "./descriptors.ts";
+import type { RosterEntry } from "./shared.ts";
 
 // The player's dock, the part an app gives a Shell's `foot` (`<Shell foot={<Dock />}>`):
 // while a track is loaded (`lib/player`) it stands under the place at the column's

@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix, PRESS } from "./shared.ts";
 
 // The frame Code, Diff share; the head a strip-high bar, the

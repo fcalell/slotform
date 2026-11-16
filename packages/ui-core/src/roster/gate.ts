@@ -1,4 +1,4 @@
-import type { RosterEntry } from "../roster.ts";
+import type { RosterEntry } from "./shared.ts";
 import { build, matrix } from "./shared.ts";
 
 // A page outside the shell (sign-in, a consent step), a root frame as the

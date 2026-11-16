@@ -1,12 +1,101 @@
-// The values two or more component files build on. The four public modules
-// (`roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`) import
-// the component files to re-export them, so a component file takes a shared
-// value from here, never from them, and no module is evaluated in a cycle.
+// The values and types two or more component files build on. The four public
+// modules (`roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`)
+// import the component files to re-export them, so a component file takes what
+// it shares from here or `./descriptors.ts`, never from them, and no file is in
+// an import cycle.
 
 import { cva } from "class-variance-authority";
-import { COLOR_NAMES } from "../tokens.ts";
-import type { Axes, Matrix } from "../variant-tables.ts";
-import type { ContentTone, Variant } from "../variants.ts";
+import type { ClassValue } from "clsx";
+import {
+	COLOR_NAMES,
+	type ColorName,
+	type Move,
+	type RadiusRole,
+	type ShadowLevel,
+	type Size,
+	type SpacingRole,
+	type TypeRole,
+	type Width,
+} from "../tokens.ts";
+
+export const PLATFORMS = ["web", "native"] as const;
+export type Platform = (typeof PLATFORMS)[number];
+
+// The states a component can be drawn in: the eight interaction states, plus
+// `empty` for a component with an empty form, and the states a read puts a
+// frame or collection in: busy, stale, paused, more, streaming. The showcase
+// draws each component in exactly the states its entry lists.
+export const STATES = [
+	"rest",
+	"hover",
+	"focus",
+	"active",
+	"disabled",
+	"loading",
+	"pending",
+	"error",
+	"selected",
+	"empty",
+	"busy",
+	"stale",
+	"paused",
+	"more",
+	"streaming",
+] as const;
+export type State = (typeof STATES)[number];
+
+// The tokens a component may draw, by namespace: type roles, colours,
+// radii, spacing roles, sizes and widths, shadow levels. A colour is a name,
+// or a family prefix ending in `-` (`chip-` covers every chip role); every
+// other namespace names its tokens. A namespace left out owns nothing.
+export interface Owns {
+	roles?: readonly TypeRole[];
+	colors?: readonly (ColorName | `${string}-`)[];
+	radii?: readonly RadiusRole[];
+	spacing?: readonly SpacingRole[];
+	sizes?: readonly (Size | Width)[];
+	elevation?: readonly ShadowLevel[];
+}
+
+// A component's prop names, the cells it draws (a `FAMILIES` name for every
+// cell of that family, `FAMILY.axis.value` for one of its cells, or a
+// single-cell constant of `./variants`), the states it has a form for and the
+// tokens it owns.
+export interface RosterEntry {
+	props: readonly string[];
+	draws: readonly string[];
+	states: readonly State[];
+	motion: readonly Move[];
+	owns?: Owns;
+	// The platforms that ship it; absent means both.
+	platforms?: readonly Platform[];
+}
+
+export type Axes = Record<string, Record<string, string>>;
+
+export interface Matrix<T extends Axes> {
+	base: string;
+	variants: T;
+	compoundVariants?: Array<{ [K in keyof T]?: keyof T[K] } & { class: string }>;
+	defaultVariants?: { [K in keyof T]?: keyof T[K] };
+}
+
+// A variant's props: one optional pick per axis, and the class or the
+// className a caller merges in, never both. The shape is cva's own, spelled
+// here so the declarations this file emits name this package's types alone:
+// cva keeps its prop types in a `types` module the emit would otherwise have
+// to import by path, which is not portable and fails wherever the package is
+// built inside a pnpm virtual store.
+export type ClassProp =
+	| { class: ClassValue; className?: never }
+	| { class?: never; className: ClassValue }
+	| { class?: never; className?: never };
+export type VariantProps<T extends Axes> = {
+	[K in keyof T]?: keyof T[K] | null | undefined;
+} & ClassProp;
+export type Variant<T extends Axes> = (props?: VariantProps<T>) => string;
+
+export type ContentTone = ColorName;
 
 export const PRESS = ["rest", "hover", "focus", "active"] as const;
 
