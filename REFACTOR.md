@@ -16,6 +16,39 @@ git rev-parse master origin/master   # refactor commits are local: master is ahe
 
 Stop and tell the owner if the tree is dirty or `origin/master` has commits `master` lacks.
 
+## Where things stand (read this first; it overrides older lines below)
+
+State at `915aab1c` plus log commits, 2026-11-16: `pnpm check` is green on the whole tree (check-types 32 of 32, test 27 of 27, Biome clean). Master is about 120 commits ahead of origin, unpushed. F1 to F9 and the stable-package parts of F10, F11 and F12 are committed. Entries lower in this file that say "unverified" or "uncompiled" predate the first green gate.
+
+Rules that changed since the Orchestration section was written:
+
+- Agents may now compile and test their own perimeter (`pnpm --filter <pkg> check-types`, `test`, `biome check --write` on touched files). They still change no git state; the orchestrator runs `pnpm check` and commits. `.refactor/agent-rules.md` still says no build or check: each prompt states this exception.
+- **No visual checks** (no Storybook, no `test-screens`, no shots, no browser) unless the owner says otherwise.
+- **The showcase is a consumer**: `apps/showcase` imports only what `exports` lists; no relative import into a plugin.
+- Two consumers are checked before a public removal or move: stead and martechthings. `node .refactor/consumers.mjs` (after a build) prints every import of theirs that no longer resolves. Neither is ever edited.
+- An agent cannot write a file named like a report; it returns its report in its reply.
+
+Remaining work, in order:
+
+1. **F10 and F11 over both UI plugins** (`plugins/react-ui`, `plugins/native-ui`; disjoint perimeters, two parallel agents) and over ui-core's `read`, `acts`, `scope`, `listen`, `form` and `react/` rows. Briefs: `.refactor/f10/brief.md`, `.refactor/f11/brief.md`. Tests last, no new tests. Known rows for react-ui: the dead `scoped` branch in `components/sheet/base.tsx` and `PortalHosted` in `lib/portal.ts`.
+2. **P7**: the stream `stop` and the shared streamed-reply helper (brief not written).
+3. **F7 part 2**: `useAct`, `useHeldDraft`, the shared part of `lib/read.tsx`, `useDerivedForm`'s closures, the two `optionsOf`.
+4. **ui-core's 84 type-only roster cycles** (shared types into `roster/shared.ts`; check that native-ui's `declare module` still merges).
+5. **Final docs sweep** (F7's and F9's doc rows; anything naming a moved path).
+6. `pnpm release:check`.
+7. **Step 5**: fresh-agent review rounds until nothing is found.
+8. Last commit deletes `REFACTOR.md` and the `.refactor/` line of `.gitignore`.
+
+Open with the owner (none blocks item 1):
+
+- **The act-sheet value cycle** (Button, Sheet, Form, FormField, Input; 24 files in react-ui, 22 in native-ui). Recommended and not yet confirmed in words: accept it as real recursion and document the group as one unit. The inversion described under "After the first gate" is withdrawn: martechthings opens 109 of 112 act sheets under a scope boundary below the Shell, so a host-drawn sheet would lose its context.
+- **Edges the showcase dropped** (see the F9 part 2 entry): whether a component should offer each. One is a contradiction: the react-ui guide says a form group can be given its own read, the public `Form` takes none.
+- **52 stories redrawn and never looked at** (list in the F9 part 2 entry).
+- **The phone's query wiring** (native-ui still requires `query`; blocked by the cycle query, expo, cloudflare, screens, query).
+- 46 not-done rows in stable packages and 11 stack gaps in the apps (lists under Orchestration).
+- Why `plugins/query/src/read.ts`'s window read needed its explicit type argument removed, when the same line compiled inside plugin-api, is not explained.
+- Consumer migration (break list near the end of this file) happens after stack, on the owner's word.
+
 ## Goal
 
 Pieces that change together end up together, pieces that do not are not tied, and everything
@@ -413,7 +446,7 @@ Owner's answers:
 | 1 Additions | done |
 | 2 Problem list and checklist | done: 196 problems in `.refactor/problems/INDEX.md`, presented to the owner |
 | 3 Redesign | done, confirmed |
-| 4 Fixes | F1 to F3 done and gated; F4 and phases 1 to 3 committed, unverified; F9, P7 and the UI row rules next (see Orchestration and Step 4 log) |
+| 4 Fixes | F1 to F9 done and gated; remaining work listed under "Where things stand" |
 | 5 Fresh-agent checks | not started |
 
 ## Orchestration (owner's instruction, given after F4)
