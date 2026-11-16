@@ -8,8 +8,8 @@ import type { Closed } from "../../lib/closed";
 import type { Empty } from "../../lib/empty";
 import { FieldClaim } from "../../lib/field";
 import { type FormProps, useDerivedForm } from "../form";
-import { FormBody } from "../form/base";
 import { SheetBase, type SheetSubmit } from "./base";
+import { SheetForm } from "./form";
 
 export type { Acknowledge, SheetSubmit } from "./base";
 
@@ -87,7 +87,7 @@ export function Sheet<P extends ProcedureCall>({
 				fields={
 					derived ? (
 						<FieldClaim.Provider value={held}>
-							<FormBody {...derived} bar={undefined} in="sheet" />
+							<SheetForm form={{ ...derived, bar: undefined }} />
 						</FieldClaim.Provider>
 					) : undefined
 				}

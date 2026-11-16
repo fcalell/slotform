@@ -1,5 +1,7 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
+import { useFrame } from "@fcalell/ui-core/react/read";
+import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { runsOf } from "@fcalell/ui-core/runs";
 import { GATE, GATE_COLUMN, GATE_STEP, text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef, useState } from "react";
@@ -14,7 +16,7 @@ import { Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
 import { ToastRoom } from "../../parts/toast/room";
 import { type FormProps, useDerivedForm } from "../form";
-import { FormBody } from "../form/base";
+import { FormRows, FormShell, useFormBar } from "../form/base";
 import { FrameHost } from "../shell/host";
 import { StepCount } from "../step-count";
 
@@ -64,13 +66,15 @@ export interface GateProps<P extends ProcedureCall = AnyCall> extends Closed {
 // The step's form over its procedure, its bar across the column. It stands in
 // the step, so a new step starts it afresh.
 function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
-	const frame = useDerivedForm(props.form);
+	const form = useDerivedForm(props.form);
+	const frame = useFrame(form.read);
+	const [touch] = useTouchState();
+	const bar = useFormBar(form.bar && { fit: "full", ...form.bar }, frame);
 	return (
-		<FormBody
-			{...frame}
-			bar={frame.bar && { fit: "full", ...frame.bar }}
-			in="page"
-		/>
+		<FormShell touch={touch} guard={form.commit !== "field"} card frame={frame}>
+			<FormRows {...form} frame={frame} />
+			{bar}
+		</FormShell>
 	);
 }
 

@@ -330,7 +330,7 @@ interface SheetBaseProps {
 	children?: ReactNode;
 	/** The body's parts after the `form`, at the card inset: what follows the fields it answers (a live preview of what the form would send). */
 	after?: ReactNode;
-	// The body's form (a `FormBody`), after the parts: its rows flush on the
+	// The body's form (a `SheetForm`), after the parts: its rows flush on the
 	// sheet.
 	fields?: ReactNode;
 }

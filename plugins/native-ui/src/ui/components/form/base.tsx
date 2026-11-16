@@ -1,10 +1,6 @@
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { submitOf, useFrame } from "@fcalell/ui-core/react/read";
-import {
-	TouchedContext,
-	useTouched,
-	useTouchState,
-} from "@fcalell/ui-core/react/touched";
+import { type Frame, submitOf, useFrame } from "@fcalell/ui-core/react/read";
+import { type Touched, TouchedContext } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
@@ -87,9 +83,6 @@ export type FormFrameProps = FormBase &
 		  }
 	);
 
-/** Where a form stands: on a `page` (a `Form`, a `Gate`'s form), a card of its own; in a `sheet`, its rows flush on the sheet and its bar in the sheet's foot. */
-type FormIn = "page" | "sheet";
-
 // One group: a run of the form's rows, its legend a band, then its lead and
 // its fields, which are the group's own frame when it holds a `read`. A block
 // of the form: it fades in as it mounts if it came on its own once the form
@@ -134,75 +127,89 @@ function GroupBox(props: { group: FormGroup; arrived: boolean; at: number }) {
 	);
 }
 
-// What every form draws: the public `Form` (`in` the page), a `Sheet`'s (`in`
-// the sheet) and a `Gate`'s (`in` the page, on the Gate's column). Outside the
-// package's exports: `in` is the drawers' alone. A sheet's form takes the
-// sheet's touched state, which its foot's bar reads too, and asks nothing when
-// it is left. A bar the form is given is its last row under a hairline and
-// submits what the form's own read gives (a group's read is the group's); a
-// sheet hoists the bar into its foot, which reads the same.
-export function FormBody({
+// The form's rows: its read's line and body over its groups or its flat run of
+// fields, then its `after` at the card inset, where the form draws it (a sheet
+// draws its form's `after` itself, over the foot's bar). Outside the
+// package's exports.
+export function FormRows({
 	children,
 	groups,
-	bar,
-	commit,
-	read,
 	empty,
 	after,
-	in: within,
-	acting,
-}: FormFrameProps & {
-	in: FormIn;
-	// The holder of the bar's run, when the form stands in one that holds more
-	// than the bar (a docked sheet's dismissal).
-	acting?: Acting<number>;
-}) {
-	const frame = useFrame(read);
+	frame,
+}: FormFrameProps & { frame: Frame }) {
 	const arrived = useArrivals(
 		groups?.map((group, index) => group.title ?? String(index)) ?? [],
 		frame.form === "ready",
 	);
-	const [own] = useTouchState();
-	const sheet = useTouched();
-	const touch = within === "sheet" ? sheet : own;
-	useLeaveGuard(touch.leave, within !== "sheet" && commit !== "field");
+	return (
+		<>
+			<View className={ROWS}>
+				<FrameLine frame={frame} flow />
+				<FrameBody frame={frame} fit="part" empty={empty}>
+					{groups
+						? groups.map((group, index) => (
+								<GroupBox
+									key={group.title ?? index}
+									group={group}
+									arrived={arrived.has(group.title ?? String(index))}
+									at={index}
+								/>
+							))
+						: children}
+				</FrameBody>
+			</View>
+			{after ? <View className={SHEET_PARTS}>{after}</View> : null}
+		</>
+	);
+}
+
+// The form's foot: the bar it is given, its last row under a hairline, which
+// submits what the form's own read gives (a group's read is the group's). A
+// sheet that hoists the bar into its foot draws none here. Outside the
+// package's exports.
+export function useFormBar(
+	bar: ActionBarProps | undefined,
+	frame: Frame,
+	// The holder of the bar's run, when the form stands in one that holds more
+	// than the bar (a docked sheet's dismissal).
+	acting?: Acting<number>,
+): ReactNode {
 	const words = useWords();
 	const { waiting, ended } = submitOf(words, frame.form);
+	return bar ? (
+		<View className={FORM_FOOT}>
+			<ActionBarBase {...bar} acting={acting} painted={waiting} ended={ended} />
+		</View>
+	) : null;
+}
+
+// What every form stands in: the touched state its fields edit, and the leave
+// guard where it asks once when its edited screen is left. The public `Form`
+// and a `Gate`'s form hold their own touched state and stand as a card; a
+// sheet's form takes the sheet's, which its foot reads too, stands flush on
+// the sheet and asks nothing when it closes. Outside the package's exports.
+export function FormShell({
+	touch,
+	guard,
+	card,
+	frame,
+	children,
+}: {
+	touch: Touched;
+	guard: boolean;
+	card: boolean;
+	frame: Frame;
+	children: ReactNode;
+}) {
+	useLeaveGuard(touch.leave, guard);
 	return (
 		<TouchedContext.Provider value={touch}>
 			<View
 				accessibilityState={{ busy: frame.holds && frame.form === "waiting" }}
-				className={cn(within === "page" && CARD, ROWS)}
+				className={cn(card && CARD, ROWS)}
 			>
-				<View className={ROWS}>
-					<FrameLine frame={frame} flow />
-					<FrameBody frame={frame} fit="part" empty={empty}>
-						{groups
-							? groups.map((group, index) => (
-									<GroupBox
-										key={group.title ?? index}
-										group={group}
-										arrived={arrived.has(group.title ?? String(index))}
-										at={index}
-									/>
-								))
-							: children}
-					</FrameBody>
-				</View>
-				{/* A sheet draws its form's `after` itself, over the foot's bar. */}
-				{within === "page" && after ? (
-					<View className={SHEET_PARTS}>{after}</View>
-				) : null}
-				{bar ? (
-					<View className={FORM_FOOT}>
-						<ActionBarBase
-							{...bar}
-							acting={acting}
-							painted={waiting}
-							ended={ended}
-						/>
-					</View>
-				) : null}
+				{children}
 			</View>
 		</TouchedContext.Provider>
 	);

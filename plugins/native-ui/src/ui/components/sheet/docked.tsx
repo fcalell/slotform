@@ -27,8 +27,8 @@ import { useCSSVariable } from "../../lib/theme";
 import { ActionBarBase } from "../action-bar/base";
 import { Button } from "../button";
 import { type FormProps, useDerivedForm } from "../form";
-import { FormBody } from "../form/base";
 import { type SheetSubmit, submitAct } from "./base";
+import { SheetForm } from "./form";
 
 // The sheet fills its foot, which bounds it: the head and the foot keep their
 // height and the body scrolls in what is left. The foot centres what it holds,
@@ -174,9 +174,7 @@ export function SheetDocked<P extends ProcedureCall>({
 							}
 						>
 							{children}
-							{derived ? (
-								<FormBody {...derived} in="sheet" acting={acting} />
-							) : null}
+							{derived ? <SheetForm form={derived} acting={acting} /> : null}
 							{derived?.after}
 						</Scroll>
 						{submit ? (

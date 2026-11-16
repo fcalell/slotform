@@ -24,7 +24,8 @@ import {
 	toShown,
 } from "@fcalell/ui-core/form";
 import { usePort } from "@fcalell/ui-core/react/port";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
+import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
@@ -41,7 +42,7 @@ import type { Empty } from "../../lib/empty";
 import { toast } from "../../lib/toast";
 import { FormField } from "../form-field";
 import { Input } from "../input";
-import { FormBody, type FormFrameProps } from "./base";
+import { type FormFrameProps, FormRows, FormShell, useFormBar } from "./base";
 import { SavedSecret } from "./saved";
 
 // A field's `options` may be a selection, which paints the pick until its read lands.
@@ -124,7 +125,16 @@ function optionsOf(
 
 /** A form over a procedure: a card of the fields `fields` names, each drawn from the procedure's input schema (a string a line of text, in the mono with the `mono` hint, an enum a pick, a boolean a switch, a number a numeric line, a list of an enum, or of strings with `options`, a pick of several, a date a date line, a string with the `file` hint a file pick whose file is read into the string, a list with the `lines` hint a line per item, an object with the `json` hint mono JSON source), required unless the schema makes it optional (in a submit form an optional one says so under its label; a form that commits by field marks nothing), with the server's refusal of its value under it, over a bar whose filled act submits the procedure. The act is pending while the procedure runs; once it resolves the fields go back to `values` and `onDone` hears the output; a rejection stands in the bar, and the issues the server's schema refused under their fields until the viewer changes them. A field with a `locked` reason stands inert with it under the control. With `commit: "field"` the form draws no bar and each field sends itself. `groups` partition the fields under bands. While the form stands edited, leaving its page asks once, "Discard your edit?". A form over no procedure (a filter, a local setting) is not a `Form`: a filter is a `Toolbar`, a setting a `Switch` in a row. A form in a sheet is that `Sheet`'s `form`, these same props. */
 export function Form<P extends ProcedureCall>(props: FormProps<P>) {
-	return <FormBody {...useDerivedForm(props)} in="page" />;
+	const form = useDerivedForm(props);
+	const frame = useFrame(form.read);
+	const [touch] = useTouchState();
+	const bar = useFormBar(form.bar, frame);
+	return (
+		<FormShell touch={touch} guard={form.commit !== "field"} card frame={frame}>
+			<FormRows {...form} frame={frame} />
+			{bar}
+		</FormShell>
+	);
 }
 
 /** The derivation of a form over its procedure: its fields, its bar and its read, as the structure a `Form` or a `Sheet` draws. Without props (a sheet with no form) it holds nothing and returns nothing. A sheet passes its `open`: the viewer's edits are dropped as it opens again. Outside the package's exports. */
