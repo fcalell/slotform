@@ -18,7 +18,6 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
-import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { useInk } from "../../lib/ink";
 import { useTuned } from "../../lib/motion";
@@ -31,8 +30,6 @@ const LAYER = "absolute inset-0";
 // only once wrapped.
 const Turning = withUniwind(Animated.View);
 
-interface SpinnerProps extends Closed {}
-
 // A turning ring in the ink of its place, the size of the glyph it replaces;
 // A view takes no currentColor, so the place's ink is resolved and set as
 // the border colour: the arc's `border-t-transparent` is the top edge's own
@@ -41,7 +38,7 @@ interface SpinnerProps extends Closed {}
 // thread, linear and repeating; it enters by a fade on `fast` and, as the
 // contract's loop, keeps turning under reduced motion (a spinner that stops
 // is a wait that looks over).
-export function Spinner(_props: SpinnerProps) {
+export function Spinner() {
 	return busyScrambles() ? <Glyphs /> : <Ring />;
 }
 
