@@ -3,7 +3,8 @@ import type { Peaks } from "@fcalell/ui-core/descriptors";
 // A track's amplitude as a decoder would give it, made up: a quiet intro, a
 // build, a loud body with a break in it and an outro, with the grain of a
 // real signal. Deterministic, so every draw of a story is the same.
-export function madePeaks(length = 1200): Peaks {
+export function madePeaks(): Peaks {
+	const length = 1200;
 	const values = new Float32Array(length);
 	let seed = 7;
 	const noise = () => {

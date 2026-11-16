@@ -39,7 +39,7 @@ const ROWS: readonly string[] = ["Ana Ruiz", "Ben Kaya", "Ema Okafor"];
 const made = new Map<string, Reads>();
 
 /** The set of reads under `key`, the same set for the same key. */
-export function readsAt(key = ""): Reads {
+export function readsAt(key: string): Reads {
 	const held = made.get(key);
 	if (held) return held;
 	const at = (name: string) => ["showcase", key, name];
@@ -103,7 +103,7 @@ export function readsAt(key = ""): Reads {
 	return reads;
 }
 
-export const { waiting, failing, missing, empty, ready } = readsAt();
+export const { waiting, failing, missing, empty, ready } = readsAt("");
 
 /** A text that never arrives: a leaf given it stays painted. */
 export const waitingText = waiting.at(() => "");
@@ -138,7 +138,7 @@ export type MoreState = (typeof HOWS)[number];
 
 const paged = new Map<string, Read<readonly unknown[]>>();
 
-/** A pages read that holds `rows` as its first page with another after it: the next page answers nothing, so it loads for good ("fetching"), fails ("failed"), or is not asked for ("next", where "Show more" stands). The same read for the same key, so each frame takes its own key. */
+/** A pages read that holds `rows` as its first page with another after it: the next page answers nothing, so it loads for good ("fetching"), fails ("failed"), or is not asked for ("next", where "Show more" stands). The same read for the same key, so each frame takes its own key. Its one caller, `Paged`, passes each form's own key, state and rows. */
 export function pagesAt<T>(
 	key: string,
 	how: MoreState,
@@ -146,6 +146,7 @@ export function pagesAt<T>(
 ): Read<readonly T[]> {
 	const held = paged.get(key);
 	if (held) return held as Read<readonly T[]>;
+	// `read` types its options as a plain query's; a pages read's are infinite ones, whose queryFn answers a page, not `T`.
 	const made = read<readonly T[]>(
 		{
 			queryKey: ["showcase", key, "pages"],

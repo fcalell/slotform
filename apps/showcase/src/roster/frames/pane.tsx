@@ -7,7 +7,7 @@ import { Text } from "@fcalell/plugin-react-ui/components/text";
 import { Composer, Thread } from "@fcalell/plugin-react-ui/components/thread";
 import type { Option, RecordFact, Run } from "@fcalell/ui-core/descriptors";
 import type { Datum, Selection } from "@fcalell/ui-core/read";
-import { BREAKPOINT_PX, type Tone } from "@fcalell/ui-core/tokens";
+import { BREAKPOINT_PX, TONES, type Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ShowcaseFrame } from "../cells.ts";
 import { WORKFLOW } from "../graphs.ts";
@@ -102,7 +102,13 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 			const title = bar?.querySelector("p, h2");
 			const trigger = bar?.querySelector("span > button[aria-haspopup]");
 			const acts = bar?.lastElementChild;
-			if (!bar || !title || !trigger || !acts || ++seen < SHIFT_SETTLE) {
+			if (
+				!bar ||
+				!title ||
+				!(trigger instanceof HTMLElement) ||
+				!acts ||
+				++seen < SHIFT_SETTLE
+			) {
 				if (seen < SHIFT_WAIT) frame = requestAnimationFrame(read);
 				return;
 			}
@@ -148,7 +154,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 			}
 			const pane = bar.closest("[data-page]")?.getBoundingClientRect().width;
 			if (pane !== undefined && pane < BREAKPOINT_PX.tablet) {
-				const shown = ((trigger as HTMLElement).innerText ?? "").trim();
+				const shown = trigger.innerText.trim();
 				if (shown !== "")
 					console.error(
 						`the context pick draws "${shown}" in a Pane of ${Math.round(pane)} px, below tablet (${form} context)`,
@@ -165,12 +171,13 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 					);
 			}
 			const frameBox = trigger.getBoundingClientRect();
-			for (const [name, part] of [
+			const marks: [string, Element | null][] = [
 				["chip", chip],
 				...[...trigger.querySelectorAll("svg, [data-tone]")].map(
 					(one): [string, Element] => ["mark", one],
 				),
-			] as [string, Element | null][]) {
+			];
+			for (const [name, part] of marks) {
 				if (!part) continue;
 				const at = part.getBoundingClientRect();
 				if (
@@ -774,8 +781,9 @@ function RecordPage() {
 // own, a state pill all the same, before the plain facts on their grey.
 function Heads(frame: ShowcaseFrame) {
 	const [family, , value] = frame.cell.name.split(".");
-	// The third segment of a `STATUS_DOT.tone` cell is a state key.
-	const state = family === "STATUS_DOT" ? (value as Tone) : "active";
+	const state =
+		(family === "STATUS_DOT" && TONES.find((tone) => tone === value)) ||
+		"active";
 	if (frame.state === "loading") return <HeadWaiting />;
 	if (isPaint(frame))
 		return frame.state === "rest" ? (

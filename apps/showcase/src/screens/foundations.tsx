@@ -7,7 +7,6 @@ import {
 	CHIP_FAMILIES,
 	COLOR_GROUPS,
 	COLOR_NAMES,
-	type ColorGroup,
 	type ColorName,
 	MODES,
 	type Mode,
@@ -79,8 +78,7 @@ const PAIRS: ReadonlyArray<readonly [ColorName, ColorName]> = [
 
 // A group's colors in rows: the chips and the avatars one row per family or
 // step, every other group one row.
-function colorRows(group: ColorGroup): ColorName[][] {
-	const names: readonly ColorName[] = COLOR_GROUPS[group];
+function colorRows(group: string, names: readonly ColorName[]): ColorName[][] {
 	const by = (prefix: string) =>
 		names.filter((name) => name === prefix || name.startsWith(`${prefix}-`));
 	if (group === "chips") return CHIP_FAMILIES.map((f) => by(`chip-${f}`));
@@ -88,12 +86,12 @@ function colorRows(group: ColorGroup): ColorName[][] {
 	return [[...names]];
 }
 
-// The act fills, each the one with an `on-` ink, and every state of it.
-const ACT_FILLS = COLOR_GROUPS.acts.filter((name) =>
-	COLOR_NAMES.includes(`on-${name}` as ColorName),
-);
-// The act each fill belongs to, for its real pending and disabled states.
-const ACT_KIND = { "act-accent": "primary", "act-danger": "danger" } as const;
+// The act fills, each with the act it belongs to for its real pending and
+// disabled states.
+const ACT_FILLS = Object.entries({
+	"act-accent": "primary",
+	"act-danger": "danger",
+} as const);
 const WASHES = COLOR_GROUPS.washes.filter((name) => name.startsWith("wash-"));
 const SWITCH_TRACKS = COLOR_GROUPS.switch.filter(
 	(name) => name !== "switch-thumb",
@@ -245,9 +243,9 @@ function Type(props: { view: View }) {
 function Colour() {
 	return (
 		<>
-			{(Object.keys(COLOR_GROUPS) as ColorGroup[]).map((group) => (
+			{Object.entries(COLOR_GROUPS).map(([group, names]) => (
 				<Group key={group} title={group}>
-					{colorRows(group).map((row) => (
+					{colorRows(group, names).map((row) => (
 						<div
 							key={row.join()}
 							className="flex flex-wrap gap-gap *:min-w-0 *:basis-[calc((100%-3*var(--spacing-gap))/4)]"
@@ -410,7 +408,7 @@ function States() {
 				</div>
 			</Group>
 			<Group title="acts">
-				{ACT_FILLS.map((fill) => (
+				{ACT_FILLS.map(([fill, act]) => (
 					<div key={fill} className="flex flex-row flex-wrap gap-gap">
 						{[
 							fill,
@@ -435,19 +433,11 @@ function States() {
 						))}
 						<div data-act={`${fill}-pending`}>
 							<Pressed>
-								<Button
-									act={ACT_KIND[fill as keyof typeof ACT_KIND]}
-									label="pending"
-									onAct={hang}
-								/>
+								<Button act={act} label="pending" onAct={hang} />
 							</Pressed>
 						</div>
 						<div data-act={`${fill}-disabled`}>
-							<Button
-								act={ACT_KIND[fill as keyof typeof ACT_KIND]}
-								label="disabled"
-								blocked="Not available."
-							/>
+							<Button act={act} label="disabled" blocked="Not available." />
 						</div>
 					</div>
 				))}

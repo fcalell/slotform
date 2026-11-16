@@ -165,12 +165,10 @@ function Judged(props: { children: React.ReactNode }) {
 			// The chevron stands on the label's first line: it ends above the label's
 			// second line, which starts one line under the label's top.
 			const glyph = cell.querySelector("svg")?.getBoundingClientRect();
-			const label = cell.querySelector("span > span")?.getBoundingClientRect();
-			if (glyph && label) {
-				const line = Number.parseFloat(
-					getComputedStyle(cell.querySelector("span > span") as Element)
-						.lineHeight,
-				);
+			const labelPart = cell.querySelector("span > span");
+			if (glyph && labelPart) {
+				const label = labelPart.getBoundingClientRect();
+				const line = Number.parseFloat(getComputedStyle(labelPart).lineHeight);
 				if (glyph.top < label.top - 1 || glyph.bottom > label.top + line + 1)
 					console.error("Stats: the chevron is off the label's first line");
 			}

@@ -37,7 +37,7 @@ export function Stage(props: {
 }
 
 export function press(target: Element | null | undefined): void {
-	(target as HTMLElement | null | undefined)?.click();
+	if (target instanceof HTMLElement) target.click();
 }
 
 export function key(target: Element | null | undefined, name: string): void {
