@@ -79,6 +79,8 @@ function DownloadAct(props: {
 				link.href = url;
 				link.download = props.file;
 				link.click();
+				// No event marks the download taking the URL; the click starts it in
+				// its own task, so the next one may revoke it.
 				setTimeout(() => URL.revokeObjectURL(url));
 			}}
 		/>

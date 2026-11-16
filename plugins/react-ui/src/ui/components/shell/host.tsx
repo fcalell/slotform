@@ -5,7 +5,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { TOASTS } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useState } from "react";
 import { useModality } from "../../lib/modality.ts";
-import { PortalContainer, PortalHosted, PortalSlot } from "../../lib/portal.ts";
+import { PortalContainer, PortalSlot } from "../../lib/portal.ts";
 import { RECENT } from "../../lib/rest.ts";
 import { toasts } from "../../lib/toast.ts";
 import { Confirmations } from "../sheet/confirm.tsx";
@@ -52,14 +52,12 @@ export function FrameHost({ children }: { children: ReactNode }) {
 		<ToastControl.Provider toastManager={toasts}>
 			<Tooltip.Provider timeout={RECENT}>
 				<PortalContainer value={portal}>
-					<PortalHosted value>
-						<PortalSlot value={setPortal}>
-							{children}
-							<Confirmations />
-							<CutText />
-							<DragLayer />
-						</PortalSlot>
-					</PortalHosted>
+					<PortalSlot value={setPortal}>
+						{children}
+						<Confirmations />
+						<CutText />
+						<DragLayer />
+					</PortalSlot>
 				</PortalContainer>
 			</Tooltip.Provider>
 		</ToastControl.Provider>

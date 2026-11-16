@@ -33,6 +33,7 @@ const ATTRIBUTES: Record<LoadingSlot, string> = {
 if (typeof document !== "undefined") {
 	const set = document.documentElement.dataset;
 	setLoading(
+		// `Object.keys` widens to `string[]`; `ATTRIBUTES` is keyed by every slot.
 		Object.fromEntries(
 			(Object.keys(ATTRIBUTES) as LoadingSlot[])
 				.filter((slot) => set[ATTRIBUTES[slot]] === "scramble")

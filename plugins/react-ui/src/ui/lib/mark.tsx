@@ -1,5 +1,10 @@
 import { cn } from "@fcalell/ui-core/cn";
-import { GATE_MARK, text, textStrong } from "@fcalell/ui-core/variants";
+import {
+	GATE_LOGO,
+	GATE_MARK,
+	text,
+	textStrong,
+} from "@fcalell/ui-core/variants";
 import { createContext, type ReactNode, use, useState } from "react";
 
 /** The app's mark: its icon, in the light mode and, when the app gave one, the dark, and its name; and, when the app drew one, its logo (symbol and name in one image). */
@@ -79,13 +84,8 @@ function Drawn(props: {
 	);
 }
 
-/** The app's mark as one row: the drawn lockup when the app has one (at the height its caller's `logo` cell gives, its width from its own proportion, held to the row, the app's name as its alt) and otherwise the icon at the avatar's size, then the name at the body role and 500, truncating. A lockup that fails to load leaves the icon and the name. The dark form, when the app has one, is drawn under the theme's own `.dark` scope. The caller reads `useMark` first and draws no row when the app has no icon. */
-export function Lockup(props: {
-	mark: AppMark;
-	className: string;
-	/** The drawn lockup's size cell: the Gate's `GATE_LOGO`. The plain form is the avatar's size either way. */
-	logo: string;
-}) {
+/** The app's mark as one row: the drawn lockup when the app has one (at the Gate's `GATE_LOGO` height, its width from its own proportion, held to the row, the app's name as its alt) and otherwise the icon at the avatar's size, then the name at the body role and 500, truncating. A lockup that fails to load leaves the icon and the name. The dark form, when the app has one, is drawn under the theme's own `.dark` scope. The caller reads `useMark` first and draws no row when the app has no icon. */
+export function Lockup(props: { mark: AppMark; className: string }) {
 	const { mark } = props;
 	const [failed, setFailed] = useState<string>();
 	if (
@@ -100,7 +100,7 @@ export function Lockup(props: {
 					<Drawn
 						src={mark.logo}
 						name={mark.name}
-						size={props.logo}
+						size={GATE_LOGO}
 						onError={fail(mark.logo)}
 					/>
 				) : (
@@ -108,14 +108,14 @@ export function Lockup(props: {
 						<Drawn
 							src={mark.logo}
 							name={mark.name}
-							size={props.logo}
+							size={GATE_LOGO}
 							onError={fail(mark.logo)}
 							className={LIGHT}
 						/>
 						<Drawn
 							src={mark.logoDark}
 							name={mark.name}
-							size={props.logo}
+							size={GATE_LOGO}
 							onError={fail(mark.logoDark)}
 							className={DARK}
 						/>

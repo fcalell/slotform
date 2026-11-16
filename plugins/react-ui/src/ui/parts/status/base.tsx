@@ -14,13 +14,12 @@ import { StatusDot } from "./dot.tsx";
 const BOX = "inline-flex items-center min-w-0 max-w-full";
 const WORD = "truncate";
 const DOT = "shrink-0";
-/** What every status draws: the public `Status`, or `painted` (the dot's box and a word's filler while the status's data is not here, inert). A state chip (a status given its own word) is a chip: the caption line between its hairlines, wherever it stands. It is `round` where it stands in a pill of its own (a head's pick fact), so it nests as a pill inside it, or in a canvas's start or end node. Outside the package's exports. */
+/** What every status draws: the public `Status`, or `painted` (the dot's box and a word's filler while the status's data is not here, inert). A state chip (a status given its own word) is a chip: the caption line between its hairlines, wherever it stands. Outside the package's exports. */
 export function StatusBase(
 	props:
 		| {
 				tone: Tone;
 				label?: string;
-				round?: boolean;
 				painted?: never;
 		  }
 		| { painted: true },
@@ -43,14 +42,7 @@ export function StatusBase(
 	// while running) and word on the state's soft fill under its hairline.
 	if (props.label !== undefined)
 		return (
-			<span
-				className={cn(
-					stateChip({ tone: props.tone }),
-					props.round && "rounded-full",
-					STATUS,
-					BOX,
-				)}
-			>
+			<span className={cn(stateChip({ tone: props.tone }), STATUS, BOX)}>
 				<StatusDot tone={props.tone} />
 				<span className={cn(STATE_CHIP_LABEL, WORD)}>{label}</span>
 			</span>

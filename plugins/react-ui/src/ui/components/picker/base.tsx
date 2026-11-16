@@ -9,7 +9,6 @@ import {
 	toggled,
 } from "@fcalell/ui-core/list-state";
 import {
-	asChip,
 	type Grouped,
 	groupsOf,
 	type PickOptions,
@@ -21,7 +20,7 @@ import type { Draft } from "@fcalell/ui-core/react/acts";
 import { useOptions } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { nounOf } from "@fcalell/ui-core/rules";
-import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
+import type { Tone } from "@fcalell/ui-core/tokens";
 import {
 	CHIPS_RUN,
 	CHIPS_TRIGGER,
@@ -72,7 +71,6 @@ import {
 import type { IconAct } from "../../lib/act.ts";
 import { type Acting, useAct, useHeldDraft } from "../../lib/act.ts";
 import { CHIP_LINES } from "../../lib/chip-lines.ts";
-import type { CellFit } from "../../lib/field.ts";
 import { expandedTrigger, rememberOpener } from "../../lib/focus.ts";
 import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing, useTouch } from "../../lib/media.ts";
@@ -108,9 +106,6 @@ const FIELD_OPEN =
 	"in-data-[modality=keyboard]:outline-2 outline-offset-(--focus-ring-edge-offset) outline-ring";
 // The error edge stands over the accent edge, as on a focused field.
 const OPEN_EDGE = "border-accent";
-// In a table cell, or at the bar fit in a rule row, the trigger fills the
-// cell or column it stands in for.
-const FILL = "w-full";
 const FIELD_VALUE = "min-w-0 grow truncate";
 // Painted, the trigger keeps its loaded box and draws none of its content.
 const PAINTED = cn(PAINT_CONTROL, "*:invisible");
@@ -181,8 +176,6 @@ const BLOCKED_INK = "text-ink-disabled";
 const TICK = "flex shrink-0 text-ink-body";
 // A glyph leads an option in the row's leading slot.
 const LEADING = "flex shrink-0 items-center justify-center";
-// A chip column's value and options are its chips.
-const CHIP_SLOT = "flex grow min-w-0";
 // An option's own chip stands after its text and keeps its word whole: the text
 // truncates before it does, and only a chip past the short measure is cut.
 const CHIP_AFTER = "flex shrink-0 max-w-measure-short";
@@ -240,21 +233,11 @@ const optionRow = (highlighted = false) =>
 // An option's label (the empty choice in the placeholder's ink) over its
 // line; an option leading with a state shows its status's dot, one leading
 // with an avatar its avatar, and its chip after the text.
-function OptionText(props: {
-	option: Option<string | null>;
-	chosen: boolean;
-	chip?: ChipFamily;
-}) {
-	const { option, chip } = props;
+function OptionText(props: { option: Option<string | null>; chosen: boolean }) {
+	const { option } = props;
 	const blocked = optionBlocked(option, props.chosen);
 	const meta = blocked ?? option.line;
 	const lead = optionLeading(option);
-	if (asChip(option, chip))
-		return (
-			<span className={CHIP_SLOT}>
-				<Chip family={chip} label={option.label} />
-			</span>
-		);
 	return (
 		<>
 			{lead.icon ? (
@@ -331,7 +314,7 @@ function PickAct(props: {
 					href={act.href}
 					onFocus={props.onFocus}
 					onClick={(event) => {
-						rememberOpener(expandedTrigger(document));
+						rememberOpener(expandedTrigger());
 						props.done();
 						follow(event);
 					}}
@@ -346,7 +329,7 @@ function PickAct(props: {
 					aria-disabled={act.blocked !== undefined || undefined}
 					onClick={() => {
 						if (act.blocked !== undefined) return;
-						rememberOpener(expandedTrigger(document));
+						rememberOpener(expandedTrigger());
 						props.done();
 						acting.run(true, act);
 					}}
@@ -389,10 +372,6 @@ function GroupLabel(props: { children: ReactNode }) {
 interface Composed {
 	/** A trigger drawn by the composer, handed Base UI's props and whether the list is open. */
 	drawn?: (handed: ComponentProps<"button">, open: boolean) => ReactElement;
-	/** The family a chip column's value and options draw as chips of. */
-	chip?: ChipFamily;
-	/** The `Table` cell it edits in: the pick mounts open as the edit starts, named by the cell. */
-	cell?: CellFit;
 	/** `-1` where the trigger's host holds the tab stop (a tree's row); absent, the trigger keeps its own. */
 	tabIndex?: -1;
 	/** Its data is not here: the trigger's box filled at its loaded size, its content not drawn, inert, so no list opens. */
@@ -463,16 +442,7 @@ export function PickerBase<V extends string | null = string>(
 			draft.change(next, () => given.onChange(next));
 		},
 	} as Drawn<V>;
-	const {
-		label,
-		placeholder,
-		fit = "field",
-		act,
-		drawn,
-		chip,
-		cell,
-		fold,
-	} = given;
+	const { label, placeholder, fit = "field", act, drawn, fold } = given;
 	const { form } = given;
 	const acting = useAct("toast");
 	const words = useWords();
@@ -499,25 +469,14 @@ export function PickerBase<V extends string | null = string>(
 	const touch = useTouch();
 	const box = useRef<HTMLDivElement>(null);
 	const run = useRef<HTMLDivElement>(null);
-	// In a table cell the pick mounts open as its edit starts, and its list
-	// gone, its leave played, ends the edit. The list hands focus back to the
-	// cell as it unmounts (after its option's own press has focused it), unless
-	// the close came from focus moving on.
-	const [open, setOpenState] = useState(cell?.starts ?? false);
-	const back = useRef(true);
-	const setOpen = (next: boolean, details?: { reason: string }) => {
+	const [open, setOpenState] = useState(false);
+	const setOpen = (next: boolean) => {
 		if (ended && next) {
 			draft.change(undefined);
 			return;
 		}
 		setOpenState(next);
-		if (next) return;
-		back.current =
-			details?.reason !== "outside-press" && details?.reason !== "focus-out";
 	};
-	const finalFocus: FinalFocus = cell
-		? () => (back.current && cell.home()) || false
-		: true;
 	const current = pickCurrent(flat, value, several !== undefined);
 	// Past six options a search leads the list. The form follows the count only
 	// while the list is closed, so a count crossing six never tears down an
@@ -545,12 +504,11 @@ export function PickerBase<V extends string | null = string>(
 		? `${current.label}${current.chip ? ` ${current.chip.label}` : ""}`
 		: hint;
 	const named =
-		cell?.label ??
-		(fit === "pill"
+		fit === "pill"
 			? (shownName ?? label)
 			: current
 				? `${label}, ${shownName}`
-				: label);
+				: label;
 	const leads = optionLeading(current);
 	const glyph = leads.icon ? (
 		<Icon
@@ -576,34 +534,29 @@ export function PickerBase<V extends string | null = string>(
 			{current?.label ?? hint}
 		</span>
 	);
-	// A set pick in a toolbar (the bar fit, outside a table cell) reads its
+	// A set pick in a toolbar (the bar fit) reads its
 	// label then its value, so a value that other filters could share
 	// ("Change") is told apart ("Work type: Change"); the empty choice (a `null`
 	// option, the way to clear) reads the label alone, as an unset pick does.
 	// Every other place reads the value alone, its label standing over it or
 	// beside it already, a rule's term too, whose row names it.
-	const toolbar = fit === "bar" && !cell && !given.term;
+	const toolbar = fit === "bar" && !given.term;
 	const lead = (option: Option<V>) => {
 		if (!toolbar) return option.label;
 		return option.value === null ? label : `${label}: ${option.label}`;
 	};
-	const fieldShown =
-		chip && current && current.value !== null ? (
-			<span className={CHIP_SLOT}>
-				<Chip family={chip} label={current.label} />
-			</span>
-		) : (
-			<span
-				className={cn(
-					fieldValue({ kind: "text" }),
-					current?.value === null && PICKER_EMPTY,
-					unset && FIELD_PLACEHOLDER,
-					FIELD_VALUE,
-				)}
-			>
-				{status ?? (current ? lead(current) : hint)}
-			</span>
-		);
+	const fieldShown = (
+		<span
+			className={cn(
+				fieldValue({ kind: "text" }),
+				current?.value === null && PICKER_EMPTY,
+				unset && FIELD_PLACEHOLDER,
+				FIELD_VALUE,
+			)}
+		>
+			{status ?? (current ? lead(current) : hint)}
+		</span>
+	);
 	// A removed chip hands focus to the next chip's remove act, else the
 	// previous one's, else the trigger.
 	const removeChip = (picks: Several<V>, option: Option<V>, at: number) => {
@@ -626,7 +579,6 @@ export function PickerBase<V extends string | null = string>(
 					picker({}),
 					FIELD_GLYPH,
 					SEVERAL_BOX,
-					cell && FILL,
 					quiet && !open && FIELD_QUIET,
 					open && FIELD_OPEN,
 					open && !form?.invalid && OPEN_EDGE,
@@ -743,7 +695,7 @@ export function PickerBase<V extends string | null = string>(
 					{...handed}
 					type="button"
 					aria-label={named}
-					tabIndex={cell || given.tabIndex === -1 ? -1 : handed.tabIndex}
+					tabIndex={given.tabIndex === -1 ? -1 : handed.tabIndex}
 					disabled={form?.disabled}
 					inert={painted || undefined}
 					aria-disabled={ended || undefined}
@@ -755,7 +707,6 @@ export function PickerBase<V extends string | null = string>(
 									picker({ fit }),
 									fit !== "pill" && FIELD_GLYPH,
 									FIELD_TRIGGER,
-									cell && FILL,
 									quiet && !open && FIELD_QUIET,
 									open && FIELD_OPEN,
 									open && !form?.invalid && OPEN_EDGE,
@@ -789,14 +740,11 @@ export function PickerBase<V extends string | null = string>(
 			value={value}
 			several={several}
 			searching={searching}
-			typing={cell?.starts}
 			open={open}
 			setOpen={setOpen}
-			onGone={cell?.done}
 			pick={pick}
 			trigger={trigger}
 			act={act}
-			chip={chip}
 		/>
 	) : searching ? (
 		<PickSearch
@@ -808,12 +756,9 @@ export function PickerBase<V extends string | null = string>(
 			chosen={chosen}
 			open={open}
 			setOpen={setOpen}
-			onGone={cell?.done}
-			finalFocus={finalFocus}
 			pick={pick}
 			trigger={trigger}
 			act={act}
-			chip={chip}
 		/>
 	) : (
 		<PickList
@@ -824,12 +769,9 @@ export function PickerBase<V extends string | null = string>(
 			anchor={several ? box : undefined}
 			open={open}
 			setOpen={setOpen}
-			onGone={cell?.done}
-			finalFocus={finalFocus}
 			pick={pick}
 			trigger={trigger}
 			act={act}
-			chip={chip}
 		/>
 	);
 	// A field's options that ended draw their sentence and Retry in the value column,
@@ -874,7 +816,7 @@ function NamedWhen(props: {
 	);
 }
 
-/** A Picker that holds its own draft, as a bare one, a row's pick and a cell's do; a rejection toasts. Outside the package's exports. */
+/** A Picker that holds its own draft, as a bare one and a row's pick do; a rejection toasts. Outside the package's exports. */
 export function HeldPicker<V extends string | null = string>(
 	props: PickOneProps<V> & Composed,
 ): ReactElement;
@@ -897,8 +839,6 @@ export function HeldPicker<V extends string | null = string>(
 			options={options}
 			fit={fit}
 			act={act}
-			chip={props.chip}
-			cell={props.cell}
 			tabIndex={props.tabIndex}
 			painted={props.painted}
 			drawn={props.drawn}
@@ -952,13 +892,10 @@ interface PickParts<V extends string | null> {
 	label: string;
 	groups: readonly Grouped<V>[];
 	open: boolean;
-	setOpen: (open: boolean, details?: { reason: string }) => void;
-	// Hears the list gone, its leave played: a cell's pick ends its edit.
-	onGone?: () => void;
+	setOpen: (open: boolean) => void;
 	pick: (value: V) => void;
 	trigger: (props: ComponentProps<"button">) => ReactElement;
 	act?: IconAct | IconLinkAct;
-	chip?: ChipFamily;
 	// A pick of several: its chosen values and what hears their new set.
 	several?: Several<V>;
 	// The box the list opens against and takes its width from, where the trigger
@@ -966,14 +903,10 @@ interface PickParts<V extends string | null> {
 	anchor?: RefObject<HTMLElement | null>;
 }
 
-// Where a desktop list hands focus as it closes: Base UI's own return,
-// or what a table cell's pick names.
-type FinalFocus = true | (() => HTMLElement | false);
-
 // The desktop list of six options or fewer: Base UI's select supplies the
 // listbox, its keyboard and its typeahead.
 function PickList<V extends string | null>(
-	props: PickParts<V> & { value: V | undefined; finalFocus: FinalFocus },
+	props: PickParts<V> & { value: V | undefined },
 ) {
 	const container = use(PortalContainer);
 	useQuietGuards();
@@ -992,9 +925,6 @@ function PickList<V extends string | null>(
 			}}
 			open={props.open}
 			onOpenChange={props.setOpen}
-			onOpenChangeComplete={(next) => {
-				if (!next) props.onGone?.();
-			}}
 		>
 			<Select.Trigger render={(handed) => keyboard.trigger(handed)} />
 			<Select.Portal container={container}>
@@ -1006,7 +936,6 @@ function PickList<V extends string | null>(
 					sideOffset={() => spacing("gap")}
 				>
 					<Select.Popup
-						finalFocus={props.finalFocus}
 						onKeyDown={keyboard.popup.onKeyDown}
 						onPointerMove={keyboard.popup.onPointerMove}
 						className={cn(POPOVER, LAYER_POPOVER, PICKER_POPOVER, POPUP)}
@@ -1044,11 +973,7 @@ function PickList<V extends string | null>(
 													)
 												}
 											>
-												<OptionText
-													option={option}
-													chosen={chosen}
-													chip={props.chip}
-												/>
+												<OptionText option={option} chosen={chosen} />
 												<Select.ItemIndicator className={TICK}>
 													<Icon name="Check" fit="body" />
 												</Select.ItemIndicator>
@@ -1086,7 +1011,6 @@ interface SearchItemProps<V extends string | null> {
 	/** The key moved the highlight last (a blocked row marks it by the key landing on it). */
 	keyed: boolean;
 	landed: boolean;
-	chip?: ChipFamily;
 	/** The option's place among all the filtered ones (`place` of `size`, from 1), when the list is virtual. */
 	size?: number;
 	place?: number;
@@ -1117,7 +1041,7 @@ function SearchItemBase<V extends string | null>(props: SearchItemProps<V>) {
 				)
 			}
 		>
-			<OptionText option={option} chosen={chosen} chip={props.chip} />
+			<OptionText option={option} chosen={chosen} />
 			<Combobox.ItemIndicator className={TICK}>
 				<Icon name="Check" fit="body" />
 			</Combobox.ItemIndicator>
@@ -1125,6 +1049,7 @@ function SearchItemBase<V extends string | null>(props: SearchItemProps<V>) {
 	);
 }
 
+// `memo` returns a component without the type parameter it wraps.
 const SearchItem = memo(SearchItemBase) as typeof SearchItemBase;
 
 // A row of a virtual search list: a group's label, or one of the filtered
@@ -1145,7 +1070,6 @@ function SearchRows<V extends string | null>(props: {
 	current: V | undefined;
 	keyed: boolean;
 	landed: boolean;
-	chip?: ChipFamily;
 }) {
 	const matches = Combobox.useFilteredItems<Option<V>>();
 	const box = useRef<HTMLDivElement>(null);
@@ -1176,10 +1100,12 @@ function SearchRows<V extends string | null>(props: {
 			<Window
 				count={rows.length}
 				keyOf={(at) => {
+					// `Window` hands only indexes under its `count`, the list's length.
 					const row = rows[at] as SearchRow<V>;
 					return "option" in row ? String(row.option.value) : row.label;
 				}}
 				row={(at) => {
+					// `Window` hands only indexes under its `count`, the list's length.
 					const row = rows[at] as SearchRow<V>;
 					if (!("option" in row))
 						return <GroupLabel key={row.label}>{row.label}</GroupLabel>;
@@ -1194,7 +1120,6 @@ function SearchRows<V extends string | null>(props: {
 							chosen={inValue(props.several, props.current, option.value)}
 							keyed={props.keyed}
 							landed={props.landed}
-							chip={props.chip}
 						/>
 					);
 				}}
@@ -1221,7 +1146,6 @@ function PickSearch<V extends string | null>(
 	props: PickParts<V> & {
 		current: Option<V> | undefined;
 		chosen: Option<V>[];
-		finalFocus: FinalFocus;
 	},
 ) {
 	const container = use(PortalContainer);
@@ -1270,9 +1194,6 @@ function PickSearch<V extends string | null>(
 			}}
 			open={props.open}
 			onOpenChange={props.setOpen}
-			onOpenChangeComplete={(next) => {
-				if (!next) props.onGone?.();
-			}}
 		>
 			<Combobox.Trigger render={(handed) => keyboard.trigger(handed)} />
 			<Combobox.Portal container={container}>
@@ -1283,7 +1204,6 @@ function PickSearch<V extends string | null>(
 					sideOffset={() => spacing("gap")}
 				>
 					<Combobox.Popup
-						finalFocus={props.finalFocus}
 						onKeyDown={keyboard.popup.onKeyDown}
 						onPointerMove={keyboard.popup.onPointerMove}
 						aria-label={props.label}
@@ -1308,7 +1228,6 @@ function PickSearch<V extends string | null>(
 										current={props.current?.value}
 										keyed={keyboard.keyed}
 										landed={keyboard.landed}
-										chip={props.chip}
 									/>
 								</Scroller>
 							</Combobox.List>
@@ -1337,7 +1256,6 @@ function PickSearch<V extends string | null>(
 													)}
 													keyed={keyboard.keyed}
 													landed={keyboard.landed}
-													chip={props.chip}
 												/>
 											)}
 										</Combobox.Collection>
@@ -1365,8 +1283,6 @@ function PickSearch<V extends string | null>(
 type SheetParts<V extends string | null> = PickParts<V> & {
 	value: V | undefined;
 	searching: boolean;
-	// The sheet opened as a table cell's edit started: its search takes focus.
-	typing?: boolean;
 };
 
 // The touch sheet: the rows edge to edge under the sheet's head, a search
@@ -1388,7 +1304,6 @@ function PickSheet<V extends string | null>(props: SheetParts<V>) {
 				open={props.open}
 				onOpen={() => props.setOpen(true)}
 				onClose={() => props.setOpen(false)}
-				onGone={props.onGone}
 				title={props.label}
 				focus={first}
 			>
@@ -1398,11 +1313,9 @@ function PickSheet<V extends string | null>(props: SheetParts<V>) {
 					value={props.value}
 					several={props.several}
 					searching={props.searching}
-					typing={props.typing}
 					setOpen={props.setOpen}
 					pick={props.pick}
 					act={props.act}
-					chip={props.chip}
 					first={first}
 				/>
 			</SheetBase>
@@ -1424,7 +1337,6 @@ interface PickOptionProps<V extends string | null> {
 	stands: boolean;
 	/** What the sheet takes focus on as it opens: the tab stop's button. */
 	first: RefObject<HTMLButtonElement | null>;
-	chip?: ChipFamily;
 	pick: (value: V) => void;
 }
 
@@ -1454,7 +1366,7 @@ function PickOptionBase<V extends string | null>(props: PickOptionProps<V>) {
 				blocked === undefined && OPTION_FOCUS_WASH,
 			)}
 		>
-			<OptionText option={option} chosen={chosen} chip={props.chip} />
+			<OptionText option={option} chosen={chosen} />
 			{chosen ? (
 				<span className={TICK}>
 					<Icon name="Check" fit="body" />
@@ -1464,6 +1376,7 @@ function PickOptionBase<V extends string | null>(props: PickOptionProps<V>) {
 	);
 }
 
+// `memo` returns a component without the type parameter it wraps.
 const PickOption = memo(PickOptionBase) as typeof PickOptionBase;
 
 // One group of the sheet's options: its label over its rows, which stand in a
@@ -1478,7 +1391,6 @@ function PickGroupBox<V extends string | null>(props: {
 	first: RefObject<HTMLButtonElement | null>;
 	several?: Several<V>;
 	value: V | undefined;
-	chip?: ChipFamily;
 	pick: (value: V) => void;
 }) {
 	const { group, before, stop } = props;
@@ -1494,6 +1406,7 @@ function PickGroupBox<V extends string | null>(props: {
 					count={items.length}
 					keyOf={(place) => String(items[place]?.value)}
 					row={(place) => {
+						// `Window` hands only indexes under its `count`, the list's length.
 						const option = items[place] as Option<V>;
 						return (
 							<PickOption
@@ -1505,7 +1418,6 @@ function PickGroupBox<V extends string | null>(props: {
 								chosen={inValue(props.several, props.value, option.value)}
 								stands={place === kept}
 								first={props.first}
-								chip={props.chip}
 								pick={props.pick}
 							/>
 						);
@@ -1579,7 +1491,6 @@ function PickRows<V extends string | null>(
 						kind="search"
 						value={search}
 						onChange={setSearch}
-						autoFocus={props.typing}
 					/>
 				</div>
 			) : null}
@@ -1629,7 +1540,6 @@ function PickRows<V extends string | null>(
 							first={props.first}
 							several={props.several}
 							value={props.value}
-							chip={props.chip}
 							pick={pick}
 						/>
 					))}

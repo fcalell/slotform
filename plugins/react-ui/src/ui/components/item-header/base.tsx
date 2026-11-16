@@ -61,7 +61,7 @@ import { HeldPicker } from "../picker/base.tsx";
 
 const HEAD = "flex flex-col";
 // The overline is a text line: one line at every density, cut at its end with
-// an ellipsis, its parts a middle dot apart (`PartsLine`'s `flow`), on touch as
+// an ellipsis, its parts a middle dot apart (`PartsLine`), on touch as
 // on the desktop, its figures tabular (`ITEM_OVERLINE`).
 const OVERLINE = "truncate";
 // The name draws whole: it wraps between its words.
@@ -351,7 +351,6 @@ export function ItemHeaderBase<V extends string | null = string>({
 			{placed.length > 0 ? (
 				<p className={cn(ITEM_OVERLINE, OVERLINE)}>
 					<PartsLine
-						form="flow"
 						parts={placed.flatMap((part, at) =>
 							part.painted
 								? [

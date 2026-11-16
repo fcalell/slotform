@@ -42,20 +42,18 @@ const GLYPH = "w-full";
 const CHECKED = "in-data-indeterminate:opacity-0";
 const MIXED = "absolute inset-0 opacity-0 in-data-indeterminate:opacity-100";
 
-/** The tick box every selection renders, on the `draft` its host holds: a field hosts the draft of its checkbox and draws a rejection in its own line. `target` is the label a row makes its target; `cell` is the `Table` cell it stands in, where the grid's cursor reaches it; `painted` is the box while its data is not here: filled, unchecked, inert. Outside the package's exports. */
+/** The tick box every selection renders, on the `draft` its host holds: a field hosts the draft of its checkbox and draws a rejection in its own line. `target` is the label a row makes its target; `painted` is the box while its data is not here: filled, unchecked, inert. Outside the package's exports. */
 export function CheckboxBase({
 	draft,
 	onChange,
 	label,
 	target,
-	cell,
 	tabIndex,
 	painted: given,
 }: Omit<CheckboxProps, "checked"> & {
 	draft: Draft<boolean | "mixed">;
 	target?: LabelFit;
-	cell?: boolean;
-	/** `-1` where the box's host holds the tab stop (a tree's row); absent, it keeps Base UI's own. */
+	/** `-1` where the box's host holds the tab stop (a tree's row, a `Table` cell the grid's cursor reaches); absent, it keeps Base UI's own. */
 	tabIndex?: -1;
 	painted?: boolean;
 }) {
@@ -82,10 +80,9 @@ export function CheckboxBase({
 			}}
 			aria-label={label}
 			aria-labelledby={target?.labelledBy}
-			// In a table cell the grid's cursor reaches it, so it leaves the tab
-			// order; anywhere else it keeps Base UI's own tab stop, which a
+			// Base UI keeps its own tab stop unless the host holds it, which a
 			// `tabIndex` prop given as `undefined` would override.
-			{...(cell || tabIndex === -1 ? { tabIndex: -1 } : {})}
+			{...(tabIndex === -1 ? { tabIndex: -1 } : {})}
 			className={target ? IN_LABEL : HIT}
 		>
 			<span
@@ -113,12 +110,10 @@ export function HeldCheckbox({
 	onChange,
 	label,
 	target,
-	cell,
 	tabIndex,
 	painted,
 }: CheckboxProps & {
 	target?: LabelFit;
-	cell?: boolean;
 	tabIndex?: -1;
 	painted?: boolean;
 }) {
@@ -128,7 +123,6 @@ export function HeldCheckbox({
 			onChange={onChange}
 			label={label}
 			target={target}
-			cell={cell}
 			tabIndex={tabIndex}
 			painted={painted}
 		/>

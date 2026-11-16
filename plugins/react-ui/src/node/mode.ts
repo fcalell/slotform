@@ -14,7 +14,8 @@ type Loading = Partial<Record<"text" | "figure" | "id", "pulse" | "scramble">>;
 // scheme (a schedule that darkens a screen at dusk, a viewer's switch) moves
 // the class while the page is open, unless the viewer has stored a choice by
 // then; a stored choice or a `defaultMode` is the page's own and no change of
-// the system moves it.
+// the system moves it. Blocked storage or a missing `matchMedia` leaves the
+// fallback in place: the script runs before the page and never throws into it.
 export function modeScript(
 	defaultMode: Mode | undefined,
 	loading: Loading = {},

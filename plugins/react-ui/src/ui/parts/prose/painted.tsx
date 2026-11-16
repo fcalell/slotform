@@ -10,34 +10,25 @@ const STACK = "flex flex-col";
 // taller than the text that lands.
 const PAINTED_LINE = "block overflow-hidden whitespace-nowrap";
 
-/** A markdown text that is not here, in the column's box, inert: `rows` paragraphs of filler, or, given `lines`, `rows` paragraphs of that many clipped lines (a Prose paints one paragraph of `PAINT_ROWS` lines: a text block of unknown length paints that many lines). Outside the package's exports: a Message's reply paints one paragraph of filler. */
+/** A markdown text that is not here, in the column's box, inert: one paragraph of `lines` clipped lines (a Prose paints `PAINT_ROWS` lines: a text block of unknown length paints that many lines). Outside the package's exports: a Message's reply paints one line of filler. */
 export function PaintedProse({
-	rows,
 	lines,
 	at = 0,
 }: {
-	rows: number;
-	lines?: number;
+	lines: number;
 	at?: number;
 }) {
 	return (
 		<div inert className={cn(PROSE, COLUMN)}>
 			<div className={cn(PROSE_BLOCKS, STACK)}>
-				{Array.from({ length: rows }, (_, row) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: the paragraphs are fixed stand-ins
-					<p key={row} className={text({ role: "body" })}>
-						{lines === undefined ? (
-							<Painted role="paragraph" at={at + row} />
-						) : (
-							Array.from({ length: lines }, (_, line) => (
-								// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
-								<span key={line} className={PAINTED_LINE}>
-									<Painted role="sentence" at={at + row * lines + line} />
-								</span>
-							))
-						)}
-					</p>
-				))}
+				<p className={text({ role: "body" })}>
+					{Array.from({ length: lines }, (_, line) => (
+						// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
+						<span key={line} className={PAINTED_LINE}>
+							<Painted role="sentence" at={at + line} />
+						</span>
+					))}
+				</p>
 			</div>
 		</div>
 	);

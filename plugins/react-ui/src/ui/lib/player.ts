@@ -40,10 +40,15 @@ const VOLUME_KEY = "stack.player.volume";
 const host: PlayerHost = {
 	recall() {
 		try {
-			const saved = JSON.parse(localStorage.getItem(VOLUME_KEY) ?? "null");
+			const saved: unknown = JSON.parse(
+				localStorage.getItem(VOLUME_KEY) ?? "null",
+			);
 			if (
-				saved &&
+				typeof saved === "object" &&
+				saved !== null &&
+				"volume" in saved &&
 				typeof saved.volume === "number" &&
+				"muted" in saved &&
 				typeof saved.muted === "boolean"
 			)
 				return {
@@ -103,6 +108,8 @@ export function audioOutput(): Engine {
 				audio.play().catch((error: unknown) => {
 					const name = error instanceof DOMException ? error.name : "";
 					if (name === "NotAllowedError") report.blocked();
+					// An `AbortError` is a pause or a new source ending the pending play,
+					// which the store asked for: no failure.
 					else if (name !== "AbortError") report.failed();
 				});
 			},

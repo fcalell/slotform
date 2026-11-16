@@ -519,7 +519,7 @@ export function useLayout({
 		],
 	);
 	const fitTo = useCallback(
-		(move: "set" | "go", whole: boolean) => {
+		(whole: boolean) => {
 			// The lowest scale is the one these boxes allow, which the canvas sets after
 			// it renders: a view set before it (the opening one) must not meet the last
 			// graph's.
@@ -527,16 +527,16 @@ export function useLayout({
 			const view = fitted(whole ? lowest : FIT_FLOOR);
 			if (!view) return;
 			viewport.limit(lowest);
-			viewport[move](view);
+			viewport[whole ? "go" : "set"](view);
 			// The view is the canvas's own again, until the viewer moves it.
 			viewport.settle();
 		},
 		[fitted, viewport, boxes, glyph],
 	);
 	// The opening view and the one an Arrange fits to land at once, as the nodes
-	// they follow do; the Fit act is the viewer's and travels.
-	const open = useCallback(() => fitTo("set", false), [fitTo]);
-	const fit = useCallback(() => fitTo("go", true), [fitTo]);
+	// they follow do; the Fit act is the viewer's, fits the whole graph and travels.
+	const open = useCallback(() => fitTo(false), [fitTo]);
+	const fit = useCallback(() => fitTo(true), [fitTo]);
 	useLayoutEffect(() => {
 		latest.current = open;
 	}, [open]);

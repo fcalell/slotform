@@ -10,12 +10,6 @@ export const PortalContainer = createContext<HTMLElement | null | undefined>(
 	undefined,
 );
 
-// Whether the container is a root frame's (the Shell, the Gate) and only
-// places the popup. A sheet there is modal; one in a showcase stage (a
-// container no frame hosts) stays beside the stage's others and hides and traps
-// nothing outside it.
-export const PortalHosted = createContext(false);
-
 // How the frame's `main` hands its portal element to the frame host, which
 // names it for every popup under it.
 export const PortalSlot = createContext<(node: HTMLElement | null) => void>(

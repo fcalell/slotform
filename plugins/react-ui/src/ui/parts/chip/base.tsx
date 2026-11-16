@@ -30,15 +30,12 @@ export function ChipBase({
 	family,
 	onRemove,
 	painted,
-	whole,
 	quiet,
 }: {
 	label: string;
 	family: ChipFamily;
 	onRemove?: () => void;
 	painted?: boolean;
-	/** The pill keeps its whole width and its label is never cut (a kept mark in a row's end group). */
-	whole?: boolean;
 	/** The label in the meta ink, the quietest a word has: a chip on a dimmed edge. */
 	quiet?: boolean;
 }) {
@@ -64,14 +61,11 @@ export function ChipBase({
 			className={cn(
 				chip({ trailing: onRemove ? "remove" : "none", ground }),
 				BOX,
-				whole && "shrink-0",
 				onRemove && BLOCK_IN,
 			)}
 		>
 			{family === "neutral" ? null : <span className={chipDot({ family })} />}
-			<span
-				className={cn(CHIP_LABEL, !whole && LABEL, quiet && "text-ink-meta")}
-			>
+			<span className={cn(CHIP_LABEL, LABEL, quiet && "text-ink-meta")}>
 				{label}
 			</span>
 			{onRemove ? (

@@ -258,6 +258,7 @@ function OptionRowBase<V extends string>(props: OptionRowProps<V>) {
 	);
 }
 
+// `memo` returns a component without the type parameter it wraps.
 const OptionRow = memo(OptionRowBase, sameBy("option")) as typeof OptionRowBase;
 
 // One group of options: its label over its rows. The rows stand in a box of
@@ -282,6 +283,7 @@ function OptionGroupBox<V extends string>(props: {
 		0,
 	);
 	const rowAt = (place: number) => {
+		// `Window` hands only indexes under its `count`, the list's length.
 		const option = options[place] as Option<V>;
 		const chosen = chosenValues.includes(option.value);
 		return (

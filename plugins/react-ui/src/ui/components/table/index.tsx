@@ -742,7 +742,7 @@ function TickCell(props: {
 			<label className={box}>
 				<Field.Root disabled={row.blocked !== undefined}>
 					<HeldCheckbox
-						cell
+						tabIndex={-1}
 						target={{}}
 						checked={props.ticked}
 						onChange={(on) => actions.tick(row, on)}
@@ -1478,7 +1478,7 @@ function Cols(props: {
 	choosing: boolean;
 	acts: number;
 	// The characters of each chip column's widest chip, by column.
-	fits?: readonly number[];
+	fits: readonly number[];
 }) {
 	return (
 		<colgroup>
@@ -1487,7 +1487,7 @@ function Cols(props: {
 				// A column whose header has a word the short measure cannot hold, or a
 				// figure column with no width, stands at its own floor
 				// (`columnAsked`), the others at their width.
-				const asked = columnAsked(column, ageWidest(), props.fits?.[at]);
+				const asked = columnAsked(column, ageWidest(), props.fits[at]);
 				const width = columnWidth(column);
 				return (
 					<col

@@ -85,6 +85,13 @@ test("a graph that fits at its own size opens centred at scale 1", () => {
 	const view = fitTransform(bounds, pane, inset, NO_STACK, start);
 	assert.equal(view.k, 1);
 	assert.ok(inside(bounds, view, pane, inset));
+	// Centred: the margins on either side of the graph are equal on both axes.
+	const left = view.x + bounds.x;
+	const right = pane.width - (view.x + bounds.x + bounds.width);
+	const top = view.y + bounds.y;
+	const bottom = pane.height - (view.y + bounds.y + bounds.height);
+	assert.ok(Math.abs(left - right) < 1e-6, `left ${left}, right ${right}`);
+	assert.ok(Math.abs(top - bottom) < 1e-6, `top ${top}, bottom ${bottom}`);
 });
 
 const NO_STACK: Clearance = { left: 0, bottom: 0, stack: 0 };

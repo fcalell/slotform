@@ -80,8 +80,8 @@ export function Meter({
 	counts,
 	mark,
 	goal,
-	at = 0,
-}: MeterProps & { at?: number }) {
+	at,
+}: MeterProps & { at: number }) {
 	const words = useWords();
 	const [l, v, m] = useSelections([label, value, max]);
 	const { ended: held, busy, retry } = useRow([label, value, max]);

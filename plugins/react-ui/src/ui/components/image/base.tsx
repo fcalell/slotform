@@ -103,6 +103,7 @@ export function PictureTile({
 				title={fit === "content" ? undefined : alt}
 				className={cn(image({ fit, state: "error" }), FAILED, IMAGE_FAILED_INK)}
 			>
+				{/* A mini tile (a dock's cover) holds the glyph at the meta size. */}
 				<Icon name="ImageOff" fit={fit === "mini" ? "meta" : undefined} />
 				{fit === "content" ? (
 					<span className={cn(text({ role: "meta" }), ALT)}>{alt}</span>

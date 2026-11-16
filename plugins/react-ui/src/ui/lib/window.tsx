@@ -49,7 +49,9 @@ export function useScroller<T extends HTMLElement = HTMLElement>(
 const estimate = () => spacing("row");
 // A spacer (`data-spacer`, `aria-hidden`) is out of the accessibility tree
 // and stands for rows outside the window: room by design and no dead box.
-// How long a scroll is taken to run after its last event (ms).
+// How long a scroll is taken to run after its last event (ms). Not
+// `scrollend`: it waits for a held finger's release, so a still finger would
+// read as scrolling, and it is Baseline only since December 2025.
 const SETTLED = 150;
 
 interface WindowProps {
@@ -82,9 +84,8 @@ function into(
 	horizontal: boolean,
 ): number {
 	if (!box) return 0;
-	const [view, at] = [scroller, box].map((element) =>
-		element.getBoundingClientRect(),
-	) as [DOMRect, DOMRect];
+	const view = scroller.getBoundingClientRect();
+	const at = box.getBoundingClientRect();
 	return horizontal
 		? view.left + scroller.clientLeft - at.left
 		: view.top + scroller.clientTop - at.top;
@@ -310,14 +311,17 @@ export function Window({
 		const element = box.current;
 		if (!on || !element) return;
 		const focus = (event: FocusEvent) => {
+			const target = event.target instanceof Node ? event.target : null;
 			const at = [...element.children].findIndex((node) =>
-				node.contains(event.target as Node),
+				node.contains(target),
 			);
 			const slot = drawn.current[at];
 			focused.current = slot && "row" in slot ? slot.row : undefined;
 		};
 		const blur = (event: FocusEvent) => {
-			if (!element.contains(event.relatedTarget as Node | null)) {
+			const to =
+				event.relatedTarget instanceof Node ? event.relatedTarget : null;
+			if (!element.contains(to)) {
 				focused.current = undefined;
 			}
 		};

@@ -166,11 +166,15 @@ async function drawn(density: Density, inputs: readonly ElkInput[]) {
 }
 
 // Each chip stands a `pair` beside a leg of its own edge, within the leg, and
-// no edge's line runs through a chip.
+// no edge's line runs through a chip. An edge's answer follows the `:` of its
+// id, and an edge with one has its chip.
 function holdsChips(routes: Map<string, Route>, pair: number) {
 	for (const [id, route] of routes) {
 		const label = route.label;
-		if (!label) continue;
+		if (!label) {
+			assert.equal(id.slice(id.indexOf(":") + 1), "", `${id} has no chip`);
+			continue;
+		}
 		const beside = verticalLegs(route.points).some(
 			(leg) =>
 				(label.x === leg.x + pair || label.x + label.width === leg.x - pair) &&

@@ -32,7 +32,7 @@ import type { Empty } from "../../lib/empty.tsx";
 import { FIELDS, firstTabbable, useReturnFocus } from "../../lib/focus.ts";
 import { useFollow } from "../../lib/follow.ts";
 import { useTouch } from "../../lib/media.ts";
-import { PortalContainer, PortalHosted } from "../../lib/portal.ts";
+import { PortalContainer } from "../../lib/portal.ts";
 import { BusyMark, FrameBody, FrameLine } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { SHEET_BACKDROP } from "../../lib/walk-classes.ts";
@@ -124,8 +124,6 @@ export function submitAct(submit: SheetSubmit, close: () => void): Act {
 interface SheetBaseProps {
 	open: boolean;
 	onClose: () => void;
-	/** Hears the sheet gone, its leave played (a cell's pick ends its edit). */
-	onGone?: () => void;
 	/** Hears a trigger tied by `handle` opening the sheet. */
 	onOpen?: () => void;
 	title: string;
@@ -158,7 +156,6 @@ interface SheetBaseProps {
 export function SheetBase({
 	open,
 	onClose,
-	onGone,
 	onOpen,
 	title,
 	description,
@@ -213,9 +210,6 @@ export function SheetBase({
 			</FrameBody>
 		) : null;
 	const container = use(PortalContainer);
-	// A sheet in a stage (a container no frame hosts) stays non-modal beside the
-	// stage's others; in an app it is modal.
-	const scoped = container !== undefined && !use(PortalHosted);
 	const titleId = useId();
 	const [touchedValue, setTouched] = useTouchState();
 	const { leave } = touchedValue;
@@ -361,16 +355,6 @@ export function SheetBase({
 				if (next) onOpen?.();
 				else if (!acting.holds) dismiss();
 			}}
-			onOpenChangeComplete={(next) => {
-				if (!next) onGone?.();
-			}}
-			// A surface that scopes its own mode (a showcase stage) holds the
-			// sheet beside others, so it hides and traps nothing outside it and
-			// stays open while another takes focus. A root frame's sheet covers
-			// the frame: focus stays in it, the page behind is inert, and a press
-			// on the scrim dismisses.
-			modal={!scoped}
-			disablePointerDismissal={scoped}
 		>
 			<Dialog.Portal container={container}>
 				<Dialog.Backdrop className={cn(SCRIM, BACKDROP, LAYER_SCRIM)} />
@@ -410,7 +394,7 @@ export function SheetBase({
 						role={form === "centred" ? "alertdialog" : "dialog"}
 						// Base UI hides the page behind a modal and traps focus but
 						// leaves the popup unmarked; the role promises it.
-						aria-modal={scoped ? undefined : true}
+						aria-modal
 						aria-label={view ? title : undefined}
 						aria-labelledby={view ? undefined : titleId}
 						// A field inside takes input: a blocked act says its reason.

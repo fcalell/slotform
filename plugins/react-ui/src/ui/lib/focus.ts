@@ -45,18 +45,19 @@ export const FIELDS =
 // removal of the focused element fires neither, so the hold survives it: that
 // is how a region learns its focus left with its own page.
 function trackHold(
-	doc: Pick<Document, "addEventListener" | "removeEventListener">,
 	region: () => HTMLElement | null,
 	hold: { current: boolean },
 ): () => void {
 	const follow = (event: Event) => {
-		hold.current = region()?.contains(event.target as Node | null) ?? false;
+		hold.current =
+			event.target instanceof Node &&
+			(region()?.contains(event.target) ?? false);
 	};
-	doc.addEventListener("focusin", follow, true);
-	doc.addEventListener("pointerdown", follow, true);
+	document.addEventListener("focusin", follow, true);
+	document.addEventListener("pointerdown", follow, true);
 	return () => {
-		doc.removeEventListener("focusin", follow, true);
-		doc.removeEventListener("pointerdown", follow, true);
+		document.removeEventListener("focusin", follow, true);
+		document.removeEventListener("pointerdown", follow, true);
 	};
 }
 
@@ -67,7 +68,7 @@ function trackHold(
 // compiler memoizes a render-time ref read, so the answer would be the mount's.
 export function useFootFocus(region: RefObject<HTMLElement | null>) {
 	const held = useRef(false);
-	useEffect(() => trackHold(document, () => region.current, held), [region]);
+	useEffect(() => trackHold(() => region.current, held), [region]);
 	useEffect(() => {
 		if (held.current && document.activeElement === document.body) {
 			held.current = false;
@@ -78,32 +79,31 @@ export function useFootFocus(region: RefObject<HTMLElement | null>) {
 
 // The element an act in a popup (a `Picker`'s or a `Menu`'s) opens a sheet
 // from, which the popup's close unmounts the act's own row from: the popup's
-// trigger, held for the one sheet that opens in the same breath.
+// trigger, held for the one sheet that opens in the same breath. It is the
+// module's: the app's handler opens the sheet and never sees the trigger.
 const OPENER_WINDOW = 1000;
 let opener: { element: HTMLElement | null; at: number } | undefined;
 
 // The trigger of the popup that is open: a pick's or a menu's trigger, or a
 // touch sheet's, which carry `aria-expanded` while it stands.
-export function expandedTrigger(
-	doc: Pick<Document, "querySelectorAll">,
-): HTMLElement | null {
-	const all = doc.querySelectorAll<HTMLElement>(
+export function expandedTrigger(): HTMLElement | null {
+	const all = document.querySelectorAll<HTMLElement>(
 		'[aria-expanded="true"]:is([aria-haspopup], [role="combobox"])',
 	);
 	return all.item(all.length - 1);
 }
 
 // An act in a popup calls this before it closes the popup and runs.
-export function rememberOpener(element: HTMLElement | null, now = Date.now()) {
-	opener = { element, at: now };
+export function rememberOpener(element: HTMLElement | null) {
+	opener = { element, at: Date.now() };
 }
 
 // The sheet that opens takes the remembered trigger once, if the act that
 // named it ran a moment ago.
-function claimOpener(now = Date.now()): HTMLElement | null {
+function claimOpener(): HTMLElement | null {
 	const held = opener;
 	opener = undefined;
-	return held && now - held.at <= OPENER_WINDOW ? held.element : null;
+	return held && Date.now() - held.at <= OPENER_WINDOW ? held.element : null;
 }
 
 // Focus on the page a sheet left standing: its head's, or its first control,
@@ -111,7 +111,7 @@ function claimOpener(now = Date.now()): HTMLElement | null {
 // nobody has taken: once any element takes focus (a viewer's Tab, a field that
 // autofocuses, another region's hand-off) the sheet's claim is over, so a late
 // retry never pulls focus off where the viewer has since moved it.
-function focusPage(tries = 5): void {
+function focusPage(): void {
 	// Our own focus lands here too, which ends the chain on success.
 	let moved = false;
 	const note = () => {
@@ -129,7 +129,7 @@ function focusPage(tries = 5): void {
 		}
 		document.removeEventListener("focusin", note, true);
 	};
-	attempt(tries);
+	attempt(5);
 }
 
 // A sheet that closes with its focus inside it and nowhere to fall back to
@@ -144,7 +144,7 @@ export function useReturnFocus(
 ) {
 	const held = useRef(false);
 	const turn = useRef(0);
-	useEffect(() => trackHold(document, () => region.current, held), [region]);
+	useEffect(() => trackHold(() => region.current, held), [region]);
 	useEffect(() => {
 		if (!open) return;
 		const mine = ++turn.current;

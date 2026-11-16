@@ -9,7 +9,6 @@ import {
 	type Datum,
 	type Drawn,
 	endedReason,
-	type Fielded,
 	lift,
 } from "@fcalell/ui-core/read";
 import type { Words } from "@fcalell/ui-core/tokens";
@@ -78,13 +77,10 @@ export function moreMenu(
 	words: Words,
 	offer: Drawn<readonly MenuEntry[] | undefined>,
 ): { painted: boolean; items: readonly MenuEntry[] } {
-	const ended = offer.painted ? endedReason(words, offer.phase) : undefined;
-	if (offer.painted && ended === undefined) return { painted: true, items: [] };
-	const own: readonly MenuEntry[] | undefined =
-		ended === undefined
-			? (offer.value as readonly MenuEntry[] | undefined)
-			: endedItems(words, ended);
-	return { painted: false, items: own ?? [] };
+	if (!offer.painted) return { painted: false, items: offer.value ?? [] };
+	const ended = endedReason(words, offer.phase);
+	if (ended === undefined) return { painted: true, items: [] };
+	return { painted: false, items: endedItems(words, ended) };
 }
 
 // A blocked act is never pressed; its type still asks for the run.
@@ -108,15 +104,12 @@ function EmptyForm(props: {
 	const { empty, fit, fill } = props;
 	const words = useWords();
 	const [said] = useSelections([
-		lift<{ sentence?: string }, "sentence">(
-			empty as Fielded<{ sentence?: string }, "sentence"> | undefined,
-			["sentence"],
-		),
+		lift<{ sentence?: string }, "sentence">(empty, ["sentence"]),
 	] as const);
 	const sentence = empty
 		? said.painted
 			? words.readEmpty
-			: (said.value as { sentence?: string }).sentence
+			: said.value?.sentence
 		: words.readEmpty;
 	return (
 		<EmptyBase

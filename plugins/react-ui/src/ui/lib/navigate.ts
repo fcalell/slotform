@@ -73,7 +73,8 @@ let listening = false;
 function wantsRoute(event: Event): void {
 	clearTimeout(intent);
 	intent = undefined;
-	const link = (event.target as Element | null)?.closest?.("a[href]");
+	const link =
+		event.target instanceof Element ? event.target.closest("a[href]") : null;
 	const href = link?.getAttribute("href");
 	if (!href || !isRoute(href) || href === drawn()) return;
 	intent = setTimeout(() => {
@@ -131,12 +132,18 @@ function parentOf(): string | undefined {
 		const match = matches[at];
 		if (!match || match.pathname === page) continue;
 		const children = routes[match.routeId]?.children;
-		const list = Array.isArray(children)
+		const list: readonly unknown[] = Array.isArray(children)
 			? children
 			: Object.values(children ?? {});
 		if (
 			list.length === 0 ||
-			list.some((child) => (child as { path?: string }).path === "/")
+			list.some(
+				(child) =>
+					typeof child === "object" &&
+					child !== null &&
+					"path" in child &&
+					child.path === "/",
+			)
 		)
 			return match.pathname;
 	}

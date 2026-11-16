@@ -6,7 +6,6 @@ import {
 	BLOCK_IN,
 	GATE,
 	GATE_COLUMN,
-	GATE_LOGO,
 	GATE_MARK_ROW,
 	GATE_STEP,
 	text,
@@ -121,11 +120,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 									>
 										<GateStep key={title} fresh={title !== opened}>
 											{mark ? (
-												<Lockup
-													mark={mark}
-													logo={GATE_LOGO}
-													className={GATE_MARK_ROW}
-												/>
+												<Lockup mark={mark} className={GATE_MARK_ROW} />
 											) : null}
 											{step ? <StepCount at={step.at} of={step.of} /> : null}
 											<h1 id={titleId} className={text({ role: "title" })}>

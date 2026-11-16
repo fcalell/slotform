@@ -35,7 +35,6 @@ import type { Size } from "./geometry.ts";
 import { hit } from "./hit.ts";
 import { useLift } from "./lift.ts";
 import type { NodeLook } from "./look.ts";
-import { ZOOM_TO_NODE } from "./view.ts";
 import type { About, Viewport } from "./viewport.ts";
 
 // The node's icon draws in the node's own ink (`canvasNodeInk`): it would else
@@ -586,7 +585,7 @@ export function NodeView({
 				data-focus={id}
 				onClick={(event) => {
 					refocus.current = event.detail === 0;
-					viewport.zoomTo(ZOOM_TO_NODE, about(id));
+					viewport.zoomTo(about(id));
 				}}
 				onFocus={focused}
 				onPointerDown={lift.bind.onPointerDown}

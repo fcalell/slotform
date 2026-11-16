@@ -41,7 +41,7 @@ export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 
 	const lines: string[] = [];
 	for (const imp of payload.imports) {
-		lines.push(renderImport(cssImportSchema.parse(imp) as CssImport));
+		lines.push(renderImport(cssImportSchema.parse(imp)));
 	}
 	// Tailwind's automatic content detection roots at this sheet's directory,
 	// `.stack/`, and would scan every generated file there (the worker types,

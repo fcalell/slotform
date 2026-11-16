@@ -50,6 +50,8 @@ function inline(tokens: readonly Token[] | undefined, parent: string) {
 }
 
 function run(token: Token, key: string): ReactNode {
+	// marked's `Token` holds `Tokens.Generic`, whose `type` is any string, so a
+	// case narrows nothing and each case names its token's shape.
 	switch (token.type) {
 		case "strong":
 			return (
@@ -143,6 +145,7 @@ function List(props: { list: Tokens.List; quoted: boolean; id: string }) {
 
 function blocks(tokens: readonly Token[], quoted: boolean, parent: string) {
 	return keyed(tokens, parent).map(([token, key]) => {
+		// As in `run`: a case of marked's `Token` narrows nothing.
 		switch (token.type) {
 			case "space":
 				return null;
@@ -206,7 +209,8 @@ function Headed(props: { part: Part; level: number }) {
 	const { part, level } = props;
 	const heading = part.heading;
 	const top = (heading?.depth ?? 1) <= 2;
-	// HTML stops at `h6`.
+	// HTML stops at `h6`. A template literal is no intrinsic element name to the
+	// compiler; every heading takes the props `h2` takes.
 	const Tag = `h${Math.min(level, 6)}` as "h2";
 	return (
 		<div className={cn(PROSE_PART, STACK)}>
@@ -235,8 +239,7 @@ export function Prose({ markdown }: ProseProps) {
 		[source],
 	);
 	// An ended read draws no text; the frame that holds it says why.
-	if (!root)
-		return paints(drawn) ? <PaintedProse rows={1} lines={PAINT_ROWS} /> : null;
+	if (!root) return paints(drawn) ? <PaintedProse lines={PAINT_ROWS} /> : null;
 	return (
 		<div className={cn(PROSE, COLUMN)}>
 			{root.blocks.length > 0 ? <Blocks part={root} level={level} /> : null}

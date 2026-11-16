@@ -81,11 +81,10 @@ function overPadding(node: HTMLElement | null | undefined): number {
 	);
 }
 
-/** The region's measured value and the ref to put on it. `docked` is whether a docked sheet stands in the foot, the one reader of the value: the region is measured only while it does, so a region that grows with its content (a Thread among sections, a message landing) does not commit its owner a second time per update. `dock` is the foot's own node; `logged` is whether a log shares the region with it; `over` is the body standing over the foot, whose block padding never gives way to it. */
+/** The region's measured value and the ref to put on it. `docked` is whether a docked sheet stands in the foot, the one reader of the value: the region is measured only while it does, so a region that grows with its content (a Thread among sections, a message landing) does not commit its owner a second time per update. `dock` is the foot's own node, which shares the region with a log; `over` is the body standing over the foot, whose block padding never gives way to it. */
 export function useFootRegion(
 	docked: boolean,
 	dock: RefObject<HTMLElement | null>,
-	logged: boolean,
 	over?: RefObject<HTMLElement | null>,
 ) {
 	const [node, ref] = useState<HTMLElement | null>(null);
@@ -103,11 +102,10 @@ export function useFootRegion(
 			const next = {
 				height: Math.round(node.getBoundingClientRect().height),
 				chrome: (style ? sides(style) : 0) + overPadding(over?.current),
-				logFloor:
-					logged && style
-						? DOCKED_LOG_FLOOR_ROWS *
-							Number.parseFloat(style.getPropertyValue("--spacing-row"))
-						: 0,
+				logFloor: style
+					? DOCKED_LOG_FLOOR_ROWS *
+						Number.parseFloat(style.getPropertyValue("--spacing-row"))
+					: 0,
 			};
 			setValue((last) =>
 				last.height === next.height &&
@@ -121,6 +119,6 @@ export function useFootRegion(
 		const resize = new ResizeObserver(measure);
 		resize.observe(node);
 		return () => resize.disconnect();
-	}, [node, docked, dock, logged, over]);
+	}, [node, docked, dock, over]);
 	return { value, ref };
 }

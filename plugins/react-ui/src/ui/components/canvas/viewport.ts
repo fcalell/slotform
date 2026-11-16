@@ -23,6 +23,7 @@ import {
 	standsIn,
 	type Transform,
 	whole,
+	ZOOM_TO_NODE,
 	zoomAbout,
 } from "./view.ts";
 
@@ -30,7 +31,7 @@ import {
 // the text floor the boxes spread as the scale moves (`glyphTier`), so a zoom
 // about a node holds it where it stands at the scale it leaves, at the place it
 // takes at the scale it reaches.
-export type About = Box | ((k: number) => Box | undefined);
+export type About = (k: number) => Box | undefined;
 
 // The canvas's viewport: pan, wheel, pinch and the zoom stack over one layer.
 // The rest of the canvas reaches the pan and zoom only through this object.
@@ -44,8 +45,8 @@ export interface Viewport {
 	// centre without one. It travels.
 	zoomIn(about?: About): void;
 	zoomOut(about?: About): void;
-	// The scale (within its extent) about a box, as a step does.
-	zoomTo(k: number, about?: About): void;
+	// A node's own size (`ZOOM_TO_NODE`) about its box, as a step does.
+	zoomTo(about: About): void;
 	// Instant, within the scale extent.
 	set(transform: Transform): void;
 	// The view travels to the transform (within the scale extent) on `base`
@@ -55,10 +56,9 @@ export interface Viewport {
 	// What the canvas's own chrome takes from the pane, which a fit and the opening view stay clear of.
 	clearance(): Clearance;
 	// Pans only, at the zoom it has, and nothing when the box already stands in
-	// view and clear of the zoom stack; given a zoom it always moves, to that
-	// zoom. The box is centred in the room the chrome leaves (`standIn`). It
-	// travels.
-	centreOn(box: Box, zoom?: number): void;
+	// view and clear of the zoom stack. The box is centred in the room the chrome
+	// leaves (`standIn`). It travels.
+	centreOn(box: Box): void;
 	// Raises the lowest scale, and a scale already under it to it.
 	limit(lowest: number): void;
 	// Whether the viewer has panned or zoomed since the canvas last set the view
@@ -194,18 +194,17 @@ function make(region: RefObject<HTMLElement | null>) {
 
 	// The scale moves to `target` about the centre of the box `about`, else the
 	// pane's centre, and that point stays where it stands; a box is then kept
-	// whole in the pane and clear of the zoom stack (`clearOfStack`). A zoom that only clamps the scale (`limit`) is not a
-	// move: it lands at once.
-	const zoomTo = (target: number, about?: About, move: "go" | "set" = "go") => {
+	// whole in the pane and clear of the zoom stack (`clearOfStack`). A step or a
+	// glyph's press is the viewer's move.
+	const zoomTo = (target: number, about?: About) => {
 		const [low, high] = behaviour.scaleExtent();
 		const size = pane();
 		const k = Math.min(high, Math.max(low, target));
-		// A step, a glyph's press: the viewer's. A clamp (`limit`) is not.
-		if (move === "go") moved = true;
-		const from = typeof about === "function" ? about(base().k) : about;
-		const to = typeof about === "function" ? about(k) : about;
+		moved = true;
+		const from = about?.(base().k);
+		const to = about?.(k);
 		if (!from || !to) {
-			viewport[move](
+			viewport.go(
 				zoomAbout(base(), { x: size.width / 2, y: size.height / 2 }, k),
 			);
 			return;
@@ -216,7 +215,7 @@ function make(region: RefObject<HTMLElement | null>) {
 		const zoomed = { k, x: at.x - centre.x * k, y: at.y - centre.y * k };
 		const inset = spacing("page");
 		const into = shiftInto(to, zoomed, size, inset);
-		viewport[move](
+		viewport.go(
 			clearOfStack(to, into, size, inset, clearanceOf(region.current)),
 		);
 	};
@@ -239,7 +238,7 @@ function make(region: RefObject<HTMLElement | null>) {
 		subscribe: held.subscribe,
 		zoomIn: (about) => zoomTo(base().k * STEP, about),
 		zoomOut: (about) => zoomTo(base().k / STEP, about),
-		zoomTo: (k, about) => zoomTo(k, about),
+		zoomTo: (about) => zoomTo(ZOOM_TO_NODE, about),
 		// Every transform the canvas sets itself comes through here, at whole
 		// pixels; a wheel or a pinch stays as d3 gives it.
 		set(transform) {
@@ -263,21 +262,28 @@ function make(region: RefObject<HTMLElement | null>) {
 			moved = false;
 		},
 		size: pane,
-		centreOn(box, zoom) {
+		centreOn(box) {
 			const size = pane();
 			const inset = spacing("page");
 			const clear = clearanceOf(region.current);
-			if (zoom === undefined) {
-				if (standsIn(box, base(), size, inset, clear)) return;
-				viewport.go(standIn(box, base().k, size, inset, clear));
-				return;
-			}
-			viewport.go(standIn(box, zoom, size, inset, clear));
+			if (standsIn(box, base(), size, inset, clear)) return;
+			viewport.go(standIn(box, base().k, size, inset, clear));
 		},
 		limit(lowest) {
 			behaviour.scaleExtent([lowest, EXTENT[1]]);
 			const { k } = held.get();
-			if (k < lowest) zoomTo(k, undefined, "set");
+			// A clamp of the scale is no move: it lands at once, about the pane's
+			// centre.
+			if (k < lowest) {
+				const size = pane();
+				viewport.set(
+					zoomAbout(
+						base(),
+						{ x: size.width / 2, y: size.height / 2 },
+						Math.min(EXTENT[1], lowest),
+					),
+				);
+			}
 		},
 		screenToFlow(point) {
 			const rect = region.current?.getBoundingClientRect();
@@ -341,7 +347,8 @@ function make(region: RefObject<HTMLElement | null>) {
 
 // The viewport of `region`: d3-zoom on the element, its transform applied to
 // the layer marked `data-layer` and the grid pattern marked `data-grid` inside
-// it. A pan touches no React state.
+// it. A pan touches no React state. A move lands on the element, which the
+// effect reaches after the commit: one asked for before it lands nowhere.
 export function useViewport(region: RefObject<HTMLElement | null>): Viewport {
 	const [{ viewport, mount }] = useState(() => make(region));
 	useEffect(mount, [mount]);

@@ -52,6 +52,7 @@ export function travel<T extends Record<string, number>>(
 		}
 		const along = eased("in-out", share);
 		apply(
+			// `Object.fromEntries` widens its keys to `string`; they are `from`'s own.
 			Object.fromEntries(
 				Object.keys(from).map((key) => [
 					key,

@@ -46,6 +46,7 @@ function Item(props: { removable: boolean; children: ReactNode }) {
 // one's, else `fallback`. Outside the package's exports.
 export function Attachments(props: {
 	attachments: readonly Attachment[];
+	// The row stands at the end of its line, under your own message.
 	end?: boolean;
 	onRemove?: (id: string) => void;
 	fallback?: RefObject<HTMLElement | null>;

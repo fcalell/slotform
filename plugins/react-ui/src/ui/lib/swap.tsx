@@ -14,6 +14,8 @@ import {
 // The mark's size the new one grows from and the old one leaves toward.
 const MARK_FROM = 0.6;
 
+type SwapStyle = CSSProperties & { [custom: `--swap-${string}`]: number };
+
 interface Leaving {
 	id: string;
 	node: ReactNode;
@@ -48,22 +50,24 @@ export function Swap(props: {
 	}
 	useEffect(() => {
 		if (!leaving) return;
+		// No `animationend` ends the leave: an animation that never runs (under a
+		// `display: none` ancestor) or is cut fires none, and the old one would
+		// stand with the box taking no press; a mark's leave is two animations.
 		const timer = setTimeout(
 			() => setLeaving(undefined),
 			scale ? 2 * tuned.fast : tuned.fast,
 		);
 		return () => clearTimeout(timer);
 	}, [leaving, scale]);
-	const style = (shift: number, enters = false) =>
-		({
-			...(shift === 0 ? {} : { "--swap-y": shift }),
-			...(scale ? { "--swap-scale": MARK_FROM } : {}),
-			// A mark's new one waits for the old one to be gone (`fast`; 0 under
-			// reduced motion, so it stands at once).
-			...(scale && enters
-				? { animationDelay: "var(--transition-duration-fast)" }
-				: {}),
-		}) as CSSProperties;
+	const style = (shift: number, enters = false): SwapStyle => ({
+		...(shift === 0 ? {} : { "--swap-y": shift }),
+		...(scale ? { "--swap-scale": MARK_FROM } : {}),
+		// A mark's new one waits for the old one to be gone (`fast`; 0 under
+		// reduced motion, so it stands at once).
+		...(scale && enters
+			? { animationDelay: "var(--transition-duration-fast)" }
+			: {}),
+	});
 	return (
 		<span
 			className={cn(

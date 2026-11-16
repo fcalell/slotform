@@ -166,6 +166,8 @@ function swallowClick() {
 		event.preventDefault();
 	};
 	window.addEventListener("click", stop, { capture: true, once: true });
+	// No event says a release brings no click: the click fires in the release's
+	// task or never, so the next task ends the wait.
 	setTimeout(() => window.removeEventListener("click", stop, true), 0);
 }
 
@@ -184,7 +186,7 @@ export function press(
 ): void {
 	if (pressing) return;
 	if (event.button !== 0 || !event.isPrimary) return;
-	if ((event.target as Element).closest(OWN)) return;
+	if (event.target instanceof Element && event.target.closest(OWN)) return;
 	const pointer = event.pointerType;
 	const start = { x: event.clientX, y: event.clientY };
 	const at = { ...start };
@@ -225,7 +227,7 @@ export function press(
 			for (const element of found) {
 				const mark = element.closest<HTMLElement>("[data-row]");
 				if (!mark || !root.contains(mark)) continue;
-				const row = (mark.closest("tr") ?? mark) as HTMLElement;
+				const row = mark.closest("tr") ?? mark;
 				const box = row.getBoundingClientRect();
 				const side = sideOf(live.y, box.top, box.height);
 				moved = moveOf(order.ids(), order.id, mark.dataset.row ?? "", side);

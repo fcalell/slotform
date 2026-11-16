@@ -30,6 +30,7 @@ export function Latest(props: { shown: boolean; onBack: () => void }) {
 		const going = (box.current?.getAnimations() ?? []).map(
 			(one) => one.finished,
 		);
+		// A cancelled leave rejects `finished`: the act is gone either way.
 		Promise.all(going).then(
 			() => live && setMounted(false),
 			() => live && setMounted(false),

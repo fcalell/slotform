@@ -218,7 +218,7 @@ export function MenuBase({
 										href={item.href}
 										role="menuitem"
 										onClick={(event) => {
-											rememberOpener(expandedTrigger(document));
+											rememberOpener(expandedTrigger());
 											setOpen(false);
 											follow(event);
 										}}
@@ -234,7 +234,7 @@ export function MenuBase({
 										aria-disabled={item.blocked !== undefined || undefined}
 										onClick={() => {
 											if (item.blocked !== undefined) return;
-											rememberOpener(expandedTrigger(document));
+											rememberOpener(expandedTrigger());
 											setOpen(false);
 											acting.run(item.label, item);
 										}}
@@ -290,7 +290,7 @@ export function MenuBase({
 										// route it opens may keep the menu's Pane mounted.
 										closeOnClick
 										onClick={(event) => {
-											rememberOpener(expandedTrigger(document));
+											rememberOpener(expandedTrigger());
 											follow(event);
 										}}
 										className={(state) => rowOf(item, state.highlighted)}
@@ -302,7 +302,7 @@ export function MenuBase({
 										key={item.label}
 										label={item.label}
 										onClick={() => {
-											rememberOpener(expandedTrigger(document));
+											rememberOpener(expandedTrigger());
 											acting.run(item.label, item);
 										}}
 										disabled={item.blocked !== undefined}

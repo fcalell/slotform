@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { basename } from "node:path";
 import { fallbackFace } from "@fcalell/ui-core/tokens";
-import type { Plugin, ResolvedConfig } from "vite";
+import type { Plugin, ResolvedConfig, Rollup } from "vite";
 import type { FontEntry } from "../types.ts";
 import { cssString, cssUrl } from "./css-escape.ts";
 
@@ -67,13 +67,6 @@ export const defaultFonts: FontEntry[] = [
 	plexMono("600"),
 ];
 
-interface AssetLike {
-	type: "asset" | "chunk";
-	fileName: string;
-	originalFileNames?: string[];
-}
-type BundleLike = Record<string, AssetLike>;
-
 // Fails fast when a consumer-declared font specifier can't be resolved.
 // Emits an actionable multi-line error (family, specifier, likely causes)
 // rather than silently producing CSS that references a missing woff2.
@@ -112,15 +105,14 @@ function joinBase(base: string, path: string): string {
 }
 
 function findBundleUrl(
-	bundle: BundleLike,
+	bundle: Rollup.OutputBundle,
 	base: string,
 	fontAbs: string,
 ): string | null {
 	const target = basename(fontAbs);
 	for (const entry of Object.values(bundle)) {
 		if (entry.type !== "asset") continue;
-		const names = entry.originalFileNames ?? [];
-		if (names.some((n) => n.endsWith(target))) {
+		if (entry.originalFileNames.some((n) => n.endsWith(target))) {
 			return joinBase(base, entry.fileName);
 		}
 		if (entry.fileName.endsWith(`/${target}`) || entry.fileName === target) {
@@ -233,11 +225,7 @@ export function themeFontsPlugin(fonts: FontEntry[]): Plugin {
 					const abs = resolveFontAbs(font);
 					let href: string;
 					if (config.command === "build" && ctx.bundle) {
-						const fromBundle = findBundleUrl(
-							ctx.bundle as unknown as BundleLike,
-							config.base,
-							abs,
-						);
+						const fromBundle = findBundleUrl(ctx.bundle, config.base, abs);
 						if (!fromBundle) {
 							// `buildStart` above emits every configured font before
 							// this hook runs, so this branch is an internal
