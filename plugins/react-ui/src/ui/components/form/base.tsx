@@ -1,28 +1,24 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { submitOf, useFrame, usePainted } from "@fcalell/ui-core/react/read";
 import {
-	TouchedContext,
-	useTouched,
-	useTouchState,
-} from "@fcalell/ui-core/react/touched";
+	type Frame,
+	submitOf,
+	useFrame,
+	usePainted,
+} from "@fcalell/ui-core/react/read";
+import { type Touched, TouchedContext } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
-	CARD,
-	FORM_FOOT,
-	FORM_FOOT_STUCK,
 	FORM_GROUP,
-	GATE_STEP,
 	GROUP_ITEM,
 	LIST_BAND,
-	ROWS,
 	SHEET_PARTS,
 	text,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
-import { Children, useId, useState } from "react";
+import { useId, useState } from "react";
 import type { Acting } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
@@ -40,13 +36,8 @@ import { Text } from "../text/index.tsx";
 const BAND = "flex flex-col";
 // A sheet's parts after the fields stand in a column.
 const AFTER = "flex flex-col";
-// A Gate's form stands its card and its bar in the step's column, a step's
-// gap apart, as the step's parts stand.
-const GATE_FORM = "flex flex-col";
 // The legend is a line, the busy mark after its title.
 const LEGEND = "flex items-center gap-gap";
-
-const NO_OUTER: readonly unknown[] = [];
 
 /** One group of fields a `Form` draws as a run of its rows under a band. */
 interface FormGroup {
@@ -92,9 +83,6 @@ export type FormFrameProps = FormBase &
 		  }
 	);
 
-/** Where a form stands: on a `page` (a `Form`), a card of its own, its bar in the card's foot; in a `sheet`, its rows flush on the sheet and its foot stuck to the body's; in a `gate` step, its rows a card and its bar after the card, as the step's own acts stand. */
-type FormIn = "page" | "sheet" | "gate";
-
 // One group: a run of the form's rows (a subgrid of the form's columns, so its
 // labels align with the rest), its legend a band, then its lead and its
 // fields, which are the group's own frame when it holds a `read`. A block of
@@ -136,43 +124,24 @@ function GroupBox(props: { group: FormGroup; arrived: boolean }) {
 	);
 }
 
-/** What every form draws: the public `Form` (`in` the page), a `Sheet`'s (`in` the sheet) and a `Gate`'s (`in` the page, on the Gate's column). Outside the package's exports: `in` is the drawers' alone. */
-export function FormBody({
+/** A form's rows: its fields (`children`, or `groups` each under its band) in the frame of the form's own `read`, then what follows them (`after`) at the card inset. Outside the package's exports: a `Form`, a `Sheet`'s form and a `Gate`'s form stand them in their `FormShell`. */
+export function FormRows({
 	children,
 	groups,
-	bar,
-	commit,
-	read,
 	empty,
-	in: within,
-	acting,
-	outer,
 	after,
-}: FormFrameProps & {
-	in: FormIn;
-	/** The holder of the bar's run, when the form stands in one that holds more than the bar (a sheet's dismissal). */
-	acting?: Acting<number>;
-	/** The reads the form's bar paints under besides its own (the sheet's read, the ability the form is gated on); constants are no read. */
-	outer?: readonly unknown[];
+	frame,
+}: Pick<FormBase, "empty" | "after"> & {
+	children?: ReactNode;
+	groups?: readonly FormGroup[];
+	/** The frame of the form's own `read`. */
+	frame: Frame;
 }) {
-	const frame = useFrame(read);
 	const arrived = useArrivals(
 		groups?.map((group, index) => group.title ?? String(index)) ?? [],
 		frame.form === "ready",
 	);
-	const [own] = useTouchState();
-	const sheets = useTouched();
-	// A sheet's form is the sheet's: its input edits the sheet's leave, which
-	// the sheet asks when it is closed, so the form asks nothing of its own.
-	const touch = within === "sheet" ? sheets : own;
-	useLeaveGuard(touch.leave, within !== "sheet" && commit !== "field");
-	// The bar submits what the form's own read gives, and the sheet's: it
-	// paints while either waits and stands blocked once the form's has ended.
-	// A group's read is the group's, not the bar's.
-	const words = useWords();
-	const { waiting, ended } = submitOf(words, frame.form);
-	const outerWaits = usePainted(outer ?? NO_OUTER);
-	const rows = (
+	return (
 		<>
 			<div className={cn(FORM_GROUP, DIVIDER)}>
 				<FrameLine frame={frame} flow />
@@ -193,14 +162,22 @@ export function FormBody({
 			) : null}
 		</>
 	);
-	// A Gate's form over a procedure that asks nothing (an invitation's Accept)
-	// is its bar alone: it holds no field, read or part to draw a card around.
-	const fieldless =
-		groups === undefined &&
-		Children.count(children) === 0 &&
-		after === undefined &&
-		read === undefined;
-	const actionBar = bar ? (
+}
+
+/** A form's bar: its acts, the filled one submitting the form. It submits what the form's own read gives, and the `outer` reads': it paints while either waits and stands blocked once the form's has ended. Outside the package's exports. */
+export function useFormBar(
+	bar: ActionBarProps | undefined,
+	frame: Frame,
+	/** The reads the bar paints under besides the form's own (the sheet's read, the ability the form is gated on); constants are no read. */
+	outer: readonly unknown[],
+	/** The holder of the bar's run, when the form stands in one that holds more than the bar (a sheet's dismissal). */
+	acting?: Acting<number>,
+): ReactNode {
+	// A group's read is the group's, not the bar's.
+	const words = useWords();
+	const { waiting, ended } = submitOf(words, frame.form);
+	const outerWaits = usePainted(outer);
+	return bar ? (
 		<ActionBarBase
 			{...bar}
 			acting={acting}
@@ -209,6 +186,20 @@ export function FormBody({
 			submits
 		/>
 	) : null;
+}
+
+/** The form element every form stands in: it hands its fields the `touch` it edits, asks before its page is left while that stands edited where it `guards` a leave, and says the busy and still state of the form's own read. Outside the package's exports. */
+export function FormShell(props: {
+	frame: Frame;
+	/** The touched state the fields edit: the form's own, or a sheet's, which the sheet asks when it is closed. */
+	touch: Touched;
+	/** Leaving the page asks first while the form stands edited. */
+	guards: boolean;
+	className: string;
+	children: ReactNode;
+}) {
+	const { frame, touch } = props;
+	useLeaveGuard(touch.leave, props.guards);
 	return (
 		<TouchedContext value={touch}>
 			{/* The submit act's click runs its `onAct`; the submit only stays on the page. */}
@@ -217,29 +208,9 @@ export function FormBody({
 				onChange={touch.touch}
 				aria-busy={(frame.holds && frame.form === "waiting") || undefined}
 				data-still={(frame.holds && frame.form === "still") || undefined}
-				className={
-					within === "gate"
-						? cn(GATE_STEP, GATE_FORM)
-						: cn(within === "page" && CARD, ROWS)
-				}
+				className={props.className}
 			>
-				{within === "gate" ? (
-					<>
-						{fieldless ? null : <div className={cn(CARD, ROWS)}>{rows}</div>}
-						{actionBar}
-					</>
-				) : (
-					<>
-						{rows}
-						{actionBar ? (
-							<div
-								className={cn(FORM_FOOT, within === "sheet" && FORM_FOOT_STUCK)}
-							>
-								{actionBar}
-							</div>
-						) : null}
-					</>
-				)}
+				{props.children}
 			</form>
 		</TouchedContext>
 	);

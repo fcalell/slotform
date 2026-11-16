@@ -192,7 +192,7 @@ async function opening(
 				port: density.port,
 			}),
 	};
-	return { o, view: openingView(o, FIT_FLOOR), boxes };
+	return { o, view: openingView(o), boxes };
 }
 
 // Where the graph's nodes stand in the pane under the view: the cards at the

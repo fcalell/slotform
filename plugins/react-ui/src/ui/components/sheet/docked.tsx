@@ -35,9 +35,9 @@ import { Scroller, useScroller } from "../../lib/window.tsx";
 import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import { Button } from "../button/index.tsx";
-import { FormBody } from "../form/base.tsx";
 import { type FormProps, useDerivedForm } from "../form/index.tsx";
 import { type SheetSubmit, submitAct } from "./base.tsx";
+import { SheetForm, useClearOnOpen } from "./form.tsx";
 
 // The sheet fills its foot: the head and the foot keep their height and the
 // body, bounded below, scrolls in what is left. The foot centres what it holds,
@@ -94,7 +94,8 @@ export function SheetDocked<P extends ProcedureCall>({
 	// The foot's act and its form's bar share one run: one act pends at a time,
 	// and closing is held while it runs.
 	const acting = useAct<number>("line");
-	const derived = useDerivedForm(form, open);
+	const derived = useDerivedForm(form, false);
+	useClearOnOpen(open, derived.clear);
 	const words = useWords();
 	const titleId = useId();
 	const root = useRef<HTMLElement>(null);
@@ -209,10 +210,9 @@ export function SheetDocked<P extends ProcedureCall>({
 							{children ? (
 								<div className={cn(SHEET_DOCKED_BODY, CONTENT)}>{children}</div>
 							) : null}
-							{derived ? (
-								<FormBody
-									{...derived.frame}
-									in="sheet"
+							{derived.frame ? (
+								<SheetForm
+									form={derived.frame}
 									acting={acting}
 									outer={derived.outer}
 								/>

@@ -91,7 +91,7 @@ const COLUMN = "min-w-0 grow";
 const PILL = "inline-flex items-center min-w-0 max-w-full";
 const HIT = "inline-flex items-center min-w-0 max-w-full";
 const WORDS = cn("truncate", FIGURES);
-// A pick is its own control and its own pill (the picker's `round`): one box,
+// A pick is its own control and its own pill (the picker's `fact` fit): one box,
 // the state pill itself where the chosen option carries a state, never a pill
 // inside a pill.
 const PICK = "inline-flex min-w-0 max-w-full";
@@ -148,7 +148,7 @@ function FactPart<V extends string | null>({
 	if (typeof fact === "object" && "pick" in fact)
 		return (
 			<span className={cn(PICK, fades && BLOCK_IN)}>
-				<HeldPicker {...fact.pick} fit="row" round />
+				<HeldPicker {...fact.pick} fit="fact" />
 			</span>
 		);
 	// A status is a badge: its tone's mark inside, then its word, the tone's
@@ -240,7 +240,7 @@ function PaintedFact({ fact, at }: { fact: unknown; at: number }) {
 	if (typeof fact === "object" && fact !== null && "pick" in fact)
 		return (
 			<span className={PICK}>
-				<HeldPicker {...(fact.pick as OptionPick)} fit="row" round painted />
+				<HeldPicker {...(fact.pick as OptionPick)} fit="fact" painted />
 			</span>
 		);
 	return (

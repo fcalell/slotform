@@ -53,27 +53,17 @@ function spreadOf(cards: readonly Box[]): { across: number; down: number } {
 	return { across: span.width, down: span.height };
 }
 
-// The view a graph opens at, or Fit goes to when `floor` is the lowest scale the
-// boxes allow. Fit is the whole graph in the room, down to `floor`. The opening
-// view (`floor` the text floor, `FIT_FLOOR`) is the graph at its own size, where
-// its words stand, when that shows every node whole across the pane and clear
-// of the zoom stack: centred where its drawing (cards, routes and chips) fits
-// the room, else framed at its anchor, the viewer panning down. Where its nodes
-// and frames would be cut at the pane's side, or a node would stand under the
-// stack, it opens as its overview instead (`overview`). An edge chip that
-// stands past the pane's side is the one thing that may be cut.
-export function openingView(o: Opening, floor: number): Transform {
+// The whole graph in the room, down to `floor`. Under the text floor the frames
+// and the routes follow the zoom (a head and a padding keep their size on
+// screen), so the bounds depend on the scale they are fitted to: the fit is taken
+// again at the scale it gave, down until the bounds at that scale fit it.
+function settledView(
+	o: Opening,
+	floor: number,
+	bounds?: (routed: Routes) => Box,
+): Transform {
 	const { pane, inset, clear, glyph, pair } = o;
-	const all = [...o.boxes.values()];
-	const tier0 = o.tierAt(0);
-	const cards = [...tier0.cards.values()];
-	// The lowest scale the graph may open at: the overview's floor, or the lowest
-	// the graph allows above it.
-	const lowest = Math.max(OVERVIEW_FLOOR, minZoomFor(all, glyph, pair));
-	const anchorOf = (tier: ReturnType<typeof glyphTier>) =>
-		o.anchor === undefined ? undefined : tier.cards.get(o.anchor);
-
-	const view = (at: number, bounds?: (routed: Routes) => Box) => {
+	const view = (at: number) => {
 		const tier = o.tierAt(at);
 		const routed = o.routeTier(at, tier);
 		return fitTransform(
@@ -81,26 +71,43 @@ export function openingView(o: Opening, floor: number): Transform {
 			pane,
 			inset,
 			clear,
-			anchorOf(tier),
+			o.anchor === undefined ? undefined : tier.cards.get(o.anchor),
 			{ nodes: [...tier.cards.values()], icon: o.icon },
 			floor,
 		);
 	};
-	// Under the text floor the frames and the routes follow the zoom (a head and a
-	// padding keep their size on screen), so the bounds depend on the scale they
-	// are fitted to: the fit is taken again at the scale it gave, down until the
-	// bounds at that scale fit it.
-	const settle = (bounds?: (routed: Routes) => Box) => {
-		let at = view(0, bounds);
-		for (let step = 0; step < 6; step++) {
-			const next = view(routeSide(at.k, glyph, pair), bounds);
-			if (next.k >= at.k - 1e-3) return next;
-			at = next;
-		}
-		return at;
-	};
+	let at = view(0);
+	for (let step = 0; step < 6; step++) {
+		const next = view(routeSide(at.k, glyph, pair));
+		if (next.k >= at.k - 1e-3) return next;
+		at = next;
+	}
+	return at;
+}
 
-	if (floor !== FIT_FLOOR || lowest >= FIT_FLOOR) return settle();
+// The view Fit goes to: the whole graph in the room, down to `floor`, the lowest
+// scale the boxes allow.
+export function fitView(o: Opening, floor: number): Transform {
+	return settledView(o, floor);
+}
+
+// The view a graph opens at: the graph at its own size (the text floor,
+// `FIT_FLOOR`), where its words stand, when that shows every node whole across
+// the pane and clear of the zoom stack: centred where its drawing (cards, routes
+// and chips) fits the room, else framed at its anchor, the viewer panning down.
+// Where its nodes and frames would be cut at the pane's side, or a node would
+// stand under the stack, it opens as its overview instead (`overview`). An edge
+// chip that stands past the pane's side is the one thing that may be cut.
+export function openingView(o: Opening): Transform {
+	const { pane, inset, clear, glyph, pair } = o;
+	const all = [...o.boxes.values()];
+	const tier0 = o.tierAt(0);
+	const cards = [...tier0.cards.values()];
+	// The lowest scale the graph may open at: the overview's floor, or the lowest
+	// the graph allows above it.
+	const lowest = Math.max(OVERVIEW_FLOOR, minZoomFor(all, glyph, pair));
+
+	if (lowest >= FIT_FLOOR) return settledView(o, FIT_FLOOR);
 
 	// What the graph's nodes and frames take at the text floor, and the box its
 	// drawing takes with the routes and chips.
@@ -122,7 +129,9 @@ export function openingView(o: Opening, floor: number): Transform {
 	]);
 	// A drawing the pane holds with its chips is framed with them; one it holds
 	// only without them is framed without, and its chips may be cut.
-	const framed = settle(
+	const framed = settledView(
+		o,
+		FIT_FLOOR,
 		chipped.width <= pane.width - 2 * inset ? undefined : () => bodies,
 	);
 	// The words show the graph whole across the pane and clear of the stack. A

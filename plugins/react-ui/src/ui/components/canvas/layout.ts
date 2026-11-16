@@ -34,15 +34,8 @@ import {
 	routeEdges,
 	type Size,
 } from "./geometry.ts";
-import { openingView } from "./open.ts";
-import {
-	FIT_FLOOR,
-	type Places,
-	place,
-	standIn,
-	standsIn,
-	type Transform,
-} from "./view.ts";
+import { fitView, type Opening, openingView } from "./open.ts";
+import { type Places, place, standIn, standsIn } from "./view.ts";
 import {
 	type About,
 	clearanceOf,
@@ -478,60 +471,53 @@ export function useLayout({
 		[nodes, order],
 	);
 
-	// The view that holds the whole graph (`openingView`): the pane, the chrome
-	// and the density are read here, off the page. `floor` is the lowest scale it
-	// takes: the text floor for the opening view, the lowest the boxes allow for
-	// the Fit act.
-	const fitted = useCallback(
-		(floor: number): Transform | null => {
-			const element = region.current;
-			if (!element) return null;
-			// A node's icon stands past its inline padding, in a box no wider than a
-			// control (a decision's diamond).
-			const inline = spacing("pad");
-			return openingView(
-				{
-					pane: { width: element.clientWidth, height: element.clientHeight },
-					inset: spacing("page"),
-					clear: viewport.clearance(),
-					icon: { start: inline, end: inline + spacing("control") },
-					glyph,
-					pair: space.pair,
-					names,
-					boxes,
-					anchor,
-					tierAt,
-					routeTier,
-				},
-				floor,
-			);
-		},
-		[
-			region,
-			viewport,
-			tierAt,
-			routeTier,
+	// What the views that hold the whole graph (`openingView`, `fitView`) take:
+	// the pane, the chrome and the density are read here, off the page.
+	const opening = useCallback((): Opening | null => {
+		const element = region.current;
+		if (!element) return null;
+		// A node's icon stands past its inline padding, in a box no wider than a
+		// control (a decision's diamond).
+		const inline = spacing("pad");
+		return {
+			pane: { width: element.clientWidth, height: element.clientHeight },
+			inset: spacing("page"),
+			clear: viewport.clearance(),
+			icon: { start: inline, end: inline + spacing("control") },
 			glyph,
+			pair: space.pair,
 			names,
-			space.pair,
 			boxes,
 			anchor,
-		],
-	);
+			tierAt,
+			routeTier,
+		};
+	}, [
+		region,
+		viewport,
+		tierAt,
+		routeTier,
+		glyph,
+		names,
+		space.pair,
+		boxes,
+		anchor,
+	]);
 	const fitTo = useCallback(
 		(whole: boolean) => {
 			// The lowest scale is the one these boxes allow, which the canvas sets after
 			// it renders: a view set before it (the opening one) must not meet the last
 			// graph's.
 			const lowest = minZoomFor([...boxes.values()], glyph, spacing("gap"));
-			const view = fitted(whole ? lowest : FIT_FLOOR);
-			if (!view) return;
+			const o = opening();
+			if (!o) return;
+			const view = whole ? fitView(o, lowest) : openingView(o);
 			viewport.limit(lowest);
 			viewport[whole ? "go" : "set"](view);
 			// The view is the canvas's own again, until the viewer moves it.
 			viewport.settle();
 		},
-		[fitted, viewport, boxes, glyph],
+		[opening, viewport, boxes, glyph],
 	);
 	// The opening view and the one an Arrange fits to land at once, as the nodes
 	// they follow do; the Fit act is the viewer's, fits the whole graph and travels.

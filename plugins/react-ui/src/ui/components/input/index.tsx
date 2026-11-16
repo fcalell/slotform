@@ -100,7 +100,7 @@ function Bare({ props, label }: { props: InputProps; label: string }) {
 		case "file":
 			return <FileField {...props} />;
 		default:
-			return <HeldInput {...props} inline={{ label, field: true }} />;
+			return <HeldInput {...props} named={label} />;
 	}
 }
 

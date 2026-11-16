@@ -148,7 +148,7 @@ interface SheetBaseProps {
 	handle?: Dialog.Handle<unknown>;
 	/** The body's parts, at the card inset. */
 	children?: ReactNode;
-	/** The body's form (a `FormBody`), after the parts under a hairline: its rows flush on the sheet, its foot stuck to the body's. */
+	/** The body's form (a `SheetForm`), after the parts under a hairline: its rows flush on the sheet, its foot stuck to the body's. */
 	fields?: ReactNode;
 }
 

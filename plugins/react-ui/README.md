@@ -123,7 +123,7 @@ and `style` as `?: never`) and declares exactly the roster's prop names.
   same `FrameHost` as the `Shell` (`components/shell/host.tsx`: the `toast()` queue, the `confirm()`
   decisions). The first field of a step takes focus as the page opens and as `title`
   changes (`focusFirst` in `./lib/focus`). Its `form` (a `Form`'s props, over the step's procedure) is drawn in the column by the
-  Gate (`components/form/base.tsx`, `in` the auth column), its bar set `full`.
+  Gate (`components/gate/index.tsx`, a `FormShell` from `components/form/base.tsx` in the auth column), its bar set `full`.
 
 ## Slots
 

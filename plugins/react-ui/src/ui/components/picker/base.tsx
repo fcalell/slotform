@@ -44,6 +44,7 @@ import {
 	PICKER_PILL,
 	PICKER_POPOVER,
 	PICKER_VALUE,
+	type PickerFit,
 	POPOVER,
 	picker,
 	ROW_LEADING,
@@ -131,7 +132,7 @@ const ROW_TRIGGER =
 	"relative inline-flex min-w-0 min-h-control max-w-[calc(100%+var(--spacing-gap))] self-center items-center -me-gap hover:bg-wash-hover active:bg-wash-press";
 const ROW_OPEN = "bg-wash-press text-ink-body";
 const ROW_VALUE = "truncate";
-// A pick standing as a fact of a record's head (`round`) is one pill, the
+// A pick standing as a fact of a record's head (`fact`) is one pill, the
 // trigger itself: the outlined pill around a plain value, named in the body
 // ink as the facts beside it are (voice 7), or, where the chosen option
 // carries a state, the state pill (its dot and word) with the chevron in its
@@ -370,6 +371,8 @@ function GroupLabel(props: { children: ReactNode }) {
 // trigger its composer draws (the Shell's switcher), over the one list. Outside
 // the package's exports.
 interface Composed {
+	/** Where it stands: a public fit, or `fact`, a fact of a record's head, which stands as the row fit does but for its trigger: one pill, the outlined pill around a plain value (in the body ink, as the facts beside it) or the state pill of a chosen option that carries a state, each with its chevron, at the badge's height (the meta line), in the target's hit box pulled back to that line, so a facts line holds one height whichever kinds of fact it holds. */
+	fit?: PickerFit | "fact";
 	/** A trigger drawn by the composer, handed Base UI's props and whether the list is open. */
 	drawn?: (handed: ComponentProps<"button">, open: boolean) => ReactElement;
 	/** `-1` where the trigger's host holds the tab stop (a tree's row); absent, the trigger keeps its own. */
@@ -382,8 +385,6 @@ interface Composed {
 	fold?: boolean;
 	/** The pill's dot: the tone of the context the Pane reads in, drawn before the label (a Pane's context pick). */
 	state?: Tone;
-	/** Set where the pick stands as a fact of a record's head, at the row fit: the trigger is one pill, the outlined pill around a plain value (in the body ink, as the facts beside it) or the state pill of a chosen option that carries a state, each with its chevron, at the badge's height (the meta line), in the target's hit box pulled back to that line, so a facts line holds one height whichever kinds of fact it holds. */
-	round?: boolean;
 	/** Set by a `FormField` around the pick: the box stands at the form's field height, `edge-error` when the field is in error and the disabled fill when it is disabled, and the field's label names the pick (so no `placeholder` falls back to it). */
 	form?: { invalid: boolean; disabled: boolean };
 }
@@ -416,7 +417,7 @@ const isSet = <V,>(
 
 /** The trigger and list every Picker renders, on the `draft` its host holds: a field hosts the draft of its picker and draws a rejection in its own line. Waiting options paint the trigger, and ended ones say so in a line under it. Outside the package's exports. */
 export function PickerBase<V extends string | null = string>(
-	given: Omit<PickerMenuProps<V>, "value" | "onChange"> & {
+	given: Omit<PickerMenuProps<V>, "value" | "onChange" | "fit"> & {
 		draft: Draft<V | readonly V[] | undefined>;
 		onChange: (next: V | V[]) => unknown;
 	} & Composed,
@@ -442,7 +443,10 @@ export function PickerBase<V extends string | null = string>(
 			draft.change(next, () => given.onChange(next));
 		},
 	} as Drawn<V>;
-	const { label, placeholder, fit = "field", act, drawn, fold } = given;
+	const { label, placeholder, fit: placed = "field", act, drawn, fold } = given;
+	// A head's fact stands as a row's pick does but for its trigger.
+	const fact = placed === "fact";
+	const fit = fact ? "row" : placed;
 	const { form } = given;
 	const acting = useAct("toast");
 	const words = useWords();
@@ -640,7 +644,7 @@ export function PickerBase<V extends string | null = string>(
 	const stateful = leads.tone;
 	// A head's pill stands at the badge's height, the meta line; a row's is a
 	// chip's, its caption line between its hairlines.
-	const compact = !given.round;
+	const compact = !fact;
 	const pill = (handed: ComponentProps<"button">) => (
 		<button
 			{...handed}
@@ -662,7 +666,7 @@ export function PickerBase<V extends string | null = string>(
 								open && PILL_STATE_OPEN,
 							)
 						: cn(ITEM_PILL, ITEM_PILL_ACT, open && PILL_OPEN),
-					given.round && ITEM_PILL_HEAD,
+					fact && ITEM_PILL_HEAD,
 					PILL_BOX,
 					painted && PAINTED,
 				)}
@@ -687,7 +691,7 @@ export function PickerBase<V extends string | null = string>(
 	const own = (handed: ComponentProps<"button">) =>
 		several ? (
 			severalBox(handed, several)
-		) : fit === "row" && (given.round || stateful) ? (
+		) : fit === "row" && (fact || stateful) ? (
 			pill(handed)
 		) : (
 			<NamedWhen on={fit === "pill"} label={named}>
@@ -818,16 +822,16 @@ function NamedWhen(props: {
 
 /** A Picker that holds its own draft, as a bare one and a row's pick do; a rejection toasts. Outside the package's exports. */
 export function HeldPicker<V extends string | null = string>(
-	props: PickOneProps<V> & Composed,
+	props: Omit<PickOneProps<V>, "fit"> & Composed,
 ): ReactElement;
 export function HeldPicker<V extends string | null = string>(
-	props: PickSeveralProps<V> & Composed,
+	props: Omit<PickSeveralProps<V>, "fit"> & Composed,
 ): ReactElement;
 export function HeldPicker<V extends string | null = string>(
-	props: PickerMenuProps<V> & Composed,
+	props: Omit<PickerMenuProps<V>, "fit"> & Composed,
 ): ReactElement;
 export function HeldPicker<V extends string | null = string>(
-	props: PickerMenuProps<V> & Composed,
+	props: Omit<PickerMenuProps<V>, "fit"> & Composed,
 ) {
 	const { value, onChange, label, placeholder, options, fit, act } = props;
 	return (
@@ -845,7 +849,6 @@ export function HeldPicker<V extends string | null = string>(
 			fold={props.fold}
 			term={props.term}
 			state={props.state}
-			round={props.round}
 		/>
 	);
 }

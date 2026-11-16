@@ -5,9 +5,9 @@ import { type ReactNode, useState } from "react";
 import { useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
-import { FormBody } from "../form/base.tsx";
 import { type FormProps, useDerivedForm } from "../form/index.tsx";
 import { SheetBase, type SheetSubmit } from "./base.tsx";
+import { SheetForm, useClearOnOpen } from "./form.tsx";
 
 export type { Acknowledge, SheetSubmit } from "./base.tsx";
 
@@ -54,7 +54,8 @@ export function Sheet<P extends ProcedureCall>(given: SheetProps<P>) {
 	// The sheet's form has a bar of its own: one holder keeps the dismissal held
 	// while either the form's act or the sheet's runs.
 	const acting = useAct<number>("line");
-	const derived = useDerivedForm(form, open);
+	const derived = useDerivedForm(form, false);
+	useClearOnOpen(open, derived.clear);
 	return (
 		<FrameHolds holds={NO_HOLDS}>
 			<SheetBase
@@ -68,10 +69,9 @@ export function Sheet<P extends ProcedureCall>(given: SheetProps<P>) {
 				read={read}
 				empty={empty}
 				fields={
-					derived ? (
-						<FormBody
-							{...derived.frame}
-							in="sheet"
+					derived.frame ? (
+						<SheetForm
+							form={derived.frame}
 							acting={acting}
 							outer={[read, ...derived.outer]}
 						/>

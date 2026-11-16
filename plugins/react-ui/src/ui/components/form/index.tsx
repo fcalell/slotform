@@ -1,4 +1,5 @@
 import { drew, type Issue, placed } from "@fcalell/ui-core/acts";
+import { cn } from "@fcalell/ui-core/cn";
 import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
 import {
 	type Can,
@@ -24,7 +25,8 @@ import {
 	toShown,
 } from "@fcalell/ui-core/form";
 import { usePort } from "@fcalell/ui-core/react/port";
-import { useSelections } from "@fcalell/ui-core/react/read";
+import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
+import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
@@ -34,6 +36,7 @@ import {
 	type Selection,
 } from "@fcalell/ui-core/read";
 import { registeredScope } from "@fcalell/ui-core/scope";
+import { CARD, FORM_FOOT, ROWS } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import type { Act } from "../../lib/act.ts";
@@ -42,7 +45,12 @@ import type { Empty } from "../../lib/empty.tsx";
 import { toast } from "../../lib/toast.ts";
 import { FormField } from "../form-field/index.tsx";
 import { Input } from "../input/index.tsx";
-import { FormBody, type FormFrameProps } from "./base.tsx";
+import {
+	type FormFrameProps,
+	FormRows,
+	FormShell,
+	useFormBar,
+} from "./base.tsx";
 import { SavedSecret } from "./saved.tsx";
 
 // A field's `options` may be a selection, which paints the pick until its read lands.
@@ -122,29 +130,57 @@ function optionsOf(
 
 /** A form over a procedure: a card of the fields `fields` names, each drawn from the procedure's input schema (a string a line of text, in the mono with the `mono` hint, an enum a pick, a boolean a switch, a number a numeric line, a list of an enum, or of strings with `options`, a pick of several, a date a date line, a string with the `file` hint a file pick whose file is read into the string, a list with the `lines` hint a line per item, an object with the `json` hint mono JSON source), required unless the schema makes it optional (a pick or a switch with a schema `default` always holds a value, so it is required: no empty choice, no optional word) (in a submit form an optional one says so under its label; a form that commits by field marks nothing), with the server's refusal of its value under it, over a bar whose filled act submits the procedure. The act is pending while the procedure runs and while a promise `onDone` returns settles; then, where the form stays (on a page, its submit going nowhere), the fields go back to `values`; a rejection stands in the bar, and the issues the server's schema refused under their fields until the viewer changes them. A field with a `locked` reason stands inert with it under the control. With `commit: "field"` the form draws no bar and each field sends itself. `groups` partition the fields under bands. While the form stands edited, leaving its page asks once, "Discard your edit?". A form over no procedure (a filter, a local setting) is not a `Form`: a filter is a `Toolbar`, a setting a `Switch` in a row. A form in a sheet is that `Sheet`'s `form`, these same props. */
 export function Form<P extends ProcedureCall>(props: FormProps<P>) {
-	const { frame, outer } = useDerivedForm(props);
-	return <FormBody {...frame} in="page" outer={outer} />;
+	const { frame: form, outer } = useDerivedForm(props, true);
+	const frame = useFrame(form.read);
+	const [own] = useTouchState();
+	const bar = useFormBar(form.bar, frame, outer);
+	return (
+		<FormShell
+			frame={frame}
+			touch={own}
+			guards={form.commit !== "field"}
+			className={cn(CARD, ROWS)}
+		>
+			<FormRows
+				frame={frame}
+				groups={form.groups}
+				empty={form.empty}
+				after={form.after}
+			>
+				{form.children}
+			</FormRows>
+			{bar ? <div className={cn(FORM_FOOT)}>{bar}</div> : null}
+		</FormShell>
+	);
 }
 
-/** What a derived form draws: the structure `FormBody` takes, and the reads its bar paints under besides the form's own (the ability its `can` asks). */
+/** What a derived form draws: the structure `FormRows` and `useFormBar` take, the reads its bar paints under besides the form's own (the ability its `can` asks), and `clear`, which drops the viewer's edits and the refusals they drew. */
 export interface DerivedFrame {
 	frame: FormFrameProps;
 	outer: readonly unknown[];
+	clear: () => void;
 }
 
-/** The derivation of a form over its procedure: its fields, its bar and its read, as the structure a `Form` or a `Sheet` draws. Without props (a sheet with no form) it holds nothing and returns nothing. A sheet passes its `open`: the viewer's edits are dropped as it opens again. Outside the package's exports. */
+/** A derivation over no form (a sheet with none): nothing to draw, and the `clear` a sheet calls as it opens. */
+interface NoFrame {
+	frame?: undefined;
+	outer?: undefined;
+	clear: () => void;
+}
+
+/** The derivation of a form over its procedure: its fields, its bar and its read, as the structure a `Form`, a `Gate` or a `Sheet` draws. Without props (a sheet with no form) it draws nothing. `stays`: the form stays on its page after a send (a `Form`, a `Gate`'s), so its fields go back to `values` unless its submit goes `to` a page; a sheet's does not, and the sheet calls `clear` as it opens again. Outside the package's exports. */
 export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P>,
-	open?: boolean,
+	stays: boolean,
 ): DerivedFrame;
 export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P> | undefined,
-	open?: boolean,
-): DerivedFrame | undefined;
+	stays: boolean,
+): DerivedFrame | NoFrame;
 export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P> | undefined,
-	open?: boolean,
-): DerivedFrame | undefined {
+	stays: boolean,
+): DerivedFrame | NoFrame {
 	const port = usePort();
 	const words = useWords();
 	const send = port.useSubmit(props?.act);
@@ -152,15 +188,11 @@ export function useDerivedForm<P extends ProcedureCall>(
 	const [refused, setRefused] = useState<readonly Issue[]>([]);
 	// The saved secrets the viewer is replacing: their field is the empty input.
 	const [replacing, setReplacing] = useState<readonly string[]>([]);
-	const [wasOpen, setWasOpen] = useState(open);
-	if (open !== wasOpen) {
-		setWasOpen(open);
-		if (open) {
-			setDraft({});
-			setRefused([]);
-			setReplacing([]);
-		}
-	}
+	const clear = () => {
+		setDraft({});
+		setRefused([]);
+		setReplacing([]);
+	};
 	// The caller's ability in the route's organization, a read the form paints
 	// under until it lands; no organization answers no.
 	const can = props?.can;
@@ -179,7 +211,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			)
 			.map(([, spec]) => spec.description),
 	);
-	if (!props) return undefined;
+	if (!props) return { clear };
 
 	const { act, given, values, submit, onDone, read, empty } = props;
 	const byField = props.commit === "field";
@@ -285,7 +317,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			? first
 			: undefined;
 	};
-	const clear = (key: string) =>
+	const clearRefused = (key: string) =>
 		setRefused((all) => all.filter((issue) => issue.path[0] !== key));
 
 	// The input the fields make from a draft, or why they cannot make one yet,
@@ -356,7 +388,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	const change = (key: string, next: Held) => {
 		const held = { ...draft, [key]: next };
 		setDraft(held);
-		clear(key);
+		clearRefused(key);
 	};
 
 	// A picked file goes as the string it is read into.
@@ -437,7 +469,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 		setDraft((all) =>
 			Object.fromEntries(Object.entries(all).filter(([each]) => each !== key)),
 		);
-		clear(key);
+		clearRefused(key);
 		onDone?.(output, input);
 		return output;
 	};
@@ -450,11 +482,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			// The fields go back to `values` only where the form stays: a sheet
 			// drops its edits as it opens again and leaves over what was sent, and
 			// a form whose submit goes `to` a page is left as it was.
-			if (open === undefined && submit?.to === undefined) {
-				setDraft({});
-				setRefused([]);
-				setReplacing([]);
-			}
+			if (stays && submit?.to === undefined) clear();
 			return output;
 		} catch (error) {
 			const found = port.issues(error);
@@ -499,7 +527,11 @@ export function useDerivedForm<P extends ProcedureCall>(
 			file || derived.control === "lines" || derived.control === "json";
 		// By field, a typed control keeps its own draft until it commits.
 		const set = (next: Held) =>
-			byField && !file ? (caught ? clear(key) : undefined) : change(key, next);
+			byField && !file
+				? caught
+					? clearRefused(key)
+					: undefined
+				: change(key, next);
 		const commit = byField
 			? (next: Held) =>
 					caught
@@ -574,6 +606,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	const commit = props.commit;
 	return {
 		outer,
+		clear,
 		frame: props.groups
 			? {
 					bar,

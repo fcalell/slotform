@@ -85,7 +85,7 @@ const SURFACE: Record<InputKind, FieldKind> = {
 	date: "text",
 };
 
-/** The field box every Input renders, on the `draft` its host holds: a field hosts the draft of its input and draws a rejection in its own line. `cell` is the `Table` cell it edits in, `inline` the `Row` entry or `Rules` term it stands in: each sets its bar fit and name. `painted` is the box while its data is not here: filled at its loaded size, the value not drawn, inert. Outside the package's exports. */
+/** The field box every Input renders, on the `draft` its host holds: a field hosts the draft of its input and draws a rejection in its own line. `cell` is the `Table` cell it edits in, `inline` the `Row` entry or `Rules` term it stands in: each sets its bar fit and name. `named` is the name of an Input a field owns (a `FormField`'s child), which keeps the field fit. `painted` is the box while its data is not here: filled at its loaded size, the value not drawn, inert. Outside the package's exports. */
 export function InputBase({
 	draft,
 	kind,
@@ -97,11 +97,13 @@ export function InputBase({
 	autoFocus,
 	cell,
 	inline,
+	named,
 	painted: given,
 }: Omit<TextInputProps, "value"> & {
 	draft: Draft<string>;
 	cell?: CellFit;
 	inline?: InlineFit;
+	named?: string;
 	painted?: boolean;
 }) {
 	useModality();
@@ -115,8 +117,7 @@ export function InputBase({
 	const which = kind ?? "text";
 	// The wrapped form is a text area standing for one line: Enter never starts
 	// a second, and a pasted newline is a space, as an input takes it.
-	const wraps =
-		which === "source" && !cell && (!inline || inline.field === true);
+	const wraps = which === "source" && !cell && !inline;
 	const edit = (next: string) => {
 		const one = wraps ? next.replace(/\r?\n/g, " ") : next;
 		draft.change(one);
@@ -158,7 +159,10 @@ export function InputBase({
 			spellCheck={which === "text" ? undefined : false}
 			placeholder={placeholder ?? (search ? words.search : undefined)}
 			aria-label={
-				cell?.label ?? inline?.label ?? (search ? words.search : undefined)
+				cell?.label ??
+				inline?.label ??
+				named ??
+				(search ? words.search : undefined)
 			}
 			tabIndex={cell ? -1 : undefined}
 			autoFocus={autoFocus ?? (cell?.starts || inline?.focus)}
@@ -246,8 +250,14 @@ export function HeldInput({
 	autoFocus,
 	cell,
 	inline,
+	named,
 	painted,
-}: TextInputProps & { cell?: CellFit; inline?: InlineFit; painted?: boolean }) {
+}: TextInputProps & {
+	cell?: CellFit;
+	inline?: InlineFit;
+	named?: string;
+	painted?: boolean;
+}) {
 	return (
 		<InputBase
 			draft={useHeldDraft(value)}
@@ -260,6 +270,7 @@ export function HeldInput({
 			autoFocus={autoFocus}
 			cell={cell}
 			inline={inline}
+			named={named}
 			painted={painted}
 		/>
 	);
