@@ -17,7 +17,7 @@ import { PAINT_BOX } from "../../lib/paint.tsx";
 import { IMAGE_FRAME } from "../../lib/walk-classes.ts";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { Icon } from "../../parts/icon/index.tsx";
-import { SheetBase } from "../sheet/base.tsx";
+import { SheetLayer } from "../sheet/layer.tsx";
 
 // The picture and its full view, which an Image draws once and a Gallery once
 // per tile, with one full view that steps through its pictures.
@@ -184,11 +184,11 @@ export function PictureView(props: {
 		to();
 	};
 	return (
-		<SheetBase
+		<SheetLayer
 			open={props.open}
 			onClose={props.onClose}
-			title={props.alt}
-			form="view"
+			label={props.alt}
+			place="view"
 		>
 			{/* The keys the view takes reach it from whichever act holds focus; the
 			wrapper draws no box, so each layer stands over the sheet's layer. */}
@@ -221,7 +221,7 @@ export function PictureView(props: {
 					</span>
 				</div>
 			</div>
-		</SheetBase>
+		</SheetLayer>
 	);
 }
 

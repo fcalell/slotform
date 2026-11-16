@@ -1,6 +1,5 @@
-import { Dialog } from "@base-ui/react/dialog";
+import type { Dialog } from "@base-ui/react/dialog";
 import { cn } from "@fcalell/ui-core/cn";
-import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
 import { askDiscard } from "@fcalell/ui-core/react/confirm";
 import { hasBody, submitOf, useFrame } from "@fcalell/ui-core/react/read";
 import {
@@ -11,82 +10,24 @@ import {
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
-	LAYER_CARD,
-	LAYER_SCRIM,
-	LAYER_SHEET_BOTTOM,
-	SCRIM,
-	SHEET,
-	SHEET_CENTERED,
-	SHEET_DESKTOP,
 	SHEET_FOOT,
-	SHEET_HEAD,
-	SHEET_HEAD_ROW,
 	SHEET_PARTS,
 	SHEET_PARTS_END,
-	text,
 } from "@fcalell/ui-core/variants";
-import { type ReactNode, type RefObject, use, useId, useRef } from "react";
+import type { ReactNode } from "react";
 import type { Act } from "../../lib/act.ts";
 import { type Acting, useAct } from "../../lib/act.ts";
 import type { Empty } from "../../lib/empty.tsx";
-import { FIELDS, firstTabbable, useReturnFocus } from "../../lib/focus.ts";
-import { useFollow } from "../../lib/follow.ts";
+import { FIELDS, firstTabbable } from "../../lib/focus.ts";
 import { useTouch } from "../../lib/media.ts";
-import { PortalContainer } from "../../lib/portal.ts";
-import { BusyMark, FrameBody, FrameLine } from "../../lib/read.tsx";
+import { FrameBody } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
-import { SHEET_BACKDROP } from "../../lib/walk-classes.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
-import { Button } from "../button/index.tsx";
+import { SheetHead } from "./head.tsx";
+import { SheetLayer } from "./layer.tsx";
 
-// The layer the sheet stands on over the scrim: from the bottom edge on
-// touch, centred on the desktop.
-const BACKDROP = SHEET_BACKDROP;
-// The page inset above a bottom sheet keeps a strip of scrim over the tallest
-// one, so a press above it still dismisses.
-const LAYER_BOTTOM = `${BACKDROP} flex flex-col justify-end pt-page`;
-// A decision is centred over the page with no cap of its own.
-const LAYER_CENTRED = `${BACKDROP} flex items-center justify-center`;
-// Any other card on the desktop opens one static top inset under the viewport's
-// top and grows downward from it, the page inset below it, and gives way to what
-// they leave, its body scrolling. A flex centre would move its top by half of
-// every change under the member's hands (a textarea a line at a time, a
-// wizard's next page).
-const LAYER_DESKTOP = `${BACKDROP} flex flex-col items-center pt-[12dvh] pb-page`;
-const BOX_CARD = "max-h-full min-h-0";
-// The popup takes focus only where nothing in it can (its body still painted
-// while its read waits): it is no control, so it draws no ring, which would
-// read as the whole sheet chosen.
-const BOX = "relative flex flex-col focus-visible:outline-none";
-// A view stands over the whole layer, rising and fading as a centred sheet
-// does (it does not travel from its thumbnail). It takes no
-// press, so the layer around its content hears one as a press on the scrim
-// and dismisses; its content takes its own.
-const BOX_VIEW = "relative size-full pointer-events-none";
-// A bottom sheet stops at the viewport's top and its body scrolls; the
-// bottom inset clears a phone's home indicator. It names itself the anchor the
-// frame's toasts stand above (`--docked-foot`, as a Pane's docked foot does), so
-// a toast never covers the sheet's sentence, field or act.
-const BOX_BOTTOM = "max-h-full pb-safe [anchor-name:--docked-foot]";
-// A menu that searches grows to the layer's height, which `max-h-full` caps at
-// the page inset under the viewport's top.
-const BOX_TALL = "grow";
-const BOX_FLOAT = "max-w-full";
-// The head is where a bottom sheet is pulled down by a finger, so the browser
-// leaves it the vertical axis.
-const HEAD = "flex flex-col touch-none";
-const HEAD_ROW = "flex items-center";
-// The head is one line: the title truncates at its floor and the close act
-// stands beside it, before it on touch.
-const TITLE_BLOCK = "flex flex-col grow basis-0 min-w-0";
-const TITLE_SLOT = "flex items-center gap-gap min-w-0";
-const TITLE = "min-w-0 truncate";
-// The desktop head is a two-line row tall (the title over its description)
-// whether or not the description stands; on touch the row is the acts'.
-const HEAD_ROW_TALL = "py-gap touch:min-h-0";
 // The body takes a tab stop only while it scrolls with nothing tabbable inside.
 const BODY =
 	"flex flex-col grow min-h-0 overflow-y-auto overscroll-contain focus-visible:-outline-offset-2";
@@ -120,7 +61,7 @@ export function submitAct(submit: SheetSubmit, close: () => void): Act {
 	return acknowledges(submit) ? { label: submit.label, onAct: close } : submit;
 }
 
-/** What every sheet form draws: the public `Sheet`, the confirm and a touch `Menu`. Outside the package's exports. */
+/** What a task sheet draws: the public `Sheet`, the confirm and the toolbar's touch filters. Outside the package's exports. */
 interface SheetBaseProps {
 	open: boolean;
 	onClose: () => void;
@@ -132,18 +73,16 @@ interface SheetBaseProps {
 	submit?: SheetSubmit;
 	/** A decision's acts, the foot's `ActionBar` at both densities. */
 	acts?: Act[];
-	/** A decision is centred on the desktop; a menu's rows stand under the head with no body or foot; a view (an image's full size) is its children over the whole layer, named by `title`, with no head, body, foot or close act of its own. */
-	form?: "centred" | "menu" | "view";
-	/** A menu that searches stands the whole viewport height from its first frame, so its list does not jump as the filter narrows. */
-	tall?: boolean;
+	/** A decision is centred on the desktop. */
+	centred?: boolean;
 	/** What the body holds, read once for the frame (`Sheet`'s `read`): the submit paints, inert, while it waits or stands still, and stands blocked with the failed sentence once it failed or is missing. */
 	read?: Selection<unknown>;
 	/** The body's sentence when the `read` is empty. */
 	empty?: Empty;
 	/** The holder of the sheet's acts' run, when a form in its body has a bar of its own (the one holder keeps the dismissal held while either runs). Absent, the sheet hosts its own. */
 	acting?: Acting<number>;
-	/** What the sheet opens focused on: its first field (a confirm's typed name), or the element a ref holds (a pick's option); a decision with neither opens on its first act, the way out, and a task's body on its first field, else its first control, else the close act. */
-	focus?: "field" | RefObject<HTMLElement | null>;
+	/** What the sheet opens focused on: its first field (a confirm's typed name); a decision without it opens on its first act, the way out, and a task's body on its first field, else its first control, else the close act. */
+	focus?: "field";
 	/** Ties a trigger elsewhere (a `Dialog.Trigger`) to the sheet. */
 	handle?: Dialog.Handle<unknown>;
 	/** The body's parts, at the card inset. */
@@ -162,8 +101,7 @@ export function SheetBase({
 	back,
 	submit: given,
 	acts,
-	form,
-	tall,
+	centred: decision,
 	handle,
 	acting: holder,
 	focus,
@@ -209,21 +147,16 @@ export function SheetBase({
 				{fields}
 			</FrameBody>
 		) : null;
-	const container = use(PortalContainer);
-	const titleId = useId();
 	const [touchedValue, setTouched] = useTouchState();
 	const { leave } = touchedValue;
-	const popup = useRef<HTMLDivElement | null>(null);
-	useReturnFocus(open, popup);
 	const scroll = useScroller();
 	useScrolls(scroll.node);
 	// A sheet whose `form` stands edited asks before it closes: "Discard your
 	// edit?", as a page's form does when its page is left, since the form's
 	// edit is dropped as the sheet opens again. A bare control in the body holds
 	// the app's value, which the sheet keeps, so it asks nothing for it. A
-	// menu, a picker and a decision hold no edit of the sheet's: what they take
-	// is their own pick.
-	const asks = form === undefined && leave.asks();
+	// decision holds no edit of the sheet's: what it takes is its own pick.
+	const asks = !decision && leave.asks();
 	const dismiss = () => {
 		if (!asks) return onClose();
 		void leave
@@ -232,52 +165,24 @@ export function SheetBase({
 				if (discard) onClose();
 			});
 	};
-	const centred = form === "centred" && !touch;
-	const view = form === "view";
-	// A bottom sheet follows a finger on its head, 1:1, and leaves past the reach
-	// or flung; a held dismissal (an act running) and an edit keep it.
-	const pull = useFollow({
-		target: popup,
-		axis: "y",
-		away: 1,
-		enabled: touch && !centred && !view && !acting.holds && !asks,
-		onAway: onClose,
-	});
+	const centred = decision === true && !touch;
 	usePageTurn(open, title, description, () => {
 		leave.clear();
 		setTouched(false);
 	});
 	// A decision draws no close act: its acts dismiss it.
-	const close = acts ? null : (
-		<Dialog.Close
-			disabled={acting.holds}
-			render={<IconButtonBase icon="X" label={words.close} />}
+	const head = (
+		<SheetHead
+			title={title}
+			description={description}
+			back={back}
+			frame={frame}
+			centred={centred}
+			close={!acts}
+			holds={acting.holds}
+			asks={asks}
+			onClose={onClose}
 		/>
-	);
-	const lead = back ? (
-		<Button glyph icon={BACK_GLYPH} label={words.back} onAct={back} />
-	) : null;
-	// On touch the close act leads the head unless back holds its place.
-	const start = touch ? (lead ?? close) : lead;
-	const end = touch ? null : close;
-	const titled = (
-		<h2 id={titleId} className={TITLE_SLOT}>
-			<span className={cn(text({ role: "heading" }), TITLE)}>{title}</span>
-			<BusyMark frame={frame} />
-		</h2>
-	);
-	const said = description ? (
-		<p className={text({ role: "meta" })}>{description}</p>
-	) : null;
-	const headRow = (
-		<div className={cn(SHEET_HEAD_ROW, HEAD_ROW, !centred && HEAD_ROW_TALL)}>
-			{start}
-			<div className={TITLE_BLOCK}>
-				{titled}
-				{touch ? null : said}
-			</div>
-			{end}
-		</div>
 	);
 	// The submit stands in the foot's bar after the body, after Cancel on the
 	// desktop and alone on touch, where the close act leads the head, and where
@@ -302,29 +207,16 @@ export function SheetBase({
 	const footer = actionBar ? (
 		<div className={cn(SHEET_FOOT, FOOT, END_ONLY)}>{actionBar}</div>
 	) : null;
-	const framed = centred ? (
+	const content = centred ? (
 		<>
-			{headRow}
-			<FrameLine frame={frame} />
+			{head}
 			{body}
 			{actionBar}
 		</>
 	) : (
 		<>
-			<div
-				onPointerDown={pull.onPointerDown}
-				onPointerMove={pull.onPointerMove}
-				onPointerUp={pull.onPointerUp}
-				onPointerCancel={pull.onPointerCancel}
-				className={cn(SHEET_HEAD, HEAD)}
-			>
-				{headRow}
-				{touch ? said : null}
-				<FrameLine frame={frame} />
-			</div>
-			{form === "menu" ? (
-				children
-			) : body ? (
+			{head}
+			{body ? (
 				<div
 					ref={scroll.ref}
 					aria-busy={(frame.holds && frame.form === "waiting") || undefined}
@@ -334,80 +226,44 @@ export function SheetBase({
 					<Scroller value={scroll}>{body}</Scroller>
 				</div>
 			) : null}
-			{form === "menu" ? null : footer}
+			{footer}
 		</>
 	);
-	const content = view ? children : framed;
-	const box = view
-		? cn(BOX_VIEW, LAYER_CARD)
-		: touch
-			? cn(SHEET, BOX, BOX_BOTTOM, tall && BOX_TALL, LAYER_SHEET_BOTTOM)
-			: centred
-				? cn(SHEET_CENTERED, BOX, BOX_FLOAT, LAYER_CARD)
-				: cn(SHEET_DESKTOP, BOX, BOX_FLOAT, BOX_CARD, LAYER_CARD);
-	const layer =
-		view || centred ? LAYER_CENTRED : touch ? LAYER_BOTTOM : LAYER_DESKTOP;
 	return (
-		<Dialog.Root
+		<SheetLayer
 			handle={handle}
 			open={open}
-			onOpenChange={(next) => {
-				if (next) onOpen?.();
-				else if (!acting.holds) dismiss();
+			onOpen={onOpen}
+			onClose={() => {
+				if (!acting.holds) dismiss();
 			}}
+			place={decision ? "centred" : undefined}
+			// A field and an act take no ref (their props are closed), so the
+			// popup finds them. A decision opens on its way out: on touch the
+			// stack draws the filled act first, so the first tabbable is not it.
+			focus={
+				focus === "field"
+					? (popup) => popup?.querySelector("input") ?? true
+					: acts
+						? (popup) =>
+								[...(popup?.querySelectorAll("button") ?? [])].find(
+									(act) => act.textContent === acts[0]?.label,
+								) ?? true
+						: // The head's close act stands first in the tab order, but
+							// the task is the body's: its first field, else its first
+							// control.
+							() =>
+								firstTabbable(scroll.holder.current, FIELDS) ??
+								firstTabbable(scroll.holder.current) ??
+								true
+			}
+			// A field inside takes input: a blocked act says its reason.
+			// Only the sheet's `form` edits its leave (through its own
+			// form's change): a bare control holds the app's value, which
+			// the sheet does not drop, so it asks nothing for it.
+			onChange={() => setTouched(true)}
 		>
-			<Dialog.Portal container={container}>
-				<Dialog.Backdrop className={cn(SCRIM, BACKDROP, LAYER_SCRIM)} />
-				<Dialog.Viewport
-					// A press on the scrim (the layer around the sheet) keeps focus
-					// inside the sheet.
-					onMouseDown={(event) => {
-						if (event.target === event.currentTarget) event.preventDefault();
-					}}
-					className={layer}
-				>
-					<Dialog.Popup
-						ref={popup}
-						// A field and an act take no ref (their props are closed), so the
-						// popup finds them. A decision opens on its way out: on touch the
-						// stack draws the filled act first, so the first tabbable is not it.
-						initialFocus={
-							focus === "field"
-								? () => popup.current?.querySelector("input") ?? true
-								: (focus ??
-									(acts
-										? () =>
-												[
-													...(popup.current?.querySelectorAll("button") ?? []),
-												].find((act) => act.textContent === acts[0]?.label) ??
-												true
-										: form === undefined
-											? // The head's close act stands first in the tab order, but
-												// the task is the body's: its first field, else its first
-												// control.
-												() =>
-													firstTabbable(scroll.holder.current, FIELDS) ??
-													firstTabbable(scroll.holder.current) ??
-													true
-											: undefined))
-						}
-						role={form === "centred" ? "alertdialog" : "dialog"}
-						// Base UI hides the page behind a modal and traps focus but
-						// leaves the popup unmarked; the role promises it.
-						aria-modal
-						aria-label={view ? title : undefined}
-						aria-labelledby={view ? undefined : titleId}
-						// A field inside takes input: a blocked act says its reason.
-						// Only the sheet's `form` edits its leave (through its own
-						// form's change): a bare control holds the app's value, which
-						// the sheet does not drop, so it asks nothing for it.
-						onChange={() => setTouched(true)}
-						className={box}
-					>
-						<TouchedContext value={touchedValue}>{content}</TouchedContext>
-					</Dialog.Popup>
-				</Dialog.Viewport>
-			</Dialog.Portal>
-		</Dialog.Root>
+			<TouchedContext value={touchedValue}>{content}</TouchedContext>
+		</SheetLayer>
 	);
 }

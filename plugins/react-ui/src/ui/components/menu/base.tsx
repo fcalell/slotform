@@ -22,7 +22,8 @@ import { PortalContainer } from "../../lib/portal.ts";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { Icon } from "../../parts/icon/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
-import { SheetBase } from "../sheet/base.tsx";
+import { SheetHead } from "../sheet/head.tsx";
+import { SheetLayer } from "../sheet/layer.tsx";
 
 // Base UI focuses the popup itself after a pointer open; its rows carry the ring.
 const POPUP = "flex flex-col outline-none";
@@ -195,14 +196,13 @@ export function MenuBase({
 						/>
 					}
 				/>
-				<SheetBase
-					form="menu"
+				<SheetLayer
 					handle={sheet}
 					open={open}
 					onOpen={() => setOpen(true)}
 					onClose={() => setOpen(false)}
-					title={title}
 				>
+					<SheetHead title={title} onClose={() => setOpen(false)} />
 					<div
 						role="menu"
 						aria-label={label}
@@ -246,7 +246,7 @@ export function MenuBase({
 							}
 						/>
 					</div>
-				</SheetBase>
+				</SheetLayer>
 				<ActSheet acting={acting} of={sheetOf} />
 			</>
 		);

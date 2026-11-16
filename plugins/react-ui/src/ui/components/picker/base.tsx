@@ -90,7 +90,8 @@ import { Chip } from "../chip/index.tsx";
 import { BOX_DISABLED, BOX_HOVER } from "../input/base.tsx";
 import { Input } from "../input/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
-import { SheetBase } from "../sheet/base.tsx";
+import { SheetHead } from "../sheet/head.tsx";
+import { SheetLayer } from "../sheet/layer.tsx";
 import type {
 	PickerMenuProps,
 	PickOneProps,
@@ -1300,16 +1301,15 @@ function PickSheet<V extends string | null>(props: SheetParts<V>) {
 				handle={sheet}
 				render={(handed) => props.trigger(handed)}
 			/>
-			<SheetBase
-				form="menu"
+			<SheetLayer
 				tall={props.searching}
 				handle={sheet}
 				open={props.open}
 				onOpen={() => props.setOpen(true)}
 				onClose={() => props.setOpen(false)}
-				title={props.label}
 				focus={first}
 			>
+				<SheetHead title={props.label} onClose={() => props.setOpen(false)} />
 				<PickRows
 					label={props.label}
 					groups={props.groups}
@@ -1321,7 +1321,7 @@ function PickSheet<V extends string | null>(props: SheetParts<V>) {
 					act={props.act}
 					first={first}
 				/>
-			</SheetBase>
+			</SheetLayer>
 		</>
 	);
 }

@@ -38,7 +38,7 @@ export function ConfirmSheet(props: {
 	const blocked = name && typed !== name.value ? name.blocked : undefined;
 	return (
 		<SheetBase
-			form="centred"
+			centred
 			open={open}
 			onClose={onDone}
 			focus={name ? "field" : undefined}
