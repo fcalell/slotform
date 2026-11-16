@@ -3,12 +3,7 @@ import { Input } from "@fcalell/plugin-native-ui/components/input";
 import { Pane } from "@fcalell/plugin-native-ui/components/pane";
 import { Thread } from "@fcalell/plugin-native-ui/components/thread";
 import { toast } from "@fcalell/plugin-native-ui/lib/toast";
-import { read } from "@fcalell/plugin-query/read";
-import {
-	streamedQuery,
-	useQueryClient,
-} from "@fcalell/plugin-query/tanstack-query";
-import type { Read } from "@fcalell/ui-core/read";
+import { type StreamRead, streamRead } from "@fcalell/plugin-query/read";
 import { useEffect, useRef, useState } from "react";
 
 interface Turn {
@@ -60,10 +55,11 @@ function answerOf(
 	id: string,
 	body: string,
 	done: (turn: Turn) => void,
-): Read<Turn> {
+): StreamRead<Turn> {
 	const words = body.split(/(?<= )/);
-	const stream = streamedQuery<string, Turn>({
-		streamFn: ({ signal }) => spoken(signal, words),
+	return streamRead<string, Turn>({
+		queryKey: ["ask", "answer", id],
+		stream: (signal) => spoken(signal, words),
 		reducer: (turn, word) => ({ ...turn, body: turn.body + word }),
 		initialValue: {
 			id,
@@ -71,20 +67,8 @@ function answerOf(
 			body: "",
 			at: new Date().toISOString(),
 		},
+		onDone: done,
 	});
-	return read<Turn>(
-		{
-			queryKey: ["ask", "answer", id],
-			queryFn: async (context) => {
-				const turn = await stream(context);
-				if (!context.signal.aborted) done(turn);
-				return turn;
-			},
-			staleTime: Number.POSITIVE_INFINITY,
-			retry: false,
-		},
-		{ kind: "stream" },
-	);
 }
 
 // A conversation that arrives after a moment, under a field typed into before
@@ -95,8 +79,7 @@ export default function Ask() {
 	const [turns, setTurns] = useState<Turn[]>();
 	const [value, setValue] = useState("");
 	const [working, setWorking] = useState(false);
-	const [answer, setAnswer] = useState<Read<Turn>>();
-	const queryClient = useQueryClient();
+	const [answer, setAnswer] = useState<StreamRead<Turn>>();
 	const asked = useRef(0);
 	useEffect(() => {
 		const arrive = setTimeout(() => setTurns(FIRST), 3000);
@@ -125,13 +108,9 @@ export default function Ask() {
 		);
 	};
 	// The words so far stay in the thread.
-	const stop = () => {
-		if (answer) {
-			const { queryKey } = answer.options;
-			const partial = queryClient.getQueryData<Turn>(queryKey);
-			void queryClient.cancelQueries({ queryKey });
-			if (partial?.body) record(partial);
-		}
+	const stop = async () => {
+		const partial = await answer?.stop();
+		if (partial?.body) record(partial);
 		setAnswer(undefined);
 		setWorking(false);
 		toast("Answer stopped");

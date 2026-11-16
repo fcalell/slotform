@@ -1,15 +1,11 @@
 import { preload } from "@fcalell/plugin-query/preload";
-import { read } from "@fcalell/plugin-query/read";
-import {
-	streamedQuery,
-	useQueryClient,
-} from "@fcalell/plugin-query/tanstack-query";
+import { type StreamRead, streamRead } from "@fcalell/plugin-query/read";
+import { useQueryClient } from "@fcalell/plugin-query/tanstack-query";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
 import type { Attachment, Notice } from "@fcalell/ui-core/descriptors";
-import type { Read } from "@fcalell/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import type { AppRouter } from "../../../../.stack/worker";
@@ -83,9 +79,10 @@ function answerOf(
 	id: string,
 	breaks: boolean,
 	done: (turn: Turn) => void,
-): Read<Turn> {
-	const stream = streamedQuery<string, Turn>({
-		streamFn: ({ signal }) => spoken(signal, breaks),
+): StreamRead<Turn> {
+	return streamRead<string, Turn>({
+		queryKey: ["assistant", "answer", id],
+		stream: (signal) => spoken(signal, breaks),
 		reducer: (turn, word) => ({ ...turn, body: turn.body + word }),
 		initialValue: {
 			id,
@@ -93,20 +90,8 @@ function answerOf(
 			body: "",
 			at: new Date().toISOString(),
 		},
+		onDone: done,
 	});
-	return read<Turn>(
-		{
-			queryKey: ["assistant", "answer", id],
-			queryFn: async (context) => {
-				const turn = await stream(context);
-				if (!context.signal.aborted) done(turn);
-				return turn;
-			},
-			staleTime: Number.POSITIVE_INFINITY,
-			retry: false,
-		},
-		{ kind: "stream" },
-	);
 }
 
 // The conversation: its history a read the Pane holds, a sent turn written
@@ -120,7 +105,7 @@ function Assistant() {
 	const [value, setValue] = useState("");
 	const [attachments, setAttachments] = useState<Attachment[]>(ATTACHED);
 	const [working, setWorking] = useState(false);
-	const [answer, setAnswer] = useState<Read<Turn>>();
+	const [answer, setAnswer] = useState<StreamRead<Turn>>();
 	const asked = useRef(0);
 	const queued = useRef<string>(undefined);
 	const record = (turn: Turn) =>
@@ -199,15 +184,11 @@ function Assistant() {
 						if (working) queued.current = value;
 						else reply(value);
 					},
-					onStop: () => {
+					onStop: async () => {
 						// The words so far stay in the conversation, then the line
 						// that says the answer was stopped.
-						if (answer) {
-							const { queryKey } = answer.options;
-							const partial = queryClient.getQueryData<Turn>(queryKey);
-							void queryClient.cancelQueries({ queryKey });
-							if (partial?.body) record(partial);
-						}
+						const partial = await answer?.stop();
+						if (partial?.body) record(partial);
 						setAnswer(undefined);
 						queued.current = undefined;
 						setWorking(false);
