@@ -127,9 +127,7 @@ export function frameOf(held: Held): FrameState {
 	const busy = states.some((s) => s.busy);
 	const stale = states.some((s) => s.stale);
 	const paused = states.some((s) => s.paused);
-	const ended = all
-		.map((s) => s.phase)
-		.find((phase) => phase === "failed" || phase === "missing");
+	const ended = all.map((s) => s.phase).find(isEnded);
 	if (ended) {
 		return {
 			form: ended,
@@ -193,7 +191,7 @@ export function turnOf(held: Held): { form: TurnForm; value: unknown } {
 	if (s?.phase === "waiting") {
 		return { form: holds ? "waiting" : "none", value };
 	}
-	if (s?.phase === "failed" || s?.phase === "missing") {
+	if (isEnded(s?.phase)) {
 		if (holds) return { form: written ? "stopped" : "failed", value };
 		return { form: written ? "written" : "none", value };
 	}
@@ -212,8 +210,14 @@ export function turnOf(held: Held): { form: TurnForm; value: unknown } {
 // sentence, or `words.missing`. None while the read waits, stands still or
 // answered.
 export function endedReason(words: Words, phase?: string): string | undefined {
-	if (phase === "failed") return words.readFailed;
-	return phase === "missing" ? words.missing : undefined;
+	return isEnded(phase) ? endedSentence(words, phase) : undefined;
+}
+
+/** Whether a frame's `form` or a selection's `phase` says its read ended: failed, or missing. */
+export function isEnded<F extends string | undefined>(
+	form: F,
+): form is F & ("failed" | "missing") {
+	return form === "failed" || form === "missing";
 }
 
 /** The sentence a failed or missing row says under its label. */
@@ -813,7 +817,7 @@ export function planSelections(values: readonly unknown[]): {
 				const phases = open.map((k) =>
 					phaseOf(inputs[k] as ReadAnswer, p.reads[k] as Read<unknown>),
 				);
-				const ended = phases.find((x) => x === "failed" || x === "missing");
+				const ended = phases.find(isEnded);
 				// A waiting slot picks over the placeholder where a read has no data,
 				// so a selector walks P and never meets `undefined`; a combine keeps
 				// the real data of its other reads.

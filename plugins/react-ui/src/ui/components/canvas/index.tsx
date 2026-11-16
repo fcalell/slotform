@@ -9,7 +9,7 @@ import type {
 	LinkAct,
 } from "@fcalell/ui-core/descriptors";
 import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, isSelection } from "@fcalell/ui-core/read";
+import { type Datum, isEnded, isSelection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
 	CANVAS_GROUP_HEAD,
@@ -108,11 +108,7 @@ export function Canvas({ nodes, edges, groups, ...graph }: CanvasProps) {
 	const [placed, linked, framed] = useSelections([nodes, edges, groups]);
 	// The nodes are the canvas's frame; its edges and groups wait with it.
 	const frame = useFrame(isSelection(nodes) ? nodes : undefined);
-	if (
-		frame.form === "failed" ||
-		frame.form === "missing" ||
-		frame.form === "empty"
-	)
+	if (isEnded(frame.form) || frame.form === "empty")
 		return (
 			<section data-wide="" aria-label={graph.label} className={GROUND}>
 				<FrameBody frame={frame} fill />

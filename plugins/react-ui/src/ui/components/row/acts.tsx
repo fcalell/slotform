@@ -27,10 +27,7 @@ const NOOP = () => {};
 export function useReasonLine(blocked: string | undefined) {
 	const { touched } = useTouched();
 	const [pressed, press] = usePressed(blocked);
-	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press }),
-		[blocked, press],
-	);
+	const host = blocked === undefined ? undefined : press;
 	const line =
 		blocked === undefined ? null : (
 			<Reason shown={pressed || touched}>{blocked}</Reason>
@@ -85,7 +82,7 @@ export function RowAct(props: {
 	useDrawsFailure([act]);
 	const { waits, given, blocked } = useOffer(act);
 	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press: () => stand(blocked) }),
+		() => (blocked === undefined ? undefined : () => stand(blocked)),
 		[blocked, stand],
 	);
 	if (waits) return <PaintedAct at={at} icon />;

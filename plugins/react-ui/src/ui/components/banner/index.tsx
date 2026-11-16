@@ -21,7 +21,6 @@ import {
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
-import { useMemo } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
@@ -108,10 +107,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 	// A run with a deadline and an act: its end stands on the sentence's first
 	// line, under the sentence on touch.
 	const running = end !== undefined && (offer.painted || given !== undefined);
-	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press }),
-		[blocked, press],
-	);
+	const host = blocked === undefined ? undefined : press;
 	// Whether there is anything to say is not known until the sentence's read
 	// lands, so nothing stands while it waits (or ended): a banner painted then
 	// and gone loaded would be a block that stood for nothing. The page moves

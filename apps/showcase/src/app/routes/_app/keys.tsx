@@ -4,6 +4,7 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { isEnded } from "@fcalell/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { orpc } from "../../lib/api.ts";
 
@@ -43,9 +44,7 @@ function Preview({ draft }: { draft: Draft }) {
 	// block, and a block that draws nothing would only reserve room.
 	const [drawn] = useSelections([preview]);
 	useDrawsFailure([preview]);
-	const said = drawn.painted
-		? drawn.phase === "failed" || drawn.phase === "missing"
-		: drawn.value.length === 0;
+	const said = drawn.painted ? isEnded(drawn.phase) : drawn.value.length === 0;
 	if (said) return <Text kind="meta">Nothing to send yet.</Text>;
 	return (
 		<Code

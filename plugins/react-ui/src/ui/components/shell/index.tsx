@@ -13,7 +13,12 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, isSelection, paints } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	isEnded,
+	isSelection,
+	paints,
+} from "@fcalell/ui-core/read";
 import { flatPlaces, placeAt, placeTrail } from "@fcalell/ui-core/route";
 import {
 	LAYER_CARD,
@@ -688,7 +693,7 @@ function GroupRun(props: {
 	const frame = useFrame(isSelection(props.places) ? props.places : undefined);
 	const waits = paints(drawn);
 	const specs = drawn.painted ? [] : drawn.value;
-	const ended = frame.form === "failed" || frame.form === "missing";
+	const ended = isEnded(frame.form);
 	// A group loaded and empty draws no places.
 	if (!(waits || ended) && specs.length === 0) return null;
 	return (

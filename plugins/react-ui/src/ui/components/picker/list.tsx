@@ -16,6 +16,7 @@ import type { Draft } from "@fcalell/ui-core/react/acts";
 import { useDrawn } from "@fcalell/ui-core/react/arrive";
 import { useOptions } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
+import { isEnded } from "@fcalell/ui-core/read";
 import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	BLOCK_IN,
@@ -407,8 +408,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	// Options that ended leave nothing to choose from: the sentence and Retry stand
 	// in the value column in the rows' place, one control-high line the label
 	// shares its centre with, never an empty card with the line under it.
-	const lone =
-		given.painted && (given.phase === "failed" || given.phase === "missing");
+	const lone = given.painted && isEnded(given.phase);
 	return (
 		<>
 			{lone ? null : list}

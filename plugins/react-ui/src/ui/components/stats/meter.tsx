@@ -6,7 +6,7 @@ import { levelOf } from "@fcalell/ui-core/list-state";
 import { type PaintRole, paintText } from "@fcalell/ui-core/paint";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedSentence } from "@fcalell/ui-core/read";
+import { type Datum, endedSentence, isEnded } from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,
@@ -88,9 +88,7 @@ export function Meter({
 	// A read that ended leaves the meter empty, unpainted: no share, no track
 	// fill, the label standing if its own read answered. Held by the meter, its
 	// failed form stands in the same box.
-	const ended = [l, v, m].some(
-		(one) => one.painted && (one.phase === "failed" || one.phase === "missing"),
-	);
+	const ended = [l, v, m].some((one) => one.painted && isEnded(one.phase));
 	const absent = l.painted || v.painted || m.painted;
 	const painted = absent && !ended;
 	// The drawn numbers and the label are read only once absence is ruled out

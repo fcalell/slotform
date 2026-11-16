@@ -9,7 +9,12 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	endedReason,
+	isEnded,
+	paints,
+} from "@fcalell/ui-core/read";
 import { isCode, partRuns, partText } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
@@ -130,7 +135,7 @@ export function PaneHead(props: {
 	// the page below the bar is the failed or missing form, whose Retry (or way
 	// back) is the one act, and an act of the read that ended would only stand
 	// blocked beside it. A record's bar keeps where it lived and the way back.
-	const gone = frame.form === "failed" || frame.form === "missing";
+	const gone = isEnded(frame.form);
 	const touch = useTouch();
 	const words = useWords();
 	const menu = use(ShellMenu);

@@ -8,7 +8,12 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	endedReason,
+	isEnded,
+	paints,
+} from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_HEAD,
@@ -63,7 +68,7 @@ export function PaneHead(props: {
 	// the page below the bar is the failed or missing form, whose Retry (or way
 	// back) is the one act, and an act of the read that ended would only stand
 	// blocked beside it.
-	const gone = frame.form === "failed" || frame.form === "missing";
+	const gone = isEnded(frame.form);
 	const moreOf = offered<readonly MenuEntry[]>(more);
 	const actsOf = (acts ?? []).map((one) => offered<IconAct | IconLinkAct>(one));
 	const [name, overflowAt, ...actionAt] = useSelections([

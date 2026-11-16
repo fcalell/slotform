@@ -9,6 +9,7 @@ import {
 	type Datum,
 	type Drawn,
 	endedReason,
+	isEnded,
 	lift,
 } from "@fcalell/ui-core/read";
 import type { Words } from "@fcalell/ui-core/tokens";
@@ -240,7 +241,7 @@ export function OptionsLine(props: {
 	const { drawn, retry, compact, lone } = props;
 	const words = useWords();
 	if (!drawn.painted) return null;
-	if (compact && (drawn.phase === "failed" || drawn.phase === "missing")) {
+	if (compact && isEnded(drawn.phase)) {
 		const failed = drawn.phase === "failed";
 		return (
 			<span className={ENDED_MARKS}>

@@ -7,7 +7,6 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
 import { text } from "@fcalell/ui-core/variants";
-import { useMemo } from "react";
 import { Text as RNText } from "react-native";
 import type { Act, IconAct, MenuEntry } from "../../lib/act";
 import { asIconAct, wiringOf } from "../../lib/act";
@@ -25,10 +24,7 @@ const NOOP = () => {};
 export function useReasonLine(blocked: string | undefined) {
 	const { touched } = useTouched();
 	const [pressed, press] = usePressed(blocked);
-	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press }),
-		[blocked, press],
-	);
+	const host = blocked === undefined ? undefined : press;
 	const line =
 		blocked !== undefined && (pressed || touched) ? (
 			<FadingText

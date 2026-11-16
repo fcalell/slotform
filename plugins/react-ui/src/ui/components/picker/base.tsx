@@ -19,6 +19,7 @@ import {
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { useOptions } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
+import { isEnded } from "@fcalell/ui-core/read";
 import { nounOf } from "@fcalell/ui-core/rules";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
@@ -793,7 +794,7 @@ export function PickerBase<V extends string | null = string>(
 		fit === "field" &&
 		form !== undefined &&
 		waiting.painted &&
-		(waiting.phase === "failed" || waiting.phase === "missing");
+		isEnded(waiting.phase);
 	return (
 		<PickActing value={acting}>
 			{lone ? null : view}

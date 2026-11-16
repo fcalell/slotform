@@ -222,7 +222,7 @@ export function ActionBarBase({
 		return (
 			<ReasonHostContext
 				key={act.label}
-				value={{ press: () => setPressedUnder(act.blocked) }}
+				value={() => setPressedUnder(act.blocked)}
 			>
 				<SubmitContext value={!ghost && last && submits}>
 					<ActInert value={ghost || (acting.holds && !running)}>

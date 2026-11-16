@@ -18,6 +18,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
+	isEnded,
 	NO_HOLDS,
 	type Selection,
 	turnOf,
@@ -373,7 +374,7 @@ function Log<T>(props: {
 	slots: RefObject<MessageSlots<T>>;
 }) {
 	const { thread, drawn, frame, slots } = props;
-	const ended = frame.form === "failed" || frame.form === "missing";
+	const ended = isEnded(frame.form);
 	// The empty form stands in the messages' place as the ended ones do, but says
 	// its own sentence, centred in the log.
 	const empty = frame.form === "empty";

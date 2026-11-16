@@ -12,6 +12,7 @@ import {
 	type Datum,
 	draftFor,
 	endedReason,
+	isEnded,
 	type Kept,
 	readKey,
 	readsOf,
@@ -85,11 +86,7 @@ export function useDraft<T>(
 	return {
 		painted: !live && drawn.painted,
 		ended:
-			!live &&
-			drawn.painted &&
-			(drawn.phase === "failed" || drawn.phase === "missing")
-				? drawn.phase
-				: undefined,
+			!live && drawn.painted && isEnded(drawn.phase) ? drawn.phase : undefined,
 		value: live ? live.value : (drawn.value as T),
 		change,
 	};

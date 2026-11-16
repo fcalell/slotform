@@ -17,7 +17,7 @@ import {
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useReducedMotion } from "../../lib/media.ts";
@@ -77,10 +77,7 @@ export function PendingBar({ sentence, until, act }: PendingBarProps) {
 	const { touched } = useTouched();
 	const blocked = act && "blocked" in act ? act.blocked : undefined;
 	const [pressed, press] = usePressed(blocked);
-	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press }),
-		[blocked, press],
-	);
+	const host = blocked === undefined ? undefined : press;
 	return (
 		<div className={cn(PENDING_BAR, BAR)}>
 			<div className={cn(PENDING_ROW, ROW)}>

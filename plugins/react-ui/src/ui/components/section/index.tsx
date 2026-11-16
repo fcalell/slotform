@@ -22,6 +22,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	combine,
 	type Datum,
+	isEnded,
 	isSelection,
 	pagesOf,
 	type Selection,
@@ -298,9 +299,7 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 	// The failed, missing and empty forms stand at the sheet's inset inside the
 	// sheet's own card, headed or not, where the rows would stand.
 	const body =
-		frame.form === "failed" ||
-		frame.form === "missing" ||
-		frame.form === "empty" ? (
+		isEnded(frame.form) || frame.form === "empty" ? (
 			<SheetCard>{forms}</SheetCard>
 		) : (
 			forms

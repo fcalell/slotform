@@ -4,7 +4,12 @@ import type { StatSpec } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedSentence, paints } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	endedSentence,
+	isEnded,
+	paints,
+} from "@fcalell/ui-core/read";
 import {
 	lineBox,
 	STATS,
@@ -80,8 +85,7 @@ function Cell({
 	const [figure] = useSelections([item.value]);
 	const { ended: held, busy, retry } = useRow([item.value]);
 	const painted = paints(figure);
-	const ended =
-		figure.painted && (figure.phase === "failed" || figure.phase === "missing");
+	const ended = figure.painted && isEnded(figure.phase);
 	const opens = item.href !== undefined && !figure.painted;
 	const unit = item.unit ? (
 		<span className={cn(text({ role: "meta" }), UNIT)}>{item.unit}</span>

@@ -122,7 +122,7 @@ export function ButtonBase({
 	const press = () => {
 		if (inert || pending) return;
 		if (muted) {
-			if (host) host.press();
+			if (host) host();
 			else keep();
 		} else if (given === undefined)
 			acting.run(true, {

@@ -15,7 +15,7 @@ import {
 	PENDING_TRACK,
 	text,
 } from "@fcalell/ui-core/variants";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Text as RNText, View } from "react-native";
 import Animated, {
 	cancelAnimation,
@@ -102,10 +102,7 @@ export function PendingBar({ sentence, until, act: given }: PendingBarProps) {
 
 	const blocked = act?.blocked;
 	const [pressed, press] = usePressed(blocked);
-	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press }),
-		[blocked, press],
-	);
+	const host = blocked === undefined ? undefined : press;
 	return (
 		<View className={PENDING_BAR}>
 			<View className={PENDING_ROW}>

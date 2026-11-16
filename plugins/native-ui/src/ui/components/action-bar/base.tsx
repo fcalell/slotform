@@ -235,7 +235,7 @@ export function ActionBarBase({
 					return (
 						<ReasonHostContext.Provider
 							key={act.label}
-							value={{ press: () => setPressedUnder(act.blocked) }}
+							value={() => setPressedUnder(act.blocked)}
 						>
 							<ActInert.Provider value={ghost || (acting.holds && !running)}>
 								<View className={chosen ? PRIMARY : undefined}>

@@ -22,7 +22,7 @@ import {
 	SECTION_TOGGLE,
 	text,
 } from "@fcalell/ui-core/variants";
-import { type ReactNode, use, useMemo } from "react";
+import { type ReactNode, use } from "react";
 import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
 import { HeadingContext } from "../../lib/heading.ts";
@@ -166,10 +166,7 @@ export function SectionHead(props: {
 	const [pressed, press] = usePressed(blocked);
 	// The act hands its blocked press here, so its reason stands on the head's
 	// own line under the row.
-	const host = useMemo(
-		() => (blocked === undefined ? undefined : { press }),
-		[blocked, press],
-	);
+	const host = blocked === undefined ? undefined : press;
 	let sentence: ReactNode = null;
 	if (paints(said))
 		sentence = (

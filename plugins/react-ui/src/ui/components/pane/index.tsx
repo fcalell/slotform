@@ -8,7 +8,12 @@ import {
 	useFrame,
 	usePainted,
 } from "@fcalell/ui-core/react/read";
-import { type Datum, NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	isEnded,
+	NO_HOLDS,
+	type Selection,
+} from "@fcalell/ui-core/read";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
 	FOOT_DOCKED,
@@ -225,17 +230,13 @@ export function Pane<
 	const docked = task ? <SheetDocked {...task} region={region.value} /> : foot;
 	const footed = Boolean(docked);
 	// The Pane's own forms and a filler take the body's free height.
-	const flexed =
-		fill === true ||
-		frame.form === "failed" ||
-		frame.form === "missing" ||
-		frame.form === "empty";
+	const flexed = fill === true || isEnded(frame.form) || frame.form === "empty";
 	const named = filler ? undefined : titleId;
 	// A record's head opens the body, in the frame's body: a failed or missing
 	// read draws its form and not the head, and the bar's title is then the
 	// Pane's heading. An empty read is a record with nothing in it: its head
 	// stands, whole and wrapping, and the empty form under it.
-	const headless = frame.form === "failed" || frame.form === "missing";
+	const headless = isEnded(frame.form);
 	const head = record ? (
 		<ItemHeaderBase
 			name={title}

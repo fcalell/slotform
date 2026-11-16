@@ -198,7 +198,7 @@ export function RunGlyph({
 				tabIndex={tabIndex}
 				onClick={() =>
 					held
-						? host.press()
+						? host()
 						: acting.run(true, {
 								onAct,
 								label,

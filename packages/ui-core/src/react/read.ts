@@ -27,6 +27,7 @@ import {
 	heldPlaceholder,
 	holdReads,
 	holdsOf,
+	isEnded,
 	isSelection,
 	lift,
 	type More,
@@ -200,10 +201,7 @@ export function useRow(data: readonly unknown[]) {
 		return drawn.length > 0 ? combine(drawn, () => null) : undefined;
 	}, [data]);
 	const frame = useFrame(selection);
-	const ended =
-		frame.holds && (frame.form === "failed" || frame.form === "missing")
-			? frame.form
-			: undefined;
+	const ended = frame.holds && isEnded(frame.form) ? frame.form : undefined;
 	return { ended, busy: frame.busy, retry: frame.retry };
 }
 
@@ -234,8 +232,7 @@ export function submitOf(words: Words, form: Frame["form"]) {
 /** Whether a frame has a body to draw: its failed, missing or empty form, or children that draw. A frame with neither draws no body box, since an empty one only takes its padding. */
 export function hasBody(frame: Frame, children: ReactNode): boolean {
 	return (
-		frame.form === "failed" ||
-		frame.form === "missing" ||
+		isEnded(frame.form) ||
 		frame.form === "empty" ||
 		(children !== undefined && children !== null && children !== false)
 	);

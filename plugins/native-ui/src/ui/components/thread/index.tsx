@@ -17,6 +17,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
+	isEnded,
 	NO_HOLDS,
 	type Selection,
 	turnOf,
@@ -353,7 +354,7 @@ function Log<T>(props: {
 	slots: RefObject<MessageSlots<T>>;
 }) {
 	const { thread, drawn, frame, slots } = props;
-	const ended = frame.form === "failed" || frame.form === "missing";
+	const ended = isEnded(frame.form);
 	const children = ended ? [] : logOf(thread, drawn, slots);
 	// The messages that came to the end of the log on their own once it was
 	// drawn rise in as they mount; what it held when first drawn does not. The
