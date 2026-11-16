@@ -1,6 +1,11 @@
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { type Frame, submitOf, useFrame } from "@fcalell/ui-core/react/read";
+import {
+	type Frame,
+	submitOf,
+	useFrame,
+	usePainted,
+} from "@fcalell/ui-core/react/read";
 import { type Touched, TouchedContext } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
@@ -165,21 +170,31 @@ export function FormRows({
 }
 
 // The form's foot: the bar it is given, its last row under a hairline, which
-// submits what the form's own read gives (a group's read is the group's). A
-// sheet that hoists the bar into its foot draws none here. Outside the
-// package's exports.
+// submits what the form's own read gives (a group's read is the group's), and
+// the `outer` reads': it paints while either waits and stands blocked once the
+// form's has ended. A sheet that hoists the bar into its foot draws none here.
+// Outside the package's exports.
 export function useFormBar(
 	bar: ActionBarProps | undefined,
 	frame: Frame,
+	// The reads the bar paints under besides the form's own (the sheet's read,
+	// the ability the form is gated on); constants are no read.
+	outer: readonly unknown[],
 	// The holder of the bar's run, when the form stands in one that holds more
 	// than the bar (a docked sheet's dismissal).
 	acting?: Acting<number>,
 ): ReactNode {
 	const words = useWords();
 	const { waiting, ended } = submitOf(words, frame.form);
+	const outerWaits = usePainted(outer);
 	return bar ? (
 		<View className={FORM_FOOT}>
-			<ActionBarBase {...bar} acting={acting} painted={waiting} ended={ended} />
+			<ActionBarBase
+				{...bar}
+				acting={acting}
+				painted={waiting || outerWaits}
+				ended={ended}
+			/>
 		</View>
 	) : null;
 }

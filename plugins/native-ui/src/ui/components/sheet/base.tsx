@@ -1,5 +1,5 @@
 import type { Acting } from "@fcalell/ui-core/react/acts";
-import { submitOf, useFrame } from "@fcalell/ui-core/react/read";
+import { submitOf, useFrame, usePainted } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
@@ -36,6 +36,9 @@ interface FootProps {
 	// What the form in the body holds: the form's bar, hoisted into the foot,
 	// submits what that gives.
 	barRead?: Selection<unknown>;
+	// The reads the form's bar paints under besides the form's and the body's
+	// (the ability the form is gated on).
+	barOuter?: readonly unknown[];
 }
 
 // The form's bar: it subscribes to the form's read itself, since the form that
@@ -46,14 +49,16 @@ function FormBar({
 	painted,
 	ended,
 	barRead,
+	barOuter = [],
 }: Omit<FootProps, "submit" | "acts">) {
 	const form = useSubmitOf(barRead);
+	const outerWaits = usePainted(barOuter);
 	if (!bar) return null;
 	return (
 		<ActionBarBase
 			{...bar}
 			acting={acting}
-			painted={painted || form.waiting}
+			painted={painted || form.waiting || outerWaits}
 			ended={ended ?? form.ended}
 		/>
 	);
@@ -73,6 +78,7 @@ function Foot({
 	painted,
 	ended,
 	barRead,
+	barOuter,
 }: FootProps) {
 	if (!acts && !submit && !bar) return null;
 	return (
@@ -93,6 +99,7 @@ function Foot({
 					painted={painted}
 					ended={ended}
 					barRead={barRead}
+					barOuter={barOuter}
 				/>
 			) : null}
 		</View>
@@ -139,6 +146,9 @@ interface SheetBaseProps {
 	// foot, paints while it or the body's waits and stands blocked once either
 	// has ended. A group's read is the group's.
 	barRead?: Selection<unknown>;
+	// The reads the form's bar paints under besides the form's and the body's
+	// (the ability the form is gated on).
+	barOuter?: readonly unknown[];
 	// The holder of the sheet's acts' run, when a holder above it hosts more
 	// (a `Sheet` holds its form's bar too). Absent, the sheet hosts its own.
 	acting?: Acting<number>;
@@ -169,6 +179,7 @@ export function SheetBase({
 	read,
 	empty,
 	barRead,
+	barOuter,
 	children,
 	after,
 	fields,
@@ -243,6 +254,7 @@ export function SheetBase({
 					painted={waiting}
 					ended={ended}
 					barRead={barRead}
+					barOuter={barOuter}
 				/>
 			}
 		>

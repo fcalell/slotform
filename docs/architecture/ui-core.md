@@ -15,7 +15,7 @@ matrices, cvas and cells it alone uses; `roster.ts`, `descriptors.ts`, `variants
 `variant-tables.ts` declare what two or more components share and re-export the rest, so the
 subpaths keep their names; `roster/shared.ts` holds the values a component file needs from what
 is shared, so no module is evaluated in an import cycle), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
-`follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads. `acts.ts` also holds `moreMenu` and `endedItems`, what a more menu holds and the one blocked item it stands as once its read ended. `list-state.ts` also holds `optionReads`, the reads a Section's pick rows draw their options from, which its sheet says once. `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it once.
+`follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads. `acts.ts` also holds `moreMenu` and `endedItems`, what a more menu holds and the one blocked item it stands as once its read ended. `list-state.ts` also holds `optionReads`, the reads a Section's pick rows draw their options from, which its sheet says once. `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it once. `react/form.ts` holds `useFormModel`, a form's model over its procedure (`FormModel`: its fields' state, each field as a `FieldModel`, the input they make, the bar with its submit, the reads the bar paints under and `clear`), read from `FormModelProps`; each plugin maps every `FieldModel` to its `FormField`.
 
 ## Tokens and theming
 
@@ -260,8 +260,8 @@ fails `tsc` and the schema. It is a plugin option beside `theme`; each plugin co
   intent preloads its route and navigation is never held.
 - The phone wires TanStack's managers (`QueryProvider listen` takes `online` and `focus`, a `QueryListeners` from `@fcalell/ui-core/listen`).
 - Forms: a `Form` is derived from the procedure it submits: `form.ts` holds what both platforms share (the
-  `FieldSpec`, `FormFields` and `FormGroupOf` types, and the derivation of a field's control,
-  optionality, options and coercion from the input's JSON Schema, and the read of a picked file), the platforms draw. A `Sheet`'s
+  `FieldSpec`, `FormFields`, `FormGroupOf` and `FormSubmit` types, and the derivation of a field's control,
+  optionality, options and coercion from the input's JSON Schema, and the read of a picked file), `react/form.ts` the model over them (`useFormModel`), the platforms draw. A `Sheet`'s
   `form` and a `Gate`'s `form` take the same props; a `Gate` step over local state draws its controls directly. A blocked act shows
   its reason once pressed or once its form is touched.
 - `Gate` is the layout frame of a page outside the shell (sign-in, consent). `Stats` is the

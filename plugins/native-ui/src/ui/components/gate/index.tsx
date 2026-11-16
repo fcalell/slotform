@@ -66,10 +66,14 @@ export interface GateProps<P extends ProcedureCall = AnyCall> extends Closed {
 // The step's form over its procedure, its bar across the column. It stands in
 // the step, so a new step starts it afresh.
 function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
-	const form = useDerivedForm(props.form);
+	const { frame: form, outer } = useDerivedForm(props.form, true);
 	const frame = useFrame(form.read);
 	const [touch] = useTouchState();
-	const bar = useFormBar(form.bar && { fit: "full", ...form.bar }, frame);
+	const bar = useFormBar(
+		form.bar && { fit: "full", ...form.bar },
+		frame,
+		outer,
+	);
 	return (
 		<FormShell touch={touch} guard={form.commit !== "field"} card frame={frame}>
 			<FormRows {...form} frame={frame} />

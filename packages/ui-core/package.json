@@ -205,6 +205,10 @@
 			"types": "./dist/react/field.d.ts",
 			"default": "./dist/react/field.js"
 		},
+		"./react/form": {
+			"types": "./dist/react/form.d.ts",
+			"default": "./dist/react/form.js"
+		},
 		"./runs": {
 			"types": "./dist/runs.d.ts",
 			"default": "./dist/runs.js"

@@ -9,7 +9,7 @@ import type { Empty } from "../../lib/empty";
 import { FieldClaim } from "../../lib/field";
 import { type FormProps, useDerivedForm } from "../form";
 import { SheetBase, type SheetSubmit } from "./base";
-import { SheetForm } from "./form";
+import { SheetForm, useClearOnOpen } from "./form";
 
 export type { Acknowledge, SheetSubmit } from "./base";
 
@@ -64,7 +64,8 @@ export function Sheet<P extends ProcedureCall>({
 	// its own submit's: one act pends at a time and the dismissal is held while
 	// it runs.
 	const acting = useAct<number>("line");
-	const derived = useDerivedForm(form, open);
+	const derived = useDerivedForm(form, false);
+	useClearOnOpen(open, derived.clear);
 	// The body is the sheet's own: its first typing control claims focus as it
 	// mounts. The provider stands inside `SheetBase`'s children, which the
 	// bottom sheet portals out of this tree.
@@ -79,15 +80,19 @@ export function Sheet<P extends ProcedureCall>({
 				description={description}
 				back={back}
 				submit={submit}
-				bar={derived?.bar}
-				barRead={derived?.read}
+				bar={derived.frame?.bar}
+				barRead={derived.frame?.read}
+				barOuter={derived.outer}
 				read={read}
 				empty={empty}
-				after={derived?.after}
+				after={derived.frame?.after}
 				fields={
-					derived ? (
+					derived.frame ? (
 						<FieldClaim.Provider value={held}>
-							<SheetForm form={{ ...derived, bar: undefined }} />
+							<SheetForm
+								form={{ ...derived.frame, bar: undefined }}
+								outer={derived.outer}
+							/>
 						</FieldClaim.Provider>
 					) : undefined
 				}

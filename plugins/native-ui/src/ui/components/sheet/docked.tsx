@@ -28,7 +28,7 @@ import { ActionBarBase } from "../action-bar/base";
 import { Button } from "../button";
 import { type FormProps, useDerivedForm } from "../form";
 import { type SheetSubmit, submitAct } from "./base";
-import { SheetForm } from "./form";
+import { SheetForm, useClearOnOpen } from "./form";
 
 // The sheet fills its foot, which bounds it: the head and the foot keep their
 // height and the body scrolls in what is left. The foot centres what it holds,
@@ -87,7 +87,8 @@ export function SheetDocked<P extends ProcedureCall>({
 	// The foot's act and its form's bar share one run: one act pends at a time,
 	// and closing is held while it runs.
 	const acting = useAct<number>("line");
-	const derived = useDerivedForm(form, open);
+	const derived = useDerivedForm(form, false);
+	useClearOnOpen(open, derived.clear);
 	// Closing runs in the screen's block move: the sheet fades out on `fast` as
 	// the body above takes the room back.
 	const close = () => {
@@ -174,8 +175,14 @@ export function SheetDocked<P extends ProcedureCall>({
 							}
 						>
 							{children}
-							{derived ? <SheetForm form={derived} acting={acting} /> : null}
-							{derived?.after}
+							{derived.frame ? (
+								<SheetForm
+									form={derived.frame}
+									outer={derived.outer}
+									acting={acting}
+								/>
+							) : null}
+							{derived.frame?.after}
 						</Scroll>
 						{submit ? (
 							<View

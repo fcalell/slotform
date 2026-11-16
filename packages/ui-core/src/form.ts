@@ -172,6 +172,18 @@ export interface FormGroupOf<I, W = never, D = string> {
 /** What the caller must be allowed to do for a form to submit: an ability's action and subject (`["create", "request"]`), checked in the registered scope's organization. */
 export type Can = readonly [action: string, subject: string];
 
+/** The submit act's words and what follows it. `done` and `to` are the `Act`'s: the bar's act hands them to its host, which toasts and navigates once the procedure resolves. A form that commits by field draws no bar: it toasts `done` per field commit, and `label` and `to` have no place. */
+export interface FormSubmit {
+	/** The act's text (default "Save"). */
+	label?: string;
+	/** What the toast says once the procedure resolves (a sentence). */
+	done?: string;
+	/** The route the form goes to once the procedure resolves. */
+	to?: string;
+	/** The bar's filled act draws destructive (a form that rejects, abandons or closes something). */
+	destructive?: boolean;
+}
+
 const members = (schema: JsonSchema) => schema.anyOf ?? schema.oneOf;
 
 // Strips the `null` branch of a union (a nullable), and folds a union of

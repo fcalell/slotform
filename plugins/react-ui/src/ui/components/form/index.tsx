@@ -1,43 +1,20 @@
-import { drew, type Issue, placed } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
-import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
+import type { PickedFile } from "@fcalell/ui-core/descriptors";
 import {
-	type Can,
-	type Derived,
-	derive,
-	type FieldSpec,
-	type FormFields,
-	type FormGroupOf,
-	type Held,
 	heldPick,
 	type InputOf,
-	invalidReason,
-	isEmpty,
-	markedRuns,
-	type OutputOf,
-	type PickWords,
 	type ProcedureCall,
-	pathOf,
-	pickWords,
-	readPicked,
-	requiredReason,
-	toInput,
-	toShown,
 } from "@fcalell/ui-core/form";
-import { usePort } from "@fcalell/ui-core/react/port";
-import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
-import { useTouchState } from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
 import {
-	type Datum,
-	isPlaceholder,
-	isSelection,
-	type Selection,
-} from "@fcalell/ui-core/read";
-import { registeredScope } from "@fcalell/ui-core/scope";
+	type FieldModel,
+	type FormModelProps,
+	useFormModel,
+} from "@fcalell/ui-core/react/form";
+import { useFrame } from "@fcalell/ui-core/react/read";
+import { useTouchState } from "@fcalell/ui-core/react/touched";
+import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import { CARD, FORM_FOOT, ROWS } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
-import { useState } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
@@ -52,84 +29,19 @@ import {
 } from "./base.tsx";
 import { SavedSecret } from "./saved.tsx";
 
-// A field's `options` may be a selection, which paints the pick until its read lands.
-type Options = Selection<readonly Option<string>[]>;
-type Fields<P extends ProcedureCall> = FormFields<
-	InputOf<P>,
-	Options,
-	Datum<string>
->;
-// The form reads its fields through the schema at run time, never through
-// `P`: each field is a `Spec` and the input a record by key, so a field list,
-// a value or a draft of `InputOf<P>` is cast to those where it is read, and
-// the input the fields make is cast back to `InputOf<P>` where it is sent.
-type Spec = FieldSpec<unknown, Options, Record<string, string>, Datum<string>>;
-
-/** The submit act's words and what follows it. `done` and `to` are the `Act`'s: the bar's act hands them to its host, which toasts and navigates once the procedure resolves. A form that commits by field draws no bar: it toasts `done` per field commit, and `label` and `to` have no place. */
-export interface FormSubmit {
-	/** The act's text (default "Save"). */
-	label?: string;
-	/** What the toast says once the procedure resolves (a sentence). */
-	done?: string;
-	/** The route the form goes to once the procedure resolves. */
-	to?: string;
-	/** The bar's filled act draws destructive (a form that rejects, abandons or closes something). */
-	destructive?: boolean;
-}
-
 interface FormBase<P extends ProcedureCall> extends Closed {
-	/** The procedure the form submits: its input schema gives every field its control, its optionality and its issue line, and its mutation is the submit. */
-	act: P;
-	/** The input keys the screen supplies (a scope id, a record id): sent with the input, never drawn. */
-	given?: Partial<InputOf<P>>;
-	/** The fields' first values (a form about a record). A selection paints the controls until its read lands and follows it until the viewer types; it is the form's `read` unless one is given. A submit that resolves puts the fields back to it. */
-	values?: Datum<Partial<InputOf<P>>>;
-	/** How the form commits. `submit` (the default): the bar's filled act sends every field at once. `field`: no bar; each field sends `given` and its own key when the viewer commits it (a text on leaving it or on Enter, a switch or a pick on its change, a file as it is picked) and draws its own refusal under it, so a settings page is a form that commits by field. The `submit`'s `done` is toasted per field commit and `onDone` hears each output; `label` and `to` have no place. Every required key the form does not show must be `given`, or the form throws. */
-	commit?: "submit" | "field";
-	/** The submit act's words and what follows it. */
-	submit?: FormSubmit;
-	/** Called with the output once the procedure resolves, and the input it was sent (once per field commit, when the form commits by field): the `given` keys and the fields' values as the procedure took them, a file as the string it was read into. A promise it returns (a navigation) keeps the submit pending, and the fields as sent, until it settles. */
-	onDone?: (output: OutputOf<P>, input: InputOf<P>) => unknown;
 	/** What follows the fields at the card inset, drawn from the input the fields make now (`given` and every field that holds a value, as the procedure would take them, a file as the picked file): a live preview of what the form would send. It is a function the form calls as it draws, so it is right before any keystroke (a prefilled form shows its first values), follows each change, and starts over when a sheet reopens; the form's bar stands after it, pinned in a sheet's foot. */
 	after?: (input: Partial<InputOf<P>>) => ReactNode;
-	/** Other acts standing in the form's bar before the filled submit (a Cancel, a destructive Decline with `confirm`), drawn and run as any act of an `ActionBar`, through the same `useAct`. The last act of a bar is the filled one, so with `commit: "field"` (no submit) they stand in a bar of their own under the fields, the last of them filled. */
-	acts?: readonly Act[];
-	/** What the caller must be allowed to do to submit, as an ability's `[action, subject]` in the registered scope's organization. A caller who may not stands the fields disabled and the submit blocked with the reason (the word `denied`). The act paints the form, inert, until the ability's read lands. */
-	can?: Can;
-	/** What the form's fields hold, read once for the form's frame. */
-	read?: Selection<unknown>;
 	/** The fields' sentence when the `read`'s selection is empty. */
 	empty?: Empty;
 }
 
 /** A form is its procedure and its field labels: `fields` or `groups`, never both. */
-export type FormProps<P extends ProcedureCall = ProcedureCall> = FormBase<P> &
-	(
-		| { fields: Fields<P>; groups?: never }
-		| {
-				fields?: never;
-				groups: readonly FormGroupOf<InputOf<P>, Options, Datum<string>>[];
-		  }
-	);
-
-type Draft = Readonly<Record<string, Held>>;
-type Values = Readonly<Record<string, unknown>>;
-
-// The options of a pick: the schema's values (or the consumer's), with the
-// empty choice first on a field that may be left empty.
-function optionsOf(
-	derived: Derived,
-	given: Datum<readonly Option<string>[]> | undefined,
-	none: string,
-): Datum<readonly Option<string | null>[]> {
-	const listed: Datum<readonly Option<string>[]> =
-		given ?? (derived.values ?? []).map((value) => ({ value, label: value }));
-	if (derived.required || derived.control === "several") return listed;
-	const empty: Option<string | null> = { value: null, label: none };
-	return isSelection(listed)
-		? listed.at((all) => (isPlaceholder(all) ? all : [empty, ...all]))
-		: [empty, ...listed];
-}
+export type FormProps<P extends ProcedureCall = ProcedureCall> = FormModelProps<
+	P,
+	Act
+> &
+	FormBase<P>;
 
 /** A form over a procedure: a card of the fields `fields` names, each drawn from the procedure's input schema (a string a line of text, in the mono with the `mono` hint, an enum a pick, a boolean a switch, a number a numeric line, a list of an enum, or of strings with `options`, a pick of several, a date a date line, a string with the `file` hint a file pick whose file is read into the string, a list with the `lines` hint a line per item, an object with the `json` hint mono JSON source), required unless the schema makes it optional (a pick or a switch with a schema `default` always holds a value, so it is required: no empty choice, no optional word) (in a submit form an optional one says so under its label; a form that commits by field marks nothing), with the server's refusal of its value under it, over a bar whose filled act submits the procedure. The act is pending while the procedure runs and while a promise `onDone` returns settles; then, where the form stays (on a page, its submit going nowhere), the fields go back to `values`; a rejection stands in the bar, and the issues the server's schema refused under their fields until the viewer changes them. A field with a `locked` reason stands inert with it under the control. With `commit: "field"` the form draws no bar and each field sends itself. `groups` partition the fields under bands. While the form stands edited, leaving its page asks once, "Discard your edit?". A form over no procedure (a filter, a local setting) is not a `Form`: a filter is a `Toolbar`, a setting a `Switch` in a row. A form in a sheet is that `Sheet`'s `form`, these same props. */
 export function Form<P extends ProcedureCall>(props: FormProps<P>) {
@@ -184,462 +96,48 @@ export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P> | undefined,
 	stays: boolean,
 ): DerivedFrame | NoFrame {
-	const port = usePort();
-	const words = useWords();
-	const send = port.useSubmit(props?.act);
-	const [draft, setDraft] = useState<Draft>({});
-	const [refused, setRefused] = useState<readonly Issue[]>([]);
-	// The saved secrets the viewer is replacing: their field is the empty input.
-	const [replacing, setReplacing] = useState<readonly string[]>([]);
-	const clear = () => {
-		setDraft({});
-		setRefused([]);
-		setReplacing([]);
-	};
-	// The caller's ability in the route's organization, a read the form paints
-	// under until it lands; no organization answers no. The ids are those the
-	// innermost `ScopeBoundary` above registered, none under no boundary.
-	const can = props?.can;
-	const organizationId = registeredScope().organizationId;
-	const may = can && port.may(organizationId, can);
-	const mayHere = may
-		? may.at((yes) => (yes ? (true as const) : words.denied))
-		: true;
-	const [loaded, allowed] = useSelections([props?.values, mayHere] as const);
-	// A field's description may be a read of its own ("Saved, ends in 1234"): it
-	// draws once it lands, and a description that waits or ended draws none.
-	const described = useSelections(
-		(props?.groups ?? [{ fields: props?.fields }])
-			.flatMap((group) =>
-				Object.entries((group.fields ?? {}) as Record<string, Spec>),
-			)
-			.map(([, spec]) => spec.description),
+	const model = useFormModel<P, Act>(props, stays, { toast });
+	if (!props || model.fields === undefined) return { clear: model.clear };
+	const byField = model.commit === "field";
+	const drawn = (field: FieldModel) => (
+		<FormField
+			key={field.key}
+			label={field.spec.label}
+			description={field.description}
+			error={field.error}
+			optional={field.optional}
+			split={byField}
+			disabled={field.disabled}
+			// `FormField`'s props are a union by control, which a spread of
+			// `controlOf`'s union is not checked against member by member.
+			{...(controlOf(field) as object)}
+		/>
 	);
-	if (!props) return { clear };
-
-	const { act, given, values, submit, onDone, read, empty } = props;
-	const byField = props.commit === "field";
-	const path = pathOf(act);
-	const entry = port.schemaOf(path);
-	if (!entry) {
-		throw new Error(`Form: no schema for ${path}; run \`stack generate\``);
-	}
-	if (entry.kind !== "mutation" || !entry.input) {
-		throw new Error(`Form: ${path} is not a mutation over an object`);
-	}
-	const input = entry.input;
-	const base: Values = loaded.painted ? {} : ((loaded.value as Values) ?? {});
-	const denied =
-		allowed.painted || allowed.value === true
-			? undefined
-			: String(allowed.value);
-
-	const groups = props.groups ?? [{ title: undefined, fields: props.fields }];
-	const specs = groups.flatMap((group) =>
-		Object.entries(group.fields as Record<string, Spec>),
-	);
-	const given_ = (given ?? {}) as Values;
-	// The keys a file field's name goes to are the form's, not the screen's.
-	const named = new Set(
-		specs.flatMap(([, spec]) => (spec.name ? [spec.name] : [])),
-	);
-	const shown = new Map<string, Derived>();
-	for (const [key, spec] of specs) {
-		try {
-			if (spec.control === "file" && !spec.accept) {
-				throw new Error("is a file field with no `accept`");
-			}
-			if (spec.name !== undefined) {
-				if (spec.control !== "file") {
-					throw new Error("names a file's name but is not a file field");
-				}
-				if (!input.properties?.[spec.name]) {
-					throw new Error(
-						`names "${spec.name}" for the file's name, which the input lacks`,
-					);
-				}
-			}
-			shown.set(
-				key,
-				derive(input, key, spec.control, spec.options !== undefined),
-			);
-		} catch (error) {
-			throw new Error(
-				`Form: ${path}.${key} ${error instanceof Error ? error.message : String(error)}`,
-			);
-		}
-	}
-	// The scope's key comes from the route's boundary, never from the form.
-	for (const key of input.required ?? []) {
-		if (
-			key === entry.scope ||
-			key in given_ ||
-			named.has(key) ||
-			shown.has(key)
-		) {
-			continue;
-		}
-		throw new Error(
-			byField
-				? `Form: ${path} commits by field, so it needs "${key}" given`
-				: `Form: ${path} needs "${key}": make it a field or give it`,
-		);
-	}
-
-	// A held pick or picks cut to the choices that stand; a value no longer among
-	// them is cleared.
-	const within = (
-		value: Held | undefined,
-		among: Datum<readonly Option<string>[]> | undefined,
-	): Held | undefined => {
-		if (value === undefined || value === null || isSelection(among) || !among) {
-			return value;
-		}
-		const has = (one: string) => among.some((option) => option.value === one);
-		if (typeof value === "string") return has(value) ? value : undefined;
-		return Array.isArray(value) ? value.filter(has) : value;
-	};
-	// What a field holds: the viewer's, else the form's first value.
-	const holds = (key: string, held: Draft): Held | undefined => {
-		const derived = shown.get(key);
-		if (!derived) return undefined;
-		if (key in held) return held[key];
-		// A saved secret is never read back into its field.
-		return derived.control === "secret"
-			? undefined
-			: toShown(derived, base[key]);
-	};
-	// The masked form of a secret the form holds (its first value, the server's
-	// last characters, never the secret): the field draws it as its hint and
-	// stands a Remove. A required secret has no empty form to remove to.
-	const savedOf = (key: string, derived: Derived): string | undefined => {
-		const first = base[key];
-		return derived.control === "secret" &&
-			!derived.required &&
-			typeof first === "string" &&
-			first !== ""
-			? first
-			: undefined;
-	};
-	const clearRefused = (key: string) =>
-		setRefused((all) => all.filter((issue) => issue.path[0] !== key));
-
-	// The input the fields make from a draft, or why they cannot make one yet,
-	// and the choices each field with options draws (a function of the fields
-	// before it). A change hands `onChange` the input its next draft makes.
-	const specOf = new Map(specs);
-	const make = (held: Draft) => {
-		let blocked: string | undefined = denied;
-		const sent: Record<string, unknown> = { ...given_ };
-		// What a typed text says is wrong with it, by field.
-		const wrong = new Map<string, string>();
-		const choices = new Map<string, Datum<readonly Option<string>[]>>();
-		for (const [key, derived] of shown) {
-			const listed = specOf.get(key)?.options;
-			const narrowed = typeof listed === "function";
-			if (narrowed) {
-				choices.set(key, listed(sent as Partial<Record<string, string>>));
-			} else if (listed) {
-				choices.set(key, listed);
-			}
-			let value = narrowed
-				? within(holds(key, held), choices.get(key))
-				: holds(key, held);
-			if (
-				value === undefined &&
-				derived.control === "switch" &&
-				derived.required
-			) {
-				value = false;
-			}
-			// A saved secret the viewer has not touched is left out: sending it
-			// would erase it.
-			if (
-				derived.control === "secret" &&
-				!(key in held) &&
-				savedOf(key, derived) !== undefined
-			) {
-				continue;
-			}
-			if (value === undefined || isEmpty(derived, value)) {
-				if (derived.nullable) sent[key] = null;
-				else if (derived.required) {
-					blocked ??= requiredReason(
-						words,
-						specOf.get(key)?.label ?? key,
-						derived.control === "pick" || derived.control === "file",
-					);
-				}
-				continue;
-			}
-			const made = toInput(derived, value, words);
-			if (made === "invalid") {
-				blocked ??= invalidReason(words, specOf.get(key)?.label ?? key);
-				continue;
-			}
-			if ("issue" in made) {
-				wrong.set(key, made.issue);
-				blocked ??= made.issue;
-				continue;
-			}
-			sent[key] = made.value;
-		}
-		return { blocked, sent, wrong, choices };
-	};
-	const { blocked, sent, wrong, choices } = make(draft);
-	// The viewer's change: the draft holds it, and the next render's `after`
-	// draws the input it makes.
-	const change = (key: string, next: Held) => {
-		const held = { ...draft, [key]: next };
-		setDraft(held);
-		clearRefused(key);
-	};
-
-	// A picked file goes as the string it is read into.
-	const wire = async (made: Record<string, unknown>): Promise<InputOf<P>> => {
-		const out = { ...made };
-		for (const [key, derived] of shown) {
-			// A file field holds a `PickedFile` (the control decides, `controlOf`).
-			const file = out[key] as PickedFile | undefined;
-			if (derived.control === "file" && file) {
-				out[key] = await readPicked(file, derived.base64);
-				const name = specOf.get(key)?.name;
-				if (name) out[name] = file.name;
-			}
-		}
-		return out as InputOf<P>;
-	};
-
-	// A form that commits by field sends `given` and the one field's key.
-	const commitField = async (key: string, derived: Derived, next: Held) => {
-		const made: Record<string, unknown> = { ...given_ };
-		if (isEmpty(derived, next)) {
-			// An optional pick's empty choice sends the key absent.
-			if (derived.nullable) made[key] = null;
-			else if (derived.control === "several" || derived.control === "lines")
-				made[key] = [];
-			else if (
-				["text", "mono", "prose", "source", "code", "secret"].includes(
-					derived.control,
-				)
-			)
-				made[key] = "";
-			else if (derived.control !== "pick" || derived.required) {
-				throw new Error(
-					requiredReason(words, specOf.get(key)?.label ?? key, false),
-				);
-			}
-		} else {
-			const one = toInput(derived, next, words);
-			if (one === "invalid") {
-				throw new Error(invalidReason(words, specOf.get(key)?.label ?? key));
-			}
-			if ("issue" in one) {
-				setRefused([{ path: [key], message: one.issue }]);
-				return undefined;
-			}
-			made[key] = one.value;
-		}
-		const input = await wire(made);
-		const output = await send(input);
-		setReplacing((all) => all.filter((each) => each !== key));
-		if (!isSelection(values)) {
-			setDraft((all) => ({ ...all, [key]: next }));
-		}
-		if (submit?.done) toast(submit.done);
-		onDone?.(output, input);
-		return output;
-	};
-	// A file's, a list's and json's commit is no draft's save, so its refusal stands under it here.
-	const commitCaught = async (key: string, derived: Derived, next: Held) => {
-		try {
-			await commitField(key, derived, next);
-		} catch (error) {
-			drew(error);
-			setRefused([
-				{ path: [key], message: port.refusal(error) ?? words.actFailed },
-			]);
-		}
-	};
-
-	// Takes a saved secret away: sends what an emptied field means (`null` where
-	// the schema takes it, else the empty string) for that field alone.
-	const removeSecret = async (key: string, derived: Derived) => {
-		const input = await wire({
-			...given_,
-			[key]: derived.nullable ? null : "",
-		});
-		const output = await send(input);
-		setReplacing((all) => all.filter((each) => each !== key));
-		setDraft((all) =>
-			Object.fromEntries(Object.entries(all).filter(([each]) => each !== key)),
-		);
-		clearRefused(key);
-		onDone?.(output, input);
-		return output;
-	};
-
-	const onAct = async () => {
-		try {
-			const input = await wire(sent);
-			const output = await send(input);
-			await onDone?.(output, input);
-			// The fields go back to `values` only where the form stays: a sheet
-			// drops its edits as it opens again and leaves over what was sent, and
-			// a form whose submit goes `to` a page is left as it was.
-			if (stays && submit?.to === undefined) clear();
-			return output;
-		} catch (error) {
-			const found = port.issues(error);
-			if (found.length > 0) {
-				setRefused(found);
-				drew(error);
-				// A value refusal stands under its field: where every issue names a
-				// field the form shows, the bar draws none of them again.
-				if (found.every((issue) => shown.has(String(issue.path[0]))))
-					placed(error);
-			}
-			throw error;
-		}
-	};
-
-	// What a field says under its control, in the order the specs stand.
-	const saying = (key: string): string | undefined => {
-		const at = specs.findIndex(([each]) => each === key);
-		const said = described[at];
-		return said === undefined || said.painted ? undefined : said.value;
-	};
-
-	const drawn = (key: string, spec: Spec) => {
-		const derived = shown.get(key);
-		if (!derived) return null;
-		const held = key in draft ? draft[key] : initial(key, derived);
-		// A selection of the values passes `within` as it is: it is neither a
-		// string nor a list.
-		const value =
-			typeof spec.options === "function"
-				? within(held as Held | undefined, choices.get(key))
-				: held;
-		// A typed text's own issue stands once the viewer has typed it; the
-		// server's own sentence boxes the names it puts between backticks.
-		const said = refused.find((issue) => issue.path[0] === key)?.message;
-		const error =
-			said !== undefined
-				? markedRuns(said)
-				: key in draft
-					? wrong.get(key)
-					: undefined;
-		const file = derived.control === "file";
-		const caught =
-			file || derived.control === "lines" || derived.control === "json";
-		// By field, a typed control keeps its own draft until it commits.
-		const set = (next: Held) =>
-			byField && !file
-				? caught
-					? clearRefused(key)
-					: undefined
-				: change(key, next);
-		const commit = byField
-			? (next: Held) =>
-					caught
-						? commitCaught(key, derived, next)
-						: commitField(key, derived, next)
-			: undefined;
-		const saved = savedOf(key, derived);
-		return (
-			<FormField
-				key={key}
-				label={spec.label}
-				description={spec.locked ?? saying(key)}
-				error={error}
-				optional={!derived.required && !byField}
-				split={byField}
-				disabled={denied !== undefined || spec.locked !== undefined}
-				// `FormField`'s props are a union by control, which a spread of
-				// `controlOf`'s union is not checked against member by member.
-				{...(controlOf(
-					derived,
-					spec,
-					value,
-					choices.get(key),
-					set,
-					commit,
-					pickWords({ required: derived.required, empty: spec.empty }, words),
-					saved === undefined
-						? undefined
-						: {
-								tail: saved.slice(-4),
-								label: spec.label,
-								replacing: replacing.includes(key),
-								replace: () => setReplacing((all) => [...all, key]),
-								remove: () => removeSecret(key, derived),
-							},
-				) as object)}
-			/>
-		);
-	};
-	// A selection of the form's values hands each control its own slice, so it
-	// paints until the read lands; the placeholder stands for every slice of it.
-	const initial = (key: string, derived: Derived): Datum<Held | undefined> =>
-		isSelection(values)
-			? (values as Selection<Values | undefined>).at((all) =>
-					isPlaceholder(all)
-						? (all as never)
-						: derived.control === "secret"
-							? undefined
-							: toShown(derived, all?.[key]),
-				)
-			: derived.control === "secret"
-				? undefined
-				: toShown(derived, base[key]);
-
-	const others = props.acts ?? [];
-	const bar =
-		byField && others.length === 0
-			? undefined
-			: {
-					acts: byField
-						? [...others]
-						: [
-								...others,
-								{
-									...submit,
-									label: submit?.label ?? "Save",
-									blocked,
-									onAct,
-								},
-							],
-				};
-	const frame = read ?? (isSelection(values) ? values : undefined);
-	const outer = [mayHere] as const;
-	const commit = props.commit;
+	const { bar, commit, read } = model;
+	const after = props.after?.(model.sent);
 	return {
-		outer,
-		clear,
-		frame: props.groups
+		outer: model.outer,
+		clear: model.clear,
+		frame: model.groups
 			? {
 					bar,
 					commit,
-					after: props.after?.(sent as Partial<InputOf<P>>),
-					read: frame,
-					empty,
-					groups: props.groups.map((group) => ({
+					after,
+					read,
+					empty: props.empty,
+					groups: model.groups.map((group) => ({
 						title: group.title,
 						description: group.description,
-						fields: Object.entries(group.fields as Record<string, Spec>).map(
-							([key, spec]) => drawn(key, spec),
-						),
+						fields: group.fields.map(drawn),
 					})),
 				}
 			: {
 					bar,
 					commit,
-					after: props.after?.(sent as Partial<InputOf<P>>),
-					read: frame,
-					empty,
-					children: Object.entries(props.fields as Record<string, Spec>).map(
-						([key, spec]) => drawn(key, spec),
-					),
+					after,
+					read,
+					empty: props.empty,
+					children: model.fields.map(drawn),
 				},
 	};
 }
@@ -652,22 +150,8 @@ export function useDerivedForm<P extends ProcedureCall>(
 // is (a switch a boolean, a file a `PickedFile`, a pick a string or `null`,
 // several picks a list, any other a string), which the union does not
 // follow: each control reads the value as its own.
-function controlOf(
-	derived: Derived,
-	spec: Spec,
-	value: Datum<Held | undefined>,
-	choices: Datum<readonly Option<string>[]> | undefined,
-	set: (next: Held) => unknown,
-	commit: ((next: Held) => unknown) | undefined,
-	said: PickWords,
-	saved?: {
-		tail: string;
-		label: string;
-		replacing: boolean;
-		replace: () => void;
-		remove: () => Promise<unknown>;
-	},
-) {
+function controlOf(field: FieldModel) {
+	const { derived, spec, value, options, set, commit, said, saved } = field;
 	const text = (value ?? "") as Datum<string>;
 	const onText = (next: string) => set(next);
 	const onCommit = commit && ((next: string) => commit(next));
@@ -773,7 +257,7 @@ function controlOf(
 		case "several":
 			return {
 				picker: {
-					options: optionsOf(derived, choices, said.none),
+					options,
 					placeholder: said.several,
 					value: value as Datum<readonly string[]>,
 					onChange: (next: string[]) => done(next),
@@ -782,7 +266,7 @@ function controlOf(
 		case "pick":
 			return {
 				picker: {
-					options: optionsOf(derived, choices, said.none),
+					options,
 					placeholder: said.one,
 					value: value as Datum<string | null>,
 					onChange: (next: string | null) => done(next),
@@ -792,7 +276,7 @@ function controlOf(
 			return spec.options
 				? {
 						picker: {
-							options: optionsOf(derived, choices, said.none),
+							options,
 							placeholder: said.one,
 							value: (isSelection(value)
 								? value.at(heldPick)
