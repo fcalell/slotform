@@ -181,10 +181,11 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 	const painted = h.painted || b.painted || a.painted;
 	// The hunks derive once per text pair, and not while the diff paints.
 	const shown = useMemo(() => {
-		if (painted) return [];
-		const given = h.value as readonly Hunk[] | undefined;
-		return given ?? lineHunks(b.value as string, a.value as string);
-	}, [painted, h.value, b.value, a.value]);
+		if (h.painted || b.painted || a.painted) return [];
+		// `DiffProps` gives both texts wherever it gives no hunks; the read's
+		// tuple keeps no link between its members.
+		return h.value ?? lineHunks(b.value as string, a.value as string);
+	}, [h.painted, b.painted, a.painted, h.value, b.value, a.value]);
 	// On touch one number column stands, the new side or the only one.
 	const touch = useTouch();
 	const numbers = numbersAt(numbersOf(shown), touch);

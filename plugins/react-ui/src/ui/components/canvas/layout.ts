@@ -369,7 +369,8 @@ export function useLayout({
 			const at = computed.get(id);
 			if (at && !hollow.includes(id)) onMove(id, at);
 		}
-		// The consumer's positions commit before the frame.
+		// The consumer's positions commit before the frame; no event marks that
+		// commit.
 		if (laid.arranged)
 			requestAnimationFrame(() => {
 				latest.current?.();

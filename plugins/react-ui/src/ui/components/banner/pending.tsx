@@ -52,20 +52,16 @@ export function Fill(props: { run: PendingRun; now: number }) {
 	const { run } = props;
 	const [at] = useState(Date.now);
 	const reduced = useReducedMotion();
-	const share = reduced ? pendingShare(run, props.now) : 1;
-	return (
-		<span
-			aria-hidden
-			className={cn(PENDING_FILL, FILL)}
-			style={
-				{
-					"--fill": share,
-					"--from": pendingShare(run, at),
-					"--ms": Math.max(0, run.end - at),
-				} as CSSProperties
-			}
-		/>
-	);
+	const fill: CSSProperties & {
+		"--fill": number;
+		"--from": number;
+		"--ms": number;
+	} = {
+		"--fill": reduced ? pendingShare(run, props.now) : 1,
+		"--from": pendingShare(run, at),
+		"--ms": Math.max(0, run.end - at),
+	};
+	return <span aria-hidden className={cn(PENDING_FILL, FILL)} style={fill} />;
 }
 
 /** Work the page waits on, in an ActionBar's place: the `pending` an `ActionBar` takes, at the bar's own height. Outside the package's exports; a place that held no bar draws a `Banner` with `until`. */

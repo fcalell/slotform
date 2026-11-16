@@ -28,7 +28,8 @@ export function RowProgress(props: {
 			>
 				<div
 					className={meterFill({ level: levelOf(share, undefined, true) })}
-					// The fill is the whole track scaled to the task's share.
+					// The fill is the whole track scaled to the task's share; a custom
+					// property is no key of `CSSProperties`.
 					style={{ "--fill": share } as CSSProperties}
 				/>
 			</div>

@@ -242,7 +242,10 @@ function savedOf(props: Body, kind: ControlKind | undefined): Datum<unknown> {
 }
 
 // The control a field draws: the descriptor's control over the draft the field
-// holds, or its children, bound drawn from the field's value.
+// holds, or its children, bound drawn from the field's value. The field holds
+// one draft for whichever control its props name, so the draft is `unknown`
+// and each control reads it as its own value; a pick's `onChange` is read at
+// its widest, as `FormField` reads the descriptors.
 function controlOf(
 	props: Body,
 	kind: ControlKind | undefined,

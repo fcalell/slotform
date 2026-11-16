@@ -136,6 +136,9 @@ export function Rows(props: RowsInternal) {
 	const items: readonly Row[] = groups
 		? [...loaded].sort((a, b) => rank(a) - rank(b))
 		: loaded;
+	// Every index below is one a loop, the window or `treeMove` hands out over
+	// the list it reads, so it is in range: the index casts are what
+	// `noUncheckedIndexedAccess` cannot see.
 	// The next page loads as the window reaches the last row loaded.
 	const reach = useReach(items.length);
 	// A sheet is a tree once any of its list items declares `children`.

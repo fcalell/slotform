@@ -32,10 +32,10 @@ export function WordDiff(props: {
 	const ended = from.painted || to.painted;
 	// The runs derive once per text pair, and not while the text paints.
 	const runs = useMemo(() => {
-		if (ended) return [];
+		if (from.painted || to.painted) return [];
 		// A run marks its words alone, its edge whitespace standing outside it;
 		// each run is keyed by where it starts in the two texts read together.
-		const parts = diffWords(from.value as string, to.value as string);
+		const parts = diffWords(from.value, to.value);
 		let at = 0;
 		const drawn: ReactNode[] = [];
 		parts.forEach((part, index) => {
@@ -74,7 +74,7 @@ export function WordDiff(props: {
 			drawn.push(trail);
 		});
 		return drawn;
-	}, [ended, from.value, to.value]);
+	}, [from.painted, to.painted, from.value, to.value]);
 	if (painted)
 		return (
 			<div inert className={cn(CARD, FRAME)}>

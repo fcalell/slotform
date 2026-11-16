@@ -162,6 +162,7 @@ function paintOf<V extends string | null, Q>(
 	if (!isSelection(items)) return undefined;
 	const one = sampleOf(items);
 	if (one === undefined || "path" in one) return undefined;
+	// The default `RowItem`, which reads no `V`: a `V` row is not assignable to it.
 	const row = one as RowItem;
 	// Facts the selector passes through whole (`facts: record.facts`) sample
 	// as the placeholder itself, a word where the facts stand: they paint one
@@ -197,17 +198,17 @@ function PartsSection(props: Parts) {
 	return <Titled {...props} list={false} frame={frame} body={body} />;
 }
 
-const NO_ROWS: readonly RowData[] = [];
+const NO_ROWS: readonly Row[] = [];
 
 // The selections a pick row draws its options from, a tree's children too: the
 // reads the sheet says once, where each row's picker would say it again.
-function optionsOf(rows: readonly RowData[]): Selection<unknown>[] {
+function optionsOf(rows: readonly Row[]): Selection<unknown>[] {
 	return rows.flatMap((row) => {
 		if ("path" in row) return [];
 		const own = row.pick?.options;
 		return [
 			...(isSelection(own) ? [own] : []),
-			...optionsOf((row.children ?? []) as readonly RowData[]),
+			...optionsOf(row.children ?? []),
 		];
 	});
 }
@@ -217,6 +218,8 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 	// One row given alone is a value, not a list: it stands as a list of one,
 	// and its head counts nothing (a count is a list's).
 	const one = !Array.isArray(props.items) && !isSelection(props.items);
+	// `Array.isArray` narrows no readonly array out of `items`, and `one` holds
+	// the test apart from the value it tested.
 	const items = (one ? [props.items] : props.items) as Datum<
 		readonly Row<V, Q>[]
 	>;
@@ -233,6 +236,7 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 						isSelection(items) ? values[0] : items,
 					)
 				: items;
+	// `combine` over the rows and the bands answers `unknown`; its answer is the rows.
 	const collection = useCollection(whole as Datum<readonly Row<V, Q>[]>);
 	const { drawn } = collection;
 	const [bands] = useSelections([groups] as const);
@@ -240,13 +244,15 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 	// empty form stands (`empty`, else the generic sentence), never a sheet
 	// with nothing on it.
 	const frame: Frame =
-		!isSelection(whole) && (items as readonly Row<V, Q>[]).length === 0
+		!isSelection(items) && !isSelection(groups) && items.length === 0
 			? { ...collection.frame, form: "empty" }
 			: collection.frame;
 	// The sheet is the box the rows stand in, which they window in.
 	const box = useRef<HTMLDivElement>(null);
-	// A flat sheet orders its rows as the viewer moved them.
-	const loaded = drawn.painted ? NO_ROWS : (drawn.value as readonly RowData[]);
+	// A flat sheet orders its rows as the viewer moved them. The sheet draws a
+	// row of any `V` and `Q` as the default `Row`, which reads neither: a `V`
+	// row is not assignable to it (its pick's `value` may be `null`).
+	const loaded = drawn.painted ? NO_ROWS : (drawn.value as readonly Row[]);
 	const { rows: ordered, movable } = useMovable({
 		reorder: props.reorder,
 		on:
@@ -256,7 +262,7 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 			!loaded.some((row) => "children" in row && row.children !== undefined),
 		source: drawn.painted ? undefined : drawn.value,
 		rows: loaded,
-		idOf: keyOf as (row: RowData) => string,
+		idOf: keyOf,
 		box,
 	});
 	// While the rows wait they paint in the shape the items' selector gives one
@@ -273,9 +279,7 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 			<PicksLine rows={loaded} />
 			<SheetCard box={box}>
 				<Rows
-					drawn={
-						(drawn.painted ? drawn : { ...drawn, value: ordered }) as never
-					}
+					drawn={drawn.painted ? drawn : { ...drawn, value: ordered }}
 					more={pagesOf(items)}
 					box={box}
 					paint={paint}
@@ -284,6 +288,7 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 					counted={
 						!one &&
 						title !== undefined &&
+						// A painted value is the read's placeholder, a list of rows too.
 						!factsOnly(drawn.value as readonly Row[])
 					}
 				/>
@@ -325,7 +330,7 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 // What the sheet says once of the options its rows' picks read: a row's pick
 // draws its box blocked (inert) when its options ended, the sentence and the
 // retry stand here, a line over the sheet, never repeated in every row.
-function PicksLine({ rows }: { rows: readonly RowData[] }) {
+function PicksLine({ rows }: { rows: readonly Row[] }) {
 	const words = useWords();
 	const options = optionsOf(rows);
 	const picks =

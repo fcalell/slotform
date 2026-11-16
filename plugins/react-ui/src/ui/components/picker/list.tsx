@@ -345,6 +345,8 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	const painted = rowsPaint || (draft.painted && draft.ended === undefined);
 	// The placeholder is no array, so a painted value is one choice.
 	const one = !Array.isArray(draft.value);
+	// The value and `onChange` are typed apart, so the compiler cannot see
+	// that a set's value comes with a set's `onChange`.
 	const choice = {
 		value: draft.painted ? (one ? null : []) : draft.value,
 		onChange: (next: V | V[]) => {
@@ -357,7 +359,9 @@ export function PickerListBase<V extends string = string, T = unknown>(
 		() =>
 			rowsPaint
 				? paintedGroups<V>(option)
-				: (props.options ??
+				: // A source without `options` holds `items` and `option`; `??`
+					// does not narrow the union to that form.
+					(props.options ??
 					optionsOf(items as readonly T[], option as OptionSlots<T, V>)),
 		[rowsPaint, option, props.options, items],
 	);
@@ -385,6 +389,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	// controlled while nothing is chosen.
 	const list = one ? (
 		<RadioGroup<V | null>
+			// `one` holds that the value is no array.
 			value={choice.value as V | null}
 			onValueChange={(next) => {
 				if (next !== null) choose(choice, next);
@@ -419,9 +424,12 @@ export function HeldList<V extends string = string, T = unknown>(
 	const { value, onChange, label, children, ...source } = props;
 	return (
 		<PickerListBase<V, T>
+			// The rest of a union's props loses which form it was.
 			{...(source as PickerListBody<V, T>)}
 			label={label}
 			draft={useHeldDraft<V | null | readonly V[]>(value)}
+			// The props pair a set's value with a set's `onChange`; the
+			// destructured `onChange` lost that pairing.
 			onChange={onChange as (next: V | V[]) => unknown}
 		>
 			{children}

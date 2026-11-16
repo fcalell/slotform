@@ -108,6 +108,8 @@ function Bare({ props, label }: { props: InputProps; label: string }) {
 export function Input(allProps: InputProps) {
 	const { label, description, optional, error, ...props } = allProps;
 	const owned = use(FieldOwned);
+	// A rest of the union is not distributed over its kinds, so it loses the
+	// `kind` each switch below narrows by; the cast puts the union back.
 	const control = props as InputProps;
 	if (owned || control.kind === "search")
 		return <Bare props={control} label={label} />;

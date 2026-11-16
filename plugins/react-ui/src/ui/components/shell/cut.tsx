@@ -62,8 +62,9 @@ export function CutText() {
 			show(null, false);
 			hid();
 		};
-		const onMove = (event: PointerEvent) => {
-			if (event.pointerType === "touch") return;
+		const onMove = (event: Event) => {
+			if (!(event instanceof PointerEvent) || event.pointerType === "touch")
+				return;
 			const target = event.target;
 			if (!(target instanceof Element)) return;
 			if (open?.contains(target)) return;
@@ -74,25 +75,25 @@ export function CutText() {
 				rest,
 			);
 		};
-		const onFocus = (event: FocusEvent) => {
+		const onFocus = (event: Event) => {
 			hide();
 			const target = event.target;
 			if (target instanceof Element && target.matches(":focus-visible"))
 				show(cutWithin(target), true);
 		};
-		const onKey = (event: KeyboardEvent) => {
-			if (event.key === "Escape") hide();
+		const onKey = (event: Event) => {
+			if (event instanceof KeyboardEvent && event.key === "Escape") hide();
 		};
 		const options = { capture: true, passive: true };
 		const on: [string, EventListener][] = [
-			["pointermove", onMove as EventListener],
+			["pointermove", onMove],
 			["pointerdown", hide],
 			["pointerleave", hide],
 			["scroll", hide],
 			["wheel", hide],
-			["focusin", onFocus as EventListener],
+			["focusin", onFocus],
 			["focusout", hide],
-			["keydown", onKey as EventListener],
+			["keydown", onKey],
 		];
 		for (const [type, fn] of on) document.addEventListener(type, fn, options);
 		document.documentElement.addEventListener("pointerleave", hide);

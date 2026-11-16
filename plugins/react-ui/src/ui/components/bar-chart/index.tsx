@@ -100,6 +100,10 @@ const PLOT = "relative";
 const GRID = "absolute inset-x-0 top-0 flex flex-col";
 const GRID_BAND = "flex-1";
 const BARS = "relative flex";
+// A style that sets the chart's custom properties beside the standard ones.
+type ChartStyle = CSSProperties & {
+	[custom: `--${string}`]: number | string | undefined;
+};
 // A bar's slot is its region: the plot's height, the bar standing on its
 // floor.
 const REGION = "flex flex-col justify-end items-center";
@@ -150,6 +154,8 @@ const CATEGORY_NAME = "whitespace-nowrap";
 // the page, so the theme's size knob moves it), for a categorical axis's stride
 // (`axisStride`): how many names fit side by side is a measure of the drawn
 // width, which no container query can count. Undefined before it is measured.
+// It measures only while `on` (an axis of names): a hook cannot stand behind
+// the condition.
 function usePlotWidth(
 	ref: { readonly current: HTMLElement | null },
 	on: boolean,
@@ -281,18 +287,16 @@ const BarSlot = memo(function BarSlot(props: {
 	const { bar, keys, top, floor, level } = props;
 	// A part is the whole column scaled to its share of the axis top and lifted
 	// over the parts under it, one clear line higher for each of them that draws.
-	const fill = (value: number, under: number, gap: number) =>
-		({
-			"--fill": value / top,
-			"--stack": `calc(${(under / top) * 100}% + ${gap} * var(--spacing-hairline))`,
-		}) as CSSProperties;
+	const fill = (value: number, under: number, gap: number): ChartStyle => ({
+		"--fill": value / top,
+		"--stack": `calc(${(under / top) * 100}% + ${gap} * var(--spacing-hairline))`,
+	});
 	const values = keys?.map((key) => part(bar, key)) ?? [];
 	const gaps = lifts(values);
 	// A reading travels down from the plot's top by the share it stands under it.
-	const travel = (value: number) =>
-		({
-			"--travel": `${(1 - chartShare(value, { floor, top })) * 100}%`,
-		}) as CSSProperties;
+	const travel = (value: number): ChartStyle => ({
+		"--travel": `${(1 - chartShare(value, { floor, top })) * 100}%`,
+	});
 	return (
 		<div
 			className={cn(
@@ -419,7 +423,13 @@ export function BarChart<T>(props: BarChartProps<T>) {
 		painted || !leveled || !spanFlat(span, (value) => figure.format(value));
 	// The plot's slots: a short series stands in the first of them.
 	const slotCount = chartSlots(series.length);
-	const slots = { "--slots": slotCount } as CSSProperties;
+	const slots: ChartStyle = { "--slots": slotCount };
+	const spanned = (span: number): ChartStyle => ({ "--span": span });
+	const timed: ChartStyle = { "--time": TIME_ROOM * longest };
+	const roomAt = (index: number, room: number | undefined): ChartStyle => ({
+		"--room": room,
+		insetInlineStart: `${((index + 0.5) / slotCount) * 100}%`,
+	});
 	const word = unit ? spanUnit(unit, total) : undefined;
 	const keyTotals = labels.map((label, at) => ({
 		label,
@@ -566,6 +576,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 											))}
 										</div>
 										<div ref={bars} className={BARS}>
+											{/* The window hands out indices under `count`, so each is in range: the `Bar` casts are what `noUncheckedIndexedAccess` cannot see. */}
 											<Window
 												horizontal
 												count={series.length}
@@ -594,7 +605,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 												return (
 													<span
 														key={series[from]?.key}
-														style={{ "--span": span } as CSSProperties}
+														style={spanned(span)}
 														className={cn(
 															text({ role: "meta" }),
 															FIGURES,
@@ -627,11 +638,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 										))}
 									</div>
 								) : start || end || between.length > 0 ? (
-									<div
-										aria-hidden
-										style={{ "--time": TIME_ROOM * longest } as CSSProperties}
-										className={TIMES}
-									>
+									<div aria-hidden style={timed} className={TIMES}>
 										{start ? (
 											<span
 												className={cn(
@@ -662,12 +669,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 										{between.map(({ index, time, room }) => (
 											<span
 												key={index}
-												style={
-													{
-														"--room": room,
-														insetInlineStart: `${((index + 0.5) / slotCount) * 100}%`,
-													} as CSSProperties
-												}
+												style={roomAt(index, room)}
 												className={cn(
 													text({ role: "meta" }),
 													FIGURES,

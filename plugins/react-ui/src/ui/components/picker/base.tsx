@@ -296,6 +296,7 @@ function PickAct(props: {
 	onFocus?: () => void;
 }) {
 	const { act } = props;
+	// Only PickerBase's lists draw it, inside its `PickActing`.
 	const acting = use(PickActing);
 	if (!acting) return null;
 	// An option's row, in the popover and the touch sheet alike, so on touch it
@@ -408,7 +409,8 @@ function viewerPicked<V extends string | null>(
 		...next.filter((value) => !before.includes(value)),
 		...before.filter((value) => !next.includes(value)),
 	];
-	return changed.length === 1 && holds(changed[0] as V);
+	const [only] = changed;
+	return changed.length === 1 && only !== undefined && holds(only);
 }
 
 // `Array.isArray` narrows a readonly array to `any[]`; this keeps its items.
@@ -436,6 +438,8 @@ export function PickerBase<V extends string | null = string>(
 	// says why and opens nothing, so nothing can be picked.
 	const ended = draft.ended !== undefined;
 	const painted = given.painted || (draft.painted && !ended) || waiting.painted;
+	// The draft's value and the given `onChange` are typed apart, so the
+	// compiler cannot see that a set's value comes with a set's `onChange`.
 	const props = {
 		...given,
 		value: draft.painted ? undefined : draft.value,
@@ -689,51 +693,54 @@ export function PickerBase<V extends string | null = string>(
 			</span>
 		</button>
 	);
+	const button = (handed: ComponentProps<"button">) => (
+		<button
+			{...handed}
+			type="button"
+			aria-label={named}
+			tabIndex={given.tabIndex === -1 ? -1 : handed.tabIndex}
+			disabled={form?.disabled}
+			inert={painted || undefined}
+			aria-disabled={ended || undefined}
+			className={cn(
+				fit === "row"
+					? cn(WORD_ACT, picker({ fit }), ROW_TRIGGER, open && ROW_OPEN)
+					: cn(
+							fieldBox,
+							picker({ fit }),
+							fit !== "pill" && FIELD_GLYPH,
+							FIELD_TRIGGER,
+							quiet && !open && FIELD_QUIET,
+							open && FIELD_OPEN,
+							open && !form?.invalid && OPEN_EDGE,
+							fit === "pill" ? PICKER_PILL : states,
+						),
+				painted && PAINTED,
+			)}
+		>
+			{fit === "pill" && given.state ? <StatusDot tone={given.state} /> : null}
+			{glyph}
+			{fit === "row" ? rowValue : fieldShown}
+			{kind}
+			<Turn
+				name="ChevronDown"
+				fit={fit === "row" || fit === "pill" ? "meta" : "control"}
+				turned={open}
+				by="half"
+			/>
+		</button>
+	);
+	// The bar's pill wears its name as a tooltip on a pointer, as an icon act
+	// does, so a label its share of the bar cuts is read whole.
 	const own = (handed: ComponentProps<"button">) =>
 		several ? (
 			severalBox(handed, several)
 		) : fit === "row" && (fact || stateful) ? (
 			pill(handed)
+		) : fit === "pill" ? (
+			<Named label={named}>{button(handed)}</Named>
 		) : (
-			<NamedWhen on={fit === "pill"} label={named}>
-				<button
-					{...handed}
-					type="button"
-					aria-label={named}
-					tabIndex={given.tabIndex === -1 ? -1 : handed.tabIndex}
-					disabled={form?.disabled}
-					inert={painted || undefined}
-					aria-disabled={ended || undefined}
-					className={cn(
-						fit === "row"
-							? cn(WORD_ACT, picker({ fit }), ROW_TRIGGER, open && ROW_OPEN)
-							: cn(
-									fieldBox,
-									picker({ fit }),
-									fit !== "pill" && FIELD_GLYPH,
-									FIELD_TRIGGER,
-									quiet && !open && FIELD_QUIET,
-									open && FIELD_OPEN,
-									open && !form?.invalid && OPEN_EDGE,
-									fit === "pill" ? PICKER_PILL : states,
-								),
-						painted && PAINTED,
-					)}
-				>
-					{fit === "pill" && given.state ? (
-						<StatusDot tone={given.state} />
-					) : null}
-					{glyph}
-					{fit === "row" ? rowValue : fieldShown}
-					{kind}
-					<Turn
-						name="ChevronDown"
-						fit={fit === "row" || fit === "pill" ? "meta" : "control"}
-						turned={open}
-						by="half"
-					/>
-				</button>
-			</NamedWhen>
+			button(handed)
 		);
 	const trigger = drawn
 		? (handed: ComponentProps<"button">) => drawn(handed, open)
@@ -807,20 +814,6 @@ export function PickerBase<V extends string | null = string>(
 	);
 }
 
-// The bar's pill wears its name as a tooltip on a pointer, as an icon act does,
-// so a label its share of the bar cuts is read whole.
-function NamedWhen(props: {
-	on: boolean;
-	label: string;
-	children: ReactElement;
-}) {
-	return props.on ? (
-		<Named label={props.label}>{props.children}</Named>
-	) : (
-		props.children
-	);
-}
-
 /** A Picker that holds its own draft, as a bare one and a row's pick do; a rejection toasts. Outside the package's exports. */
 export function HeldPicker<V extends string | null = string>(
 	props: Omit<PickOneProps<V>, "fit"> & Composed,
@@ -838,6 +831,8 @@ export function HeldPicker<V extends string | null = string>(
 	return (
 		<PickerBase<V>
 			draft={useHeldDraft<V | readonly V[] | undefined>(value)}
+			// The overloads pair a set's value with a set's `onChange`; the
+			// implementation's one signature cannot.
 			onChange={onChange as (next: V | V[]) => unknown}
 			label={label}
 			placeholder={placeholder}
@@ -923,6 +918,7 @@ function PickList<V extends string | null>(
 			modal={false}
 			multiple={props.several !== undefined}
 			value={props.several ? [...props.several.value] : (props.value ?? null)}
+			// Base UI types `next` by `multiple`, which is decided at run time.
 			onValueChange={(next) => {
 				if (props.several) props.several.onChange(next as V[]);
 				else props.pick(next as V);
@@ -1187,6 +1183,7 @@ function PickSearch<V extends string | null>(
 			autoHighlight
 			multiple={props.several !== undefined}
 			value={props.several ? props.chosen : (props.current ?? null)}
+			// Base UI types `next` by `multiple`, which is decided at run time.
 			onValueChange={(next) => {
 				if (props.several)
 					props.several.onChange((next as Option<V>[]).map((one) => one.value));
@@ -1503,7 +1500,8 @@ function PickRows<V extends string | null>(
 				aria-multiselectable={props.several ? true : undefined}
 				aria-label={props.label}
 				onKeyDown={(event) => {
-					const target = event.target as HTMLElement;
+					const { target } = event;
+					if (!(target instanceof HTMLElement)) return;
 					if (target.getAttribute("role") !== "option") return;
 					// The arrows wrap and Home and End go to the ends, over every
 					// option, mounted or not.
@@ -1525,7 +1523,8 @@ function PickRows<V extends string | null>(
 					setWanted({ index: next });
 				}}
 				onFocus={(event) => {
-					const target = event.target as HTMLElement;
+					const { target } = event;
+					if (!(target instanceof HTMLElement)) return;
 					if (target.getAttribute("role") !== "option") return;
 					setActive(listed[indexOf(target)]?.value);
 				}}

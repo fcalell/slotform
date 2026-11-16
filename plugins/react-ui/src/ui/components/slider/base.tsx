@@ -74,8 +74,10 @@ export function SliderBase({
 	// under it. Base UI's `center` alignment places the thumb by the value
 	// alone, measuring nothing, and maps the pointer over the track's content
 	// box, the track less the knob.
-	const share =
-		max > min ? Math.min(1, Math.max(0, (at - min) / (max - min))) : 0;
+	const track: CSSProperties & { "--share": number } = {
+		"--share":
+			max > min ? Math.min(1, Math.max(0, (at - min) / (max - min))) : 0,
+	};
 	return (
 		<Base.Root
 			value={at}
@@ -116,7 +118,7 @@ export function SliderBase({
 					TRACK,
 					painted && cn(PAINT_CONTROL, "*:invisible"),
 				)}
-				style={{ "--share": share } as CSSProperties}
+				style={track}
 			>
 				<span
 					className={cn(SLIDER_FILL, FILL)}

@@ -69,7 +69,13 @@ const RETRY = "flex min-w-0 items-center text-start min-h-target";
 // holding it, it draws the failed form itself (the label stays, the figure slot
 // shows the failure mark and the retry icon, the line under reads "This didn't
 // load."); a read an enclosing frame holds draws nothing of its own.
-function Cell({ item, at }: { item: StatsItem; at: number }) {
+function Cell({
+	item,
+	at,
+}: {
+	item: Extract<StatsItem, { bound?: never }>;
+	at: number;
+}) {
 	const words = useWords();
 	const [figure] = useSelections([item.value]);
 	const { ended: held, busy, retry } = useRow([item.value]);
@@ -107,13 +113,13 @@ function Cell({ item, at }: { item: StatsItem; at: number }) {
 				<a
 					href={item.href}
 					onClick={follow}
-					aria-label={item.label as string}
+					aria-label={item.label}
 					className={HIT}
 				/>
 			) : null}
 			<span className={LABEL_LINE}>
 				<span className={cn(text({ role: "meta" }), LABEL, "min-w-0 grow")}>
-					{item.label as string}
+					{item.label}
 				</span>
 				{opens ? (
 					<span
@@ -129,7 +135,7 @@ function Cell({ item, at }: { item: StatsItem; at: number }) {
 					onClick={() => {
 						if (!busy) void retry();
 					}}
-					aria-label={`${words.retry} ${item.label as string}`}
+					aria-label={`${words.retry} ${item.label}`}
 					className={cn(STATS_FIGURE, RETRY)}
 				>
 					<FailedMark />

@@ -228,6 +228,8 @@ function ReplyTurn<T>(props: {
 	const begun = useStreamed(form === "waiting" ? [WAITING] : [], !painted);
 	if (painted || form === "none") return null;
 	if (form === "waiting") return <WaitingReply arrives={begun.has(WAITING)} />;
+	// `useFrameRead` reads the turn untyped (`turnOf` over the held read): its
+	// value is the `reply`'s.
 	const item = value as T | null | undefined;
 	// History holds the turn already: it draws it, so this one steps aside.
 	if (item != null && slots.current.key(item) === after) return null;
@@ -267,6 +269,9 @@ function messageAt<T>(
 				at={index}
 			/>
 		);
+	// The window hands out indices under the items' count, so this one and the
+	// one before it are in range: the `T` casts are what
+	// `noUncheckedIndexedAccess` cannot see.
 	const item = drawn.value[index] as T;
 	const key = props.message.key(item);
 	// The other author's turn in a thread that waits on a reply is that reply:
@@ -473,7 +478,8 @@ function Log<T>(props: {
 								keyOf={(index) =>
 									drawn.painted
 										? index
-										: thread.message.key(drawn.value[index] as T)
+										: // An index under `count` is in range (`messageAt`).
+											thread.message.key(drawn.value[index] as T)
 								}
 								row={(index) =>
 									messageAt(thread, drawn, slots, arrived, awaits, index)

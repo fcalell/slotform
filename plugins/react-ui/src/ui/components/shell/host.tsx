@@ -64,7 +64,7 @@ export function FrameHost({ children }: { children: ReactNode }) {
 	);
 }
 
-/** The frame's `main`: its page and the toasts' layer over it. */
+/** The frame's `main`: its page and the toasts' layer over it. It stands inside a `FrameHost`, whose popups' container it mounts. */
 export function FrameMain(props: { children: ReactNode; className?: string }) {
 	const words = useWords();
 	const slot = use(PortalSlot);

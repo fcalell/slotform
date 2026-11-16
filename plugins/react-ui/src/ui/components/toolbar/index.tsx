@@ -91,6 +91,8 @@ export function Toolbar({
 							filters.map((filter) => (
 								<HeldPicker
 									key={filter.label}
+									// A pick of several holds strings, whose `string[]` change the
+									// picker's `(string | null)[]` one cannot take; it never gives null.
 									{...(filter as PickerMenuProps<string | null>)}
 									fit="bar"
 								/>

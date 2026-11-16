@@ -57,7 +57,7 @@ export function FilterChip({ filter }: { filter: FilterProp }) {
 	return (
 		<ChipBase
 			family="neutral"
-			label={filterChip(filter, drawn.painted ? [] : (drawn.value as never))}
+			label={filterChip(filter, drawn.painted ? [] : drawn.value)}
 			onRemove={() => acting.run(true, { onAct: () => clear(filter) })}
 		/>
 	);
@@ -76,7 +76,13 @@ function Fields(props: { filters: readonly FilterProp[]; set: number }) {
 	return (
 		<div ref={panel} className={cn(TOOLBAR_FILTERS, PANEL)}>
 			{props.filters.map(({ label, ...picker }) => (
-				<FormField key={label} label={label} picker={picker as never} />
+				<FormField
+					key={label}
+					label={label}
+					// A pick of several holds strings, whose `string[]` change the
+					// field's `(string | null)[]` one cannot take; it never gives null.
+					picker={picker as never}
+				/>
 			))}
 			{props.set > 0 ? (
 				<div className={CLEAR}>

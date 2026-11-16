@@ -37,14 +37,10 @@ export const GroupName = createContext<{ labelledBy: string } | undefined>(
 // out of the tab order (the grid's cursor reaches it); a number reads
 // end-aligned in tabular figures, as the cell does. A control mounted with
 // `starts` is the edit the keyboard or a tap started (the cell mounts it
-// afresh): a typed one takes focus, a pick mounts with its list open. `done`
-// hears the pick's list gone, its leave played, and `home` is the cell, where
-// the closing list hands focus back.
+// afresh), so it takes focus.
 export interface CellFit {
 	label: string;
 	starts: boolean;
-	done: () => void;
-	home: () => HTMLElement | undefined;
 }
 
 // An `Input` a row draws with no `FormField` around it (a list row's entry, a

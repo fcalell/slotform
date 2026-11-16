@@ -128,9 +128,10 @@ export function PlaceTree(props: {
 			aria-label={label}
 			onKeyDown={onKeyDown}
 			onFocus={(event) => {
-				const key = (event.target as HTMLElement).closest<HTMLElement>(
-					'[role="treeitem"]',
-				)?.dataset.key;
+				const { target } = event;
+				if (!(target instanceof HTMLElement)) return;
+				const key =
+					target.closest<HTMLElement>('[role="treeitem"]')?.dataset.key;
 				if (key !== undefined) setActive(key);
 			}}
 			className={TREE}
@@ -198,6 +199,7 @@ function TreeRow(props: {
 			data-key={spec.route}
 			{...mark}
 			{...hold}
+			// A custom property is no key of `CSSProperties`.
 			style={{ "--level": props.depth } as CSSProperties}
 			className={cn(
 				placeRow({ state }),

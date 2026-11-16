@@ -258,7 +258,7 @@ export function NodeView({
 	const linked = useRef<CanvasPoint | null>(null);
 	const moved = useRef(false);
 	// The click that ends a drag is armed to be swallowed until it arrives or a
-	// task passes.
+	// task passes: a release off the node fires no click, and no event says so.
 	const armed = useRef(false);
 	// A glyph activated by a key hands its focus to the card that replaces it.
 	const refocus = useRef(false);

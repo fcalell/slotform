@@ -111,26 +111,25 @@ function rowOf(item: MenuEntry, highlighted: boolean): string {
 	);
 }
 
+// The row each key moves the focus to, from the row at `at` of `count`.
+const MOVES: Record<string, (at: number, count: number) => number> = {
+	ArrowDown: (at, count) => (at + 1) % count,
+	ArrowUp: (at, count) => (at - 1 + count) % count,
+	Home: () => 0,
+	End: (_, count) => count - 1,
+};
+
 // The touch sheet's rows are buttons the arrow keys, Home and End move
 // through, the way a popover's rows move under Base UI.
 function moveFocus(event: KeyboardEvent<HTMLElement>): void {
+	const move = MOVES[event.key];
+	if (!move) return;
 	const rows = [
 		...event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]'),
 	];
-	const at = rows.indexOf(document.activeElement as HTMLElement);
-	const next =
-		event.key === "ArrowDown"
-			? (at + 1) % rows.length
-			: event.key === "ArrowUp"
-				? (at - 1 + rows.length) % rows.length
-				: event.key === "Home"
-					? 0
-					: event.key === "End"
-						? rows.length - 1
-						: undefined;
-	if (next === undefined) return;
+	const at = rows.findIndex((row) => row === document.activeElement);
 	event.preventDefault();
-	rows[next]?.focus();
+	rows[move(at, rows.length)]?.focus();
 }
 
 function Groups(props: {

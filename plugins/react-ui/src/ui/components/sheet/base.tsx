@@ -69,6 +69,7 @@ interface SheetBaseProps {
 	onOpen?: () => void;
 	title: string;
 	description?: string;
+	/** A task sheet's second page: its way back stands first in the head (`Sheet`'s `back`). */
 	back?: () => void;
 	submit?: SheetSubmit;
 	/** A decision's acts, the foot's `ActionBar` at both densities. */

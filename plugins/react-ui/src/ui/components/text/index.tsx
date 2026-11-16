@@ -30,6 +30,7 @@ export function Text({ kind, children }: TextProps) {
 	// cells, so a Text stands on its own and holds the measure.
 	return (
 		<p className={cn(text({ role: kind ?? "body" }), MEASURE)}>
+			{/* Children `runsIn` leaves hold no run; its array check narrows nothing. */}
 			{runs ? <RunText runs={runs} /> : (children as ReactNode)}
 		</p>
 	);

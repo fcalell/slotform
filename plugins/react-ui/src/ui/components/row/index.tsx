@@ -1,12 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { Field } from "@base-ui/react/field";
 import { cn } from "@fcalell/ui-core/cn";
-import type {
-	RowTitle,
-	RowTrailing,
-	Run,
-	Runs,
-} from "@fcalell/ui-core/descriptors";
+import type { RowTitle, RowTrailing, Run } from "@fcalell/ui-core/descriptors";
 import { stepOf } from "@fcalell/ui-core/drag";
 import {
 	isAbsent,
@@ -486,6 +481,8 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	// pointer is also in its more menu (the drops that accept it, the moves).
 	const { mark: dropMark, over } = useDrop(painted ? undefined : drop, href);
 	const dragged = painted ? undefined : drag;
+	// `useOffers` asks for the drag only while its kind stands, so `dragged`
+	// is there.
 	const offers = useOffers(
 		dragged?.kind,
 		() => dragged as NonNullable<typeof dragged>,
@@ -524,9 +521,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		!ended && line !== undefined && (painted || paints(lineRead));
 	const inert = waitsTitle || waitsFacts || waitsLine;
 	const toldLine =
-		ended || painted || lineRead.painted
-			? undefined
-			: (lineRead.value as Run | Runs | undefined);
+		ended || painted || lineRead.painted ? undefined : lineRead.value;
 	const hasLine =
 		waitsLine || (toldLine !== undefined && runsOf(toldLine).some(filled));
 	// A placeholder is a function proxy that no type test passes: the title is
@@ -559,6 +554,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		ended || typeof lockGiven !== "object" ? undefined : lockGiven.href;
 	// The copy act copies the code a title names.
 	const copied = isCopy(plain) ? plain.code : undefined;
+	// A waiting title's value is the placeholder, which stands in a title's shape.
 	const shape = (waitsTitle && title !== undefined ? read.value : plain) as
 		| RowTitle
 		| undefined;
@@ -761,6 +757,8 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			} else if (isWarningFact(fact) || isChipFact(fact) || isMarkFact(fact)) {
 				badges.push(<FactBadge key={key} fact={fact} painted={painted} />);
 			} else if (waitsFacts) badges.push(<PaintedBadge key={key} />);
+			// What no guard above took is a `Run`; the drawn list's type does not
+			// narrow to it.
 			else if (filled(fact as Run))
 				badges.push(<FactBadge key={key} fact={fact} />);
 		});
@@ -842,7 +840,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 						<Soft text={plain} />
 					) : (
 						<RunText
-							runs={runsOf(plain as Run | Runs)}
+							runs={runsOf(plain)}
 							whole={whole}
 							wraps={whole}
 							fit="name"
@@ -1025,14 +1023,15 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	const onMoveKey = (event: KeyboardEvent<HTMLElement>) => {
 		const step = stepKey(event);
 		if (!step || !movable || id === undefined) return;
-		const target = event.target as HTMLElement;
+		const { target } = event;
+		if (!(target instanceof HTMLElement)) return;
 		if (target.closest("input, textarea, select, [contenteditable]")) return;
 		event.preventDefault();
 		const to = stepOf(movable.ids(), id, step);
 		if (!to) return;
 		movable.move(id, to);
 		// The row moves in the document and the control loses the focus; it takes
-		// it back once the move has rendered.
+		// it back once the move has rendered, which no event marks.
 		queueMicrotask(() => target.focus());
 	};
 	// A tree's row is a `treeitem` (the WAI-ARIA tree pattern) with its level
@@ -1331,6 +1330,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 // and a child its own depth, where its wash starts (`TREE_WASH`).
 function rails(tree: RowTree | undefined): CSSProperties | undefined {
 	if (!tree) return undefined;
+	// A custom property is no key of `CSSProperties`.
 	return {
 		...(tree.under > 0 && { "--rule-depth": tree.under }),
 		...(tree.depth > 0 && { "--tree-depth": tree.depth }),

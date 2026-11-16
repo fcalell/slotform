@@ -4,7 +4,7 @@ import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, type Drawn, paints } from "@fcalell/ui-core/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import { counted, named } from "@fcalell/ui-core/tokens";
 import {
@@ -113,7 +113,7 @@ export function Code({
 	// The title's words name the text and its acts; its runs draw in the head.
 	const title =
 		titled === undefined ? undefined : partText(titled) || undefined;
-	const [drawn] = useSelections([datum] as const) as [Drawn<string>];
+	const [drawn] = useSelections([datum] as const);
 	const painted = paints(drawn);
 	const source = drawn.painted ? "" : drawn.value;
 	const words = useWords();

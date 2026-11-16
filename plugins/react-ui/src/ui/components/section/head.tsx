@@ -142,7 +142,7 @@ export function SectionHead(props: {
 	]);
 	// A title Datum is a selection of the read the Section holds, never a second
 	// read; one whose read ended draws no text, and the frame says why.
-	const heading = named.painted ? undefined : (named.value as Run);
+	const heading = named.painted ? undefined : named.value;
 	const label = heading === undefined ? "" : partText(heading);
 	// A painted title is filler: its heading is hidden from assistive tech and
 	// inert, as a painted description is, until the title lands.

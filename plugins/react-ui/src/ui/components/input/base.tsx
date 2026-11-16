@@ -135,7 +135,8 @@ export function InputBase({
 	const keys = (event: KeyboardEvent<HTMLElement>) => {
 		commit.onKeyDown(event);
 		if (event.key !== "Enter") return;
-		// A text area has no implicit submit, which a line of text has.
+		// A text area has no implicit submit, which a line of text has; under
+		// `wraps` the key's element is that text area.
 		if (wraps && !act) {
 			event.preventDefault();
 			(event.currentTarget as HTMLTextAreaElement).form?.requestSubmit();

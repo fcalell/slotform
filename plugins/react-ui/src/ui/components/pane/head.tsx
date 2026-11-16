@@ -292,7 +292,7 @@ export function PaneHead(props: {
 								{paints(place) ? (
 									<Painted role="word" />
 								) : place.painted ? null : (
-									<RunText runs={partRuns(place.value as Run)} fit="name" />
+									<RunText runs={partRuns(place.value)} fit="name" />
 								)}
 							</span>
 							{nameless && kind === undefined ? null : (

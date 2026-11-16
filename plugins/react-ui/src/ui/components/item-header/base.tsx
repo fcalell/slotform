@@ -192,6 +192,7 @@ function FactPart<V extends string | null>({
 				)}
 			</span>
 		);
+	// Every other kind of fact is told apart above: what is left is words.
 	return (
 		<span className={cn(PICK, fades && BLOCK_IN)}>
 			<WordsBadge fact={fact as Run} />
@@ -237,6 +238,8 @@ function PaintedFact({ fact, at }: { fact: unknown; at: number }) {
 				<StatusBadge status={fact} painted />
 			</span>
 		);
+	// A painted fact is its selection's sample, whose `pick` is the shape the
+	// selector gives the fact.
 	if (typeof fact === "object" && fact !== null && "pick" in fact)
 		return (
 			<span className={PICK}>
@@ -267,6 +270,8 @@ export function ItemHeaderBase<V extends string | null = string>({
 	/** The id the name carries, which names the Pane. */
 	nameId?: string;
 }) {
+	// `name` draws `title`: where `title` is given, a loaded name is a `Run`,
+	// which the casts below name.
 	const [name] = useSelections([title]);
 	// On touch the bar drops the place for the name, so the overline leads with
 	// it; a name whose read ended leaves the place in the bar.
@@ -277,6 +282,9 @@ export function ItemHeaderBase<V extends string | null = string>({
 		(name.painted ? !paints(name) : partText(name.value as Run) === "");
 	const overline =
 		touch && within !== undefined && !nameless ? [within, ...given] : given;
+	// One subscription draws the overline's parts, then the facts, so every
+	// value types as the union of both: the casts name the slice's own, a
+	// `Run` in the overline's and a `RecordFact` in the facts'.
 	const drawn = useSelections([...overline, ...facts]);
 	const [about] = useSelections([description]);
 	// A part or a fact whose read ended draws nothing; the frame that holds the
@@ -307,10 +315,8 @@ export function ItemHeaderBase<V extends string | null = string>({
 	const named =
 		title !== undefined && (name.painted ? paints(name) : !nameless);
 	const aside = (each: (typeof stood)[number]) =>
-		named &&
-		!each.painted &&
-		isMark(each.value) &&
-		wordless(each.value as RowMark);
+		named && !each.painted && isMark(each.value) && wordless(each.value);
+	// A filter keeps no narrowing: `quiet` holds marks alone (`aside`).
 	const quiet = stood.filter(aside);
 	const line = stood.filter((each) => !aside(each));
 	const arrived = useArrivals(
@@ -410,9 +416,9 @@ export function ItemHeaderBase<V extends string | null = string>({
 				</p>
 			) : !about.painted &&
 				about.value !== undefined &&
-				partText(about.value as Run | Runs) !== "" ? (
+				partText(about.value) !== "" ? (
 				<p className={cn(text({ role: "body" }), DESCRIPTION)}>
-					<RunText runs={partRuns(about.value as Run | Runs)} whole />
+					<RunText runs={partRuns(about.value)} whole />
 				</p>
 			) : null}
 		</div>

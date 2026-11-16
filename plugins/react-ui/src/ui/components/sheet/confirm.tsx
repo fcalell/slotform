@@ -63,7 +63,7 @@ export function ConfirmSheet(props: {
 	);
 }
 
-/** The first queued decision; the last one stays drawn while its sheet closes. */
+/** The first queued decision (queued by `confirm` and `ask`, `@fcalell/ui-core/react/confirm`); the last one stays drawn while its sheet closes. */
 export function Confirmations() {
 	const current = useConfirmations()[0];
 	const [last, setLast] = useState(current);

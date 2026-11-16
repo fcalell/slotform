@@ -93,12 +93,22 @@ export function Meter({
 	);
 	const absent = l.painted || v.painted || m.painted;
 	const painted = absent && !ended;
-	// The drawn numbers are read only once absence is ruled out: a placeholder
-	// is a function proxy.
+	// The drawn numbers and the label are read only once absence is ruled out
+	// (a placeholder is a function proxy), which `absent` holds apart from the
+	// three it tests, so the casts name what they then hold.
 	const used = absent ? 0 : (v.value as number);
 	const limit = absent ? 0 : (m.value as number);
 	const share = limit > 0 ? used / limit : 0;
 	const markShare = mark && limit > 0 ? mark.value / limit : undefined;
+	// The fill is the whole track scaled to the data's share; the tick's place
+	// is the data's, the mark's share of the track.
+	const fill: CSSProperties & { "--fill": number } = {
+		"--fill": Math.min(share, 1),
+	};
+	const tick: (CSSProperties & { "--travel": string }) | undefined =
+		markShare === undefined
+			? undefined
+			: { "--travel": `${Math.min(Math.max(markShare, 0), 1) * 100}cqw` };
 	const percent = formatterFor("number", undefined, {
 		style: "percent",
 		maximumFractionDigits: 0,
@@ -122,7 +132,7 @@ export function Meter({
 	) : l.painted ? (
 		<Blank role="name" at={at} />
 	) : (
-		(l.value as string)
+		l.value
 	);
 	// A failed meter's label is the retry; the rest are the label alone.
 	const title =
@@ -131,7 +141,7 @@ export function Meter({
 				onClick={() => {
 					if (!busy) void retry();
 				}}
-				aria-label={`${words.retry} ${l.painted ? "" : (l.value as string)}`.trim()}
+				aria-label={`${words.retry} ${l.painted ? "" : l.value}`.trim()}
 				className={cn(name, RETRY)}
 			>
 				{named}
@@ -173,21 +183,12 @@ export function Meter({
 								className={meterFill({
 									level: levelOf(share, markShare, goal === true),
 								})}
-								// The fill is the whole track scaled to the data's share.
-								style={{ "--fill": Math.min(share, 1) } as CSSProperties}
+								style={fill}
 							/>
 						)}
 					</div>
 					{markShare !== undefined ? (
-						<div
-							className={cn(TRAVEL_X, TRAVEL)}
-							// The tick's place is the data's, the mark's share of the track.
-							style={
-								{
-									"--travel": `${Math.min(Math.max(markShare, 0), 1) * 100}cqw`,
-								} as CSSProperties
-							}
-						>
+						<div className={cn(TRAVEL_X, TRAVEL)} style={tick}>
 							<div className={cn(METER_MARK, TICK)} />
 						</div>
 					) : null}

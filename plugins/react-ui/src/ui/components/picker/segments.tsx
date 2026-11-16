@@ -106,9 +106,12 @@ export function SegmentsBase<V extends string = string>({
 			aria-label={named ? undefined : label}
 			aria-labelledby={named?.labelledBy}
 			value={chosenValue}
-			onValueChange={(next) =>
-				draft.change(next as V, () => onChange(next as NoInfer<V>))
-			}
+			onValueChange={(next) => {
+				// The track's `""` is no choice, never a segment's value: the viewer
+				// picks only a segment.
+				const picked = next as V;
+				draft.change(picked, () => onChange(picked));
+			}}
 			inert={painted || undefined}
 			aria-disabled={ended || undefined}
 			className={cn(
@@ -123,7 +126,7 @@ export function SegmentsBase<V extends string = string>({
 				return (
 					<Radio.Root
 						key={String(option.value)}
-						value={option.value as string}
+						value={option.value}
 						nativeButton
 						render={<button type="button" />}
 						className={cn(
