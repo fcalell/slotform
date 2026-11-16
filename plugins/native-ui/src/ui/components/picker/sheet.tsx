@@ -29,7 +29,8 @@ import { Avatar } from "../avatar";
 import { Chip } from "../chip";
 import { Input } from "../input";
 import { ActSheet } from "../sheet/act";
-import { SheetBase } from "../sheet/base";
+import { SheetHead } from "../sheet/head";
+import { SheetLayer } from "../sheet/layer";
 
 // The rows stand a pair under the head, and under the search fixed above
 // them, which stands a pair under the head.
@@ -133,7 +134,7 @@ function OptionText({
 // The sheet a `Picker` opens: a menu sheet titled `title`, its
 // rows edge to edge at the card's inset under their group labels, the chosen
 // one ticked, a search leading them past six options (the sheet then stands
-// full height, `SheetBase` reading the search in its head) and an act (the act
+// full height, the search in its head) and an act (the act
 // that makes a new option) under a hairline after them; a pick or the act
 // closes it.
 // A `chosen` set makes it a pick of several: the options in it are ticked and a
@@ -187,22 +188,28 @@ export function PickSheet<V extends string | null>({
 	);
 	return (
 		<>
-			<SheetBase
-				form="menu"
+			<SheetLayer
 				open={open}
 				onClose={onClose}
 				title={title}
-				above={
-					searching ? (
-						<View className={SEARCH_SLOT}>
-							<Input
-								label={words.search}
-								kind="search"
-								value={search}
-								onChange={setSearch}
-							/>
-						</View>
-					) : undefined
+				tall={searching}
+				head={
+					<SheetHead
+						title={title}
+						onClose={onClose}
+						above={
+							searching ? (
+								<View className={SEARCH_SLOT}>
+									<Input
+										label={words.search}
+										kind="search"
+										value={search}
+										onChange={setSearch}
+									/>
+								</View>
+							) : undefined
+						}
+					/>
 				}
 			>
 				<View accessibilityLabel={title} className={ROWS}>
@@ -303,7 +310,7 @@ export function PickSheet<V extends string | null>({
 						</View>
 					) : null}
 				</View>
-			</SheetBase>
+			</SheetLayer>
 			<ActSheet
 				acting={acting}
 				of={() => (act && "sheet" in act ? act.sheet : undefined)}

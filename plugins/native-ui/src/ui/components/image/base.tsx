@@ -22,7 +22,7 @@ import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 import { Icon } from "../../parts/icon";
 import { Button } from "../button";
-import { SheetBase } from "../sheet/base";
+import { SheetLayer } from "../sheet/layer";
 
 // The picture and its full view, which an Image draws once and a Gallery once
 // per tile, with one full view that steps through its pictures.
@@ -181,11 +181,11 @@ export function PictureView(props: {
 	const [named] = useSelections([props.src]);
 	const src = named.painted ? undefined : named.value;
 	return (
-		<SheetBase
+		<SheetLayer
 			open={props.open}
 			onClose={props.onClose}
 			title={props.alt}
-			form="view"
+			view
 		>
 			<Pressable
 				accessible={false}
@@ -224,7 +224,7 @@ export function PictureView(props: {
 					<Button glyph icon="X" label={words.close} onAct={props.onClose} />
 				</View>
 			</View>
-		</SheetBase>
+		</SheetLayer>
 	);
 }
 

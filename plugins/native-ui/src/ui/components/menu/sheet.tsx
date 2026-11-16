@@ -11,7 +11,8 @@ import { Pressable, Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { Icon } from "../../parts/icon";
-import { SheetBase } from "../sheet/base";
+import { SheetHead } from "../sheet/head";
+import { SheetLayer } from "../sheet/layer";
 
 const ROW = "flex-row items-center";
 const PRESS = "active:bg-wash-press";
@@ -90,7 +91,12 @@ export function MenuSheet({
 	onClose: () => void;
 }) {
 	return (
-		<SheetBase form="menu" open={open} onClose={onClose} title={title}>
+		<SheetLayer
+			open={open}
+			onClose={onClose}
+			title={title}
+			head={<SheetHead title={title} onClose={onClose} />}
+		>
 			<View
 				accessibilityRole="menu"
 				accessibilityLabel={label}
@@ -114,6 +120,6 @@ export function MenuSheet({
 					</View>
 				))}
 			</View>
-		</SheetBase>
+		</SheetLayer>
 	);
 }
