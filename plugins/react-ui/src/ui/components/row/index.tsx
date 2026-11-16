@@ -55,7 +55,6 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import {
-	type CSSProperties,
 	type KeyboardEvent,
 	memo,
 	type PointerEvent,
@@ -76,6 +75,7 @@ import {
 	movesOf,
 	stepKey,
 } from "../../lib/reorder.ts";
+import type { VarStyle } from "../../lib/style.ts";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import {
 	BadgesLine,
@@ -757,10 +757,12 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			} else if (isWarningFact(fact) || isChipFact(fact) || isMarkFact(fact)) {
 				badges.push(<FactBadge key={key} fact={fact} painted={painted} />);
 			} else if (waitsFacts) badges.push(<PaintedBadge key={key} />);
-			// What no guard above took is a `Run`; the drawn list's type does not
-			// narrow to it.
-			else if (filled(fact as Run))
-				badges.push(<FactBadge key={key} fact={fact} />);
+			else {
+				// What no guard above took is a `Run`; the drawn list's type does not
+				// narrow to it.
+				const run = fact as Run;
+				if (filled(run)) badges.push(<WordsBadge key={key} fact={run} />);
+			}
 		});
 	}
 	// The title, in the form its data takes: words (they wrap in a row with a
@@ -1328,13 +1330,12 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 // A tree row hands its tree the depth its hairline starts at (`TREE_DIVIDER`):
 // the rail of the row under it, a root under it leaving the hairline whole;
 // and a child its own depth, where its wash starts (`TREE_WASH`).
-function rails(tree: RowTree | undefined): CSSProperties | undefined {
+function rails(tree: RowTree | undefined): VarStyle | undefined {
 	if (!tree) return undefined;
-	// A custom property is no key of `CSSProperties`.
 	return {
 		...(tree.under > 0 && { "--rule-depth": tree.under }),
 		...(tree.depth > 0 && { "--tree-depth": tree.depth }),
-	} as CSSProperties;
+	};
 }
 
 /** What a Section hands the RowItem it draws; no app sets it. */

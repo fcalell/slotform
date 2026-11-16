@@ -12,8 +12,8 @@ import {
 	SLIDER_TRACK,
 	SLIDER_VALUE,
 } from "@fcalell/ui-core/variants";
-import type { CSSProperties } from "react";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import type { VarStyle } from "../../lib/style.ts";
 import type { SliderProps } from "./index.tsx";
 
 const BOX = "flex flex-col justify-center";
@@ -74,7 +74,7 @@ export function SliderBase({
 	// under it. Base UI's `center` alignment places the thumb by the value
 	// alone, measuring nothing, and maps the pointer over the track's content
 	// box, the track less the knob.
-	const track: CSSProperties & { "--share": number } = {
+	const track: VarStyle = {
 		"--share":
 			max > min ? Math.min(1, Math.max(0, (at - min) / (max - min))) : 0,
 	};

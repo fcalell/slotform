@@ -50,7 +50,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
-	type CSSProperties,
 	memo,
 	type ReactNode,
 	useLayoutEffect,
@@ -62,6 +61,7 @@ import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/slot.tsx";
+import type { VarStyle } from "../../lib/style.ts";
 import { Swap } from "../../lib/swap.tsx";
 import { BAR_CHART_BODY } from "../../lib/walk-classes.ts";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
@@ -100,10 +100,6 @@ const PLOT = "relative";
 const GRID = "absolute inset-x-0 top-0 flex flex-col";
 const GRID_BAND = "flex-1";
 const BARS = "relative flex";
-// A style that sets the chart's custom properties beside the standard ones.
-type ChartStyle = CSSProperties & {
-	[custom: `--${string}`]: number | string | undefined;
-};
 // A bar's slot is its region: the plot's height, the bar standing on its
 // floor.
 const REGION = "flex flex-col justify-end items-center";
@@ -287,14 +283,14 @@ const BarSlot = memo(function BarSlot(props: {
 	const { bar, keys, top, floor, level } = props;
 	// A part is the whole column scaled to its share of the axis top and lifted
 	// over the parts under it, one clear line higher for each of them that draws.
-	const fill = (value: number, under: number, gap: number): ChartStyle => ({
+	const fill = (value: number, under: number, gap: number): VarStyle => ({
 		"--fill": value / top,
 		"--stack": `calc(${(under / top) * 100}% + ${gap} * var(--spacing-hairline))`,
 	});
 	const values = keys?.map((key) => part(bar, key)) ?? [];
 	const gaps = lifts(values);
 	// A reading travels down from the plot's top by the share it stands under it.
-	const travel = (value: number): ChartStyle => ({
+	const travel = (value: number): VarStyle => ({
 		"--travel": `${(1 - chartShare(value, { floor, top })) * 100}%`,
 	});
 	return (
@@ -423,10 +419,10 @@ export function BarChart<T>(props: BarChartProps<T>) {
 		painted || !leveled || !spanFlat(span, (value) => figure.format(value));
 	// The plot's slots: a short series stands in the first of them.
 	const slotCount = chartSlots(series.length);
-	const slots: ChartStyle = { "--slots": slotCount };
-	const spanned = (span: number): ChartStyle => ({ "--span": span });
-	const timed: ChartStyle = { "--time": TIME_ROOM * longest };
-	const roomAt = (index: number, room: number | undefined): ChartStyle => ({
+	const slots: VarStyle = { "--slots": slotCount };
+	const spanned = (span: number): VarStyle => ({ "--span": span });
+	const timed: VarStyle = { "--time": TIME_ROOM * longest };
+	const roomAt = (index: number, room: number | undefined): VarStyle => ({
 		"--room": room,
 		insetInlineStart: `${((index + 0.5) / slotCount) * 100}%`,
 	});

@@ -40,7 +40,8 @@ export function ChipBase({
 	quiet?: boolean;
 }) {
 	const words = useWords();
-	const ground = family === "neutral" ? "soft" : "edge";
+	const hued = family !== "neutral";
+	const ground = hued ? "edge" : "soft";
 	if (painted)
 		return (
 			<span
@@ -48,9 +49,9 @@ export function ChipBase({
 				aria-hidden
 				className={cn(chip({ trailing: "none", ground }), BOX, PAINT_BOX)}
 			>
-				{family === "neutral" ? null : (
+				{hued ? (
 					<span className={cn(chipDot({ family }), "invisible")} />
-				)}
+				) : null}
 				<span className={cn(CHIP_LABEL, LABEL, "invisible")}>
 					{paintText("word")}
 				</span>
@@ -64,7 +65,7 @@ export function ChipBase({
 				onRemove && BLOCK_IN,
 			)}
 		>
-			{family === "neutral" ? null : <span className={chipDot({ family })} />}
+			{hued ? <span className={chipDot({ family })} /> : null}
 			<span className={cn(CHIP_LABEL, LABEL, quiet && "text-ink-meta")}>
 				{label}
 			</span>

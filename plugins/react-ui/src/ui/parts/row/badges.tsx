@@ -1,6 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	ChipMark,
+	Fact,
 	RowMark,
 	Run,
 	StatusMark,
@@ -254,7 +255,7 @@ export function WordsBadge({ fact }: { fact: Run }) {
 }
 
 /** One base fact (`Fact`) as the badge its kind draws: a status its tone's mark and word, a warning the warn glyph and phrase, a chip the family's dot and value, a boolean mark with words its glyph and label, words their text. `painted` draws the filler of what the kind keeps painted: a status's and a warning's glyph and phrase, a word's phrase; a chip and a boolean mark are the item's data, which a painted row cannot know, and draw nothing. A boolean mark whose words are not drawn, or that does not hold, draws nothing: it is no badge. */
-export function FactBadge(props: { fact: unknown; painted?: boolean }) {
+export function FactBadge(props: { fact: Fact; painted?: boolean }) {
 	const { fact, painted = false } = props;
 	if (isStatusFact(fact))
 		return <StatusBadge status={fact} painted={painted} />;
@@ -267,7 +268,7 @@ export function FactBadge(props: { fact: unknown; painted?: boolean }) {
 		return <MarkBadge mark={fact} />;
 	}
 	if (painted) return <Badge painted />;
-	return <WordsBadge fact={fact as Run} />;
+	return <WordsBadge fact={fact} />;
 }
 
 /** A badge's filler: a fact that is not here yet, at the loaded badge's size. */

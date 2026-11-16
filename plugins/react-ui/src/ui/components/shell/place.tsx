@@ -82,18 +82,20 @@ export function Place(props: {
 	);
 }
 
+// What a second Pane of a kind in one Place breaks.
+const SECOND: Record<PaneKind, string> = {
+	record:
+		"Place: a second record's Pane; a record linked from a record opens in its own place",
+	place: "Place: a second place's Pane; a place's tabs stand in its one Pane",
+};
+
 // The count of each kind of Pane standing in a Place, which holds it to one of
 // each: a record linked from a record opens in its own place, never as a third
 // Pane, and a place's tabs are one Pane's, never a second.
 function standing(): (kind: PaneKind) => () => void {
 	const count: Record<PaneKind, number> = { place: 0, record: 0 };
 	return (kind) => {
-		if (count[kind] === 1)
-			throw new Error(
-				kind === "record"
-					? "Place: a second record's Pane; a record linked from a record opens in its own place"
-					: "Place: a second place's Pane; a place's tabs stand in its one Pane",
-			);
+		if (count[kind] === 1) throw new Error(SECOND[kind]);
 		count[kind] += 1;
 		return () => {
 			count[kind] -= 1;

@@ -11,16 +11,11 @@ import {
 	placeRowGlyph,
 	text,
 } from "@fcalell/ui-core/variants";
-import {
-	type CSSProperties,
-	type KeyboardEvent,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { type KeyboardEvent, useMemo, useRef, useState } from "react";
 import { useDrop, useHold, useListedDrops } from "../../lib/drag.ts";
 import { useFolds } from "../../lib/folds.ts";
 import { follow, isRoute } from "../../lib/navigate.ts";
+import type { VarStyle } from "../../lib/style.ts";
 import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { Icon } from "../../parts/icon/index.tsx";
 import {
@@ -187,6 +182,7 @@ function TreeRow(props: {
 	const ink = current || onPath ? "selected" : "rest";
 	// A branch that is no page (a spot, `#folder`) only opens and folds.
 	const folder = branch && !isRoute(spec.route);
+	const level: VarStyle = { "--level": props.depth };
 	return (
 		<div
 			role="treeitem"
@@ -199,8 +195,7 @@ function TreeRow(props: {
 			data-key={spec.route}
 			{...mark}
 			{...hold}
-			// A custom property is no key of `CSSProperties`.
-			style={{ "--level": props.depth } as CSSProperties}
+			style={level}
 			className={cn(
 				placeRow({ state }),
 				ROW_BOX,

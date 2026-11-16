@@ -89,7 +89,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import { pagesCovering } from "@fcalell/ui-core/window";
 import {
-	type CSSProperties,
 	type FocusEvent,
 	type KeyboardEvent,
 	type MouseEvent,
@@ -125,6 +124,7 @@ import {
 	stepKey,
 	useMovable,
 } from "../../lib/reorder.ts";
+import type { VarStyle } from "../../lib/style.ts";
 import { Scroller, Window } from "../../lib/window.tsx";
 import { ChipBase } from "../../parts/chip/base.tsx";
 import { Icon } from "../../parts/icon/index.tsx";
@@ -960,6 +960,9 @@ function Grid(props: {
 	const acting = props.hasAct || props.menu;
 	const actsAt = shift + columns.length;
 	const acts = (props.hasAct ? 1 : 0) + (props.menu ? 1 : 0);
+	const actsWide: VarStyle | undefined = acting
+		? { "--acts": acts }
+		: undefined;
 	const title = use(PageTitle);
 	const scroll = use(Scroller);
 	const frame = useRef<HTMLDivElement>(null);
@@ -1338,8 +1341,7 @@ function Grid(props: {
 					chooser ? SCROLLS_TICKED : SCROLLS,
 					acting && SCROLLS_END,
 				)}
-				// A custom property is no key of `CSSProperties`.
-				style={acting ? ({ "--acts": acts } as CSSProperties) : undefined}
+				style={actsWide}
 			>
 				<table
 					// biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole: a table whose keyboard is a cell cursor is the WAI-ARIA grid

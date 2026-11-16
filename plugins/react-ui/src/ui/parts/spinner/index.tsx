@@ -5,7 +5,6 @@ import {
 	SPINNER_ARC,
 	SPINNER_TRACK,
 } from "@fcalell/ui-core/variants";
-import type { Closed } from "../../lib/closed.ts";
 import { BusyGlyphs, busyScrambles } from "../../lib/scramble.tsx";
 
 // It enters by a fade on `fast`, then turns (the loop keeps turning under
@@ -21,11 +20,8 @@ const ARC = "absolute inset-0 animate-spin";
 const GLYPHS =
 	"inline-flex shrink-0 items-center justify-center overflow-hidden animate-spinner-in";
 
-/** A spinner takes no props. */
-interface SpinnerProps extends Closed {}
-
 /** A turning ring in the ink of its place (currentColor), the size of the glyph it replaces; hidden from assistive tech, since its owner announces the wait. Where the theme scrambles its text (`theme.loading`) it is three mono glyphs cycling at the tick in a box three glyphs wide, `···` under reduced motion. */
-export function Spinner(_: SpinnerProps) {
+export function Spinner() {
 	if (busyScrambles())
 		return (
 			<span

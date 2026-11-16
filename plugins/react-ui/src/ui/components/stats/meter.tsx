@@ -16,11 +16,11 @@ import {
 	TRAVEL_X,
 	text,
 } from "@fcalell/ui-core/variants";
-import type { CSSProperties } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FailedMark, RetryMark } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/slot.tsx";
+import type { VarStyle } from "../../lib/style.ts";
 import { CountLinks } from "./count-links.tsx";
 import { FIGURE, FIGURE_DIGITS, LABEL } from "./parts.ts";
 
@@ -102,10 +102,10 @@ export function Meter({
 	const markShare = mark && limit > 0 ? mark.value / limit : undefined;
 	// The fill is the whole track scaled to the data's share; the tick's place
 	// is the data's, the mark's share of the track.
-	const fill: CSSProperties & { "--fill": number } = {
+	const fill: VarStyle = {
 		"--fill": Math.min(share, 1),
 	};
-	const tick: (CSSProperties & { "--travel": string }) | undefined =
+	const tick: VarStyle | undefined =
 		markShare === undefined
 			? undefined
 			: { "--travel": `${Math.min(Math.max(markShare, 0), 1) * 100}cqw` };

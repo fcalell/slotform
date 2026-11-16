@@ -7,6 +7,7 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { keyed } from "../../lib/modality.ts";
 
 // A pointer resting this long on an entry while no column stands opens that
 // entry's column, so a sweep across the folded rail on the way to the page
@@ -137,10 +138,7 @@ export function usePreview(props: {
 		clearTimeout(closing.current);
 		closing.current = setTimeout(() => {
 			const menu = nav.querySelector('[aria-haspopup][aria-expanded="true"]');
-			const keyed =
-				document.documentElement.dataset.modality === "keyboard" &&
-				focused.current;
-			if (!(menu || keyed || inside.current)) back();
+			if (!(menu || (keyed() && focused.current) || inside.current)) back();
 		}, LINGER);
 	};
 	return {

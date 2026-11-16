@@ -17,10 +17,11 @@ import {
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
-import { type CSSProperties, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useReducedMotion } from "../../lib/media.ts";
+import type { VarStyle } from "../../lib/style.ts";
 import { Reason } from "../../parts/button/reason.tsx";
 import { Spinner } from "../../parts/spinner/index.tsx";
 import { ActFace } from "../button/face.tsx";
@@ -52,11 +53,7 @@ export function Fill(props: { run: PendingRun; now: number }) {
 	const { run } = props;
 	const [at] = useState(Date.now);
 	const reduced = useReducedMotion();
-	const fill: CSSProperties & {
-		"--fill": number;
-		"--from": number;
-		"--ms": number;
-	} = {
+	const fill: VarStyle = {
 		"--fill": reduced ? pendingShare(run, props.now) : 1,
 		"--from": pendingShare(run, at),
 		"--ms": Math.max(0, run.end - at),

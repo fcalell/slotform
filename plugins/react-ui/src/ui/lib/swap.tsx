@@ -3,18 +3,16 @@ import { tuned } from "@fcalell/ui-core/paint";
 import { rollOf, rollShift } from "@fcalell/ui-core/roll";
 import { SWAP_IN, SWAP_OUT } from "@fcalell/ui-core/variants";
 import {
-	type CSSProperties,
 	type ReactNode,
 	useEffect,
 	useLayoutEffect,
 	useRef,
 	useState,
 } from "react";
+import type { VarStyle } from "./style.ts";
 
 // The mark's size the new one grows from and the old one leaves toward.
 const MARK_FROM = 0.6;
-
-type SwapStyle = CSSProperties & { [custom: `--swap-${string}`]: number };
 
 interface Leaving {
 	id: string;
@@ -59,7 +57,7 @@ export function Swap(props: {
 		);
 		return () => clearTimeout(timer);
 	}, [leaving, scale]);
-	const style = (shift: number, enters = false): SwapStyle => ({
+	const style = (shift: number, enters = false): VarStyle => ({
 		...(shift === 0 ? {} : { "--swap-y": shift }),
 		...(scale ? { "--swap-scale": MARK_FROM } : {}),
 		// A mark's new one waits for the old one to be gone (`fast`; 0 under

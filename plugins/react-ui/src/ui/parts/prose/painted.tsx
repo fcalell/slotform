@@ -16,6 +16,7 @@ export function PaintedProse({
 	at = 0,
 }: {
 	lines: number;
+	/** The filler's place among the painted ones around it (`Painted`'s `at`), so a list's painted messages differ in length. */
 	at?: number;
 }) {
 	return (

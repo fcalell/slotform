@@ -22,11 +22,11 @@ export function StatusDot(props: {
 				className={cn(statusDot({ tone: "done" }), DOT, PAINT_BOX)}
 			/>
 		);
-	const drawn =
-		tone === "running"
-			? cn(STATUS_SPINNER, SPIN)
-			: cn(statusDot({ tone }), DOT);
-	const mark = tone === "running" ? <Spinner /> : null;
+	const running = tone === "running";
+	const drawn = running
+		? cn(STATUS_SPINNER, SPIN)
+		: cn(statusDot({ tone }), DOT);
+	const mark = running ? <Spinner /> : null;
 	// A state that changes while shown is a mark change: the new dot grows in
 	// as the old one fades out.
 	return (
