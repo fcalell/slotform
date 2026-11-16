@@ -18,7 +18,7 @@ Stop and tell the owner if the tree is dirty or `origin/master` has commits `mas
 
 ## Where things stand (read this first; it overrides older lines below)
 
-State at `915aab1c` plus log commits, 2026-11-16: `pnpm check` is green on the whole tree (check-types 32 of 32, test 27 of 27, Biome clean). Master is about 120 commits ahead of origin, unpushed. F1 to F9 and the stable-package parts of F10, F11 and F12 are committed. Entries lower in this file that say "unverified" or "uncompiled" predate the first green gate.
+State at `ce220c23` plus log commits, 2026-11-16: `pnpm check` is green on the whole tree (check-types 32 of 32, test 27 of 27, Biome clean). Master is about 120 commits ahead of origin, unpushed. F1 to F9 and the stable-package parts of F10, F11 and F12 are committed. Entries lower in this file that say "unverified" or "uncompiled" predate the first green gate.
 
 Rules that changed since the Orchestration section was written:
 
@@ -30,7 +30,7 @@ Rules that changed since the Orchestration section was written:
 
 Remaining work, in order:
 
-1. **F10 and F11 over both UI plugins** (`plugins/react-ui`, `plugins/native-ui`; disjoint perimeters, two parallel agents) and over ui-core's `read`, `acts`, `scope`, `listen`, `form` and `react/` rows. Briefs: `.refactor/f10/brief.md`, `.refactor/f11/brief.md`. Tests last, no new tests. Known rows for react-ui: the dead `scoped` branch in `components/sheet/base.tsx` and `PortalHosted` in `lib/portal.ts`.
+1. **F10 and F11 over both UI plugins.** Row lists `.refactor/f10ui/{react-ui,native-ui}-rows.md`. native-ui is done and committed (`947b1761`): every listed and pointer row has an outcome; `Place.distance` is kept: fact (public, documented); out-of-slice rows (sameBy, usePageTurn, useClock `until`, paint.ts, filtersFold, emit.ts, cli css `label`) go to the ui-core wave. react-ui is partly done and committed (`ce220c23`): lib, node, parts, H2, H4, the F11 rows, and the 33 reshape rows (`.refactor/f10ui/reshape-rows.md`: 26 kept, 1 fixed, 6 proposals P1 to P6 waiting on the owner, to land in both plugins). Still to run in react-ui: the components pointer rows (U12c-1 to U12c-4: N3, S2, C2, C5, H2), picker and segments C5, C1-05/C2-01 leftovers, table `onRange` catch, toolbar `as never`, thread `as T`, C5-10 in components, and the dead `CellFit.done`/`home` cascade in table; these wait on P2 to P5 because they share files. Next wave also: ui-core rows, the 15 rows in `.refactor/f10ui/showcase-rows.md` (`apps/showcase`), ui-core `matrixCells` `families` and the dead `asChip` in `pick.ts`. `pnpm check` green at `ce220c23`.
 2. **P7**: the stream `stop` and the shared streamed-reply helper (brief not written).
 3. **F7 part 2**: `useAct`, `useHeldDraft`, the shared part of `lib/read.tsx`, `useDerivedForm`'s closures, the two `optionsOf`.
 4. **ui-core's 84 type-only roster cycles** (shared types into `roster/shared.ts`; check that native-ui's `declare module` still merges).
