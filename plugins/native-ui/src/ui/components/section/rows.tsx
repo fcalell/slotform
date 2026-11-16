@@ -26,8 +26,6 @@ export interface RowsInternal {
 	drawn: Drawn<readonly Row[]>;
 	/** The pages read the items come from, when it has pages: the sheet ends in its more row. */
 	more?: Read<unknown>;
-	/** The rows are the painted next page of another sheet: its rows alone, standing in that sheet's card. */
-	tail?: boolean;
 	/** The Section's `groups`. */
 	groups?: readonly Band[];
 	/** The Section's head counts the rows, so a lone band holding every row draws no count of its own: one band, one count. */
@@ -134,11 +132,17 @@ export function Rows(props: RowsInternal) {
 				branch: false,
 				open: false,
 			}));
-	const rows: Entry[] = visible.map((each, index) => {
+	// Each row with its group's rank, -1 for a tree's child, which stands with
+	// its parent, and for a row of no group.
+	const rows = visible.map((each, index): { entry: Entry; group: number } => {
 		const { item, key } = each;
+		const group = each.depth ? -1 : rank(item);
 		if ("path" in item)
-			return { key, node: <FileRowItem item={item} painted={painted} /> };
-		return {
+			return {
+				entry: { key, node: <FileRowItem item={item} painted={painted} /> },
+				group,
+			};
+		const entry: Entry = {
 			key,
 			depth: each.depth,
 			node: (
@@ -154,6 +158,7 @@ export function Rows(props: RowsInternal) {
 				/>
 			),
 		};
+		return { entry, group };
 	});
 	// With groups, the entries are the rows with a band before the first row of
 	// each group (and every empty group's, after the last); a tree's child
@@ -161,19 +166,14 @@ export function Rows(props: RowsInternal) {
 	const entries: Entry[] = [];
 	if (groups) {
 		const counts = groups.map(() => 0);
-		const rowsAt: { entry: Entry; group: number }[] = visible.map(
-			(each, index) => ({
-				entry: rows[index] as Entry,
-				group: each.depth ? -1 : rank(each.item),
-			}),
-		);
-		for (const { group } of rowsAt)
-			if (group >= 0) counts[group] = (counts[group] as number) + 1;
+		for (const { group } of rows)
+			if (group >= 0) counts[group] = (counts[group] ?? 0) + 1;
 		// One band holding every row would repeat the head's count: it draws none.
 		const roots = visible.filter((each) => !each.depth).length;
 		const lone =
 			props.counted === true && groups.length === 1 && counts[0] === roots;
 		const band = (at: number): Entry => {
+			// Every caller's `at` runs below `groups.length`.
 			const each = groups[at] as Band;
 			return {
 				key: `band:${each.key}`,
@@ -181,32 +181,32 @@ export function Rows(props: RowsInternal) {
 				node: (
 					<BandHead
 						label={each.label}
-						count={lone ? 0 : (counts[at] as number)}
+						count={lone ? 0 : (counts[at] ?? 0)}
 						act={each.act}
 					/>
 				),
 			};
 		};
 		let shown = 0;
-		for (const { entry, group } of rowsAt) {
+		for (const { entry, group } of rows) {
 			for (; shown <= group; shown++) entries.push(band(shown));
 			entries.push(entry);
 		}
 		for (; shown < groups.length; shown++) entries.push(band(shown));
-	} else entries.push(...rows);
+	} else entries.push(...rows.map(({ entry }) => entry));
 	// The card is the rows' box: each entry after the first draws the card's
 	// hairline above it, but for the row a band closes with its own rule.
 	const lines = entries.map((entry, index) => {
 		const ruled = !entries[index - 1]?.band && index > 0;
-		const child = ruled && entry.depth !== undefined && entry.depth > 0;
+		const depth = entry.depth ?? 0;
+		const child = ruled && depth > 0;
 		return (
 			<View key={entry.key} className={between(ruled && !child ? index : 0)}>
 				{entry.node}
-				{child ? <RailRule depth={entry.depth as number} /> : null}
+				{child ? <RailRule depth={depth} /> : null}
 			</View>
 		);
 	});
-	if (props.tail) return lines;
 	// The more row ends the card, behind the hairline a further row would have;
 	// the rows it paints stand in its place at the card's rhythm.
 	if (!props.more || painted) return lines;
@@ -222,7 +222,6 @@ export function Rows(props: RowsInternal) {
 					<Rows
 						{...sheet}
 						more={undefined}
-						tail
 						// The next page paints in the shape of the rows that stand.
 						paint={sheet.paint ?? items.find(isRow)}
 						drawn={{

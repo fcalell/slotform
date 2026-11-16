@@ -1,14 +1,12 @@
 import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
 import { optionBlocked, optionLeading } from "@fcalell/ui-core/list-state";
 import {
-	asChip,
 	type Grouped,
 	groupsOf,
 	type PickOptions,
 	SEARCH_PAST,
 } from "@fcalell/ui-core/pick";
 import { useWords } from "@fcalell/ui-core/react/words";
-import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	HAIRLINE,
 	OPTION_GROUP_LABEL,
@@ -45,8 +43,6 @@ const OPTION_TEXT = "flex-1 min-w-0";
 const TICK = "shrink-0";
 // A glyph leads an option in the row's leading slot.
 const LEADING = "shrink-0 items-center justify-center";
-// A chip column's options are its chips.
-const CHIP_SLOT = "flex-row grow min-w-0";
 // An option's own chip, centred on the label's line (a chip hugs the top of its row).
 const KIND = "shrink-0 self-center";
 // The act that ends the list stands under a hairline across it, a float
@@ -78,25 +74,17 @@ export function useOptionGroups<V extends string | null>(
 // An option's label (the empty choice in the placeholder's ink) over its
 // description; an option carrying a glyph leads with it, one carrying a state
 // with its status's dot, one carrying an avatar with its avatar, and its chip
-// after the text; a chip column's option is its chip alone.
+// after the text.
 function OptionText({
 	option,
 	chosen,
-	chip,
 }: {
 	option: Option<string | null>;
 	chosen: boolean;
-	chip?: ChipFamily;
 }) {
 	const blocked = optionBlocked(option, chosen);
 	const meta = blocked ?? option.line;
 	const lead = optionLeading(option);
-	if (asChip(option, chip))
-		return (
-			<View className={CHIP_SLOT}>
-				<Chip family={chip} label={option.label} />
-			</View>
-		);
 	return (
 		<>
 			{lead.icon ? (
@@ -158,10 +146,7 @@ export function PickSheet<V extends string | null>({
 	onChange,
 	open,
 	onClose,
-	onGone,
-	typing,
 	act,
-	chip,
 }: {
 	title: string;
 	groups: OptionGroups<V>;
@@ -170,12 +155,7 @@ export function PickSheet<V extends string | null>({
 	onChange: (value: V) => void;
 	open: boolean;
 	onClose: () => void;
-	// Hears the sheet gone, its leave played.
-	onGone?: () => void;
-	// The sheet opened as a table cell's edit started: its search takes focus.
-	typing?: boolean;
 	act?: IconAct | IconLinkAct;
-	chip?: ChipFamily;
 }) {
 	const words = useWords();
 	// The act holds its own run past the sheet's close: a rejection toasts with Retry.
@@ -211,7 +191,6 @@ export function PickSheet<V extends string | null>({
 				form="menu"
 				open={open}
 				onClose={onClose}
-				onGone={onGone}
 				title={title}
 				above={
 					searching ? (
@@ -221,7 +200,6 @@ export function PickSheet<V extends string | null>({
 								kind="search"
 								value={search}
 								onChange={setSearch}
-								autoFocus={typing}
 							/>
 						</View>
 					) : undefined
@@ -268,7 +246,7 @@ export function PickSheet<V extends string | null>({
 											blocked === undefined && PRESS,
 										)}
 									>
-										<OptionText option={option} chosen={chosen} chip={chip} />
+										<OptionText option={option} chosen={chosen} />
 										{chosen ? (
 											<View className={TICK}>
 												<Ink.Provider value="ink-body">

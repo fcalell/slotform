@@ -56,22 +56,20 @@ interface Box {
 // chosen, by a layout transition, as its place and width change. A FormField
 // around it names it with its visible label. It draws the `draft` its host
 // holds: a field hosts the draft of its segments and draws a rejection in its
-// own line. `painted` is the track while its data is not here: one filled box
-// at its loaded size, the segments not drawn, inert. Outside the package's
+// own line. While its data is not here it draws the painted track: one filled
+// box at its loaded size, the segments not drawn, inert. Outside the package's
 // exports.
 export function SegmentsBase<V extends string = string>({
 	label,
 	options,
 	draft,
 	onChange,
-	painted: given,
 }: Pick<PickerSegmentsProps<V>, "label" | "options" | "onChange"> & {
 	draft: Draft<V>;
-	painted?: boolean;
 }) {
 	// A read that ended leaves the track with no segment chosen, blocked.
 	const ended = draft.ended !== undefined;
-	const painted = given || (draft.painted && !ended);
+	const painted = draft.painted && !ended;
 	const named = useContext(GroupName);
 	// Each segment's place in the track, which the ground stands at.
 	const [boxes, setBoxes] = useState<Record<string, Box>>({});
@@ -204,17 +202,14 @@ export function SegmentsBase<V extends string = string>({
 }
 
 // Segments over choices that hold their own draft, as a bare one does; a
-// rejection toasts. `painted` forces the painted track. Outside the package's
-// exports.
+// rejection toasts. Outside the package's exports.
 export function HeldSegments<V extends string = string>({
 	label,
 	options,
 	value,
 	onChange,
-	painted,
 }: Omit<PickerSegmentsProps<V>, "fit"> & {
 	fit?: "segments";
-	painted?: boolean;
 }) {
 	return (
 		<SegmentsBase<V>
@@ -222,7 +217,6 @@ export function HeldSegments<V extends string = string>({
 			options={options}
 			draft={useHeldDraft<V>(value)}
 			onChange={onChange}
-			painted={painted}
 		/>
 	);
 }

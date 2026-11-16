@@ -1,7 +1,7 @@
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { keyed, type Part, parts, safeHref } from "@fcalell/ui-core/prose";
 import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, type Drawn, paints } from "@fcalell/ui-core/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	PROSE,
 	PROSE_BLOCKS,
@@ -46,6 +46,8 @@ function inline(tokens: readonly Token[] | undefined, parent: string) {
 // A run is a Text nested in its paragraph's, so it takes the paragraph's
 // role and ink as the web's inline runs do.
 function run(token: Token, key: string): ReactNode {
+	// marked's `Token` holds `Tokens.Generic`, whose `type` is any string, so a
+	// switch on `type` narrows nothing: each case names its token.
 	switch (token.type) {
 		case "strong":
 			return (
@@ -136,6 +138,7 @@ function List(props: { list: Tokens.List; quoted: boolean; id: string }) {
 
 function blocks(tokens: readonly Token[], quoted: boolean, parent: string) {
 	return keyed(tokens, parent).map(([token, key]) => {
+		// As in `run`, a switch on `type` does not narrow marked's `Token`.
 		switch (token.type) {
 			case "space":
 				return null;
@@ -225,7 +228,7 @@ function Headed({ part }: { part: Part }) {
 // header, which has no levels on the phone. While the `markdown` selection's
 // read waits, one paragraph of `PAINT_ROWS` clipped lines of filler stands in its column, inert.
 export function Prose({ markdown }: ProseProps) {
-	const [drawn] = useSelections([markdown] as const) as [Drawn<string>];
+	const [drawn] = useSelections([markdown] as const);
 	const source = drawn.painted ? undefined : drawn.value;
 	// The markdown lexes and folds once per text, and not while the prose paints.
 	const root = useMemo(

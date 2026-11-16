@@ -132,7 +132,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 							{typeof said.value === "string" ? (
 								said.value
 							) : (
-								<RunText runs={partRuns(said.value as Run | Runs)} whole />
+								<RunText runs={partRuns(said.value)} whole />
 							)}
 						</RNText>
 						{end === undefined || acted ? null : left}

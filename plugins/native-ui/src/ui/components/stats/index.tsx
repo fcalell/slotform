@@ -63,7 +63,13 @@ const number = formatterFor("number");
 // figure slot shows the failure mark and the retry icon, the line under reads
 // "This didn't load." and a press retries); a read an enclosing frame holds
 // draws nothing of its own.
-function Cell({ item, at }: { item: StatsItem; at: number }) {
+function Cell({
+	item,
+	at,
+}: {
+	item: Extract<StatsItem, { bound?: never }>;
+	at: number;
+}) {
 	const words = useWords();
 	const warm = useWarm();
 	const [figure] = useSelections([item.value]);
@@ -72,7 +78,7 @@ function Cell({ item, at }: { item: StatsItem; at: number }) {
 	const ended =
 		figure.painted && (figure.phase === "failed" || figure.phase === "missing");
 	const { href } = item;
-	const label = item.label as string;
+	const { label } = item;
 	return (
 		<View {...inertProps(painted)} className={cn(STATS_CELL, CELL)}>
 			<View className={LABEL_LINE}>

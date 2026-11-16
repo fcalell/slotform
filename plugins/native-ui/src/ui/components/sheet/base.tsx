@@ -287,17 +287,15 @@ export type SheetSubmit = Act | Acknowledge;
 
 /** The act a sheet's submit runs: its own, or the sheet's close where it acknowledges (it neither runs nor opens anything). Outside the package's exports. */
 export function submitAct(submit: SheetSubmit, close: () => void): Act {
-	return submit.onAct === undefined && submit.sheet === undefined
-		? { label: submit.label, onAct: close }
-		: (submit as Act);
+	return submit.onAct !== undefined || submit.sheet !== undefined
+		? submit
+		: { label: submit.label, onAct: close };
 }
 
 /** What every sheet draws: the public `Sheet`, the confirm, a `Menu` and the Picker's options. Outside the package's exports. */
 interface SheetBaseProps {
 	open: boolean;
 	onClose: () => void;
-	// Hears the sheet gone, its leave played (a cell's pick ends its edit).
-	onGone?: () => void;
 	title: string;
 	description?: string;
 	back?: () => void;
@@ -315,10 +313,6 @@ interface SheetBaseProps {
 	// Fixed under the head, over the scrolling body: the Picker's search, which
 	// stands a menu full height.
 	above?: ReactNode;
-	// Internal: the sheet stands at the cap from its first frame, so what it
-	// holds does not move it. Only a menu that searches is tall (its list must
-	// not jump as the filter narrows); the rest grow with their content.
-	tall?: boolean;
 	// What the body holds, read once for the frame (`Sheet`'s `read`): the submit
 	// paints, inert, while it waits or stands still, and stands blocked with the
 	// failed sentence once it failed or is missing.
@@ -354,7 +348,6 @@ interface SheetBaseProps {
 export function SheetBase({
 	open,
 	onClose,
-	onGone,
 	title,
 	description,
 	back,
@@ -363,7 +356,6 @@ export function SheetBase({
 	bar,
 	form,
 	above,
-	tall: asked,
 	acting: given,
 	read,
 	empty,
@@ -387,9 +379,9 @@ export function SheetBase({
 	const [settled, setSettled] = useState(false);
 	const [touchedValue, setTouched] = useTouchState();
 	const view = form === "view";
-	// A menu that searches is tall as well, so its list does not jump as the
-	// filter narrows.
-	const tall = (form === "menu" && above !== undefined) || asked === true;
+	// A menu that searches stands at the cap from its first frame, so its list
+	// does not jump as the filter narrows; the rest grow with their content.
+	const tall = form === "menu" && above !== undefined;
 	// A tall sheet and a view stand at the full height of the screen.
 	const full = tall || view;
 	usePageTurn(open, title, description, () => setTouched(false));
@@ -490,7 +482,6 @@ export function SheetBase({
 			onDismiss={() => {
 				held.current = false;
 				onClose();
-				onGone?.();
 			}}
 			containerComponent={Layer}
 			accessible={false}

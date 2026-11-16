@@ -25,7 +25,8 @@ export type FilterProp =
 const CLEAR = "items-start";
 
 // What setting a filter to its empty value is, run in the holder's toast: the
-// consumer's `onChange` takes `null`, or `[]` for several.
+// consumer's `onChange` takes `null`, or `[]` for several. `filterEmpty`
+// answers `[]` exactly where the value is a list, the form `onChange` takes.
 function clear(filter: FilterProp) {
 	return (filter.onChange as (value: null | []) => unknown)(
 		filterEmpty(filter),
@@ -43,7 +44,7 @@ export function FilterChip({ filter }: { filter: FilterProp }) {
 	return (
 		<ChipBase
 			family="neutral"
-			label={filterChip(filter, drawn.painted ? [] : (drawn.value as never))}
+			label={filterChip(filter, drawn.painted ? [] : drawn.value)}
 			onRemove={() => acting.run(true, { onAct: () => clear(filter) })}
 		/>
 	);
@@ -72,6 +73,9 @@ export function FiltersAct(props: {
 			<Sheet open={open} onClose={() => setOpen(false)} title={words.filters}>
 				<View className={TOOLBAR_FILTERS}>
 					{props.filters.map(({ label, ...picker }) => (
+						// A filter over `string` draws as a field's pick over `string |
+						// null`, whose `onChange` its own cannot take; the pick hands back
+						// only the values the filter offers.
 						<FormField key={label} label={label} picker={picker as never} />
 					))}
 					{props.set > 0 ? (

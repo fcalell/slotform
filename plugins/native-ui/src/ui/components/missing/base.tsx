@@ -19,8 +19,7 @@ function useBackAct(): LinkAct | undefined {
 
 // The missing form every read that answers not found draws, and the page for
 // an address nothing serves. Outside the package's exports: `fit` is the
-// drawer's, `fill` the reads' alone, its frame filling the box it stands in;
-// `noun` words the sentence for the kind of record (the Pane's), `sentence`
+// drawer's; `noun` words the sentence for the kind of record (the Pane's), `sentence`
 // replaces it. The way back is the Pane's: its own `page` fit offers it, any
 // other frame says the sentence alone.
 export function MissingBase(props: {
@@ -28,7 +27,6 @@ export function MissingBase(props: {
 	noun?: string;
 	sentence?: string;
 	act?: LinkAct;
-	fill?: boolean;
 }) {
 	const words = useWords();
 	const back = useBackAct();
@@ -43,7 +41,6 @@ export function MissingBase(props: {
 					: filled(words.missingNoun, { noun: props.noun }))
 			}
 			act={props.act ?? (props.fit === "page" ? back : undefined)}
-			fill={props.fill}
 		/>
 	);
 }

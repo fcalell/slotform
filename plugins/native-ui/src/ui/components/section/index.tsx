@@ -163,6 +163,8 @@ function paintOf<V extends string | null>(
 	if (!isSelection(items)) return undefined;
 	const one = sampleOf(items);
 	if (one === undefined || "path" in one) return undefined;
+	// The painted rows draw this shape inert, so its pick's `V` never meets a
+	// value: it stands as the default row item.
 	const row = one as RowItem;
 	// Facts the selector passes through whole (`facts: record.facts`) sample
 	// as the placeholder itself, a word where the facts stand: they paint one
@@ -213,34 +215,43 @@ function optionsOf(rows: readonly RowData[]): Selection<unknown>[] {
 		const own = row.pick?.options;
 		return [
 			...(isSelection(own) ? [own] : []),
-			...optionsOf((row.children ?? []) as readonly RowData[]),
+			...optionsOf(row.children ?? []),
 		];
 	});
 }
 
+// One row given alone is a value, not a list.
+function lone<V extends string | null>(
+	items: Sheet<V>["items"],
+): items is Row<V> {
+	return !Array.isArray(items) && !isSelection(items);
+}
+
 function SheetSection<V extends string | null>(props: Sheet<V>) {
-	const { title, groups, description, empty } = props;
-	// One row given alone is a value, not a list: it stands as a list of one,
-	// and its head counts nothing (a count is a list's).
-	const one = !Array.isArray(props.items) && !isSelection(props.items);
-	const items = (one ? [props.items] : props.items) as Datum<readonly Row<V>[]>;
+	const { title, groups, description, empty, items: given } = props;
+	// One row given alone stands as a list of one, and its head counts nothing
+	// (a count is a list's).
+	const one = lone(given);
+	const items: Datum<readonly Row<V>[]> = one ? [given] : given;
 	const words = useWords();
 	// The sheet's data is its rows together with the reads they stand on: when
 	// `groups` is a selection, the rows paint until it lands and its
 	// failure ends the sheet, as the rows' own read does.
-	const together = [items, groups].filter(isSelection);
+	const together = [items, groups].filter((read) => isSelection(read));
 	const whole =
 		isSelection(items) && together.length === 1
 			? items
 			: together.length > 0
-				? combine(together as [Selection<unknown>], (...values) =>
+				? combine(together, (...values) =>
 						isSelection(items) ? values[0] : items,
 					)
 				: items;
+	// The combined read answers the rows: its first selection is `items`
+	// whenever `items` is one.
 	const collection = useCollection(whole as Datum<readonly RowData[]>);
 	const { drawn } = collection;
 	const [bands] = useSelections([groups] as const);
-	const loaded = drawn.painted ? [] : (drawn.value as readonly RowData[]);
+	const loaded = drawn.painted ? [] : drawn.value;
 	// A constant with no rows is empty as a read that answered none is: its
 	// empty form stands (`empty`, else the generic sentence), never a sheet
 	// with nothing on it.
@@ -262,14 +273,14 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 			<PicksLine rows={loaded} />
 			<SheetCard>
 				<Rows
-					drawn={drawn as never}
+					drawn={drawn}
 					more={pagesOf(items)}
 					paint={paint}
 					groups={bands.painted ? undefined : bands.value}
 					counted={
 						!one &&
 						title !== undefined &&
-						!factsOnly(drawn.value as readonly Row[])
+						(drawn.painted || !factsOnly(drawn.value))
 					}
 				/>
 			</SheetCard>
@@ -302,10 +313,7 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 function PicksLine({ rows }: { rows: readonly RowData[] }) {
 	const words = useWords();
 	const options = optionsOf(rows);
-	const picks =
-		options.length === 0
-			? undefined
-			: combine(options as [Selection<unknown>], () => null);
+	const picks = options.length === 0 ? undefined : combine(options, () => null);
 	const { drawn, retry } = useOptions(picks);
 	if (!drawn.painted) return null;
 	if (drawn.phase === "failed")

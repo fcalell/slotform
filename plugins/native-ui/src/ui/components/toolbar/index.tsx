@@ -66,6 +66,9 @@ export function Toolbar({
 							filters.map((filter) => (
 								<HeldPicker
 									key={filter.label}
+									// A filter over `string` draws as a pick over `string | null`,
+									// whose `onChange` its own cannot take; the pick hands back only
+									// the values the filter offers.
 									{...(filter as PickerMenuProps<string | null>)}
 								/>
 							))

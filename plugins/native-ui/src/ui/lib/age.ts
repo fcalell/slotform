@@ -18,7 +18,8 @@ export function age(moment: string, now = Date.now()): string {
 }
 
 // Whether `Intl.NumberFormat` words a unit ("2 min"): an engine without the
-// `unit` style ignores it and formats a bare number.
+// `unit` style ignores it and formats a bare number, or throws a RangeError on
+// it; both mean no unit.
 function wordsUnits(): boolean {
 	try {
 		return (

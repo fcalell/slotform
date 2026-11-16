@@ -213,6 +213,9 @@ function controlOf(
 	error: string | undefined,
 ): ReactNode {
 	const { label, disabled } = props;
+	// The one draft holds the value of whichever control the field draws, and a
+	// pick of one and of several share a handler: each branch names its control's
+	// types, which the compiler cannot tie to the branch.
 	if (props.input)
 		return <InputBase {...props.input} draft={draft as Draft<string>} />;
 	if (props.textArea)
@@ -437,6 +440,8 @@ export function FieldBody(props: Body) {
 				/>
 			</View>
 		);
+	// The one draft holds the checkbox's value here, as `controlOf` says of its
+	// controls.
 	if (props.checkbox)
 		return (
 			<CheckboxRow

@@ -219,6 +219,8 @@ function ReplyTurn<T>(props: {
 	// turn's own message never rises.
 	const begun = useStreamed(form === "waiting" ? ["replying"] : [], !painted);
 	if (painted || form === "none") return null;
+	// `useFrameRead` takes the selection as `Selection<unknown>`, so the turn
+	// comes back untyped: it is the `reply`'s `T`.
 	const item = value as T | null | undefined;
 	// History holds the turn already: it draws it, so this one steps aside.
 	if (item != null && slots.current.key(item) === after) return null;

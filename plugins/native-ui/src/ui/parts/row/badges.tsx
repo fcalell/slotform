@@ -22,6 +22,7 @@ import { type BadgeSpec, loneCode } from "../../lib/facts";
 import { useTokenPx } from "../../lib/frame";
 import { Ink } from "../../lib/ink";
 import { type blockIn, FadingView } from "../../lib/motion";
+import { open } from "../../lib/navigate";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 import { IconBase } from "../icon";
 import { StatusDot } from "../status/dot";
@@ -34,7 +35,7 @@ import { StatusDot } from "../status/dot";
 const BOX = "flex-row items-center self-start";
 const WORDS = "min-w-0 shrink text-ink-meta";
 const GLYPH = "shrink-0";
-// A badge that is a link or a button washes at the press.
+// A badge that is a link washes at the press.
 const PRESS = "active:bg-wash-press";
 // A badge that arrives on its own is a block: it stands in a wrapper of its
 // own that fades it in, at most the line's width.
@@ -43,9 +44,8 @@ const META = cn(text({ role: "meta" }), FIGURES);
 
 type Entering = ReturnType<typeof blockIn>;
 
-/** What a badge does when pressed: a link or a button, its box the press target, reaching the target size by a hit slop. */
+/** What a badge does when pressed: it is a link, its box the press target, reaching the target size by a hit slop. */
 interface BadgePress {
-	role: "link" | "button";
 	onPress: () => void;
 	onPressIn?: () => void;
 }
@@ -72,7 +72,7 @@ export function Badge(props: {
 	);
 	const box = press ? (
 		<Pressable
-			accessibilityRole={press.role}
+			accessibilityRole="link"
 			accessibilityLabel={name}
 			onPressIn={press.onPressIn}
 			onPress={press.onPress}
@@ -207,7 +207,7 @@ export function FactBadge(props: {
 			: undefined;
 	const press: BadgePress | undefined =
 		spec.kind === "lock" && href !== undefined && onOpen
-			? { role: "link", onPress: () => onOpen(href) }
+			? { onPress: () => onOpen(href) }
 			: undefined;
 	return (
 		<Badge name={spec.name} press={press} entering={entering}>
@@ -228,12 +228,10 @@ export function FactBadge(props: {
  * down with no separator, wrapping to the next line where the line is out of
  * room. The line takes no press but a linked badge's (`box-none`), the rest of
  * its badges letting a press through to the row's hit; a line of one lone
- * `{ code }` run is no badge (`RowValue`). Outside the package's exports.
+ * `{ code }` run is no badge (`RowValue`). A linked badge opens its `href`.
+ * Outside the package's exports.
  */
-export function BadgeLine(props: {
-	badges: readonly BadgeSpec[];
-	onOpen?: (href: string) => void;
-}) {
+export function BadgeLine(props: { badges: readonly BadgeSpec[] }) {
 	const linked = props.badges.some((spec) => spec.href !== undefined);
 	return (
 		<View
@@ -246,7 +244,7 @@ export function BadgeLine(props: {
 					key={at}
 					spec={spec}
 					at={at}
-					onOpen={props.onOpen}
+					onOpen={open}
 				/>
 			))}
 		</View>

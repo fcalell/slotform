@@ -83,6 +83,8 @@ export function audioOutput(): Engine {
 					: undefined,
 			ready: () => sound.isLoaded,
 			seek(to) {
+				// A seek the sound refuses (not loaded yet, or released) leaves the
+				// time where it stood, which the player reads back every frame.
 				sound.seekTo(to).catch(NOOP);
 			},
 			paused: () => !sound.playing,

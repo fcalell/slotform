@@ -10,7 +10,13 @@ import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
-import { filled, META_TAIL, partRuns, partText } from "@fcalell/ui-core/runs";
+import {
+	filled,
+	isRun,
+	META_TAIL,
+	partRuns,
+	partText,
+} from "@fcalell/ui-core/runs";
 import {
 	BADGE_LINE,
 	ITEM_FACT,
@@ -103,7 +109,6 @@ function FactPart({
 				name={partText(label)}
 				entering={entering}
 				press={{
-					role: "link",
 					onPressIn: () => warm(href),
 					onPress: () => navigate(href),
 				}}
@@ -171,6 +176,7 @@ function FactPart({
 // control.
 function PaintedFact({ fact, at }: { fact: unknown; at: number }) {
 	const REACH = useReach();
+	// A fact with a `pick` is a status that moves (`{ pick: OptionPick }`).
 	if (typeof fact === "object" && fact !== null && "pick" in fact)
 		return (
 			<View style={REACH} className={PICK}>
@@ -208,11 +214,13 @@ export function ItemHeaderBase({
 	// read says why.
 	const draws = (each: (typeof drawn)[number]) => !each.painted || paints(each);
 	// A loaded part with no text draws nothing, so no separator dangles after
-	// the part before it.
+	// the part before it. The overline's slice holds its parts, each a run.
 	const placed = drawn
 		.slice(0, overline.length)
 		.filter(
-			(each) => draws(each) && (each.painted || filled(each.value as Run)),
+			(each) =>
+				draws(each) &&
+				(each.painted || (isRun(each.value) && filled(each.value))),
 		);
 	const stood = drawn
 		.slice(overline.length)
@@ -226,20 +234,17 @@ export function ItemHeaderBase({
 	// no name keeps it in the facts line.
 	const named = title !== undefined && (!name.painted || paints(name));
 	const aside = (each: (typeof stood)[number]) =>
-		named &&
-		!each.painted &&
-		isMark(each.value) &&
-		wordless(each.value as RowMark);
+		named && !each.painted && isMark(each.value) && wordless(each.value);
+	// A quiet fact passed `aside`: drawn, and a mark.
 	const quiet = stood.filter(aside);
 	const line = stood.filter((each) => !aside(each));
 	// A fact that came on its own once the header was drawn is a block that fades
 	// in as it mounts.
 	const arrived = useArrivals(
-		stood.flatMap((fact) =>
-			fact.painted ? [] : [factKey(fact.value as RecordFact)],
-		),
+		stood.flatMap((fact) => (fact.painted ? [] : [factKey(fact.value)])),
 		!painted,
 	);
+	// A head that is `named` was given its title, so its value is a run.
 	const heading = named ? (
 		<PaintText
 			fills="title"
@@ -314,12 +319,10 @@ export function ItemHeaderBase({
 							<PaintedFact key={at} fact={fact.value} at={at} />
 						) : (
 							<FactPart
-								key={factKey(fact.value as RecordFact)}
-								fact={fact.value as RecordFact}
+								key={factKey(fact.value)}
+								fact={fact.value}
 								entering={
-									arrived.has(factKey(fact.value as RecordFact))
-										? blockIn()
-										: undefined
+									arrived.has(factKey(fact.value)) ? blockIn() : undefined
 								}
 							/>
 						),

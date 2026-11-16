@@ -1,16 +1,17 @@
-import type {
-	IconName,
-	RowMark,
-	Run,
-	Runs,
-} from "@fcalell/ui-core/descriptors";
+import type { IconName, RowMark, Runs } from "@fcalell/ui-core/descriptors";
 import {
 	isChipFact,
 	isMarkFact,
 	isStatusFact,
 	isWarningFact,
 } from "@fcalell/ui-core/list-state";
-import { filled, isCode, partRuns, partText } from "@fcalell/ui-core/runs";
+import {
+	filled,
+	isCode,
+	isRun,
+	partRuns,
+	partText,
+} from "@fcalell/ui-core/runs";
 import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
 
 // The words of a line of facts and the badges a list of facts draws, free of
@@ -163,8 +164,8 @@ export function badgesOf(input: BadgeInput): Badges {
 			);
 		} else if (fillers) {
 			badges.push(filler("words"));
-		} else if (filled(fact as Run)) {
-			badges.push(words(partRuns(fact as Run)));
+		} else if (isRun(fact) && filled(fact)) {
+			badges.push(words(partRuns(fact)));
 		}
 	}
 	if (lock !== undefined) {

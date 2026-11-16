@@ -9,7 +9,6 @@ import {
 	type Datum,
 	type Drawn,
 	endedReason,
-	type Fielded,
 	lift,
 	type Selection,
 } from "@fcalell/ui-core/read";
@@ -19,7 +18,6 @@ import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { ButtonBase } from "../components/button/base";
 import { MissingBase } from "../components/missing/base";
-import { IconButtonBase } from "../parts/button/glyph";
 import { Icon } from "../parts/icon";
 import { Spinner } from "../parts/spinner";
 import type { Act, MenuEntry } from "./act";
@@ -71,13 +69,10 @@ export function moreMenu(
 	words: Words,
 	offer: Drawn<readonly MenuEntry[] | undefined>,
 ): { painted: boolean; items: readonly MenuEntry[] } {
-	const ended = offer.painted ? endedReason(words, offer.phase) : undefined;
-	if (offer.painted && ended === undefined) return { painted: true, items: [] };
-	const own: readonly MenuEntry[] | undefined =
-		ended === undefined
-			? (offer.value as readonly MenuEntry[] | undefined)
-			: endedItems(words, ended);
-	return { painted: false, items: own ?? [] };
+	if (!offer.painted) return { painted: false, items: offer.value ?? [] };
+	const ended = endedReason(words, offer.phase);
+	if (ended === undefined) return { painted: true, items: [] };
+	return { painted: false, items: endedItems(words, ended) };
 }
 
 // A blocked act is never pressed; its type still asks for the run.
@@ -111,15 +106,12 @@ function EmptyForm(props: {
 	const { empty, fit } = props;
 	const words = useWords();
 	const [said] = useSelections([
-		lift<{ sentence?: string }, "sentence">(
-			empty as Fielded<{ sentence?: string }, "sentence"> | undefined,
-			["sentence"],
-		),
+		lift<{ sentence?: string }, "sentence">(empty, ["sentence"]),
 	] as const);
 	const sentence = empty
 		? said.painted
 			? words.readEmpty
-			: (said.value as { sentence?: string }).sentence
+			: said.value?.sentence
 		: words.readEmpty;
 	return (
 		<EmptyBase fit={fit} tone="rest" sentence={sentence} act={empty?.act} />
@@ -213,29 +205,10 @@ export function StateLine(props: {
 export function OptionsLine(props: {
 	drawn: Drawn<unknown>;
 	retry: () => Promise<unknown>;
-	compact?: boolean;
 }) {
-	const { drawn, retry, compact } = props;
+	const { drawn, retry } = props;
 	const words = useWords();
 	if (!drawn.painted) return null;
-	// A compact control (a row's pick) has no line to stand under it: its failure
-	// is the failed row's mark and retry icon at its end, named by the sentence
-	// and Retry, so it stands on one line whatever the width.
-	if (compact && (drawn.phase === "failed" || drawn.phase === "missing")) {
-		const failed = drawn.phase === "failed";
-		return (
-			<View className="shrink-0 flex-row items-center">
-				<FailedMark label={failed ? words.readFailed : words.missing} />
-				{failed ? (
-					<IconButtonBase
-						icon="RotateCw"
-						label={words.retry}
-						onAct={() => void retry()}
-					/>
-				) : null}
-			</View>
-		);
-	}
 	if (drawn.phase === "failed") {
 		return (
 			<StateLine

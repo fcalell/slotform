@@ -17,7 +17,7 @@ import {
 } from "@fcalell/ui-core/scramble";
 import type { LoadingSlot } from "@fcalell/ui-core/tokens";
 import { memo, useEffect, useId, useState, useSyncExternalStore } from "react";
-import { I18nManager, Text as RNText } from "react-native";
+import { I18nManager, Text as RNText, type TextProps } from "react-native";
 import { reducedNow } from "./motion";
 
 // The generated characters of a scrambled slot, in the ink of the text that
@@ -53,7 +53,7 @@ export function Decoding(props: {
 	text: string;
 	onDone: () => void;
 	className?: string;
-	style?: unknown;
+	style?: TextProps["style"];
 	numberOfLines?: number;
 }) {
 	const { text, onDone } = props;
@@ -77,7 +77,7 @@ export function Decoding(props: {
 	return (
 		<RNText
 			className={props.className}
-			style={props.style as never}
+			style={props.style}
 			numberOfLines={props.numberOfLines}
 			importantForAccessibility="no"
 		>
@@ -88,15 +88,14 @@ export function Decoding(props: {
 
 // The busy glyph's text: three mono glyphs the page's ticker cycles, `···`
 // under reduced motion.
-export function BusyGlyphs(props: { className?: string; style?: unknown }) {
+export function BusyGlyphs(props: {
+	className?: string;
+	style?: TextProps["style"];
+}) {
 	const tick = useSyncExternalStore(ticker.subscribe, ticker.now, ticker.now);
 	const seed = seedOf(useId());
 	return (
-		<RNText
-			numberOfLines={1}
-			className={props.className}
-			style={props.style as never}
-		>
+		<RNText numberOfLines={1} className={props.className} style={props.style}>
 			{reducedNow() ? BUSY_STILL : busy(tick, seed)}
 		</RNText>
 	);

@@ -68,6 +68,7 @@ const Item = memo(function Item({
 // Outside the package's exports.
 export function Attachments(props: {
 	attachments: readonly Attachment[];
+	// The row stands at the end, under a message of yours.
 	end?: boolean;
 	onRemove?: (id: string) => void;
 }) {

@@ -72,7 +72,7 @@ function useOffer(act: Datum<IconAct | IconLinkAct | undefined>) {
 		ended === undefined
 			? offer.painted
 				? undefined
-				: (offer.value as IconAct | IconLinkAct | undefined)
+				: offer.value
 			: { label: ended, icon: "CircleAlert", blocked: ended, onAct: NOOP };
 	return {
 		waits: offer.painted && ended === undefined,

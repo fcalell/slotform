@@ -150,8 +150,8 @@ export function Meter({
 	const painted = absent && !ended;
 	// The drawn numbers are read only once absence is ruled out: a placeholder
 	// is a function proxy.
-	const used = absent ? 0 : (v.value as number);
-	const limit = absent ? 0 : (m.value as number);
+	const used = absent ? 0 : v.value;
+	const limit = absent ? 0 : m.value;
 	const share = limit > 0 ? used / limit : 0;
 	const markShare = mark && limit > 0 ? mark.value / limit : undefined;
 	const percent = formatterFor("number", undefined, {
@@ -164,7 +164,7 @@ export function Meter({
 		? {}
 		: ({
 				accessibilityRole: "progressbar",
-				accessibilityLabel: l.value as string,
+				accessibilityLabel: l.value,
 				accessibilityValue: { min: 0, max: limit, now: Math.min(used, limit) },
 			} as const);
 	return (
@@ -185,7 +185,7 @@ export function Meter({
 				) : l.painted ? (
 					paintText("name", at)
 				) : (
-					(l.value as string)
+					l.value
 				)}
 			</PaintText>
 			<View className={cn(STATS_FIGURE, held ? FAILED_FIGURE : FIGURE)}>
@@ -244,7 +244,7 @@ export function Meter({
 			{held === "failed" ? (
 				<Pressable
 					accessibilityRole="button"
-					accessibilityLabel={`${words.retry} ${l.painted ? "" : (l.value as string)}`.trim()}
+					accessibilityLabel={`${words.retry} ${l.painted ? "" : l.value}`.trim()}
 					onPress={() => {
 						if (!busy) void retry();
 					}}

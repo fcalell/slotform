@@ -26,17 +26,23 @@ export function open(href: string): void {
 	else Linking.openURL(href);
 }
 
+// The part of expo-router's state for an href that `served` walks: the route
+// at each level, and the state nested under it.
+interface RouteState {
+	routes?: { name: string; state?: RouteState }[];
+}
+
 // Whether expo-router serves a route of its own at `href`: its state for the
 // path ends in a screen, not the `+not-found` one.
 function served(href: string): boolean {
-	let state = store.getStateForHref(href as Route) as
-		| { routes?: { name: string; state?: unknown }[] }
-		| undefined;
+	// A probed path is no known route yet, and expo-router's state tree is
+	// untyped past its root: both casts are the probe's.
+	let state = store.getStateForHref(href as Route) as RouteState | undefined;
 	let name: string | undefined;
 	while (state?.routes?.length) {
 		const last = state.routes[state.routes.length - 1];
 		name = last?.name;
-		state = last?.state as typeof state;
+		state = last?.state;
 	}
 	return name !== undefined && name !== "+not-found";
 }
@@ -51,6 +57,7 @@ export function useParentRoute(): Route | undefined {
 	while (segments.length > 0) {
 		segments.pop();
 		const above = `/${segments.join("/")}`;
+		// `served` has just found a screen at it.
 		if (served(above)) return above as Route;
 	}
 	return undefined;
@@ -69,6 +76,7 @@ export function useWarm(): (href: string) => void {
 				port.warm,
 				{
 					routeNode: store.routeNode,
+					// A probed path, as `served`'s is.
 					getStateForHref: (at) => store.getStateForHref(at as Route),
 				},
 				href,

@@ -69,6 +69,8 @@ export function Swap(props: {
 			scale ? tuned.fast : 0,
 			withTiming(1, timing("fast", "out")),
 		);
+		// A timer, not `withTiming`'s finish callback: that callback is a UI-thread
+		// worklet, and handing it to React state needs a thread hop.
 		const timer = setTimeout(
 			() => setLeaving(undefined),
 			scale ? 2 * tuned.fast : tuned.fast,

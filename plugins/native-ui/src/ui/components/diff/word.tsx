@@ -36,6 +36,7 @@ export function WordDiff(props: {
 	const runs = useMemo(() => {
 		const drawn: ReactNode[] = [];
 		if (ended) return drawn;
+		// `ended` is false here, which the compiler does not carry into the memo.
 		const parts = diffWords(from.value as string, to.value as string);
 		let at = 0;
 		parts.forEach((part, index) => {

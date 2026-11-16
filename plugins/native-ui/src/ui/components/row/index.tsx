@@ -1,9 +1,4 @@
-import type {
-	RowTitle,
-	RowTrailing,
-	Run,
-	Runs,
-} from "@fcalell/ui-core/descriptors";
+import type { RowTitle, RowTrailing } from "@fcalell/ui-core/descriptors";
 import { ROW_TITLE_LINES } from "@fcalell/ui-core/fold";
 import {
 	isAbsent,
@@ -269,15 +264,12 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		!ended && line !== undefined && (painted || paints(lineRead));
 	const inert = waitsTitle || waitsFacts || waitsLine;
 	const toldLine =
-		ended || painted || lineRead.painted
-			? undefined
-			: (lineRead.value as Run | Runs | undefined);
+		ended || painted || lineRead.painted ? undefined : lineRead.value;
 	const hasLine =
 		waitsLine || (toldLine !== undefined && runsOf(toldLine).some(filled));
 	// A placeholder is a function proxy that no type test passes: the title is
 	// read only once painted is ruled out.
-	const plain =
-		painted || read.painted ? undefined : (read.value as RowTitle | undefined);
+	const plain = painted || read.painted ? undefined : read.value;
 	// Over the placeholder the title is not a name.
 	const named = painted
 		? ""
@@ -304,6 +296,8 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		ended || typeof lockGiven !== "object" ? undefined : lockGiven.href;
 	// The copy act copies the code a title names.
 	const copied = isCopy(plain) ? plain.code : undefined;
+	// Waiting, the value is the title's selector run over the placeholder: only
+	// its shape (a status, a copy) is read from it.
 	const shape = (waitsTitle && title !== undefined ? read.value : plain) as
 		| RowTitle
 		| undefined;
@@ -472,7 +466,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 					(!Array.isArray(plain) && "quoted" in plain) ? (
 						titleWords(plain)
 					) : (
-						<RunText runs={runsOf(plain as Run | Runs)} fit="name" />
+						<RunText runs={runsOf(plain)} fit="name" />
 					)}
 				</RNText>
 			);
@@ -489,7 +483,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 				<RunText runs={runsOf(sentence)} fit="name" />
 			</RNText>
 		) : badges.length > 0 ? (
-			<BadgeLine badges={badges} onOpen={follow} />
+			<BadgeLine badges={badges} />
 		) : null;
 	// The line, under the title and the badges: text in the meta ink at the meta
 	// role that wraps whole (a sentence is text, never a badge), a badge's gap

@@ -9,14 +9,13 @@ import { badgesOf, loneCode } from "./facts.ts";
 // badge draws, and that a long one is cut inside its box, is the component's
 // (`row/badges.tsx`) and is read on the facts page of the phone app.
 
-const TONES: Record<Tone, string> = {
+const TONES: Partial<Record<Tone, string>> = {
 	done: "Done",
 	failed: "Failed",
 	running: "Running",
 	waiting: "Waiting",
 	active: "Active",
-	// biome-ignore lint/suspicious/noExplicitAny: the tests name the tones they use
-} as any;
+};
 const word = (tone: Tone) => TONES[tone] ?? tone;
 
 // A row with every fact kind: the order the facts give is the order drawn.

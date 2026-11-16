@@ -128,7 +128,7 @@ export function ButtonBase({
 	const { touched } = useTouched();
 	const host = useContext(ReasonHostContext);
 	// A host with a line of its own draws a rejection there; the public Button
-	// alone draws it under itself.
+	// alone draws it under itself. The base makes the run whose mode `line` picks.
 	const acting = useAct(line && !host ? "line" : "toast");
 	const pending = given === true || acting.pending !== undefined;
 	const drawn = useShown(pending, timings.actDelay);

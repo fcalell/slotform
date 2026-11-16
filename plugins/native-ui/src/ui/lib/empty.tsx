@@ -20,7 +20,6 @@ import { Ink } from "./ink";
 const ALONE = "grow items-center justify-center";
 const COLUMN = "items-center";
 const FRAME = "flex-row justify-center";
-const FILL = "grow items-center";
 const MARK = "items-center justify-center shrink-0";
 const TEXT = "items-center";
 const LINE = "text-center";
@@ -49,9 +48,6 @@ export function EmptyBase(props: {
 	// A missing form's way back goes to a route, so it presses through
 	// `navigate`.
 	act?: Act | LinkAct;
-	// The frame fills the box it stands in, its content centred there (a
-	// chart's loaded height).
-	fill?: boolean;
 }) {
 	const framed = props.fit !== "page";
 	// A missing form is the page's header, the title of the record that is not
@@ -84,11 +80,7 @@ export function EmptyBase(props: {
 	if (framed)
 		return (
 			<View
-				className={cn(
-					props.fit === "part" ? EMPTY_PART : CARD_PART,
-					FRAME,
-					props.fill && FILL,
-				)}
+				className={cn(props.fit === "part" ? EMPTY_PART : CARD_PART, FRAME)}
 			>
 				<View className={cn(EMPTY_COLUMN, COLUMN)}>
 					{mark}

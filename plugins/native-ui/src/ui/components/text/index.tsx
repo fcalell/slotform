@@ -27,6 +27,7 @@ export function Text({ kind, children }: TextProps) {
 	const runs = runsIn(children);
 	return (
 		<RNText className={text({ role: kind ?? "body" })}>
+			{/* `runsIn` has taken every run, so what is left is a node. */}
 			{runs ? <RunText runs={runs} /> : (children as ReactNode)}
 		</RNText>
 	);

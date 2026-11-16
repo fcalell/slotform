@@ -200,6 +200,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 	// The hunks derive once per text pair, and not while the diff paints.
 	const shown = useMemo(() => {
 		if (painted) return [];
+		// `painted` is false here, which the compiler does not carry into the memo.
 		const given = h.value as readonly Hunk[] | undefined;
 		return given ?? lineHunks(b.value as string, a.value as string);
 	}, [painted, h.value, b.value, a.value]);

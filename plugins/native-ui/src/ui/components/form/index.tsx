@@ -28,7 +28,6 @@ import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	type Datum,
-	type Drawn,
 	isPlaceholder,
 	isSelection,
 	type Selection,
@@ -52,6 +51,9 @@ type Fields<P extends ProcedureCall> = FormFields<
 	Options,
 	Datum<string>
 >;
+// A field's spec read past `P`: `FormFields` over a generic `InputOf<P>` is a
+// mapped type the compiler cannot resolve, so its entries are read as `Spec`,
+// and a narrowing `options` function's draft as strings.
 type Spec = FieldSpec<unknown, Options, Record<string, string>, Datum<string>>;
 
 /** The submit act's words and what follows it. `done` and `to` are the `Act`'s: the bar's act hands them to its host, which toasts and navigates once the procedure resolves. A form that commits by field draws no bar: it toasts `done` per field commit, and `label` and `to` have no place. */
@@ -185,7 +187,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 		throw new Error(`Form: ${path} is not a mutation over an object`);
 	}
 	const input = entry.input;
-	const base: Values = loaded.painted ? {} : ((loaded.value as Values) ?? {});
+	const base: Values = loaded.painted ? {} : (loaded.value ?? {});
 	const denied =
 		allowed.painted || allowed.value === true
 			? undefined
@@ -195,7 +197,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	const specs = groups.flatMap((group) =>
 		Object.entries(group.fields as Record<string, Spec>),
 	);
-	const given_ = (given ?? {}) as Values;
+	const given_: Values = given ?? {};
 	// The keys a file field's name goes to are the form's, not the screen's.
 	const named = new Set(
 		specs.flatMap(([, spec]) => (spec.name ? [spec.name] : [])),
@@ -298,7 +300,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			if (narrowed) {
 				choices.set(key, listed(sent as Partial<Record<string, string>>));
 			} else if (listed) {
-				choices.set(key, listed as Datum<readonly Option<string>[]>);
+				choices.set(key, listed);
 			}
 			let value = narrowed
 				? within(holds(key, held), choices.get(key))
@@ -353,7 +355,8 @@ export function useDerivedForm<P extends ProcedureCall>(
 		clear(key);
 	};
 
-	// A picked file goes as the string it is read into.
+	// A picked file goes as the string it is read into. The input is built from
+	// the runtime schema, which the compiler cannot tie to `InputOf<P>`.
 	const wire = async (made: Record<string, unknown>): Promise<InputOf<P>> => {
 		const out = { ...made };
 		for (const [key, derived] of shown) {
@@ -462,7 +465,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	// What a field says under its control, in the order the specs stand.
 	const saying = (key: string): string | undefined => {
 		const at = specs.findIndex(([each]) => each === key);
-		const said = described[at] as Drawn<string | undefined> | undefined;
+		const said = described[at];
 		return said === undefined || said.painted ? undefined : said.value;
 	};
 
@@ -470,6 +473,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 		const derived = shown.get(key);
 		if (!derived) return null;
 		const held = key in draft ? draft[key] : initial(key, derived);
+		// A selection is no string and no list, so `within` passes it untouched.
 		const value =
 			typeof spec.options === "function"
 				? within(held as Held | undefined, choices.get(key))
@@ -505,10 +509,12 @@ export function useDerivedForm<P extends ProcedureCall>(
 				error={error}
 				optional={!derived.required && !byField}
 				disabled={denied !== undefined || spec.locked !== undefined}
+				// The descriptor's pick of one takes `string | null` and of several
+				// `string`: one `FormField` type parameter cannot follow the case.
 				{...(controlOf(
 					derived,
 					spec,
-					value as Datum<Held | undefined>,
+					value,
 					choices.get(key),
 					set,
 					commit,
@@ -527,7 +533,8 @@ export function useDerivedForm<P extends ProcedureCall>(
 		);
 	};
 	// A selection of the form's values hands each control its own slice, so it
-	// paints until the read lands.
+	// paints until the read lands. `isSelection` knows no value type, and the
+	// placeholder stands in for any slice.
 	const initial = (key: string, derived: Derived): Datum<Held | undefined> =>
 		isSelection(values)
 			? (values as Selection<Values | undefined>).at((all) =>
@@ -561,6 +568,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 		read ??
 		(isSelection(values) ? values : isSelection(mayHere) ? mayHere : undefined);
 	const commit = props.commit;
+	// `sent` is built from the runtime schema, as `wire`'s input is.
 	return props.groups
 		? {
 				bar,
@@ -609,6 +617,8 @@ function controlOf(
 		remove: () => Promise<unknown>;
 	},
 ) {
+	// The schema's control decides which `Held` the value is: each case names
+	// its own, which the compiler cannot tie to the case.
 	const text = (value ?? "") as Datum<string>;
 	const onText = (next: string) => set(next);
 	const onCommit = commit && ((next: string) => commit(next));

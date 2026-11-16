@@ -102,7 +102,7 @@ function TextBreathing({
 	breathes,
 	...props
 }: ComponentProps<typeof RNText> & { breathes: boolean }) {
-	const breath = usePaintStyle(undefined, breathes);
+	const breath = usePaintStyle(breathes);
 	return <BreathingText {...props} style={[style, breath]} />;
 }
 

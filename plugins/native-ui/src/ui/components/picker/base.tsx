@@ -4,7 +4,6 @@ import { pickCurrent, type Several } from "@fcalell/ui-core/pick";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { useOptions } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import {
 	CHIPS_RUN,
 	CHIPS_TRIGGER,
@@ -21,7 +20,6 @@ import { Pressable, Text as RNText, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { CHIP_LINES } from "../../lib/chip-lines";
 import { cn } from "../../lib/cn";
-import type { CellFit } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import {
 	inertProps,
@@ -37,9 +35,8 @@ import { Status } from "../status";
 import type { PickerMenuProps, PickOneProps, PickSeveralProps } from "./index";
 import { NO_OPTIONS, PickSheet, useOptionGroups } from "./sheet";
 
-// A field-fit trigger is the field box at the bar fit; in a table cell it
-// fills the cell it stands in for. It yields only past its line, so a long
-// value truncates before the chevron.
+// A field-fit trigger is the field box at the bar fit. It yields only past its
+// line, so a long value truncates before the chevron.
 const FIELD_TRIGGER = "flex-row max-w-full items-center";
 const FILL = "w-full";
 const FIELD_VALUE = "min-w-0 grow shrink";
@@ -51,8 +48,6 @@ const SEVERAL_RUN = "flex-row flex-wrap items-center gap-gap shrink min-w-0";
 const SEVERAL_TRIGGER =
 	"flex-row grow shrink-0 items-center justify-end min-w-target";
 const FIELD_STATUS = "min-w-0 grow shrink flex-row";
-// A chip column's value is its chip.
-const CHIP_SLOT = "flex-row grow min-w-0";
 // An option's own chip, centred on the value's line (a chip hugs the top of its row).
 const KIND = "shrink-0 self-center";
 // A row-fit trigger centres in its row and pulls back by its own padding at
@@ -83,11 +78,11 @@ function isSeveral<V extends string | null>(
 	return Array.isArray(props.value);
 }
 
+function isSet<V>(value: V | readonly V[] | undefined): value is readonly V[] {
+	return Array.isArray(value);
+}
+
 interface Composed {
-	// The family a chip column's value and options draw as chips of.
-	chip?: ChipFamily;
-	// The `Table` cell it edits in: the pick opens as the edit starts, named by the cell.
-	cell?: CellFit;
 	// Its data is not here: the trigger's box filled at its loaded size, its content not drawn, inert.
 	painted?: boolean;
 	// Set by a `FormField` around the pick: the box stands at the form's field
@@ -117,14 +112,14 @@ export function PickerBase<V extends string | null = string>(
 	// says why and opens nothing, so nothing can be picked.
 	const ended = draft.ended !== undefined;
 	const painted = given.painted || (draft.painted && !ended) || waiting.painted;
-	const props = {
-		...given,
-		value: draft.painted ? undefined : draft.value,
-		onChange: (next: V | V[]) => {
-			draft.change(next, () => given.onChange(next));
-		},
-	} as Drawn<V>;
-	const { label, placeholder, fit = "field", act, chip, cell, form } = given;
+	const picked = draft.painted ? undefined : draft.value;
+	const onChange = (next: V | V[]) => {
+		draft.change(next, () => given.onChange(next));
+	};
+	const props: Drawn<V> = isSet(picked)
+		? { ...given, value: picked, onChange }
+		: { ...given, value: picked, onChange };
+	const { label, placeholder, fit = "field", act, form } = given;
 	const words = useWords();
 	// What an empty box says: the hint, else the generic word in a row (its label
 	// is the accessible name, never the trigger's text), else what is picked (a field's own label
@@ -137,9 +132,7 @@ export function PickerBase<V extends string | null = string>(
 	const disabled = form?.disabled === true;
 	const several = isSeveral(props) ? props : undefined;
 	const value = isSeveral(props) ? undefined : props.value;
-	// In a table cell the pick opens as its edit starts, and its sheet gone,
-	// its leave played, ends the edit.
-	const [open, setOpen] = useState(cell !== undefined);
+	const [open, setOpen] = useState(false);
 	const opens = () => {
 		if (ended) draft.change(undefined);
 		else setOpen(true);
@@ -169,12 +162,12 @@ export function PickerBase<V extends string | null = string>(
 			<Icon name={leads.icon} fit={row ? "meta" : "control"} />
 		</Ink.Provider>
 	) : null;
-	// A set pick in a toolbar (the field fit, outside a form and a table cell)
+	// A set pick in a toolbar (the field fit, outside a form)
 	// reads its label then its value, so a value other filters could share
 	// ("Change") is told apart ("Work type: Change"); the empty choice (a `null`
 	// option, the way to clear) reads the label alone, as an unset pick does.
 	// Every other place reads the value alone.
-	const toolbar = fit === "field" && !form && cell === undefined;
+	const toolbar = fit === "field" && !form;
 	const lead = (option: Option<V>) => {
 		if (!toolbar) return option.label;
 		return option.value === null ? label : `${label}: ${option.label}`;
@@ -196,12 +189,6 @@ export function PickerBase<V extends string | null = string>(
 			>
 				{current?.label ?? hint}
 			</RNText>
-		);
-	else if (chip && current && current.value !== null)
-		shown = (
-			<View className={CHIP_SLOT}>
-				<Chip family={chip} label={current.label} />
-			</View>
 		);
 	else
 		shown = (
@@ -277,7 +264,7 @@ export function PickerBase<V extends string | null = string>(
 		<PaintPressable
 			painted={painted}
 			accessibilityRole="button"
-			accessibilityLabel={cell?.label ?? label}
+			accessibilityLabel={label}
 			accessibilityValue={{ text: current?.label }}
 			accessibilityState={{ expanded: open, disabled: disabled || ended }}
 			disabled={disabled}
@@ -290,7 +277,7 @@ export function PickerBase<V extends string | null = string>(
 							fieldBox,
 							picker({ fit }),
 							FIELD_TRIGGER,
-							(cell || fit === "bar") && FILL,
+							fit === "bar" && FILL,
 							disabled && DISABLED_FILL,
 						),
 				painted && PAINT_CONTROL,
@@ -326,10 +313,7 @@ export function PickerBase<V extends string | null = string>(
 				onChange={pick}
 				open={open}
 				onClose={() => setOpen(false)}
-				onGone={cell?.done}
-				typing={cell !== undefined}
 				act={act}
-				chip={chip}
 			/>
 			{/* A row's pick says nothing under itself: its box stands blocked, and the Section that holds the row says the failure once (`PicksLine`). */}
 			{row ? null : <OptionsLine drawn={waiting} retry={retry} />}
@@ -337,8 +321,8 @@ export function PickerBase<V extends string | null = string>(
 	);
 }
 
-// A Picker that holds its own draft, as a bare one, a row's pick and a cell's
-// do; a rejection toasts. Overloaded as `Picker` is. Outside the package's
+// A Picker that holds its own draft, as a bare one and a row's pick do; a
+// rejection toasts. Overloaded as `Picker` is. Outside the package's
 // exports.
 export function HeldPicker<V extends string | null = string>(
 	props: PickOneProps<V> & Composed,
@@ -356,14 +340,14 @@ export function HeldPicker<V extends string | null = string>(
 	return (
 		<PickerBase<V>
 			draft={useHeldDraft<V | readonly V[] | undefined>(value)}
+			// The draft holds the form `value` gives (one or a set), so `onChange`
+			// hears only the form it takes.
 			onChange={onChange as (next: V | V[]) => unknown}
 			label={label}
 			placeholder={placeholder}
 			options={options}
 			fit={fit}
 			act={act}
-			chip={props.chip}
-			cell={props.cell}
 			painted={props.painted}
 		/>
 	);

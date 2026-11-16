@@ -131,12 +131,15 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	const painted = rowsPaint || (draft.painted && draft.ended === undefined);
 	// The placeholder is no array, so a painted value is one choice.
 	const one = !Array.isArray(draft.value);
-	const choice = {
-		value: draft.painted ? (one ? null : []) : draft.value,
-		onChange: (next: V | V[]) => {
-			draft.change(next, () => props.onChange(next));
-		},
-	} as OptionChoice<V>;
+	const value = draft.painted ? (one ? null : []) : draft.value;
+	const onChange = (next: V | V[]) => {
+		draft.change(next, () => props.onChange(next));
+	};
+	const choice: OptionChoice<V> =
+		value === null || typeof value === "string"
+			? { value, onChange }
+			: { value, onChange };
+	// A list with no `options` has `items`, so its read's value is a list.
 	const options = rowsPaint
 		? paintedGroups<V>(props.option)
 		: (props.options ?? optionsOf(given.value as readonly T[], props.option));
@@ -331,9 +334,11 @@ export function HeldList<V extends string = string, T = unknown>(
 	const { value, onChange, label, children, ...source } = props;
 	return (
 		<PickerListBase<V, T>
-			{...(source as PickerListBody<V, T>)}
+			{...source}
 			label={label}
 			draft={useHeldDraft<V | null | readonly V[]>(value)}
+			// The draft holds the form `value` gives (one or a set), so `onChange`
+			// hears only the form it takes.
 			onChange={onChange as (next: V | V[]) => unknown}
 		>
 			{children}

@@ -209,7 +209,7 @@ export function Table<T>(props: TableProps<T>) {
 	const { drawn, frame } = useCollection(props.items);
 	const { painted } = drawn;
 	// Painted, `PAINT_ROWS` records over the placeholder, in the order the
-	// data would arrive.
+	// data would arrive; the placeholder answers every key, so it stands as a `T`.
 	const items: readonly T[] = painted
 		? Array.from({ length: PAINT_ROWS }, () => drawn.value as T)
 		: drawn.value;
@@ -218,6 +218,7 @@ export function Table<T>(props: TableProps<T>) {
 	const more = painted ? undefined : pagesOf(props.items);
 	const blank = more
 		? tableRecords(
+				// The placeholder answers every key, so it stands as a `T`.
 				[placeholderData() as T],
 				columns,
 				props.row,
@@ -871,6 +872,8 @@ function CellValueView(props: {
 	if (cell === null || cell === undefined) return null;
 	switch (column.kind) {
 		case "status": {
+			// A status column's cells are status marks: the cell's type is not
+			// keyed by its column's kind.
 			const status = cell as StatusMark;
 			return <StatusBase tone={status.tone} label={status.label} />;
 		}
@@ -1141,6 +1144,8 @@ function Phone(props: {
 	// in the shape the loaded ones draw; a mark whose cell the placeholder does
 	// not shape (a status, a chip, an age) is given by its column instead.
 	const rowOf = (record: TableRecord, painted: boolean): RowItem => {
+		// A slot that throws on a painted record gives the record back, which a
+		// painted row draws only as its filler.
 		const slot = <R,>(fn: (one: TableRecord) => R): R =>
 			painted ? (painting(fn, record) as R) : fn(record);
 		// The facts in the order the row leads with them: the statuses, what is

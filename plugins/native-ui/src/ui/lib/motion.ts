@@ -94,24 +94,24 @@ function startBreath(): void {
 }
 
 /**
- * The style of a painted part: its opacity is the fade-in after `delay` (the
- * read's by default; an act's is `tuned.actDelay`) times the page's breath.
+ * The style of a painted part: its opacity is the fade-in after the read's
+ * `tuned.waitDelay` times the page's breath.
  * The part's content is not drawn while it is painted, so the box's opacity is
  * its fill's alpha. The delay holds under reduced motion and the fade snaps. A
  * part that does not `breathes` (a scrambled text, whose glyphs would dim) only
  * fades in.
  */
-export function usePaintStyle(delay = tuned.waitDelay, breathes = true) {
+export function usePaintStyle(breathes = true) {
 	const appear = useSharedValue(0);
 	useEffect(() => {
 		startBreath();
 		appear.value = withDelay(
-			delay,
+			tuned.waitDelay,
 			withTiming(1, timing("base", "out")),
 			ReduceMotion.Never,
 		);
 		return () => cancelAnimation(appear);
-	}, [appear, delay]);
+	}, [appear]);
 	return useAnimatedStyle(() => ({
 		opacity:
 			appear.value *
@@ -147,15 +147,11 @@ export function usePress() {
 // A control's own value moving: 0 to 1 as `on` turns, over a rung on a curve
 // (the thumb's travel, a chevron's turn). It starts where `on` stands, so a
 // control that mounts on draws its end without moving to it.
-export function useToggle(
-	on: boolean,
-	rung: Duration = "fast",
-	name: Curve = "in-out",
-) {
+export function useToggle(on: boolean) {
 	const value = useSharedValue(on ? 1 : 0);
 	useEffect(() => {
-		value.value = withTiming(on ? 1 : 0, timing(rung, name));
-	}, [on, rung, name, value]);
+		value.value = withTiming(on ? 1 : 0, timing("fast", "in-out"));
+	}, [on, value]);
 	return value;
 }
 
@@ -181,16 +177,11 @@ export const FadingView = withUniwind(Animated.View);
 // on `in-out`. It starts at `from` and follows `to`; a fill that mounts starts
 // at 0 and grows from its start, and one that stands where it was does not
 // move until its data does.
-export function useValue(
-	to: number,
-	from = to,
-	rung: Duration = "slow",
-	name: Curve = "in-out",
-) {
+export function useValue(to: number, from = to) {
 	const value = useSharedValue(from);
 	useEffect(() => {
-		value.value = withTiming(to, timing(rung, name));
-	}, [to, rung, name, value]);
+		value.value = withTiming(to, timing("slow", "in-out"));
+	}, [to, value]);
 	return value;
 }
 
