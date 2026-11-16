@@ -17,7 +17,7 @@ subpaths keep their names; a component file takes what it shares from `roster/sh
 and types, `RosterEntry` among them) or `roster/descriptors.ts` (the descriptors two or more
 components take, `RouteRegistry` among them), never from the four, so no ui-core file is in an
 import cycle), `words`, and framework-free logic subpaths (`paint`, `arrive`, `scramble`, `roll`,
-`follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`, `structure`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock both plugins' `useClock` reads. `acts.ts` also holds `moreMenu` and `endedItems`, what a more menu holds and the one blocked item it stands as once its read ended. `list-state.ts` also holds `optionReads`, the reads a Section's pick rows draw their options from, which its sheet says once. `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it once. `react/form.ts` holds `useFormModel`, a form's model over its procedure (`FormModel`: its fields' state, each field as a `FieldModel`, the input they make, the bar with its submit, the reads the bar paints under and `clear`), read from `FormModelProps`; each plugin maps every `FieldModel` to its `FormField`.
+`follow`, `clock`, `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`, `manifest`). `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size` (how many listen) that every `useSyncExternalStore` source over plain state is built on; its optional `source` feeds the value from outside (a timer, a media query, an observer) from the first listener to the last. `clock.ts` also holds `createClock`, the coarse clock `useClock` (`./react/clock`) reads. `acts.ts` also holds `moreMenu` and `endedItems`, what a more menu holds and the one blocked item it stands as once its read ended. `list-state.ts` also holds `optionReads`, the reads a Section's pick rows draw their options from, which its sheet says once. `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it once. `react/form.ts` holds `useFormModel`, a form's model over its procedure (`FormModel`: its fields' state, each field as a `FieldModel`, the input they make, the bar with its submit, the reads the bar paints under and `clear`), read from `FormModelProps`; each plugin maps every `FieldModel` to its `FormField`.
 
 ## Tokens and theming
 
@@ -128,7 +128,7 @@ tune in one place).
   once.
 - **Lines and blocks.** A line (a reason, an error, a notice) fades in and pushes what follows at
   once. A block (a fold, a chip remove, a sheet close, a row the viewer adds or removes) lands at
-  once, its neighbours with it; a block that arrives on its own fades in (`lib/arrive`). The
+  once, its neighbours with it; a block that arrives on its own fades in (`useArrivals`, `@fcalell/ui-core/react/arrive`). The
   segmented control's selection ground switches at once and never cuts a label (it scrolls its
   track).
 - **Value.** A measured value moves by transform, never by size: a fill is the full track scaled
@@ -169,7 +169,7 @@ fails `tsc` and the schema. It is a plugin option beside `theme`; each plugin co
 - Ages, moments and every other `Intl` formatter come from ui-core (`ageWords`, `formatterFor(kind,
   lang, options)` in `./format`, built once per kind, language and options at module scope);
   `new Intl.` appears in `format.ts` and, for `groupZeros`, in `scramble.ts`.
-- Ages and pending bars read one coarse clock per plugin (`lib/clock`, `useClock(read, until)`, over ui-core's `createClock`),
+- Ages and pending bars read one coarse clock (`useClock(read, until)` and `usePending(until)` in `@fcalell/ui-core/react/clock`, over `createClock`),
   ticking once a second while a reader holds it. `pendingShare(run, now)` in `./clock` is pure; the
   fill animates by transform, and under reduced motion steps with the clock.
 
@@ -349,7 +349,7 @@ where the row opens nothing), the Context Menu key (or Shift+F10) opens the menu
   `src/roster/<component>.ts`. The showcase draws exactly those cells and states. A component's
   directory is `componentDir(name)`. A component draws another's place by composing it, never by
   spelling its cells.
-- A popup trigger renders the icon act's base (`IconButtonBase` in `button/glyph.tsx`); the icon act's base
+- A popup trigger renders the icon act's base (`IconButtonBase` in `parts/button/glyph.tsx`); the icon act's base
   names the act with a Tooltip (none on touch). Text the frame cuts names itself through one shared
   tooltip the frame host mounts (`shell/cut.tsx`), shown only when it measures cut. No popup of the
   roster locks the page scroll (`Picker` passes `modal={false}`); a sheet is modal by design.
