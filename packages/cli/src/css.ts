@@ -37,7 +37,7 @@ export function cssString(value: string): string {
 
 // Returns the full quoted `url("...")` token. The URL is validated for gross
 // structural problems (control chars) then escaped via the string rules.
-export function cssUrl(value: string, label = "@fcalell/cli"): string {
+export function cssUrl(value: string, label: string): string {
 	if (typeof value !== "string" || value.length === 0) {
 		throw new Error(`[${label}] cssUrl: empty URL`);
 	}
@@ -66,7 +66,7 @@ export function isCssIdent(value: unknown): value is string {
 // Validates that `value` is a legal CSS <ident> and returns it unchanged.
 // Throws with a precise message — callers shouldn't catch; an invalid ident
 // always indicates a bug in the contributing plugin.
-export function cssIdent(value: string, label = "@fcalell/cli"): string {
+export function cssIdent(value: string, label: string): string {
 	if (!isCssIdent(value)) {
 		throw new Error(
 			`[${label}] invalid CSS identifier: ${JSON.stringify(value)}. ` +
@@ -108,7 +108,7 @@ function parensBalanced(value: string): boolean {
 //   --color-*                   a Tailwind v4 namespace reset key
 const VAR_NAME_RE = /^--[A-Za-z_][A-Za-z0-9_-]*(-\*)?$/;
 
-export function cssVarName(value: string, label = "@fcalell/cli"): string {
+export function cssVarName(value: string, label: string): string {
 	if (typeof value !== "string" || !VAR_NAME_RE.test(value)) {
 		throw new Error(
 			`[${label}] invalid CSS custom-property name: ${JSON.stringify(value)}. ` +
@@ -128,7 +128,7 @@ export function cssVarName(value: string, label = "@fcalell/cli"): string {
 // parens are rejected for the reason `parensBalanced` gives above.
 const TOKEN_VALUE_ILLEGAL_RE = /[;{}\n\r\f]|\/\*|\*\//;
 
-export function cssTokenValue(value: string, label = "@fcalell/cli"): string {
+export function cssTokenValue(value: string, label: string): string {
 	if (typeof value !== "string" || value.trim().length === 0) {
 		throw new Error(`[${label}] cssTokenValue: empty value`);
 	}
@@ -160,10 +160,7 @@ export function isCssSupportsExpression(value: unknown): value is string {
 	return parensBalanced(trimmed);
 }
 
-export function cssSupportsExpression(
-	value: string,
-	label = "@fcalell/cli",
-): string {
+export function cssSupportsExpression(value: string, label: string): string {
 	if (!isCssSupportsExpression(value)) {
 		throw new Error(
 			`[${label}] invalid @supports expression: ${JSON.stringify(value)}. ` +
