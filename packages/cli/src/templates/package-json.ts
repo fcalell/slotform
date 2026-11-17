@@ -64,10 +64,8 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 	};
 	if (!options.workspace) pkg.packageManager = PACKAGE_MANAGER;
 
-	// TODO: `#/*` once the scaffold's TypeScript is 6.0 or later; 5.9
-	// refuses a subpath import that starts with `#/`.
 	if (hasWeb) {
-		pkg.imports = { "#src/*": "./src/*" };
+		pkg.imports = { "#/*": "./src/*" };
 	}
 
 	const scripts: Record<string, string> = {
