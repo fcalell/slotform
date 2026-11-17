@@ -12,10 +12,10 @@ const CONSTANTS: readonly { phrase: string; reason: string }[] = [
 		reason: "the current bar, three hairlines, fixed",
 	},
 	{ phrase: "`tablet` (768 px)", reason: "a breakpoint" },
-	{ phrase: "a target 24 px", reason: "the target floor (WCAG 2.5.8)" },
+	{ phrase: "a target of 24 px", reason: "the target floor (WCAG 2.5.8)" },
 	{
-		phrase: "44 px for a primary act on touch",
-		reason: "the touch target (TARGET_PX.touch), declared",
+		phrase: "`TARGET_PX` (28 px on desktop, 44 px on touch",
+		reason: "the hit target (TARGET_PX), declared",
 	},
 ];
 
