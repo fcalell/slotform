@@ -10,7 +10,12 @@ import {
 	textAreaBudget,
 } from "@fcalell/ui-core/variants";
 import { useContext, useRef, useState } from "react";
-import { Text as RNText, TextInput, View } from "react-native";
+import {
+	Text as RNText,
+	TextInput,
+	type TextInputInstance,
+	View,
+} from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { useCaretAtEnd } from "../../lib/caret";
 import { cn } from "../../lib/cn";
@@ -47,7 +52,7 @@ export function ProseBase({
 		if (!ended) onChange(next);
 	};
 	const [moment] = useState(() => commitMoment<string>());
-	const input = useRef<TextInput>(null);
+	const input = useRef<TextInputInstance>(null);
 	const leave = useFieldTurn(input);
 	const caret = useCaretAtEnd(autoFocus, typed);
 	// A commit that returns its save's promise holds the value while it pends.

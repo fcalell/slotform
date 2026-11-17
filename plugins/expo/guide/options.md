@@ -23,7 +23,7 @@ expo({
     {
       name: "expo-camera",
       options: { cameraPermission: "Scan a code to join a project." },
-      dependencies: { "expo-camera": "~56.0.0" },
+      dependencies: { "expo-camera": "~58.0.14" },
     },
   ],
 });

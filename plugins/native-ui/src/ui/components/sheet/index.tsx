@@ -2,7 +2,7 @@ import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { FrameHolds } from "@fcalell/ui-core/react/read";
 import { NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
 import { type ReactNode, useRef } from "react";
-import type { TextInput } from "react-native";
+import type { TextInputInstance } from "react-native";
 import { useAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import type { Empty } from "../../lib/empty";
@@ -67,7 +67,7 @@ export function Sheet<P extends ProcedureCall>({
 	const derived = useDerivedForm(form, false);
 	useClearOnOpen(open, derived.clear);
 	// The body is the sheet's own claim region: docs/architecture/plugins/native-ui.md, "Focus claims".
-	const held = useRef<TextInput>(null);
+	const held = useRef<TextInputInstance>(null);
 	return (
 		<FrameHolds holds={NO_HOLDS}>
 			<SheetBase

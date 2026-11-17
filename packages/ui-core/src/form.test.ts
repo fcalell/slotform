@@ -213,6 +213,19 @@ test("a form whose values are put back no longer asks to leave", async () => {
 	assert.equal(await leave.attempt(async () => false), true);
 });
 
+test("a leave tells its subscribers each time whether it asks may turn", async () => {
+	const leave = createLeave();
+	const seen: boolean[] = [];
+	const stop = leave.subscribe(() => seen.push(leave.asks()));
+	leave.edit(true);
+	leave.press();
+	leave.settle(true);
+	await leave.attempt(async () => true);
+	stop();
+	leave.edit(true);
+	assert.deepEqual(seen, [true, false, true, false]);
+});
+
 test("a field left, or every field on a press, lets its typed issue stand", () => {
 	const left = leftWith(new Set(), ["title"]);
 	assert.deepEqual([...left], ["title"]);

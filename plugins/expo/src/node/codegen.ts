@@ -142,7 +142,6 @@ export function aggregateExpoConfig(payload: CodegenExpoConfigPayload): string {
 		// "automatic" lets the app honour the OS light/dark setting — required
 		// for the design system's light + Notturno themes.
 		`\tuserInterfaceStyle: "automatic",`,
-		`\tnewArchEnabled: true,`,
 		`\tios: {`,
 		`\t\tsupportsTablet: false,`,
 		`\t\tbundleIdentifier: ${JSON.stringify(payload.bundleIdentifier)},`,

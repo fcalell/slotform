@@ -333,6 +333,15 @@ A press-in on a route starts the reads its screen is about to make (`lib/warm`):
 route's `preload` is read from its file. A route with no `preload` and an external URL have nothing
 to start. Navigation never waits on it, and one that fails to start does not stop it.
 
+The route tree a press walks and a `Pane`'s back target (the nearest path above that a route
+serves) come from expo-router's match of an href, which it exports no public way to read. `lib/navigate`
+reads it as expo-router's own link preview does, through two modules of its build:
+`expo-router/build/global-state/routerConfigContext` (`RouterConfigContext`, the route tree and the
+linking config its root provides) and `expo-router/build/link/getStateForHref`. A minor of
+expo-router can move either, so the peer and every manifest hold expo-router to the SDK's
+`~58.0.x`. The context exists only under `ExpoRoot`; a route link or a `Pane` drawn outside it
+throws, a mounting mistake.
+
 ## Text breaks
 
 `lib/code` draws runs as one text ([text runs](../ui-core/words.md#text-runs)): words, a `{ quoted }`

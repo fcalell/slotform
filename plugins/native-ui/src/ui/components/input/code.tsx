@@ -11,7 +11,12 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { useContext, useRef, useState } from "react";
-import { Text as RNText, TextInput, View } from "react-native";
+import {
+	Text as RNText,
+	TextInput,
+	type TextInputInstance,
+	View,
+} from "react-native";
 import { Spinner } from "../../atoms/spinner";
 import { cn } from "../../lib/cn";
 import {
@@ -62,7 +67,7 @@ export function CodeField({
 	const name = useFieldName();
 	const error = useContext(FieldError);
 	const focused = useContext(FieldFocus);
-	const input = useRef<TextInput>(null);
+	const input = useRef<TextInputInstance>(null);
 	const column = useFieldClaim(input);
 	const leave = useFieldTurn(input);
 	return (

@@ -97,6 +97,13 @@ route files the app's expo-router would mount. It augments `ExpoRouter.__routes`
 `Href` reads, so an `href` to a path no route file serves fails the type-check
 ([navigating](../../../plugins/expo/guide/routes.md#navigating)).
 
+The generator has no public entry. `src/node/routes.ts` reaches three private paths, the ones
+`@expo/router-server`'s own watcher reads: `@expo/router-server`'s
+`build/typed-routes/generate.js` (`getTypedRoutesDeclarationFile`), and expo-router's
+`internal/testing` (`requireContext`) and `_ctx-shared` (`EXPO_ROUTER_CTX_IGNORE`). A minor of
+either package can move them, so the app's expo-router is the SDK's `~58.0.x`, written from the
+SDK's table ([Dependencies](#dependencies)).
+
 expo-router reads the route for an address nothing serves from a `+not-found` file at the root of the
 routes directory, whatever its extension; without one it draws its own "Unmatched Route". It reads no
 other place, so a page stack draws is a file in the app's routes directory, unlike every `.stack/`
@@ -109,9 +116,13 @@ never overwritten ([an address no route serves](../../../plugins/expo/guide/rout
 
 The plugin depends on `expo` to read the SDK's version table (`expo/bundledNativeModules.json`),
 which names the version of each native module the SDK is built against, and writes `expo` and those
-versions of `expo-router`, `react`, `react-native`, `expo-application`, `expo-system-ui` and
-`expo-status-bar` into the consumer's `dependencies`. Its `react` is the version react-native's
-renderer accepts: any other React fails at startup with "Incompatible React versions".
+versions of `expo-router`, `react-native-screens`, `react`, `react-dom`, `react-native`,
+`expo-application`, `expo-system-ui` and `expo-status-bar` into the consumer's `dependencies`. Its
+`react` is the version react-native's renderer accepts: any other React fails at startup with
+"Incompatible React versions". `react-dom` is an optional peer of `expo` and `expo-router` that
+names no version, so an install would take the newest, which wants a newer `react` than that one.
+`react-native-screens` is a required peer of `expo-router`. `sdkVersions(names)` is the table's
+reader, exported so native-ui takes its native modules from the same SDK.
 `expo-application` is required for every generated `src/lib/api.ts`, with or without a
 `minNativeBuild` floor ([API client](#api-client)).
 

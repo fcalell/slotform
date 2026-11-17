@@ -16,7 +16,7 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useEffect, useRef, useState } from "react";
-import { Text as RNText, type TextInput, View } from "react-native";
+import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { type FootRegionValue, FootReturn, tokenPx } from "../../lib/container";
@@ -113,7 +113,7 @@ export function SheetDocked<P extends ProcedureCall>({
 	const line = {
 		height: Number.parseFloat(String(useCSSVariable("--leading-heading") ?? 0)),
 	};
-	const held = useRef<TextInput>(null);
+	const held = useRef<TextInputInstance>(null);
 	const scroll = useRef<ScrollRef>(null);
 	const [touchedValue, setTouched] = useTouchState();
 	const page = usePageTurn(open, title, description, () => setTouched(false));

@@ -43,9 +43,8 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 	const hasReactDom = options.plugins.includes("react");
 	if (hasNative || hasReactDom) {
 		// React's types back the app's JSX (`react/jsx-runtime`) so the app's
-		// tsconfig resolves the automatic runtime. The native app's React is
-		// the one Expo pins.
-		devDeps["@types/react"] = hasNative ? "~19.2.0" : "^19.3.0";
+		// tsconfig resolves the automatic runtime.
+		devDeps["@types/react"] = "^19.3.0";
 	}
 	if (hasReactDom) {
 		deps.react = "^19.3.0";

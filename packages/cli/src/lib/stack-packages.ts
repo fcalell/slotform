@@ -66,8 +66,9 @@ export const STACK_PACKAGES = {
 			"@fcalell/ui-core",
 		],
 		// Expo's logger reaches bunyan, whose optional DTrace probes compile
-		// natively; logging works without them.
-		builds: { "dtrace-provider": false },
+		// natively; logging works without them. eas-cli reaches protobufjs, whose
+		// postinstall only warns about a dependent's version scheme.
+		builds: { "dtrace-provider": false, protobufjs: false },
 	},
 	"@fcalell/plugin-native-ui": {
 		dir: "plugins/native-ui",

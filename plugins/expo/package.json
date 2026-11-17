@@ -13,7 +13,7 @@
 		"access": "public"
 	},
 	"engines": {
-		"node": ">=24"
+		"node": ">=24.3"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -53,13 +53,13 @@
 		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-cloudflare": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
-		"expo": "~56.0.24",
+		"expo": "~58.0.25",
 		"hono": "^4.13.19",
 		"zod": "^4.6.7"
 	},
 	"peerDependencies": {
-		"expo-application": ">=56.0.0",
-		"react-native": ">=0.85.0"
+		"expo-application": ">=58.0.0",
+		"react-native": ">=0.88.0"
 	},
 	"peerDependenciesMeta": {
 		"expo-application": {
@@ -72,8 +72,8 @@
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
-		"expo-application": "~56.0.0",
-		"react-native": "0.85.3",
+		"expo-application": "~58.1.2",
+		"react-native": "0.88.1",
 		"typescript": "^7.0.2"
 	}
 }

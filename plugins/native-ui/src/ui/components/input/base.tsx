@@ -15,6 +15,7 @@ import {
 	type KeyboardTypeOptions,
 	Text as RNText,
 	TextInput,
+	type TextInputInstance,
 } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { Icon } from "../../atoms/icon";
@@ -121,7 +122,7 @@ export function InputBase({
 	const error = useContext(FieldError);
 	const disabled = useContext(FieldDisabled);
 	const focused = useContext(FieldFocus);
-	const input = useRef<TextInput>(null);
+	const input = useRef<TextInputInstance>(null);
 	const column = useFieldClaim(input);
 	const leave = useFieldTurn(input);
 	const caret = useCaretAtEnd(autoFocus, typed);

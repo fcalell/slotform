@@ -50,7 +50,9 @@ const sdkModules = z
 	.record(z.string(), z.string())
 	.parse(require("expo/bundledNativeModules.json"));
 
-function sdkVersions(names: readonly string[]): Record<string, string> {
+// The versions of `names` the installed Expo SDK is built against, the
+// specifiers `expo install` writes.
+export function sdkVersions(names: readonly string[]): Record<string, string> {
 	return Object.fromEntries(
 		names.map((name) => {
 			const version = sdkModules[name];
@@ -338,7 +340,12 @@ export const expo = plugin("expo", {
 		expo: `~${expoVersion}`,
 		...sdkVersions([
 			"expo-router",
+			// expo-router's required peer.
+			"react-native-screens",
 			"react",
+			// expo and expo-router's optional peer: unnamed, an install takes the
+			// newest, which wants a newer react than the SDK's.
+			"react-dom",
 			"react-native",
 			// expo-application is required for every generated src/lib/api.ts: docs/architecture/plugins/expo.md, "Dependencies".
 			"expo-application",
@@ -350,10 +357,10 @@ export const expo = plugin("expo", {
 		]),
 	},
 	devDependencies: {
-		"eas-cli": "^20.0.0",
+		"eas-cli": "^27.10.0",
 		// React's types back the app's JSX (`react/jsx-runtime`); without it a
 		// consumer's `tsconfig.app.json` can't resolve the automatic runtime.
-		"@types/react": "~19.2.0",
+		"@types/react": "^19.3.0",
 		// `babel.config.cjs` runs it over the app's code and @fcalell/* (Babel
 		// resolves the plugin from the consumer).
 		"babel-plugin-react-compiler": "^1.0.0",

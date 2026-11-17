@@ -57,7 +57,7 @@ and stop in reverse order on `SIGINT` or `SIGTERM`; a failed boot logs and exits
 Node has no bindings: the worker gets `env = process.env`, `executionCtx` degrades to a no-op
 `waitUntil`, and binding-backed features (rate limiters) skip themselves when the binding is absent.
 
-The consumer's TypeScript (`.stack/`, `src/`) runs directly under Node >= 24 (type stripping) while
+The consumer's TypeScript (`.stack/`, `src/`) runs directly under Node >= 24.3 (type stripping) while
 the stack packages it imports load compiled from `dist/`. Everything of the consumer's on the
 runtime import path is erasable-only syntax (no parameter properties, no enums) and names the file
 of every value import (`./types.ts`, `../src/schema/index.ts`): node resolves neither a missing

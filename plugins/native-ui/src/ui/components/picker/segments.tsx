@@ -14,6 +14,7 @@ import {
 	type NativeSyntheticEvent,
 	Text as RNText,
 	ScrollView,
+	type ScrollViewInstance,
 	View,
 } from "react-native";
 import { LinearTransition, ReduceMotion } from "react-native-reanimated";
@@ -76,7 +77,7 @@ export function SegmentsBase<V extends string = string>({
 	const under = painted || ended ? undefined : boxes[draft.value];
 	// The row's scroll and the track's width, which the chosen segment is
 	// brought into: whole in view, by the row's own scroll, never an ancestor's.
-	const row = useRef<ScrollView>(null);
+	const row = useRef<ScrollViewInstance>(null);
 	const scrolled = useRef(0);
 	const [space, setSpace] = useState(0);
 	const [offset, setOffset] = useState(0);

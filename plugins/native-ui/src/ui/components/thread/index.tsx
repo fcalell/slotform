@@ -32,7 +32,12 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { Platform, ScrollView, View } from "react-native";
+import {
+	Platform,
+	ScrollView,
+	type ScrollViewInstance,
+	View,
+} from "react-native";
 import { WaitingReply } from "../../atoms/message/waiting";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
@@ -381,7 +386,7 @@ function Log<T>(props: {
 			after={last === undefined ? undefined : thread.message.key(last)}
 		/>
 	) : null;
-	const log = useRef<ScrollView>(null);
+	const log = useRef<ScrollViewInstance>(null);
 	// The reader is scrolled up: the Latest act stands over the foot.
 	const [away, setAway] = useState(false);
 	// Back to the newest message, at the log's origin.

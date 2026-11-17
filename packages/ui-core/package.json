@@ -13,7 +13,7 @@
 		"access": "public"
 	},
 	"engines": {
-		"node": ">=24"
+		"node": ">=24.3"
 	},
 	"type": "module",
 	"sideEffects": false,
@@ -305,9 +305,9 @@
 		"@google/design.md": "^0.4.0",
 		"@tailwindcss/cli": "^4.3.5",
 		"@types/node": "^26.6.6",
-		"@types/react": "~19.2.16",
+		"@types/react": "^19.3.0",
 		"lucide": "^1.73.0",
-		"react": "19.2.3",
+		"react": "19.3.0",
 		"tailwindcss": "^4.3.5",
 		"tsx": "^4.23.15",
 		"typescript": "^7.0.2",

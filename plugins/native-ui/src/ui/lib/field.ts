@@ -1,6 +1,6 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { createContext, type RefObject, useContext, useEffect } from "react";
-import type { TextInput } from "react-native";
+import type { TextInputInstance } from "react-native";
 
 // What every control takes as a field: its name, and what a field draws
 // around it.
@@ -51,12 +51,11 @@ export interface InlineFit {
 }
 
 // Set by a `Gate` or a docked `Sheet` around its body: docs/architecture/plugins/native-ui.md, "Focus claims".
-export const FieldClaim = createContext<RefObject<TextInput | null> | null>(
-	null,
-);
+export const FieldClaim =
+	createContext<RefObject<TextInputInstance | null> | null>(null);
 
 // A typing control's claim on its region's focus: docs/architecture/plugins/native-ui.md, "Focus claims".
-export function useFieldClaim(input: RefObject<TextInput | null>) {
+export function useFieldClaim(input: RefObject<TextInputInstance | null>) {
 	const column = useContext(FieldClaim);
 	useEffect(() => {
 		const control = input.current;
@@ -89,7 +88,7 @@ export const FieldTurn = createContext<
 // A typing control's part in its form's field: takes focus on a refusal that
 // names the field first, and returns what its blur calls.
 export function useFieldTurn(
-	input: RefObject<TextInput | null>,
+	input: RefObject<TextInputInstance | null>,
 ): (() => void) | undefined {
 	const turn = useContext(FieldTurn);
 	const seek = turn?.seek;

@@ -35,7 +35,7 @@ Plugins coordinate through typed slots in a dataflow graph: each plugin contribu
 
 ## Quick start
 
-Requires Node 24 or newer and pnpm. Tested on POSIX systems (Linux, macOS); Windows is untested.
+Requires Node 24.3 or newer and pnpm. Tested on POSIX systems (Linux, macOS); Windows is untested.
 
 ```bash
 pnpm add -D @fcalell/cli

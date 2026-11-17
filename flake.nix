@@ -15,7 +15,7 @@
 
         default = pkgs.mkShell {
           packages = [
-            # engines.node is ">=24" (`path.matchesGlob` is stable from 22.20).
+            # engines.node is ">=24.3" (`path.matchesGlob` is stable from 22.20).
             pkgs.nodejs_24
             # Provides the `pnpm` shim that honours packageManager (pnpm@11.28.4).
             pkgs.corepack

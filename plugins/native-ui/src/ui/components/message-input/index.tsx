@@ -20,7 +20,13 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Pressable, Text as RNText, TextInput, View } from "react-native";
+import {
+	Pressable,
+	Text as RNText,
+	TextInput,
+	type TextInputInstance,
+	View,
+} from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { asAct, useAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
@@ -96,7 +102,7 @@ export function MessageInput({
 	const noticed = notice?.act ? asAct(notice.act) : undefined;
 	// A placeholder's colour is a prop, never a class: `FIELD_PLACEHOLDER`'s ink.
 	const placeholderInk = useTokenColor("--color-ink-meta");
-	const textField = useRef<TextInput>(null);
+	const textField = useRef<TextInputInstance>(null);
 	const returned = useContext(FootReturn);
 	// The input that returns where a docked sheet closed takes focus.
 	useEffect(() => {

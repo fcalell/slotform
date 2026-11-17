@@ -4,7 +4,7 @@ Thanks for helping with `@fcalell/stack`.
 
 ## Setup
 
-- Node 24 or newer.
+- Node 24.3 or newer.
 - pnpm through corepack: `corepack enable`. The version is pinned by `packageManager` in
   `package.json`.
 - POSIX shell tooling (Linux, macOS); Windows is untested.

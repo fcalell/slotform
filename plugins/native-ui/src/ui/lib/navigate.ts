@@ -1,10 +1,11 @@
 import { usePort } from "@fcalell/ui-core/react/port";
 import { router, usePathname } from "expo-router";
-import { store } from "expo-router/build/global-state/router-store";
-import { useCallback } from "react";
+import { RouterConfigContext } from "expo-router/build/global-state/routerConfigContext";
+import { getStateForHref } from "expo-router/build/link/getStateForHref";
+import { use, useCallback, useMemo } from "react";
 import { Linking } from "react-native";
 import type { Route } from "./route";
-import { warm } from "./warm";
+import { type Matches, warm } from "./warm";
 
 // A route on a row or a back circle navigates through expo-router; the shell
 // reads the pathname to mark the selected place.
@@ -26,21 +27,32 @@ export function open(href: string): void {
 	else Linking.openURL(href);
 }
 
-// The part of expo-router's state for an href that `served` walks: the route
-// at each level, and the state nested under it.
-interface RouteState {
-	routes?: { name: string; state?: RouteState }[];
+// expo-router's route tree and its match of an href against it: docs/architecture/plugins/native-ui.md, "Routes and preload".
+// The hrefs are from the app's root, so no current segments resolve them.
+function useMatches(): Matches {
+	const config = use(RouterConfigContext);
+	if (!config) {
+		throw new Error(
+			"native-ui: a route link or a Pane is drawn outside expo-router's root (ExpoRoot).",
+		);
+	}
+	return useMemo(
+		() => ({
+			routeNode: config.routeNode,
+			getStateForHref: (href) =>
+				getStateForHref(href, { segments: [] }, config.linking),
+		}),
+		[config],
+	);
 }
 
 // Whether expo-router serves a route of its own at `href`: its state for the
 // path ends in a screen, not the `+not-found` one.
-function served(href: string): boolean {
-	// A probed path is no known route yet, and expo-router's state tree is
-	// untyped past its root: both casts are the probe's.
-	let state = store.getStateForHref(href as Route) as RouteState | undefined;
+function served(matches: Matches, href: string): boolean {
+	let state = matches.getStateForHref(href);
 	let name: string | undefined;
-	while (state?.routes?.length) {
-		const last = state.routes[state.routes.length - 1];
+	while (state?.routes.length) {
+		const last = state.routes.at(-1);
 		name = last?.name;
 		state = last?.state;
 	}
@@ -53,12 +65,13 @@ function served(href: string): boolean {
 // never a step. Where nothing above is served (the pathname is `/`), it
 // cannot be known.
 export function useParentRoute(): Route | undefined {
+	const matches = useMatches();
 	const segments = usePathname().split("/").filter(Boolean);
 	while (segments.length > 0) {
 		segments.pop();
 		const above = `/${segments.join("/")}`;
 		// `served` has just found a screen at it.
-		if (served(above)) return above as Route;
+		if (served(matches, above)) return above as Route;
 	}
 	return undefined;
 }
@@ -66,19 +79,11 @@ export function useParentRoute(): Route | undefined {
 // What a press on a route does first: docs/architecture/plugins/native-ui.md, "Routes and preload".
 export function useWarm(): (href: string) => void {
 	const port = usePort();
+	const matches = useMatches();
 	return useCallback(
 		(href) => {
-			if (!isRoute(href)) return;
-			warm(
-				port.warm,
-				{
-					routeNode: store.routeNode,
-					// A probed path, as `served`'s is.
-					getStateForHref: (at) => store.getStateForHref(at as Route),
-				},
-				href,
-			);
+			if (isRoute(href)) warm(port.warm, matches, href);
 		},
-		[port],
+		[port, matches],
 	);
 }

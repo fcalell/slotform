@@ -9,7 +9,7 @@ import {
 import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
 import { api } from "@fcalell/plugin-api";
 import { auth } from "@fcalell/plugin-auth";
-import { expo } from "@fcalell/plugin-expo";
+import { expo, sdkVersions } from "@fcalell/plugin-expo";
 import { deriveTheme } from "@fcalell/ui-core/derive";
 import { uiCoreGuide } from "@fcalell/ui-core/manifest";
 import { KNOB_DEFAULTS, LOADING_REGIONS } from "@fcalell/ui-core/tokens";
@@ -318,41 +318,43 @@ export const nativeUi = plugin("native-ui", {
 		},
 	],
 
-	// Consumer dependencies. Native module versions are Expo-SDK-56 ballpark;
-	// `expo install` reconciles exact versions at consumer setup.
+	// Consumer dependencies. A native module takes the version the app's Expo
+	// SDK is built against; the rest are not in the SDK's table.
 	dependencies: {
 		// The `@source` root pointing into ui-core only resolves when the package
 		// sits in the consumer's node_modules.
 		"@fcalell/ui-core": stackSpec("@fcalell/ui-core"),
 		uniwind: "^1.13.2",
-		"react-native-gesture-handler": "^3.0.0",
-		"react-native-reanimated": "^4.4.1",
-		"react-native-worklets": "^0.9.0",
-		"react-native-safe-area-context": "^5.6.0",
-		"react-native-keyboard-controller": "^1.18.0",
 		"@gorhom/bottom-sheet": "^5.2.14",
 		"lucide-react-native": "^1.73.0",
-		// lucide's required peer; also backs consumer brand glyphs. Without it a
-		// fresh consumer can't render any icon.
-		"react-native-svg": "^15.15.4",
-		"expo-font": "~56.0.0",
-		// The copy acts (Code, a row with a copy act) write the clipboard.
-		"expo-clipboard": "~56.0.3",
-		// Code's download act writes the text to a file and hands it to the share sheet.
-		"expo-file-system": "~56.0.7",
-		"expo-sharing": "~56.0.27",
-		// file `Input`'s Choose act opens the system document picker.
-		"expo-document-picker": "~56.0.4",
-		// `Thread`'s composer's attach act opens the photo library beside the files.
-		"expo-image-picker": "~56.0.16",
-		"expo-secure-store": "~56.0.0",
 		"@tanstack/react-query": "^5.107.1",
 		"@better-auth/expo": "1.7.25",
-		// Metro bundles optional peers: docs/architecture/plugins/native-ui.md, "Requires and peers".
-		"expo-constants": "~56.0.0",
-		"expo-linking": "~56.0.19",
-		"expo-network": "~56.0.0",
-		"expo-web-browser": "~56.0.0",
+		...sdkVersions([
+			"react-native-gesture-handler",
+			"react-native-reanimated",
+			"react-native-worklets",
+			"react-native-safe-area-context",
+			"react-native-keyboard-controller",
+			// lucide's required peer; also backs consumer brand glyphs. Without it a
+			// fresh consumer can't render any icon.
+			"react-native-svg",
+			"expo-font",
+			// The copy acts (Code, a row with a copy act) write the clipboard.
+			"expo-clipboard",
+			// Code's download act writes the text to a file and hands it to the share sheet.
+			"expo-file-system",
+			"expo-sharing",
+			// file `Input`'s Choose act opens the system document picker.
+			"expo-document-picker",
+			// `Thread`'s composer's attach act opens the photo library beside the files.
+			"expo-image-picker",
+			"expo-secure-store",
+			// Metro bundles optional peers: docs/architecture/plugins/native-ui.md, "Requires and peers".
+			"expo-constants",
+			"expo-linking",
+			"expo-network",
+			"expo-web-browser",
+		]),
 	},
 
 	slots: {

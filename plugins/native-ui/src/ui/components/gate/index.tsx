@@ -5,7 +5,7 @@ import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { runsOf } from "@fcalell/ui-core/runs";
 import { GATE, GATE_COLUMN, GATE_STEP, text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef, useState } from "react";
-import { Text as RNText, type TextInput, View } from "react-native";
+import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ToastSpace } from "../../atoms/toast/space";
 import type { Closed } from "../../lib/closed";
@@ -88,7 +88,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 	form,
 	children,
 }: GateProps<P>) {
-	const held = useRef<TextInput>(null);
+	const held = useRef<TextInputInstance>(null);
 	const insets = useSafeAreaInsets();
 	const far = useContext(DistanceContext);
 	// The step the page opened with arrives with the page; a later step (a new

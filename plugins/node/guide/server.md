@@ -3,7 +3,7 @@
 `node()` runs the app as one long-running Node process in place of Cloudflare Workers. The process
 serves the API worker, a WebSocket endpoint at `/ws`, your background services and, with `vite()`,
 the built web client from `dist/client` with every other `GET` answered by its `index.html`. It needs `api()`
-and Node 24 or newer.
+and Node 24.3 or newer.
 
 ```ts
 // stack.config.ts

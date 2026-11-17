@@ -387,9 +387,11 @@ Both plugins' `Form` and `ActionBar` drive it, so the web and the phone ask unde
   router, its history asks before any navigation it makes (a push, a replace, the back button), the
   answer deciding whether it goes ahead, and the page's unload is held only while the form asks.
   Unbound, the unload is all the page can hold, since an act there loads the document.
-- **Phone.** A leave is the back, a swipe or a navigate. The screen's `beforeRemove` is prevented,
-  the decision queue asks, and a discard dispatches the action the navigation had. The question is
-  the decision queue's, so the app passes nothing.
+- **Phone.** A leave is the back, a swipe or a navigate. expo-router holds the screen's removals
+  (`usePreventRemove`) only while the leave would ask, which the leave tells its subscribers as it
+  turns, so an unedited form holds nothing and the swipe back stays on. A held removal goes to the
+  decision queue, and a discard repeats it. The question is the decision queue's, so the app
+  passes nothing.
 
 Every phone form stands in one base that holds the touched state its fields edit and the leave guard
 where it asks once when its edited screen is left. The public `Form` and a `Gate`'s form hold their

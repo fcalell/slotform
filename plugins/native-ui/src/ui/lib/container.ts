@@ -9,7 +9,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import type { LayoutChangeEvent, View } from "react-native";
+import type { LayoutChangeEvent, ViewInstance } from "react-native";
 import type { Route } from "./route";
 import { useCSSVariable } from "./theme";
 
@@ -27,7 +27,7 @@ export interface ToastBox {
 
 // The Shell's root and its way to place the toasts' layer: docs/architecture/plugins/native-ui.md, "Container host".
 export interface ToastContainer {
-	root: RefObject<View | null>;
+	root: RefObject<ViewInstance | null>;
 	place: (box: ToastBox) => void;
 }
 export const ToastContainer = createContext<ToastContainer | null>(null);
@@ -38,7 +38,7 @@ export const ToastContainer = createContext<ToastContainer | null>(null);
 // sheets' host from the page's tree, or once the sheets host the toasts.
 export function useToastBox() {
 	const frame = useContext(ToastContainer);
-	const box = useRef<View>(null);
+	const box = useRef<ViewInstance>(null);
 	const onLayout = () => {
 		const root = frame?.root.current;
 		if (!root) return;
