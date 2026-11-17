@@ -1,4 +1,4 @@
-// Keys that arrived on their own: docs/architecture/ui-core/motion.md, "Lines and blocks".
+// Keys that arrived on their own: docs/architecture/ui-core/motion.md, "Flow lines and blocks".
 export function arrivals(
 	known: ReadonlySet<string> | undefined,
 	keys: readonly string[],

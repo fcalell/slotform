@@ -78,32 +78,32 @@ export function SegmentsBase<V extends string = string>({
 	// brought into: whole in view, by the row's own scroll, never an ancestor's.
 	const row = useRef<ScrollView>(null);
 	const scrolled = useRef(0);
-	const [room, setRoom] = useState(0);
+	const [space, setSpace] = useState(0);
 	const [offset, setOffset] = useState(0);
 	const [content, setContent] = useState(0);
-	const edges = scrollEdges(offset, room, content);
+	const edges = scrollEdges(offset, space, content);
 	// A cue is drawn over the row's end it stands at, so the chosen segment is
 	// brought in clear of it (the cue's width, measured once drawn): a chosen tab
 	// is never the one a chevron covers.
 	const [cue, setCue] = useState(0);
 	const shown = useRef(false);
 	useEffect(() => {
-		if (!under || room === 0) return;
+		if (!under || space === 0) return;
 		const at = scrolled.current;
 		const before = under.x > 0 ? cue : 0;
 		const after = under.x + under.width < content ? cue : 0;
 		const target =
 			under.x - before < at
 				? under.x - before
-				: under.x + under.width + after > at + room
-					? under.x + under.width + after - room
+				: under.x + under.width + after > at + space
+					? under.x + under.width + after - space
 					: undefined;
 		// The first place it stands is where the row opens; a later choice
 		// scrolls to it.
 		if (target !== undefined)
 			row.current?.scrollTo({ x: target, animated: shown.current });
 		shown.current = true;
-	}, [under, room, cue, content]);
+	}, [under, space, cue, content]);
 	return (
 		<PaintView
 			painted={painted}
@@ -118,7 +118,7 @@ export function SegmentsBase<V extends string = string>({
 				showsHorizontalScrollIndicator={false}
 				scrollEnabled={!painted}
 				scrollEventThrottle={16}
-				onLayout={({ nativeEvent: { layout } }) => setRoom(layout.width)}
+				onLayout={({ nativeEvent: { layout } }) => setSpace(layout.width)}
 				onScroll={({
 					nativeEvent,
 				}: NativeSyntheticEvent<NativeScrollEvent>) => {

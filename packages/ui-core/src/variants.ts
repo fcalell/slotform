@@ -269,11 +269,11 @@ export {
 	ITEM_OVERLINE,
 	PAGE_BODY,
 	PAGE_BODY_OVER_FOOT,
-	PAGE_BODY_TOAST_ROOM,
+	PAGE_BODY_TOAST_SPACE,
 	PAGE_BODY_UNDER_TOAST,
 	PAGE_CONTEXT,
 	PAGE_HEAD,
-	PAGE_HEAD_ROOM,
+	PAGE_HEAD_SPACE,
 	PAGE_TOP_BAR,
 	PAGE_TOP_BAR_END,
 	PAGE_TOP_BAR_START,
@@ -383,7 +383,7 @@ export {
 } from "./roster/sheet.ts";
 export {
 	CURRENT_BAR,
-	CURRENT_ROOM,
+	CURRENT_SPACE,
 	DRAG_GHOST,
 	PLACE_NEST,
 	type PlaceTabState,
@@ -398,8 +398,8 @@ export {
 	SHELL_COLUMN_FLOAT,
 	SHELL_COLUMN_MOTION,
 	SHELL_COLUMN_PHONE,
+	SHELL_CONTAINER,
 	SHELL_FOOT,
-	SHELL_FRAME,
 	SHELL_GROUP_LABEL,
 	SHELL_INSET,
 	SHELL_LAYER,
@@ -538,11 +538,11 @@ export const image = build(IMAGE);
 export const imagePicture = build(IMAGE_PICTURE);
 export const paint = build(PAINT);
 
-// ── The family registry and its cells ──────────────────────────────
+// ── The matrix-group registry and its class sets ───────────────────────────────
 
 export type AnyCva = (props: Record<string, string>) => string;
 
-export interface Family {
+export interface MatrixGroup {
 	name: string;
 	cva: AnyCva;
 	axes: Record<string, readonly string[]>;
@@ -550,114 +550,114 @@ export interface Family {
 
 // A registered matrix: its table's name, its cva, and each axis with the keys
 // its table declares, read off the table so the two cannot drift.
-function family<T extends Axes>(
+function matrixGroup<T extends Axes>(
 	name: string,
 	table: Matrix<T>,
 	variant: Variant<T>,
-): Family {
+): MatrixGroup {
 	return {
 		name,
 		// A cva takes any subset of its axes; the registry calls it one axis at
 		// a time with a key the table declares.
 		cva: variant as unknown as AnyCva,
 		axes: Object.fromEntries(
-			Object.entries(table.variants).map(([axis, cells]) => [
+			Object.entries(table.variants).map(([axis, classSets]) => [
 				axis,
-				Object.keys(cells),
+				Object.keys(classSets),
 			]),
 		),
 	};
 }
 
 // Every matrix this module exports, under its table's name.
-export const FAMILIES: readonly Family[] = [
-	family("TEXT", TEXT, text),
-	family("TEXT_STRONG", TEXT_STRONG, textStrong),
-	family("ICON", ICON, icon),
-	family("BUTTON", BUTTON, button),
-	family("BUTTON_LABEL", BUTTON_LABEL, buttonLabel),
-	family("ICON_BUTTON", ICON_BUTTON, iconButton),
-	family("LINK", LINK, link),
-	family("AVATAR", AVATAR, avatar),
-	family("AVATAR_LABEL", AVATAR_LABEL, avatarLabel),
-	family("STATUS_DOT", STATUS_DOT, statusDot),
-	family("STATE_CHIP", STATE_CHIP, stateChip),
-	family("CHANGE_MARK", CHANGE_MARK, changeMark),
-	family("CHIP", CHIP, chip),
-	family("CHIP_DOT", CHIP_DOT, chipDot),
-	family("FIELD", FIELD, field),
-	family("FIELD_VALUE", FIELD_VALUE, fieldValue),
-	family("TEXT_AREA", TEXT_AREA, textArea),
-	family("TEXT_AREA_BUDGET", TEXT_AREA_BUDGET, textAreaBudget),
-	family("OTP_BOX", OTP_BOX, otpBox),
-	family("SWITCH", SWITCH, switchTrack),
-	family("SWITCH_THUMB", SWITCH_THUMB, switchThumb),
-	family("CHECKBOX", CHECKBOX, checkbox),
-	family("OPTION_RADIO", OPTION_RADIO, optionRadio),
-	family("ROW", ROW, row),
-	family("ROW_TITLE", ROW_TITLE, rowTitle),
-	family("ROW_STEP", ROW_STEP, rowStep),
-	family("ROW_MARK", ROW_MARK, rowMark),
-	family("LINE_BOX", LINE_BOX, lineBox),
-	family("TABLE_ROW", TABLE_ROW, tableRow),
-	family("TABLE_HEAD", TABLE_HEAD, tableHead),
-	family("TABLE_HEAD_LABEL", TABLE_HEAD_LABEL, tableHeadLabel),
-	family("TABLE_FROZEN_CELL", TABLE_FROZEN_CELL, tableFrozenCell),
-	family("TABLE_CHANGE_VALUE", TABLE_CHANGE_VALUE, tableChangeValue),
-	family("SEGMENT", SEGMENT, segment),
-	family("SEGMENT_LABEL", SEGMENT_LABEL, segmentLabel),
-	family("PICKER", PICKER, picker),
-	family("RULE_ARROW", RULE_ARROW, ruleArrow),
-	family("BANNER", BANNER, banner),
-	family("BANNER_GLYPH", BANNER_GLYPH, bannerGlyph),
-	family("TOAST_STATE", TOAST_STATE, toastState),
-	family("MENU", MENU, menu),
-	family("MENU_GROUP", MENU_GROUP, menuGroup),
-	family("MENU_LABEL", MENU_LABEL, menuLabel),
-	family("PROSE_MARKER", PROSE_MARKER, proseMarker),
-	family("PROSE_DIFF_RUN", PROSE_DIFF_RUN, proseDiffRun),
-	family("CODE_TEXT", CODE_TEXT, codeText),
-	family("DIFF_LINE", DIFF_LINE, diffLine),
-	family("FILE_PATH_PART", FILE_PATH_PART, filePathPart),
-	family("FILE_COUNT", FILE_COUNT, fileCount),
-	family("MESSAGE", MESSAGE, message),
-	family("METER_FILL", METER_FILL, meterFill),
-	family("CHART_BAND", CHART_BAND, chartBand),
-	family("CHART_FILL", CHART_FILL, chartFill),
-	family("IMAGE", IMAGE, image),
-	family("IMAGE_PICTURE", IMAGE_PICTURE, imagePicture),
-	family("CANVAS_GROUP", CANVAS_GROUP, canvasGroup),
-	family("CANVAS_NODE", CANVAS_NODE, canvasNode),
-	family("CANVAS_NODE_TEXT", CANVAS_NODE_TEXT, canvasNodeText),
-	family("CANVAS_NODE_GLYPH", CANVAS_NODE_GLYPH, canvasNodeGlyph),
-	family("CANVAS_NODE_MARK", CANVAS_NODE_MARK, canvasNodeMark),
-	family("CANVAS_NODE_INK", CANVAS_NODE_INK, canvasNodeInk),
-	family("CANVAS_NODE_NAME", CANVAS_NODE_NAME, canvasNodeName),
-	family("STAGE", STAGE, stage),
-	family("STAGE_MARK", STAGE_MARK, stageMark),
-	family("STAGE_RAIL", STAGE_RAIL, stageRail),
-	family("PLACE_ROW", PLACE_ROW, placeRow),
-	family("PLACE_ROW_GLYPH", PLACE_ROW_GLYPH, placeRowGlyph),
-	family("PLACE_TAB", PLACE_TAB, placeTab),
-	family("PLACE_TAB_LABEL", PLACE_TAB_LABEL, placeTabLabel),
-	family("STEP_COUNT_SEGMENT", STEP_COUNT_SEGMENT, stepCountSegment),
-	family("COLUMNS", COLUMNS, columns),
-	family("PAINT", PAINT, paint),
+export const MATRIX_GROUPS: readonly MatrixGroup[] = [
+	matrixGroup("TEXT", TEXT, text),
+	matrixGroup("TEXT_STRONG", TEXT_STRONG, textStrong),
+	matrixGroup("ICON", ICON, icon),
+	matrixGroup("BUTTON", BUTTON, button),
+	matrixGroup("BUTTON_LABEL", BUTTON_LABEL, buttonLabel),
+	matrixGroup("ICON_BUTTON", ICON_BUTTON, iconButton),
+	matrixGroup("LINK", LINK, link),
+	matrixGroup("AVATAR", AVATAR, avatar),
+	matrixGroup("AVATAR_LABEL", AVATAR_LABEL, avatarLabel),
+	matrixGroup("STATUS_DOT", STATUS_DOT, statusDot),
+	matrixGroup("STATE_CHIP", STATE_CHIP, stateChip),
+	matrixGroup("CHANGE_MARK", CHANGE_MARK, changeMark),
+	matrixGroup("CHIP", CHIP, chip),
+	matrixGroup("CHIP_DOT", CHIP_DOT, chipDot),
+	matrixGroup("FIELD", FIELD, field),
+	matrixGroup("FIELD_VALUE", FIELD_VALUE, fieldValue),
+	matrixGroup("TEXT_AREA", TEXT_AREA, textArea),
+	matrixGroup("TEXT_AREA_BUDGET", TEXT_AREA_BUDGET, textAreaBudget),
+	matrixGroup("OTP_BOX", OTP_BOX, otpBox),
+	matrixGroup("SWITCH", SWITCH, switchTrack),
+	matrixGroup("SWITCH_THUMB", SWITCH_THUMB, switchThumb),
+	matrixGroup("CHECKBOX", CHECKBOX, checkbox),
+	matrixGroup("OPTION_RADIO", OPTION_RADIO, optionRadio),
+	matrixGroup("ROW", ROW, row),
+	matrixGroup("ROW_TITLE", ROW_TITLE, rowTitle),
+	matrixGroup("ROW_STEP", ROW_STEP, rowStep),
+	matrixGroup("ROW_MARK", ROW_MARK, rowMark),
+	matrixGroup("LINE_BOX", LINE_BOX, lineBox),
+	matrixGroup("TABLE_ROW", TABLE_ROW, tableRow),
+	matrixGroup("TABLE_HEAD", TABLE_HEAD, tableHead),
+	matrixGroup("TABLE_HEAD_LABEL", TABLE_HEAD_LABEL, tableHeadLabel),
+	matrixGroup("TABLE_FROZEN_CELL", TABLE_FROZEN_CELL, tableFrozenCell),
+	matrixGroup("TABLE_CHANGE_VALUE", TABLE_CHANGE_VALUE, tableChangeValue),
+	matrixGroup("SEGMENT", SEGMENT, segment),
+	matrixGroup("SEGMENT_LABEL", SEGMENT_LABEL, segmentLabel),
+	matrixGroup("PICKER", PICKER, picker),
+	matrixGroup("RULE_ARROW", RULE_ARROW, ruleArrow),
+	matrixGroup("BANNER", BANNER, banner),
+	matrixGroup("BANNER_GLYPH", BANNER_GLYPH, bannerGlyph),
+	matrixGroup("TOAST_STATE", TOAST_STATE, toastState),
+	matrixGroup("MENU", MENU, menu),
+	matrixGroup("MENU_GROUP", MENU_GROUP, menuGroup),
+	matrixGroup("MENU_LABEL", MENU_LABEL, menuLabel),
+	matrixGroup("PROSE_MARKER", PROSE_MARKER, proseMarker),
+	matrixGroup("PROSE_DIFF_RUN", PROSE_DIFF_RUN, proseDiffRun),
+	matrixGroup("CODE_TEXT", CODE_TEXT, codeText),
+	matrixGroup("DIFF_LINE", DIFF_LINE, diffLine),
+	matrixGroup("FILE_PATH_PART", FILE_PATH_PART, filePathPart),
+	matrixGroup("FILE_COUNT", FILE_COUNT, fileCount),
+	matrixGroup("MESSAGE", MESSAGE, message),
+	matrixGroup("METER_FILL", METER_FILL, meterFill),
+	matrixGroup("CHART_BAND", CHART_BAND, chartBand),
+	matrixGroup("CHART_FILL", CHART_FILL, chartFill),
+	matrixGroup("IMAGE", IMAGE, image),
+	matrixGroup("IMAGE_PICTURE", IMAGE_PICTURE, imagePicture),
+	matrixGroup("CANVAS_GROUP", CANVAS_GROUP, canvasGroup),
+	matrixGroup("CANVAS_NODE", CANVAS_NODE, canvasNode),
+	matrixGroup("CANVAS_NODE_TEXT", CANVAS_NODE_TEXT, canvasNodeText),
+	matrixGroup("CANVAS_NODE_GLYPH", CANVAS_NODE_GLYPH, canvasNodeGlyph),
+	matrixGroup("CANVAS_NODE_MARK", CANVAS_NODE_MARK, canvasNodeMark),
+	matrixGroup("CANVAS_NODE_INK", CANVAS_NODE_INK, canvasNodeInk),
+	matrixGroup("CANVAS_NODE_NAME", CANVAS_NODE_NAME, canvasNodeName),
+	matrixGroup("STAGE", STAGE, stage),
+	matrixGroup("STAGE_MARK", STAGE_MARK, stageMark),
+	matrixGroup("STAGE_RAIL", STAGE_RAIL, stageRail),
+	matrixGroup("PLACE_ROW", PLACE_ROW, placeRow),
+	matrixGroup("PLACE_ROW_GLYPH", PLACE_ROW_GLYPH, placeRowGlyph),
+	matrixGroup("PLACE_TAB", PLACE_TAB, placeTab),
+	matrixGroup("PLACE_TAB_LABEL", PLACE_TAB_LABEL, placeTabLabel),
+	matrixGroup("STEP_COUNT_SEGMENT", STEP_COUNT_SEGMENT, stepCountSegment),
+	matrixGroup("COLUMNS", COLUMNS, columns),
+	matrixGroup("PAINT", PAINT, paint),
 ];
 
 export function classes(value: string): string[] {
 	return value.split(/\s+/).filter(Boolean);
 }
 
-// One axis value's cell is what its rendering adds over the rendering every
+// One axis value's class set is what its rendering adds over the rendering every
 // other value of that axis shares. A compound row folds into the axis it
-// keys off, which is what makes `bg-accent` reachable as BUTTON's primary cell.
-export function matrixCells(): Map<string, Set<string>> {
+// keys off, which is what makes `bg-accent` reachable as BUTTON's primary class set.
+export function matrixClasses(): Map<string, Set<string>> {
 	const out = new Map<string, Set<string>>();
-	for (const family of FAMILIES) {
-		for (const [axis, values] of Object.entries(family.axes)) {
+	for (const group of MATRIX_GROUPS) {
+		for (const [axis, values] of Object.entries(group.axes)) {
 			const sets = values.map(
-				(value) => new Set(classes(family.cva({ [axis]: value }))),
+				(value) => new Set(classes(group.cva({ [axis]: value }))),
 			);
 			const first = sets[0];
 			if (!first) continue;
@@ -667,15 +667,15 @@ export function matrixCells(): Map<string, Set<string>> {
 			values.forEach((value, index) => {
 				const set = sets[index];
 				if (!set) return;
-				const cell = new Set([...set].filter((name) => !shared.has(name)));
-				if (cell.size > 0) out.set(`${family.name}.${axis}.${value}`, cell);
+				const added = new Set([...set].filter((name) => !shared.has(name)));
+				if (added.size > 0) out.set(`${group.name}.${axis}.${value}`, added);
 			});
 		}
 	}
 	return out;
 }
 
-// Single cells: one class string each, shared verbatim by both plugins.
+// Single class sets: one class string each, shared verbatim by both plugins.
 
 // A number in the meta ink at the caption size (the role, not a third grey,
 // keeps it quieter than a title), its figures at one width. A count inside a
@@ -767,7 +767,7 @@ export const SLIDER_REST =
 export const SLIDER_THUMB = `size-icon-meta rounded-full border border-edge-strong bg-surface ${ANSWER}`;
 // A waveform: the peaks drawn on a canvas in a box of the control's height in a
 // bar (the player dock). Its columns, played and unplayed ink and the playhead
-// are drawn from the colour tokens, not cells.
+// are drawn from the colour tokens, not class sets.
 export const WAVEFORM_BAR = "h-control rounded-control";
 
 // A popover: raised on the float shadow inside its hairline, its rows inset
@@ -1032,7 +1032,7 @@ export const GATE_MARK =
 // room. On touch the head takes a step of block padding over the row.
 export const PAGE_TITLE_FLOOR = "min-w-2/5 basis-0";
 
-// A docked foot (a Pane's `foot`) is one cell: a
+// A docked foot (a Pane's `foot`) is one class set: a
 // region of its own under what scrolls past it, a raised surface (the raised
 // step under a hairline), at the page inset at the
 // sides and an acts gap above and below what it holds (a selection bar stands
@@ -1075,7 +1075,7 @@ export const TREE_BLEED = "-my-gap";
 // An action bar: the acts row over a blocked act's reason, the acts an acts
 // gap apart. Where the bar stands (`fit`: at the end of its container at the
 // acts' natural width, or across it with each act at the field's height) is
-// structure and the `Button` fit the bar passes, so it carries no cell.
+// structure and the `Button` fit the bar passes, so it carries no class set.
 export const ACTION_BAR = "gap-gap";
 export const ACTION_BAR_ACTS = "gap-gap";
 
@@ -1143,7 +1143,7 @@ export const PULSE =
 export const SCRAMBLE =
 	"relative rounded-chip motion-safe:bg-transparent animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_var(--wait-delay)_both]";
 
-// The layer cells: docs/architecture/ui-core/motion.md, "Layers".
+// The layer class sets: docs/architecture/ui-core/motion.md, "Layers".
 export const LAYER_POPOVER =
 	"transition-[opacity,translate] duration-base ease-out data-starting-style:-translate-y-gap data-[side=top]:data-starting-style:translate-y-gap data-starting-style:opacity-0 data-ending-style:-translate-y-gap data-[side=top]:data-ending-style:translate-y-gap data-ending-style:opacity-0 data-ending-style:ease-in";
 
@@ -1156,9 +1156,9 @@ export const LAYER_CARD =
 export const LAYER_SCRIM =
 	"transition-opacity duration-base ease-out data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:ease-in";
 
-// A line that appears in flow: docs/architecture/ui-core/motion.md, "Lines and blocks".
-export const LINE_IN =
+// A flow line, one that appears in flow: docs/architecture/ui-core/motion.md, "Flow lines and blocks".
+export const FLOW_IN =
 	"animate-[paint-in_var(--transition-duration-fast)_var(--ease-out)_both]";
-// A block that arrives on its own: docs/architecture/ui-core/motion.md, "Lines and blocks".
+// A block that arrives on its own: docs/architecture/ui-core/motion.md, "Flow lines and blocks".
 export const BLOCK_IN =
 	"animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_both]";

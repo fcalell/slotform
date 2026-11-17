@@ -8,8 +8,8 @@ import {
 	FOOT_DOCKED,
 	PAGE_BODY,
 	PAGE_BODY_OVER_FOOT,
-	PAGE_BODY_TOAST_ROOM,
-	PAGE_HEAD_ROOM,
+	PAGE_BODY_TOAST_SPACE,
+	PAGE_HEAD_SPACE,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef } from "react";
 import { View } from "react-native";
@@ -29,7 +29,7 @@ import { blockIn, FadingView } from "../../lib/motion";
 import { useParentRoute } from "../../lib/navigate";
 import { FrameBody } from "../../lib/read";
 import { useToasts } from "../../lib/toast";
-import { ToastRoom } from "../../parts/toast/room";
+import { ToastSpace } from "../../parts/toast/space";
 import { ItemHeaderBase, type ItemHeaderParts } from "../item-header/base";
 import type { SheetProps } from "../sheet";
 import { SheetDocked } from "../sheet/docked";
@@ -166,7 +166,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 		<BackRoute.Provider value={toward}>
 			<View
 				accessibilityState={{ busy: frame.holds && frame.shape === "waiting" }}
-				className={cn(PANE, far && PAGE_HEAD_ROOM)}
+				className={cn(PANE, far && PAGE_HEAD_SPACE)}
 			>
 				<PaneHead
 					title={record ? (place ?? "") : title}
@@ -190,7 +190,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 								contentContainerClassName={cn(
 									PAGE_BODY,
 									footed && PAGE_BODY_OVER_FOOT,
-									!footed && toasted && PAGE_BODY_TOAST_ROOM,
+									!footed && toasted && PAGE_BODY_TOAST_SPACE,
 									BODY_CONTENT,
 								)}
 							>
@@ -206,7 +206,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 								</FrameBody>
 							</Scroll>
 						) : null}
-						<ToastRoom />
+						<ToastSpace />
 					</View>
 					{docked ? (
 						<FadingView

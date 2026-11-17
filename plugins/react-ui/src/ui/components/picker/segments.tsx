@@ -52,12 +52,12 @@ function useReveal<E extends HTMLElement>(chosen: string) {
 			if (!segment) return;
 			// Physical offsets from the track's edges, so the scroll is the same in a
 			// right-to-left page.
-			const room = box.getBoundingClientRect();
+			const space = box.getBoundingClientRect();
 			const at = segment.getBoundingClientRect();
-			if (at.left < room.left - SLACK)
-				box.scrollBy({ left: at.left - room.left });
-			else if (at.right > room.right + SLACK)
-				box.scrollBy({ left: at.right - room.right });
+			if (at.left < space.left - SLACK)
+				box.scrollBy({ left: at.left - space.left });
+			else if (at.right > space.right + SLACK)
+				box.scrollBy({ left: at.right - space.right });
 		};
 		reveal();
 		const watch = new ResizeObserver(reveal);

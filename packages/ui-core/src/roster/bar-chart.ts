@@ -14,7 +14,7 @@ import { build, CARD_PART, matrix } from "./shared.ts";
 // (`CHART_SLOTS`), so a short series stands in the first of them; the
 // first and last bars' times stand under their bars, and the times
 // between at evenly spaced strides as the plot's width holds them
-// (`timeRoom`). While its read waits the total and the legend's figures are
+// (`timeSpace`). While its read waits the total and the legend's figures are
 // painted, the plot one painted box at its loaded height. It is a frame of
 // its items: its failed, missing and empty shapes stand in its box with the
 // generic sentences, whatever stands above it. A bar `partial` (its period

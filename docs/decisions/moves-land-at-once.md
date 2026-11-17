@@ -4,7 +4,7 @@ A navigation, a read's first answer (the painted shape giving way to the loaded 
 viewer adds or removes (a row, a chip, a fold, a docked sheet) and a segmented control's ground all
 land at once. No view transition runs on the web and no `LayoutAnimation` on the phone. What still
 moves: a state's look (`answer`), a press (`give`), a layer entering and leaving, a line and a block
-that arrive on their own (`LINE_IN`, `BLOCK_IN`), a measured value, a wait, a follow and a stream.
+that arrive on their own (`FLOW_IN`, `BLOCK_IN`), a measured value, a wait, a follow and a stream.
 
 **Why.** A view transition snapshots the whole document and blocks input until it finishes.
 Measured on a consumer: every click on a tab or a row ran a `startViewTransition` of 236–328 ms

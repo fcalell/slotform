@@ -85,7 +85,7 @@ export const pickerEntry: RosterEntry = {
 		"OPTION_INDENT",
 		"PAINT.kind.glyphs",
 		"SCRAMBLE",
-		"LINE_IN",
+		"FLOW_IN",
 		"SEGMENTED_CONTROL",
 		"SEGMENT",
 		"SEGMENT_GROUND",
@@ -275,7 +275,7 @@ export const OPTION_LIST =
 	"gap-gap p-gap rounded-card border border-edge bg-surface";
 export const OPTION_LINE = "gap-gap";
 export const OPTION_CHILDREN = "ms-icon-control px-pad pb-gap";
-// Room is a margin on a box that draws: docs/architecture/ui-core/roster.md, "Cells".
+// Room is a margin on a box that draws: docs/architecture/ui-core/roster.md, "Class sets".
 export const OPTION_INDENT = "ms-gap";
 // The chosen radio's dot, centred in its ring.
 export const OPTION_RADIO_DOT = `size-dot rounded-full bg-toggle-on ${RADIO_DOT}`;

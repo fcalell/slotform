@@ -38,8 +38,8 @@ The subpaths:
   soft ground (`SOFT_GROUNDS`, every `-soft` tint; native wraps only a banner in it), the hairline read through `edge-strong`.
 - `@fcalell/ui-core/cn`: `cn()`, the class merger, taught the contract's six scales.
 - `@fcalell/ui-core/variants`: the platform-invariant variant matrices, each a cva built from a
-  table, the single-cell constants beside them, and `FAMILIES`, every matrix by name with its axes,
-  which `matrixCells` enumerates into cells; the prop types a component shares across plugins
+  table, the single-class-set constants beside them, and `MATRIX_GROUPS`, every matrix by name with its axes,
+  which `matrixClasses` enumerates into class sets; the prop types a component shares across plugins
   with them (`ContentTone`, a glyph's ink; `IconFit`, the `ICON` matrix's `meta`, `body` or
   `control`, what an icon sits beside, which picks `icon-meta`, `icon` or `icon-control`;
   `ButtonFit`, `IconButtonFit` and `LinkFit`, what an act sits in, read off each matrix's `fit`
@@ -109,8 +109,8 @@ The subpaths:
   its axis step, band count and top over a floor of zero (four even bands, or a step of 1 over the
   peak rounded up for a small whole-number chart), `levelScale(figures)`, a level's axis around its
   readings (four bands, the floor a step under the lowest and the top over the highest), and
-  `chartShare(value, scale)` where a value stands on it, `timeRoom(index, count)`, the room in slots
-  a time between the ends stands in (it draws where that holds `TIME_ROOM` times the longest time),
+  `chartShare(value, scale)` where a value stands on it, `timeSpace(index, count)`, the room in slots
+  a time between the ends stands in (it draws where that holds `TIME_SPACE` times the longest time),
   `chartHead(series, keys, level)`, the figures its head draws (the sum, or with `level` the bars'
   span, lowest to highest), `spanText` and `spanUnit`, a head figure's text and the unit's word
   after it, `levelUnit(unit)`, whether a unit never sums (`%`, `°C`) so its chart is a level, and
@@ -135,7 +135,7 @@ The subpaths:
 - `@fcalell/ui-core/line-diff`: the line diff of two texts and the numbers a `Diff` draws: `lineHunks`, `held`, `indented`, `hunkKey`, `hunkContext`, `elidedBefore`, `tokenParts`, `lineKey`, `numbersAt` and `numbersOf`.
 - `@fcalell/ui-core/stages`: the rail below a stage (`railBelow`, `RailState`) and the painted rail's stages (`WAITING`).
 - `@fcalell/ui-core/runs`: the words of a part and a line of parts, free of any view: `runsOf`, `partRuns`, `partText`, `factParts`, `flowRuns`, `filled`, `isRun` and `isCode`.
-- `@fcalell/ui-core/fold`: the one fold rule for acts that stand side by side: `actsSplit`, `rowOneLine`, `rulesOneRow`, `definitionsOneRow`, `actsStackedMax` and `ROW_TITLE_LINES`.
+- `@fcalell/ui-core/overflow`: the one overflow rule for acts that stand side by side: `actsSplit`, `rowOneLine`, `rulesOneRow`, `definitionsOneRow`, `actsStackedMax` and `ROW_TITLE_LINES`.
 - `@fcalell/ui-core/follow`: what a finger or pointer carries moves 1:1 with it and only its release eases: `position`, `velocity`, `release`, `eased` and `mix`.
 - `@fcalell/ui-core/roll`: how a figure that changes while shown moves: `rollOf` and `rollShift`.
 - `@fcalell/ui-core/scramble`: the glyph slot's scramble, pure over the tick it is given: `frame`, `decode`, `lockedAt`, `seedOf`, `busy` and `createTicker`, the one ticker every slot of a page shares.

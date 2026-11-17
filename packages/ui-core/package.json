@@ -213,9 +213,9 @@
 			"types": "./dist/runs.d.ts",
 			"default": "./dist/runs.js"
 		},
-		"./fold": {
-			"types": "./dist/fold.d.ts",
-			"default": "./dist/fold.js"
+		"./overflow": {
+			"types": "./dist/overflow.d.ts",
+			"default": "./dist/overflow.js"
 		},
 		"./paint": {
 			"types": "./dist/paint.d.ts",

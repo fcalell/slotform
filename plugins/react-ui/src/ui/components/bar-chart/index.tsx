@@ -16,8 +16,8 @@ import {
 	spanFlat,
 	spanText,
 	spanUnit,
-	TIME_ROOM,
-	timeRoom,
+	TIME_SPACE,
+	timeSpace,
 	unitSymbol,
 } from "@fcalell/ui-core/chart";
 import { cn } from "@fcalell/ui-core/cn";
@@ -115,7 +115,7 @@ const COLUMN = "relative h-full w-2/3";
 // bar and whole. A time wider than its bar's slot keeps the plot's edge: the
 // first runs on toward the end and the last back toward the start. Each is a
 // box a slot wide at its bar's place, as the times between stand at theirs
-// (`TIME_ROOM_BOX`), and the time is centred in it by auto margins, which a
+// (`TIME_SPACE_BOX`), and the time is centred in it by auto margins, which a
 // time wider than the slot loses, standing flush at the slot's start (the
 // last's line reversed, at its end). The line is a meta line high whichever
 // times it holds.
@@ -126,12 +126,12 @@ const TIME_FIRST = "start-0";
 const TIME_LAST = "flex-row-reverse";
 const TIME_TEXT = "mx-auto";
 // A time between the ends stands at its bar's centre in a box as wide as its
-// room (`timeRoom`, in slots) over `TIME_ROOM` times the longest time's
+// room (`timeSpace`, in slots) over `TIME_SPACE` times the longest time's
 // characters (`--time`): the `time` container, whose one `ch` is the test
 // `time-fits:` draws it by, so a stride's times appear together as the plot
 // widens and none ever touches another. No measure: the container decides.
-const TIME_ROOM_BOX =
-	"absolute top-0 @container/time w-[calc(100%*var(--room)/var(--slots)/var(--time))]";
+const TIME_SPACE_BOX =
+	"absolute top-0 @container/time w-[calc(100%*var(--space)/var(--slots)/var(--time))]";
 const TIME_MID =
 	"absolute top-0 start-0 -translate-x-1/2 whitespace-nowrap hidden time-fits:block";
 // A categorical axis: the names stand in groups of a stride's bars, each group
@@ -344,7 +344,7 @@ const BarSlot = memo(function BarSlot(props: {
 	);
 });
 
-/** The total (the bars' span with `level`, none where that span is one reading) at body 500 with its unit, the parts' keys under it, then the axis beside the plot, its four gridlines a hairline each with its tick centred on it and the baseline with its 0, the columns in the chip marks by part, each bar in its slot of the plot (at least `CHART_SLOTS`, seven: a shorter series, a day's first hours, stands in the first of them, the rest of the plot its gridlines); with `level`, each reading a dot in its mark against an axis around the readings (`levelScale`: its floor a step under the lowest, its top over the highest), the baseline's tick that floor. The first bar's time stands centred under the first bar and the last bar's under the last, each kept whole inside the plot, and the times between at evenly spaced strides (`timeRoom`: every 12th bar, every 6th, every 2nd, then each), each stride's drawn where its room holds twice the longest time, a container query of the time line, never a measure. A chart given `bar.label` (under `VIRTUAL_FROM` bars) names its bars on that line in the times' place: every bar where the names fit under their bars, else every `n`th (`axisStride`, from the plot's width), each name centred under its bar in a group as wide as its stride's bars, so no bar without a name has a box of its own. From `VIRTUAL_FROM` bars the plot keeps a bar's width and scrolls sideways, the axis staying, and only the bars near the view are drawn, the time line spanning the scrolled width so the last time stands whole at the end. While the `items` selection's read waits, the total is a figure's filler, the legend stands (its names and marks declared, its figures painted), the plot is one painted box at its loaded height with the axis's lane kept and the time line is two fillers at its place, the chart inert. A bar given `bar.partial` (its period not over) is drawn hatched and one given `bar.selected` (its record open beside the chart) stands in the selection wash. The chart is a frame of its items: it draws the failed shape with Retry, the missing shape and the empty shape in its own box with the generic sentence, and the stale and paused line above itself while it holds its read, whatever stands above it. */
+/** The total (the bars' span with `level`, none where that span is one reading) at body 500 with its unit, the parts' keys under it, then the axis beside the plot, its four gridlines a hairline each with its tick centred on it and the baseline with its 0, the columns in the chip marks by part, each bar in its slot of the plot (at least `CHART_SLOTS`, seven: a shorter series, a day's first hours, stands in the first of them, the rest of the plot its gridlines); with `level`, each reading a dot in its mark against an axis around the readings (`levelScale`: its floor a step under the lowest, its top over the highest), the baseline's tick that floor. The first bar's time stands centred under the first bar and the last bar's under the last, each kept whole inside the plot, and the times between at evenly spaced strides (`timeSpace`: every 12th bar, every 6th, every 2nd, then each), each stride's drawn where its room holds twice the longest time, a container query of the time line, never a measure. A chart given `bar.label` (under `VIRTUAL_FROM` bars) names its bars on that line in the times' place: every bar where the names fit under their bars, else every `n`th (`axisStride`, from the plot's width), each name centred under its bar in a group as wide as its stride's bars, so no bar without a name has a box of its own. From `VIRTUAL_FROM` bars the plot keeps a bar's width and scrolls sideways, the axis staying, and only the bars near the view are drawn, the time line spanning the scrolled width so the last time stands whole at the end. While the `items` selection's read waits, the total is a figure's filler, the legend stands (its names and marks declared, its figures painted), the plot is one painted box at its loaded height with the axis's lane kept and the time line is two fillers at its place, the chart inert. A bar given `bar.partial` (its period not over) is drawn hatched and one given `bar.selected` (its record open beside the chart) stands in the selection wash. The chart is a frame of its items: it draws the failed shape with Retry, the missing shape and the empty shape in its own box with the generic sentence, and the stale and paused line above itself while it holds its read, whatever stands above it. */
 export function BarChart<T>(props: BarChartProps<T>) {
 	const { label, keys, unit, level } = props;
 	const { drawn, frame } = useCollection(props.items);
@@ -365,13 +365,13 @@ export function BarChart<T>(props: BarChartProps<T>) {
 		[items, bar],
 	);
 	// The times: the first bar's and the last bar's, each under its bar, and
-	// the bars' between, each with its room (`timeRoom`).
+	// the bars' between, each with its room (`timeSpace`).
 	const times = useMemo(
 		() =>
 			items.map((item, index) => ({
 				index,
 				time: bar.at?.(item),
-				room: timeRoom(index, items.length),
+				space: timeSpace(index, items.length),
 			})),
 		[items, bar],
 	);
@@ -380,7 +380,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	const start = first?.time;
 	const end = last?.time;
 	const between = times.filter(
-		(time) => time.room !== undefined && time.time !== undefined,
+		(time) => time.space !== undefined && time.time !== undefined,
 	);
 	const longest = Math.max(1, ...times.map((time) => time.time?.length ?? 0));
 	// A chart of buckets names its bars in the times' place, under a long
@@ -421,9 +421,9 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	const slotCount = chartSlots(series.length);
 	const slots: VarStyle = { "--slots": slotCount };
 	const spanned = (span: number): VarStyle => ({ "--span": span });
-	const timed: VarStyle = { "--time": TIME_ROOM * longest };
-	const roomAt = (index: number, room: number | undefined): VarStyle => ({
-		"--room": room,
+	const timed: VarStyle = { "--time": TIME_SPACE * longest };
+	const spaceAt = (index: number, space: number | undefined): VarStyle => ({
+		"--space": space,
 		insetInlineStart: `${((index + 0.5) / slotCount) * 100}%`,
 	});
 	const word = unit ? spanUnit(unit, total) : undefined;
@@ -662,14 +662,14 @@ export function BarChart<T>(props: BarChartProps<T>) {
 												<span className={TIME_TEXT}>{end}</span>
 											</span>
 										) : null}
-										{between.map(({ index, time, room }) => (
+										{between.map(({ index, time, space }) => (
 											<span
 												key={index}
-												style={roomAt(index, room)}
+												style={spaceAt(index, space)}
 												className={cn(
 													text({ role: "meta" }),
 													FIGURES,
-													TIME_ROOM_BOX,
+													TIME_SPACE_BOX,
 												)}
 											>
 												<span className={TIME_MID}>{time}</span>

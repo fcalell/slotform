@@ -17,7 +17,7 @@ import { Pressable, Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { FieldError, useFieldName } from "../../lib/field";
 import { Ink } from "../../lib/ink";
-import { FadingText, lineIn } from "../../lib/motion";
+import { FadingText, flowIn } from "../../lib/motion";
 import { pickedFromDocument } from "../../lib/picked";
 import { Icon } from "../../parts/icon";
 import { Button } from "../button";
@@ -129,7 +129,7 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 			{refused ? (
 				<FadingText
 					key={refused}
-					entering={lineIn()}
+					entering={flowIn()}
 					accessibilityRole="alert"
 					className={FIELD_ERROR_LINE}
 				>

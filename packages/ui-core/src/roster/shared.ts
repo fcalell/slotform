@@ -7,7 +7,7 @@ import {
 	type ColorName,
 	type Move,
 	type RadiusRole,
-	type ShadowLevel,
+	type ShadowElevation,
 	type Size,
 	type SpacingRole,
 	type TypeRole,
@@ -44,7 +44,7 @@ export interface Owns {
 	radii?: readonly RadiusRole[];
 	spacing?: readonly SpacingRole[];
 	sizes?: readonly (Size | Width)[];
-	elevation?: readonly ShadowLevel[];
+	elevation?: readonly ShadowElevation[];
 }
 
 // A roster entry: docs/architecture/ui-core/roster.md, "Roster entries".
@@ -82,7 +82,7 @@ export type ContentTone = ColorName;
 
 export const PRESS = ["rest", "hover", "focus", "active"] as const;
 
-// Identity, for the contextual typing: it keeps each cell key literal so a
+// Identity, for the contextual typing: it keeps each class-set key literal so a
 // compound row or a default naming an absent key fails to compile.
 export function matrix<T extends Axes>(config: Matrix<T>): Matrix<T> {
 	return config;
@@ -99,7 +99,7 @@ export const GIVE = "active:scale-(--scale-press)";
 export const FILL_X =
 	"origin-left rtl:origin-right scale-x-(--fill) starting:scale-x-0 transition-[scale,background-color] [transition-duration:var(--transition-duration-slow),var(--transition-duration-base)] ease-in-out";
 
-// A type role sets type, every cell spelled out: docs/architecture/ui-core/roster.md, "Cells".
+// A type role sets type, every class set spelled out: docs/architecture/ui-core/roster.md, "Class sets".
 export const TEXT = matrix({
 	base: "",
 	variants: {
@@ -172,12 +172,12 @@ export const ROWS = `${ROWS_HOST} grid-cols-[fit-content(var(--container-measure
 
 export const COLOR_SET: ReadonlySet<string> = new Set(COLOR_NAMES);
 
-// A tone read back off a cell: docs/architecture/ui-core/roster.md, "Cells".
-export function toneOf(cell: string): ContentTone {
-	const tone = cell
+// A tone read back off a class set: docs/architecture/ui-core/roster.md, "Class sets".
+export function toneOf(classSet: string): ContentTone {
+	const tone = classSet
 		.split(/\s+/)
 		.map((name) => /^(?:text|bg|border)-(.+)$/.exec(name)?.[1])
 		.find((name) => name !== undefined && COLOR_SET.has(name));
-	// A cell naming no contract colour reads as `ink-body`.
+	// A class set naming no contract colour reads as `ink-body`.
 	return (tone ?? "ink-body") as ContentTone;
 }

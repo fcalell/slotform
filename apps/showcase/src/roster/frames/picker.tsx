@@ -380,7 +380,7 @@ const LIST_CELLS = [
 	"OPTION_INDENT",
 	"PAINT.kind.glyphs",
 	"SCRAMBLE",
-	"LINE_IN",
+	"FLOW_IN",
 ];
 const SEGMENT_CELLS = ["SEGMENT"];
 const drawn = (cell: string, prefixes: readonly string[]) =>

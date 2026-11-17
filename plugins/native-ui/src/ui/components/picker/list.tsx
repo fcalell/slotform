@@ -39,7 +39,7 @@ import {
 	dotOut,
 	FadingText,
 	FadingView,
-	lineIn,
+	flowIn,
 } from "../../lib/motion";
 import {
 	inertProps,
@@ -190,7 +190,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 						) : meta ? (
 							<FadingText
 								key={blocked}
-								entering={blocked === undefined ? undefined : lineIn()}
+								entering={blocked === undefined ? undefined : flowIn()}
 								className={cn(
 									text({ role: "meta" }),
 									"shrink",

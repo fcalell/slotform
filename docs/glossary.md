@@ -172,7 +172,7 @@ to fix, and a new term enters this page in the change that introduces it.
 - **axis**: One dimension of a matrix, what a component is given (act, family, checked, error).
   [roster](architecture/ui-core/roster.md#matrices)
 - **cell**: One entry of a matrix, or a single named constant: the platform-invariant classes a part
-  draws. [roster](architecture/ui-core/roster.md#cells)
+  draws. [roster](architecture/ui-core/roster.md#class-sets)
 - **variant**: A component's pick of one value per axis of its matrix.
   [roster](architecture/ui-core/roster.md#variants)
 - **tone**: The one vocabulary of state a status, a banner and a toast name.
@@ -198,12 +198,12 @@ to fix, and a new term enters this page in the change that introduces it.
 - **parts line**: One text of parts a middle dot apart, which never breaks at a separator: a record
   head's overline, a message's provenance. [plugin-react-ui](architecture/plugins/react-ui.md#text)
 - **move**: One motion a component may make, named in its roster entry.
-  [motion](architecture/ui-core/motion.md#moves-and-move-cells)
+  [motion](architecture/ui-core/motion.md#moves-and-move-class-sets)
 - **line**: A line of text that appears in flow (a blocked act's reason, a field's error, a notice): it
   fades in and pushes what follows at once, and leaves at once.
-  [motion](architecture/ui-core/motion.md#lines-and-blocks)
+  [motion](architecture/ui-core/motion.md#flow-lines-and-blocks)
 - **block**: A box a change adds to or removes from the flow (a fold, a chip, a sheet, a row): it lands
-  at once, and fades in only when it arrives on its own. [motion](architecture/ui-core/motion.md#lines-and-blocks)
+  at once, and fades in only when it arrives on its own. [motion](architecture/ui-core/motion.md#flow-lines-and-blocks)
 - **anchor screen**: The pinned screen of the anchor product a consumer's screen is stood beside and
   judged against. [consumer project](architecture/consumer-project.md#designing-screens)
 
@@ -247,9 +247,9 @@ to fix, and a new term enters this page in the change that introduces it.
   [layout](architecture/ui-core/layout.md#cards)
 - **column cell**: A measure-wide column that keeps a field at the reading width inside a wider
   region. [layout](architecture/ui-core/layout.md#foot)
-- **fold rule**: A rule that decides a part's form from its structure, never from a measure of its
+- **overflow rule**: A rule that decides a part's form from its structure, never from a measure of its
   content; for acts, the first stands and the rest go into the more menu.
-  [layout](architecture/ui-core/layout.md#fold-rules)
+  [layout](architecture/ui-core/layout.md#overflow-rules)
 - **more menu**: The menu the acts that do not stand fold into. [ui-core](architecture/ui-core.md#subpaths)
 
 ### Reads

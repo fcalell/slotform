@@ -19,7 +19,7 @@ import {
 	useFieldClaim,
 	useFieldName,
 } from "../../lib/field";
-import { FadingText, lineIn } from "../../lib/motion";
+import { FadingText, flowIn } from "../../lib/motion";
 import { Spinner } from "../../parts/spinner";
 import type { CodeInputProps } from "./index";
 
@@ -109,7 +109,7 @@ export function CodeField({
 				<View className="flex-row items-center gap-gap">
 					<Spinner />
 					<FadingText
-						entering={lineIn()}
+						entering={flowIn()}
 						className={cn(text({ role: "meta" }), "shrink")}
 					>
 						{words.checking}
@@ -119,7 +119,7 @@ export function CodeField({
 			{refused ? (
 				<FadingText
 					key={refused}
-					entering={lineIn()}
+					entering={flowIn()}
 					accessibilityRole="alert"
 					className={FIELD_ERROR_LINE}
 				>

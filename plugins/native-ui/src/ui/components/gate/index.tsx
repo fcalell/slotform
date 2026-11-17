@@ -14,7 +14,7 @@ import { FieldClaim } from "../../lib/field";
 import { DistanceContext } from "../../lib/frame";
 import { Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
-import { ToastRoom } from "../../parts/toast/room";
+import { ToastSpace } from "../../parts/toast/space";
 import { type FormProps, useDerivedForm } from "../form";
 import { FormRows, FormShell, useFormBar } from "../form/base";
 import { FrameHost } from "../shell/host";
@@ -26,7 +26,7 @@ const FILL = "flex-1";
 const PAGE = "grow items-center";
 // In a room Place there is no keyboard: the step stands in the middle of the
 // screen, as a lock screen's does.
-const PAGE_ROOM = "justify-center";
+const PAGE_SPACE = "justify-center";
 // The toasts stand at the page's foot, above the home indicator.
 const TOAST_BOX = "absolute inset-x-0 top-0";
 
@@ -94,7 +94,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 				<View className={FILL}>
 					<Scroll
 						className={FILL}
-						contentContainerClassName={cn(GATE, PAGE, far && PAGE_ROOM)}
+						contentContainerClassName={cn(GATE, PAGE, far && PAGE_SPACE)}
 					>
 						<View
 							style={{
@@ -131,7 +131,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 						style={{ bottom: insets.bottom }}
 						className={TOAST_BOX}
 					>
-						<ToastRoom />
+						<ToastSpace />
 					</View>
 				</View>
 			</FieldClaim.Provider>

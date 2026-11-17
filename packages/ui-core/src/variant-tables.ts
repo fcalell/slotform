@@ -45,7 +45,7 @@ export type { Axes, Matrix } from "./roster/shared.ts";
 export { ANSWER, BUTTON_LABEL, FILL_X, GIVE, TEXT } from "./roster/shared.ts";
 export {
 	CURRENT_BAR,
-	CURRENT_ROOM,
+	CURRENT_SPACE,
 	PLACE_ROW,
 	PLACE_ROW_GLYPH,
 	PLACE_TAB,
@@ -64,9 +64,9 @@ export {
 export { MESSAGE } from "./roster/thread.ts";
 export { TOAST_STATE } from "./roster/toast.ts";
 
-// ── Motion cells ────────────────────────────────────────────────────
+// ── Motion class sets ─────────────────────────────────────────────────
 
-// The cells a move spells: docs/architecture/ui-core/motion.md, "Moves and move cells".
+// The class sets a move spells: docs/architecture/ui-core/motion.md, "Moves and move class sets".
 
 // A checkbox's mark grows from 0.6 with its opacity on `fast` and leaves on
 // `instant` (Base UI keeps it mounted through the leave).
@@ -339,7 +339,7 @@ export const ROW = matrix({
 // A list row's title at body size and weight 400, its ink by how it stands:
 // `name` the body ink; `dim` a row off a highlighted path, in the meta ink,
 // never faded, so it keeps the text floor. A title read as a passage (a note)
-// takes the same cells, wrapped to every line.
+// takes the same class sets, wrapped to every line.
 export const ROW_TITLE = matrix({
 	base: "text-body leading-body font-normal",
 	variants: {

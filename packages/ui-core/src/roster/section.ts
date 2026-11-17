@@ -136,7 +136,7 @@ export const sectionEntry: RosterEntry = {
 		"FIELD_ERROR_LINE",
 		"LINE_BOX.role.body",
 		"PAINT.kind.box",
-		"LINE_IN",
+		"FLOW_IN",
 		"DEFINITION_BOX",
 		"DEFINITION_LINE",
 		"DEFINITION_UNDER",

@@ -96,7 +96,7 @@ plugin or config, and it fails loudly instead of emitting corrupt CSS.
   `@layer base` block overrides a seeded token. With no contribution there is no file.
 - **The uniwind entry stylesheet** (native-ui) is `@import 'tailwindcss'` and `@import 'uniwind'`,
   the `@source` scan roots, one `@theme` (resets, scales, families, colors), three
-  `@utility shadow-<level>`, `@utility tabular-nums`, then
+  `@utility shadow-<elevation>`, `@utility tabular-nums`, then
   `@layer theme { :root { @variant light|dark { … } } }` for the color overrides. Every name and
   value crosses through `cssVarName`, `cssIdent` and `cssTokenValue`.
 

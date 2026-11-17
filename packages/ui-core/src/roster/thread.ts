@@ -80,7 +80,7 @@ export const threadEntry: RosterEntry = {
 		"SPINNER",
 		"SPINNER_ARC",
 		"SPINNER_TRACK",
-		"LINE_IN",
+		"FLOW_IN",
 	],
 	states: [
 		"rest",

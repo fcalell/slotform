@@ -1,5 +1,4 @@
 import type { RowTitle, RowTrailing } from "@fcalell/ui-core/descriptors";
-import { ROW_TITLE_LINES } from "@fcalell/ui-core/fold";
 import {
 	isAbsent,
 	isCopy,
@@ -7,6 +6,7 @@ import {
 	titleWords,
 	valueCut,
 } from "@fcalell/ui-core/list-state";
+import { ROW_TITLE_LINES } from "@fcalell/ui-core/overflow";
 import { useClock } from "@fcalell/ui-core/react/clock";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -44,7 +44,7 @@ import { cn } from "../../lib/cn";
 import { CodeCut, RunText } from "../../lib/code";
 import { badgesOf, loneCode } from "../../lib/facts";
 import { FieldError } from "../../lib/field";
-import { blockIn, FadingText, FadingView, lineIn } from "../../lib/motion";
+import { blockIn, FadingText, FadingView, flowIn } from "../../lib/motion";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { FailedMark, RetryMark } from "../../lib/read";
@@ -639,7 +639,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 							{entry.error && !painted ? (
 								<FadingText
 									key={entry.error}
-									entering={lineIn()}
+									entering={flowIn()}
 									className={FIELD_ERROR_LINE}
 								>
 									{entry.error}

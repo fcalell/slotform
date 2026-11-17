@@ -12,7 +12,7 @@ import {
 	canvasNodeMark,
 	canvasNodeName,
 	canvasNodeText,
-	LINE_IN,
+	FLOW_IN,
 	PATH_TONE,
 } from "@fcalell/ui-core/variants";
 import {
@@ -568,7 +568,7 @@ export function NodeView({
 		// The glyph box's place and size are coordinates of the flow, known at run time.
 		<div
 			data-node={id}
-			className={cn(GLYPH_BOX, LINE_IN)}
+			className={cn(GLYPH_BOX, FLOW_IN)}
 			style={{
 				left: frame.x,
 				top: frame.y,

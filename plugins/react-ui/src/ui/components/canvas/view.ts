@@ -201,7 +201,7 @@ export function standIn(
 	inset: number,
 	clear: Clearance,
 ): Transform {
-	const area = room(pane, inset, clear);
+	const area = space(pane, inset, clear);
 	const centre = centredTransform(box, k, area);
 	return clearOfStack(
 		box,
@@ -214,7 +214,7 @@ export function standIn(
 
 // The part of the pane a fit may fill: inset on every side, and past the
 // chrome on the left and the bottom.
-export function room(pane: Size, inset: number, clear: Clearance): Box {
+export function space(pane: Size, inset: number, clear: Clearance): Box {
 	const x = Math.max(inset, clear.left);
 	const bottom = Math.max(inset, clear.bottom);
 	return {
@@ -247,19 +247,19 @@ export const OPEN_UNDER = 0.99;
 export function solveScale(
 	extent: (k: number) => number,
 	spread: number,
-	room: number,
+	space: number,
 	lowest: number,
 	from: number = OPEN_UNDER,
 ): { k: number; whole: boolean } {
 	let k = Math.max(lowest, from);
 	for (let step = 0; step < 6; step++) {
 		const taken = extent(k);
-		if (taken <= room + 1e-6) return { k, whole: true };
+		if (taken <= space + 1e-6) return { k, whole: true };
 		if (k <= lowest || spread <= 0) break;
-		const next = (room - (taken - spread * k)) / spread;
+		const next = (space - (taken - spread * k)) / spread;
 		k = Math.max(lowest, Math.min(next, k - 1e-3));
 	}
-	return { k, whole: extent(k) <= room + 1e-6 };
+	return { k, whole: extent(k) <= space + 1e-6 };
 }
 
 // Where a span of `size` stands on one axis of a room of `extent` from `origin`,
@@ -269,19 +269,19 @@ export function solveScale(
 // room's, held so the span still covers the room's ends.
 function framed(
 	span: { start: number; size: number },
-	room: { origin: number; extent: number },
+	space: { origin: number; extent: number },
 	k: number,
 	centre?: number,
 ): number {
 	const size = span.size * k;
-	if (size <= room.extent)
-		return room.origin + (room.extent - size) / 2 - span.start * k;
-	const first = room.origin - span.start * k;
+	if (size <= space.extent)
+		return space.origin + (space.extent - size) / 2 - span.start * k;
+	const first = space.origin - span.start * k;
 	if (centre === undefined) return first;
-	const wanted = room.origin + room.extent / 2 - centre * k;
+	const wanted = space.origin + space.extent / 2 - centre * k;
 	// The span's start may not pass the room's, nor its end stop short of it.
 	return Math.max(
-		room.origin + room.extent - (span.start + span.size) * k,
+		space.origin + space.extent - (span.start + span.size) * k,
 		Math.min(first, wanted),
 	);
 }
@@ -310,12 +310,12 @@ export interface Parts {
 function kept(
 	x: number,
 	view: { k: number; y: number; lo: number; hi: number },
-	room: { inset: number; pane: Size; clear: Clearance },
+	space: { inset: number; pane: Size; clear: Clearance },
 	parts: Parts,
 	start?: Box,
 ): number {
 	const { k, y } = view;
-	const { inset, pane, clear } = room;
+	const { inset, pane, clear } = space;
 	let { lo, hi } = view;
 	let at = x;
 	if (start) {
@@ -400,7 +400,7 @@ export function fitTransform(
 	parts?: Parts,
 	floor: number = FIT_FLOOR,
 ): Transform {
-	const area = room(pane, inset, clear);
+	const area = space(pane, inset, clear);
 	const fits = Math.min(
 		1,
 		area.width / bounds.width,
@@ -470,15 +470,15 @@ export function withNames(box: Box, extra: number, k: number): Box {
 // that), never so far that the span's end leaves the room short.
 function opened(
 	span: { start: number; size: number },
-	room: { origin: number; extent: number },
+	space: { origin: number; extent: number },
 	k: number,
 	anchor: { start: number; size: number } | undefined,
 	window: { lo: number; hi: number },
 ): number {
 	const size = span.size * k;
-	if (size <= room.extent)
-		return room.origin + (room.extent - size) / 2 - span.start * k;
-	let offset = room.origin - span.start * k;
+	if (size <= space.extent)
+		return space.origin + (space.extent - size) / 2 - span.start * k;
+	let offset = space.origin - span.start * k;
 	if (anchor) {
 		const end = (anchor.start + anchor.size) * k + offset;
 		if (end > window.hi) offset -= end - window.hi;
@@ -486,7 +486,7 @@ function opened(
 			offset = window.lo - anchor.start * k;
 	}
 	return Math.max(
-		room.origin + room.extent - (span.start + span.size) * k,
+		space.origin + space.extent - (span.start + span.size) * k,
 		offset,
 	);
 }
@@ -507,7 +507,7 @@ export function overviewTransform(
 	anchor?: Box,
 	nodes: readonly Box[] = [],
 ): Transform {
-	const area = room(pane, inset, clear);
+	const area = space(pane, inset, clear);
 	const view: Transform = {
 		k,
 		x: opened(

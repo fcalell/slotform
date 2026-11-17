@@ -1,7 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { markedRuns } from "@fcalell/ui-core/form";
 import { partRuns } from "@fcalell/ui-core/runs";
-import { FIELD_ERROR_LINE, LINE_IN, text } from "@fcalell/ui-core/variants";
+import { FIELD_ERROR_LINE, FLOW_IN, text } from "@fcalell/ui-core/variants";
 import { RunText } from "../../lib/code.tsx";
 
 // At the line's end under an act at the row's end; `desktop` under an act
@@ -40,7 +40,7 @@ export function Reason(props: {
 			)}
 		>
 			{props.shown ? (
-				<span key={words} className={LINE_IN}>
+				<span key={words} className={FLOW_IN}>
 					{drawn}
 				</span>
 			) : (

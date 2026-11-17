@@ -333,10 +333,10 @@ function headFaults(region: Element): string[] {
 		const head = words.getBoundingClientRect();
 		if (frame.left < pane.left || frame.right > pane.right) continue;
 		if (stack && head.bottom > stack.top) continue;
-		const room = bar.clientWidth - 2 * pad;
-		if (words.scrollWidth > words.clientWidth && words.clientWidth < room - 1)
+		const space = bar.clientWidth - 2 * pad;
+		if (words.scrollWidth > words.clientWidth && words.clientWidth < space - 1)
 			faults.push(
-				`the head "${words.textContent}" is cut at ${Math.round(words.clientWidth)} px of the frame's ${Math.round(room)}`,
+				`the head "${words.textContent}" is cut at ${Math.round(words.clientWidth)} px of the frame's ${Math.round(space)}`,
 			);
 	}
 	return faults;

@@ -1,7 +1,7 @@
 import { sizeOf, sizePx, spacingOf, widthPx } from "./scales.ts";
 import { KNOB_DEFAULTS, MEASURE_CHARACTERS, SANS_ADVANCE } from "./tokens.ts";
 
-// The one fold rule for acts side by side: docs/architecture/ui-core/layout.md, "Fold rules".
+// The one overflow rule for acts side by side: docs/architecture/ui-core/layout.md, "Overflow rules".
 const ACTS_STAND = 1;
 
 // The acts that stand and those the more menu holds, in their order.
@@ -15,7 +15,7 @@ export function actsSplit<T>(acts: readonly T[]): {
 	};
 }
 
-// A row's one-line form, a rule of its width: docs/architecture/ui-core/layout.md, "Fold rules".
+// A row's one-line form, a rule of its width: docs/architecture/ui-core/layout.md, "Overflow rules".
 const TEXT_FLOOR = 2 / 5;
 const CHARACTERS = MEASURE_CHARACTERS["measure-short"] * SANS_ADVANCE;
 export function rowOneLine(size = KNOB_DEFAULTS.size): number {
@@ -28,7 +28,7 @@ export function rowOneLine(size = KNOB_DEFAULTS.size): number {
 	return Math.ceil(Math.max(text / TEXT_FLOOR, end / (1 - TEXT_FLOOR)));
 }
 
-// A rules list's one-row form, a rule of its width: docs/architecture/ui-core/layout.md, "Fold rules".
+// A rules list's one-row form, a rule of its width: docs/architecture/ui-core/layout.md, "Overflow rules".
 const RULE_TERM_CHARACTERS = 12;
 export function rulesOneRow(size = KNOB_DEFAULTS.size): number {
 	const gap = spacingOf("desktop", "gap", size);
@@ -41,7 +41,7 @@ export function rulesOneRow(size = KNOB_DEFAULTS.size): number {
 	return Math.ceil(2 * term + 2 * control + 3 * gap);
 }
 
-// A Pane's side-by-side definitions, a rule of its width: docs/architecture/ui-core/layout.md, "Fold rules".
+// A Pane's side-by-side definitions, a rule of its width: docs/architecture/ui-core/layout.md, "Overflow rules".
 export function definitionsOneRow(size = KNOB_DEFAULTS.size): number {
 	const stack = spacingOf("desktop", "stack", size);
 	const page = spacingOf("desktop", "page", size);
@@ -55,5 +55,5 @@ export function actsStackedMax(size = KNOB_DEFAULTS.size): number {
 	return widthPx("auth", size);
 }
 
-// A two-line row's title lines, read by the web's `line-clamp` and the phone's `numberOfLines`: docs/architecture/ui-core/layout.md, "Fold rules".
+// A two-line row's title lines, read by the web's `line-clamp` and the phone's `numberOfLines`: docs/architecture/ui-core/layout.md, "Overflow rules".
 export const ROW_TITLE_LINES = 3;

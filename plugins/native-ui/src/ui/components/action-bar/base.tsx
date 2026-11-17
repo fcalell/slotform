@@ -6,9 +6,9 @@ import {
 } from "@fcalell/ui-core/action-bar";
 import { isThenable } from "@fcalell/ui-core/acts";
 import type { ChosenCount } from "@fcalell/ui-core/descriptors";
-import { actsSplit } from "@fcalell/ui-core/fold";
 import { markedRuns } from "@fcalell/ui-core/form";
 import { formatterFor } from "@fcalell/ui-core/format";
+import { actsSplit } from "@fcalell/ui-core/overflow";
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useTouched } from "@fcalell/ui-core/react/touched";
@@ -32,7 +32,7 @@ import { useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { ActInert } from "../../lib/form";
-import { FadingText, lineIn } from "../../lib/motion";
+import { FadingText, flowIn } from "../../lib/motion";
 import { PendingBar } from "../banner/pending";
 import { ButtonBase } from "../button/base";
 import { MenuBase } from "../menu/base";
@@ -259,7 +259,7 @@ export function ActionBarBase({
 					// The kept line holds its room unseen; shown, or with new words, only its
 					// text fades in.
 					key={shown ? line : "kept"}
-					entering={shown ? lineIn() : undefined}
+					entering={shown ? flowIn() : undefined}
 					accessibilityElementsHidden={!shown}
 					importantForAccessibility={shown ? "auto" : "no-hide-descendants"}
 					className={cn(

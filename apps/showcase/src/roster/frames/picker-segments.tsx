@@ -61,7 +61,7 @@ function trackFaults(host: Element): string[] {
 		'[class*="scroll-fade-x"]',
 	)) {
 		if (track.scrollWidth <= track.clientWidth) continue;
-		const room = track.getBoundingClientRect();
+		const space = track.getBoundingClientRect();
 		const chosen = track
 			.querySelector<HTMLElement>(
 				'[aria-checked="true"], [aria-current="page"]',
@@ -69,14 +69,14 @@ function trackFaults(host: Element): string[] {
 			?.getBoundingClientRect();
 		if (
 			chosen &&
-			(chosen.left < room.left - 1 || chosen.right > room.right + 1)
+			(chosen.left < space.left - 1 || chosen.right > space.right + 1)
 		)
 			faults.push(
 				`${track.getAttribute("aria-label") ?? "a tab strip"} has its chosen segment cut by its edge`,
 			);
 		const name = track.getAttribute("aria-label") ?? "a tab strip";
 		if (chosen && track.scrollLeft > 0) {
-			const needs = chosen.right - room.left + track.scrollLeft;
+			const needs = chosen.right - space.left + track.scrollLeft;
 			if (needs <= track.clientWidth)
 				faults.push(
 					`${name} is scrolled ${Math.round(track.scrollLeft)} px past its start, where its chosen segment stands whole without it`,

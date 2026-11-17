@@ -17,7 +17,7 @@ export const shellEntry: RosterEntry = {
 	draws: [
 		"SHELL_SIDEBAR",
 		"SHELL_RAIL",
-		"SHELL_FRAME",
+		"SHELL_CONTAINER",
 		"SHELL_RAIL_SLOT",
 		"SHELL_SIDEBAR_SLOT",
 		"SHELL_RAIL_PANEL",
@@ -134,12 +134,12 @@ export interface GroupSpec {
 // accent: the sidebar's place also takes the 6 percent wash.
 export const CURRENT_BAR = "border-s-3 border-accent rounded-s-none";
 // The bar's room at rest, drawn in nothing.
-export const CURRENT_ROOM = "border-s-3 border-transparent";
+export const CURRENT_SPACE = "border-s-3 border-transparent";
 
 // A place in the sidebar: a control-tall row under its state's wash; the label is
 // `TEXT.body` with the ink of `PLACE_ROW_GLYPH`.
 export const PLACE_ROW = matrix({
-	base: `gap-gap min-h-control px-pad rounded-row ${CURRENT_ROOM} ${ANSWER}`,
+	base: `gap-gap min-h-control px-pad rounded-row ${CURRENT_SPACE} ${ANSWER}`,
 	variants: {
 		state: {
 			rest: "",
@@ -241,10 +241,10 @@ export const SHELL_FOOT = "shrink-0 pt-stack";
 // keeps for all of it (`SHELL_SIDEBAR_SLOT`); folded, the frame keeps the
 // strip's room (`SHELL_RAIL_SLOT`) and the body opens over the page. The frame
 // names the widths, the body's travel (how far its end moves between shut and
-// open) and the inline direction's sign (`SHELL_FRAME`).
+// open) and the inline direction's sign (`SHELL_CONTAINER`).
 // An entry is a place row whose glyph keeps the control square at its start, its
 // label after it.
-export const SHELL_FRAME =
+export const SHELL_CONTAINER =
 	"[--dir:1] rtl:[--dir:-1] [--rail-slot:calc(var(--spacing-control)+2*var(--spacing-gap)+var(--spacing-hairline))] [--rail-open:calc(var(--container-measure-short)+2*var(--spacing-gap))] [--sidebar-travel:calc(var(--rail-open)+var(--container-sidebar)-var(--rail-slot))]";
 export const SHELL_RAIL_SLOT = "w-(--rail-slot)";
 export const SHELL_SIDEBAR_SLOT =
@@ -314,7 +314,7 @@ export const TOASTS = "p-page gap-gap";
 export type PlaceTabState = keyof (typeof PLACE_TAB)["variants"]["state"];
 
 // A place tab's content ink, its state's: the glyph reads it, and the label
-// repeats it. The cell also draws a border, so the text colour is the one read.
+// repeats it. The class set also draws a border, so the text colour is the one read.
 export function placeTabContentTone(state: PlaceTabState): ContentTone {
 	const ink = PLACE_TAB.variants.state[state]
 		.split(" ")

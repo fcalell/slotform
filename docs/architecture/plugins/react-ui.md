@@ -77,7 +77,7 @@ attribute on the root pins any set on any device, which is how the showcase and 
 density. The token sets themselves are [density and room](../ui-core/tokens.md#density-and-room).
 
 - **Desktop set.** It draws under the rule's desktop query and overrides the seeded touch set in
-  `@layer base`, the cascade the dark layer rides, so every cell that names a size or a type role
+  `@layer base`, the cascade the dark layer rides, so every class set that names a size or a type role
   (`min-h-control`, `text-body`) follows with no class of its own.
 - **Room set.** The one scope a place states (`distance="room"`, which the `Shell` does not take):
   `[data-density="room"]` in the density layer (`ROOM_SCOPE`) holds `--room-unit` and every room
@@ -106,7 +106,7 @@ density. The token sets themselves are [density and room](../ui-core/tokens.md#d
 | `acts` (an action bar) | `acts-stacked:` | up to `actsStackedMax` of the bar, where its acts stack one per row |
 | `time` (a bar chart's time between its ends) | `time-fits:` | where the room holds the times |
 
-The `time` container is a box as wide as its room in the plot over `TIME_ROOM` times its longest
+The `time` container is a box as wide as its room in the plot over `TIME_SPACE` times its longest
 time's characters, in the time's own font, so one `ch` of that box is the whole test.
 
 ## Fonts
@@ -177,8 +177,8 @@ interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classL
 `?: never`) and declares exactly the roster's prop names
 ([closed props](../ui-core/roster.md#the-canon-and-the-closed-props)).
 
-- **Look.** A part's `className` is `cn(cell(props), OVERLAY)`: the ui-core cva (or single-cell
-  constant) first, then the overlay, so an overlay colour wins over the cell's. `cn` is
+- **Look.** A part's `className` is `cn(cva(props), OVERLAY)`: the ui-core cva (or single-class-set
+  constant) first, then the overlay, so an overlay colour wins over the class set's. `cn` is
   `@fcalell/ui-core/cn` ([composing with cn](../ui-core/tokens.md#composing-with-cn)). An overlay is
   a module constant spelled verbatim, never a class built from a variable.
 - **States.** Hover, press and focus are the web variants `hover:`, `active:` and `focus-visible:`;

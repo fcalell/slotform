@@ -75,11 +75,11 @@ function Path(props: { path: string }) {
 	const { stem, tail, floor } = pathCut(name);
 	// Each part's floor rounds up on its own, so their sum is the path's floor.
 	const lead = `round(up, ${DIRECTORY_LEAD}ch, 1px)`;
-	const room = `round(up, ${floor}ch, 1px)`;
+	const space = `round(up, ${floor}ch, 1px)`;
 	return (
 		<span
 			className={cn(FILE_PATH, PATH)}
-			style={{ minWidth: dir ? `calc(${room} + ${lead})` : room }}
+			style={{ minWidth: dir ? `calc(${space} + ${lead})` : space }}
 		>
 			{dir ? (
 				<span

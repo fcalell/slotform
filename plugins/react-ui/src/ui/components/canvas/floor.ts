@@ -59,9 +59,9 @@ export function minZoomFor(
 				),
 			);
 	});
-	const room = nearest - pair;
-	if (room <= 0) return 1;
-	return Math.min(1, Math.max(lowest, (glyph + 2 * pair) / room));
+	const space = nearest - pair;
+	if (space <= 0) return 1;
+	return Math.min(1, Math.max(lowest, (glyph + 2 * pair) / space));
 }
 
 // The widest a node's name stands on screen at the density: the short measure in

@@ -682,7 +682,7 @@ const SHORT = "var(--container-measure-short)";
 // inset and its sort glyph; a header with a longer word asks for its own floor.
 const WORD_FITS = 12;
 // The characters the head's inset and sort glyph take of a column's width.
-const HEAD_ROOM = MEASURE_CHARACTERS["measure-short"] - WORD_FITS;
+const HEAD_SPACE = MEASURE_CHARACTERS["measure-short"] - WORD_FITS;
 
 // A column of figures (a number, an age) holds a few characters, so with no
 // `width` of its own it stands at half the short measure where a word-valued
@@ -749,7 +749,7 @@ export function columnFloor(
 	const fits = !figure
 		? WORD_FITS
 		: (column.kind === "age" ? age : MEASURE_CHARACTERS["measure-short"] / 2) -
-			HEAD_ROOM;
+			HEAD_SPACE;
 	const base = figure ?? chipWidth(column, fit);
 	const word = Math.max(
 		0,

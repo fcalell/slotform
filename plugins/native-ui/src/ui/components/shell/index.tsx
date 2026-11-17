@@ -49,7 +49,7 @@ const TAB_GLYPH = "relative";
 const TAB_COUNT = "absolute -top-gap left-full -ms-hairline";
 const TAB_LABEL = "max-w-full";
 // A tab bar holds five tabs at most: past five places, four and More.
-const TAB_ROOM = 5;
+const TAB_SPACE = 5;
 
 // The tab's glyph ink is its cell's content tone: the label repeats it, since
 // a native Text inherits none.
@@ -92,7 +92,7 @@ export function Shell({
 	const name = more
 		? words.more
 		: places.find((spec) => spec.route === route)?.label;
-	const rest = places.length > TAB_ROOM ? places.slice(TAB_ROOM - 1) : [];
+	const rest = places.length > TAB_SPACE ? places.slice(TAB_SPACE - 1) : [];
 	// A place that is a spot on its page (`#activity`) leads nowhere from an
 	// address nothing serves, so home is the first place that is a route.
 	const first = places.find((spec) => isRoute(spec.route));
@@ -201,9 +201,9 @@ function TabBar({
 }) {
 	const insets = useSafeAreaInsets();
 	const words = useWords();
-	const fits = places.length <= TAB_ROOM;
-	const shown = fits ? places : places.slice(0, TAB_ROOM - 1);
-	const rest = fits ? [] : places.slice(TAB_ROOM - 1);
+	const fits = places.length <= TAB_SPACE;
+	const shown = fits ? places : places.slice(0, TAB_SPACE - 1);
+	const rest = fits ? [] : places.slice(TAB_SPACE - 1);
 	return (
 		<View
 			role="navigation"

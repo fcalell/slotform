@@ -6,7 +6,7 @@ import { usePort } from "@fcalell/ui-core/react/port";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	FIELD_ERROR_LINE,
-	LINE_IN,
+	FLOW_IN,
 	OTP,
 	OTP_DIGIT,
 	otpBox,
@@ -107,7 +107,7 @@ export function CodeField({
 					{checking ? (
 						<p
 							role="status"
-							className={cn(text({ role: "meta" }), LINE, LINE_IN)}
+							className={cn(text({ role: "meta" }), LINE, FLOW_IN)}
 						>
 							<Spinner />
 							<span>{words.checking}</span>
@@ -118,7 +118,7 @@ export function CodeField({
 							id={line}
 							key={refused}
 							role="alert"
-							className={cn(FIELD_ERROR_LINE, LINE_IN)}
+							className={cn(FIELD_ERROR_LINE, FLOW_IN)}
 						>
 							{refused}
 						</p>

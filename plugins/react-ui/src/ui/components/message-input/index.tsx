@@ -7,9 +7,9 @@ import type {
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
+	FLOW_IN,
 	field,
 	fieldValue,
-	LINE_IN,
 	MESSAGE_ATTACH_SLOT,
 	MESSAGE_INPUT,
 	MESSAGE_INPUT_BOX,
@@ -337,7 +337,7 @@ export function MessageInput({
 		);
 		if (notice)
 			under = (
-				<div className={cn(MESSAGE_INPUT_ROW, NOTICE, LINE_IN)}>
+				<div className={cn(MESSAGE_INPUT_ROW, NOTICE, FLOW_IN)}>
 					{attach ? (
 						<span
 							aria-hidden
@@ -377,7 +377,7 @@ export function MessageInput({
 		);
 		if (notice)
 			under = (
-				<div className={cn(MESSAGE_NOTICE, NOTICE, LINE_IN)}>
+				<div className={cn(MESSAGE_NOTICE, NOTICE, FLOW_IN)}>
 					<p className={cn(text({ role: "meta" }), NOTICE_TEXT)}>
 						{notice.sentence}
 					</p>

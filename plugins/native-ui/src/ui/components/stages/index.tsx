@@ -19,7 +19,7 @@ import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { moment } from "../../lib/moment";
-import { blockIn, FadingText, FadingView, lineIn } from "../../lib/motion";
+import { blockIn, FadingText, FadingView, flowIn } from "../../lib/motion";
 import {
 	inertProps,
 	PAINT_CONTROL,
@@ -176,7 +176,7 @@ export function Stages({ steps, ended }: StagesProps) {
 						</PaintText>
 						{step.at ? (
 							<FadingText
-								entering={lineIn()}
+								entering={flowIn()}
 								className={cn(text({ role: "meta" }), FIGURES)}
 							>
 								{moment(step.at)}

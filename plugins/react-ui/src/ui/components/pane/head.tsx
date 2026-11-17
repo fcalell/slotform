@@ -1,8 +1,8 @@
 import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Route, Run } from "@fcalell/ui-core/descriptors";
-import { actsSplit } from "@fcalell/ui-core/fold";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import { actsSplit } from "@fcalell/ui-core/overflow";
 import {
 	type Frame,
 	useDrawsFailure,
@@ -43,7 +43,7 @@ import type { PickOneProps } from "../picker/index.tsx";
 
 // A record's Back, Close and Expand: docs/architecture/ui-core/layout.md, "Place".
 const ALONE = "[display:var(--pane-back,flex)]";
-const ROOM_BACK = "flex";
+const SPACE_BACK = "flex";
 const BESIDE = "[display:var(--pane-close,none)]";
 const EXPAND = "[display:var(--pane-expand,none)]";
 const HEAD = "flex flex-col";
@@ -139,7 +139,7 @@ export function PaneHead(props: {
 	useDrawsFailure([moreOf, ...actsOf]);
 	const goBack =
 		back === undefined ? null : (
-			<span className={cn(far ? ROOM_BACK : ALONE, START)}>
+			<span className={cn(far ? SPACE_BACK : ALONE, START)}>
 				<IconButtonLink icon={BACK_GLYPH} label={words.back} href={back} />
 			</span>
 		);

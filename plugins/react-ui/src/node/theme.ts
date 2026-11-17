@@ -15,7 +15,7 @@ import {
 	definitionsOneRow,
 	rowOneLine,
 	rulesOneRow,
-} from "@fcalell/ui-core/fold";
+} from "@fcalell/ui-core/overflow";
 import {
 	BREAKPOINT_PX,
 	BREAKPOINTS,
@@ -26,7 +26,7 @@ import {
 	MODES,
 	RADIUS_ROLES,
 	RAISED_GROUNDS,
-	SHADOW_LEVELS,
+	SHADOW_ELEVATIONS,
 	SIZES,
 	SOFT_GROUNDS,
 	SPACING_ROLES,
@@ -67,7 +67,7 @@ export function tokenSources(): CssSourceInline[] {
 		`{text,leading}-${set(TYPE_ROLES)}`,
 		`tracking-${set([...TRACKED_ROLES, LABEL_TRACKING_NAME])}`,
 		`rounded-${set(RADIUS_ROLES)}`,
-		`shadow-${set(SHADOW_LEVELS)}`,
+		`shadow-${set(SHADOW_ELEVATIONS)}`,
 		`duration-${set([...DURATIONS, "loop"])}`,
 		`ease-${set(EASINGS)}`,
 	];

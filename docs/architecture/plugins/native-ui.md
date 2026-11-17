@@ -53,7 +53,7 @@ back into `.stack/`. The stylesheet's own `@source` roots stay relative to the f
 
 uniwind scans for class names from the stylesheet's directory, so without `@source` roots it sees
 only `.stack/`. The roots, relative to `global.css` in `.stack/`, name the consumer's `src`, this
-plugin's `src` and ui-core's `src`, where the matrix cell strings live: a dependency package is never
+plugin's `src` and ui-core's `src`, where the matrix class-set strings live: a dependency package is never
 scanned unless named.
 
 Both `@variant` blocks carry every per-mode value (the colours and the two shadows, by full
@@ -155,7 +155,7 @@ Every props type extends `Closed` (`./lib/closed`): `class`, `className`, `class
 uniwind's per-prop class channels as `?: never`. The first four are the ones the canon closes on both
 platforms ([closed props](../ui-core/roster.md#the-canon-and-the-closed-props)); the
 per-prop channels uniwind adds to React Native's hosts would reopen the look one property at a time.
-A look the matrices do not cover is a matrix cell in ui-core or a primitive under the app's `ui/`,
+A look the matrices do not cover is a matrix class set in ui-core or a primitive under the app's `ui/`,
 never a prop. The prop names are the roster in `@fcalell/ui-core/roster`. Inside a component, a
 class sits only on a `View`, `Pressable`, `ScrollView` or `Animated.View` and carries layout
 plumbing; nothing carries a product noun in a prop, an enum word or a string.
@@ -188,7 +188,7 @@ then the axis beside the plot: four gridlines a hairline each, its tick centred 
 baseline with its 0. The columns in the chip marks by part, each bar in its slot of the plot
 ([Slots](../ui-core/components.md#slots)). The first bar's time is centred under the first bar and
 the last bar's under the last, each kept whole inside the plot; the times between stand at evenly
-spaced strides (`timeRoom`), each drawn where its room holds `TIME_ROOM` times the longest time
+spaced strides (`timeSpace`), each drawn where its room holds `TIME_SPACE` times the longest time
 ([Time labels](../ui-core/components.md#time-labels)). A chart given `bar.label` names its bars there
 instead, each name centred under its bar, every one where the names fit and every second, third one
 where they would touch (`axisStride`). With `level`, a span that is one reading draws no figure, and
@@ -284,7 +284,7 @@ package's exports) around itself:
 
 The toasts' layer stands after the provider's host view, so over every sheet, since React Native's
 `zIndex` orders siblings only. Standing outside the page's tree, it takes the box the page draws (the
-Pane's `ToastRoom`: its body over its docked foot and the tab bar) by measuring that box against the
+Pane's `ToastSpace`: its body over its docked foot and the tab bar) by measuring that box against the
 frame's root; each layout of the box places the layer over it.
 
 ## Sheets

@@ -4,7 +4,7 @@ import {
 	rosterEntries,
 	type State,
 } from "@fcalell/ui-core/roster";
-import { matrixCells } from "@fcalell/ui-core/variants";
+import { matrixClasses } from "@fcalell/ui-core/variants";
 
 export const MODES = ["light", "dark"] as const;
 export type ShowcaseMode = (typeof MODES)[number];
@@ -48,11 +48,11 @@ export type DrawnState = (typeof DRAWN_STATES)[number];
 const isDrawn = (state: State): state is DrawnState =>
 	DRAWN_STATES.some((drawn) => drawn === state);
 
-const CELLS = matrixCells();
+const CELLS = matrixClasses();
 const BASE: ShowcaseCell = { name: "base", classes: [] };
 
-// A component shows every cell of a family it draws and each family cell it
-// names; one that draws no matrix shows one `base` cell.
+// A component shows every class set of a matrix group it draws and each group class set it
+// names; one that draws no matrix shows one `base` class set.
 function componentCells(entry: RosterEntry): ShowcaseCell[] {
 	const { draws } = entry;
 	const cells = [...CELLS]

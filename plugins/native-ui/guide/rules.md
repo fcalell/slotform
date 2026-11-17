@@ -778,7 +778,7 @@ expo-router reports) or its nearest parent is the chosen one, and a press opens 
 `Toolbar` draws no tabs on the phone.
 
 A line that appears in flow (a blocked act's reason, a field's error, the OTP checking line, a
-message input's notice, a stage's moment) fades in on `fast` (`lineIn` in `lib/motion`, the
+message input's notice, a stage's moment) fades in on `fast` (`flowIn` in `lib/motion`, the
 `entering` of a `FadingText` or `FadingView`) and pushes what follows at once; it leaves at once,
 and where a line's room is already held (a form bar's kept line) only its words fade in. A block
 (a `Banner`, a docked sheet, a folded body, an answered field, an option's children, a chip, a list

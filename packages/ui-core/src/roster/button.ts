@@ -39,7 +39,7 @@ export const buttonEntry: RosterEntry = {
 		"TOOLTIP",
 		"LAYER_TOOLTIP",
 		"PAINT.kind.control",
-		"LINE_IN",
+		"FLOW_IN",
 		"SWAP_IN",
 		"SWAP_OUT",
 	],

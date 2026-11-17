@@ -42,7 +42,7 @@ export const sheetEntry: RosterEntry = {
 		"BUTTON.act.primary",
 		"BUTTON_LABEL.act.primary",
 		"PAINT.kind.control",
-		"LINE_IN",
+		"FLOW_IN",
 	],
 	states: [
 		"rest",
@@ -106,7 +106,7 @@ export const SHEET_HEAD_ROW = "gap-gap";
 export const SHEET_PARTS_END = "pb-section";
 export const SHEET_FOOT =
 	"gap-gap px-pad py-pad border-t border-edge bg-raised";
-// A sheet docked in a foot (`FOOT_DOCKED`): the foot is the raised cell, so the
+// A sheet docked in a foot (`FOOT_DOCKED`): the foot is the raised class set, so the
 // head, the body and the foot carry no surface, radius, shadow, hairline or
 // side inset of their own, so all three share the foot's edge; the head's back
 // act stands before one column, so the title and the description share one

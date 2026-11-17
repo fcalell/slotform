@@ -1,7 +1,7 @@
 import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
-import { actsSplit } from "@fcalell/ui-core/fold";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import { actsSplit } from "@fcalell/ui-core/overflow";
 import {
 	type Frame,
 	useDrawsFailure,

@@ -3,8 +3,8 @@ import { Input } from "@fcalell/plugin-react-ui/components/input";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
 import { Place } from "@fcalell/plugin-react-ui/components/shell";
-import { rowOneLine } from "@fcalell/ui-core/fold";
 import { createLeave } from "@fcalell/ui-core/leave";
+import { rowOneLine } from "@fcalell/ui-core/overflow";
 import { setLoading } from "@fcalell/ui-core/paint";
 import { TouchedContext } from "@fcalell/ui-core/react/touched";
 import {
@@ -572,7 +572,7 @@ type PartName = keyof typeof PARTS;
 // wins, a cell naming none draws a list Pane's rows (the first row current).
 const CELL_PARTS: ReadonlyArray<readonly [string, readonly PartName[]]> = [
 	["ROW_TITLE.lines.dim", ["hops"]],
-	// A tree's rails (`TREE_RAIL`, `TREE_BLEED`, single cells) stand beside the
+	// A tree's rails (`TREE_RAIL`, `TREE_BLEED`, single class sets) stand beside the
 	// name form.
 	["ROW_TITLE.lines.name", ["deploys", "legs"]],
 	["ROW_TITLE", ["deploys"]],

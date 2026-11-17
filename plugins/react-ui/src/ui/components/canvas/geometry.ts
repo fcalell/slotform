@@ -541,10 +541,10 @@ export function routeEdges(input: RouteInput): Routes {
 		// over it.
 		const above = Math.max(from.y, ...over(to.y));
 		const chip = labels.get(edge.id);
-		const room = chip ? chip.height + 2 * pair + ARROW : 0;
+		const space = chip ? chip.height + 2 * pair + ARROW : 0;
 		const gap = Math.max(
 			above + pair,
-			Math.min((above + to.y) / 2, to.y - room),
+			Math.min((above + to.y) / 2, to.y - space),
 		);
 		let bend: number | undefined;
 		let points: CanvasPoint[] | undefined;
@@ -691,8 +691,8 @@ export function routeEdges(input: RouteInput): Routes {
 		const legs = verticalLegs(route.points);
 		const own = legs.flatMap((leg) => alone(leg, others));
 		const pool = own.length > 0 ? own : legs;
-		const room = label.height + 2 * pair + ARROW;
-		const fits = pool.filter((each) => length(each) >= room);
+		const space = label.height + 2 * pair + ARROW;
+		const fits = pool.filter((each) => length(each) >= space);
 		const leg =
 			fits[0] ??
 			pool.reduce<Leg | undefined>(

@@ -46,7 +46,7 @@ export const inputEntry: RosterEntry = {
 		"FIGURES",
 		"ICON.fit.control",
 		"SPINNER",
-		"LINE_IN",
+		"FLOW_IN",
 		"PAINT.kind.control",
 	],
 	states: ["rest", "hover", "focus", "disabled", "error", "empty", "pending"],

@@ -6,7 +6,7 @@ import {
 	definitionsOneRow,
 	rowOneLine,
 	rulesOneRow,
-} from "./fold.ts";
+} from "./overflow.ts";
 import { rosterEntries } from "./roster.ts";
 import { leadingOf, sizeOf, sizePx, spacingOf } from "./scales.ts";
 import {
@@ -33,7 +33,7 @@ import {
 	RADIUS_ROLES,
 	ROOM_CANVAS,
 	radiusPx,
-	SHADOW_LEVELS,
+	SHADOW_ELEVATIONS,
 	SHEET_DOCKED_BODY_SHARE,
 	SIZES,
 	SLOT_WORD_KEYS,
@@ -51,8 +51,8 @@ import {
 	classes,
 	DOCKED_FLOOR_ROWS,
 	DOCKED_LOG_FLOOR_ROWS,
-	FAMILIES,
-	type Family,
+	MATRIX_GROUPS,
+	type MatrixGroup,
 } from "./variants.ts";
 
 const WEIGHT: Record<FontWeight, number> = {
@@ -197,7 +197,7 @@ const MOVE_USE: Record<Move, string> = {
 	layer: "what stands over the page enters and leaves",
 	block:
 		"a block that arrives on its own fades in and pushes what follows at once",
-	line: "a line appears in flow, fading in and pushing what follows",
+	line: "a flow line appears in flow, fading in and pushing what follows",
 	value: "a measured value changes while shown: a fill, a figure, a mark",
 	wait: "a read that lasts shows it: the delay, the pulse, the spinner",
 	follow: "a gesture carries what it holds 1:1, and only its release eases",
@@ -260,35 +260,35 @@ function subTokens(
 	return out;
 }
 
-// A family's label layer over the same axes (`AVATAR_LABEL` under
+// A matrix group's label layer over the same axes (`AVATAR_LABEL` under
 // `AVATAR`) is one element with it, so the two render as one entry.
-function familyGroups(): Family[][] {
-	const groups: Family[][] = [];
-	for (const family of FAMILIES) {
-		const axes = JSON.stringify(family.axes);
+function layeredGroups(): MatrixGroup[][] {
+	const groups: MatrixGroup[][] = [];
+	for (const matrix of MATRIX_GROUPS) {
+		const axes = JSON.stringify(matrix.axes);
 		const group = groups.find(
 			([head]) =>
 				head !== undefined &&
-				family.name === `${head.name}_LABEL` &&
+				matrix.name === `${head.name}_LABEL` &&
 				JSON.stringify(head.axes) === axes,
 		);
-		if (group) group.push(family);
-		else groups.push([family]);
+		if (group) group.push(matrix);
+		else groups.push([matrix]);
 	}
 	return groups;
 }
 
-// Every cell as a class list: each axis value of each family group, then
-// each single-cell constant beside the matrices.
-function cellLists(): Array<[string, string[]]> {
+// Every class set as a class list: each axis value of each layered group, then
+// each single class set beside the matrices.
+function classSets(): Array<[string, string[]]> {
 	const out: Array<[string, string[]]> = [];
-	for (const group of familyGroups()) {
+	for (const group of layeredGroups()) {
 		const [head] = group;
 		if (!head) continue;
 		for (const [axis, values] of Object.entries(head.axes)) {
 			for (const value of values) {
-				const list = group.flatMap((family) =>
-					classes(family.cva({ [axis]: value })),
+				const list = group.flatMap((matrix) =>
+					classes(matrix.cva({ [axis]: value })),
 				);
 				out.push([`${kebab(head.name)}-${value}`, list]);
 			}
@@ -305,7 +305,7 @@ function cellLists(): Array<[string, string[]]> {
 function components(): Array<[string, Record<string, string>]> {
 	const out: Array<[string, Record<string, string>]> = [];
 	const seen = new Set<string>();
-	for (const [name, list] of cellLists()) {
+	for (const [name, list] of classSets()) {
 		for (const mode of MODES) {
 			const tokens = subTokens(list, mode);
 			const perMode = Object.values(tokens).some((ref) =>
@@ -411,7 +411,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"",
 		"## Overview",
 		"",
-		"One closed token contract, the approved foundations sheet, drawn by two UI plugins: `react-ui` on the web and `native-ui` on React Native. A product sets six knobs, never a token; a component renders its matrix cells and takes no class or style. Every color has a light and a dark value: the front matter names the light one bare and the dark one with a `-dark` suffix, and each component entry that names a color has a `-dark` twin. `primary` is `accent`, the primary act's fill.",
+		"One closed token contract, the approved foundations sheet, drawn by two UI plugins: `react-ui` on the web and `native-ui` on React Native. A product sets six knobs, never a token; a component renders its matrix class sets and takes no class or style. Every color has a light and a dark value: the front matter names the light one bare and the dark one with a `-dark` suffix, and each component entry that names a color has a `-dark` twin. `primary` is `accent`, the primary act's fill.",
 		"",
 		...table(
 			["Knob", "Value"],
@@ -505,7 +505,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"",
 		"## Elevation & Depth",
 		"",
-		`A card at rest has a hairline and no shadow. Two levels lift a layer, each per mode: ${SHADOW_LEVELS.map((level) => `${code(`shadow-${level}`)} (light ${code(resolved.shadows.light[level])}, dark ${code(resolved.shadows.dark[level])})`).join("; ")}. \`shadow-float\` lifts a popover, a menu, a picker's list, a toast and an act floating over what scrolls (a touch Place's act, a Thread's Latest); \`shadow-modal\` a dialog, a sheet and a command palette. In dark the lift is carried by the \`raised\` step and the hairline as much as by the shadow. The hairline is 1 px; the focus ring is \`ring\` at 2 px, 2 px outside the box, drawn inward inside a list (in the room 1 and 2 canvas units, 2 and 4 px at 1920 × 1080). The layers over the page stand in one order, each \`--layer-<layer>\` read as \`z-(--layer-<layer>)\` on the web: ${STACK_ORDER.map((layer) => `${code(layer)} ${rootTokens(resolved)[`--layer-${layer}`]}`).join(" < ")}, the page at 0, a part lifted inside the page staying in it. The Shell's sidebar (its rail and column, one body) stands on \`sidebar\`, over the page as it slides and under a sheet's scrim; a sheet's scrim and the sheet stand on \`sheet\`, a popover over a sheet it opens from, and the toasts over both, so a toast raised while a sheet or a confirm is open is seen and its dismiss pressed.`,
+		`A card at rest has a hairline and no shadow. Two elevations lift a layer, each per mode: ${SHADOW_ELEVATIONS.map((elevation) => `${code(`shadow-${elevation}`)} (light ${code(resolved.shadows.light[elevation])}, dark ${code(resolved.shadows.dark[elevation])})`).join("; ")}. \`shadow-float\` lifts a popover, a menu, a picker's list, a toast and an act floating over what scrolls (a touch Place's act, a Thread's Latest); \`shadow-modal\` a dialog, a sheet and a command palette. In dark the lift is carried by the \`raised\` step and the hairline as much as by the shadow. The hairline is 1 px; the focus ring is \`ring\` at 2 px, 2 px outside the box, drawn inward inside a list (in the room 1 and 2 canvas units, 2 and 4 px at 1920 × 1080). The layers over the page stand in one order, each \`--layer-<layer>\` read as \`z-(--layer-<layer>)\` on the web: ${STACK_ORDER.map((layer) => `${code(layer)} ${rootTokens(resolved)[`--layer-${layer}`]}`).join(" < ")}, the page at 0, a part lifted inside the page staying in it. The Shell's sidebar (its rail and column, one body) stands on \`sidebar\`, over the page as it slides and under a sheet's scrim; a sheet's scrim and the sheet stand on \`sheet\`, a popover over a sheet it opens from, and the toasts over both, so a toast raised while a sheet or a confirm is open is seen and its dismiss pressed.`,
 		"",
 		"## Shapes",
 		"",
@@ -520,7 +520,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"",
 		"## Components",
 		"",
-		"The front matter's components are the matrix cells: one entry per axis value of each family, a family's label layer folded into it, and one per single cell. Borders, weights, gaps and side paddings stay in the class strings. Every component the roster ships, the families, family cells and single cells it draws and the states it has:",
+		"The front matter's components are the matrix class sets: one entry per axis value of each matrix group, a group's label layer folded into it, and one per single class set. Borders, weights, gaps and side paddings stay in the class strings. Every component the roster ships, the matrix groups, their class sets and single class sets it draws and the states it has:",
 		"",
 		`A docked sheet's body keeps ${DOCKED_FLOOR_ROWS} rows (\`row\`) at least and scrolls past ${SHEET_DOCKED_BODY_SHARE * 100}% of its foot's region. A docked foot leaves the log above it ${DOCKED_LOG_FLOOR_ROWS} rows: where the region is short the body gives to that floor first, then to its own floor and below it, then the log goes, and the sheet's head, foot line and submit never give.`,
 		"",
@@ -536,7 +536,7 @@ function body(resolved: ResolvedTheme): string[] {
 			]),
 		),
 		"",
-		"A component owns the tokens it may draw: a cell it draws that spells a type role, a colour, a radius, a spacing role, a size or a shadow outside its row is a contract error. A colour ending in `-` is a family (`chip-` is every chip role).",
+		"A component owns the tokens it may draw: a class set it draws that spells a type role, a colour, a radius, a spacing role, a size or a shadow outside its row is a contract error. A colour ending in `-` is a family (`chip-` is every chip role).",
 		"",
 		...table(
 			[
@@ -591,7 +591,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"",
 		"#### Moves",
 		"",
-		"A component names the moves it makes in the roster's `motion` field: a cell move (answer, give, toggle, layer, block, line, value, wait) is a cell it draws, a hook move (follow, stream) a marker its source imports.",
+		"A component names the moves it makes in the roster's `motion` field: a class-set move (answer, give, toggle, layer, block, line, value, wait) is a class set it draws, a hook move (follow, stream) a marker its source imports.",
 		"",
 		...table(
 			["Move", "Answers"],
@@ -626,7 +626,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"",
 		"- Do pick the component that owns the shape before writing markup.",
 		"- Do set a knob to move a scale; don't set a token.",
-		"- Don't pass `class`, `className`, `classList` or `style` to a component; a look the matrices lack is a new matrix cell.",
+		"- Don't pass `class`, `className`, `classList` or `style` to a component; a look the matrices lack is a new matrix class set.",
 		"- Do use tokens only: no literal color, pixel size or arbitrary value.",
 		"- Do draw one `title` per screen, no `heading` inside a row, no `caption` sentence; emphasis is weight, never size.",
 		"- Do keep text at 4.5:1 or more on its fill; the contract measures every pair it draws.",

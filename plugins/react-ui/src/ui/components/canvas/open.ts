@@ -11,8 +11,8 @@ import {
 	FIT_FLOOR,
 	fitTransform,
 	overviewTransform,
-	room,
 	solveScale,
+	space,
 	type Transform,
 	withNames,
 } from "./view.ts";
@@ -152,7 +152,7 @@ export function openingView(o: Opening): Transform {
 		box.y * view.k + view.y < pane.height;
 	// A graph the pane holds from top to foot moves up out of the stack's rows
 	// where a node under the stack's column would stand in them.
-	const area = room(pane, inset, clear);
+	const area = space(pane, inset, clear);
 	const raised = (view: Transform): Transform => {
 		const hit = cards.filter((box) => stacked(box, view));
 		const up = Math.max(
@@ -201,7 +201,7 @@ export function openingView(o: Opening): Transform {
 function overview(o: Opening, lowest: number): Transform {
 	const { pane, inset, clear, glyph, pair, names } = o;
 	const all = [...o.boxes.values()];
-	const area = room(pane, inset, clear);
+	const area = space(pane, inset, clear);
 	const spread = spreadOf([...o.tierAt(0).cards.values()]);
 	const named = overviewFloorFor(all, glyph, glyph + pair + names, 2 * pair);
 	const heightFloor = named < FIT_FLOOR ? Math.max(lowest, named) : lowest;

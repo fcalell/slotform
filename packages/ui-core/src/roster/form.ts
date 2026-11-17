@@ -51,7 +51,7 @@ export const formEntry: RosterEntry = {
 		"TEXT.role.body",
 		"TEXT_STRONG.role.body",
 		"PAINT.kind.control",
-		"LINE_IN",
+		"FLOW_IN",
 		"ACTION_BAR",
 		"ACTION_BAR_ACTS",
 		"BUTTON.act.primary",

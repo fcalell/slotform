@@ -11,7 +11,7 @@ import { text } from "@fcalell/ui-core/variants";
 import { Text as RNText } from "react-native";
 import type { Act, IconAct, MenuEntry } from "../../lib/act";
 import { asIconAct, wiringOf } from "../../lib/act";
-import { FadingText, lineIn } from "../../lib/motion";
+import { FadingText, flowIn } from "../../lib/motion";
 import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
@@ -29,7 +29,7 @@ export function useReasonLine(blocked: string | undefined) {
 		blocked !== undefined && (pressed || touched) ? (
 			<FadingText
 				key={blocked}
-				entering={lineIn()}
+				entering={flowIn()}
 				className={text({ role: "meta" })}
 			>
 				{blocked}

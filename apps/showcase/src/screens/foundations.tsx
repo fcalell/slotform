@@ -11,7 +11,7 @@ import {
 	MODES,
 	type Mode,
 	RADIUS_ROLES,
-	SHADOW_LEVELS,
+	SHADOW_ELEVATIONS,
 	SIZES,
 	SPACING_ROLES,
 	TYPE_ROLES,
@@ -376,17 +376,17 @@ function States() {
 		<>
 			<Group title="elevation over surface">
 				<div className="flex flex-row flex-wrap gap-stack p-pad rounded-card bg-surface border border-edge">
-					{SHADOW_LEVELS.map((level) => (
+					{SHADOW_ELEVATIONS.map((elevation) => (
 						<div
-							key={level}
-							data-shadow={level}
+							key={elevation}
+							data-shadow={elevation}
 							className={cn(
 								"flex flex-col p-pad rounded-card bg-raised border border-edge-raised",
-								`shadow-${level}`,
+								`shadow-${elevation}`,
 							)}
 						>
 							<p className={text({ role: "body" })}>raised</p>
-							<p className={text({ role: "caption" })}>shadow-{level}</p>
+							<p className={text({ role: "caption" })}>shadow-{elevation}</p>
 						</div>
 					))}
 				</div>

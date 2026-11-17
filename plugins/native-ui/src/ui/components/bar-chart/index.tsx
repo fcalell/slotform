@@ -17,9 +17,9 @@ import {
 	spanFlat,
 	spanText,
 	spanUnit,
-	TIME_ROOM,
+	TIME_SPACE,
 	tickReach,
-	timeRoom,
+	timeSpace,
 	unitSymbol,
 } from "@fcalell/ui-core/chart";
 import { formatterFor } from "@fcalell/ui-core/format";
@@ -367,10 +367,10 @@ export function BarChart<T>(props: BarChartProps<T>) {
 		partial: bar.partial?.(item) === true,
 		selected: bar.selected?.(item) === true,
 	}));
-	// Every bar's time, with its room between the ends (`timeRoom`).
+	// Every bar's time, with its room between the ends (`timeSpace`).
 	const times = items.map(
 		(item, index) =>
-			[bar.at?.(item), index, timeRoom(index, items.length)] as const,
+			[bar.at?.(item), index, timeSpace(index, items.length)] as const,
 	);
 	const labels = keys ?? [];
 	const part = (bar: Bar, key: string) => bar.parts?.[key] ?? 0;
@@ -661,7 +661,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 // The time line: each time centred under its bar's slot, kept whole inside the
 // line's edges. The line and each time measure themselves, so a time stands
 // unseen until both have, then where it belongs; a time between the ends
-// (one with a room) stands where its room holds `TIME_ROOM` times the longest
+// (one with a room) stands where its room holds `TIME_SPACE` times the longest
 // time, so a stride's times appear together as the line widens.
 function Times(props: {
 	times: readonly (readonly [string | undefined, number, number | undefined])[];
@@ -677,14 +677,14 @@ function Times(props: {
 			onLayout={(event) => setLine(event.nativeEvent.layout.width)}
 		>
 			<Strut role="meta" />
-			{props.times.map(([time, at, room]) =>
+			{props.times.map(([time, at, space]) =>
 				time ? (
 					<Time
 						key={at}
 						time={time}
 						centre={((at + 0.5) / props.slots) * line}
 						line={line}
-						fits={room === undefined || room * slot >= TIME_ROOM * longest}
+						fits={space === undefined || space * slot >= TIME_SPACE * longest}
 						onWidth={(width) =>
 							setWidths((all) =>
 								all[at] === width ? all : { ...all, [at]: width },

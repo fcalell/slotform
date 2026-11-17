@@ -2,9 +2,9 @@
 
 How the frame components lay out a page on both platforms: the `Shell` and its places, the `Gate`,
 the `Place` and its Panes, the `Pane`'s bar, body and foot, the `Sheet`, the `Section` and its rows,
-the heading levels, the cards, the rows grid that aligns every label of a Pane, and the fold rules
+the heading levels, the cards, the rows grid that aligns every label of a Pane, and the overflow rules
 that decide a row's or a head's form. The contracts live in `@fcalell/ui-core`'s roster
-(`roster/<component>.ts`), `fold.ts`, `list-state.ts` and `variants.ts`; `@fcalell/plugin-react-ui`
+(`roster/<component>.ts`), `overflow.ts`, `list-state.ts` and `variants.ts`; `@fcalell/plugin-react-ui`
 and `@fcalell/plugin-native-ui` draw them. What a frame draws while its reads wait or fail is in
 [reads](reads.md); the roster and its matrices are in [roster](roster.md); the measures and
 densities are in [tokens](tokens.md).
@@ -253,7 +253,7 @@ what stands in it decides its form by (a Table its grid).
   so a Pane with no `read` takes no `empty`.
 - A `read` that answers not found fills the page with the missing shape: no mark, the sentence in the
   meta ink (worded by `noun`, "Couldn't find this." without one) and the way back to the place's Pane
-  as the hairline act with no plus, on the `error` state's cells. The way back is the route a Pane's
+  as the hairline act with no plus, on the `error` state's class sets. The way back is the route a Pane's
   back act returns to, handed down by the frame; with none it leads to `PlaceRoute`, and `false`
   says there is no way back at all. How the missing and failed shapes are worded and headed is in
   [reads](reads.md#missing-and-failed-shapes).
@@ -272,8 +272,8 @@ what stands in it decides its form by (a Table its grid).
   rows the bar acts on (`ACTION_BAR_SELECTION` reads the property).
 - A `Thread` among the sections keeps its input in reach as a `Composer` in the foot. A Thread's
   messages stand a sections gap apart, one rung above Prose's block gap, with the input under them;
-  on the desktop its composer stands in a measure-wide **column cell**, so a docked foot spans the
-  body and the field keeps the column. A column cell is a width and nothing else: the region that
+  on the desktop its composer stands in a measure-wide **column class set**, so a docked foot spans the
+  body and the field keeps the column. A column class set is a width and nothing else: the region that
   owns its frame's width centres it (a docked foot), and among sections it keeps the region's start,
   as a paragraph's measure does.
 - A `sheet` docks in the foot's place while it is open ([Sheet](#sheet)), the Pane measuring the
@@ -313,9 +313,9 @@ never in a sheet.
   edge of the body on the web and in the pinned foot on the phone. The sheet's `submit` and the
   form's `bar` are two ways to complete the task; a sheet is given one.
 - A sheet is the modal sheet, except that a Pane's or a Thread's `sheet` docks in the foot instead,
-  drawing the docked head and foot inside the foot's raised cell with no scrim. The docked foot's
+  drawing the docked head and foot inside the foot's raised class set with no scrim. The docked foot's
   states are its submit's: pending, blocked (`disabled`) and failed (`error`: the act ready again,
-  the rejection's sentence under it in the line a blocked reason keeps, in the field error's cell and
+  the rejection's sentence under it in the line a blocked reason keeps, in the field error's class set and
   ink).
 - The sheet hosts its acts' run, its foot bar and its form's bar alike: its dismissal is held while
   one pends, unless it waits for a connection.
@@ -439,11 +439,11 @@ whole never shrinks.
   badges that wraps whole.
 - The facts' words follow the title on its line, cut at the end of the line, and stand under it on
   touch (with a mark, `entry`, `steps` or `wrap`) or below the row's one-line width (`rowOneLine`, a
-  container query of the row, never a measure of its content; [Fold rules](#fold-rules)). On touch a
+  container query of the row, never a measure of its content; [Overflow rules](#overflow-rules)). On touch a
   two-line row without a label, an entry or `steps` stands its end group on the title's line, the
   facts line under both at the row's width.
 - In the two-line form a title wraps before it is cut, to `ROW_TITLE_LINES` lines
-  ([Fold rules](#fold-rules)). A title that wraps keeps its longest word whole in every form: its text
+  ([Overflow rules](#overflow-rules)). A title that wraps keeps its longest word whole in every form: its text
   group is as wide as its minimum content (`break-words` makes the word, not a letter, the minimum),
   held to the row by `max-w-full`, and never shrinks; it grows into spare room. So the end group,
   which truncates, gives way first, and a word wider than the row breaks at the row's edge, never
@@ -488,7 +488,7 @@ whole never shrinks.
   without a label starts its text group at the row's start.
 - A definition row stands its value under its label on touch (`touch:`) and in a Pane too narrow for
   a label and a value side by side at the short measure (`definitions-stacked:`,
-  `definitionsOneRow`; [Fold rules](#fold-rules)). On the web each `definitions-stacked:` class of the
+  `definitionsOneRow`; [Overflow rules](#overflow-rules)). On the web each `definitions-stacked:` class of the
   definition row family is the twin of a `touch:` class in ui-core's variants, as `TEXT_ADAPTS` is
   `TEXT_WORDS`'s, and the form field uses the same twins.
 - A form's controls show their placeholder or value whole: a long label makes the label column wide,
@@ -602,11 +602,11 @@ A **card** is the surface inside a hairline edge at the card radius.
   window shows it: its meter is a Stats, a card of its own, and the reserve, a part that is no row,
   stands in a `Card` beside it.
 
-## Fold rules
+## Overflow rules
 
-`fold.ts` holds the rules that decide a form from structure, never from a measure of the content.
+`overflow.ts` holds the rules that decide a form from structure, never from a measure of the content.
 
-- **Acts.** One fold rule, on both platforms and in every place acts stand side by side (a Pane head,
+- **Acts.** One overflow rule, on both platforms and in every place acts stand side by side (a Pane head,
   a list row, an action bar's count): the first act stands, at its icon where it is a head's or a
   row's, and the rest fold into the more menu, in their order. What stands never depends on the room,
   so a head or a row reads the same at every width.
@@ -650,11 +650,11 @@ line's. The web draws that gap on touch alone.
 - `packages/ui-core/src/roster/pane.ts`: the Pane's contract, its bar, record head, body, foot and toasts' reach.
 - `packages/ui-core/src/roster/sheet.ts`: the sheet's contract.
 - `packages/ui-core/src/roster/section.ts`: the Section's contract and the row it lists.
-- `packages/ui-core/src/roster/thread.ts`: the Thread's layout and the column cell.
+- `packages/ui-core/src/roster/thread.ts`: the Thread's layout and the column class set.
 - `packages/ui-core/src/roster/card.ts`: the `Card` contract.
 - `packages/ui-core/src/roster/shared.ts`: the card, the rows grid tokens (`ROWS`, `ROWS_HOST`, `SUBGRID`).
 - `packages/ui-core/src/roster/descriptors.ts`: a row's leading, `RouteRegistry`.
-- `packages/ui-core/src/fold.ts`: the fold rule for acts and the container widths of rows, definitions and rules lists.
+- `packages/ui-core/src/overflow.ts`: the overflow rule for acts and the container widths of rows, definitions and rules lists.
 - `packages/ui-core/src/list-state.ts`: `valueCut`, a touch row's labelled values (`touchNamed`) and fact length (`TOUCH_FACT_FITS`), the counted rows (`listedRows`), the facts-only check (`factsOnly`).
 - `packages/ui-core/src/variants.ts`: a row's two groups, the shrink scale, the text group's floor.
 - `packages/ui-core/src/tokens.ts`: the docked sheet's body height cap.

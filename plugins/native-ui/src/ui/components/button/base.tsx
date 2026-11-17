@@ -15,7 +15,7 @@ import { useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { ActInert } from "../../lib/form";
 import { Ink } from "../../lib/ink";
-import { FadingText, lineIn } from "../../lib/motion";
+import { FadingText, flowIn } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
 
@@ -217,7 +217,7 @@ export function ButtonBase({
 				{said ? (
 					<FadingText
 						key={blocked}
-						entering={lineIn()}
+						entering={flowIn()}
 						className={text({ role: "meta" })}
 					>
 						{blocked}
@@ -236,7 +236,7 @@ export function ButtonBase({
 			{under === undefined ? null : (
 				<FadingText
 					key={under}
-					entering={lineIn()}
+					entering={flowIn()}
 					accessibilityRole="alert"
 					className={
 						acting.holds || acting.pending === undefined

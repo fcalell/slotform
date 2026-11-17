@@ -39,8 +39,8 @@ import {
 	FIELD_SPLIT_FREE,
 	FIELD_SPLIT_TEXT,
 	FIELD_SPLIT_VALUE,
+	FLOW_IN,
 	FORM_FIELD_SUMMARY_GLYPH,
-	LINE_IN,
 	ROW_END,
 	row,
 	text,
@@ -450,7 +450,7 @@ export function FieldBody(props: Body) {
 		<Field.Error
 			key={error}
 			match
-			className={cn(FIELD_ERROR_LINE, LINE_IN, under)}
+			className={cn(FIELD_ERROR_LINE, FLOW_IN, under)}
 		>
 			{errorLine}
 		</Field.Error>
@@ -530,7 +530,7 @@ export function FieldBody(props: Body) {
 						<p
 							key={error}
 							className={
-								error ? cn(FIELD_ERROR_LINE, LINE_IN) : text({ role: "meta" })
+								error ? cn(FIELD_ERROR_LINE, FLOW_IN) : text({ role: "meta" })
 							}
 						>
 							{error ? errorLine : description}
@@ -566,7 +566,7 @@ export function FieldBody(props: Body) {
 				<p
 					key={error}
 					className={cn(
-						error ? cn(FIELD_ERROR_LINE, LINE_IN) : text({ role: "meta" }),
+						error ? cn(FIELD_ERROR_LINE, FLOW_IN) : text({ role: "meta" }),
 						DEFINITION_UNDER,
 					)}
 				>

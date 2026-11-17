@@ -169,7 +169,7 @@ export function wrapParts(
 	output: ElkNode,
 	positions: ReadonlyMap<string, CanvasPoint>,
 	edges: readonly Pick<CanvasEdge, "from" | "to">[],
-	room: number,
+	space: number,
 	gaps: { across: number; down: number },
 ): ReadonlyMap<string, CanvasPoint> {
 	const tops = output.children ?? [];
@@ -222,14 +222,14 @@ export function wrapParts(
 	const parts = [...joined].sort(([, a], [, b]) => a.x - b.x || a.y - b.y);
 	const left = Math.min(...parts.map(([, box]) => box.x));
 	const right = Math.max(...parts.map(([, box]) => box.x + box.width));
-	if (right - left <= room) return positions;
+	if (right - left <= space) return positions;
 	const top = Math.min(...parts.map(([, box]) => box.y));
 	const shift = new Map<number, CanvasPoint>();
 	let x = left;
 	let y = top;
 	let tall = 0;
 	for (const [key, box] of parts) {
-		if (x > left && x + box.width > left + room) {
+		if (x > left && x + box.width > left + space) {
 			x = left;
 			y += tall + gaps.down;
 			tall = 0;

@@ -60,7 +60,7 @@ function Folded() {
 			const short = probe.getBoundingClientRect().width;
 			probe.remove();
 			const style = getComputedStyle(row);
-			const room =
+			const space =
 				row.clientWidth -
 				Number.parseFloat(style.paddingLeft) -
 				Number.parseFloat(style.paddingRight);
@@ -68,7 +68,10 @@ function Folded() {
 			const under =
 				acts.getBoundingClientRect().top >=
 				box.getBoundingClientRect().bottom - 1;
-			if (under && room >= short + gap + acts.getBoundingClientRect().width + 1)
+			if (
+				under &&
+				space >= short + gap + acts.getBoundingClientRect().width + 1
+			)
 				console.error("Toolbar: the acts fall under the search");
 		};
 		check();

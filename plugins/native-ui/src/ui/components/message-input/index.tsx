@@ -25,7 +25,7 @@ import { asAct, useAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { FootReturn } from "../../lib/frame";
-import { FadingView, lineIn } from "../../lib/motion";
+import { FadingView, flowIn } from "../../lib/motion";
 import { pickedFromDocument, pickedFromImage } from "../../lib/picked";
 import { useTokenColor } from "../../lib/theme";
 import { IconButtonBase } from "../../parts/button/glyph";
@@ -191,7 +191,7 @@ export function MessageInput({
 			</View>
 			{notice ? (
 				<FadingView
-					entering={lineIn()}
+					entering={flowIn()}
 					className={cn(MESSAGE_INPUT_ROW, NOTICE)}
 				>
 					{onAttach ? (

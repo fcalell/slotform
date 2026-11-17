@@ -5,7 +5,7 @@ parametric derivation, the motion contract, the words the molecules speak, the s
 config, the platform-invariant variant matrices, the component roster, the shared descriptor types and
 the framework-free logic both platforms run. This page says what the package is, maps its source and
 subpaths, draws the sharing line between ui-core and the plugins, lists the package's limits and links
-to the page for each part. The emitted `DESIGN.md` is the generated reference for tokens, cells and
+to the page for each part. The emitted `DESIGN.md` is the generated reference for tokens, class sets and
 roster ([DESIGN.md](ui-core/roster.md#designmd)).
 
 ## What it is
@@ -22,9 +22,9 @@ reads its descriptors (a server) installs neither React nor Lucide.
 - [Motion](ui-core/motion.md): the motion contract, its one table of numbers, the moves and what each
   kind of change does.
 - [Words](ui-core/words.md): the words, counted and slotted words, the formatters and the text runs.
-- [Roster](ui-core/roster.md): the canon, the roster, the matrices, cells and variants, the shared
+- [Roster](ui-core/roster.md): the canon, the roster, the matrices, class sets and variants, the shared
   shapes of statuses, chips, facts and marks, and `DESIGN.md`.
-- [Layout](ui-core/layout.md): Shell, Place, Pane, Section, rows, the fold rules, headings, cards and
+- [Layout](ui-core/layout.md): Shell, Place, Pane, Section, rows, the overflow rules, headings, cards and
   the rows grid.
 - [Reads](ui-core/reads.md): the read model, frames, holds, paint and waiting shapes, and the port.
 - [Acts](ui-core/acts.md): acts, saves, forms, confirm, leave, reasons, fields and commit.
@@ -41,10 +41,10 @@ All of it is under `packages/ui-core/src/`.
 
 - `tokens.ts`: the sheet as data, `MOTION_KNOBS`, `MOVES` and the English `words`.
 - `derive.ts`: `deriveTheme`.
-- `variants.ts` and `variant-tables.ts`: the matrices and `FAMILIES`.
+- `variants.ts` and `variant-tables.ts`: the matrices and `MATRIX_GROUPS`.
 - `roster.ts`: `ROSTER`.
 - `roster/<component>.ts`: one roster component's contract: its entry, the descriptors, matrices, cvas
-  and cells it alone uses. `roster.ts`, `descriptors.ts`, `variants.ts` and `variant-tables.ts`
+  and class sets it alone uses. `roster.ts`, `descriptors.ts`, `variants.ts` and `variant-tables.ts`
   declare what two or more components share and re-export the rest, so the subpaths keep their names;
   a component file takes what it shares from `roster/shared.ts` or `roster/descriptors.ts`, never from
   the four, so no ui-core file is in an import cycle ([roster files](ui-core/roster.md#roster-files)).
@@ -77,8 +77,8 @@ Each part's page covers its subpaths, the package README lists every subpath wit
 
 What ui-core holds and what each plugin holds is decided by whether both platforms can take it.
 
-- A matrix cell holds platform-invariant classes only: fills, borders, ink, spacing roles, radius,
-  type role, weight, family, sizes and widths. A type-role cell carries its ink; `mono` carries its
+- A matrix class set holds platform-invariant classes only: fills, borders, ink, spacing roles, radius,
+  type role, weight, family, sizes and widths. A type-role class set carries its ink; `mono` carries its
   family.
 - Display, alignment, flex sizing, truncation, positioning, overflow, negative bleed margins, fraction
   widths and every interaction state are platform overlays, composed through `cn()` by each plugin:
@@ -95,7 +95,7 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
   by `aria-labelledby`, a `Field` label or a native button, and the look grows with the document.
   react-ui's Switch and its checkbox tick render a native `<button>` (`nativeButton`), and a disabled
   one carries `disabled` and `data-disabled`, never `aria-disabled`.
-- The native toasts' layer stands over a box measured against the frame's root (`ToastRoom`,
+- The native toasts' layer stands over a box measured against the frame's root (`ToastSpace`,
   `ToastFrame`) and follows a growing input a layout late.
 - An `Image`'s full view takes no pinch-zoom or pan.
 - A product cannot draw in the platform font: `fonts.sans` unset is IBM Plex Sans.

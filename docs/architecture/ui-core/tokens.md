@@ -48,8 +48,8 @@ A colour is one of:
 - a `mix`: a role mixed toward another in OKLab, what `color-mix(in oklab, role, toward amount)`
   draws, `black` standing in for the shade. A mix names one `toward` for both modes or one per mode.
 
-A literal or a `mix` may carry `holds` per mode, a contrast contract against named grounds; on a
-`mix` the mix is where the hold starts ([derivation](#derivation)).
+A literal or a `mix` may carry `grounds` per mode, a contrast contract against named grounds; on a
+`mix` the mix is where the search starts ([derivation](#derivation)).
 
 Colour roles are named for the place they draw: surfaces, three inks, the accent family, status
 families, chip families, avatars, washes, act fills and the switch set. A neutral wears the cast's
@@ -172,15 +172,15 @@ Density is decided by the pointer and the width, never by a knob. Where the prim
 (a mouse or a trackpad) and the viewport is at least `tablet` wide the web draws the `desktop` set;
 everywhere else it draws the `touch` set, the 44 px world, so a desktop window narrower than `tablet`
 draws touch. `themeTokens` seeds the touch set on both platforms and the web overrides it with the
-desktop set, so no cell carries a density class. `data-density` on the web root pins any set on any
+desktop set, so no class set carries a density class. `data-density` on the web root pins any set on any
 device: it is how the showcase and a board address a density, and the one supported answer for a
 narrow fine-pointer window. Density moves the type scale, the spacing roles and every size (plus
 `hairline`); in `room` it moves the radii, the widths, the hairline and the ring too. Native is touch
 and room only.
 
 One type scale at every density does not fit both a mouse and a finger, and a `fine:` variant in a
-cell puts an interaction condition in a shared cell that native cannot read. So a value that flips by
-density is an overlay over the desktop cell, never a matrix value. Structure follows width in CSS
+class set puts an interaction condition in a shared class set that native cannot read. So a value that flips by
+density is an overlay over the desktop class set, never a matrix value. Structure follows width in CSS
 wherever CSS can. A molecule whose structure (not a token) follows density reads it through the web's
 `touch:` custom variant, which applies exactly where the touch set draws (a `data-density="touch"`
 pin, or no `desktop` pin where the pointer is not fine or the viewport is narrower than `tablet`), or
@@ -233,7 +233,7 @@ There is no label role: a field label and a row's leading cell are `body` at 500
 A role's `size` is a ratio of the body size, rounded to the pixel; its `leading` a ratio of the size,
 its line box rounded to the even pixel (a tie rounds up). Tracking is in em and density-invariant.
 Ink is a colour role, family a font role. `tabular` draws the figures at one width: a display and a
-figure are stats. A type-role cell carries its ink, family and figures ([cells](roster.md#cells)).
+figure are stats. A type-role class set carries its ink, family and figures ([class sets](roster.md#class-sets)).
 
 The body size per density is the knob's on the desktop; touch and the room keep the sheet's ratio
 to the desktop, `max(16, round(size × 16 / 13))`, never under 16, the input size below which iOS
@@ -266,7 +266,7 @@ both axes, so it costs the canvas height 42 units over the 27 the guidance allow
 
 ## Sizes and hit target
 
-Heights and squares sit in the `--spacing-*` namespace, so a cell names them as it names a role
+Heights and squares sit in the `--spacing-*` namespace, so a class set names them as it names a role
 (`min-h-control`, `size-icon`). The scale is generic: a size names a measure every component may
 stand on, never one component's part. There are eleven:
 
@@ -288,7 +288,7 @@ Every size is derived from the type and the space (`sizePx`), so the `size` knob
 one declared value is the target, the hit floor of a pointer or a finger, which no knob moves: 28 on
 the desktop, over WCAG's 24, and 44 on touch, so the room set holds 44 of 960, the 32 the ten-foot
 guidance asks, and 88 at 1920. A component's own measure (a switch's track, an avatar, a docked
-sheet's floor, a text area's three body lines) is a sum or multiple of these in its cell, never a
+sheet's floor, a text area's three body lines) is a sum or multiple of these in its class set, never a
 size of the scale, so the size knob moves every component with the type.
 
 ## Widths
@@ -363,7 +363,7 @@ inside the page stays in it):
 A stacking order inside one component is its own structural class, never a layer. The roster's
 `LAYERS` are the component tiers, a different concept ([roster entries](roster.md#roster-entries)).
 
-There are two shadow levels, spent on lifted layers only: `float` (a popover, a menu, a picker, a
+There are two shadow elevations, spent on lifted layers only: `float` (a popover, a menu, a picker, a
 toast) and `modal` (a dialog, a sheet, a command palette). Each is a tight contact shadow plus a soft
 ambient one, tinted with the cast in light; in dark the lift is carried by the raised step and the
 hairline, so the shadow is pure black at a higher opacity.
@@ -378,12 +378,12 @@ Eleven theme namespaces reset to `initial`, so an off-contract utility compiles 
 The reset leaves three things live:
 
 - the numeric `--spacing` base, because dimension utilities derive from it, so no build check can
-  tell a role from a numeric; the matrices pin their cell strings verbatim instead;
+  tell a role from a numeric; the matrices pin their class-set strings verbatim instead;
 - the `--font-weight-*` ladder, because the roles name their weights;
 - a bare `duration-150`, because Tailwind turns a number into milliseconds without reading the theme.
 
 The ownership rule and the closed props keep a numeric off a call site: a look the matrices do not
-cover is a matrix cell or a consumer primitive under `ui/`, never a class on a call site
+cover is a matrix class set or a consumer primitive under `ui/`, never a class on a call site
 ([the canon](roster.md#the-canon-and-the-closed-props)).
 
 ## Composing with cn

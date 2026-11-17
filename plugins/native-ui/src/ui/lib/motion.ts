@@ -138,9 +138,9 @@ export function useToggle(on: boolean) {
 	return value;
 }
 
-// A line that appears in flow, and a block that arrives on its own: docs/architecture/ui-core/motion.md, "Lines and blocks".
+// A flow line, one that appears in flow, and a block that arrives on its own: docs/architecture/ui-core/motion.md, "Flow lines and blocks".
 // The entering prop of an Animated view.
-export const lineIn = () =>
+export const flowIn = () =>
 	FadeIn.duration(tuned.fast)
 		.easing(curve("out"))
 		.reduceMotion(ReduceMotion.System);
@@ -148,7 +148,7 @@ export const blockIn = () =>
 	FadeIn.duration(tuned.base)
 		.easing(curve("out"))
 		.reduceMotion(ReduceMotion.System);
-// The views that take `lineIn` and `blockIn` as their `entering`, with a
+// The views that take `flowIn` and `blockIn` as their `entering`, with a
 // `className` as any view has.
 export const FadingText = withUniwind(Animated.Text);
 export const FadingView = withUniwind(Animated.View);

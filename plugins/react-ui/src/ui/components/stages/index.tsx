@@ -7,7 +7,7 @@ import { type RailState, railBelow, WAITING } from "@fcalell/ui-core/stages";
 import {
 	BLOCK_IN,
 	FIGURES,
-	LINE_IN,
+	FLOW_IN,
 	lineBox,
 	STAGE_CHECK,
 	STAGE_CROSS,
@@ -167,7 +167,7 @@ export function Stages({ steps, ended }: StagesProps) {
 						{step.at ? (
 							<time
 								dateTime={step.at}
-								className={cn(text({ role: "meta" }), FIGURES, LINE_IN)}
+								className={cn(text({ role: "meta" }), FIGURES, FLOW_IN)}
 							>
 								{moment(step.at)}
 							</time>

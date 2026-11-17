@@ -20,7 +20,7 @@ import { isEnded } from "@fcalell/ui-core/read";
 import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	BLOCK_IN,
-	LINE_IN,
+	FLOW_IN,
 	lineBox,
 	OPTION_CHILDREN,
 	OPTION_GROUP_LABEL,
@@ -159,7 +159,7 @@ function OptionRowBase<V extends string>(props: OptionRowProps<V>) {
 			key={blocked}
 			className={cn(
 				text({ role: "meta" }),
-				blocked !== undefined && cn(BLOCKED_INK, LINE_IN),
+				blocked !== undefined && cn(BLOCKED_INK, FLOW_IN),
 			)}
 		>
 			{meta}

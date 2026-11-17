@@ -76,7 +76,7 @@ Layout:
 - **Web.** The width of the block it closes lays it out (the `acts` container). Up to the auth
   width its acts stack one per row across it, the filled act on top; wider, they stand at their own
   width at its end, wrapping to a further row with the filled act last. The stacking width is a rule
-  of the block's width, never a measure of its acts (`actsStackedMax` in `fold.ts`, the web's
+  of the block's width, never a measure of its acts (`actsStackedMax` in `overflow.ts`, the web's
   `acts-stacked:` container variant): a Gate step, an empty state's column and a sheet on a phone
   stand at or under it, a desktop sheet and a page's form stand wider.
 - **Phone.** `fit` (the phone's alone) is `end`, the default, or `full`, one act per row at the
@@ -368,7 +368,7 @@ stands flush on the sheet and asks nothing when it closes.
 - `packages/ui-core/src/roster/descriptors.ts`: `Act`, `LinkAct` and the typing control's field binding
 - `packages/ui-core/src/roster/button.ts`: the act's three forms and its press order
 - `packages/ui-core/src/roster/action-bar.ts`: the `ActionBar` contract
-- `packages/ui-core/src/fold.ts`: `actsStackedMax`, the widest block whose bar stacks
+- `packages/ui-core/src/overflow.ts`: `actsStackedMax`, the widest block whose bar stacks
 - `packages/ui-core/src/reason.ts`: `pressStands`, `ACT_TEXT`, `OPTION_TEXT`
 - `packages/ui-core/src/react/reason.ts`: `ReasonHostContext`, `usePressed`
 - `packages/ui-core/src/read.ts`: `endedReason`

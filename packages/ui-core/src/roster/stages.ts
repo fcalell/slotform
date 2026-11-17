@@ -33,7 +33,7 @@ export const stagesEntry: RosterEntry = {
 		"PAINT.kind.control",
 		"PAINT.kind.glyphs",
 		"SCRAMBLE",
-		"LINE_IN",
+		"FLOW_IN",
 		"SWAP_IN",
 		"SWAP_OUT",
 	],

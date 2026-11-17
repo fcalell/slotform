@@ -184,7 +184,7 @@ export interface ColorValue {
 	c: number;
 	hue: Hue;
 	alpha?: number;
-	holds?: readonly ContrastGrounds[];
+	grounds?: readonly ContrastGrounds[];
 }
 
 // Grounds that re-point the hairline: docs/architecture/ui-core/tokens.md, "Edges".
@@ -213,7 +213,7 @@ export type ColorDeclaration =
 			mix: ColorName;
 			toward: MixTarget | Record<Mode, MixTarget>;
 			amount: number;
-			holds?: Record<Mode, readonly ContrastGrounds[]>;
+			grounds?: Record<Mode, readonly ContrastGrounds[]>;
 	  };
 
 // A neutral's chroma: docs/architecture/ui-core/tokens.md, "Colour tokens".
@@ -375,11 +375,11 @@ const DANGER_LIGHT: ColorValue = {
 	l: 0.55,
 	c: 0.19,
 	hue: 25,
-	holds: [{ on: "group", under: "wash-press", ratio: 4.5 }],
+	grounds: [{ on: "group", under: "wash-press", ratio: 4.5 }],
 };
 
 // The faintest text ink's floor: docs/architecture/ui-core/tokens.md, "Contrast floors".
-const META_HOLDS: readonly ContrastGrounds[] = [
+const META_GROUNDS: readonly ContrastGrounds[] = [
 	{ on: "neutral-soft", ratio: 4.5 },
 	{ on: "canvas", ratio: 4.5 },
 	{ on: "surface", ratio: 4.5 },
@@ -387,7 +387,7 @@ const META_HOLDS: readonly ContrastGrounds[] = [
 	{ on: "surface", under: "wash-selected", ratio: 4.5 },
 ];
 
-const MARK_HOLDS: readonly ContrastGrounds[] = [
+const MARK_GROUNDS: readonly ContrastGrounds[] = [
 	{ on: "canvas", ratio: 3 },
 	{ on: "surface", ratio: 3 },
 	{ on: "group", ratio: 3 },
@@ -396,7 +396,7 @@ const MARK_HOLDS: readonly ContrastGrounds[] = [
 
 // The neutral soft ground is a veil, so it holds on each ground it can lie over;
 // the tinted ones are opaque.
-const EDGE_STRONG_HOLDS: readonly ContrastGrounds[] = [
+const EDGE_STRONG_GROUNDS: readonly ContrastGrounds[] = [
 	{ on: "surface", under: "wash-press", ratio: 3 },
 	{ on: "surface", under: "wash-selected", ratio: 3 },
 	{ on: "accent-soft", ratio: 3 },
@@ -420,8 +420,8 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 	// A control's boundary stays one on a pressed or selected row, the
 	// checkbox and radio in a list among them.
 	"edge-strong": {
-		light: { ...neutral(0.7, 0.012), holds: EDGE_STRONG_HOLDS },
-		dark: { ...neutral(0.53, 0.01), holds: EDGE_STRONG_HOLDS },
+		light: { ...neutral(0.7, 0.012), grounds: EDGE_STRONG_GROUNDS },
+		dark: { ...neutral(0.53, 0.01), grounds: EDGE_STRONG_GROUNDS },
 	},
 	// The canvas's dot grid: 1.5:1 on `canvas` in both modes, between the hairline
 	// (1.19 light, 1.41 dark) and a control's boundary, so a dot reads without
@@ -433,26 +433,26 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 	},
 	"ink-body": { light: neutral(0.2, 0.008), dark: neutral(0.97, 0.002) },
 	"ink-meta": {
-		light: { ...neutral(0.45, 0.012), holds: META_HOLDS },
-		dark: { ...neutral(0.76, 0.01), holds: META_HOLDS },
+		light: { ...neutral(0.45, 0.012), grounds: META_GROUNDS },
+		dark: { ...neutral(0.76, 0.01), grounds: META_GROUNDS },
 	},
 	// The grounds a mark stands on: docs/architecture/ui-core/tokens.md, "Contrast floors".
 	"ink-mark": {
-		light: { ...neutral(0.61, 0.01), holds: MARK_HOLDS },
-		dark: { ...neutral(0.575, 0.01), holds: MARK_HOLDS },
+		light: { ...neutral(0.61, 0.01), grounds: MARK_GROUNDS },
+		dark: { ...neutral(0.575, 0.01), grounds: MARK_GROUNDS },
 	},
 	// In dark the accent fill is a control's boundary on a group tile (a
 	// checked box, a switch on), so it holds 3:1 there.
 	accent: {
 		light: accent(0.52, 0.19),
-		dark: { ...accent(0.52, 0.19), holds: [{ on: "group", ratio: 3 }] },
+		dark: { ...accent(0.52, 0.19), grounds: [{ on: "group", ratio: 3 }] },
 	},
 	"on-accent": { light: WHITE, dark: WHITE },
 	"accent-soft": { light: accent(0.95, 0.023), dark: accent(0.29, 0.06) },
 	"accent-ink": {
 		light: {
 			...accent(0.505, 0.19),
-			holds: [
+			grounds: [
 				{ on: "group", ratio: 4.5 },
 				{ on: "canvas", ratio: 3 },
 				{ on: "accent-soft", under: "wash-press", ratio: 4.5 },
@@ -460,7 +460,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		},
 		dark: {
 			...accent(0.72, 0.13),
-			holds: [
+			grounds: [
 				{ on: "group", ratio: 4.5 },
 				{ on: "canvas", ratio: 3 },
 				{ on: "accent-soft", under: "wash-press", ratio: 4.5 },
@@ -545,7 +545,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		mix: "accent",
 		toward: { light: "on-accent", dark: "canvas" },
 		amount: 0.3,
-		holds: {
+		grounds: {
 			light: [{ on: "on-act-accent", ratio: 3 }],
 			dark: [{ on: "on-act-accent", ratio: 3 }],
 		},
@@ -556,7 +556,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 			l: 0.5,
 			c: 0.17,
 			hue: 25,
-			holds: [{ on: "on-act-danger", ratio: 4.5 }],
+			grounds: [{ on: "on-act-danger", ratio: 4.5 }],
 		},
 	},
 	"on-act-danger": { light: WHITE, dark: WHITE },
@@ -566,7 +566,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		mix: "act-danger",
 		toward: { light: "on-act-danger", dark: "canvas" },
 		amount: 0.3,
-		holds: {
+		grounds: {
 			light: [{ on: "on-act-danger", ratio: 3 }],
 			dark: [{ on: "on-act-danger", ratio: 3 }],
 		},
@@ -616,11 +616,11 @@ export function dockedBodyMax({
 	floor: number;
 	logFloor: number;
 }): number {
-	const room = region - pinned;
+	const space = region - pinned;
 	const cap = Math.max(floor, SHEET_DOCKED_BODY_SHARE * region);
 	return Math.max(
 		0,
-		Math.max(Math.min(floor, room), Math.min(cap, room - logFloor)),
+		Math.max(Math.min(floor, space), Math.min(cap, space - logFloor)),
 	);
 }
 
@@ -926,9 +926,9 @@ export const BREAKPOINT_PX: Record<Breakpoint, number> = {
 
 // ── Elevation ───────────────────────────────────────────────────────
 
-// The two shadow levels: docs/architecture/ui-core/tokens.md, "Layers and shadows".
-export const SHADOW_LEVELS = ["float", "modal"] as const;
-export type ShadowLevel = (typeof SHADOW_LEVELS)[number];
+// The two shadow elevations: docs/architecture/ui-core/tokens.md, "Layers and shadows".
+export const SHADOW_ELEVATIONS = ["float", "modal"] as const;
+export type ShadowElevation = (typeof SHADOW_ELEVATIONS)[number];
 
 export interface ShadowLayer {
 	y: number;
@@ -942,7 +942,7 @@ export const SHADOW_INK: Record<Mode, ColorValue> = {
 };
 
 export const SHADOW_LAYERS: Record<
-	ShadowLevel,
+	ShadowElevation,
 	Record<Mode, readonly ShadowLayer[]>
 > = {
 	float: {

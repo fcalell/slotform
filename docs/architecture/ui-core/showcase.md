@@ -54,9 +54,9 @@ answers every procedure, with an example value for each route param (`deployId`,
 ## The roster in Storybook
 
 The roster is in Storybook: one story per roster component and accessibility-relevant state
-(`rest`, `disabled`, `loading`, `error`, `empty`, `selected`), every cell of that component in that
+(`rest`, `disabled`, `loading`, `error`, `empty`, `selected`), every class set of that component in that
 state, light and dark side by side, at the toolbar's density (desktop or touch). The `rest` story
-takes a `cell` control to browse one cell. Pointer and focus states stay in the roster and draw no
+takes a `cell` control to browse one class set. Pointer and focus states stay in the roster and draw no
 story, since the web variants match only real pseudo-classes: hover, press and focus are driven on
 the real component in its story. `pnpm stories`, from the repo root, builds the workspace chain and
 opens Storybook on `:6006`. Nothing runs the stories headlessly; `stack screens test`, run on the
@@ -66,18 +66,18 @@ screens a change works on, is the one machine run.
 
 `src/roster/` holds the frame data (`cells.ts`), the `Frame` wrapper (`frame.tsx`) and one drawer
 per component (`frames/<dir>.tsx`, `draw<Name>`). A drawer takes the frame and returns the real
-component in that cell and state, or `undefined` for a cell the component has no form for. A state
+component in that class set and state, or `undefined` for a class set the component has no form for. A state
 the component takes as a prop (`disabled` through `blocked`, `loading`, `error`, `selected`,
 `empty`) is drawn by passing it.
 
-`showcaseFrames()` in `cells.ts` lists the frames: one per matrix cell a roster component draws (the
-families its entry's `draws` names, enumerated by `matrixCells`) and drawn state its entry's
+`showcaseFrames()` in `cells.ts` lists the frames: one per matrix class set a roster component draws (the
+matrix groups its entry's `draws` names, enumerated by `matrixClasses`) and drawn state its entry's
 `states` lists, in both modes and both densities. Each is drawn in `Frame`, which sets
 `data-cell="<component>/<cell>/<state>/<mode>/<density>"`, its mode's class and the canvas ground. A
 frame stands on the canvas, since a group ground would re-point the hairline of every surface drawn
 inside it ([edges](tokens.md#edges)). It shrinks to the viewport (`min-w-0`), so a component that
 fits a narrow screen is drawn fitting it. Without a drawer, or when the drawer returns `undefined`,
-it draws its component's name and the cell's strings.
+it draws its component's name and the class set's strings.
 
 A frame imports react-ui through its `exports` only, as any consumer does, so a part stands inside
 the public composition that hosts it: a painted control in a host whose read waits, a popup in the
@@ -110,7 +110,7 @@ page draws. An edge no public composition reaches has no frame.
 `apps/showcase/stories/` (Storybook's watcher does not see dot directories), each importing only that
 component's drawer and written only when its text changes, so an unchanged module is neither
 re-indexed nor re-run. The roster is read in a child process (`roster-list.ts`), since Node caches ES
-modules, and `rosterPlugin` rewrites the generated modules when the roster, its cells or a drawer
+modules, and `rosterPlugin` rewrites the generated modules when the roster, its class sets or a drawer
 change, so a roster edit reaches the sidebar without a restart. `pnpm generate` runs `roster.ts`, so
 the gate type-checks the stories the roster names.
 

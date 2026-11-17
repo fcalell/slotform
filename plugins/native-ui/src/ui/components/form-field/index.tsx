@@ -39,7 +39,7 @@ import {
 	GroupName,
 } from "../../lib/field";
 import { Ink } from "../../lib/ink";
-import { FadingText, lineIn } from "../../lib/motion";
+import { FadingText, flowIn } from "../../lib/motion";
 import { inertProps } from "../../lib/paint";
 import { Icon } from "../../parts/icon";
 import { ChangeMark } from "../../parts/status/change";
@@ -403,7 +403,7 @@ export function FieldBody(props: Body) {
 		</View>
 	);
 	const line = error ? (
-		<FadingText key={error} entering={lineIn()} className={FIELD_ERROR_LINE}>
+		<FadingText key={error} entering={flowIn()} className={FIELD_ERROR_LINE}>
 			<RunText runs={partRuns(given ?? error)} whole />
 		</FadingText>
 	) : description ? (

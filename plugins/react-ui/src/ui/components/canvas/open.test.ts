@@ -124,8 +124,8 @@ async function opening(
 		gaps: { node: pad, layer: layerGap(24, chip, pair), page },
 	};
 	const out = await new ELK().layout(elkGraph(input));
-	const room = pane.width - page - (page + control + pair);
-	const computed = wrapParts(out, fromElk(out), graph.edges, room, {
+	const space = pane.width - page - (page + control + pair);
+	const computed = wrapParts(out, fromElk(out), graph.edges, space, {
 		across: pad,
 		down: input.gaps.layer,
 	});

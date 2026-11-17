@@ -26,7 +26,7 @@ export const paneEntry: RosterEntry = {
 		"PAGE_WITHIN",
 		"PAGE_WITHIN_SEP",
 		"PAGE_HEAD",
-		"PAGE_HEAD_ROOM",
+		"PAGE_HEAD_SPACE",
 		"PAGE_TOP_BAR",
 		"PAGE_TOP_BAR_START",
 		"PAGE_TOP_BAR_END",
@@ -37,7 +37,7 @@ export const paneEntry: RosterEntry = {
 		"ROWS_MEASURED",
 		"FOOT_DOCKED",
 		"PAGE_BODY_OVER_FOOT",
-		"PAGE_BODY_TOAST_ROOM",
+		"PAGE_BODY_TOAST_SPACE",
 		"PAGE_BODY_UNDER_TOAST",
 		"ICON_BUTTON.fit.body",
 		"ICON_BUTTON_DESTRUCTIVE",
@@ -166,7 +166,7 @@ export const PAGE_HEAD = "px-page border-b border-edge bg-surface";
 // own gap over its line, so the safe area is no band of the head's surface (the
 // page inset all round would take 48 of the canvas's 540 over the bar). The
 // table shows above the bar; the bar's surface starts at the pad.
-export const PAGE_HEAD_ROOM = "pt-pad";
+export const PAGE_HEAD_SPACE = "pt-pad";
 // A bar is a row of controls: the control height and the gap above and below
 // (the floor counts the padding, so it is spelt as that sum).
 export const PAGE_TOP_BAR =
@@ -190,7 +190,7 @@ export const PAGE_BODY = "gap-section p-page";
 
 export const PAGE_BODY_OVER_FOOT = "pb-section";
 // A body with no foot: docs/architecture/ui-core/layout.md, "Foot".
-export const PAGE_BODY_TOAST_ROOM =
+export const PAGE_BODY_TOAST_SPACE =
 	"pb-[calc(2*var(--spacing-control)+2*var(--spacing-gap)+2*var(--spacing-page))]";
 export const PAGE_BODY_UNDER_TOAST =
 	"in-[main:has([data-toast])]:pb-[calc(2*var(--spacing-control)+2*var(--spacing-gap)+2*var(--spacing-page))]";

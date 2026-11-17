@@ -178,7 +178,7 @@ returns focus; no console error.
 ## How the face is held
 
 The face lives on the specimen (the showcase's `Specimen` story): every control, pill, tab,
-field, row, band, the frame and the player's dock, light and dark, on one page. A change to a cell or a
+field, row, band, the frame and the player's dock, light and dark, on one page. A change to a class set or a
 token is judged on the specimen first, as one family, and reaches a screen only after. A screen
 is then shown beside the anchor's screen of its pattern with one question, which looks better;
 "theirs" is answered with the three largest differences, each a composition finding (the app's)

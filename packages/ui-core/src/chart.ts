@@ -115,15 +115,15 @@ const TIME_STRIDE_LAST = 12;
 // A time stands where its room holds this many of the longest time's width:
 // itself and a time's width clear, so no two times touch and a time next to
 // the first or the last (which stand whole at the plot's edge) clears it.
-export const TIME_ROOM = 2;
+export const TIME_SPACE = 2;
 
 // The room a bar's time between the first and the last stands in, in slots:
 // the widest stride it falls on (its index a multiple of it), short of the
 // last bar where that stands nearer. The time draws when that room holds
-// `TIME_ROOM` times the longest time, so each stride's times appear together
+// `TIME_SPACE` times the longest time, so each stride's times appear together
 // as the plot widens. None for the first bar and the last, whose times always
 // stand.
-export function timeRoom(index: number, count: number): number | undefined {
+export function timeSpace(index: number, count: number): number | undefined {
 	if (index <= 0 || index >= count - 1) return undefined;
 	let stride = 1;
 	for (let at = 1; ; at += 1) {

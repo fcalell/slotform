@@ -47,7 +47,7 @@ export const canvasEntry: RosterEntry = {
 		"CANVAS_ZOOM",
 		"LIFT",
 		"PATH_TONE",
-		"LINE_IN",
+		"FLOW_IN",
 		"BLOCK_IN",
 		"ICON.fit.meta",
 		"ICON.fit.body",
@@ -428,7 +428,7 @@ export const canvasNodeName = build(CANVAS_NODE_NAME);
 // hollow ring on the node's edge inside a hit box the target's size (24, 44 on
 // touch); a group's dashed frame and its head on the group ground; the zoom
 // stack's box. The dot grid, the edge strokes and the zoom's buttons (icon `Button`)
-// are not cells.
+// are not class sets.
 export const CANVAS_GROUND = "bg-canvas";
 export const CANVAS_PORT = `size-[calc(2*var(--spacing-badge))] rounded-full border border-edge-strong bg-surface ${ANSWER}`;
 export const CANVAS_PORT_HIT = "size-target";

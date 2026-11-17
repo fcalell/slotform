@@ -10,9 +10,9 @@ import {
 	FIELD_GLYPH,
 	FIELD_PLACEHOLDER,
 	FIGURES,
+	FLOW_IN,
 	field,
 	fieldValue,
-	LINE_IN,
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
@@ -184,7 +184,7 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 					id={line}
 					key={refused}
 					role="alert"
-					className={cn(FIELD_ERROR_LINE, LINE_IN)}
+					className={cn(FIELD_ERROR_LINE, FLOW_IN)}
 				>
 					{refused}
 				</p>

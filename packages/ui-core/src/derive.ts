@@ -54,10 +54,10 @@ import {
 	RADIUS_ROLES,
 	type RadiusRole,
 	radiusPx,
+	SHADOW_ELEVATIONS,
 	SHADOW_INK,
 	SHADOW_LAYERS,
-	SHADOW_LEVELS,
-	type ShadowLevel,
+	type ShadowElevation,
 	type Size,
 	type SpacingRole,
 	TRACKED_ROLES,
@@ -77,9 +77,9 @@ export interface ResolvedTheme {
 	loading: Record<LoadingSlot, LoadingPaint>;
 	knobs: Knobs;
 	colors: Record<Mode, Record<ColorName, string>>;
-	// Each level as a `box-shadow` list in sRGB, since React Native's
+	// Each elevation as a `box-shadow` list in sRGB, since React Native's
 	// `boxShadow` parses no oklch.
-	shadows: Record<Mode, Record<ShadowLevel, string>>;
+	shadows: Record<Mode, Record<ShadowElevation, string>>;
 	// The three scales density moves, each set complete on its own.
 	type: Record<
 		PixelDensity,
@@ -160,10 +160,10 @@ function literal(value: ColorValue, knobs: Knobs): Resolved {
 	};
 }
 
-const HOLD_STEP = 0.005;
+const CONTRAST_STEP = 0.005;
 
-// Contrast hold: docs/architecture/ui-core/tokens.md, "Derivation".
-function holding(
+// Contrast grounds: docs/architecture/ui-core/tokens.md, "Derivation".
+function meetGrounds(
 	color: Resolved,
 	contracts: readonly ContrastGrounds[],
 	grounds: readonly number[],
@@ -177,7 +177,7 @@ function holding(
 		);
 		if (short === -1) return current;
 		const darker = (grounds[short] ?? 0) > y;
-		const l = round3(current.l + (darker ? -HOLD_STEP : HOLD_STEP));
+		const l = round3(current.l + (darker ? -CONTRAST_STEP : CONTRAST_STEP));
 		current = { ...current, l, c: chromaInGamut(l, color.c, current.h) };
 	}
 	throw new Error(
@@ -235,13 +235,13 @@ function resolveMode(mode: Mode, knobs: Knobs): Record<ColorName, string> {
 				h: h ?? 0,
 				alpha: undefined,
 			};
-			const holds = declaration.holds?.[mode];
-			if (holds) color = holding(color, holds, holds.map(ground));
+			const grounds = declaration.grounds?.[mode];
+			if (grounds) color = meetGrounds(color, grounds, grounds.map(ground));
 		} else {
 			const value = declaration[mode];
 			color = literal(value, knobs);
-			if (value.holds) {
-				color = holding(color, value.holds, value.holds.map(ground));
+			if (value.grounds) {
+				color = meetGrounds(color, value.grounds, value.grounds.map(ground));
 			}
 		}
 		visiting.delete(name);
@@ -251,11 +251,11 @@ function resolveMode(mode: Mode, knobs: Knobs): Record<ColorName, string> {
 	return record(COLOR_NAMES, (name) => format(resolve(name)));
 }
 
-function shadowsFor(mode: Mode, knobs: Knobs): Record<ShadowLevel, string> {
+function shadowsFor(mode: Mode, knobs: Knobs): Record<ShadowElevation, string> {
 	const ink = SHADOW_INK[mode];
 	const [r, g, b] = oklchToRgb(ink.l, ink.c, hueOf(ink.hue, knobs));
-	return record(SHADOW_LEVELS, (level) =>
-		SHADOW_LAYERS[level][mode]
+	return record(SHADOW_ELEVATIONS, (elevation) =>
+		SHADOW_LAYERS[elevation][mode]
 			.map(
 				({ y, blur, alpha }) =>
 					`0 ${y}px ${blur}px rgba(${r}, ${g}, ${b}, ${alpha})`,

@@ -29,8 +29,8 @@ import {
 	SHELL_COLUMN_AT,
 	SHELL_COLUMN_FLOAT,
 	SHELL_COLUMN_MOTION,
+	SHELL_CONTAINER,
 	SHELL_FOOT,
-	SHELL_FRAME,
 	SHELL_GROUP_LABEL,
 	SHELL_INSET,
 	SHELL_LAYER,
@@ -402,7 +402,7 @@ export function Shell({
 		<FrameHost>
 			<div
 				data-slide={slide}
-				className={cn(FRAME, SHELL_FRAME)}
+				className={cn(FRAME, SHELL_CONTAINER)}
 				onAnimationEnd={(event) => {
 					if (event.animationName === "page-slide") setSlide(undefined);
 				}}

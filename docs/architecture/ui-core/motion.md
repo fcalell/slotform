@@ -1,9 +1,9 @@
 # Motion
 
 The motion contract both UI plugins draw from: the principles every motion answers to, the one table
-of timing numbers, the moves a component may make and the cells that spell them, how reduced motion
+of timing numbers, the moves a component may make and the class sets that spell them, how reduced motion
 snaps them, the live tuning record and its write-back, and what each kind of change (a press, a
-layer, a line, a block, a value, a wait, a navigation, a message) does on the web and on the phone.
+layer, a flow line, a block, a value, a wait, a navigation, a message) does on the web and on the phone.
 
 ## Principles
 
@@ -66,18 +66,18 @@ The phone app's `/motion` route (development only) generates one slider per knob
 refusing the whole file otherwise, rewrites only the default literals in `tokens.ts` and regenerates
 `DESIGN.md`. A default changes only by that pass.
 
-## Moves and move cells
+## Moves and move class sets
 
 `MOVES` is the vocabulary of motion. A roster entry's `motion` names the moves its component makes
-(required; `[]` for none; [roster entries](roster.md#roster-entries)). The cells a move spells are
-the motion constants `variants.ts` exports, composed into the cells that make the move, so a component
-never writes a motion of its own. They are the one place a cell carries an interaction state, a
+(required; `[]` for none; [roster entries](roster.md#roster-entries)). The class sets a move spells are
+the motion constants `variants.ts` exports, composed into the class sets that make the move, so a component
+never writes a motion of its own. They are the one place a class set carries an interaction state, a
 transition-status attribute or an arbitrary property list, since a platform would otherwise overlay
 them ([matrices](roster.md#matrices)).
 
 ## Press
 
-Every cell a viewer points at or presses answers; a filled control gives (scales) on press, a wide
+Every class set a viewer points at or presses answers; a filled control gives (scales) on press, a wide
 surface never.
 
 - On the web a state's look eases in on `fast` and a press lands on `instant`. The transition never
@@ -102,12 +102,12 @@ out; the `content-show` and `content-hide` keyframes time the rest. A popover dr
 anchor (below it, else rising from the side it flipped to) and returns to it. A tooltip rests before
 it shows, and a second one soon after shows at once.
 
-## Lines and blocks
+## Flow lines and blocks
 
-A **line** that appears in flow (a blocked act's reason, a field's error, a checking line, a notice,
+A **flow line**, a line that appears in flow (a blocked act's reason, a field's error, a checking line, a notice,
 a stage's moment) fades in on `fast` `out` and pushes what follows at once; it leaves at once. On the
 web the fade is the `paint-in` keyframes, a class the element carries while it stands, played as it
-mounts. The phone fades its lines in Reanimated (`lineIn`), built where they mount so a tuned rung is
+mounts. The phone fades its flow lines in Reanimated (`flowIn`), built where they mount so a tuned rung is
 the next one's, and the web's classes leave it alone.
 
 A **block** (a fold, a chip remove, a sheet close, a row the viewer adds or removes) lands at once,
@@ -206,7 +206,7 @@ which Tailwind emits beside the theme's `--animate-spin`.
 
 native-ui's `lib/motion` is the contract in Reanimated: one of the three curves, and a rung's
 duration on a curve, read from the live `tuned` record at the call, so the tuning page's change
-reaches the next animation played. Each entering animation (`lineIn`, `streamIn`, the place fade, the
+reaches the next animation played. Each entering animation (`flowIn`, `streamIn`, the place fade, the
 checkbox mark) is built where it mounts, so a tuned rung is the next one's.
 
 ## Judging motion
@@ -220,13 +220,13 @@ design critique's motion pass is the run with motion on.
 - `packages/ui-core/src/derive.ts`: `deriveTheme().motion`, the timings as numbers.
 - `packages/ui-core/src/emit.ts`: the motion variables and `reducedMotionTokens`.
 - `packages/ui-core/src/paint.ts`: `tuned`, `tune`, `subscribeMotion`, `loading`, `WAIT_DELAY`, `ACT_DELAY`.
-- `packages/ui-core/src/variants.ts`, `packages/ui-core/src/variant-tables.ts`: the motion cells (layers, lines, blocks, the painted fill).
-- `packages/ui-core/src/roster/shared.ts`: the state transitions and the fill cell.
+- `packages/ui-core/src/variants.ts`, `packages/ui-core/src/variant-tables.ts`: the motion class sets (layers, flow lines, blocks, the painted fill).
+- `packages/ui-core/src/roster/shared.ts`: the state transitions and the fill class set.
 - `packages/ui-core/src/roster/thread.ts`, `packages/ui-core/src/roster/shell.ts`: the stream rise and the page slide.
 - `packages/ui-core/src/arrive.ts`: `arrivals`.
 - `packages/ui-core/src/roll.ts`: how a changing figure moves.
 - `packages/ui-core/src/scramble.ts`: the scramble and decode.
 - `plugins/react-ui/src/node/theme.ts`: the web's keyframe animation tokens.
-- `plugins/native-ui/src/ui/lib/motion.ts`: the contract in Reanimated (`usePress`, `lineIn`, `streamIn`, the fills).
+- `plugins/native-ui/src/ui/lib/motion.ts`: the contract in Reanimated (`usePress`, `flowIn`, `streamIn`, the fills).
 - `plugins/native-ui/src/ui/parts/spinner/index.tsx`: the phone's spinner and busy glyph.
 - `apps/phone/src/app/motion.tsx`: the phone's tuning page.

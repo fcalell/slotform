@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { definitionsOneRow, ROW_TITLE_LINES } from "./fold.ts";
+import { definitionsOneRow, ROW_TITLE_LINES } from "./overflow.ts";
 import { KNOB_DEFAULTS } from "./tokens.ts";
 
 test("definitionsOneRow follows the size knob", () => {

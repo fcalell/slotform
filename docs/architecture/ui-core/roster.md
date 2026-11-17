@@ -2,7 +2,7 @@
 
 The component contract both UI plugins ship to: the canon of names and closed props, the descriptors a
 composed region is made of, the roster that lists every component as data, the variant matrices and
-single cells a component draws, the shared shapes of a button, a status, a chip, a fact and a change
+single class sets a component draws, the shared shapes of a button, a status, a chip, a fact and a change
 mark, and the `DESIGN.md` emitted from all of it. The layout parts are in [layout](layout.md), the
 reads they draw in [reads](reads.md), the acts in [acts](acts.md), and each content molecule in
 [components](components.md).
@@ -18,7 +18,7 @@ The canon binds every component either plugin ships:
   `RowLeading`, `RowTrailing`, `PlaceSpec`, `Option`, `FieldBinding`, `TableColumn`, and the rest of
   [descriptors](#descriptors)), never a node slot.
 - No `class`, `className`, `classList` or `style` prop. A look a component does not offer is a matrix
-  cell or a consumer primitive ([Tailwind reset](tokens.md#tailwind-reset)).
+  class set or a consumer primitive ([Tailwind reset](tokens.md#tailwind-reset)).
 - An icon is an `IconName`, a closed type over Lucide's glyph names by their PascalCase name (`Check`,
   `ChevronDown`), the key both `lucide-react` and `lucide-react-native` export it under; Lucide's own
   aliases are names too. Each plugin draws a name from one table built over its platform package,
@@ -48,21 +48,21 @@ public is [public roster](../../decisions/public-roster.md).
 
 The roster is data: `ROSTER` in `packages/ui-core/src/roster.ts` names every component both UI
 plugins ship, in four layers (`atom`, `layout`, `shared`, `content`), with the prop names it takes,
-the cells it draws, the tokens it owns, the moves it makes and the states it has, the same in both
+the class sets it draws, the tokens it owns, the moves it makes and the states it has, the same in both
 plugins. An entry with `platforms` ships on those alone (`Canvas` is web only). `DESIGN.md` is emitted
-from it, and the showcase draws each component in exactly the cells and states its entry lists
+from it, and the showcase draws each component in exactly the class sets and states its entry lists
 ([showcase](showcase.md)). A component's directory is `componentDir(name)`. A component draws
-another's place by composing it, never by spelling its cells.
+another's place by composing it, never by spelling its class sets.
 
 ### Roster entries
 
 An entry holds:
 
 - the component's prop names;
-- the cells it draws: a `FAMILIES` name for every cell of that family, `FAMILY.axis.value` for one of
-  its cells, or a single-cell constant of `./variants`;
-- `holds`, the families and constants of its own box ([matrices](#matrices));
-- `motion`, the moves it makes ([moves and move cells](motion.md#moves-and-move-cells));
+- the class sets it draws: a `MATRIX_GROUPS` name for every class set of that group, `GROUP.axis.value` for one of
+  its class sets, or a single-class-set constant of `./variants`;
+- `holds`, the matrix groups and constants of its own box ([matrices](#matrices));
+- `motion`, the moves it makes ([moves and move class sets](motion.md#moves-and-move-class-sets));
 - the states it has a form for: the eight interaction states, plus `empty` for a component with an
   empty shape, and the states a read puts a frame or collection in (`busy`, `stale`, `paused`, `more`,
   `streaming`);
@@ -71,13 +71,13 @@ An entry holds:
 ### Token ownership
 
 An entry names the tokens its component may draw, by namespace: type roles, colours, radii, spacing
-roles, sizes and widths, shadow levels. A colour is a name, or a family prefix ending in `-` (`chip-`
+roles, sizes and widths, shadow elevations. A colour is a name, or a family prefix ending in `-` (`chip-`
 covers every chip role); every other namespace names its tokens. A namespace left out owns nothing.
 
 ### Roster files
 
 Each entry is declared in its component's `src/roster/<component>.ts`, beside the descriptors,
-matrices, cvas and cells that component alone uses; `ROSTER` groups them by layer. The four public
+matrices, cvas and class sets that component alone uses; `ROSTER` groups them by layer. The four public
 modules (`roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`) declare what two or more
 components share and import the component files to re-export the rest, so the subpaths keep their
 names. A component file therefore takes what it shares from `roster/shared.ts` (values and types,
@@ -90,20 +90,20 @@ The variant matrices are declared as data in `variant-tables.ts` (internal, no s
 makes each cva from its matrix. A cva hides its config at runtime, so the `DESIGN.md` emitter walks the
 same object the cva reads, and no enumeration can drift from the matrix it describes. The matrices two
 or more components draw are declared there; one component's own stand in its `roster/<component>.ts`,
-beside the cvas built from them, and are re-exported. `FAMILIES` registers every matrix by table name
-with its axes, and `matrixCells` enumerates the cells (`BUTTON.act.primary`); the showcase reads the
+beside the cvas built from them, and are re-exported. `MATRIX_GROUPS` registers every matrix by table name
+with its axes, and `matrixClasses` enumerates the class sets (`BUTTON.act.primary`); the showcase reads the
 list.
 
-- A matrix holds platform-invariant cells only, classes both a web and a native renderer take: fills,
-  borders, ink, spacing roles, radius, type role, weight, family, sizes and widths. Which cells those
+- A matrix holds platform-invariant class sets only, classes both a web and a native renderer take: fills,
+  borders, ink, spacing roles, radius, type role, weight, family, sizes and widths. Which class sets those
   are is [the sharing line](../ui-core.md#the-sharing-line).
 - What a component is given (act, family, checked, error) is an axis; where the pointer or focus is on
   it is an overlay.
 - A part with an axis is a matrix; a part with one shape is a named constant (`POPOVER`, `PAGE_HEAD`).
-- A molecule draws an atom by composing it, never by spelling its cells; a composed molecule draws its
-  own cells and the composer owns none of them. A cell no entry holds is shared and spelled by each
-  component that draws it; an entry's `holds` lists the families and constants of its own box.
-- No cell holds an arbitrary value.
+- A molecule draws an atom by composing it, never by spelling its class sets; a composed molecule draws its
+  own class sets and the composer owns none of them. A class set no entry holds is shared and spelled by each
+  component that draws it; an entry's `holds` lists the matrix groups and constants of its own box.
+- No class set holds an arbitrary value.
 - Heights are floors, never fixed: a minimum height is the floor of something pressed (control, field,
   target, chip, row). An element a pointer lands on is the target (28 px on the desktop, 44 on touch,
   [sizes](tokens.md#sizes-and-hit-target)), so a smaller drawn box stands in a target-sized box
@@ -114,13 +114,13 @@ list.
 ## Variants
 
 `variants.ts` is the public matrix layer: one cva per table, the axis types a component declares its
-props with, the single-cell constants and `FAMILIES` with its cell enumeration. The tables stay
+props with, the single-class-set constants and `MATRIX_GROUPS` with its class set enumeration. The tables stay
 internal. What one component alone draws is declared in its `roster/<component>.ts` and re-exported
-here; a motion cell is spelled beside the matrices that compose it and read from here
-([moves and move cells](motion.md#moves-and-move-cells)).
+here; a motion class set is spelled beside the matrices that compose it and read from here
+([moves and move class sets](motion.md#moves-and-move-class-sets)).
 
 `build` is the only way a cva is built. It takes the whole matrix, which leaves no second argument to
-get wrong, so a cva cannot render another table's cells or drop its own base. cva's own config and prop
+get wrong, so a cva cannot render another table's class sets or drop its own base. cva's own config and prop
 types are conditional on a concrete axis set, which is why one generic helper widens both.
 
 A variant's props are one optional pick per axis, plus the `class` or the `className` a caller merges
@@ -129,12 +129,12 @@ emits name its own types alone: cva keeps its prop types in a `types` module the
 import by path, which is not portable and fails wherever the package is built inside a pnpm virtual
 store.
 
-## Cells
+## Class sets
 
 - The type role is the only way to set type; its ink, family and figures ride with it (`TEXT`). Every
-  cell is spelled out: Tailwind reads source text, so a cell built from a template compiles to nothing
+  class set is spelled out: Tailwind reads source text, so a class set built from a template compiles to nothing
   in a consumer build.
-- The tint a plugin hands to its own glyph or spinner is read back off a cell's colour, since the
+- The tint a plugin hands to its own glyph or spinner is read back off a class set's colour, since the
   matrices already carry it; it is never written a second time.
 - Room is a margin on a box that draws, never an empty element: a picker's grouped children stand in
   past the box by the box's width (the group's margin) and the gap after it (the body's).
@@ -170,7 +170,7 @@ everywhere: a fact, a table cell, a picker option, a toolbar's applied filter.
 - `ground` is what the box stands on. `edge` is the surface under the hairline every outlined control
   shares, for a hued family. `soft` is the neutral family's soft ground (the one a neutral type mark,
   `ROW_MARK`, stands on), with no edge and no dot.
-- The neutral family has no hue and no dot cell: a grey dot on it reads as the `waiting` state's
+- The neutral family has no hue and no dot class set: a grey dot on it reads as the `waiting` state's
   filled one (and a hollow one as `idle`'s), one mark with two meanings on a screen that holds both. A
   dotless outlined box is a control's form, a compact one a toggle button beside a row's switches. Its
   soft ground keeps it a tag and apart from a state pill, which is opaque, edged and led by its dot (a
@@ -243,9 +243,9 @@ other: a designed density tier no media query detects ([the room](tokens.md#the-
 
 The package's `DESIGN.md` is the contract in the
 [DESIGN.md format](https://github.com/google-labs-code/design.md), version `alpha`: the default theme's
-tokens as YAML front matter, each matrix cell and single cell as a component (dark values and their
+tokens as YAML front matter, each matrix class set and single class set as a component (dark values and their
 components suffixed `-dark`), and the eight body sections as a snapshot of what the contract draws,
-the roster among them with the cells each component draws, its states and the tokens it owns. It ships
+the roster among them with the class sets each component draws, its states and the tokens it owns. It ships
 in the package's `files`, so a consumer reads it under `node_modules/@fcalell/ui-core/`.
 
 `src/design-md.ts` emits it as a pure function of a resolved theme, so the committed file is checked
@@ -255,12 +255,12 @@ reports an error. The committed file is the emitter's output, never edited by ha
 ## In the code
 
 - `packages/ui-core/src/roster.ts`: `ROSTER`, the layers and `componentDir`.
-- `packages/ui-core/src/roster/shared.ts`: the shared roster types (`RosterEntry`, the states, token ownership), `build`, the variant props, `TEXT` and the button label cells.
+- `packages/ui-core/src/roster/shared.ts`: the shared roster types (`RosterEntry`, the states, token ownership), `build`, the variant props, `TEXT` and the button label class sets.
 - `packages/ui-core/src/roster/descriptors.ts`: the descriptors two or more components take (`Run`, `Fact`, `StatusMark`, `ChipMark`, `ChangeKind`, `Drop`, `RouteRegistry`).
-- `packages/ui-core/src/roster/<component>.ts`: one component's entry, descriptors, matrices and cells (`button.ts`, `picker.ts` among them).
+- `packages/ui-core/src/roster/<component>.ts`: one component's entry, descriptors, matrices and class sets (`button.ts`, `picker.ts` among them).
 - `packages/ui-core/src/descriptors.ts`: the descriptors subpath, re-exports only.
 - `packages/ui-core/src/variant-tables.ts`: the shared matrices as data, the chip matrix.
-- `packages/ui-core/src/variants.ts`: the cvas, single-cell constants, `FAMILIES` and `matrixCells`.
+- `packages/ui-core/src/variants.ts`: the cvas, single-class-set constants, `MATRIX_GROUPS` and `matrixClasses`.
 - `packages/ui-core/src/list-state.ts`: `splitFacts` and the change and back glyphs.
 - `packages/ui-core/src/tokens.ts`: `TONES`.
 - `packages/ui-core/src/icon-name.ts`, `packages/ui-core/scripts/icon-name.ts`: the generated `IconName` union and its generator.

@@ -15,7 +15,7 @@ export const actionBarEntry: RosterEntry = {
 		"TEXT.role.meta",
 		"FIELD_ERROR_LINE",
 		"PENDING_BAR",
-		"LINE_IN",
+		"FLOW_IN",
 	],
 	states: ["rest", "disabled", "pending", "error"],
 	motion: ["answer", "give", "line", "wait"],
@@ -66,5 +66,5 @@ export const ACTION_BAR_SELECTION =
 export const ACTION_BAR_ALL = `rounded-control px-gap min-h-target ${ANSWER}`;
 
 // Where an action bar stands: at the end of its container at the acts' width,
-// or across it, each act at the field's height (structure, no cell).
+// or across it, each act at the field's height (structure, no class set).
 export type ActionBarFit = "end" | "full";

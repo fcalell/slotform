@@ -67,7 +67,7 @@ export const STEP_COUNT = "gap-gap";
 export const STEP_COUNT_SEGMENTS = "gap-gap";
 
 // A page outside the shell, a Gate: the surface ground at the page inset, one
-// column at the `auth` width (a column cell is a width; the region centres
+// column at the `auth` width (a column class set is a width; the region centres
 // it). A step with a title is one stack, a fields gap between every part: the
 // mark, the count, the title, the description, the banner and the body. The mark is the avatar's size, and a
 // drawn lockup in the Gate stands taller, at `gate-mark`.

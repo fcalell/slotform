@@ -33,7 +33,7 @@ import {
 	DROP_ON,
 	FIELD_ERROR_LINE,
 	FIGURES,
-	LINE_IN,
+	FLOW_IN,
 	ROW_ACTS,
 	ROW_CURRENT_BAR,
 	ROW_END,
@@ -1101,7 +1101,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 							<Field.Error
 								key={entry.error}
 								match
-								className={cn(FIELD_ERROR_LINE, LINE_IN)}
+								className={cn(FIELD_ERROR_LINE, FLOW_IN)}
 							>
 								{entry.error}
 							</Field.Error>

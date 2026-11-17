@@ -60,9 +60,9 @@ test("a framed view stands its start node on the room's middle, whatever its gro
 		{ nodes: [start, low, branch], icon },
 	);
 	assert.ok(inside(start, view, pane, inset));
-	const room = { x: stack.left, width: pane.width - inset - stack.left };
+	const space = { x: stack.left, width: pane.width - inset - stack.left };
 	const centre = view.x + start.x + start.width / 2;
-	assert.ok(Math.abs(centre - (room.x + room.width / 2)) < 1);
+	assert.ok(Math.abs(centre - (space.x + space.width / 2)) < 1);
 });
 
 test("Fit, under the text floor, frames the whole graph", () => {
@@ -120,16 +120,16 @@ test("an overview opens at the highest scale its drawing holds across the room, 
 	// Glyphs, a frame's padding and a name keep their size on screen: the drawing
 	// takes a constant of 40 px and the centres' 300 flow units at the scale.
 	const taken = (k: number) => 40 + 300 * k;
-	const room = phone.width - inset - stack.left;
-	const { k, whole } = solveScale(taken, 300, room, 0.5);
+	const space = phone.width - inset - stack.left;
+	const { k, whole } = solveScale(taken, 300, space, 0.5);
 	assert.ok(whole && k >= 0.5 && k < OPEN_UNDER);
-	assert.ok(taken(k) <= room + 1e-6, "it holds in the room");
-	assert.ok(taken(k + 0.02) > room, "and nothing higher does");
+	assert.ok(taken(k) <= space + 1e-6, "it holds in the room");
+	assert.ok(taken(k + 0.02) > space, "and nothing higher does");
 	// A drawing the room holds at the cap opens at the cap, just under the text floor.
-	assert.equal(solveScale(() => 40, 300, room, 0.5).k, OPEN_UNDER);
+	assert.equal(solveScale(() => 40, 300, space, 0.5).k, OPEN_UNDER);
 	// One it holds only under `lowest` opens at `lowest`, not whole.
 	assert.deepEqual(
-		solveScale((at) => 400 + 300 * at, 300, room, 0.5),
+		solveScale((at) => 400 + 300 * at, 300, space, 0.5),
 		{
 			k: 0.5,
 			whole: false,
@@ -137,11 +137,11 @@ test("an overview opens at the highest scale its drawing holds across the room, 
 	);
 	// Frames that grow in steps as the zoom moves are measured at the scale asked.
 	const stepped = (at: number) => 40 + 300 * at + (at > 0.7 ? 30 : 0);
-	assert.ok(stepped(solveScale(stepped, 300, room, 0.5).k) <= room + 1e-6);
+	assert.ok(stepped(solveScale(stepped, 300, space, 0.5).k) <= space + 1e-6);
 });
 
 test("an overview stands clear of the zoom stack, whole where it holds and against the room's start where it does not", () => {
-	const room = phone.width - inset - stack.left;
+	const space = phone.width - inset - stack.left;
 	// What it draws at 0.5: 400 px of glyphs, frames and names is wider than the
 	// room, 150 is not. The first node stands at the top of the drawing.
 	const first: Box = { x: 100, y: 0, width: 44, height: 44 };
@@ -154,7 +154,7 @@ test("an overview stands clear of the zoom stack, whole where it holds and again
 		first,
 	);
 	// 150 px across: centred in the room past the stack.
-	assert.equal(held.x, stack.left + (room - 150) / 2);
+	assert.equal(held.x, stack.left + (space - 150) / 2);
 	const cut = overviewTransform(
 		{ x: 0, y: 0, width: 800, height: 400 },
 		0.5,
@@ -222,11 +222,11 @@ test("a framed view lifts its anchor into the room when it stands below the pane
 
 test("a node brought into view stands centred in the room the stack leaves, and never under it", () => {
 	const wide = { width: 800, height: 600 };
-	const room = { x: stack.left, width: wide.width - inset - stack.left };
+	const space = { x: stack.left, width: wide.width - inset - stack.left };
 	const view = standIn(low, 1, wide, inset, stack);
 	assert.ok(standsIn(low, view, wide, inset, stack));
 	assert.ok(
-		Math.abs(view.x + low.x + low.width / 2 - (room.x + room.width / 2)) < 1,
+		Math.abs(view.x + low.x + low.width / 2 - (space.x + space.width / 2)) < 1,
 		"centred across the room past the stack's column",
 	);
 	// A phone's room is narrower than the node, which would stand over the stack's

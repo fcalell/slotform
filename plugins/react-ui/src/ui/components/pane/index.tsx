@@ -20,7 +20,7 @@ import {
 	PAGE_BODY,
 	PAGE_BODY_OVER_FOOT,
 	PAGE_BODY_UNDER_TOAST,
-	PAGE_HEAD_ROOM,
+	PAGE_HEAD_SPACE,
 	ROWS_MEASURED,
 } from "@fcalell/ui-core/variants";
 import {
@@ -247,7 +247,7 @@ export function Pane<
 							data-fill={fill ? "" : undefined}
 							className={cn(
 								PANE,
-								far && PAGE_HEAD_ROOM,
+								far && PAGE_HEAD_SPACE,
 								record && RECORD_SCOPE,
 							)}
 						>

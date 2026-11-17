@@ -28,8 +28,8 @@ import {
 	RING_PX,
 	ROOM_CANVAS,
 	radiusPx,
-	SHADOW_LEVELS,
-	type ShadowLevel,
+	SHADOW_ELEVATIONS,
+	type ShadowElevation,
 	SIZES,
 	SPACING_ROLES,
 	STACK_ORDER,
@@ -39,7 +39,7 @@ import {
 	ZEROED_NAMESPACES,
 } from "./tokens.ts";
 
-export type ShadowUtility = `shadow-${ShadowLevel}`;
+export type ShadowUtility = `shadow-${ShadowElevation}`;
 
 // The `@theme` record: docs/architecture/ui-core/tokens.md, "Emit".
 export function themeTokens(resolved: ResolvedTheme): Record<string, string> {
@@ -98,8 +98,8 @@ export function rootTokens(resolved: ResolvedTheme): Record<string, string> {
 	STACK_ORDER.forEach((layer, at) => {
 		tokens[`--layer-${layer}`] = String(at + 1);
 	});
-	for (const level of SHADOW_LEVELS) {
-		tokens[`--shadow-${level}`] = resolved.shadows.light[level];
+	for (const elevation of SHADOW_ELEVATIONS) {
+		tokens[`--shadow-${elevation}`] = resolved.shadows.light[elevation];
 	}
 	return tokens;
 }
@@ -222,8 +222,8 @@ export function modeTokens(
 	for (const name of COLOR_NAMES) {
 		tokens[`--color-${name}`] = resolved.colors[mode][name];
 	}
-	for (const level of SHADOW_LEVELS) {
-		tokens[`--shadow-${level}`] = resolved.shadows[mode][level];
+	for (const elevation of SHADOW_ELEVATIONS) {
+		tokens[`--shadow-${elevation}`] = resolved.shadows[mode][elevation];
 	}
 	return tokens;
 }
@@ -243,10 +243,12 @@ export function shadowUtilities(): Record<
 	ShadowUtility,
 	Record<string, string>
 > {
-	// The loop declares each level's key.
+	// The loop declares each elevation's key.
 	const utilities = {} as Record<ShadowUtility, Record<string, string>>;
-	for (const level of SHADOW_LEVELS) {
-		utilities[`shadow-${level}`] = { "box-shadow": `var(--shadow-${level})` };
+	for (const elevation of SHADOW_ELEVATIONS) {
+		utilities[`shadow-${elevation}`] = {
+			"box-shadow": `var(--shadow-${elevation})`,
+		};
 	}
 	return utilities;
 }
