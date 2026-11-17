@@ -857,7 +857,7 @@ const SCOPE_LOOKUP = z.object({
 
 // The entities a scope's lookup reads: each table of its chain by its SQL
 // name, which is its entity when the schema exports the table under that
-// name, and the membership the organization level resolves.
+// name, and the membership the organization tier resolves.
 function scopeReads(scope: Scope): string[] {
 	const reads = ["member"];
 	for (let level: Scope | undefined = scope; level; level = level.parent?.[0]) {

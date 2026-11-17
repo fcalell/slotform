@@ -52,7 +52,7 @@ The subpaths:
 - `@fcalell/ui-core/rules`: what the Rules editor and the Picker decide before they draw, free of
   any framework: `termSet`, `pairSet`, `termLabel`, `isTyped` and `marked` (with `PICKED_GLYPH`).
 - `@fcalell/ui-core/streaming`: `closeOpenRuns`, a still-arriving reply's Markdown with the runs open at its end closed, free of any framework.
-- `@fcalell/ui-core/read`: the read model, free of any framework and of TanStack: `readState`, a read's phase (idle, waiting, ready, failed, missing) and flags (busy, stale, more, streaming, paused) from the few fields of a query's result it names; `frameOf` and `turnOf`; `isEnded`, whether a frame's shape or a selection's phase says its read ended (failed or missing); the `Read` handle (`key`, `kind`, `missing`), `Selection`, `Datum`, `combine`, `lift`, `Drawn` and `paints`, the placeholder and the sample, the frame's holds and flags, and `planSelections`/`planFrame`, the pure core of the hooks. The binding that runs the reads builds a `Read` with `readOf`. `endedSentence` is the sentence a failed or missing row says.
+- `@fcalell/ui-core/read`: the read model, free of any framework and of TanStack: `readState`, a read's phase (idle, waiting, ready, failed, missing) and flags (busy, stale, more, streaming, paused) from the few fields of a query's result it names; `frameOf` and `turnOf`; `isEnded`, whether a frame's shape or a selection's phase says its read ended (failed or missing); the `Read` handle (`key`, `kind`, `missing`), `Selection`, `Datum`, `combine`, `lift`, `Drawn` and `paints`, the stand-in and the sample, the frame's holds and flags, and `planSelections`/`planFrame`, the pure core of the hooks. The binding that runs the reads builds a `Read` with `readOf`. `endedSentence` is the sentence a failed or missing row says.
 - `@fcalell/ui-core/acts`: what an act is made of apart from what runs it: `isThenable`, `drew`/`wasDrawn`, `placed`/`isPlaced` (a rejection whose sentences its own host draws in place), `Offered` and `offered` (an act as a region takes it, and that made whole), `startAttempt`, `keepSave`, `Issue`, `Unreached`, and a more menu's items (`moreMenu`, `endedItems`).
 - `@fcalell/ui-core/scope`: the route's registered scope (`registerScope`, `releaseScope`, `registeredScope`, `ScopeIds`) and `mergeScope`.
 - `@fcalell/ui-core/listen`: `QueryListeners`, the shape of the query provider's `listen`.
@@ -120,7 +120,7 @@ The subpaths:
   and fill), and an ISO moment's age: `ageOf` (its value and unit), `ageWords` (long) and `ageShort`
   (a row's "2 min"). Both plugins tick `now` from one shared clock.
 - `@fcalell/ui-core/roster`: the component roster as data (`ROSTER`, `STATES`,
-  `PLATFORMS`, `rosterEntries(platform?)`): the layer, prop names, drawn cells, moves, states and
+  `PLATFORMS`, `rosterEntries(platform?)`): the layer, prop names, drawn class sets, moves, states and
   platforms of every component the plugins ship.
 - `@fcalell/ui-core/canvas`: what a `Canvas` and its consumers decide from a graph, free of any
   framework: `pathOrder(nodes, edges)`, every node id once, depth first from the roots with a node

@@ -10,7 +10,7 @@ import { ANSWER, build, matrix } from "./shared.ts";
 // `nodes`, `edges` or `groups` is a selection still to land it stands its
 // waiting ground (the dots, three painted node cards at a step node's
 // measure in the middle, and the zoom stack), since a layout has no
-// geometry before its data and the placeholders are the nodes' measure
+// geometry before its data and the stand-ins are the nodes' measure
 // alone. Its `nodes`, given as a selection, are its
 // own frame: its failed, missing and empty shapes stand in its ground with
 // the generic sentences. A node's status is its dot and its label, which

@@ -427,7 +427,7 @@ export function PickerBase<V extends string | null = string>(
 	} & Composed,
 ) {
 	// The value is the viewer's pick once made, else the selection's; a painted
-	// pick draws as a single one, as the placeholder is no array.
+	// pick draws as a single one, as the stand-in is no array.
 	const { draft } = given;
 	// Waiting options paint the trigger as a waiting value does, and the list
 	// has no rows to open.

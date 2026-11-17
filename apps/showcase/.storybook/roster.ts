@@ -78,5 +78,5 @@ export function writeStories(): void {
 	}
 }
 
-// `pnpm generate` runs this file, so the gate type-checks the stories the roster names now.
+// `pnpm generate` runs this file, so the check type-checks the stories the roster names now.
 if (import.meta.main) writeStories();

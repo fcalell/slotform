@@ -227,7 +227,7 @@ function OpenPill({ label }: { label: Run }) {
 }
 
 // A fact that is not here, in the form its selection's shape says: the
-// placeholder is no object, so a selection that gives the fact whole paints as
+// stand-in is no object, so a selection that gives the fact whole paints as
 // a word.
 function PaintedFact({ fact, at }: { fact: unknown; at: number }) {
 	if (isStatusFact(fact))

@@ -489,7 +489,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 	};
 
 	// A selection of the form's values hands each control its own slice, so it
-	// paints until the read lands; the placeholder stands for every slice of it.
+	// paints until the read lands; the stand-in stands for every slice of it.
 	const initial = (key: string, derived: Derived): Datum<Held | undefined> =>
 		isSelection(values)
 			? (values as Selection<Values | undefined>).at((all) =>

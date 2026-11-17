@@ -71,7 +71,7 @@ export function useDrawsFailure(values: readonly unknown[]): void {
 	port.useReads(
 		plan.painted.map((read) => ({
 			read,
-			placeholder: heldStandIn,
+			standIn: heldStandIn,
 			silent: true,
 		})),
 	);
@@ -163,7 +163,7 @@ export function useFrame(read?: Selection<unknown>) {
 
 export type Frame = ReturnType<typeof useFrame>;
 
-/** A collection's subscription to its items: what it draws (the placeholder while its read waits) and its own frame, from its own selection alone, so its failed, missing and empty shapes never depend on what stands above it. A constant has no frame to speak of: it draws as given. */
+/** A collection's subscription to its items: what it draws (the stand-in while its read waits) and its own frame, from its own selection alone, so its failed, missing and empty shapes never depend on what stands above it. A constant has no frame to speak of: it draws as given. */
 export function useCollection<T>(items: Datum<readonly T[]>) {
 	const [drawn] = useSelections([items] as const);
 	const frame = useFrame(isSelection(items) ? items : undefined);
@@ -188,7 +188,7 @@ export function useRow(data: readonly unknown[]) {
 // the read's refetching is its to say, so the frame's state is not derived.
 const NO_FLAGS = () => null;
 
-/** A control's subscription to its options: what it draws (the placeholder while its read waits, with the phase it stands in) and the retry. It holds the read no frame above holds, so a control in a toolbar outside any frame says its failure itself, but draws no busy or stale flag. A constant draws as given, and a constant whose `label`, `line` or `blocked` is a selection draws as the selection of the whole (`lift`). */
+/** A control's subscription to its options: what it draws (the stand-in while its read waits, with the phase it stands in) and the retry. It holds the read no frame above holds, so a control in a toolbar outside any frame says its failure itself, but draws no busy or stale flag. A constant draws as given, and a constant whose `label`, `line` or `blocked` is a selection draws as the selection of the whole (`lift`). */
 export function useOptions<O>(given: Fielded<O, OptionText>) {
 	const options = lift<O, OptionText>(given, OPTION_TEXT, "options");
 	const [drawn] = useSelections([options] as const);

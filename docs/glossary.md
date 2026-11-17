@@ -79,13 +79,20 @@ to fix, and a new term enters this page in the change that introduces it.
   invalidation. [plugin-api](architecture/plugins/api.md#entities)
 - **cache invalidation**: A read's answer refreshing on its own when a mutation that writes one of its
   entities succeeds. [plugin-api](architecture/plugins/api.md#cache-invalidation)
+- **chosen**: The rows a person has ticked in a `Table`, which its chosen bar acts on and which an api
+  mutation takes as ids or as a where. Avoid: selection, which is a read's typed path.
+  [layout](architecture/ui-core/layout.md#foot)
 - **scope**: A tenancy tier a procedure runs inside, such as an organization or a project, whose id
   the procedure takes in its input. [plugin-api](architecture/plugins/api.md#scope)
+- **tier**: One step of a tenancy, from the organization down through each scope a consumer declares.
+  Avoid: level. [plugin-api](architecture/plugins/api.md#scope)
 - **scope boundary**: The point in a route's layout that resolves the URL's slug to scope ids and
   registers them, so every call beneath carries them with no code on the screen.
   [the route scopes the client](decisions/scoped-client.md)
 - **scope key**: The input key a scoped procedure takes its scope's id under (`organizationId`,
   `projectId`). [the route scopes the client](decisions/scoped-client.md)
+- **command steps**: The ordered roots a CLI command resolves, one row per command.
+  Avoid: procedure, which is an API call. [commands](architecture/commands.md#command-steps)
 - **tenancy**: The request context's capability that resolves a scope's chain of rows and the caller's
   membership, answering nothing where any part is absent. [plugin-auth](architecture/plugins/auth.md#scopes)
 - **access control**: The consumer's statements of which roles may take which actions on which
@@ -169,8 +176,10 @@ to fix, and a new term enters this page in the change that introduces it.
   entry and no public export of its own. [a component is public when a consumer places it](decisions/public-roster.md)
 - **matrix**: A component's table of class sets by axis, held as data both platforms read.
   [roster](architecture/ui-core/roster.md#matrices)
-- **axis**: One dimension of a matrix, what a component is given (act, family, checked, error).
+- **axis**: One dimension of a matrix, what a component is given (act, matrix group, checked, error).
   [roster](architecture/ui-core/roster.md#matrices)
+- **matrix group**: The set of matrices one name registers (`MATRIX_GROUPS`), whose class sets a
+  roster entry draws by that name. [roster](architecture/ui-core/roster.md#matrices)
 - **class set**: One entry of a matrix, or a single named constant: the platform-invariant classes a part
   draws. Avoid: cell, which is a Table's field. [roster](architecture/ui-core/roster.md#class-sets)
 - **variant**: A component's pick of one value per axis of its matrix.
@@ -204,6 +213,8 @@ to fix, and a new term enters this page in the change that introduces it.
   [motion](architecture/ui-core/motion.md#flow-lines-and-blocks)
 - **block**: A box a change adds to or removes from the flow (a fold, a chip, a sheet, a row): it lands
   at once, and fades in only when it arrives on its own. [motion](architecture/ui-core/motion.md#flow-lines-and-blocks)
+- **elevation**: One of the two shadow steps (`float`, `modal`), spent on lifted layers only.
+  Avoid: level. [tokens](architecture/ui-core/tokens.md#layers-and-shadows)
 - **anchor screen**: The pinned screen of the anchor product a consumer's screen is stood beside and
   judged against. [consumer project](architecture/consumer-project.md#designing-screens)
 
@@ -211,6 +222,9 @@ to fix, and a new term enters this page in the change that introduces it.
 
 - **root container**: The layout container a page stands in whole: the `Shell` or the `Gate`. It hosts toasts and
   confirmations. Avoid: frame, which is the part that draws a read. [layout](architecture/ui-core/layout.md#gate)
+- **container**: A layout part that stands around the content of a page or a task and holds it in its
+  column (a Shell, Gate, Pane or Sheet). Avoid: frame, which is the part that draws a read.
+  [layout](architecture/ui-core/layout.md#container-context)
 - **Shell**: The root container of an app's signed-in pages: the sidebar on the desktop, the tab bar on
   touch, and a column that holds the current place. [layout](architecture/ui-core/layout.md#shell)
 - **place**: A destination the Shell lists: a route with its name, icon and group, on the sidebar and

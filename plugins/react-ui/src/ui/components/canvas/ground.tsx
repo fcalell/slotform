@@ -23,7 +23,7 @@ const GRID = "absolute inset-0 size-full text-grid";
 // radius) holding the node's parts painted, in the node's own text roles: the
 // icon's box, then the overline, the title and the first line as filler, a layer
 // gap apart. The graph's real nodes and where they stand are not known, so the
-// placeholders are the nodes' measure alone, laid by flex: nothing reads a box.
+// stand-ins are the nodes' measure alone, laid by flex: nothing reads a box.
 const WAITING =
 	"absolute inset-0 flex flex-col items-center justify-center ps-[calc(var(--spacing-page)+var(--canvas-zoom-space))] pe-page";
 // The cards stand in the room the zoom stack leaves (`--canvas-zoom-space`, set
@@ -73,7 +73,7 @@ export function PaintedNodes() {
 		<div aria-hidden="true" className={cn(WAITING, "gap-section")}>
 			{Array.from({ length: WAITING_NODES }, (_, at) => (
 				<div
-					// biome-ignore lint/suspicious/noArrayIndexKey: a fixed count of identical placeholders
+					// biome-ignore lint/suspicious/noArrayIndexKey: a fixed count of identical stand-ins
 					key={at}
 					className={cn(canvasNode({ role: "step" }), WAITING_NODE)}
 				>

@@ -129,14 +129,14 @@ test("of the frames holding one read, the first to take it draws its mark", () =
 	assert.equal(heard, 4);
 });
 
-test("the sample is a placeholder, and a walk over it that never ends is cut off", () => {
+test("the sample is a stand-in, and a walk over it that never ends is cut off", () => {
 	const list = read<{ id: string; parent?: string }[]>({
 		queryKey: ["walk"],
 		queryFn: async () => [],
 	});
 	// A selector that follows `parent` while there is one reads a key that is always
-	// there over the placeholder and the sample: it throws, never loops. The
-	// sample takes none and the selection's region stands as the placeholder.
+	// there over the stand-in and the sample: it throws, never loops. The
+	// sample takes none and the selection's region stands as the stand-in.
 	const depthOf = (records: { id: string; parent?: string }[]) => {
 		const byId = new Map(records.map((r) => [r.id, r]));
 		let node: { id: string; parent?: string } | undefined = records[0];

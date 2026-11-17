@@ -134,7 +134,7 @@ export function Meter({
 	const ended = [l, v, m].some((one) => one.painted && isEnded(one.phase));
 	const absent = l.painted || v.painted || m.painted;
 	const painted = absent && !ended;
-	// The drawn numbers are read only once absence is ruled out: a placeholder
+	// The drawn numbers are read only once absence is ruled out: a stand-in
 	// is a function proxy.
 	const used = absent ? 0 : v.value;
 	const limit = absent ? 0 : m.value;

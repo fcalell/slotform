@@ -46,7 +46,7 @@ export interface PickOneProps<V extends string | null = string>
 /** A pick of several options. */
 export interface PickSeveralProps<V extends string | null = string>
 	extends Shared<V> {
-	/** The chosen options' values. A selection of them paints as a single pick, the placeholder being no array. */
+	/** The chosen options' values. A selection of them paints as a single pick, the stand-in being no array. */
 	value: Datum<readonly NoInfer<V>[]>;
 	/** Hears the chosen values once an option is ticked or a chip removed. Return the save's promise and the viewer's value holds while it pends; a refusal puts it back, with its reason. */
 	onChange: (value: NoInfer<V>[]) => unknown;
@@ -105,7 +105,7 @@ export type PickerListOneProps<
 	onChange: (value: V) => unknown;
 };
 
-/** A list of several choices: the chosen set, check rows. A selection of it paints as one choice, the placeholder being no array. */
+/** A list of several choices: the chosen set, check rows. A selection of it paints as one choice, the stand-in being no array. */
 export type PickerListSetProps<
 	V extends string = string,
 	T = unknown,

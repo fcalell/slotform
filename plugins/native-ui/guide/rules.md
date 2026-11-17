@@ -1,7 +1,7 @@
 # Rules for the phone UI
 
 Each phone `.tsx` obeys these rules. Its design system is the roster
-(`node_modules/@fcalell/ui-core/src/roster.ts`, each component's entry in `src/roster/<component>.ts`, web prop names; cells, states and tokens in
+(`node_modules/@fcalell/ui-core/src/roster.ts`, each component's entry in `src/roster/<component>.ts`, web prop names; class sets, states and tokens in
 ui-core's `DESIGN.md`) plus the app's own `ui/` directory (any `ui/` path segment); the rest
 composes components and never restyles them.
 

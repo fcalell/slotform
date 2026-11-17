@@ -57,7 +57,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
 - [Tokens](architecture/ui-core/tokens.md): knobs, the token contract, contrast floors, density, emit.
 - [Motion](architecture/ui-core/motion.md): the motion contract on both platforms.
 - [Words](architecture/ui-core/words.md): the closed words, formatters and text runs.
-- [Roster](architecture/ui-core/roster.md): the canon, descriptors, matrices, cells and DESIGN.md.
+- [Roster](architecture/ui-core/roster.md): the canon, descriptors, matrices, class sets and DESIGN.md.
 - [Layout](architecture/ui-core/layout.md): Shell, Panes, Pane, Section, rows, overflow rules, headings.
 - [Reads](architecture/ui-core/reads.md): the read model, frames, paint and the port.
 - [Acts](architecture/ui-core/acts.md): acts, saves, forms, confirm, leave and fields.

@@ -108,7 +108,7 @@ const PARTS = {
 	recommended: { topics: ["digest", "news"], chosen: [] },
 } satisfies Record<string, Part>;
 
-// The part a class set names, by the class set's name or its family's: the first match
+// The part a class set names, by the class set's name or its matrix group's: the first match
 // wins, a class set naming no part draws the rows.
 const CLASS_SET_PARTS: ReadonlyArray<readonly [string, keyof typeof PARTS]> = [
 	["CHECKBOX.state.unchecked", "unchecked"],

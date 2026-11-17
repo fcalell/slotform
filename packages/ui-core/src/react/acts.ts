@@ -27,7 +27,7 @@ import { usePressed } from "./reason.ts";
 import { useWords } from "./words.ts";
 
 export interface Draft<T> {
-	/** The value is not here (its read waits, stands still or ended): `value` is the placeholder. */
+	/** The value is not here (its read waits, stands still or ended): `value` is the stand-in. */
 	painted: boolean;
 	/** The read the value is a selection over ended: the control stands with no value and blocked, a change saying so instead of changing. */
 	ended: "failed" | "missing" | undefined;

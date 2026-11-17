@@ -1274,7 +1274,7 @@ export interface FactParts {
 	words: Run[];
 }
 
-/** A list of facts by kind. A member that is none of the marks is words (a placeholder too, which a painted list counts as one filler); an absent member says nothing. */
+/** A list of facts by kind. A member that is none of the marks is words (a stand-in too, which a painted list counts as one filler); an absent member says nothing. */
 export function splitFacts(facts: readonly unknown[] | undefined): FactParts {
 	const parts: FactParts = {
 		status: undefined,

@@ -310,7 +310,7 @@ export const auth = plugin("auth", {
 		{
 			page: "scopes",
 			trigger:
-				"Declaring a tenancy level below the organization (`defineScope`)",
+				"Declaring a tenancy tier below the organization (`defineScope`)",
 		},
 		{
 			page: "abilities",

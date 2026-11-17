@@ -53,7 +53,7 @@ const pressPicture = (stage: HTMLElement) =>
 // Close act's class set (`ICON_BUTTON.fit.body`) draws the full view opened from a
 // thumbnail in a Gate, contain-fit on the scrim.
 export function drawImage(scene: ShowcaseScene) {
-	const [family, axis, value] = scene.classSet.name.split(".");
+	const [matrixGroup, axis, value] = scene.classSet.name.split(".");
 	if (isPaint(scene))
 		return scene.state === "rest" ? (
 			<>
@@ -61,7 +61,7 @@ export function drawImage(scene: ShowcaseScene) {
 				{drawn("content", "loading")}
 			</>
 		) : undefined;
-	if (family === "ICON_BUTTON" && scene.state === "rest")
+	if (matrixGroup === "ICON_BUTTON" && scene.state === "rest")
 		return (
 			<Stage contain ready={pressPicture}>
 				<Gate title="Screenshots">
@@ -69,11 +69,17 @@ export function drawImage(scene: ShowcaseScene) {
 				</Gate>
 			</Stage>
 		);
-	// The class set's name is `<family>.<axis>.<value>` over the matrices' own
+	// The class set's name is `<matrix group>.<axis>.<value>` over the matrices' own
 	// axis values, so the value is an `ImageFit` or an image state.
-	if (axis === "fit" && (family === "IMAGE" || family === "IMAGE_PICTURE"))
-		return drawn(value as ImageFit, family === "IMAGE" ? scene.state : "rest");
-	if (family === "IMAGE" && axis === "state")
+	if (
+		axis === "fit" &&
+		(matrixGroup === "IMAGE" || matrixGroup === "IMAGE_PICTURE")
+	)
+		return drawn(
+			value as ImageFit,
+			matrixGroup === "IMAGE" ? scene.state : "rest",
+		);
+	if (matrixGroup === "IMAGE" && axis === "state")
 		return (
 			<>
 				{drawn("thumb", value as ImageState)}

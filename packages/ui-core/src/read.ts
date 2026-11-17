@@ -8,7 +8,7 @@ export interface ReadResult {
 	fetchStatus: "fetching" | "paused" | "idle";
 	// False while the read is not asked for (`enabled: false`, `skipToken`).
 	isEnabled: boolean;
-	// The data is the placeholder's, not an answer.
+	// The data is the stand-in's, not an answer.
 	isPlaceholderData: boolean;
 	// An error with data: a refetch failed, the last answer stands.
 	isRefetchError: boolean;
@@ -45,7 +45,7 @@ export function readState(
 	r: ReadResult,
 	isMissing: (error: unknown) => boolean,
 ): ReadState {
-	// A placeholder reports `success`, so it is not data; a refetch error is.
+	// A stand-in reports `success`, so it is not data; a refetch error is.
 	const real =
 		r.status === "error"
 			? r.isRefetchError
@@ -158,7 +158,7 @@ export type TurnForm =
 	| "failed";
 
 export function turnOf(held: Held): { form: TurnForm; value: unknown } {
-	// A painted selection holds a placeholder where its value would stand, and
+	// A painted selection holds a stand-in where its value would stand, and
 	// a read that failed before it ever loaded is painted: no turn to keep.
 	const value = held.drawn?.painted ? undefined : held.drawn?.value;
 	// Nothing is written until there is a value that says something: a slice
@@ -204,9 +204,9 @@ export function endedSentence(words: Words, ended: "failed" | "missing") {
 // The read handle, pure so the hooks and the binding share one core: docs/architecture/ui-core/reads.md, "Read handle".
 
 const SELECTION = Symbol.for("@fcalell/ui-core/selection");
-const PLACEHOLDER = Symbol.for("@fcalell/ui-core/placeholder");
+const STAND_IN = Symbol.for("@fcalell/ui-core/stand-in");
 
-// One private-use character: a placeholder run through a template literal
+// One private-use character: a stand-in run through a template literal
 // keeps a mark that `isStandIn` finds, where a bare string would be lost.
 const WAITING_CHAR = "\uE000";
 
@@ -429,16 +429,16 @@ function bounded<T>(run: () => T): T {
 function step(): void {
 	if (depth > 0 && ++steps > WALK_LIMIT)
 		throw new Error(
-			`a selector read the placeholder more than ${WALK_LIMIT} times: a walk that follows a key which is always there never ends, so bound it (a counter, or the real data's own end)`,
+			`a selector read the stand-in more than ${WALK_LIMIT} times: a walk that follows a key which is always there never ends, so bound it (a counter, or the real data's own end)`,
 		);
 }
 const emptyIterator = function* () {};
 const toPrimitive = (hint: string) => (hint === "string" ? WAITING_CHAR : 0);
 
-// biome-ignore lint/suspicious/noExplicitAny: the placeholder stands in for every type
+// biome-ignore lint/suspicious/noExplicitAny: the stand-in stands in for every type
 const P: any = new Proxy(() => P, {
 	get(_, key) {
-		if (key === PLACEHOLDER) return true;
+		if (key === STAND_IN) return true;
 		step();
 		if (key === Symbol.toPrimitive) return toPrimitive;
 		if (key === Symbol.iterator) return emptyIterator;
@@ -453,7 +453,7 @@ const P: any = new Proxy(() => P, {
 	deleteProperty: () => false,
 });
 
-// The placeholder, the sample (a list's one record, which stands only inside
+// The stand-in, the sample (a list's one record, which stands only inside
 // `sampleOf`) or a string a template made of either.
 export function isStandIn(v: unknown): boolean {
 	return (
@@ -465,7 +465,7 @@ export function isStandIn(v: unknown): boolean {
 export const placeholderData = (): unknown => P;
 export const heldStandIn = (): unknown => P;
 
-// The sample: the placeholder, except that a list's search finds its one
+// The sample: the stand-in, except that a list's search finds its one
 // record (`find`, `filter`, a copy or a sort gives the sample back), mapping
 // it maps that record once (`map`, `flatMap`) and iterating it yields it, so a
 // selector that finds a group and maps its rows reaches one row. It stands
@@ -488,7 +488,7 @@ const sampleIterator = function* () {
 // biome-ignore lint/suspicious/noExplicitAny: the sample stands in for every type
 const S: any = new Proxy(() => S, {
 	get(_, key) {
-		if (key === PLACEHOLDER) return true;
+		if (key === STAND_IN) return true;
 		step();
 		if (key === Symbol.toPrimitive) return toPrimitive;
 		if (key === Symbol.iterator) return sampleIterator;
@@ -526,7 +526,7 @@ export function sampleOf<T>(
 	}
 }
 
-// A sample's placeholder values as the empty string, through its plain objects
+// A sample's stand-in values as the empty string, through its plain objects
 // and arrays: a region that is there, with nothing in it.
 function slotted(v: unknown): unknown {
 	if (isStandIn(v)) return "";
@@ -595,7 +595,7 @@ function reached(state: WindowState): number {
 }
 
 // More pages remain when the last one names a cursor (a window: the rows
-// loaded from the start fall short of the total). False over the placeholder
+// loaded from the start fall short of the total). False over the stand-in
 // and over no data.
 export function moreOf(data: unknown): boolean {
 	if (data === undefined || isStandIn(data)) return false;
@@ -606,7 +606,7 @@ export function moreOf(data: unknown): boolean {
 
 // A pages read's value is the flat list, so `Pane read={deploys}` with
 // `Section items={deploys}` is the same idiom as a plain read. A window's is
-// the rows loaded from the start. The placeholder stays itself, painted.
+// the rows loaded from the start. The stand-in stays itself, painted.
 function flatten(data: unknown): unknown {
 	if (data === undefined || isStandIn(data)) return data;
 	if (isWindowState(data)) {
@@ -673,12 +673,12 @@ export type SortSchema = Readonly<
 >;
 
 // One read a hook observes through the binding. A painted one carries the
-// `placeholder` that marks its observer (`placeholderData` for a leaf that
+// `standIn` that marks its observer (`placeholderData` for a leaf that
 // draws it, `heldStandIn` for a holder); a quiet one carries none, so the
 // dev check never counts it. A `silent` observer re-renders on nothing.
 export interface Observed {
 	read: Read<unknown>;
-	placeholder?: () => unknown;
+	standIn?: () => unknown;
 	silent?: boolean;
 }
 
@@ -692,7 +692,7 @@ export interface ReadAnswer extends ReadResult {
 // need, deduped by key (two observers of one key in one `QueriesObserver` warn);
 // `painted` are those some value uses plainly (the quiet ones are subscribed and
 // nothing more); `queries` are the observed reads, the painted ones given
-// `placeholder`; `draw` maps their answers back onto the values, in order.
+// `standIn`; `draw` maps their answers back onto the values, in order.
 const isReal = (r: ReadAnswer) => !r.isPlaceholderData && r.data !== undefined;
 
 // Why a read has no data: it ended, nothing is coming, or the answer is.
@@ -704,7 +704,7 @@ function phaseOf(r: ReadAnswer, read: Read<unknown>): DrawnPhase {
 export function planSelections(values: readonly unknown[]): {
 	reads: readonly Read<unknown>[];
 	painted: readonly Read<unknown>[];
-	queries: (placeholder: () => unknown) => Observed[];
+	queries: (standIn: () => unknown) => Observed[];
 	draw: (results: readonly ReadAnswer[]) => readonly Drawn<unknown>[];
 } {
 	const reads: Read<unknown>[] = [];
@@ -727,9 +727,9 @@ export function planSelections(values: readonly unknown[]): {
 	return {
 		reads,
 		painted: reads.filter((_, slot) => plain.has(slot)),
-		queries: (placeholder) =>
+		queries: (standIn) =>
 			reads.map((read, slot) =>
-				plain.has(slot) ? { read, placeholder } : { read },
+				plain.has(slot) ? { read, standIn } : { read },
 			),
 		draw: (results) =>
 			values.map((value, i) => {
@@ -755,7 +755,7 @@ export function planSelections(values: readonly unknown[]): {
 					phaseOf(inputs[k] as ReadAnswer, p.reads[k] as Read<unknown>),
 				);
 				const ended = phases.find(isEnded);
-				// A waiting region picks over the placeholder where a read has no data,
+				// A waiting region picks over the stand-in where a read has no data,
 				// so a selector walks P and never meets `undefined`; a combine keeps
 				// the real data of its other reads.
 				return {

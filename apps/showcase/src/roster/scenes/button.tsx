@@ -79,7 +79,7 @@ export function drawButton(scene: ShowcaseScene) {
 			</Wide>,
 		);
 	}
-	// The class set's name is `<family>.<axis>.<value>` over the matrix's own axis values, so an `act` value is a `ButtonAct` and a `fit` value a `ButtonFit`.
+	// The class set's name is `<matrix group>.<axis>.<value>` over the matrix's own axis values, so an `act` value is a `ButtonAct` and a `fit` value a `ButtonFit`.
 	const [group, axis, value] = scene.classSet.name.split(".");
 	if (group === "LINK")
 		return scene.state === "rest" ? drawLink(value === "inline") : undefined;

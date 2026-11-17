@@ -773,9 +773,9 @@ function RecordPage() {
 // route, the outlined pills that act, and a status that brings no word of its
 // own, a state pill all the same, before the plain facts on their grey.
 function Heads(scene: ShowcaseScene) {
-	const [family, , value] = scene.classSet.name.split(".");
+	const [matrixGroup, , value] = scene.classSet.name.split(".");
 	const state =
-		(family === "STATUS_DOT" && TONES.find((tone) => tone === value)) ||
+		(matrixGroup === "STATUS_DOT" && TONES.find((tone) => tone === value)) ||
 		"active";
 	if (scene.state === "loading") return <HeadWaiting />;
 	if (isPaint(scene))

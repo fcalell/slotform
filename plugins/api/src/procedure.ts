@@ -77,7 +77,7 @@ interface BaseOptions<TEntity extends string = string> {
 	writes?: readonly TEntity[];
 }
 
-// A tenancy level, structurally: docs/architecture/plugins/api.md, "Scope".
+// A tenancy tier, structurally: docs/architecture/plugins/api.md, "Scope".
 export interface ScopeLike<TName extends string = string, TContext = unknown> {
 	readonly name: TName;
 	readonly __context?: TContext;

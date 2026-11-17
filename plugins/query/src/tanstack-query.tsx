@@ -195,10 +195,10 @@ export function scoped<U>(utils: U, scope: ScopeIds): U {
 }
 
 // A read's options as an observer takes them: a painted read's carry the
-// placeholder that marks the observer, a silent one's notify on nothing.
+// stand-in that marks the observer, a silent one's notify on nothing.
 const optionsOf = (o: Observed): Read<unknown>["options"] => ({
 	...o.read.options,
-	...(o.placeholder && { placeholderData: o.placeholder }),
+	...(o.standIn && { placeholderData: o.standIn }),
 	...(o.silent && { notifyOnChangeProps: [] }),
 });
 
@@ -340,7 +340,7 @@ export function QueryProvider(props: QueryProviderProps) {
 }
 
 // The app's own subscription to a selection: real data, or `undefined` while
-// the read waits, is idle or failed. The placeholder never reaches app code.
+// the read waits, is idle or failed. The stand-in never reaches app code.
 export function useRead<T>(selection: Selection<T>): T | undefined {
 	const plan = useMemo(() => planSelections([selection]), [selection]);
 	const combine = useMemo(

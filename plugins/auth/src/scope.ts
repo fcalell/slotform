@@ -10,7 +10,7 @@ import {
 	organization as organizationTable,
 } from "./schema/organization.ts";
 
-// A tenancy level is a descriptor: docs/architecture/plugins/api.md, "Scope".
+// A tenancy tier is a descriptor: docs/architecture/plugins/api.md, "Scope".
 
 type ScopeTable = SQLiteTable & { id: SQLiteColumn };
 

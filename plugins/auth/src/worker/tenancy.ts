@@ -77,40 +77,40 @@ export function createTenancy(
 		return row ? { organization: row.organization, member: row.member } : null;
 	}
 
-	// Bottom-up, each level's row and its parent's id up to the organization;
+	// Bottom-up, each tier's row and its parent's id up to the organization;
 	// then, once the root answers with the caller's member row, top-down, one
-	// read per level that declares a visibility predicate. A non-member never
-	// reaches a visibility read, and a level under an invisible one is refused
+	// read per tier that declares a visibility predicate. A non-member never
+	// reaches a visibility read, and a tier under an invisible one is refused
 	// with it.
 	async function resolve<S extends Scope>(
 		scope: S,
 		id: string,
 		userId: string,
 	): Promise<ScopeContext<S> | null> {
-		const levels: { scope: Scope; id: string; row: unknown }[] = [];
-		let level: Scope = scope;
-		let levelId = id;
-		while (level.parent !== null) {
-			const [parent, parentColumn] = level.parent;
+		const tiers: { scope: Scope; id: string; row: unknown }[] = [];
+		let tier: Scope = scope;
+		let tierId = id;
+		while (tier.parent !== null) {
+			const [parent, parentColumn] = tier.parent;
 			const found = (await client
-				.select({ row: level.table, parentId: parentColumn })
-				.from(level.table)
-				.where(eq(level.table.id, levelId))
+				.select({ row: tier.table, parentId: parentColumn })
+				.from(tier.table)
+				.where(eq(tier.table.id, tierId))
 				.get()) as { row: unknown; parentId: unknown } | undefined;
 			if (!found || typeof found.parentId !== "string") return null;
-			levels.push({ scope: level, id: levelId, row: found.row });
-			level = parent;
-			levelId = found.parentId;
+			tiers.push({ scope: tier, id: tierId, row: found.row });
+			tier = parent;
+			tierId = found.parentId;
 		}
 		const root = await resolveOrganization(
-			eq(organizationTable.id, levelId),
+			eq(organizationTable.id, tierId),
 			userId,
 		);
 		if (!root) return null;
 		// The entries are keyed by the chain's scope names, which `ScopeContext<S>`
 		// spells for the one `scope` the type parameter names.
 		const entries: Record<string, unknown> = { ...root };
-		for (const { scope: below, id: rowId, row } of levels.reverse()) {
+		for (const { scope: below, id: rowId, row } of tiers.reverse()) {
 			if (below.where) {
 				const visible = await client
 					.select({ id: below.table.id })
