@@ -1,8 +1,4 @@
-// A reply that is still arriving: the Markdown it holds so far, with the runs
-// left open at its end closed, so an opened emphasis, strong, strike, code
-// span, link or fence draws in its own form from its first character and the
-// closing marker, when it comes, changes nothing already drawn. Free of any
-// framework: both platforms run this one source.
+// A reply that is still arriving, its open runs closed: docs/architecture/ui-core/components.md, "Streaming Markdown".
 
 type Opener = "*" | "**" | "_" | "__" | "~~" | "[";
 

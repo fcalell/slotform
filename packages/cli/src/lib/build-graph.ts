@@ -27,9 +27,7 @@ export interface BuildGraphFromConfigOptions {
 export interface BuildGraphFromConfigResult {
 	graph: Graph;
 	collected: CollectedPlugin[];
-	// The discovered plugins in `config.plugins` order. No sort is applied —
-	// ordering is derived per-slot from data dependencies, so consumers here do
-	// only order-independent lookups (find-by-name, map-to-cli).
+	// Config order, no sort: docs/architecture/slot-graph.md, "Ordering by data".
 	plugins: DiscoveredPlugin[];
 	app: AppConfig;
 }

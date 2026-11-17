@@ -6,12 +6,7 @@ import { cliManifest } from "./manifest.ts";
 // directory, a link Vite's watcher then loads as the module (pnpm#16454).
 export const PACKAGE_MANAGER = "pnpm@11.28.4";
 
-// Every first-party package a consumer installs, by the directory it lives in
-// within stack's repository and the first-party packages its `dependencies`
-// name. A test holds each entry to the package's own manifest. `builds` is
-// pnpm's verdict on each build script the package brings into the app
-// (`true` runs it, `false` skips it); the install that brings the package
-// meets them before any plugin loads.
+// Every first-party package a consumer installs: docs/architecture/releasing.md, "What is published".
 export const STACK_PACKAGES = {
 	"@fcalell/cli": {
 		dir: "packages/cli",
@@ -157,9 +152,7 @@ const REPOSITORY = "fcalell/stack";
 // packages come from git.
 const UNPUBLISHED = "0.0.0";
 
-// How a consumer outside stack's workspace takes the stack packages: from the
-// npm registry at this CLI's own version, or, when the CLI is an unpublished
-// checkout (version 0.0.0), from stack's repository on GitHub.
+// Npm or github spec mode: docs/architecture/consumer-project.md, "Installing stack".
 type StackSpecMode = "npm" | "github";
 
 export function stackSpecMode(
@@ -172,9 +165,7 @@ export function isStackPackage(name: string): name is StackPackage {
 	return Object.hasOwn(STACK_PACKAGES, name);
 }
 
-// A stack package's subdirectory spec in stack's repository: at `commit` when
-// the consumer pins one in its specs, so every stack package it installs is the
-// same commit; ref-less otherwise, the consumer's lockfile pinning the commit.
+// A package's git spec, at the pinned commit when there is one: docs/architecture/consumer-project.md, "From a checkout".
 export function stackGitSpec(
 	name: StackPackage,
 	commit: string | null = null,
@@ -183,9 +174,7 @@ export function stackGitSpec(
 	return `github:${REPOSITORY}#${ref}path:/${STACK_PACKAGES[name].dir}`;
 }
 
-// A stack package's spec. On npm every package is published together at one
-// version, so the range is `^<the CLI's version>` and `commit` is ignored. An
-// unpublished checkout takes the git spec.
+// A package's spec: docs/architecture/releasing.md, "The version rule".
 export function stackSpec(
 	name: StackPackage,
 	commit: string | null = null,

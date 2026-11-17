@@ -41,16 +41,7 @@ import {
 
 export type ShadowUtility = `shadow-${ShadowLevel}`;
 
-// The `@theme` record, keyed by full custom-property name. It carries the
-// light colors and the touch density set: in Tailwind v4 a property declared
-// only inside a variant block generates no utility, so without them
-// `bg-canvas` and `min-h-control` would not exist. Which mode and density
-// seed it never shows: each platform switches every value through the active
-// scope's variables, since a non-inline `@theme` utility reads its variable.
-//
-// Each type role renders twice, from one resolved value: the Tailwind v4
-// modifier so `text-title` carries its own leading on web, and the standalone
-// namespace so `leading-title` exists on its own.
+// The `@theme` record: docs/architecture/ui-core/tokens.md, "Emit".
 export function themeTokens(resolved: ResolvedTheme): Record<string, string> {
 	const tokens: Record<string, string> = {};
 	for (const namespace of ZEROED_NAMESPACES) tokens[namespace] = "initial";
@@ -74,9 +65,7 @@ export function themeTokens(resolved: ResolvedTheme): Record<string, string> {
 	for (const role of FONT_ROLES) {
 		tokens[`--font-${role}`] = resolved.fonts[role];
 	}
-	// Every knob of the motion contract, by the variable its table names. The
-	// wait and act delays are not rungs, so they hold under reduced motion
-	// while the fades themselves (rungs) snap.
+	// The delays hold under reduced motion: docs/architecture/ui-core/motion.md, "Reduced motion".
 	for (const knob of MOTION_KNOBS) {
 		tokens[knob.cssVar] = `${knob.default}${knob.unit}`;
 	}
@@ -96,12 +85,7 @@ export function themeTokens(resolved: ResolvedTheme): Record<string, string> {
 	return tokens;
 }
 
-// The values that are neither utilities nor per mode, rendered on the root
-// outside `@theme`: the hairline and the focus ring's width and offset, which
-// a platform's base rules read, the layers' stacking order, which a layer
-// reads as `z-(--layer-<layer>)` (Tailwind's `z-*` reads no theme
-// namespace), and the light shadows, seeded so the root carries them ahead of
-// any mode scope.
+// The root values outside `@theme`: docs/architecture/ui-core/tokens.md, "Emit".
 export function rootTokens(resolved: ResolvedTheme): Record<string, string> {
 	const tokens: Record<string, string> = {
 		"--hairline": `${HAIRLINE_PX}px`,
@@ -120,11 +104,7 @@ export function rootTokens(resolved: ResolvedTheme): Record<string, string> {
 	return tokens;
 }
 
-// One density's set, keyed by full custom-property name: the type scale,
-// the spacing roles and the sizes. `themeTokens` seeds the touch set on both
-// platforms; the web draws the desktop set under a fine pointer at `tablet`
-// width and wider, and either set under a `data-density` attribute on the
-// root, which is how the showcase and a board pin a density.
+// One density's set: docs/architecture/ui-core/tokens.md, "Density and room".
 export function densityTokens(
 	resolved: ResolvedTheme,
 	density: PixelDensity,
@@ -151,10 +131,7 @@ export function densityTokens(
 
 const ROOM_UNIT = "--room-unit";
 
-// The room unit as a CSS length: the screen over `ROOM_CANVAS` on the tighter
-// axis, so a portrait or ultrawide screen stays inside the canvas, and never
-// under 1 px, so a small window keeps the touch set at least. At 1920 × 1080
-// it is 2 px. `vw` ignores browser zoom: the screen is read, never zoomed.
+// The room unit: docs/architecture/ui-core/tokens.md, "The room".
 function roomUnit(): string {
 	const { width, height } = ROOM_CANVAS;
 	return `max(1px, min(100vw / ${width}, 100dvh / ${height}))`;
@@ -169,15 +146,7 @@ export function roomUnitFor(width: number, height: number): number {
 	);
 }
 
-// The room set as one record: the type roles, the spacing roles and the
-// sizes of `densityTokens`, plus what is a constant at the other densities
-// and scales with the room, the radii, the fixed widths and the hairline.
-// Each value is the canvas units its token holds, `scale` turning them into
-// the platform's value: the web a `calc` over `--room-unit`, native the
-// number times the unit it computes from the window. The radii are the
-// `radius` knob's, in canvas units, and the type, the space and the sizes
-// follow the `size` knob. A `full` radius and the `ch` measures stay as they
-// are.
+// The room set as one record: docs/architecture/ui-core/tokens.md, "The room".
 export function roomTokens<T>(
 	scale: (units: number) => T,
 	radius: number,
@@ -208,9 +177,7 @@ export function roomTokens<T>(
 	return tokens;
 }
 
-// Native's short measure in the room: the px `nativeMeasureTokens` declares,
-// scaled. Native reads no `ch`, so there they scale with the room instead of
-// following the type.
+// Native's short measure in the room: docs/architecture/ui-core/tokens.md, "Widths".
 export function roomMeasureTokens(
 	scale: (units: number) => number,
 	size: number,
@@ -222,9 +189,7 @@ export function roomMeasureTokens(
 	return tokens;
 }
 
-// What the web declares under a room scope: the unit, then every room value
-// as a `calc` over it, then the focus ring's width and offset, which the web's
-// base rule reads (native draws no ring).
+// What the web declares under a room scope: docs/architecture/ui-core/tokens.md, "Emit".
 export function roomScope(
 	radius: number,
 	size: number,
@@ -239,10 +204,7 @@ export function roomScope(
 	};
 }
 
-// Every duration rung and the scramble's tick at 0, which the web renders
-// under `prefers-reduced-motion: reduce`: each transition reads its duration
-// through a rung's variable, so none moves. The loop stays: a spinner that
-// stops is a wait that looks over.
+// Every duration rung at 0: docs/architecture/ui-core/motion.md, "Reduced motion".
 export function reducedMotionTokens(): Record<string, string> {
 	const tokens: Record<string, string> = {};
 	for (const rung of DURATIONS) tokens[`--transition-duration-${rung}`] = "0ms";
@@ -266,25 +228,17 @@ export function modeTokens(
 	return tokens;
 }
 
-// What a raised ground (`RAISED_GROUNDS`) declares for everything inside
-// it: the hairline read through `edge-raised`. The web scopes it on the
-// grounds' fill classes, after the mode scopes, so a ground that is also a
-// mode scope still re-points; native scopes it on each raised surface's
-// content, resolving each `var()` read in the mode.
+// A raised ground's hairline: docs/architecture/ui-core/tokens.md, "Edges".
 export function raisedGroundTokens(): Record<string, string> {
 	return { "--color-edge": "var(--color-edge-raised)" };
 }
 
-// What a soft ground (`SOFT_GROUNDS`) declares for everything inside it: the
-// hairline read through `edge-strong`, the one boundary that holds 3:1 on a
-// tone's tint. Scoped as a raised ground's is.
+// A soft ground's hairline: docs/architecture/ui-core/tokens.md, "Edges".
 export function softGroundTokens(): Record<string, string> {
 	return { "--color-edge": "var(--color-edge-strong)" };
 }
 
-// The declarations of each elevation utility. The `--shadow-*` theme
-// namespace does not resolve into React Native's `boxShadow`, so each
-// consumer wraps these in `@utility` itself; each reads its mode's variable.
+// The elevation utilities' declarations: docs/architecture/ui-core/tokens.md, "Emit".
 export function shadowUtilities(): Record<
 	ShadowUtility,
 	Record<string, string>
@@ -297,9 +251,7 @@ export function shadowUtilities(): Record<
 	return utilities;
 }
 
-// Native's short measure over the web's `ch`: uniwind reads no `ch`, so native
-// declares it in px at the sans figure advance of the touch body size, a
-// label's own size lost.
+// Native's short measure over the web's `ch`: docs/architecture/ui-core/tokens.md, "Widths".
 export function nativeMeasureTokens(
 	resolved: ResolvedTheme,
 ): Record<string, string> {

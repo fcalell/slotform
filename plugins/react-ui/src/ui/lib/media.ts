@@ -3,14 +3,7 @@ import { createStore } from "@fcalell/ui-core/store";
 import type { Size, SpacingRole } from "@fcalell/ui-core/tokens";
 import { createContext, use, useSyncExternalStore } from "react";
 
-// The density rule the `touch:` variant and the density layer draw by: a room
-// (a root pinned to it, or a `Place` that declares its `distance`), the
-// touch pin, or no desktop pin outside the desktop query (a fine pointer at
-// `tablet` and wider). A molecule whose tree differs by density (the Shell's
-// sidebar or tab bar) reads it here, so its structure and the token set
-// cannot disagree.
-// Every caller reads one store: one cached query, one observer of the pin,
-// one set of listeners, wired while any caller listens.
+// The density rule, read by one store: docs/architecture/plugins/react-ui.md, "Density".
 let desktop: MediaQueryList | undefined;
 
 function desktopQuery(): MediaQueryList {

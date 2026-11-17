@@ -128,9 +128,7 @@ async function callAuth<R>(
 	}
 }
 
-// The per-email limit the `fetch` handler applies to the two emailing
-// endpoints, on the same bucket and key; production only, and skipped when no
-// binding is bound.
+// The per-email limit shared with the `fetch` handler: docs/architecture/plugins/auth.md, "Rate limiting".
 async function limitEmail(
 	context: {
 		_rateLimiter?: { email?: RateLimitBinding };
@@ -613,9 +611,7 @@ function deviceOf(row: KeyRow): Device {
 
 const SECONDS_PER_DAY = 86_400;
 
-// Made, listed and revoked by a signed-in member, never by a device key (the
-// guard refuses the key routes to one). The key routes are off HTTP, so
-// these limits hold for every caller.
+// Device key procedures: docs/architecture/plugins/auth.md, "Devices".
 export function deviceProcedures(factory: AuthProcedureFactory) {
 	return {
 		devices: {

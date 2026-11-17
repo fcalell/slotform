@@ -8,33 +8,7 @@ const BLOCK_ELEMENT_TAGS: Record<string, boolean> = {
 	title: true,
 };
 
-// ── Untrusted-string boundary ───────────────────────────────────────
-// The printer is the trust boundary for codegen output. Every value
-// reaching this file should be assumed attacker-controlled (titles,
-// descriptions, html-attr values, all flow from `stack.config.ts`,
-// which itself reads from any source the consumer wires up).
-//
-// Policy (per OWASP "HTML5 Security Cheat Sheet" + WHATWG escape rules):
-//
-//  - Attribute values: encode `&` `<` `>` `"` `'` as named/numeric
-//    entities. We always emit double-quoted attributes, so single
-//    quotes don't *need* escaping inside them — but encoding both
-//    quote forms keeps the output safe if we ever switch quote style
-//    and removes a class of footgun where attacker-controlled content
-//    coincidentally contains the host's quote char.
-//
-//  - Text content of normal elements (&, <, > only — quotes are not
-//    special in HTML body context).
-//
-//  - Text content of RCDATA elements (`<title>`, `<textarea>`): the
-//    only special sequences are `&` and the matching close tag. We
-//    escape `&` `<` `>` to be defensive — the result still parses
-//    identically and is robust if node-html-parser's serializer
-//    behavior changes.
-//
-// We never round-trip values through a serializer that might decode
-// them — node-html-parser's TextNode.toString() returns rawText as-is,
-// so storing already-escaped text is the canonical pattern.
+// Untrusted-string boundary: docs/architecture/codegen.md, "HTML printer trust boundary".
 
 const ATTR_ESCAPE_RE = /[&<>"']/g;
 const ATTR_ESCAPE_MAP: Record<string, string> = {

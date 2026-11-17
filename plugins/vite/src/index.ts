@@ -18,11 +18,7 @@ const SOURCE = "vite";
 
 const viteManifestSchema = z.object({ bin: z.object({ vite: z.string() }) });
 
-// The consumer declares vite (this plugin's `devDependencies`) and its
-// generated config imports it, so the one vite that runs is the
-// consumer's, resolved from its own directory: no PATH or registry lookup
-// stands in. The bin is not an exported subpath, so it is read from the
-// package's manifest.
+// The consumer's own vite: docs/architecture/plugins/vite.md, "How it works".
 function viteBin(cwd: string): string {
 	const own = createRequire(import.meta.url);
 	const consumer = createRequire(join(cwd, "package.json"));
@@ -48,9 +44,7 @@ const configImports = slot.list<TsImportSpec>({
 	sortBy: (a, b) => a.source.localeCompare(b.source),
 });
 
-// Order of plugin calls in Vite typically doesn't matter semantically for
-// the plugins contributed today (the framework, tailwind, theme fonts, providers).
-// Sort by call callee identifier name so the emitted array is deterministic.
+// Plugin call order: docs/architecture/plugins/vite.md, "How it works".
 function pluginCallName(expr: TsExpression): string {
 	if (expr.kind === "call" && expr.callee.kind === "identifier") {
 		return expr.callee.name;
@@ -63,12 +57,7 @@ const pluginCalls = slot.list<TsExpression>({
 	sortBy: (a, b) => pluginCallName(a).localeCompare(pluginCallName(b)),
 });
 
-// A plugin call only the app's own config runs, with the imports it needs. A
-// host that draws the app's components in its own Vite (Storybook's roster)
-// renders `pluginCalls` alone, so a call the app needs and such a host must not
-// run (the route-tree generator) goes here. Rendered ahead of `pluginCalls`;
-// only `viteConfig` reads it, and a host that draws routes reads the slot that
-// owns the call.
+// App-only plugin calls: docs/architecture/plugins/vite.md, "App-only plugin calls".
 const appPlugins = slot.list<AppPlugin>({
 	source: SOURCE,
 	name: "appPlugins",
@@ -83,24 +72,14 @@ const resolveAliases = slot.list<{ find: string; replacement: string }>({
 	uniqueBy: (a) => a.find,
 });
 
-// Bare specifiers rendered into `resolve.dedupe`. A plugin whose runtime must
-// be a singleton (a framework runtime) contributes its specifiers here so
-// every importer — the consumer's own code and workspace-linked plugin
-// checkouts alike — resolves the one copy under the consumer's root. Two
-// plugins naming the same specifier is harmless (the codegen de-duplicates),
-// so no uniqueBy.
+// Dedupe: docs/architecture/plugins/vite.md, "Singletons and the optimizer".
 const resolveDedupe = slot.list<string>({
 	source: SOURCE,
 	name: "resolveDedupe",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// Package names rendered into `optimizeDeps.exclude`. A package installed under
-// `node_modules` (by git or npm, not `link:`) that imports a virtual module a
-// Vite plugin of this config serves is pre-bundled by the dev optimizer, which
-// runs esbuild without those plugins and fails to resolve the import; the
-// plugin serving the module contributes the importer here. What such a package
-// imports is added to `optimizeDeps.include` by `excludedImportsPlugin`.
+// Exclude and include: docs/architecture/plugins/vite.md, "Singletons and the optimizer".
 const optimizeExclude = slot.list<string>({
 	source: SOURCE,
 	name: "optimizeExclude",
@@ -115,9 +94,7 @@ const devServerPort = slot.value<number, ViteOptions>({
 	},
 });
 
-// Dev-server proxy rules, rendered into the generated config's
-// `server.proxy`. Deploy-target plugins contribute their worker-owned
-// paths here so the browser stays same-origin in dev exactly like prod.
+// Dev server proxy: docs/architecture/plugins/vite.md, "Dev server proxy, file access and watching".
 const serverProxy = slot.list<ServerProxyEntry>({
 	source: SOURCE,
 	name: "serverProxy",
@@ -127,43 +104,27 @@ const serverProxy = slot.list<ServerProxyEntry>({
 	uniqueBy: (e) => e.path,
 });
 
-// Extra dev-server `server.fs.allow` path expressions. A plugin that serves
-// assets out of its own package (fonts, icons) contributes the expression
-// resolving its real location, so a workspace-linked stack checkout still
-// serves them in dev (Vite 403s paths outside the consumer's workspace root).
+// File access: docs/architecture/plugins/vite.md, "Dev server proxy, file access and watching".
 const fsAllow = slot.list<TsExpression>({
 	source: SOURCE,
 	name: "fsAllow",
 });
 
-// Globs the dev server's watcher skips, rendered into `server.watch.ignored`.
-// A plugin whose tool writes scratch files under Vite's root (`.stack/`)
-// contributes their glob, so those writes never reach Vite's hot-update
-// handling (a plugin hook there may answer an unknown file with a full
-// reload).
+// Watching: docs/architecture/plugins/vite.md, "Dev server proxy, file access and watching".
 const watchIgnored = slot.list<string>({
 	source: SOURCE,
 	name: "watchIgnored",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// The client build's output directory, relative to the project root. Seeded
-// null and filled by vite's own contribution, so a reader without vite in the
-// config sees null.
+// Build output directory: docs/architecture/plugins/vite.md, "Lifecycle contributions".
 const outDir = slot.value<string | null>({
 	source: SOURCE,
 	name: "outDir",
 	seed: () => null,
 });
 
-// Headers every response the web client's host serves carries: the dev
-// server renders them into `server.headers`, cloudflare writes them to the
-// assets' `_headers` file, node's static server sets them. Vite owns the
-// slot because the headers belong to the web client; without vite it
-// resolves `{}`. Header names are case-insensitive, and several
-// `Content-Security-Policy` contributions merge per directive (`csp.ts`), so
-// a consumer's plugin adds sources to the default policy; any other header
-// two plugins set is a conflict.
+// Client headers: docs/architecture/slot-catalog.md, "`vite.slots.*` (plugin-vite)".
 const clientHeaders = slot.map<string>({
 	source: SOURCE,
 	name: "clientHeaders",
@@ -276,16 +237,8 @@ export const vite = plugin("vite", {
 			}),
 		),
 
-		// Contribute the dev-server localhost origin to the dev-only CORS list
-		// unless the consumer has overridden `app.origins` entirely. Reads
-		// `vite.slots.devServerPort` via ctx.resolve so the value follows
-		// options.port if the consumer bumps it.
-		//
-		// Predicate: `!== undefined`, NOT truthiness. `app.origins: []` is a
-		// meaningful "no origins" override the consumer might use to lock the
-		// CORS allow-list down — silently appending localhost would defeat
-		// it. Mirror plugin-api's `cors` derivation (same predicate) so every
-		// reader of `app.origins` agrees on the override semantics.
+		// Dev CORS origin: docs/architecture/plugins/api.md, "CORS and origins".
+		// The predicate is `!== undefined`, so `app.origins: []` stays a lockdown.
 		api.slots.devCorsOrigins.contribute(async (ctx) => {
 			if (ctx.app.origins !== undefined) return undefined;
 			const port = await ctx.resolve(self.slots.devServerPort);
@@ -294,12 +247,7 @@ export const vite = plugin("vite", {
 
 		emitArtifact(".stack/vite.config.ts", self.slots.viteConfig),
 
-		// Dev process. The generated `.stack/vite.config.ts` is the single
-		// source of truth for the dev port — passing `--port` here would let
-		// the CLI flag silently shadow the codegen value. Instead we pass
-		// `defaultPort` for the supervisor to introspect (logging,
-		// `EADDRINUSE` classification fallback) and provide an `onExit` hook
-		// that surfaces a clear next-step message on port collisions.
+		// Dev process: docs/architecture/plugins/vite.md, "Dev server port".
 		cliSlots.devProcesses.contribute(async (ctx) => {
 			const port = await ctx.resolve(self.slots.devServerPort);
 			const opts = self.options;
@@ -329,9 +277,7 @@ export const vite = plugin("vite", {
 			};
 		}),
 
-		// Build step. No --outDir: the generated config's `build.outDir` is
-		// the single source of truth; a relative CLI flag would resolve against
-		// config.root (.stack) and silently move the output to .stack/dist/client.
+		// Build step: docs/architecture/plugins/vite.md, "Lifecycle contributions".
 		cliSlots.buildSteps.contribute((ctx) => ({
 			name: "vite-build",
 			phase: "main",

@@ -3,12 +3,8 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { routerSchema } from "../schema.ts";
 
-// The child `stack generate` runs to read the app's router: it loads
-// `.stack/worker.ts` in plain node and walks `worker._router`, the router the
-// worker serves (the runtime plugins' routes and the consumer's). Node cannot
-// resolve `virtual:stack-procedure` (a tsconfig path), so a hook maps it to the
-// generated file before the worker is imported. It prints the router's schema
-// as JSON; a failure prints to stderr and exits 1.
+// The child `stack generate` runs to read the router: docs/architecture/plugins/api.md, "Schema".
+// It prints the schema as JSON; a failure prints to stderr and exits 1.
 const [cwd] = process.argv.slice(2);
 if (cwd === undefined) throw new Error("schema-child: no project directory");
 

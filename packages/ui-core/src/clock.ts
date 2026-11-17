@@ -1,6 +1,4 @@
-// What a clock-read part draws, as functions of its times and now (epoch
-// milliseconds), so both platforms' pending run (a `Banner` with `until`) and ages read one answer.
-// Each plugin ticks `now` from one shared coarse clock (`createClock`).
+// What a clock-read part draws: docs/architecture/ui-core/reads.md, "Clock".
 
 import { createStore } from "./store.ts";
 

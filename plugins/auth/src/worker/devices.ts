@@ -2,11 +2,7 @@ import { apiKey } from "@better-auth/api-key";
 import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
 
-// Device credentials are Better Auth's API keys, read from the standard
-// `Authorization: Bearer` header and standing in for the member's session.
-// The plugin validates a key on every call that carries one (a procedure's
-// session lookup, the `/ws` upgrade's `get-session`, a service route's), so
-// a revoked, disabled or expired key stops working on its next request.
+// Device credentials: docs/architecture/plugins/auth.md, "Devices".
 
 // Every key starts with this, so a bearer that is not a device key (an
 // expo session token, an OAuth access token) is never mistaken for one.
@@ -38,14 +34,7 @@ export function deviceCredential(
 	return (value && BEARER.exec(value)?.[1]) || null;
 }
 
-// What a device key may reach on the auth routes: the session lookup and the
-// reads that say which organizations its member belongs to. Everything else
-// (credentials, accounts, sessions, sign-in, deletion, every organization
-// write) needs a person's own session, so a stolen key cannot mint another
-// key, change the member's sign-in or outlive its revocation. A closed list,
-// so an endpoint a later plugin adds is refused until it is named here.
-// Procedures of the app are not auth routes and are bounded by their own
-// checks.
+// Auth endpoints a device key may reach: docs/architecture/plugins/auth.md, "Devices".
 const DEVICE_ENDPOINTS = new Set([
 	"/get-session",
 	"/organization/list",

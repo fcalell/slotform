@@ -2,9 +2,7 @@
 // and a bare `$` for the splat (named `_splat`, as TanStack names it).
 const PARAM = /\{(-?)\$(\w*)\}|\$(\w*)/g;
 
-// The example values the fixtures give: a name holds a value for every route,
-// a route id (it starts with `/`) holds the values of that route and every
-// route under it.
+// The example values the fixtures give: plugins/screens/guide/screens.md, "Fixtures".
 type Given = Readonly<
 	Record<string, string | Readonly<Record<string, string>>>
 >;
@@ -38,10 +36,7 @@ export function paramsFor(
 	return out;
 }
 
-// The URL a route is drawn at: its full path with each param filled from the
-// example values the fixtures give it. A required param without one throws,
-// naming the route, the param and where it looked, so the gap is the story's
-// error and never a path with `$id` in it.
+// The URL a route is drawn at: docs/architecture/plugins/screens.md, "How a screen is served".
 export function routeUrl(
 	routeId: string,
 	fullPath: string,

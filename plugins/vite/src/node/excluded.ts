@@ -4,12 +4,7 @@ import { dirname, join, resolve } from "node:path";
 import type { Plugin } from "vite";
 import { z } from "zod";
 
-// The dev optimizer's scan stops at a package in `optimizeDeps.exclude`, so
-// what that package imports is found when a page first loads it, bundled then,
-// and the page reloads (a screens run fails on "Vite unexpectedly reloaded a
-// test"). This reads the packages instead: from each one's raw source exports
-// (`./src/*.ts(x)`, the reason it is served raw), through the files they
-// import, to the bare specifiers they reach, so the list cannot go stale.
+// Why the optimizer needs these includes: docs/architecture/plugins/vite.md, "Singletons and the optimizer".
 
 const SOURCE = /^\.\/src\/.+\.(?:[cm]?[jt]sx?)$/;
 const SUFFIXES = ["", ".ts", ".tsx", ".js", ".mjs", "/index.ts", "/index.js"];

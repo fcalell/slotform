@@ -1,8 +1,6 @@
 import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
 
-// Whether `element` is the region's ground: the region, its layer or its grid.
-// Everything else inside (a node, the zoom stack, the act) is a part. The grid
-// carries `data-ground`.
+// The region's ground and its parts: docs/architecture/plugins/react-ui.md, "Canvas".
 export function isGround(element: Element, region: Element): boolean {
 	return (
 		region.contains(element) &&

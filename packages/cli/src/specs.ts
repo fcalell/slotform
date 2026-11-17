@@ -8,18 +8,13 @@ export interface GeneratedFile {
 	content: string;
 }
 
-// A Biome GritQL plugin a package ships: `path` is the `.grit` file inside its
-// package (`@fcalell/plugin-react-ui/lint/no-img.grit`), `includes` the globs,
-// relative to the consumer's root, of the sources it runs on. Rendered into
-// `.stack/biome.json`, which the consumer's `biome.json` extends.
+// A Biome GritQL plugin a package ships: docs/architecture/consumer-project.md, "Lint".
 export interface LintPlugin {
 	path: string;
 	includes: string[];
 }
 
-// One line of the consumer's `.stack/guide.md`: when to open a page (a load
-// trigger, never a summary of the page) and the page, `guide/<page>.md` inside
-// `package`. Entries group under `domain`.
+// One line of `.stack/guide.md`: docs/architecture/plugin-authoring.md, "The `plugin()` contract".
 export interface GuideEntry {
 	domain: string;
 	package: string;
@@ -27,10 +22,7 @@ export interface GuideEntry {
 	trigger: string;
 }
 
-// Restart policy for a supervised dev process.
-//   "never"     — exits are terminal; supervisor reports the exit and stops.
-//   "on-crash"  — restart only on non-zero exit / signal; clean exit (code 0) stops.
-//   "always"    — restart on any exit (rare; useful for long-running daemons).
+// Restart policy of a supervised dev process: docs/architecture/commands.md, "`stack dev`".
 export type ProcessRestartPolicy = "never" | "on-crash" | "always";
 
 export interface ProcessSpec {
@@ -49,9 +41,7 @@ export interface ProcessSpec {
 	// spawn. The generic carrier for per-process dev signals (e.g. a Node
 	// target's STACK_DEV=1, which has no `.dev.vars` equivalent).
 	env?: Record<string, string>;
-	// Default `"never"`. Most dev processes (vite, wrangler) want
-	// `"on-crash"`; we don't make that the default because most contributions
-	// are short-lived shell commands where surprise restarts would be wrong.
+	// Default restart policy: docs/architecture/commands.md, "`stack dev`".
 	restart?: ProcessRestartPolicy;
 	// Cap on restart attempts when policy allows restarts. Default 3. Once
 	// exceeded, the supervisor reports the final exit and stops.
@@ -115,10 +105,7 @@ export interface DeployCheck {
 	action: () => Promise<void>;
 }
 
-// Prompt contract for `cli.slots.initPrompts`. Each contribution carries the
-// plugin's name + an ask function that returns the collected answers keyed by
-// plugin name. `priors` contains answers already collected from earlier
-// plugins in the init flow (topological order).
+// Prompt contract for `cliSlots.initPrompts`: docs/architecture/commands.md, "Prompts".
 export interface PromptSpec {
 	plugin: string;
 	ask: (

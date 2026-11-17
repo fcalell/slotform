@@ -1,6 +1,4 @@
-// The audio player's rules, free of any framework and of the sound: how a time is
-// worded, which track comes next, and what the global keys do. A store runs them
-// over the `Output` an app passes it.
+// The audio player's rules, free of any framework and of the sound: docs/architecture/ui-core/sound.md, "Player".
 import type { Track } from "./descriptors.ts";
 import { createStore } from "./store.ts";
 import { SEEK } from "./waveform.ts";

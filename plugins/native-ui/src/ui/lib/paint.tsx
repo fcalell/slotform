@@ -8,11 +8,8 @@ import { usePaintStyle } from "./motion";
 import { ScrambledText, scramblesNow } from "./scramble";
 
 /**
- * Whether a paint shows yet: false for `delay` (`timings.waitDelay`; an act's
- * is `timings.actDelay`) after `on` turns true (one timer, only while painted), so a read
- * the server answers at once paints nothing. A text or a box that paints
- * fades itself in (`PaintView`, `PaintText`); this is for what is not painted
- * but follows the same delay (a busy mark).
+ * Whether a paint shows yet, for what is not painted but follows the same delay (a busy mark):
+ * docs/architecture/ui-core/reads.md, "Timing".
  */
 export function useShown(on = true, delay = timings.waitDelay): boolean {
 	const [shown, setShown] = useState(false);
@@ -27,11 +24,7 @@ export function useShown(on = true, delay = timings.waitDelay): boolean {
 	return on && shown;
 }
 
-// A painted part is its host with the fill and the breath on its opacity: the
-// part draws nothing but the fill while painted, so the box's opacity is the
-// fill's alpha, after the read's delay and in the page's one phase
-// (`usePaintStyle`). The host that is not painted is the plain one, so a loaded
-// list pays for no animated view.
+// A painted part is its host with the fill and the breath on its opacity: docs/architecture/ui-core/reads.md, "One breath".
 const BreathingView = withUniwind(Animated.View);
 const BreathingPressable = withUniwind(
 	Animated.createAnimatedComponent(Pressable),
@@ -80,10 +73,7 @@ function PressableBreathing({
 }
 
 /**
- * The root `Text` of a slot that holds `Painted` fillers: while `painted` it
- * fades in after the read's delay and breathes, so the fillers inside (nested
- * text takes no opacity of its own) breathe with it. A root whose filler
- * `fills` a role the theme scrambles fades in and does not breathe.
+ * The root `Text` of a slot that holds `Painted` fillers: docs/architecture/ui-core/reads.md, "One breath".
  */
 export function PaintText({
 	painted,

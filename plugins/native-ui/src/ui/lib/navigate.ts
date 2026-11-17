@@ -63,10 +63,7 @@ export function useParentRoute(): Route | undefined {
 	return undefined;
 }
 
-// What a press on a route does first: its press-in starts the reads the screen
-// is about to make (the route file's `preload` export), so the push finds them
-// under way. One function serves every press, since each route's `preload` is
-// read from its file; an external URL has no route to warm.
+// What a press on a route does first: docs/architecture/plugins/native-ui.md, "Routes and preload".
 export function useWarm(): (href: string) => void {
 	const port = usePort();
 	return useCallback(

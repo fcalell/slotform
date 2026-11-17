@@ -1,7 +1,4 @@
-// The platform's formatters, built once per kind, language and options:
-// building one costs far more than formatting with it (Hermes most of all),
-// and an age, a moment or a figure is formatted per row and per render. Both
-// plugins read every formatter here; `lang` undefined is the platform's own.
+// The platform's formatters, built once per kind, language and options: docs/architecture/ui-core/words.md, "Formatters".
 const BUILD = {
 	number: (lang?: string, options?: Intl.NumberFormatOptions) =>
 		new Intl.NumberFormat(lang, options),

@@ -32,9 +32,7 @@ export type {
 };
 export { windowQueue };
 
-// The phone's side of the store (`createPlayer`, in ui-core): the device's own
-// buttons set the volume, so the store keeps none, and the clock follows the
-// frame.
+// The phone's side of the store: docs/architecture/ui-core/sound.md, "Player".
 const host: PlayerHost = {
 	recall: () => undefined,
 	keep: () => {},

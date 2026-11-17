@@ -1,12 +1,6 @@
 import { useEffect } from "react";
 
-// Base UI draws focus guards around an open non-modal popup (a Menu, a Picker): empty spans that relay Tab between the trigger and the portaled
-// popup, `aria-hidden` and focusable at once, which axe's `aria-hidden-focus`
-// flags (serious) on every open menu. Each guard moves focus the moment it
-// takes it, so nothing rests on it, and no prop turns them off (Base UI 1.8.0).
-// A guard is left focusable, so the relay holds, and loses its `aria-hidden`,
-// which is what the rule objects to: an empty span in the tab order with no
-// role, which assistive tech passes over as it does any empty element.
+// Base UI's focus guards without `aria-hidden`: docs/architecture/plugins/react-ui.md, "Accessibility".
 const GUARD = "[data-base-ui-focus-guard]";
 
 function quiet(root: ParentNode) {

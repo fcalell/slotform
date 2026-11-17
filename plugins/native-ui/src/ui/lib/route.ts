@@ -1,8 +1,6 @@
 import type { Href } from "expo-router";
 
-// A route on the phone is one of the app's expo-router paths: with the app's
-// route types (`.stack/routes.d.ts`) in its program, a path no route file
-// serves fails the type-check wherever a route is a prop or a descriptor's.
+// A route on the phone is one of the app's expo-router paths: docs/architecture/plugins/native-ui.md, "Routes and preload".
 declare module "@fcalell/ui-core/descriptors" {
 	interface RouteRegistry {
 		route: Extract<Href, string>;

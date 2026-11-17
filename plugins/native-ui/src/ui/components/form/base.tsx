@@ -30,10 +30,7 @@ import type { ActionBarProps } from "../action-bar";
 import { ActionBarBase } from "../action-bar/base";
 import { Text } from "../text";
 
-// The form is its rows over its foot. Its fields are a run the form does not
-// index (structure rule 9), so they abut with no hairline between them, as a
-// labelled rows do; the hairline falls between its groups, which are
-// data.
+// The form is its rows over its foot; no hairline between fields: docs/architecture/ui-core/layout.md, "Rows grid".
 const ROWS = "min-w-0";
 // A group's band: the title line over the description.
 const BAND = "min-w-0";
@@ -199,11 +196,8 @@ export function useFormBar(
 	) : null;
 }
 
-// What every form stands in: the touched state its fields edit, and the leave
-// guard where it asks once when its edited screen is left. The public `Form`
-// and a `Gate`'s form hold their own touched state and stand as a card; a
-// sheet's form takes the sheet's, which its foot reads too, stands flush on
-// the sheet and asks nothing when it closes. Outside the package's exports.
+// What every form stands in: the touched state and the leave guard: docs/architecture/ui-core/acts.md, "Leave".
+// Outside the package's exports.
 export function FormShell({
 	touch,
 	guard,

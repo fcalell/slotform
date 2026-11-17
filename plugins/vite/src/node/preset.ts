@@ -2,10 +2,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Plugin } from "vite";
 
-// Pass-through stub for when no plugin contributed providers. plugin-vite is
-// framework-agnostic, so the stub must not import any framework runtime —
-// the consumer's JSX transform compiles `props.children` with whatever
-// pragma is active (React, Preact, …).
+// Pass-through providers stub: docs/architecture/plugins/vite.md, "Preset".
 const PROVIDERS_STUB = `export default function Providers(props) {
 	return props.children;
 }
@@ -52,9 +49,7 @@ export interface SchemaPluginOptions {
 	cwd?: string;
 }
 
-// `virtual:stack-schema`: the procedures' input schemas `stack generate`
-// writes, which a `Form` derives its fields from. Before the first generate
-// (or without plugin-api) it is an empty record.
+// `virtual:stack-schema`: docs/architecture/plugins/vite.md, "Preset".
 export function schemaPlugin(opts: SchemaPluginOptions = {}): Plugin {
 	const VIRTUAL_ID = "virtual:stack-schema";
 	const RESOLVED_ID = `\0${VIRTUAL_ID}`;

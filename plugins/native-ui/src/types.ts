@@ -14,19 +14,14 @@ const nativeFontSchema = z.object({
 
 export type NativeFontEntry = z.input<typeof nativeFontSchema>;
 
-// Where a runtime client instance is imported from when wiring the Auth / Query
-// providers into the generated `.stack/entry.tsx`. The consumer configures the
-// client in `src/lib/` (per the native-provider-wiring decision); paths are
-// resolved relative to `.stack/`.
+// Client module shape: docs/architecture/plugins/native-ui.md, "Native clients in src/lib".
 const clientModuleSchema = z.object({
 	source: z.string().min(1),
 	export: z.string().min(1),
 });
 
 export const nativeUiOptionsSchema = z.object({
-	// The ui-core design contract: the knobs and the mode the app starts in.
-	// Omitted, the calibrated defaults apply. A consumer with both platforms
-	// passes the same object to the web plugin.
+	// The design contract's knobs and the start mode: docs/architecture/ui-core/tokens.md, "Knobs".
 	theme: themeSchema.optional(),
 	// Every word a molecule draws on its own, every key required. Omitted,
 	// English.

@@ -1,25 +1,6 @@
 import type { RosterEntry } from "./shared.ts";
 
-// A sheet holds a task (a form, a decision, an acknowledgement): a record is
-// read in its Pane, never in a sheet.
-// The submit stands in the foot after the body, so it follows the fields
-// it submits: after Cancel on the desktop, alone on touch, where the close
-// act leads the head; a blocked submit's reason or a rejected act's
-// sentence under it. A `submit` with no `onAct` acknowledges what the
-// sheet shows ("I saved them"): its press closes the sheet and it stands
-// alone, with no Cancel.
-// `form` is a Form's props, drawn after the children in the sheet's
-// column (its `bar` stuck to the edge of the body on the web, in the pinned
-// foot on the phone); the sheet's `submit` and the form's `bar` are two
-// ways to complete the task, one given. Always the modal sheet: a Pane's or
-// a Thread's `sheet` (these props) docks there instead, drawing the
-// docked head and foot inside the foot's raised cell with no scrim. The
-// docked foot's states are its submit's: pending, blocked
-// (`disabled`), and failed (`error`, the act ready again, the rejection's
-// sentence under it in the line a blocked reason keeps, in the field
-// error's cell and ink). The sheet hosts its acts' run, foot bar and its
-// form's bar alike: its dismissal is held while one pends,
-// unless it waits for a connection.
+// A sheet holds a task: docs/architecture/ui-core/layout.md, "Sheet".
 export const sheetEntry: RosterEntry = {
 	props: [
 		"open",

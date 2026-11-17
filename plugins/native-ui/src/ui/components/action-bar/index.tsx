@@ -27,15 +27,8 @@ export interface ActionBarProps extends Closed {
 	pending?: PendingBarProps;
 }
 
-// The acts that close a form, a sheet or a confirm, stacked across the
-// container with the filled act on top. A Pane's `foot` docks it; a Form
-// or a Sheet keeps it in flow. A promise an act's `onAct`
-// returns keeps it pending until it settles, and the others ignore the press
-// meanwhile; a rejection stands in the bar's line under the acts, the act ready
-// again. A blocked act is silent until it is pressed or its form or sheet
-// has taken input; then its reason stands under the acts, in a line the bar
-// draws then and keeps, so the act keeps its row and stretches as a live one does. With `chosen` the count
-// stands over the acts at the bar's start.
+// The acts that close a form, a sheet or a confirm, the filled act on top.
+// A Pane's `foot` docks it; a Form or a Sheet keeps it in flow: docs/architecture/ui-core/acts.md, "ActionBar".
 export function ActionBar(bar: ActionBarProps) {
 	return <ActionBarBase {...bar} />;
 }

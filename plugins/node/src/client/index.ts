@@ -43,9 +43,7 @@ export interface WsClient {
 	// socket.
 	reconnect(): void;
 	close(): void;
-	// The socket's status as a read in the query cache. It never opens the
-	// socket: it only watches it. Its `meta.reach` is what the mutation guard
-	// asks (`guardReach`): a lost connection refuses acts.
+	// The status read never opens the socket: docs/architecture/plugins/node.md, "Client socket".
 	readonly connection: Read<Connection>;
 }
 
@@ -57,14 +55,7 @@ interface LiveSubscription {
 const BACKOFF_BASE_MS = 250;
 const BACKOFF_CAP_MS = 5000;
 
-// One shared socket per client, opened by the first subscribe or reconnect
-// (a client made at module level holds none before sign-in),
-// auto-reconnecting with capped exponential backoff. Any number of subscriptions may share a channel: every frame on
-// it reaches each of them, a new one sends `sub` so the server snapshots
-// again, and `unsub` goes only when the channel's last one leaves. On every
-// (re)open the client re-sends `sub` once per channel, so a server that
-// snapshots on subscribe gives reconnect consistency for free. Uses the global WebSocket (browser; Node >= 22 has
-// it natively, so the same client runs in tests).
+// One shared socket per client, reconnecting with backoff: docs/architecture/plugins/node.md, "Client socket".
 function defaultUrl(): string {
 	// Via globalThis so the module type-checks and loads outside the DOM;
 	// only the no-url default actually requires a browser.

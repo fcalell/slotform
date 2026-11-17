@@ -1,20 +1,7 @@
-// The passkey plugin's table (`passkey`), as a Drizzle SQLite table. The
-// canonical shape emitted by `auth generate` (better-auth's CLI, the `auth`
-// package) for a sqlite drizzle adapter with `@better-auth/passkey`'s
-// `passkey()` on better-auth 1.7.x, ported verbatim. The generator's
-// `userRelations.passkeys` inverse is left out: `user` lives in `./index.ts`,
-// which must not reference a table the consumer only migrates when passkeys
-// are on.
-//
-// Shipped from a separate `@fcalell/plugin-auth/schema/passkey` subpath so a
-// consumer only re-exports (and only migrates) this table when
-// `auth({ passkey })` is enabled, exactly as `./organization.ts` is; see
-// plugins/auth/README.md. Regenerate and diff after a Better Auth bump.
+// The passkey plugin's table (`passkey`), as a Drizzle SQLite table.
+// Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// The drizzle types the emitted declarations spell, named here so they are
-// spelled through plugin-db, the one package drizzle resolves from. Unnamed,
-// tsc writes `import("drizzle-orm/...")`, which a consumer cannot resolve
-// from this package, and every table and row read through it is `any`.
+// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/auth.md, "Schema tables".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
 import type {
 	One,

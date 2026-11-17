@@ -1,22 +1,10 @@
-// The follow: what a finger or a pointer carries moves 1:1 with it, no easing,
-// and only its release eases. The deciding is
-// pure, so the web's pointer events and the phone's gesture handler give the
-// same answer: how far the held thing stands from rest, how fast it is going
-// and where its release goes. Positions are measured toward `away`, the
-// direction the thing leaves in (1 toward the end of its axis, -1 toward the
-// start); against it nothing follows.
+// The follow, pure so the web and the phone give one answer: docs/architecture/ui-core/drag.md, "Follow".
 import { tuned } from "./paint.ts";
 import { EASING, type Easing } from "./tokens.ts";
 
 // The finger's travel before a gesture is a drag rather than a press, in px.
 export const SLOP = 8;
-// Past `tuned.fling` toward `away`, in px per ms, a release carries on and
-// leaves; past it the other way it goes back, however far it was carried.
-// Slower than a fling, a release leaves when it was carried `tuned.reach` of
-// its extent. Both are read at the release, so a tuned value is the next
-// release's.
-// A speed reads the last stretch of the pointer's path before the release, not
-// its whole: a finger that stopped before it lifted is not a fling.
+// The release rule and the speed window: docs/architecture/ui-core/drag.md, "Follow".
 const WINDOW = 100;
 
 // A pointer's place along the axis at a time (ms).

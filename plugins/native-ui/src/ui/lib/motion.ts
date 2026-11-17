@@ -27,10 +27,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 
-// The contract's motion in Reanimated: one of the three curves, and a rung's
-// duration on a curve, read from the live `tuned` record at the call so the
-// tuning page's change reaches the next animation played. Reduced motion
-// follows the system, which zeroes it.
+// The contract's motion in Reanimated: docs/architecture/ui-core/motion.md, "Phone motion".
 export function curve(name: Curve) {
 	return Easing.bezier(...EASING[name]);
 }
@@ -59,12 +56,7 @@ export function reducedNow(): boolean {
 	return reduced.get();
 }
 
-// The page's one breath: a share of the fill, 1 at its full and 0 at its low,
-// turning over `tuned.pulse` on `in-out`. Every painted part reads this one
-// value, so a page breathes as one surface and never as a ripple of parts out
-// of step. It starts with the first painted part and restarts when the
-// tuning page moves the knob or the system's reduced motion changes; it
-// stands at full under reduced motion.
+// The page's one breath: docs/architecture/ui-core/reads.md, "One breath".
 const breath = makeMutable(1);
 let breathing = false;
 
@@ -94,12 +86,8 @@ function startBreath(): void {
 }
 
 /**
- * The style of a painted part: its opacity is the fade-in after the read's
- * `tuned.waitDelay` times the page's breath.
- * The part's content is not drawn while it is painted, so the box's opacity is
- * its fill's alpha. The delay holds under reduced motion and the fade snaps. A
- * part that does not `breathes` (a scrambled text, whose glyphs would dim) only
- * fades in.
+ * The style of a painted part: docs/architecture/ui-core/reads.md, "Timing".
+ * A part that does not `breathes` (a scrambled text, whose glyphs would dim) only fades in.
  */
 export function usePaintStyle(breathes = true) {
 	const appear = useSharedValue(0);
@@ -118,12 +106,9 @@ export function usePaintStyle(breathes = true) {
 			(breathes ? PULSE_LOW + (1 - PULSE_LOW) * breath.value : 1),
 	}));
 }
-// Answering a press (`motion.md` §3): the pressed wash lands at once and lets
-// go over `fast`, and a filled control gives, scaling to `tuned.press` on the
-// same two steps. The phone has no hover; this is its whole answer. `wash` is
-// the opacity of an overlay in the wash's colour, `give` the scale of the
-// control, `onPressIn` and `onPressOut` the Pressable's. The press scale is
-// read when the press lands, so a tuned value is the next press's.
+// Answering a press: docs/architecture/ui-core/motion.md, "Press".
+// `wash` is the opacity of an overlay in the wash's colour, `give` the scale of the control,
+// `onPressIn` and `onPressOut` the Pressable's.
 export function usePress() {
 	const down = useSharedValue(0);
 	const to = useSharedValue(1);
@@ -144,9 +129,7 @@ export function usePress() {
 	};
 }
 
-// A control's own value moving: 0 to 1 as `on` turns, over a rung on a curve
-// (the thumb's travel, a chevron's turn). It starts where `on` stands, so a
-// control that mounts on draws its end without moving to it.
+// A control's own value moving, 0 to 1 as `on` turns: docs/architecture/ui-core/motion.md, "Press".
 export function useToggle(on: boolean) {
 	const value = useSharedValue(on ? 1 : 0);
 	useEffect(() => {
@@ -155,11 +138,8 @@ export function useToggle(on: boolean) {
 	return value;
 }
 
-// A line that appears in flow (a reason, a field's error, a checking line, a
-// notice, a stage's moment) fades in on `fast` `out` and pushes what follows
-// at once; it leaves at once. A block that arrives on its own fades in on
-// `base` `out` the same way. Built where they mount, so a tuned rung is the
-// next one's; the entering prop of an Animated view.
+// A line that appears in flow, and a block that arrives on its own: docs/architecture/ui-core/motion.md, "Lines and blocks".
+// The entering prop of an Animated view.
 export const lineIn = () =>
 	FadeIn.duration(tuned.fast)
 		.easing(curve("out"))
@@ -173,10 +153,7 @@ export const blockIn = () =>
 export const FadingText = withUniwind(Animated.Text);
 export const FadingView = withUniwind(Animated.View);
 
-// A measured value moving (`motion.md` §3, value): a fill's share, over `slow`
-// on `in-out`. It starts at `from` and follows `to`; a fill that mounts starts
-// at 0 and grows from its start, and one that stands where it was does not
-// move until its data does.
+// A measured value moving: docs/architecture/ui-core/motion.md, "Value and fills".
 export function useValue(to: number, from = to) {
 	const value = useSharedValue(from);
 	useEffect(() => {
@@ -185,9 +162,7 @@ export function useValue(to: number, from = to) {
 	return value;
 }
 
-// A checkbox's mark grows from 0.6 with its opacity over `fast` and leaves
-// over `instant`; a radio's dot grows from nothing the same way. Built where
-// they mount, so a tuned rung is the next one's.
+// A checkbox's mark and a radio's dot growing in: docs/architecture/ui-core/motion.md, "Press".
 export const markIn = () =>
 	new Keyframe({
 		0: { opacity: 0, transform: [{ scale: 0.6 }] },
@@ -225,18 +200,14 @@ export const dotOut = () =>
 		.duration(tuned.instant)
 		.reduceMotion(ReduceMotion.System);
 
-// A change of place fades the place's root in on `fast` (`motion.md` §3,
-// navigate): places are peers, so nothing slides. A pushed screen is the
-// stack's own animation. Built where it mounts, so a tuned rung is the next one's.
+// A change of place fades the place's root in: docs/architecture/ui-core/motion.md, "Navigate and stream".
 export const placeIn = () =>
 	FadeIn.duration(tuned.fast)
 		.easing(curve("out"))
 		.reduceMotion(ReduceMotion.System);
 
-// A message that arrives at the end of a log rises a pair as it fades in on
-// `base` `out` (`motion.md` §3, stream). The log and each message in it are
-// drawn upside down, so the rise starts below by a negative offset in the
-// message's own space.
+// A message that arrives at the end of a log rises as it fades in: docs/architecture/ui-core/motion.md, "Navigate and stream".
+// The log and each message are drawn upside down, so the offset is negative.
 const PAIR = SPACE_BASE * SPACING_RATIO.touch.gap;
 export const streamIn = () =>
 	new Keyframe({

@@ -38,10 +38,7 @@ import {
 import { applySeed, describeSeed, loadSeed } from "./node/seed.ts";
 import { dbOptionsSchema } from "./types.ts";
 
-// The consumer's schema namespace, as the worker and the test entry import it.
-// The file form on purpose: node's ESM resolver refuses a directory import, and
-// the worker runs under node on the node target and in the test entry; esbuild
-// resolves the file form as well.
+// The schema import, file form: docs/architecture/plugins/db.md, "Schema import".
 const SCHEMA_IMPORT: TsImportSpec = {
 	source: "../src/schema/index.ts",
 	namespace: "schema",
@@ -121,10 +118,7 @@ export const db = plugin("db", {
 	requires: ["api"],
 
 	dependencies: {
-		// The consumer's root copy is the one copy every plugin's emitted
-		// declarations resolve to: its test project resolves the
-		// `import("drizzle-orm/...")` a declaration names from the consumer
-		// root, and two physical copies are two classes to TypeScript.
+		// One root copy of drizzle-orm: docs/architecture/plugins/db.md, "Type resolution".
 		// better-sqlite3 is the plugin's own dependency.
 		"drizzle-orm": "^0.45.2",
 	},
@@ -378,20 +372,7 @@ export const db = plugin("db", {
 	},
 
 	contributes: (self) => {
-		// Graph-scoped serializer cache. `contributes: (self) => { ... }` runs
-		// once per `collect()` (i.e. once per graph build), so this map is
-		// closed over by every contribution in this graph and ONLY this graph.
-		// Each command builds a fresh graph → fresh map → fresh latches.
-		// The setup task and the schema/migrations watcher both call
-		// `getSharedSchemaApply(cwd)` so they share a single in-flight/queued
-		// lock per cwd within a graph.
-		//
-		// Local dev is push-based for BOTH dialects: drizzle-kit
-		// pushes the schema straight into the local database — sqlite's file,
-		// or the miniflare-backed D1 that `wrangler dev` reads — so a schema
-		// save is live without generating a migration or restarting.
-		// Migrations exist for the remote deploy path; `stack db apply` still
-		// applies committed ones locally for journal parity when wanted.
+		// Graph-scoped schema apply locks and push-based dev: docs/architecture/plugins/db.md, "Local dev push".
 		const schemaSerializers = new Map<string, () => Promise<void>>();
 		const getSharedSchemaApply = (cwd: string): (() => Promise<void>) => {
 			let cached = schemaSerializers.get(cwd);
@@ -436,10 +417,7 @@ export const db = plugin("db", {
 				};
 			}),
 
-			// D1 binding — only for the d1 dialect, and only when `databaseId`
-			// is set. Contribution is pure; wrangler aggregator reads all
-			// contributions at once. `migrationsDir` is required: without it
-			// `wrangler d1 migrations apply` silently no-ops at deploy time.
+			// The D1 binding, d1 only, with a required migrationsDir: docs/architecture/plugins/db.md, "Slots and contributions".
 			cloudflare.slots.bindings.contribute(() => {
 				if (self.options.dialect !== "d1") return undefined;
 				const databaseId = self.options.databaseId;
@@ -517,9 +495,7 @@ export const db = plugin("db", {
 				};
 			}),
 
-			// Worker runtime entry, one module per dialect: `./runtime` is D1's,
-			// and sqlite's better-sqlite3 lives in `./runtime/sqlite` so a
-			// Workers bundle never pulls in the native driver.
+			// One runtime module per dialect: docs/architecture/plugins/db.md, "Runtime".
 			api.slots.pluginRuntimes.contribute(
 				async (ctx): Promise<PluginRuntimeEntry> => {
 					const hasSchema = await ctx.fileExists("src/schema");
@@ -567,18 +543,7 @@ export const db = plugin("db", {
 				},
 			),
 
-			// Entity vocabulary handoff —
-			// derives `api.slots.entities` from the consumer's Drizzle schema
-			// export names, for BOTH dialects (the vocabulary describes the
-			// schema, not the runtime). `undefined` (no `src/schema` dir, or the
-			// schema file has no value exports) contributes nothing, leaving
-			// `.stack/procedure.ts`'s `Entity` fallback to whatever other
-			// plugins contribute (or `string` if none do). `extractSchemaEntities`
-			// intentionally skips `export * from "..."` re-exports (see its own
-			// doc comment), so a schema file that only re-exports
-			// `@fcalell/plugin-auth/schema` contributes nothing here — auth
-			// contributes its own table names directly to this same list, so
-			// there's no double-contribution to collide with.
+			// The entity vocabulary handoff: docs/architecture/plugins/db.md, "Entity vocabulary".
 			api.slots.entities.contribute(async (ctx) => {
 				const hasSchema = await ctx.fileExists("src/schema");
 				if (!hasSchema) return undefined;
@@ -602,9 +567,7 @@ export const db = plugin("db", {
 				};
 			}),
 
-			// Seed at Ready time, AFTER the schema apply task above (readySetup
-			// tasks run in contribution order). No-ops silently when the consumer
-			// hasn't authored `src/schema/seed.ts`.
+			// Seed at Ready, after the schema push: docs/architecture/plugins/db.md, "Seed".
 			cliSlots.devReadySetup.contribute((ctx) => ({
 				name: "db-seed",
 				run: async () => {
@@ -650,9 +613,7 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// `stack screens serve`: a scratch database built the way a deploy builds
-			// one, from the committed migrations, then seeded. A sqlite file is the
-			// run's own under `DB_FILE`; a d1 database is the run's miniflare state.
+			// The screens-serve scratch database: docs/architecture/plugins/db.md, "Seed".
 			screens.slots.serveSteps.contribute((ctx) => ({
 				name: "database",
 				run: async (serve) => {
@@ -671,20 +632,14 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// Pre-deploy guard — fail fast (before build/migrations touch the
-			// cloud) if the d1 databaseId is still the placeholder or isn't a UUID.
-			// Resolves during deploy planning, ahead of any check action or step.
+			// The database ID guard: docs/architecture/plugins/db.md, "Deploy gates".
 			cliSlots.deployChecks.contribute(() => {
 				if (self.options.dialect !== "d1") return undefined;
 				assertDeployableDatabaseId(self.options.databaseId);
 				return undefined;
 			}),
 
-			// Destructive-migration hard gate — abort the deploy before any
-			// remote migration runs if the newest migration drops a
-			// table/column/view without a `-- stack:allow-destructive` marker. A
-			// drop breaks the live worker mid-rollout (old code still reads the
-			// dropped shape).
+			// The destructive-migration gate: docs/architecture/plugins/db.md, "Deploy gates".
 			cliSlots.deployChecks.contribute((ctx) => {
 				if (self.options.dialect !== "d1") return undefined;
 				assertNoUnacknowledgedDrops(ctx.cwd, self.options);
@@ -709,10 +664,7 @@ export const db = plugin("db", {
 				return undefined;
 			}),
 
-			// Drift hard gate — schema changes without a committed
-			// migration abort the deploy before any step. Deploy never
-			// generates migrations; only committed SQL ever applies, so the
-			// destructive gate above only ever evaluates committed files.
+			// The drift gate: docs/architecture/plugins/db.md, "Deploy gates".
 			cliSlots.deployChecks.contribute((ctx) => {
 				if (self.options.dialect !== "d1") return undefined;
 				if (detectSchemaDrift(ctx.cwd, self.options)) {
@@ -768,11 +720,7 @@ export const db = plugin("db", {
 				};
 			}),
 
-			// Deploy-time seed — runs after migrations (same `pre` phase, later
-			// in contribution order) and only when the consumer authored a seed.
-			// Idempotent, so re-running on every deploy is safe; it upserts, and
-			// deletes the rows outside the seed only when the seed file opts in
-			// with `export const prune = true`.
+			// The deploy-time seed: docs/architecture/plugins/db.md, "Seed".
 			cliSlots.deploySteps.contribute(async (ctx) => {
 				if (self.options.dialect !== "d1") return undefined;
 				if (!(await ctx.fileExists("src/schema/seed.ts"))) return undefined;

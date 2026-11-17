@@ -10,10 +10,7 @@ export const query = plugin("query", {
 	requires: ["api"],
 
 	dependencies: {
-		// The query utils `createApiQueryUtils` wraps the client in, an optional
-		// peer of this plugin. TanStack Query comes with plugin-react on the web
-		// and with native-ui on the phone, which also brings the `expo-network`
-		// that `./net` listens to.
+		// The query utils `createApiQueryUtils` wraps the client in: plugins/query/README.md, "Install".
 		"@orpc/tanstack-query": "^1.14.4",
 	},
 

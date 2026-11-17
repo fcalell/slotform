@@ -21,10 +21,7 @@ export interface AppMark {
 	name: string;
 }
 
-// The app's mark. The generated providers mount the context with the app's
-// icon (`react({ icon })`), its drawn lockup (`react({ logo })`) and its name; an app with no icon mounts none, so
-// the Gate draws no mark. A subtree can be scoped to none with
-// `mark={null}` (a frame under an app that has an icon, drawing the bare form).
+// The app's mark: docs/architecture/plugins/react-ui.md, "App mark".
 const MarkContext = createContext<AppMark | null>(null);
 
 export function MarkProvider(props: {

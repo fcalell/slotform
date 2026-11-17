@@ -41,13 +41,7 @@ import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
 import type { PickOneProps } from "../picker/index.tsx";
 
-// A record's way back stands at the bar's start as Back where its Pane stands
-// alone (below `tablet` of the Place), and at its end as Close, after the
-// Expand act, where the place's Pane can stand beside it. Which stand is the
-// Place's to say: it sets `--pane-back`, `--pane-close` and `--pane-expand` on
-// the Pane (a `display` each), so the head reads no sibling. Drawn outside a
-// Place the Pane is alone, so Back stands; a room Place stands its one Pane
-// alone, so its head draws Back and neither of the others.
+// A record's Back, Close and Expand: docs/architecture/ui-core/layout.md, "Place".
 const ALONE = "[display:var(--pane-back,flex)]";
 const ROOM_BACK = "flex";
 const BESIDE = "[display:var(--pane-close,none)]";
@@ -71,12 +65,7 @@ const ACTS = "flex shrink-0 items-center gap-gap ms-auto touch:-me-icon-inset";
 // replace it, so the title would give way to the switcher or the acts to nothing.
 const TITLE = "flex grow items-center gap-gap";
 const NAME = "min-w-0 truncate";
-// On touch a record's name stands whole in the head under the bar: the bar's
-// keeps its box and stands only once the head's has scrolled up under it, so
-// the page never shows the name twice, the second time cut. The wait is CSS, a
-// scroll-driven animation on the head's name's view timeline
-// (`record-name-waits` in globals.css); a browser without it keeps the bar's
-// name standing.
+// A record's name under the bar on touch: docs/architecture/ui-core/layout.md, "Record head".
 const NAME_WAITS = "touch:record-name-waits";
 // A record's place stands whole beside its name: it keeps its own width up to
 // three fifths of the title and the name, which the body's head repeats whole,

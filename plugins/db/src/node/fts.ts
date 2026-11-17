@@ -12,9 +12,7 @@ import {
 } from "../fts.ts";
 import { runCommand } from "./exec.ts";
 
-// The full-text indexes the consumer's schema declares, read in a fresh node
-// process: the schema is user code that a long-running `stack dev` must see
-// again after each save, which an in-process import (cached) would not.
+// Declared indexes are read in a fresh process: docs/architecture/plugins/db.md, "Full-text indexes".
 const LOADER = `
 const [file, key] = process.argv.slice(1);
 const mod = await import(file);
@@ -117,9 +115,7 @@ function rebuildAt(sql: string, table: string): number {
 	);
 }
 
-// A generated migration that rebuilds a content table (SQLite's copy, drop and
-// rename) takes its triggers with it and may renumber the rows; the index is
-// re-synced after it.
+// Resync after a content-table rebuild: docs/architecture/plugins/db.md, "Full-text indexes".
 export function resyncRecreatedContent(
 	sql: string,
 	declared: FtsDefinition[],
@@ -133,11 +129,7 @@ export function resyncRecreatedContent(
 	return out;
 }
 
-// The indexes whose triggers the committed migrations leave dead: a migration
-// that rebuilds the content table and creates no trigger of the index after
-// the rebuild, with no later migration that does. Hand-written SQL, or a
-// migration written before `generate` appended the resync, can do this; the
-// index then goes stale on every write. Each entry names the migration.
+// The trigger check: docs/architecture/plugins/db.md, "Full-text indexes".
 export function deadFtsTriggers(
 	migrationsDir: string,
 	declared: FtsDefinition[],
@@ -195,12 +187,7 @@ export function ftsTablesFilter(names: string[]): string[] {
 	return names.flatMap((n) => [n, ...ftsShadowTables(n)]).map((t) => `!${t}`);
 }
 
-// Brings the database's indexes to the declared ones, after drizzle-kit has
-// pushed the tables: a missing index is created and filled, a changed one is
-// replaced, one that lost its triggers (a pushed table copy drops them) gets
-// them back and is rebuilt. An index the schema no longer declares is left in
-// place (it may be hand-written SQL); its drop migration removes it elsewhere.
-// Idempotent, so a push that changed nothing here changes nothing.
+// Push brings the indexes to the declared ones: docs/architecture/plugins/db.md, "Full-text indexes".
 export async function applyFtsLocal(
 	cwd: string,
 	file: string,

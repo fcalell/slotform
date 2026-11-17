@@ -94,11 +94,7 @@ function answerOf(
 	});
 }
 
-// The conversation: its history a read the Pane holds, a sent turn written
-// into the history as the server holds it (an empty one too) and its answer
-// streamed in after it, joining the history when it ends; the input docked in
-// the Pane's foot, inert until the history answers. A message sent while an
-// answer comes is answered next.
+// The conversation: docs/architecture/ui-core/components.md, "Thread".
 function Assistant() {
 	const queryClient = useQueryClient();
 	const history = orpc.assistant.history.read();

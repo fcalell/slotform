@@ -3,12 +3,7 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { runCommand } from "./exec.ts";
 
-// drizzle-kit is the plugin's optional peer: the app declares it as a
-// devDependency (`stack init` and `stack add db` write it), so an install that
-// only runs the app holds none of it. Its `exports` lists `.` and `./api`
-// only, so `drizzle-kit/bin.cjs` is not resolvable: resolve the package entry
-// from this module and take the bin beside it, as a realpath so the probes
-// below resolve from where drizzle-kit itself will.
+// Locating drizzle-kit: docs/architecture/plugins/db.md, "drizzle-kit".
 function drizzleKitBin(): string {
 	let entry: string;
 	try {
@@ -21,9 +16,7 @@ function drizzleKitBin(): string {
 	return join(dirname(realpathSync(entry)), "bin.cjs");
 }
 
-// drizzle-kit declares no drizzle-orm and `import()`s it from its own
-// location; without one it prints an install hint and exits 1. Resolving is
-// the check drizzle-kit makes, so nothing is executed here.
+// drizzle-kit's drizzle-orm probe: docs/architecture/plugins/db.md, "drizzle-kit".
 function assertDrizzleOrm(bin: string): void {
 	try {
 		createRequire(bin).resolve("drizzle-orm/version");
@@ -34,11 +27,7 @@ function assertDrizzleOrm(bin: string): void {
 	}
 }
 
-// drizzle-kit exits 0 even when its sqlite driver fails to load, so a broken
-// push or migrate would report success. Load the driver from drizzle-kit's
-// location up front and fail with the fix instead. drizzle-kit declares no
-// better-sqlite3 and loads whichever copy pnpm hoists: plugin-db's 13, which
-// ships prebuilt binaries, or better-auth's 12 peer, built by its install script.
+// The sqlite driver probe: docs/architecture/plugins/db.md, "drizzle-kit".
 export function assertSqliteDriver(): void {
 	const requireFromKit = createRequire(drizzleKitBin());
 	try {
@@ -55,15 +44,7 @@ export function assertSqliteDriver(): void {
 	}
 }
 
-// drizzle-kit asks, per table or column the schema creates while another is
-// dropped, whether it is a rename. Its prompt needs a TTY, which a child with
-// piped output never has, so it fails and drizzle-kit still exits 0. The
-// answer is always the first choice, "create": a rename is an add and a drop,
-// never an in-place rename, because the worker live during a deploy still
-// reads the old name (guide/destructive-change.md), and the drop is then
-// behind the migration check's `-- stack:allow-destructive`. This preload
-// makes the child's streams look like a terminal and presses Enter as each
-// prompt starts listening; a run with no ambiguity never prompts.
+// Rename prompts always answer create: docs/architecture/plugins/db.md, "drizzle-kit".
 const ANSWER_CREATE = `process.stdin.isTTY = true;
 process.stdout.isTTY = true;
 if (!process.stdin.setRawMode) process.stdin.setRawMode = () => process.stdin;
@@ -77,9 +58,7 @@ process.stdin.on = function (event, listener) {
 };
 `;
 
-// drizzle-kit reports most failures as an `Error:` on stderr and exits 0, so
-// a failed generate would pass for "no changes". Treat that text as the
-// failure it is.
+// Errors reported on exit 0: docs/architecture/plugins/db.md, "drizzle-kit".
 const FAILED = /^\s*(?:[A-Za-z]*Error\b|ERROR\b)/m;
 
 // Runs the plugin's drizzle-kit with node, cwd the consumer root:
@@ -117,11 +96,7 @@ interface DrizzleConfig {
 	tablesFilter?: string[];
 }
 
-// A plain object with no import line: drizzle-kit loads the file with
-// `require` and takes `default ?? module`, and an import of its
-// `defineConfig` (the identity function) would resolve from the consumer,
-// which holds no drizzle-kit. Paths stay
-// relative to cwd: drizzle-kit 0.31 mangles an absolute `out`.
+// The config is a plain object: docs/architecture/plugins/db.md, "drizzle-kit".
 export function writeDrizzleConfig(
 	configPath: string,
 	config: DrizzleConfig,

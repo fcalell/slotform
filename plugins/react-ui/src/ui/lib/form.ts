@@ -4,10 +4,7 @@ import { createContext } from "react";
 // it draws is the form's submit button, so Enter in a field presses it.
 export const SubmitContext = createContext(false);
 
-// Set around an act that cannot run where it stands, with no reason to give:
-// an `ActionBar`'s other acts while one act pends, a `Thread`'s composer's Send
-// while its text is empty and its desktop Stop without `onStop`. Each is inert and
-// says so, drawn in its disabled form.
+// An act that cannot run where it stands: docs/architecture/ui-core/acts.md, "Act model".
 export const ActInert = createContext(false);
 
 // A submit button's press runs the act itself, so the press ends the native

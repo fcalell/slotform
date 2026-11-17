@@ -43,11 +43,7 @@ export interface ElkInput {
 	gaps: Gaps;
 }
 
-// A layer gap holds the router's own room: a forward edge bends a `pair` under
-// its source, and under the bend a label chip hangs a `pair` below it with a
-// `pair` of air and an arrowhead beneath it before the next node. With no chip
-// the gap is the bend's `pair`, a `pair` and the arrowhead, never under
-// `floor`.
+// A layer gap holds the router's own room: docs/architecture/plugins/react-ui.md, "Canvas".
 export function layerGap(floor: number, chip: number, pair: number): number {
 	return Math.max(floor, pair + chip + 2 * pair + ARROW);
 }

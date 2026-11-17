@@ -139,7 +139,7 @@ function OptionRowBase<V extends string>(props: OptionRowProps<V>) {
 	const drawn = useDrawn();
 	const blocked = optionBlocked(option, chosen);
 	const meta = blocked ?? option.line;
-	// The recommended mark leads the meta line (voice 9), so a recommended
+	// The recommended mark leads the meta line, so a recommended
 	// option is two lines, its label keeping the row's width at every size.
 	const recommended = !rowsPaint && option.recommended === true;
 	// A painted row is marked when the map declares a line.

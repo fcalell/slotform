@@ -57,10 +57,7 @@ const services = slot.list<ServiceEntry>({
 	uniqueBy: (e) => e.name,
 });
 
-// Whether the consumer has service modules under `src/server/services`.
-// Mirrors api's routesHandler: the seed is the single source of truth the
-// barrel emission and the barrel import both resolve, so they can never
-// disagree about whether the directory participates.
+// consumerServices seeds both the barrel emission and the barrel import: docs/architecture/plugins/node.md, "Services".
 const consumerServices = slot.value<{ identifier: string } | null>({
 	source: SOURCE,
 	name: "consumerServices",
@@ -113,11 +110,7 @@ const serverInputs = {
 	clientHeaders: vite.slots.clientHeaders,
 };
 
-// The production bundle's entry, `.stack/server.bundle.ts` (written by the build
-// step, not by `generate`): the same server as `serverSource`, with the worker
-// and the consumer's services imported for the bundler to follow, the web client
-// found beside the bundle and the entries' boot tasks run first. Null where
-// `serverSource` is.
+// The production bundle entry, null where serverSource is: docs/architecture/plugins/node.md, "Build and bundle".
 const serverBundleSource = slot.derived({
 	source: SOURCE,
 	name: "serverBundleSource",
@@ -244,11 +237,7 @@ export const node = plugin("node", {
 			self.slots.serviceBarrelSource,
 		),
 
-		// The production bundle (`stack build`): after the web client is built, the
-		// server, the app's sources and its dependencies become one file in
-		// `server/` beside the client's directory, with the native addons and the
-		// entries' files next to it. The directory runs with only `node` (see
-		// guide/server.md, "Deploy a bundle").
+		// The production bundle step: docs/architecture/plugins/node.md, "Build and bundle".
 		cliSlots.buildSteps.contribute(async (ctx) => {
 			const source = await ctx.resolve(self.slots.serverBundleSource);
 			if (source === null) return undefined;
@@ -281,10 +270,7 @@ export const node = plugin("node", {
 			};
 		}),
 
-		// `stack screens serve`: the source entry `.stack/server.ts` is, on the
-		// run's port and with the worker wrapped in the fixture controls, beside the
-		// `/fixture/socket` service. Both files live in `.stack/`, where the entry's
-		// relative modules and the app's packages resolve, and go with the run.
+		// The screens serve target: docs/architecture/plugins/node.md, "Screens serve".
 		screens.slots.serveTargets.contribute(async (ctx) => {
 			if ((await ctx.resolve(api.slots.workerSource)) === null)
 				return undefined;
@@ -367,11 +353,7 @@ export const node = plugin("node", {
 			};
 		}),
 
-		// Dev process: run the generated server directly under the consumer's
-		// node (type stripping; no build step). STACK_DEV=1 mirrors wrangler's
-		// .dev.vars signal so the worker runtime enters dev mode, and each
-		// declared env var the shell leaves unset gets its `devDefault`, as
-		// `.dev.vars` gives it on cloudflare.
+		// The dev process: docs/architecture/plugins/node.md, "Dev".
 		cliSlots.devProcesses.contribute(async (ctx) => {
 			if ((await ctx.resolve(self.slots.serverSource)) === null) {
 				return undefined;
@@ -403,21 +385,14 @@ export const node = plugin("node", {
 				: undefined;
 		}),
 
-		// The server's own origin is a dev origin: with no frontend plugin it is
-		// the only one, so APP_URL's dev default and the dev trusted origins
-		// derive from it. `app.origins` overrides the dev list too, as it does
-		// for vite and expo. It rides the deploy-target list, so a frontend's
-		// origin always comes first.
+		// The server's own origin is a dev origin: docs/architecture/plugins/api.md, "Local and dev origins".
 		api.slots.devTargetOrigins.contribute(async (ctx) => {
 			if (ctx.app.origins !== undefined) return undefined;
 			const port = await ctx.resolve(self.slots.serverPort);
 			return `http://localhost:${port}`;
 		}),
 
-		// Same-origin dev: the vite dev server proxies worker-owned paths to
-		// this server, so API clients keep their relative URLs in dev exactly
-		// like prod (where this server serves the SPA itself). Inert without
-		// vite in the config.
+		// Same-origin dev proxy, inert without vite: docs/architecture/plugins/vite.md, "Dev server proxy, file access and watching".
 		vite.slots.serverProxy.contribute(async (ctx) => {
 			const port = await ctx.resolve(self.slots.serverPort);
 			const prefixes = await ctx.resolve(api.slots.routePrefixes);
@@ -428,9 +403,7 @@ export const node = plugin("node", {
 			];
 		}),
 
-		// The screens workbench answers the app's `/ws` socket (a channel's
-		// subscribe gets its fixture's snapshot); without `screens` in the config
-		// the slot resolves to nothing and this is a no-op.
+		// The workbench answers the app's /ws, a no-op without screens: docs/architecture/plugins/node.md, "Screens serve".
 		screens.slots.handlerModules.contribute(
 			() => "@fcalell/plugin-node/screens",
 		),

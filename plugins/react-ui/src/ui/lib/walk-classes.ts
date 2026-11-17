@@ -1,7 +1,4 @@
-// The class lists the screens run's walk names in its exceptions
-// (`@fcalell/plugin-screens/walk`, `/shift`): a component draws them from
-// here, and `walk-exceptions.test.ts` holds each exception's tokens to the one
-// it names. Outside the package's exports.
+// The class lists the walk's exceptions name: docs/architecture/plugins/screens.md, "Render walk exceptions".
 
 /** An image that opens: a button sized by its picture. */
 export const IMAGE_FRAME = "block relative shrink-0 overflow-hidden";

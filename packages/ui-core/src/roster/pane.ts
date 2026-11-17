@@ -2,57 +2,7 @@ import type { Fact, OptionPick, Route, Run } from "./descriptors.ts";
 import type { RosterEntry } from "./shared.ts";
 import { FIGURES, ROWS_HOST, TEXT, WIDE_SPANS } from "./shared.ts";
 
-// A column of the Shell's place, of two kinds: the place's own Pane,
-// titled by the place's name (the Place's, the sidebar's label), and a
-// record's Pane after it, titled by the record's name. A Place holds one
-// of each at most, so a record linked from a record opens in its own
-// place. Its bar stands over one hairline: on touch the shell's switcher
-// leading the place's Pane; on a record's Pane the place's name, a slash
-// and the record's, then the Expand act (which folds the place's Pane
-// away and turns to Collapse) and Close (back to the place's Pane as it
-// stood, its tab and filters kept), Back instead of Close where the
-// record's Pane stands alone; the acts and more. Its body scrolls, its
-// children a sections gap apart within the reading width; wide content
-// (a Table, a line Diff, a code block, a Canvas, a chart) stands at the body's
-// width.
-// A `foot` (a field) docks under the body and spans it: the route gives it,
-// so the Pane decides it from its props and nothing in the body hands
-// anything up. A `Table`'s selection bar is an `ActionBar` with `chosen` there,
-// standing at the body's column and start (the reading width, the body's
-// width where the Pane holds wide content), and a `Thread` among the sections keeps its input in
-// reach as a `Composer`. A `Thread`'s composer keeps its own measure column. A `sheet` docks there
-// in the foot's place while it is open, the Pane measuring the foot's
-// region for it. The `empty` of its `read` stands in place of the children,
-// centred in what the body leaves (the sentence at meta, the act the filled
-// one with the plus); it answers for the Pane's own read, so a Pane with
-// none takes no `empty`. On a record's Pane the title is the
-// record's name (a `Run`, the generic word for the kind while it loads)
-// and the acts and more are the record's acts; its `record` opens the
-// body with the head, where the name stands whole, wrapping, as the
-// Pane's heading. The bar
-// holds one part where it is narrow: on the web's touch density the back
-// act and the name, the place dropped so the name is never cut to a few
-// letters (a record whose read ended keeps its place, having no name); on
-// the phone the place instead of the name. On the
-// web every Pane's name is an `h2` and its Sections start at `h3`, whatever
-// Panes stand beside it: the page's one `h1` is the Place's (the name of the
-// place you are in), so a Pane reads none of its siblings. The head of a record is the Pane's
-// own: the place's name in the bar, then the overline and the facts at
-// the body's top, the name between them. A record's `image` stands
-// beside them as the thumbnail tile (`ITEM_HEADER_PICTURE`), at the head's top,
-// painted while its address is a read, a skeleton while the bytes come, an
-// `ImageOff` glyph where it failed or the address is empty. A part, a fact or the name that is
-// a selection paints in its place while its read waits, and draws nothing
-// once it ended (a status or a pick keeps its form, any other is a word),
-// and the head is inert; each line keeps its line box and the facts line the
-// height of the status that moves on it. A fact in words that opens a sheet
-// is its words and a chevron in a `WORD_ACT`, a button named by the fact;
-// one that goes to a route is the same box as a link. A `read` that answers
-// not found fills the page with the missing form, no mark, the sentence in
-// the meta ink (worded by `noun`, "Couldn't find this." without one) and
-// the way back to the place's Pane as the hairline act with no plus, on
-// the `error` state's cells. The bar's acts carry the same wiring a
-// Button's act does.
+// A column of the Shell's place: docs/architecture/ui-core/layout.md, "Pane".
 export const paneEntry: RosterEntry = {
 	// `context`, `state` and `fill` are the web's alone.
 	props: [
@@ -221,10 +171,7 @@ export const PAGE_HEAD_ROOM = "pt-pad";
 // (the floor counts the padding, so it is spelt as that sum).
 export const PAGE_TOP_BAR =
 	"gap-gap py-gap min-h-[calc(var(--spacing-control)+2*var(--spacing-gap))]";
-// A record's place in the bar before its name: the meta ink, parted from the name
-// by a slash in the mark ink. The slash is drawn, not written: it is a mark at
-// the 3:1 floor, and a written one would be text to the 4.5:1 check and to a
-// reader of the heading.
+// A record's place in the bar: docs/architecture/ui-core/layout.md, "Bar".
 export const PAGE_WITHIN = "text-ink-meta";
 export const PAGE_WITHIN_SEP = "text-ink-mark px-gap before:content-['/']";
 // On touch the back act or the switcher reaches the page inset by its start,
@@ -242,11 +189,7 @@ export const PAGE_CONTEXT = "max-w-3/5";
 export const PAGE_BODY = "gap-section p-page";
 
 export const PAGE_BODY_OVER_FOOT = "pb-section";
-// A body with no foot ends where the toasts' layer stands over it, so while a
-// toast stands (`[data-toast]` in the web frame's `main`; a queued toast on the
-// phone) the body's end takes the toasts' reach as well: two lines of a toast
-// and its gaps, the layer's inset above and below, so the page's last line
-// scrolls clear of it.
+// A body with no foot: docs/architecture/ui-core/layout.md, "Foot".
 export const PAGE_BODY_TOAST_ROOM =
 	"pb-[calc(2*var(--spacing-control)+2*var(--spacing-gap)+2*var(--spacing-page))]";
 export const PAGE_BODY_UNDER_TOAST =

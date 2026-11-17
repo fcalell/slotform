@@ -27,26 +27,13 @@ import { requestLogger } from "./request-log.ts";
 
 export type { InferRouter } from "../types.ts";
 
-// Env binding name for the blanket per-IP volume limiter — a dedicated
-// wrangler `rate_limiter` binding (contributed by plugin-cloudflare, the
-// deploy target that provisions it; this name is the contract), never shared
-// with the auth surface's `RATE_LIMITER_IP`/`RATE_LIMITER_EMAIL` bindings or
-// a procedure's own `rateLimit: "ip"` middleware. A shared binding would
-// double-draw the same budget (halving the effective limit for procedures
-// that also declare `rateLimit: "ip"`) and let /rpc volume starve
-// /api/auth's independent budget.
+// The `/rpc` limiter's binding name, the contract with plugin-cloudflare: docs/architecture/plugins/api.md, "Rate limiting".
 export const RATE_LIMITER_RPC = "RATE_LIMITER_RPC";
 
 // The path the MCP endpoint answers at, beside the RPC prefix.
 const MCP_PATH = "/mcp";
 
-// Blanket per-IP volume limiter, on its own dedicated `RATE_LIMITER_RPC`
-// binding (see the constant above) — never the per-procedure
-// `ctx._rateLimiter` bindings, so this guard's budget never competes with
-// `rateLimit: "ip"` procedures or the auth surface. Production-only; skips
-// silently when no RATE_LIMITER_RPC binding is present (worker-only projects
-// that haven't run `wrangler types` / deployed the binding yet). True when
-// the limiter refuses.
+// The blanket per-IP `/rpc` limiter: docs/architecture/plugins/api.md, "Rate limiting". True when the limiter refuses.
 async function ipLimited(
 	c: Context,
 	ctx: Record<string, unknown>,
@@ -67,15 +54,9 @@ export interface WorkerExport<
 		env: unknown,
 		ctx: unknown,
 	) => Response | Promise<Response>;
-	// Throws one error naming every env var the app needs and the env lacks or
-	// holds wrong (the baked checks and each runtime plugin's `validateEnv`).
-	// The Node server calls it before it listens, so a missing `AUTH_SECRET`
-	// stops the boot; a Worker has no start, and its first request runs the
-	// same checks.
+	// `checkEnv`: docs/architecture/plugins/api.md, "Env vars".
 	checkEnv: (env: unknown) => void;
-	// Answer a Cloudflare queue batch and a cron event with the plugin context
-	// a procedure gets (minus the request); each present only when the worker
-	// mounts `src/worker/queue.ts` / `src/worker/scheduled.ts`.
+	// `queue` and `scheduled`: plugins/api/guide/background.md, "The context".
 	queue?: (batch: JobBatch, env: unknown, ctx: unknown) => Promise<void>;
 	scheduled?: (
 		controller: JobScheduledEvent,
@@ -98,9 +79,7 @@ interface FnEntry {
 
 interface MiddlewareEntry {
 	middleware: MiddlewareHandler;
-	// Where the entry mounts relative to context injection. Registered via
-	// `.useAfterContext()`, it runs once `__stackCtx` exists, so a raw Hono
-	// route reaches `db`/`auth` instead of rebuilding its own clients.
+	// `afterContext` mounts via `.useAfterContext()`: docs/architecture/runtime.md, "Middleware".
 	afterContext?: boolean;
 }
 
@@ -114,13 +93,7 @@ function isMiddlewareEntry(entry: UseEntry): entry is MiddlewareEntry {
 	return "middleware" in entry;
 }
 
-// Stable-topologically sorts the `PluginEntry`s among `entries` by each
-// plugin's `dependsOn`, leaving fn/middleware entries in their original
-// positions and reinserting the reordered plugins into the positions plugin
-// entries already occupied. Independent plugins (no dependsOn edge between
-// them) keep their original relative `.use()` order — this is what lets the
-// generated worker sort `pluginRuntimes` alphabetically for deterministic
-// codegen while still running dependencies first at request time.
+// Plugin entries sort by `dependsOn`: docs/architecture/runtime.md, "Runtime plugin protocol".
 function sortPluginEntries(entries: UseEntry[]): UseEntry[] {
 	const pluginPositions: number[] = [];
 	const pluginEntries: PluginEntry[] = [];
@@ -169,10 +142,7 @@ function sortPluginEntries(entries: UseEntry[]): UseEntry[] {
 	return result;
 }
 
-// Hono middleware is `(c, next) => Promise<Response | void>` (arity 2). A
-// context-injecting fn is `(ctx) => extra` (arity 1). Dispatch on `.length`
-// at runtime; consumers writing native Hono middleware just `export default`
-// it without wrapping.
+// Middleware dispatches on arity: docs/architecture/runtime.md, "Middleware".
 function isHonoMiddleware(fn: (...args: unknown[]) => unknown): boolean {
 	return fn.length >= 2;
 }
@@ -242,11 +212,7 @@ export type BaseContext<TEnv = unknown> = {
 	[key: string]: unknown;
 };
 
-// One env var the worker asserts before serving. Baked at codegen
-// from `api.slots.env` and each entry's validation hints.
-// `devLocalhost` refuses to serve when STACK_DEV is set but the value's
-// hostname is not local: dev settings (rate limits off, localhost trusted)
-// must never reach a deploy pointed at a real URL.
+// One env var the worker asserts before serving: docs/architecture/plugins/api.md, "Env vars".
 export interface EnvCheckSpec {
 	name: string;
 	minLength?: number;
@@ -410,10 +376,7 @@ function createAppBuilder<
 			// isolate keeps failing loudly instead of caching the miss.
 			let envChecked = false;
 
-			// Resolved per request, not at construction: the dev origins apply
-			// only under STACK_DEV, the origin of the listener a request came in
-			// on (a deploy target that serves several sets `STACK_ORIGIN` on each)
-			// is always its own, and the same list backs `isForbiddenOrigin`.
+			// The allow-list is resolved per request: docs/architecture/plugins/api.md, "At runtime".
 			const effectiveOrigins = (env: unknown): string[] => {
 				const origins =
 					devCorsOrigin?.length && isDevMode(env)
@@ -434,11 +397,7 @@ function createAppBuilder<
 			const procedure = createProcedure<TContext>();
 
 			let pluginRoutes: Record<string, unknown> = {};
-			// Tracks which plugin runtime registered each top-level route key, so
-			// a collision with a consumer routes key names the owner instead of
-			// silently letting `{ ...pluginRoutes, ...consumerRoutes }` clobber
-			// the plugin's route (e.g. a consumer routes barrel that happens to
-			// export `auth`, shadowing plugin-auth's `auth.orgRules`).
+			// Route-key collisions name the owning plugin: docs/architecture/plugins/api.md, "Routes barrel".
 			const routeOwners = new Map<string, string>();
 			for (const entry of pluginEntries) {
 				const routes = entry.plugin.routes?.(procedure);
@@ -495,14 +454,7 @@ function createAppBuilder<
 				};
 			}>();
 
-			// CORS must run first so preflights and error responses always carry
-			// CORS headers; mounting it after logger/secureHeaders leaks non-CORS
-			// responses to the browser when an earlier layer short-circuits.
-			//
-			// An explicitly empty origin list is a misconfiguration (usually
-			// `app.origins: []` override): silently skipping CORS would make
-			// browsers fail preflights with no diagnostic. `undefined` is
-			// allowed for non-browser workers that don't need CORS at all.
+			// CORS mounts first, and an empty list throws: docs/architecture/plugins/api.md, "At runtime".
 			if (corsOrigin !== undefined) {
 				if (corsOrigin.length === 0) {
 					throw new Error(
@@ -529,26 +481,17 @@ function createAppBuilder<
 			app.use("*", requestLogger());
 			app.use("*", secureHeaders());
 
-			// Framework liveness route registered BEFORE the
-			// validateEnv/context middleware so it doesn't require bindings.
-			// Hono runs handlers in registration order: GET / responds and
-			// returns; the universal middleware below never runs for it.
+			// The liveness route precedes the context middleware: docs/architecture/runtime.md, "Request order".
 			app.get("/", (c) => c.json({ ok: true }));
 
-			// Mount consumer Hono middleware into the Hono chain in
-			// contribution order. They run AFTER the framework wrappers above
-			// (cors / logger / secureHeaders / liveness) and BEFORE context
-			// injection, matching the ordering plugins expect.
+			// Consumer middleware before context injection: docs/architecture/runtime.md, "Request order".
 			for (const entry of sortedEntries) {
 				if (isMiddlewareEntry(entry) && !entry.afterContext) {
 					app.use("*", entry.middleware);
 				}
 			}
 
-			// The plugin context of one invocation, shared by a request and a job:
-			// the env checks (value validation once per isolate), each runtime's
-			// `validateEnv`, then every plugin's `context(env, ctx)` and fn entry
-			// in sorted order over `base`.
+			// The plugin context of one invocation: docs/architecture/runtime.md, "Request order".
 			const buildContext = async (
 				env: unknown,
 				base: Record<string, unknown>,
@@ -613,29 +556,16 @@ function createAppBuilder<
 				await next();
 			});
 
-			// Post-context middleware. Mounted here, after injection and
-			// before any route, so it can read `__stackCtx` (see `stackContext`);
-			// everything above it runs with no context at all. A path a plugin
-			// runtime claims in its own `fetch` (auth's `/api/auth`) returns
-			// inside the middleware above and never reaches this.
+			// Post-context middleware: docs/architecture/runtime.md, "Request order".
 			for (const entry of sortedEntries) {
 				if (isMiddlewareEntry(entry) && entry.afterContext) {
 					app.use("*", entry.middleware);
 				}
 			}
 
-			// A query travels as GET (its input in `?data=`), everything else as
-			// POST. The RPC handler refuses a GET on any procedure that is not a
-			// query (`stamp` in ../procedure.ts), so a cross-site navigation can
-			// only trigger a read.
+			// Reads travel as GET: docs/architecture/plugins/api.md, "Reads travel as GET".
 			app.on(["GET", "POST"], `${rpcPrefix}/*`, async (c) => {
-				// oRPC parses a request with a *missing* Content-Type as JSON, and
-				// SameSite=None (native support) means a browser can send one
-				// cross-site without a CORS preflight. Reject anything that isn't
-				// explicitly application/json before it reaches the RPC handler.
-				// Lowercased first: RFC 9110 treats the media type token
-				// case-insensitively ("Application/JSON" is valid JSON). A GET has
-				// no body to parse.
+				// A non-GET request must be `application/json`: docs/architecture/plugins/api.md, "Reads travel as GET".
 				const contentType = c.req.header("content-type")?.toLowerCase();
 				if (
 					c.req.method === "POST" &&
@@ -656,9 +586,7 @@ function createAppBuilder<
 				});
 
 				if (matched) {
-					// A browser prints every 404 fetch response as a console error,
-					// so a read's not found travels as a 200 the stack client turns
-					// back into a 404. A mutation's stays 404.
+					// A read's not found travels as a 200: docs/architecture/plugins/api.md, "Not found".
 					if (response.status === 404 && c.req.method === "GET") {
 						const headers = new Headers(response.headers);
 						headers.set(STACK_NOT_FOUND_HEADER, "1");
@@ -723,10 +651,7 @@ function createAppBuilder<
 				}
 			};
 
-			// A job's context is a request's without the request: no
-			// `httpRequest`, headers or user, no plugin `fetch` and no
-			// middleware. A throw is the caller's to see: the queue retries the
-			// batch, a cron invocation is logged failed.
+			// A job's context is a request's without the request: plugins/api/guide/background.md, "The context".
 			const jobContext = (env: unknown, ctx: unknown) =>
 				buildContext(env, {
 					executionCtx: workersContext(ctx),
@@ -776,13 +701,7 @@ export function stackContext<
 	return ctx;
 }
 
-// CSRF guard for state-changing raw routes, which bypass the RPC tree's
-// JSON-content-type check (a multipart R2 upload, say). True when the request
-// carries a browser Origin that is not on the effective allow-list, which
-// includes the dev origins only under STACK_DEV, and is empty (so no browser
-// origin passes) on a worker configured without CORS at all. A request with NO
-// Origin passes: a browser cannot drive one cross-site, and the native client
-// sends none.
+// The CSRF guard for raw routes: docs/architecture/plugins/api.md, "At runtime".
 export function isForbiddenOrigin(c: Context): boolean {
 	const origin = c.req.header("origin");
 	if (!origin) return false;

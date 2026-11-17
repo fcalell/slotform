@@ -1,9 +1,4 @@
-// Local-dev hostnames. An origin matching one is a dev origin wherever it
-// appears: the `cors` derivation strips it from the baked production
-// allow-list and `devCorsOrigins` picks it up instead. Matched against
-// `new URL(origin).hostname`; `URL`
-// preserves IPv6 brackets on `.hostname` ("[::1]" not "::1"), so the
-// bracketed form is listed too.
+// Local-dev hostnames: docs/architecture/plugins/api.md, "Local and dev origins".
 const LOCAL_HOSTNAMES = new Set([
 	"localhost",
 	"127.0.0.1",

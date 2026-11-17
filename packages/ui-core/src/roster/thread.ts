@@ -10,34 +10,7 @@ import type {
 import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix } from "./shared.ts";
 
-// A collection: its messages from `items` through the `message` map,
-// constants or a selection; while the selection's read waits it paints
-// `PAINT_TURNS`: an ask of yours, its bubble at the end, over the other
-// author's reply at the start. A message is a `Message`
-// descriptor by its author: `you` and `other` take `name`, `attachments` (an
-// attachment with `src` a thumbnail, one without a chip of its name, in one row
-// over the bubble) and `from` (the provenance line before the time), `system`
-// takes `onOpen` and `detail` (a `MessageDetail`: a row, one list row in a
-// hairline card, a free act's code, or a fold its line opens). A reply's body is
-// a `Prose`; `at` is an ISO moment each plugin formats in the document's
-// language (the time alone today, "tomorrow" or "yesterday" and the time a day either side, the year only when it is not this year's). It is a frame of its items, with its
-// composer and reply kept: its failed and missing forms stand in the log's place
-// with the generic sentences, and its empty form is one
-// sentence (`empty`, else the generic one) centred in the log, so a thread whose items failed still sends. The `composer` is the
-// input under the log (a thread among a Pane's sections that should keep it in reach gives none, and the Pane's `foot` a `Composer`), or its `sheet` docked in its place while it is open:
-// stacked on the desktop, one row on touch; `onDetach(id)` removes an
-// attachment, and the notice's act carries its own pending, so the input has no
-// loading form. `onAttach(files)` hears every file the attach act chooses (and,
-// on the web, a paste or a drop on the input); the consumer turns a file into an
-// `Attachment` and passes it back, a thumbnail with its remove act at its corner
-// when it has `src`. While `working`, Stop stands before Send (both icon acts on
-// touch) and Send still sends; the notice says what becomes of a message sent
-// then. While a filling Thread's reader is scrolled up, a secondary Latest act
-// floats over the log above the composer. Its `reply` is the turn being written,
-// a read of the app's own that draws after the items from its own subscription:
-// waiting a painted message, `streaming` the message with its open Markdown
-// drawn in its own form, `error` the partial message with the stopped line and
-// its Retry.
+// A collection of messages: docs/architecture/ui-core/components.md, "Thread".
 export const threadEntry: RosterEntry = {
 	props: [
 		"message",
@@ -305,12 +278,7 @@ export const MESSAGE_NOTICE =
 export const MESSAGE_NOTICE_TEXT = "px-pad border-x border-transparent";
 export const MESSAGE_ATTACH_SLOT = "w-control";
 
-// Thread: the messages a sections gap apart, one rung above Prose's block
-// gap, and under them the input; on the desktop a `Thread`'s composer stands in a
-// measure-wide column, so a Pane's docked foot spans the body and the field
-// keeps the column. A column cell is a width and nothing else: the region
-// that owns its frame's width centres it (a docked foot), and among sections
-// it keeps the region's start, as a paragraph's measure does.
+// Thread's gap and composer column: docs/architecture/ui-core/layout.md, "Foot".
 export const THREAD = "gap-section";
 
 // The way back to the newest message, floating over the log a pair above the
@@ -326,14 +294,9 @@ export const THREAD_LATEST = "mb-gap rounded-control bg-raised shadow-float";
 export const IMAGE_REMOVE = "m-gap min-h-target min-w-target rounded-full";
 export const IMAGE_REMOVE_DISC = "p-gap border border-edge bg-raised";
 
-// A message that arrives at the end of a log (the viewer's own or another's)
-// rises a `pair` as it fades in on `base` `out`, and pushes nothing but the
-// end of the log, which follows it. The keyframes are in the web's
-// `globals.css`; the phone rises it in Reanimated (`streamIn`).
+// A message that arrives at the end of a log: docs/architecture/ui-core/motion.md, "Navigate and stream".
 export const STREAM_IN =
 	"animate-[stream-in_var(--transition-duration-base)_var(--ease-out)_both]";
-// The act back to the newest message fades in rising a `pair` on `fast` `out`
-// as the reader scrolls away (its starting style), and leaves on `fast` `in`
-// the same way back (`data-leaving`); it stays mounted until it has gone.
+// The act back to the newest message: docs/architecture/ui-core/motion.md, "Navigate and stream".
 export const STREAM_LATEST =
 	"transition-[opacity,translate] duration-fast ease-out starting:opacity-0 starting:translate-y-gap data-[leaving]:ease-in data-[leaving]:opacity-0 data-[leaving]:translate-y-gap";

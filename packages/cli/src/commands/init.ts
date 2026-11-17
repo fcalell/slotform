@@ -153,9 +153,7 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 		nonInteractive ? undefined : chooseRequirement,
 	);
 
-	// Slots are matched by identity and the installed plugins import the
-	// app's own `@fcalell/cli`, so the scaffold runs in that copy, which is
-	// this one whenever the app's `stack` runs init.
+	// The scaffold runs in the app's own `@fcalell/cli`: docs/architecture/slot-graph.md, "Slot identity".
 	const installedCli = createRequire(join(dir, "package.json")).resolve(
 		"@fcalell/cli",
 	);
@@ -166,12 +164,7 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 	await scaffold(dir, { plugins, appName, domain, nonInteractive });
 }
 
-// Writes `package.json` with the picked plugins and installs, until every
-// plugin a picked one requires is installed too: a plugin's `requires` is
-// known only once it is loaded. A one-of requirement the selection does not
-// meet is asked when `pick` is given and takes its first plugin otherwise;
-// the finished closure is validated, so a selection with two of a one-of
-// fails before the scaffold.
+// Install until every required plugin is installed: docs/architecture/commands.md, "Installing the requires closure".
 async function installPlugins(
 	dir: string,
 	picked: string[],
@@ -225,14 +218,7 @@ export async function scaffold(
 		selectedPlugins.includes(p.name),
 	);
 
-	// Resolve prompts + the CLI-owned tsconfig contributions via the slot
-	// graph before writing any base scaffold. Per-plugin options aren't known
-	// yet (prompts produce them below), but `cliSlots.tsconfigPaths` /
-	// `cliSlots.tsconfigTypes` contributions never read `ctx.options` — a
-	// plugin's own presence in the graph is the gate — so resolving off the
-	// pre-prompt graph is safe. `tsconfigTemplate` itself stays domain-agnostic:
-	// it only decides *where* the contributed paths/types land (single config
-	// vs. the split's app/worker projects), never *what* they contain.
+	// Tsconfig contributions resolve off the pre-prompt graph: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 	const { graph: promptGraph } = buildGraphFromDiscovered({
 		discovered: selectedDiscovered,
 		app: { name: appName, domain },
@@ -250,9 +236,7 @@ export async function scaffold(
 		}),
 		[".gitignore", gitignoreTemplate({ plugins: selectedPlugins })],
 	];
-	// An app in stack's own workspace lints and formats under the checkout's
-	// root configs: Biome refuses a second root config below it, so its
-	// `biome.json` extends the root's and it writes no `.editorconfig`.
+	// An app in stack's workspace: docs/architecture/consumer-project.md, "Inside stack's workspace".
 	const workspaceRoot = stackWorkspaceRoot(dir);
 	const rootConfig =
 		workspaceRoot === null
@@ -280,9 +264,7 @@ export async function scaffold(
 		for (const [plugin, answers] of pluginAnswers.entries()) {
 			priors[plugin] = answers;
 		}
-		// Pass a minimal ctx exposing `prompt`; plugin-auth / plugin-db read it
-		// from there. Non-interactive mode resolves every prompt to a sensible
-		// default (see createPromptContext).
+		// Non-interactive mode resolves every prompt to a default: docs/architecture/commands.md, "Prompts".
 		const answers = await spec.ask({ prompt: promptAdapter }, priors);
 		pluginAnswers.set(spec.plugin, answers);
 	}
@@ -340,9 +322,7 @@ export async function scaffold(
 	if (gitignore.length > 0) ensureGitignore(...gitignore);
 	installStack(dir);
 
-	// Run the real generate path against the config we just wrote — this is
-	// the same code `stack generate` runs. It precedes the format: the app's
-	// `biome.json` extends the generated `.stack/biome.json`.
+	// Generate precedes the format: docs/architecture/commands.md, "`stack init` and `stack add`".
 	try {
 		const { generate } = await import("./generate.ts");
 		await generate("stack.config.ts");

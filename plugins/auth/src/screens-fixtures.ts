@@ -71,20 +71,7 @@ const organization = {
 
 const activeOrganization = { ...organization, members: [], invitations: [] };
 
-// What the screens workbench contributes for the procedures auth owns: the
-// signed-in session `orpc.auth.session` reads, so a screen behind the session
-// guard draws its signed-in form, and the device keys of `devices: true`
-// (`auth.devices.list`, `create`, `revoke`), so a screen that lists, makes and
-// revokes them draws each, and the steps a shipped page calls: sign-in and
-// sign-out, `user.update`, the organization list, create, delete, `setActive` and
-// invitations, and with `mcp: true` the connect pages' `oauth.client`,
-// `oauth.consent` and `organization.setActive`, and the grants a member lists and
-// ends (`oauth.grants.list`, `revoke`). A procedure the app's auth config leaves off is
-// never called, so its fixture is inert. The app overrides any of them in
-// `src/app/fixtures.ts`, starting from this answer when it only adds to it: the
-// tree keeps its own type (`satisfies`, not an annotation), so
-// `fixtures.auth.session()` is the signed-in `{ session, user }` itself, with no
-// optional or null in the way.
+// The workbench's `auth.*` fixtures: docs/architecture/plugins/auth.md, "Screens".
 const fixtures = {
 	auth: {
 		session: () => ({ session, user }),

@@ -1,10 +1,6 @@
 import type { AuthCallbacks } from "@fcalell/plugin-auth/runtime";
 
-// Type the parameter as your worker's `Env` (`AuthCallbacks<Env>`) to reach
-// bindings through the `env` every payload carries. `sendOTP` is required
-// while `emailOtp` is on (the default); with `emailOtp: false` delete it.
-// The stubs below log in dev and throw anywhere else: a code in Workers Logs
-// is a leaked sign-in. `stack deploy` refuses while a `// TODO` marker stays.
+// The auth callbacks: docs/architecture/plugins/auth.md, "Callbacks".
 const isDev = (env: unknown) =>
 	(env as { STACK_DEV?: string }).STACK_DEV === "1";
 

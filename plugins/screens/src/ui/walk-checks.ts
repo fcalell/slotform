@@ -1,7 +1,4 @@
-// The render walk's checks, each a pure function over plain measured data, so a
-// test in node can hand one a bad case and see it found. `walk.ts` gathers the
-// data from the page and the contract's values from its computed custom
-// properties; nothing here reads a document.
+// The render walk's checks: docs/architecture/plugins/screens.md, "Render walk".
 
 // One thing a check found: the rule, the element, the measured value, the
 // expected value and the fix.
@@ -130,9 +127,7 @@ export interface HeightMeasure extends Located {
 	floor?: number;
 }
 
-// Each control's height is a size token at the density, or, where it sets a
-// floor, the floor is one and the height at least it; each row at least the
-// shortest row token (a row is a floor, `min-h-row`, that its content grows).
+// Control height: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkHeights(
 	controls: HeightMeasure[],
 	rows: HeightMeasure[],
@@ -249,9 +244,7 @@ const CORNERS = [
 	"bottom-left",
 ] as const;
 
-// Every radius is 0, a radius role or a pill (at least half the box's
-// shorter side); a box inside a rounded box with an inset smaller than the
-// outer radius has the outer radius less the inset.
+// Radius: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkRadii(items: RadiusMeasure[], tokens: Tokens): Finding[] {
 	const found: Finding[] = [];
 	for (const item of items) {
@@ -328,9 +321,7 @@ export interface ClipMeasure extends Located {
 	widest?: { path: string; name: string; over: number };
 }
 
-// A box that clips (`overflow` hidden or clip) with more inside than it
-// shows, and neither an ellipsis nor a line clamp saying so, nor a scroll
-// container, hides a layout error.
+// Clipped content: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkClip(items: ClipMeasure[]): Finding[] {
 	return items
 		.filter(
@@ -375,10 +366,7 @@ export function isMetricFallback(key: string): boolean {
 	return FALLBACK_KEY.test(key);
 }
 
-// A face the screen asked for at its first layout that was not loaded at the
-// first frame draws the fallback and then jumps; a face that failed draws the
-// fallback for good (a metric fallback face is a system font, which a host may
-// lack: `isMetricFallback`).
+// Late face: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkFonts(faces: FontMeasure[]): Finding[] {
 	return faces.flatMap((f) => {
 		if (isMetricFallback(f.face)) return [];
@@ -496,9 +484,7 @@ export function isHeading(seen: {
 	return seen.drawn && (!seen.hidden || seen.modal);
 }
 
-// The page's headings, in document order, the ones a reader gets (not under
-// `display: none`, so a Pane folded away is not one): one `h1` names where you
-// are, and a heading is never more than one level under the one before it.
+// Heading order: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkHeadings(headings: HeadingMeasure[]): Finding[] {
 	if (headings.length === 0) return [];
 	const found: Finding[] = [];
@@ -557,10 +543,7 @@ export interface CanvasMeasure extends Located {
 const meetsRect = (a: Rect, b: Rect): boolean =>
 	a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
-// A canvas opens with every node whole at the pane's start and none under the
-// zoom stack. The pane's far side may cut a node only where the graph is wider
-// than the overview's floor holds, and the viewer pans for the rest; a node
-// wholly outside the pane is the viewer's to pan to.
+// Canvas: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkCanvases(canvases: CanvasMeasure[]): Finding[] {
 	return canvases.flatMap((canvas) =>
 		canvas.nodes.flatMap(({ name, rect }) => {
@@ -591,10 +574,7 @@ export function checkCanvases(canvases: CanvasMeasure[]): Finding[] {
 
 // ── alignment ───────────────────────────────────────────────────────
 
-// The alignment rules are `align-*`: they report what a layout draws off the
-// group structure (a row is a text group and an end group, a line has one
-// baseline, nothing takes room and draws nothing) and fail a run with the
-// walk's other rules.
+// Alignment (`align-*`): docs/architecture/plugins/screens.md, "Render walk rules".
 
 // What a box was seen to draw, so a box that takes room and draws none of it
 // is found.
@@ -615,9 +595,7 @@ export interface BoxMeasure extends Located {
 	childrenDraw: boolean;
 }
 
-// A box in the flow, wider and taller than half a pixel, that draws nothing
-// and holds nothing that does: the empty end square, a spacer. Room that
-// holds an alignment is a group's gap or padding, never an element.
+// Dead box: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkDeadBoxes(boxes: BoxMeasure[]): Finding[] {
 	return boxes.flatMap((b) =>
 		!b.outOfFlow &&
@@ -657,11 +635,7 @@ export interface CoverMeasure extends Located {
 	samples: Above[][];
 }
 
-// A text is covered when a box that is no relative of it and draws at a
-// point of one of its lines stands above it there. A layer, a sticky box, a
-// transparent box and a hit area that draws nothing are no cover. A layer with
-// `pointer-events: none` is never in the hit test: a decoration that lets the
-// press through, by design, is not read.
+// Covered text: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkCovered(texts: CoverMeasure[]): Finding[] {
 	return texts.flatMap((t) => {
 		const hits = new Map<string, { over: Above; count: number }>();
@@ -752,12 +726,7 @@ export interface RunMeasure extends Located {
 	baseline: number;
 }
 
-// Texts of different sizes on one line share a baseline, to a pixel: a count
-// centred by its line box beside a heading rides above the heading's
-// baseline. The runs are the bare texts of one flex row's items; two share a
-// line when they overlap by most of the smaller one's height (a value centred
-// over a title and its meta shares neither), and are compared when their sizes
-// differ.
+// Shared baseline: docs/architecture/plugins/screens.md, "Render walk rules".
 export function checkBaselines(runs: RunMeasure[]): Finding[] {
 	const found: Finding[] = [];
 	for (const [i, a] of runs.entries()) {
@@ -887,7 +856,7 @@ export interface ToolbarMeasure extends Located {
 }
 
 // A toolbar's acts stand on the search's line wherever the row holds the
-// search's short measure, the gap and the acts beside it (voice 14).
+// search's short measure, the gap and the acts beside it.
 export function checkToolbars(items: ToolbarMeasure[]): Finding[] {
 	return items
 		.filter(

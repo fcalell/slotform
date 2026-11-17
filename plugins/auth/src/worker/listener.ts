@@ -1,10 +1,7 @@
 import type { PasskeyOptions } from "@better-auth/passkey";
 import { listenerOrigin } from "@fcalell/plugin-api/wire";
 
-// The base URL Better Auth is built with: the listener's origin, else the
-// app's URL var. Better Auth trusts its base URL's origin and makes its
-// cookies `Secure` (and `__Secure-` named) exactly when it is https, so both
-// follow the listener.
+// The base URL Better Auth is built with: docs/architecture/plugins/auth.md, "Origins and cookies".
 export function appUrlOf(
 	env: Record<string, unknown>,
 	appUrlVar: string,

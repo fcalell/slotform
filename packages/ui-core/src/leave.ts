@@ -1,9 +1,4 @@
-// Whether leaving a form asks, and the one question per leave. A `Form` holds
-// one `Leave`: a field's input edits it, the filled act's press hands the
-// edit to the act, and a leave attempt (a router navigation on the web, a
-// back or a navigate on the phone) asks the viewer while the form stands
-// edited. Both plugins' `Form` and `ActionBar` drive it, so the web and the
-// phone ask under the same rules.
+// Whether leaving a form asks: docs/architecture/ui-core/acts.md, "Leave".
 export interface Leave {
 	// A field took input.
 	edit(): void;

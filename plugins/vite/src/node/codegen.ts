@@ -8,13 +8,7 @@ import {
 } from "@fcalell/cli/ast";
 import type { ViteConfigValues } from "../types.ts";
 
-// Renders a Vite config module from the resolved values of `vite.slots.*`.
-// `.stack/vite.config.ts` is this output for the app's own slot values; a host
-// that needs another variant (no `clientHeaders`, extra plugin calls) resolves
-// the slots itself, adjusts the values and renders them here. The renderer
-// imports what its own output uses (`defineConfig`, `fileURLToPath` for `root`,
-// `searchForWorkspaceRoot` for `fsAllow`); a contribution declares every import
-// its expression needs, and the renderer merges them by source.
+// Renders a Vite config module from the resolved `vite.slots.*` values: docs/architecture/plugins/vite.md, "How it works".
 export function renderViteConfig(values: ViteConfigValues): string {
 	const imports: TsImportSpec[] = dedupeImports([
 		{ source: "node:url", named: ["fileURLToPath"] },
@@ -223,10 +217,7 @@ export function renderViteConfig(values: ViteConfigValues): string {
 			value: { kind: "object", properties: resolveProps },
 		});
 	}
-	// Stack's UI subpaths export `.tsx` source, and Vite's dev optimizer
-	// pre-bundles only `.js`/`.ts` entries: unbundled, their CJS dependencies
-	// (`use-sync-external-store/shim` under `@base-ui/react`) reach the
-	// browser raw and the page renders blank.
+	// `.tsx` optimizer extension: docs/architecture/plugins/vite.md, "Singletons and the optimizer".
 	const exclude = [...new Set(values.optimizeExclude)];
 	configProps.push({
 		key: "optimizeDeps",

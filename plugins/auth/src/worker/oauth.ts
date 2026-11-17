@@ -42,9 +42,7 @@ import { fetchClientMetadataResource } from "./cimd-transport.ts";
 import type { OAuthGrant } from "./outputs.ts";
 import { createTenancy, listOrganizations, type Tenancy } from "./tenancy.ts";
 
-// The protected resource an access token is bound to, under the app URL,
-// and the pages the authorization sends the member to. Pinned, not options:
-// the screens that serve them are the app's, built to these addresses.
+// The protected resource and the login pages are pinned: docs/architecture/plugins/auth.md, "MCP OAuth".
 const MCP_RESOURCE_PATH = "/mcp";
 const MCP_LOGIN_PAGE = "/sign-in";
 const MCP_ORGANIZATION_PAGE = "/connect/organization";

@@ -1,14 +1,4 @@
-// The variant matrices as data. A cva hides its config at runtime, so each
-// matrix is declared as data and `build` makes the cva from it: the DESIGN.md
-// emitter walks the same object the cva reads, so no enumeration can drift from
-// the matrix it describes. The matrices two or more components draw are
-// declared here; one component's own stand in its `roster/<component>.ts`,
-// beside the cvas built from them, and are re-exported here. Internal to the
-// package, with no subpath export.
-//
-// Every cell is a class both a web and a native renderer can take: fills,
-// borders, ink, spacing roles, radius, type role, weight, family, a control's
-// size. Display, alignment and every interaction state stay with the plugins.
+// The variant matrices as data, internal with no subpath: docs/architecture/ui-core/roster.md, "Matrices".
 
 import { ANSWER, FILL_X, matrix } from "./roster/shared.ts";
 
@@ -76,10 +66,7 @@ export { TOAST_STATE } from "./roster/toast.ts";
 
 // ── Motion cells ────────────────────────────────────────────────────
 
-// The cells a move spells, composed into the
-// cells that make it so a component never writes a motion of its own. They are
-// the one place a cell carries an interaction state or an arbitrary property
-// list: a platform would otherwise overlay them.
+// The cells a move spells: docs/architecture/ui-core/motion.md, "Moves and move cells".
 
 // A checkbox's mark grows from 0.6 with its opacity on `fast` and leaves on
 // `instant` (Base UI keeps it mounted through the leave).
@@ -254,23 +241,7 @@ export const CHANGE_MARK = matrix({
 
 // ── Chip ────────────────────────────────────────────────────────────
 
-// A data value's tag: an outlined pill on the surface with a dot in its
-// family's hue, so the family is learnable across screens and never mistaken
-// for a status. `ground` is what the box stands on: `edge`, the surface under
-// the hairline every outlined control shares (voice 5), for a hued family;
-// `soft`, the neutral family's soft ground (the one a neutral type mark,
-// `ROW_MARK`, stands on) with no edge and no dot. A neutral value has no hue
-// to draw, and a dotless outlined box is a control's form, a compact one a
-// toggle button beside a row's switches; its soft ground keeps it a tag and
-// apart from a state pill, which is opaque, edged and led by its dot (a grey
-// dot is a state's, `STATUS_DOT`). It is the one look of a neutral word: a
-// record head's plain fact (a word, a count, an age) is this pill too, so the
-// head's outlined pills are the facts that act. A chip has no height of its
-// own: it is its caption line between its hairlines, the soft ground's edge
-// drawn clear so both grounds stand at one height. `trailing` is what closes
-// its right end: its own padding, or the remove act's round disc. The box
-// carries the ink for the web's remove glyph; the label repeats it, since a
-// native Text inherits none.
+// A data value's tag: docs/architecture/ui-core/roster.md, "Status and chips".
 export const CHIP = matrix({
 	base: "rounded-chip border gap-gap text-ink-body",
 	variants: {
@@ -286,11 +257,7 @@ export const CHIP = matrix({
 	defaultVariants: { trailing: "none", ground: "edge" },
 });
 
-// The chip's dot in the family's strong colour. The neutral family has no
-// hue and no cell: a grey dot on it read as the `waiting` state's filled one
-// (and a hollow one as `idle`'s), one mark with two meanings on a screen
-// that holds both, so its chip draws none and stands on its soft ground
-// (`CHIP`'s `ground`).
+// The chip's dot: docs/architecture/ui-core/roster.md, "Status and chips".
 export const CHIP_DOT = matrix({
 	base: "size-dot rounded-full shrink-0",
 	variants: {
@@ -546,12 +513,7 @@ export const IMAGE_PICTURE = matrix({
 
 // ── Paint ───────────────────────────────────────────────────────────
 
-// What a part draws while its data is not here: the filler the part would
-// hold, filled (`glyphs`: a text, figure or id slot's own line boxes, the ink
-// transparent), the part's own box with its content not drawn (`box`: a
-// mark or a block), or a control's own box with its content invisible and the
-// control inert (`control`). Each component paints its own box, so the
-// painted form measures as the loaded one.
+// What a part draws while its data is not here: docs/architecture/ui-core/reads.md, "Paint forms".
 export const PAINT = matrix({
 	base: "bg-skeleton",
 	variants: {

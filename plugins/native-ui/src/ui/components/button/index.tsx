@@ -71,12 +71,8 @@ export interface ButtonRouteProps extends Named {
 
 export type ButtonProps = ButtonRunProps | ButtonGlyphProps | ButtonRouteProps;
 
-// An act: a labelled one that runs, its count after the label (pending and
-// blocked acts stay focusable and ignore the press; a blocked one says why
-// under itself once pressed or once its form or sheet is touched); with an
-// `href` a link in accent ink, which runs nothing; with `glyph` a square act
-// with no boundary at rest, the label its name, never drawn, inert inside a
-// disabled field. It holds its own run.
+// An act: a labelled one that runs, a link with `href`, a square act with `glyph`.
+// Its run, pending and blocked forms: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 export function Button(props: ButtonProps) {
 	if (props.href !== undefined)
 		return <ButtonLink fit={props.fit} label={props.label} href={props.href} />;

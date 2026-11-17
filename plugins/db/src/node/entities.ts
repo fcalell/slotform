@@ -1,28 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-// Entity vocabulary extraction — reads
-// the consumer's `src/schema/index.ts` and returns its exported VALUE names,
-// sorted, for `api.slots.entities`.
-//
-// Boundary (mirrors `../../../api/src/node/barrel.ts`'s "read the file
-// layout, don't type-check it" approach — no `typescript`/`ts-morph`
-// compiler-API dependency, just a regex sweep over the export syntax Drizzle
-// schema files actually use):
-//   - Matches: `export const foo = ...`, `export function foo`,
-//     `export class Foo`; `export { foo, bar }` and named re-exports
-//     `export { foo, bar } from "./other"` (an alias `export { foo as bar }`
-//     counts as `bar` — the name a consumer would reference in `reads`/
-//     `writes`).
-//   - Skips (by construction, not a bug): `export type`/`export interface`,
-//     type-only specifiers in an export list (`export type { Foo }`,
-//     `export { type Foo, bar }`), `export default ...`, and namespace
-//     re-exports (`export * from "..."`) — resolving those would require
-//     following the module graph, which the barrel mechanism this mirrors
-//     also declines to do statically.
-//   - Comma-separated multi-declarations (`export const a = 1, b = 2`) and
-//     destructuring exports aren't supported — Drizzle schema files declare
-//     one table per `const`, so this doesn't arise in practice.
+// The entity vocabulary sweep and what it skips: docs/architecture/plugins/db.md, "Entity vocabulary".
 const VALUE_DECL_RE =
 	/export\s+(?:declare\s+)?(?:const|let|var|function|class)\s+([A-Za-z_$][A-Za-z0-9_$]*)/g;
 const EXPORT_LIST_RE =

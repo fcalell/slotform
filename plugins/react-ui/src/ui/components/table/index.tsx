@@ -355,10 +355,7 @@ export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 		picked && visible.some((column) => column.key === picked.key)
 			? picked
 			: undefined;
-	// A read whose procedure declares `sort` is ordered by the server: the
-	// header's sort goes into the read's input, and a column it does not name
-	// does not sort. A window read orders by the server or not at all, since
-	// the rows loaded are not the rows there are.
+	// A read's `sort` is ordered by the server: docs/architecture/plugins/react-ui.md, "Table".
 	const sorting = isRead(props.items) ? props.items.sorting : undefined;
 	const items$ = useMemo<Datum<readonly T[]>>(
 		() =>

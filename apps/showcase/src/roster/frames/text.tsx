@@ -1,9 +1,7 @@
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import type { ShowcaseFrame } from "../cells.ts";
 
-// Code in a sentence at 320: a URL stands whole and one box, and a long command
-// in brackets keeps them on its line, cut with an ellipsis where it alone is
-// wider than the line.
+// Code in a sentence at 320: docs/architecture/ui-core/words.md, "Text runs".
 const CODED = [
 	"Type it as ",
 	{ code: "ha.lan:8123" },

@@ -1,7 +1,4 @@
-// How a frame that judges its own edge waits for its layout before it reads
-// it: no event says a frame's parts have mounted and laid out, so the frame
-// counts animation frames. Each returns the cancel, for the effect that starts
-// it to return.
+// How a frame that judges its own edge waits for its layout: docs/architecture/ui-core/showcase.md, "Roster frames".
 
 // Calls `judge` once `settle` frames have passed.
 export function afterFrames(settle: number, judge: () => void): () => void {

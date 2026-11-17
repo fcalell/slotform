@@ -13,67 +13,9 @@ import type {
 import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, matrix, PRESS } from "./shared.ts";
 
-// A comparison is a Table whose cells hold a value per column: the leading
-// column names the fact, a column follows for each compared thing, and a
-// `chip` or `status` column carries a fact's mark or verdict.
-// The grid where the density is desktop (a narrow container scrolls it sideways), a cell cursor its keyboard (the arrows by a cell,
-// PageUp and PageDown by a page of rows, Home and End along the row, with Ctrl
-// the first and last cell; Enter opens the row from any cell, Space and `x`
-// tick it when the table chooses and Shift with an up or down arrow ticks the
-// rows it crosses, Space not claimed otherwise); on touch a sheet of
-// list rows with the sort a Picker above it. It takes `items`, constants or
-// a selection, each column reading its cell from the item and `row` the
-// row's own slots; while the selection's read waits it paints `PAINT_ROWS`
-// rows over the constant header, each cell by its column's kind, inert.
-// It is a frame of its items as a Section's sheet is: its failed, missing and empty
-// forms and its stale and paused line are its own. It sorts in its
-// own state (descending, ascending, off); `onEdit` requires `onOpen`, and
-// with `onOpen` the leading column never edits. A row's `change` slot draws
-// the change mark ahead of the leading cell's name (a list row's change
-// on touch), the kind's word its name. A row's `editable` slot, false, draws its cells plain (no mark, no act); `locked` is the hold, its columns drawn with the lock. A `chip` cell is a label, on the column's `family`, or `{ label, family }` on its own. A column's `wrap` lets its text
-// and `source` cells wrap and hyphenate, the row growing to the tallest cell,
-// where the others truncate; on touch its cell is the row's `line`. `choose` (`TableChoice`,
-// controlled: `chosen` ids, `onChange` hearing the set a tick makes, the
-// consumer applying its rule) leads the grid with a tick column: a
-// checkbox per row named by its leading cell, and a head checkbox named
-// by `chooseAll`, unchecked, mixed or checked over the rows that can be
-// ticked. A `blocked` row's tick is disabled and a `moved` row says why,
-// each reason a line under the leading cell, growing only that row
-// to the two-line row; on touch the tick leads the row (a list row's
-// check) and the reason leads its facts. The acts that apply to the rows
-// ticked are no prop of the table: the route gives the Pane's `foot` an
-// `ActionBar` with `chosen`, "N of M chosen" (M the rows that can be
-// ticked, which the route counts; named by `chosen.noun` where the rows are not "chosen" bare) at its start, formatted, then select-all (while a row is unticked) and a clear icon (while one is ticked), and at its end the more menu holding every act but the last, then the filled act; it draws nothing while no row is ticked, and gives way to a docked
-// sheet. The grid draws no count: the selection bar's is the count. The bar stands at the body's column and start. Below tablet the rows stand on a sheet. `label` is its accessible name
-// (`aria-label` on the grid or the list, `accessibilityLabel` on the phone),
-// in place of the page's title naming it. A column's `hidden` starts it out
-// of the grid; a table of eight or more columns, or with a hidden one, draws a
-// columns menu (a check row per column after the leading one) in a bar over
-// the grid at its end, and keeps the viewer's choice per table in the browser.
-// A column of figures (`number`) with no `width` stands at half the short
-// measure, an `age` column at its longest relative word, and a `chip` or `status`
-// column at the short measure. A header sorts words from A and figures and ages
-// largest and newest first, then turns over, then is off. The bar over the grid
-// states a windowed read's total, formatted, and ends in the columns menu, whose
-// last row, Reset, returns the columns to what the table declares.
-// A row's `act` and `more` slots draw an acts column at the grid's end, frozen
-// there like the leading column: the icon act, then the more act, each a cell
-// cursor stop of its own column. Shift+Enter on the active row runs its act
-// from any cell (Enter does where the row opens nothing) and the Context Menu
-// key opens its more menu. `drag` makes the rows draggable (a ticked row
-// drags the whole pick, an unticked one itself) onto a `drop` (a Shell place, a
-// row of another collection), and `reorder` moves a row within the grid
-// while it is unsorted: the pointer lands it at a line (`DROP_LINE`), Alt with
-// Up, Down, Home or End moves the active row, and the more menu holds the same
-// moves. A row that is a `drop` washes as selected while a drag is over it.
-// The `selected` row is the open record, washed; the `current` row (what is
-// playing, the step a run is at) carries the current bar (`ROW_CURRENT_BAR`) at
-// its start, on the grid's first cell, and is `aria-current`; on touch it is a
-// list row that is current, the bar and the wash.
+// The table: docs/architecture/ui-core/components.md, "Table".
 export const tableEntry: RosterEntry = {
-	// `drag` and `reorder` are the web's alone, as are `choose` over a window's
-	// query (`Picked`) and a row's `act`, `more` and `drop` slots; the phone's
-	// `choose` holds ids.
+	// Web-only props and slots: docs/architecture/ui-core.md, "Limits".
 	props: [
 		"columns",
 		"items",

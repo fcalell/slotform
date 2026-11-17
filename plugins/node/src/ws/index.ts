@@ -1,9 +1,6 @@
 import { z } from "zod";
 
-// The isomorphic channel contract: the consumer defines one ChannelDef in a
-// shared module and imports it from both server code (hub.channel) and
-// browser code (client.subscribe). Types flow from the zod schemas; there is
-// no codegen.
+// The isomorphic channel contract: docs/architecture/plugins/node.md, "Channels".
 export type MessageSchemas = Record<string, z.ZodType>;
 
 export interface ChannelDef<
@@ -25,9 +22,7 @@ export function defineChannel<
 	return { name, ...shape };
 }
 
-// Wire protocol: JSON text frames.
-//   client -> server: sub / unsub / msg
-//   server -> client: msg
+// Wire protocol, JSON text frames: docs/architecture/plugins/node.md, "Channels".
 export const clientFrameSchema = z.union([
 	z.object({ t: z.literal("sub"), ch: z.string() }),
 	z.object({ t: z.literal("unsub"), ch: z.string() }),

@@ -21,129 +21,7 @@ import type {
 import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, CARD, matrix, ROWS } from "./shared.ts";
 
-// The fold toggle is the title line; a blocked act's reason stands on
-// its own line under the head row. Its count is the loaded rows' (with
-// `items`), never drawn while the body waits; a Section with `children`,
-// whose every row has a label (facts), or given one row alone, not in an
-// array (a value), draws no count, a count being a list's, whatever its
-// `read` holds.
-// `description` paints where it will stand while its selection waits; loaded,
-// `""` draws no line, as an undefined one, and so does one whose read
-// ended, the read's holder saying why once. Titled, the head stands over the
-// body; a Section with `items` and no `title` draws the sheet alone.
-// With `children` the body is its parts a fields gap apart, each a card of
-// its own (a Form, a Table, a Stats, a BarChart, or a `Card` around anything else); the Section
-// draws no card and reads nothing of its children. The `empty` of its
-// `read` stands in its body's place on a card of its own; a Section with no
-// `read` takes no `empty`. The title is the heading size, folded or not,
-// and no Section stands in a Section.
-// With `items`, constants or a selection, the body is the sheet of its
-// rows on the card (`GROUP`), the card's hairline once between them; a row
-// is a row item or a file. While the selection's read waits
-// it paints as many rows as it last loaded, `PAINT_ROWS` when it has not, a
-// title over a facts line: inert, with no
-// link, a tree drawn flat. It is a frame of its items: its failed, missing
-// and empty forms are its own, in the sheet's place with the generic
-// sentences (Retry where it fails), whatever stands above it; it draws the
-// stale and paused line above its rows when it holds its read. A frame
-// above that holds the same read unmounts it when the read fails and alone
-// draws the failure. A row with `children` makes it a tree: the rows
-// abut, each level one step in, and the Section owns which branches are
-// folded (open by default), handing every row its depth and fold.
-// `groups` draws a band (`LIST_BAND`, a `band` tall) over the rows of each
-// group, in the groups' order: the label at the body role at 500, the count
-// of its rows (none when empty, in the meta ink) and its icon act at the
-// end, closed by a rule in the body ink and with none above it. Rows with no
-// group stand before the first band; in a tree the group is the root rows'.
-// A painted sheet draws none. Over a pages read it ends in its more row
-// (`more`): "Show more" while a next page remains, pressed by the viewer;
-// `PAINT_ROWS` painted rows while that page loads; "Couldn't load more" with
-// Retry when it failed. An empty first page with more is not empty: the next
-// page is fetched at once. The frame is not busy for a next page and draws
-// no count while more remains. The Table ends the same way.
-// A row is one box on the sheet whatever it holds: a leading slot (the
-// `change` mark in a lane one icon wide, glyph only, the kind's word its
-// name, ahead of the `leading` mark; a set's untouched rows are `unchanged`,
-// so the titles line up), a text group (`ROW_TEXT`: the title over its
-// facts line, which the row's marks lead: the status's dot and word, a
-// warning, a lock, a Chip, the boolean marks (the required ring, a flag),
-// each its glyph and its word, then the words, wrapping whole; the status,
-// warning, Chip, marks and words are the row's `facts`, in the order given,
-// the lock its own prop; a sentence is no fact but the row's `line`, text
-// under the title and the badges that wraps whole) and an end group
-// (`ROW_END`), in one order: the trailing value (cut to the room the rest
-// leave), a `switch`, a `pick`, the `act` (an icon act, its label the
-// accessible name and the tooltip; the row's other acts are its `more`),
-// the copy act, the `more` act and a tree's fold, centred on the row (on
-// touch a two-line row without a label, an entry or `steps` stands it on
-// the title's line, the facts line under both at the row's width); an age,
-// a count and a control stand whole, a control taking the text group's
-// floor. A
-// row with nothing at its end draws none. A `label` puts the row in the sheet's two columns
-// (`DEFINITION_BOX`): the label at the body role in the meta ink (a
-// `{ code }` label in the code role) in a column as wide as the widest label of the Pane, the
-// line in the second; on touch the line stands under the label. A row
-// without one starts its text group at the row's start. Either way the facts'
-// words follow the title on its line, cut at the end of the line, and stand
-// under it (with a mark, `entry`, `steps` or `wrap`, on touch, or below the
-// row's one-line width, `rowOneLine`, a container query of the row and
-// never a measure of its content). The title is words (truncated unless `wrap`), a `{ code }` (cut in its
-// middle; with `copy` the mono with a copy act), `{ absent }` (meta ink) or a
-// status (`{ tone, label? }`, its mark and word at the title's start, plain). A `selected` row is the
-// open record, washed as one at its `href` is; the open row carries the
-// current bar (`ROW_CURRENT_BAR`), drawn over its start (a tree's child's
-// at its rail, its washes with it) with no room, so
-// every row's text and hairline stand at the sheet's inset as a band's
-// do. A row that opens (`href` or `onOpen`) draws no
-// chevron: the wash and the pointer say it. An `entry` (an Input at the bar
-// fit and its labelled Button) stands under the title in the facts line's
-// place, its error under it; the Button's label is never cut: where the
-// Input at the short measure and the whole Button do not fit one line, the
-// Button stands under the Input at the line's end. A `leading` of `check` is the row's tick, a
-// checkbox named by the title; its `blocked` reason draws it disabled and
-// leads the facts' words. A `leading` of `mark` is a type's mark (`ROW_MARK`,
-// in the family's hue); its `label` names it (accessible name and tooltip),
-// else it is decorative. A `dim` row stands off a highlighted path; `steps`
-// stand in the facts line's place while the row's act pends; `progress` is a
-// task's bar (`ROW_PROGRESS`: the meter's track and fill) the
-// last line of the text column, a badge gap under the facts; `wrap` is a
-// title read whole: words wrap, a `{ code }` run in them wraps inside its
-// box, and a `{ code, copy: true }` stands whole on as many lines as it
-// needs, breaking anywhere (a fingerprint has no spaces). In a tree a row
-// reads its depth and fold from the Section: a rail per level (`TREE_RAIL`,
-// one `stack` step), and a branch's fold the bare chevron of the Section's
-// own fold toggle, in the meta ink, turning a quarter, never washed open. One lock mark:
-// the meta glyph and its reason, a link to what holds the fact with an
-// `href`, inert without one; a locked
-// row takes no act or open. A one-word `{ code }` of more than eight
-// characters too long for its room cuts in its middle (`valueCut`), unless
-// the row wraps.
-// `title`, `facts`, `line`, a `switch`'s `checked` and a `pick`'s `options` and
-// `value` are data: a selection paints in its place, the row inert, while
-// its read waits. The row is the frame of the selections it draws: one that
-// failed, with no frame above holding it, makes the failed form (the label
-// stays; the end shows the alert and the retry icon; the facts line reads
-// `readFailed`, and pressing the row retries); a read a frame above holds
-// is that frame's to say.
-// A file row is one line, the path cut as text by the component to the room
-// its chip leaves, each count in its own lane, the change mark in a lane
-// before the glyph. At most one Chip, between the path and the counts.
-// The marks a row draws from its data are the Section's states: a status
-// (its tone's dot beside its word, a spinner in the dot's place while
-// `running`, a state chip when it carries its own `label`), a chip, an avatar,
-// a glyph, a count and a `more` menu (a popover on the desktop, a sheet on
-// touch). Other frames draw the same marks from their own data.
-// Every act a Section draws (its head act and more, a band's act, a row's act
-// and more, an empty form's act) carries its `confirm`, `done`, `to` and
-// `sheet` as a Button's act does; a row's act that opens a `sheet` draws the
-// sheet beside the row.
-// A row with a `drag` is dragged by a press that moves (a finger after a hold
-// of `DRAG_HOLD`) and one with a `drop` takes what is released on it
-// (`DROP_ON`). `reorder` makes the sheet's rows movable: a drag lands the row
-// at the line (`DROP_LINE`) between two rows and the sheet scrolls near its
-// edges; Alt with Up or Down moves the focused row and its more menu holds
-// Move up, down, to top and to bottom. A flat sheet reorders; a tree or a
-// grouped one does not.
+// A Section: docs/architecture/ui-core/layout.md, "Section".
 export const sectionEntry: RosterEntry = {
 	// `reorder` is the web's alone.
 	props: [
@@ -385,9 +263,9 @@ export interface RowItem<V extends string | null = string, Q = unknown> {
 	label?: string | { code: string };
 	/** The row's leading mark: a glyph, a status, an avatar, a type's mark (its `label` names it) or a tick that chooses the row. */
 	leading?: RowLeading;
-	/** What the row names (a short phrase; truncates at its end, wraps whole while `wrap`, whether the row has a `label` or not); runs of words and `{ code }` draw the code bare in the mono, as a machine name in a row stands (voice 7); the platform widens it to a `Datum`. */
+	/** What the row names (a short phrase; truncates at its end, wraps whole while `wrap`, whether the row has a `label` or not); runs of words and `{ code }` draw the code bare in the mono, as a machine name in a row stands (`guide/voice.md`, "Type"); the platform widens it to a `Datum`. */
 	title?: RowTitle;
-	/** What the row says of itself, in the order given: its facts (`Fact`), each one fact and each drawn as one badge, a box that never breaks inside, whole badges wrapping to the next line with no separator between them (voice 19). A fact is short: a badge longer than its line is cut with an ellipsis inside its box, which touch cannot read, so a sentence is the row's `line`, never a fact. The badges follow the title on its line while the row is one line, and stand under it where the row is two (on touch, below the row's one-line width, or beside a mark). The words are a string (a middle dot inside it is text, not a separator) or a `{ code }` run in the mono; a `{ code }` fact alone is no badge but the row's value, the mono cut in its middle (`valueCut`) in a one-line row and whole in two. A status (`StatusMark`: its tone's mark and word; the first leads the line and the row's lock follows it, a further one is a badge of its own, as a table's several status columns on touch), what is wrong (`{ warning }`: the warning mark and its short phrase), a chip (`ChipMark`, a data value: its family's dot, none for neutral, and its word) and a boolean mark (`RowMark`: the required ring, a flag glyph, each its glyph and its `label`; with `words: false` the glyph stands alone in the end group, before the trailing value, its `label` the accessible name and the tooltip) are the marks, each its own badge with the mark inside, in the order given; the row's `lock` is a badge right after the status; a row with a mark stands its facts under its title at every width. A ring that does not hold draws nothing. The platform widens each fact, and the list, to a `Datum`. */
+	/** What the row says of itself, in the order given: its facts (`Fact`), each one fact and each drawn as one badge, a box that never breaks inside, whole badges wrapping to the next line with no separator between them (`guide/voice.md`, "Badges"). A fact is short: a badge longer than its line is cut with an ellipsis inside its box, which touch cannot read, so a sentence is the row's `line`, never a fact. The badges follow the title on its line while the row is one line, and stand under it where the row is two (on touch, below the row's one-line width, or beside a mark). The words are a string (a middle dot inside it is text, not a separator) or a `{ code }` run in the mono; a `{ code }` fact alone is no badge but the row's value, the mono cut in its middle (`valueCut`) in a one-line row and whole in two. A status (`StatusMark`: its tone's mark and word; the first leads the line and the row's lock follows it, a further one is a badge of its own, as a table's several status columns on touch), what is wrong (`{ warning }`: the warning mark and its short phrase), a chip (`ChipMark`, a data value: its family's dot, none for neutral, and its word) and a boolean mark (`RowMark`: the required ring, a flag glyph, each its glyph and its `label`; with `words: false` the glyph stands alone in the end group, before the trailing value, its `label` the accessible name and the tooltip) are the marks, each its own badge with the mark inside, in the order given; the row's `lock` is a badge right after the status; a row with a mark stands its facts under its title at every width. A ring that does not hold draws nothing. The platform widens each fact, and the list, to a `Datum`. */
 	facts?: readonly Fact[];
 	/** The one sentence under the title: a remedy, a schedule, an error, what a setting does. It is text, never a badge: the meta ink at the meta role, runs (`Runs`, so it holds a `{ code }` or a `{ strong }` run) wrapping whole at every width, a code run moving whole to the next line. It stands after the facts' badges, and under the title where the row has no facts or they follow the title on its line, so a row with a line is at least two lines. Empty draws nothing. A fact is a short thing a row says (a word, a count, an age); a sentence goes here, never in `facts`, where it is one badge cut with an ellipsis at a narrow width, which touch cannot read. The platform widens it to a `Datum`; the painted form is a sentence's filler. */
 	line?: Run | Runs;

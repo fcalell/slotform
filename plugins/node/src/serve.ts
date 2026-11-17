@@ -1,10 +1,6 @@
 import type { ServiceSpec } from "./server/index.ts";
 
-// `/fixture/socket?close=1` of a served app: closes the WebSockets of the
-// session the request holds, as a server restart or a revoked session does.
-// The other `/fixture` controls are `@fcalell/plugin-screens/serve`'s; the
-// sockets are this server's. A `stack screens serve` run starts it; an app's
-// own entry lists it in `services`.
+// The /fixture/socket service: docs/architecture/plugins/node.md, "Screens serve".
 export const fixtureSockets: ServiceSpec = {
 	name: "fixture-sockets",
 	start({ ws, http }) {

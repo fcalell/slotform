@@ -1,8 +1,4 @@
-// What an act is made of, apart from how it is drawn and what runs it: whether
-// an `onAct` hands back its promise so the act can hold it, an act as a slot
-// takes it (`Offered`), the run and save logic the hooks in `./react/acts.ts`
-// wrap, the marks a host leaves on a rejection it drew, and what a more menu
-// holds. Pure, so the hooks and the binding share one core.
+// The act model, pure so the hooks and the binding share one core: docs/architecture/ui-core/acts.md, "Act model".
 import type { Act } from "./descriptors.ts";
 import {
 	type Datum,
@@ -45,9 +41,7 @@ export function wasDrawn(error: unknown): boolean {
 	return typeof error === "object" && error !== null && drawn.has(error);
 }
 
-// Rejections whose every sentence already stands where it belongs (a form's
-// refused values, each under the field it names): the host that ran the act
-// draws no line and no toast of its own for one, so the sentence stands once.
+// Placed rejections: docs/architecture/ui-core/acts.md, "Rejections".
 const placedErrors = new WeakSet<object>();
 
 /** Marks a rejection whose sentences its own host already draws in place: the act's holder draws no line or toast for it, the act ready again. */
@@ -111,10 +105,7 @@ export function startRun<K>(
 	);
 }
 
-// What happens to a control's held value when its save settles. Only the
-// latest save counts: a resolved one releases once its reads' refetch is over
-// (`settled`, and only if nothing was edited meanwhile), a rejected one rolls
-// back.
+// A control save settling: docs/architecture/ui-core/acts.md, "Control saves".
 export function holdSave(
 	save: PromiseLike<unknown>,
 	reads: readonly Read<unknown>[],
@@ -137,9 +128,7 @@ export function holdSave(
 	);
 }
 
-// An act refused before it was sent because the server is out of reach. The
-// host draws it as any failed press, the generic sentence with no Retry; the
-// connection's own sentence is the app's offline banner.
+// An act refused because the server is out of reach: docs/architecture/ui-core/acts.md, "Rejections".
 export class Unreached extends Error {
 	constructor() {
 		super("The server is out of reach.");

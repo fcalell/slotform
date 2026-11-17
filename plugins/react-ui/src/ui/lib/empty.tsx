@@ -48,9 +48,7 @@ export function EmptyBase(props: {
 	// A failed form that stands for its Pane (a Pane's own frame).
 	headed?: boolean;
 }) {
-	// A missing form where its Pane has no title is the heading that names the
-	// Pane, as the Pane's `h2`: the title of a record that is not there never
-	// lands. So is a Pane's failed form, whose title's read failed with it.
+	// A missing or failed form without a title is the Pane's `h2`: docs/architecture/ui-core/reads.md, "Missing and failed forms".
 	const headed =
 		(props.tone === "missing" || (props.tone === "failed" && props.headed)) &&
 		use(PageTitle) === undefined;

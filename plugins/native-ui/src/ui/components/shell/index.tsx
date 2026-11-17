@@ -73,16 +73,7 @@ export interface ShellProps extends Closed {
 	children?: ReactNode;
 }
 
-// The frame on the column's ground: the banner under the status bar, the
-// content, the app's `foot` above the tab bar, the toast queue over the page's box (the Pane's body over its docked foot
-// and the tab bar), the `confirm()` decisions as a sheet, and
-// the tab bar over the home indicator, past five places four and a More tab
-// that opens a page of the rest in the content's place. The switcher's
-// trigger starts the bar of each Pane that has no back act and the tab bar
-// stands under the Place the Shell draws around the screen, the current
-// place's route handed down for a
-// read that answers not found. The sheets' provider, the toasts and the
-// `confirm()` host are `FrameHost`'s.
+// The frame on the column's ground: docs/architecture/ui-core/layout.md, "On the phone".
 export function Shell({
 	places,
 	groups,

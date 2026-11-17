@@ -11,14 +11,8 @@ export interface ServiceHttp {
 		prefix: string,
 		handler: (request: Request) => Response | Promise<Response>,
 	): void;
-	// The session the request's credentials hold, as `/ws` resolves it for a
-	// connection: its `Authorization: Bearer` (a member's session token or a
-	// device key) on any request, its `Cookie` only from one of the app's
-	// pages (an Origin the app trusts, or a GET or HEAD with none), asked of
-	// the app's auth. Null when there is none, the credential is refused, or
-	// the app has no auth. A mounted handler calls it first and answers 401 on
-	// null; a page elsewhere that sends the user's cookie is anonymous, so the
-	// route checks no Origin of its own, and a GET changes no state.
+	// The session the request's credentials hold, null when there is none.
+	// Route sessions: docs/architecture/plugins/node.md, "Service route sessions".
 	session(request: Request): Promise<ConnectionSession | null>;
 }
 
@@ -34,16 +28,7 @@ export interface ServiceContext {
 
 export type ServiceStop = () => void | Promise<void>;
 
-// One lifecycle shape: start() may return a stop handle. Services are plain
-// module singletons in the consumer tree (`src/server/services/<name>.ts`
-// default-exports a defineService), so code that needs a service imports the
-// module directly — no context plumbing.
-//
-// Services start in file-name order, so a `start` must not rely on another
-// service having started. Work that needs the others (enqueueing a job, reading
-// what another service loaded, broadcasting) goes in `ready`, which runs for
-// every service, in the same order, once every `start` has finished and before
-// the server listens.
+// One lifecycle shape, start then ready: docs/architecture/plugins/node.md, "Services".
 export interface ServiceSpec {
 	name: string;
 	// biome-ignore lint/suspicious/noConfusingVoidType: void keeps side-effect-only starts (no return statement) assignable

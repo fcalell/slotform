@@ -41,10 +41,7 @@ const DEFAULT_APP_DIR = "src/app";
 const DEFAULT_EAS_PROFILES = ["development", "preview", "production"];
 const DEFAULT_UPDATE_CHANNEL = "production";
 
-// The plugin depends on `expo` to read the SDK's version table, which names
-// the version of each native module the SDK is built against. Its `react` is
-// the version react-native's renderer accepts: any other React fails at
-// startup with "Incompatible React versions".
+// Why expo is a dependency and which react it pins: docs/architecture/plugins/expo.md, "Dependencies".
 const require = createRequire(import.meta.url);
 const expoVersion = z
 	.object({ version: z.string() })
@@ -174,9 +171,7 @@ const metroPluginCalls = slot.list<MetroWrapperSpec>({
 	uniqueBy: (w) => w.callee,
 });
 
-// Entries for the app.config `plugins` array (config plugins like
-// `"expo-router"` or `["expo-build-properties", { … }]`). Sorted by name so
-// the emitted array is independent of plugin iteration order.
+// Sorted by name: docs/architecture/plugins/expo.md, "Slots and contributions".
 const expoConfigPlugins = slot.list<ExpoConfigPlugin>({
 	source: SOURCE,
 	name: "expoConfigPlugins",
@@ -184,9 +179,7 @@ const expoConfigPlugins = slot.list<ExpoConfigPlugin>({
 	uniqueBy: (p) => p.name,
 });
 
-// Providers wrapped around the expo-router root in entry.tsx — native-ui
-// (its words, the query provider, auth) contributes here. Sorted ascending by `order`
-// so lower-order providers become outer wrappers.
+// Sorted ascending by order: docs/architecture/plugins/expo.md, "Slots and contributions".
 const providers = slot.list<ProviderSpec>({
 	source: SOURCE,
 	name: "providers",
@@ -210,9 +203,7 @@ const devServerPort = slot.value<number, ExpoOptions>({
 	},
 });
 
-// Resolved routes directory. `null` disables expo-router wiring entirely
-// (consumer passed `routes: false`). Drives entry.tsx's `require.context`
-// path and the expo-router config plugin.
+// null disables expo-router wiring: docs/architecture/plugins/expo.md, "Slots and contributions".
 const routesPagesDir = slot.derived({
 	source: SOURCE,
 	name: "routesPagesDir",
@@ -226,9 +217,7 @@ const routesPagesDir = slot.derived({
 	},
 });
 
-// The module whose default export is the page for an address no route serves:
-// a design system plugin contributes its own. With one, generate writes it as
-// the app's `+not-found` route unless the app has a route of its own there.
+// The not-found page contributed by a design system: docs/architecture/plugins/expo.md, "Routes".
 const notFoundRoute = slot.value<string | null>({
 	source: SOURCE,
 	name: "notFoundRoute",
@@ -351,9 +340,7 @@ export const expo = plugin("expo", {
 			"expo-router",
 			"react",
 			"react-native",
-			// `@fcalell/plugin-expo/client`'s `versionHeaders()` reads the compiled
-			// build number via `expo-application`, required for every generated
-			// `src/lib/api.ts`, not just consumers with a `minNativeBuild` floor.
+			// expo-application is required for every generated src/lib/api.ts: docs/architecture/plugins/expo.md, "Dependencies".
 			"expo-application",
 			// Android's `userInterfaceStyle` needs it, or the app ignores the light
 			// and dark setting.
@@ -546,33 +533,20 @@ export const expo = plugin("expo", {
 	contributes: (self) => [
 		api.slots.nativeScheme.contribute(() => deepLinkScheme(self)),
 
-		// Contribute the Metro dev-server localhost origin to the dev-only CORS
-		// list unless the consumer has overridden `app.origins`. Predicate is
-		// `!== undefined` (not truthiness) so an explicit `app.origins: []`
-		// lockdown is honoured — mirrors plugin-vite + plugin-api.
+		// Metro's localhost origin, unless app.origins is set (`!== undefined`, so `[]` stays locked): docs/architecture/plugins/api.md, "Local and dev origins".
 		api.slots.devCorsOrigins.contribute(async (ctx) => {
 			if (ctx.app.origins !== undefined) return undefined;
 			const port = await ctx.resolve(self.slots.devServerPort);
 			return `http://localhost:${port}`;
 		}),
 
-		// Client version gate: walls
-		// native builds below the configured floor with 426 Upgrade Required.
-		// Dormant (no contribution) when `minNativeBuild` is absent or both
-		// platforms are at the floor default of 0 — a dormant gate must not
-		// appear in the emitted worker at all. `after-cors`, `order: 0` so it
-		// runs before any other middleware (in particular before a
-		// rate-limit guard) — a walled client's retry storm must see 426,
-		// never a confusing 429.
+		// The client version gate, dormant without a floor: docs/architecture/plugins/expo.md, "Version gate".
 		api.slots.middlewareEntries.contribute(
 			async (ctx): Promise<MiddlewareSpec | undefined> => {
 				const floors = versionGateFloors(self.options.minNativeBuild);
 				if (!floors) return undefined;
 				const { ios, android } = floors;
-				// Scope: the worker's own prefixes, baked at codegen. A raw
-				// consumer route is the consumer's surface, not the framework's,
-				// and walling it would 426 a stale client on an endpoint that
-				// never spoke the version contract.
+				// Scope, the worker's own prefixes: docs/architecture/plugins/expo.md, "Version gate".
 				const prefixes = await ctx.resolve(api.slots.routePrefixes);
 				return {
 					imports: [
@@ -613,11 +587,7 @@ export const expo = plugin("expo", {
 			},
 		),
 
-		// The gate's telemetry dataset, bound only while the gate is
-		// active. The runtime probes `env[VERSION_GATE_METRICS]` and stays
-		// silent when the binding is absent (node target, local dev without
-		// the section), so the contribution and the write path fail open
-		// independently.
+		// The gate's telemetry dataset: docs/architecture/plugins/expo.md, "Version gate".
 		cloudflare.slots.bindings.contribute((ctx) => {
 			if (!versionGateFloors(self.options.minNativeBuild)) return undefined;
 			return {
@@ -627,10 +597,7 @@ export const expo = plugin("expo", {
 			};
 		}),
 
-		// Emit the native artifacts; the entry is null (skipped) when routing
-		// is disabled. The two config files are `.cjs` (not `.js`): the root shims `require()` them through
-		// Node, and the consumer is `type: module`, so a `.js` would parse as ESM
-		// and break — see codegen's section headers.
+		// The two config files are .cjs: docs/architecture/plugins/expo.md, "Config files are .cjs".
 		emitArtifact(".stack/metro.config.cjs", self.slots.metroConfig),
 		emitArtifact(".stack/app.config.cjs", self.slots.expoConfig),
 		emitArtifact(ENTRY_ARTIFACT, self.slots.entrySource),
@@ -660,10 +627,8 @@ export const expo = plugin("expo", {
 			};
 		}),
 
-		// Merge consumer-declared config plugins into the app.config `plugins`
-		// array, and install their native npm deps. The supported path for
-		// native modules (apple-authentication, google-signin, camera,
-		// notifications, …) to reach a generated Expo app.
+		// Consumer config plugins merge into the app config: docs/architecture/plugins/expo.md, "Dependencies".
+		// Their npm dependencies go to `cliSlots.initDeps`, which `stack init` and `stack add` write.
 		self.slots.expoConfigPlugins.contribute(() =>
 			(self.options.configPlugins ?? []).map((p) => ({
 				name: p.name,
@@ -685,31 +650,21 @@ export const expo = plugin("expo", {
 			content: EXPO_ENV_DTS,
 		})),
 
-		// Point the consumer's package.json `main` at the generated entry so
-		// expo-router actually mounts it (and the provider stack) — without this,
-		// expo-router falls back to its default entry and every contributed
-		// provider is dead. Write-once. Skipped when routing is disabled: a
-		// bare-RN consumer (`routes: false`) owns their own entry, and no
-		// `.stack/entry.tsx` is generated to point at.
+		// package.json main points at the generated entry, write-once: docs/architecture/plugins/expo.md, "Generated files".
 		cliSlots.packageJsonFields.contribute(async (ctx) => {
 			const pagesDir = await ctx.resolve(self.slots.routesPagesDir);
 			if (pagesDir === null) return undefined;
 			return { main: ENTRY_ARTIFACT };
 		}),
 
-		// Root-level config files the consumer owns. The metro + app.config
-		// shims re-export from `.stack/`; babel.config + eas.json are real
-		// consumer-edited files.
+		// The root files the consumer owns: docs/architecture/plugins/expo.md, "Generated files".
 		cliSlots.initScaffolds.contribute((ctx) =>
 			ctx.scaffold("metro.config.js.template", "metro.config.js"),
 		),
 		cliSlots.initScaffolds.contribute((ctx) =>
 			ctx.scaffold("app.config.ts.template", "app.config.ts"),
 		),
-		// babel.config is `.cjs`, not `.js`: Babel's own loader `require()`s it
-		// through Node, and the consumer is `type: module`, so a `module.exports`
-		// in a `.js` would be parsed as ESM and throw. `.cjs` is auto-discovered
-		// by Babel and unconditionally CommonJS.
+		// babel.config is .cjs: docs/architecture/plugins/expo.md, "Config files are .cjs".
 		cliSlots.initScaffolds.contribute((ctx) =>
 			ctx.scaffold("babel.config.cjs.template", "babel.config.cjs"),
 		),
@@ -717,11 +672,7 @@ export const expo = plugin("expo", {
 			ctx.scaffold("eas.json.template", "eas.json"),
 		),
 
-		// The scaffolded native API client: a typed oRPC client stamped
-		// with the version-gate headers on
-		// every request via `createVersionGatedFetch()`. Copy-once, like
-		// `plugin-native-ui`'s `lib-query.ts`/`lib-auth.ts`: an editable
-		// starter, not a generated artifact.
+		// The scaffolded native API client: docs/architecture/plugins/expo.md, "API client".
 		cliSlots.initScaffolds.contribute((ctx) =>
 			ctx.scaffold("lib-api.ts", "src/lib/api.ts"),
 		),

@@ -58,25 +58,12 @@ const ownRoot: TsExpression = {
 	],
 };
 
-// What every Storybook host changes in the app's own config; nothing here
-// reaches the app's `.stack/vite.config.ts`.
-//   - `clientHeaders` goes: `frame-ancestors 'none'` blocks Storybook's
-//     preview iframe.
-//   - No dev-server proxy and no port: the app's backend is never reached, and
-//     Storybook serves Vite itself.
+// What every Storybook host changes: docs/architecture/plugins/screens.md, "Storybook host".
 function hosted(values: ViteConfigValues): ViteConfigValues {
 	return { ...values, serverProxy: [], clientHeaders: {}, devServerPort: 0 };
 }
 
-// The Vite config the screens host runs on: the app's own, rendered from the
-// same slot values, with what a host that serves the app's screens changes.
-//   - `hosted`'s changes.
-//   - The router plugin, which the app's own config runs, and the screens
-//     plugin join: the route tree and fixtures, MSW's worker, and the
-//     dependency optimizer. The router plugin runs with `autoCodeSplitting`
-//     off: split modules (`?tsr-split=component`) are ids that fail
-//     `existsSync`, so Vitest's `--changed` walk drops them and a component's
-//     edit would reach no screen.
+// The screens host's Vite config: docs/architecture/plugins/screens.md, "Screens Vite config".
 export function renderScreensConfig(values: ScreensConfigValues): string {
 	const props = literalToProps({
 		fixtures: `../${FIXTURES}`,
@@ -132,10 +119,7 @@ export function renderScreensConfig(values: ScreensConfigValues): string {
 	);
 }
 
-// The Vite config of a Storybook that draws components, not routes (the
-// showcase's roster): the app's own plugin calls, which hold no router plugin
-// (it needs the route files and rewrites the route tree), with `hosted`'s
-// changes and the dependency optimizer.
+// The Vite config of a Storybook that draws components: docs/architecture/plugins/screens.md, "A Storybook that draws components".
 export function renderComponentHostConfig(values: ViteConfigValues): string {
 	return renderViteConfig(
 		hosted({
@@ -168,13 +152,7 @@ export function renderStorybookMain(options: { floors: boolean }): string {
 	].join("\n");
 }
 
-// `.stack/screens.vitest.config.ts`: the screens host's own Vite config with
-// the Storybook test plugin on the test run's config directory, one browser
-// project. Each parallel page is one renderer, so two open at most. The CLI's
-// narrowing reaches it in the environment: the tags to leave out go to the
-// storybook plugin, and the widths and the screenshot directory to the
-// floors, which read them with `inject`. Without the environment (Vitest run
-// by hand) every story and every width run, and no screenshot is saved.
+// `.stack/screens.vitest.config.ts`: docs/architecture/plugins/screens.md, "Vitest config".
 export function renderVitestConfig(): string {
 	return `import { fileURLToPath } from "node:url";
 import { workspaceTriggers } from "@fcalell/plugin-screens/node";

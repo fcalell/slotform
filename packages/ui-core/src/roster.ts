@@ -1,9 +1,4 @@
-// The roster as data: every component both UI plugins ship, its layer, the
-// prop names it takes, the cells it draws, the tokens it owns, the moves it
-// makes and the states it has, the same in both. DESIGN.md is emitted from it
-// and the showcase draws each component in exactly the states its entry lists.
-// Each entry is declared in its component's `roster/<component>.ts`, beside the
-// component's descriptors, matrices and cells; `ROSTER` groups them by layer.
+// The roster as data: docs/architecture/ui-core/roster.md, "The roster".
 
 import { actionBarEntry } from "./roster/action-bar.ts";
 import { bannerEntry } from "./roster/banner.ts";

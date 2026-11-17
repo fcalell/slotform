@@ -83,10 +83,7 @@ function OverSheet() {
 	);
 }
 
-// The Shell's layer over a page that docks no foot, as `main` holds them: the
-// page's body ends with the act that raised the toast, and while a toast stands
-// the body takes the layer's reach under its last line (`PAGE_BODY_UNDER_TOAST`),
-// so scrolling to the end brings the act clear of the toast.
+// The Shell's layer over a page that docks no foot, as `main` holds them: docs/architecture/ui-core/layout.md, "Foot".
 function OverPage() {
 	return (
 		<Stage contain>
@@ -102,11 +99,8 @@ function OverPage() {
 	);
 }
 
-// The app's one toast queue, which every root frame on the page (a Shell, a
-// Gate) stands in its layer: `raise` raises the stack, a frame after the page's
-// root frames have mounted and listen to the queue (one that mounts later
-// hears none of it), so one frame of the page raises it. Each toast leaves
-// after its time, as an app's does.
+// The app's one toast queue: docs/architecture/ui-core/layout.md, "Toasts".
+// `raise` raises the stack from one frame of the page, after the page's root frames have mounted.
 function Raised(props: { raise: boolean }) {
 	const { raise } = props;
 	useEffect(() => {

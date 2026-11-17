@@ -1,16 +1,6 @@
 import { useEffect } from "react";
 
-// How the viewer last drove the page, kept on the root as `data-modality`:
-// `keyboard` once a key moves through the page, `pointer` after a press, and
-// neither before the first. A ring draws only under `keyboard`
-// (`in-data-[modality=keyboard]`): a browser also counts a clicked text field,
-// and focus a script moves after one, as `:focus-visible`, which rang the
-// page under the pointer. A key counts as moving through the page as React
-// Aria counts it: never with Meta, Control or Alt held (a shortcut), never a
-// modifier alone, and in a field that takes typing only Tab and Escape (typing
-// moves nothing). One capture listener pair serves the page, installed by the
-// first frame or field to mount and dropped with the last; no provider, no
-// prop.
+// How the viewer last drove the page: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 let mounted = 0;
 let remove: (() => void) | undefined;
 
@@ -75,9 +65,7 @@ export function useModality() {
 	}, []);
 }
 
-// A field box's ring: 2 px centred on its 1 px edge, for the keyboard alone.
-// Under the pointer the box takes the accent edge alone (`FOCUS_EDGE`). An act
-// inside the box rings on its own focus, so the box yields to it.
+// A field box's ring: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 export const BOX_FOCUS =
 	"not-has-[button:focus-visible]:in-data-[modality=keyboard]:has-focus-visible:outline-2 not-has-[button:focus-visible]:in-data-[modality=keyboard]:has-focus-visible:outline-offset-(--focus-ring-edge-offset) not-has-[button:focus-visible]:in-data-[modality=keyboard]:has-focus-visible:outline-ring";
 // A focused field takes the accent edge, under the pointer and the keyboard

@@ -35,13 +35,9 @@ export interface ViteConfigValues {
 	configImports: TsImportSpec[];
 	pluginCalls: TsExpression[];
 	resolveAliases: Array<{ find: string; replacement: string }>;
-	// Bare specifiers for `resolve.dedupe`: every import of one resolves from
-	// the consumer's root, so a workspace-linked plugin checkout can't pull a
-	// second copy of a singleton runtime into the production bundle.
+	// `resolve.dedupe` specifiers: docs/architecture/plugins/vite.md, "Singletons and the optimizer".
 	resolveDedupe: string[];
-	// Package names for `optimizeDeps.exclude`: the packages that import a
-	// virtual module a plugin of the config serves, which the dev optimizer's
-	// own esbuild could not resolve.
+	// `optimizeDeps.exclude` packages: docs/architecture/plugins/vite.md, "Singletons and the optimizer".
 	optimizeExclude: string[];
 	devServerPort: number;
 	// The client build's output directory, relative to the project root.

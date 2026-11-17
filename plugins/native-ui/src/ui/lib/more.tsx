@@ -15,13 +15,7 @@ const SHOW = "flex-row items-center pb-gap";
 const INSET = "px-pad";
 const HANG = "-mx-pad";
 
-// A collection's last row over a read that pages (a pages read, or a window
-// read, whose rows load from the start): "Show more" while a next page
-// remains (pressed by the viewer, never by scrolling), the painted rows
-// `paint` draws while it loads, "Couldn't load more" with Retry when it
-// failed. An empty first page that has more is not empty: the next page is
-// fetched at once. Only this row renders on the next page's fetch; the frame
-// is not busy then.
+// A collection's last row over a read that pages: docs/architecture/ui-core/reads.md, "Paging".
 export function MoreRow(props: MoreProps) {
 	return props.read.kind === "window" ? (
 		<WindowMoreRow {...props} />

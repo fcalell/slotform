@@ -66,9 +66,7 @@ export function Sheet<P extends ProcedureCall>({
 	const acting = useAct<number>("line");
 	const derived = useDerivedForm(form, false);
 	useClearOnOpen(open, derived.clear);
-	// The body is the sheet's own: its first typing control claims focus as it
-	// mounts. The provider stands inside `SheetBase`'s children, which the
-	// bottom sheet portals out of this tree.
+	// The body is the sheet's own claim region: docs/architecture/plugins/native-ui.md, "Focus claims".
 	const held = useRef<TextInput>(null);
 	return (
 		<FrameHolds holds={NO_HOLDS}>

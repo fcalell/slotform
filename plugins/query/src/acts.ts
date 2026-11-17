@@ -14,10 +14,7 @@ import {
 	type QueryClient,
 } from "@tanstack/react-query";
 
-// The binding's half of an act: the sentence an oRPC refusal reads as, whether
-// a failure is worth running again, and the dev checks and the reach guard over
-// TanStack's caches. The run and save logic the hooks wrap is
-// `@fcalell/ui-core/acts`.
+// The binding's half of an act: docs/architecture/plugins/query.md, "Acts".
 
 // The server's own message as a sentence: capitalised, one closing stop (a
 // question or an exclamation keeps its own).
@@ -57,11 +54,7 @@ export function issues(error: unknown): Issue[] {
 	});
 }
 
-// A refusal the server worded for the viewer: a 4xx whose message the
-// procedure chose, or, for an input its schema refused, the schema's first
-// issue (its other issues are `issues`, each for its field). Sign-in,
-// permission, a missing record and a rate limit have their own screens or
-// words, and a code's stock text says nothing the act's own sentence does not.
+// `refusal`: docs/architecture/plugins/query.md, "Acts".
 export function refusal(error: unknown): string | undefined {
 	if (!(error instanceof ORPCError)) return undefined;
 	const { status, code, message } = error;
@@ -75,12 +68,7 @@ export function refusal(error: unknown): string | undefined {
 	return asSentence(message);
 }
 
-// Whether a failed act is worth running again as it stands: a server that
-// answered with a refusal (a 4xx: the input, the record's state, sign-in or
-// permission) answers the same way to the same act, so its toast offers no
-// Retry; a timeout, a rate limit, a fault on the server (5xx) or a request
-// that never got an answer may go through the next time. A connection known
-// to be out (`Unreached`) is the offline banner's to say.
+// `retries`: docs/architecture/plugins/query.md, "Acts".
 export function retries(error: unknown): boolean {
 	if (error instanceof Unreached) return false;
 	if (!(error instanceof ORPCError)) return true;
@@ -172,11 +160,7 @@ export function whenSettled(
 // out of reach.
 export type Reach = (data: unknown) => boolean;
 
-// The mutation cache's `onMutate`: nothing queues for a connection that is not
-// there. While the browser is offline, or a cached read's `meta.reach` says
-// the server is out (a socket lost), the mutation fails before any fetch with
-// `Unreached`, so it never pauses and never fires later. `createQueryClient`
-// runs it; a caller-supplied `mutationCache` must call it too.
+// `guardReach`: docs/architecture/plugins/query.md, "Acts".
 export function guardReach(client: QueryClient): void {
 	if (!onlineManager.isOnline()) throw new Unreached();
 	for (const query of client.getQueryCache().getAll()) {

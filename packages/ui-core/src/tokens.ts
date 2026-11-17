@@ -1,6 +1,4 @@
-// The closed token contract, as data. The derivation keeps one base per scale
-// so the numbers stay explainable, and a consumer moves the knobs below and
-// never a token.
+// The closed token contract, as data: docs/architecture/ui-core/tokens.md, "The contract as data".
 
 // Prefixes every error this package throws.
 export const LABEL = "@fcalell/ui-core";
@@ -10,18 +8,7 @@ export type Mode = (typeof MODES)[number];
 
 // ── Knobs ───────────────────────────────────────────────────────────
 
-// How dense everything draws, decided by the pointer and the width, never by
-// a knob: where the primary pointer is fine (a mouse or a trackpad) and the
-// viewport is at least `tablet` wide the web draws the `desktop` set,
-// everywhere else the `touch` set, the 44 px world. `room` is the one set a
-// screen declares (`Place`'s `distance`), since no query detects the viewing
-// distance of a television or a wall display: the touch set drawn on
-// `ROOM_CANVAS` and scaled to the screen, so its numbers are canvas units
-// that a platform multiplies by the room unit.
-// `data-density` on the web root pins any set on any device, which is how
-// the showcase addresses a density. Density moves the type
-// scale, the spacing roles and every size, and in `room` the radii, the
-// widths, the hairline and the ring too. Native is touch and room only.
+// Density is the pointer and the width, never a knob: docs/architecture/ui-core/tokens.md, "Density and room".
 export const DENSITIES = ["touch", "desktop", "room"] as const;
 export type Density = (typeof DENSITIES)[number];
 
@@ -38,17 +25,7 @@ export const ROOM_CANVAS = { width: 960, height: 540 } as const;
 export const FONT_ROLES = ["sans", "mono"] as const;
 export type FontRole = (typeof FONT_ROLES)[number];
 
-// `hue.accent` re-hues the accent. `hue.cast` is the hue every neutral carries
-// (the grounds, the hairlines, the inks, the washes) at the chroma the sheet
-// fixes per role and mode, so it tints the chrome and moves no contrast; it
-// defaults to the accent's, so an accent alone tints the chrome toward it. The
-// status hues, the chip families and the avatars are fixed. `radius` is the
-// control's corner radius; the layers derive theirs from it (`radiusPx`).
-// `fonts` names the two families; the files that carry them are each
-// plugin's `fonts` option. `size` is the body size on the desktop in px, the
-// one base every scale derives from: the type roles, the spacing roles and
-// the sizes follow it at every density (`bodyOf`), so a denser or a roomier
-// interface is one number.
+// The knobs: docs/architecture/ui-core/tokens.md, "Knobs".
 export interface Knobs {
 	hue: { accent: number; cast: number };
 	radius: number;
@@ -195,12 +172,7 @@ export type ColorName = (typeof COLOR_GROUPS)[ColorGroup][number];
 
 export type Hue = number | "accent" | "cast";
 
-// A contrast contract a role keeps at any accent or cast hue: the derivation lowers
-// (or raises) the role's lightness from the declared one until each ground
-// holds, so a green accent's link stays readable on a group where the blue
-// one is at the declared lightness already. `under` names a veil over the
-// ground, composited as a browser draws a translucent fill over an opaque
-// one (an alpha blend in gamma sRGB): a label on a pressed part.
+// A contrast hold: docs/architecture/ui-core/tokens.md, "Derivation".
 export interface Holds {
 	on: ColorName;
 	under?: ColorName;
@@ -215,17 +187,13 @@ export interface ColorValue {
 	holds?: readonly Holds[];
 }
 
-// The grounds that re-point the hairline for everything inside them: on a
-// group tile or a lifted layer a part that names `edge` draws
-// `edge-raised`, so no part picks between the two.
+// Grounds that re-point the hairline: docs/architecture/ui-core/tokens.md, "Edges".
 export const RAISED_GROUNDS = [
 	"group",
 	"raised",
 ] as const satisfies readonly ColorName[];
 
-// The soft grounds a notice stands on (a banner's tone): on one the hairline is
-// no edge, a tenth or a soft tint from the canvas, so a part that names `edge`
-// there draws `edge-strong`, the boundary that holds 3:1 on every one of them.
+// Soft grounds re-point the hairline: docs/architecture/ui-core/tokens.md, "Edges".
 export const SOFT_GROUNDS = [
 	"accent-soft",
 	"ok-soft",
@@ -234,12 +202,7 @@ export const SOFT_GROUNDS = [
 	"chip-neutral-soft",
 ] as const satisfies readonly ColorName[];
 
-// A color is one of: a light and a dark value; an alias of another role; a
-// role at an alpha (`veil`, what `color-mix(in oklch, role α, transparent)`
-// draws); or a role mixed toward another in OKLab (`mix`, what `color-mix(in
-// oklab, role, toward amount)` draws), `black` standing in for the shade. A
-// mix names one `toward` for both modes or one per mode, and may carry
-// `holds` per mode, the mix being where the hold starts.
+// A colour's forms: docs/architecture/ui-core/tokens.md, "Colour tokens".
 export type MixTarget = ColorName | "black";
 
 export type ColorDeclaration =
@@ -253,9 +216,7 @@ export type ColorDeclaration =
 			holds?: Record<Mode, readonly Holds[]>;
 	  };
 
-// A neutral wears the cast knob's hue at the chroma declared here, a
-// constant per role and mode: the chroma decides whether a cast is a tint or
-// a color, so only the hue is a knob.
+// A neutral's chroma: docs/architecture/ui-core/tokens.md, "Colour tokens".
 function neutral(l: number, c: number, alpha?: number): ColorValue {
 	return alpha === undefined
 		? { l, c, hue: "cast" }
@@ -268,9 +229,7 @@ function accent(l: number, c: number): ColorValue {
 
 const WHITE: ColorValue = { l: 1, c: 0, hue: 0 };
 
-// The six families' hues and the lightness each mark takes, alternating
-// between neighbours so the set separates by lightness as well as hue; light
-// marks are floored at L 0.50 and dark marks capped at L 0.75.
+// The chip hues' marks: docs/architecture/ui-core/tokens.md, "Chart colours".
 const CHIP: Record<
 	ChipHue,
 	{ hue: number; light: [number, number]; dark: [number, number] }
@@ -339,9 +298,7 @@ function chipColors(): Record<ChipColor, ColorDeclaration> {
 	return out;
 }
 
-// A chart series' fill: the chip hue at about 60 % of the mark's chroma, its
-// lightness the nearest to the mark's that holds 3:1 on `surface` and `group`
-// (light: the lightest that holds; dark: the darkest).
+// A chart series' fill: docs/architecture/ui-core/tokens.md, "Chart colours".
 const CHART: Record<
 	ChipHue | "neutral",
 	{ light: [number, number]; dark: [number, number] }
@@ -352,9 +309,7 @@ const CHART: Record<
 	teal: { light: [0.61, 0.061], dark: [0.53, 0.071] },
 	violet: { light: [0.63, 0.12], dark: [0.55, 0.12] },
 	pink: { light: [0.63, 0.12], dark: [0.555, 0.12] },
-	// The seventh series: no seventh hue stands outside the accent's 215–290
-	// band the chip hues leave free, so it is the neutral family's grey, in the
-	// cast hue at the neutrals' chroma, at the lightness that holds 3:1.
+	// The seventh series: docs/architecture/ui-core/tokens.md, "Chart colours".
 	neutral: { light: [0.62, 0.012], dark: [0.57, 0.01] },
 };
 
@@ -423,9 +378,7 @@ const DANGER_LIGHT: ColorValue = {
 	holds: [{ on: "group", under: "wash-press", ratio: 4.5 }],
 };
 
-// The faintest text ink: the floor's 4.5:1 on the table, the sheet, a tile and
-// a selected row (the shell's selected place included), and on the neutral
-// state's ground, which it is the ink of, in both modes.
+// The faintest text ink's floor: docs/architecture/ui-core/tokens.md, "Contrast floors".
 const META_HOLDS: readonly Holds[] = [
 	{ on: "neutral-soft", ratio: 4.5 },
 	{ on: "canvas", ratio: 4.5 },
@@ -455,24 +408,7 @@ const EDGE_STRONG_HOLDS: readonly Holds[] = [
 	{ on: "group", under: "chip-neutral-soft", ratio: 3 },
 ];
 
-// Surfaces step in CIE L*: light canvas 96.9 under surface 100 and over
-// group 93.8; dark canvas 3.7, surface 8.0, group and raised 13.0, the dark
-// table a full step under the sheet and a step off black (rgb 12 13 15), so
-// it reads as a drawn ground, never as the screen switched off. The dark
-// hairline is two tokens, `edge` over canvas and surface and `edge-raised`
-// inside group and lifted layers, since the dark ladder spans more than one
-// hairline can straddle; in light both are one hairline. `edge-strong` is a
-// control's boundary under the pointer and a mark's ring at 3:1; at rest a control's
-// edge is the hairline. Text has two inks, `ink-body` and `ink-meta`, and a
-// third ink is a mark, not text: `ink-mark` (a separator, a chevron, a neutral
-// dot) holds the non-text floor of 3:1 on the canvas, the surface and the
-// group, and on a selected row, in both modes; `ink-disabled` is the one text
-// ink below the floor, about 3:1, which WCAG exempts for a disabled control. The
-// accent is a blue between Linear's indigo and Vercel's blue, whose hue the
-// neutrals wear unless the cast names another; `accent-ink` is the accent itself in light and
-// lightens in dark so a link and a ring read on the near-black ground. The dark status tones are capped at L 0.75
-// like the chip marks, and their lightness is spread so they separate under
-// protanopia and deuteranopia.
+// Surfaces, hairlines and inks: docs/architecture/ui-core/tokens.md, "Surfaces and ink".
 export const COLORS: Record<ColorName, ColorDeclaration> = {
 	canvas: { light: neutral(0.974, 0.002), dark: neutral(0.16, 0.005) },
 	surface: { light: WHITE, dark: neutral(0.207, 0.006) },
@@ -500,9 +436,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		light: { ...neutral(0.45, 0.012), holds: META_HOLDS },
 		dark: { ...neutral(0.76, 0.01), holds: META_HOLDS },
 	},
-	// The grounds a mark stands on: the table (`canvas`), the sheet and the
-	// card (`surface`), a tile (`group`) and a selected row, the hardest of
-	// them in each mode.
+	// The grounds a mark stands on: docs/architecture/ui-core/tokens.md, "Contrast floors".
 	"ink-mark": {
 		light: { ...neutral(0.61, 0.01), holds: MARK_HOLDS },
 		dark: { ...neutral(0.575, 0.01), holds: MARK_HOLDS },
@@ -574,13 +508,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		light: { l: 0.965, c: 0.016, hue: 20 },
 		dark: { l: 0.25, c: 0.04, hue: 25 },
 	},
-	// The neutral state's ground (`waiting`, `idle`) has no hue to tell it, so
-	// it stands apart by lightness: a step under a disabled act's fill and the
-	// grey chip in light (L 0.92 against about 0.96 and 0.94 on the sheet), a
-	// step over the sheet, a tile and a disabled fill in dark (0.33 against
-	// 0.21, 0.25 and 0.26), never the veil a disabled act wears nor the
-	// sheet an outlined pill stands on. It is opaque, so it reads the same on
-	// every ground.
+	// The neutral state's ground: docs/architecture/ui-core/tokens.md, "Surfaces and ink".
 	"neutral-soft": {
 		light: neutral(0.92, 0.012),
 		dark: neutral(0.33, 0.012),
@@ -608,14 +536,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 	// A disabled control's text recedes below the floor on purpose; it is no
 	// alias of `ink-mark`, which is no text.
 	"ink-disabled": { light: neutral(0.665, 0.01), dark: neutral(0.506, 0.01) },
-	// Hover and press move a fill 12 % and 22 % away from its label, so the
-	// label only gains contrast: both filled acts wear a white label in both
-	// modes and move toward black. The danger act in dark is a deep red of its
-	// own, since the danger ink holds no light label.
-	// Pending is inert and recedes 30 %: a filled act toward its label in
-	// light and toward the page in dark, held at 3:1 under its label, where
-	// the spinner draws. A labelled act's fill
-	// takes no ground floor in any state: its label names it.
+	// Hover, press and pending: docs/architecture/ui-core/tokens.md, "Interaction colours".
 	"act-accent": { alias: "accent" },
 	"on-act-accent": { alias: "on-accent" },
 	"act-accent-hover": { mix: "accent", toward: "black", amount: 0.12 },
@@ -650,9 +571,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 			dark: [{ on: "on-act-danger", ratio: 3 }],
 		},
 	},
-	// A toggle on (a switch's track, a checked box, a slider's fill) has no
-	// label to carry it, so it is a boundary at 3:1 on every ground, and its
-	// hover moves away from the ground: darker in light, lighter in dark.
+	// A toggle on: docs/architecture/ui-core/tokens.md, "Interaction colours".
 	"switch-off": { alias: "edge-strong" },
 	"switch-off-hover": { mix: "edge-strong", toward: "ink-body", amount: 0.15 },
 	"toggle-on": { alias: "accent" },
@@ -662,16 +581,12 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		amount: 0.12,
 	},
 	"switch-thumb": { alias: "on-accent" },
-	// A QR code keeps its light tile in dark mode, as a printed one does: a
-	// camera reads dark modules on a light ground, and some readers fail an
-	// inverted code. Its modules are the light mode's body ink.
+	// The QR tile stays light: docs/architecture/ui-core/tokens.md, "Interaction colours".
 	"qr-tile": { light: WHITE, dark: WHITE },
 	"qr-ink": { light: neutral(0.2, 0.008), dark: neutral(0.2, 0.008) },
 };
 
-// The order a chart's series take the chart fills (`chart-<hue>`, the chip
-// hues, then the neutral grey): one series takes the first, and a seventh stands
-// apart from the six hues, which fill the wheel outside the accent's band.
+// The series order: docs/architecture/ui-core/tokens.md, "Chart colours".
 export const CHART_SERIES = [
 	"teal",
 	"violet",
@@ -689,13 +604,7 @@ export const METER_NEAR = 0.9;
 // The share of its foot's region past which a docked sheet's body scrolls.
 export const SHEET_DOCKED_BODY_SHARE = 0.4;
 
-// A docked sheet's body height cap, in px. `region` is the foot's region (the
-// log and the foot), `pinned` what the foot pins besides the body (the dock's
-// chrome, the sheet's head, foot line, submit and reason), `floor` the body's
-// floor and `logFloor` the log's (zero in a region with no log). With room the
-// cap is the share of the region (or the floor, if larger); short of room the
-// body gives to the log's floor first, then to its own floor, then below it:
-// the pinned parts never give.
+// A docked sheet's body cap: docs/architecture/ui-core/layout.md, "Sheet".
 export function dockedBodyMax({
 	region,
 	pinned,
@@ -717,16 +626,7 @@ export function dockedBodyMax({
 
 // ── Type ────────────────────────────────────────────────────────────
 
-// Two rules decide which role a piece of text takes. Size follows structure,
-// never emphasis: the primary line of anything is `body`, a secondary line
-// is `meta`, and emphasis inside a line is weight 500 (`strong`), never a
-// size change. A size role names a place, once: `title` is a page's or a record's name,
-// once per page or record; `heading` a section's or a card's name, never inside a
-// row; `caption` text inside a small component (a chip, a key hint), never
-// a sentence; `code` what a machine reads; `figure` a count's number in a
-// strip of them, between `display` (one per screen) and `title`. So there is no label role: a
-// field label and a row's leading cell are `body` at 500, a table header is
-// `meta` at 500, menu and picker items are `body`.
+// Which role a text takes: docs/architecture/ui-core/tokens.md, "Type roles".
 export const TYPE_ROLES = [
 	"display",
 	"figure",
@@ -745,10 +645,7 @@ export type TrackedRole = (typeof TRACKED_ROLES)[number];
 
 export type FontWeight = "regular" | "medium";
 
-// The body size per density at the default `size` knob, the one base of the
-// scale: the knob is the desktop's, and touch and the room keep its ratio to
-// the desktop's, never under 16, the input size below which iOS Safari zooms
-// on focus (`bodyOf`).
+// The body size per density: docs/architecture/ui-core/tokens.md, "Type roles".
 export const BODY_SIZE: Record<Density, number> = {
 	desktop: 13,
 	touch: 16,
@@ -762,11 +659,7 @@ export const ROOM_TYPE_SIZE: Partial<Record<TypeRole, number>> = {
 	display: 5,
 };
 
-// `size` is a ratio of the body size, rounded to the pixel; `leading` a ratio
-// of the size, its line box rounded to the even pixel (a tie rounds up).
-// Tracking is in em and density-invariant. Ink is a color role, family a
-// font role.
-// `tabular` draws the figures at one width: a display and a figure are stats.
+// A role's size, leading and tracking: docs/architecture/ui-core/tokens.md, "Type roles".
 export interface TypeRoleSpec {
 	size: number;
 	leading: number;
@@ -857,38 +750,18 @@ export const TYPE_TRACKING: Record<TrackedRole, string> = {
 // Emphasis inside a line; muted text is never above it.
 export const STRONG_WEIGHT: FontWeight = "medium";
 
-// The mono family's character advance in em: IBM Plex Mono's 600 over its
-// 1000 em. A size counted in code figures (`figures`) is derived from it,
-// since native has no `ch` unit; a named mono with a narrower advance fits
-// inside it, a wider one does not.
+// The mono advance: docs/architecture/ui-core/tokens.md, "Fonts and advances".
 export const MONO_ADVANCE = 0.6;
 
-// The sans family's figure advance in em: IBM Plex Sans's tabular figures, 600
-// over its 1000 em (0.6). The measure of running text is derived from it at each
-// density's body size, and native, which has no `ch` unit, derives its short
-// measure the same way at the touch body size: a label's own size is lost
-// there (a caption's cap is the body's), and a named sans with a wider "0"
-// overflows them.
+// The sans advance: docs/architecture/ui-core/tokens.md, "Fonts and advances".
 export const SANS_ADVANCE = 0.6;
 
 // ── Space ───────────────────────────────────────────────────────────
 
-// One base, 4 px at the default `size` knob; every role is a multiple of it,
-// picked per density, so a density moves roles up and down one ladder rather
-// than inventing values. The base follows the body size, so the knob moves
-// every role with the type (`spacingOf`).
+// The spacing base: docs/architecture/ui-core/tokens.md, "Spacing".
 export const SPACE_BASE = 4;
 
-// Six roles, by use: `gap` between the siblings of a row (a glyph and its
-// label, a label and its value, act and act, a dot and its word) and above
-// and below a row's line, which is how a row gets its height; `badge` between
-// the badges of a facts line, across and down, one rung at every density (a
-// badge's inline inset is the `gap`); `pad` a box's
-// inset (a control's inline padding, a sheet, a card, a popover); `stack`
-// between the parts of one block (the fields of a form, a title block and
-// its list); `section` between the blocks of a page; `page` the page inset.
-// Rows in a list abut on their hairlines. A role never takes a width's name:
-// `w-*` reads the spacing role first, which would shadow the width.
+// The six spacing roles: docs/architecture/ui-core/tokens.md, "Spacing".
 export const SPACING_ROLES = [
 	"gap",
 	"badge",
@@ -899,12 +772,7 @@ export const SPACING_ROLES = [
 ] as const;
 export type SpacingRole = (typeof SPACING_ROLES)[number];
 
-// Multiples of `SPACE_BASE`. Touch is the same roles one rung looser, except
-// the float inset, the acts gap and the badge gap, which hold, and the page inset, which a
-// phone narrows. Room is the touch set with the page inset at the safe area
-// of the ten-foot canvas, 48 canvas units (12 rungs) all round: one `page`
-// role serves both axes, so it costs the canvas height 42 units over the 27
-// the guidance allows top and bottom.
+// The touch and room spacing: docs/architecture/ui-core/tokens.md, "Spacing".
 const TOUCH_SPACING: Record<SpacingRole, number> = {
 	gap: 2,
 	badge: 1,
@@ -922,25 +790,7 @@ export const SPACING_RATIO: Record<Density, Record<SpacingRole, number>> = {
 
 // ── Sizes ───────────────────────────────────────────────────────────
 
-// Heights and squares, in the `--spacing-*` namespace so a cell names them as
-// it names a role (`min-h-control`, `size-icon`). The scale is generic: a size
-// names a measure every component may stand on, never one component's own
-// part, and every size is derived from the type and the space (`sizePx`), so
-// the `size` knob moves them all. The one declared value is the target, the
-// hit floor of a pointer or a finger, which no knob moves. A component's own
-// measure (a switch's track, an avatar, a docked sheet's floor) is a sum of
-// these in its cell, never a size of the scale.
-//
-// `control` the body line and the gap above and below it, at least the
-// target: a button, a field, a pick, a nav row, a segment. `row` the same
-// measure as a row's floor (`min-h-row`), never its height: a row is its lines
-// and the gap above and below them, so one that wraps grows. `target` the hit
-// floor. `line-body` one body line box. `hairline` a box's border, which an act
-// inside it reaches across. The icons are sized by what they sit beside:
-// `icon-meta` meta or caption text, `icon` body text, `icon-control` the
-// inside of a control; `dot` half the meta icon, a mark inside a line of
-// text. `figures` four tabular figures at the code size (a diff's number
-// columns, a file row's count lanes); `measure` the width of running text.
+// The sizes: docs/architecture/ui-core/tokens.md, "Sizes and hit target".
 export const SIZES = [
 	"control",
 	"target",
@@ -956,9 +806,7 @@ export const SIZES = [
 ] as const;
 export type Size = (typeof SIZES)[number];
 
-// The hit floor per density: 28 on the desktop, over WCAG's 24, and 44 on
-// touch, so the room set (the touch one in canvas units) holds 44 of 960, the
-// 32 the ten-foot guidance asks, and 88 at 1920.
+// The hit floor per density: docs/architecture/ui-core/tokens.md, "Sizes and hit target".
 export const TARGET_PX: Record<Density, number> = {
 	desktop: 28,
 	touch: 44,
@@ -971,12 +819,7 @@ export const ICON_RATIO = 7 / 6;
 
 // ── Radius, hairline, ring, widths, breakpoints ─────────────────────
 
-// Spent by role: chip, control and row at the `radius` knob; badge one under
-// it (a soft box inside a line of text); card (a sheet on
-// the canvas), popover and sheet (a centred sheet too) a third more, rounded
-// up, so a layer stays rounder than what stands on it; `full` only on dots
-// and avatars.
-// Density-invariant: a radius names the role, not the size.
+// Radii by role: docs/architecture/ui-core/tokens.md, "Radius, hairline and focus ring".
 export const RADIUS_ROLES = [
 	"chip",
 	"badge",
@@ -1008,33 +851,17 @@ export function radiusPx(role: RadiusRole, radius: number): number {
 	}
 }
 
-// One hairline width for region edges, row splits and field boundaries. The
-// focus ring is `ring`, drawn outside the box at an offset so it never
-// covers the control's own edge; inside a list it is drawn inward. A bordered
-// box that takes typing or choosing rings on its edge instead: the offset is
-// the hairline pulled back, so the ring is centred on the 1 px edge.
+// The hairline and the focus ring: docs/architecture/ui-core/tokens.md, "Radius, hairline and focus ring".
 export const HAIRLINE_PX = 1;
 export const RING_PX = 2;
 export const RING_OFFSET_PX = 2;
 export const RING_EDGE_OFFSET_PX = -1;
 
-// An icon's stroke, in units of Lucide's 24-unit grid, so it scales with the
-// icon: `line` is an icon's own weight (Lucide's default), `mark` the weight
-// of a mark that carries meaning at the meta icon size (a checkbox's tick or
-// dash, a change mark's glyph), where `line` draws 1.17 px at 14 px, straddling
-// two pixel rows at partial coverage. `mark` is 3.5 units, 2.04 px at 14 px
-// (the meta icon size at either density). Both platforms pass it as the glyph's `strokeWidth`; no
-// component spells a stroke literal.
+// Icon strokes: docs/architecture/ui-core/tokens.md, "Icon strokes".
 export const ICON_STROKE = { line: 2, mark: 3.5 } as const;
 export type IconStroke = keyof typeof ICON_STROKE;
 
-// The widths, in two kinds. A measure is a count of characters, `ch` on the
-// web, so it follows the type it is read in; native draws it in px at
-// `SANS_ADVANCE` of the touch body size, rounded up. A unit width is a count of
-// `SPACE_BASE`, a px the font cannot shift (a `ch` width moves when the font
-// loads), that the `size` knob moves and no density does (`widthPx`); the
-// Canvas's layout reads a node's from the rendered theme as a number.
-// A width name never repeats a size name: `max-w-*` reads `--spacing-*` first.
+// The two kinds of width: docs/architecture/ui-core/tokens.md, "Widths".
 export const MEASURES = ["measure-short"] as const;
 export type Measure = (typeof MEASURES)[number];
 
@@ -1047,12 +874,7 @@ export const MEASURE_CHARACTERS: Record<Measure, number> = {
 // Running text's characters per line, the `measure` size.
 export const TEXT_MEASURE_CHARACTERS = 58;
 
-// The widths of lifted layers, each at its pattern's range (a layer never
-// stretches to its container), the regions of a frame (the sidebar, a split's
-// list column, the auth column, an empty state's column) and a canvas node's.
-// A split's list holds the `list` width and its record pane takes the rest,
-// never under `region-min`. `column` is a board column's width and the
-// range of the filters popover.
+// The unit widths: docs/architecture/ui-core/tokens.md, "Widths".
 export const UNIT_WIDTHS = [
 	"popover",
 	"toast",
@@ -1104,11 +926,7 @@ export const BREAKPOINT_PX: Record<Breakpoint, number> = {
 
 // ── Elevation ───────────────────────────────────────────────────────
 
-// Two levels, spent on lifted layers only: `float` a popover, a menu, a
-// picker, a toast; `modal` a dialog, a sheet, a command palette. Each is a
-// tight contact shadow plus a soft ambient one, tinted with the cast in
-// light; in dark the lift is carried by the raised step and the hairline,
-// so the shadow is pure black at a higher opacity.
+// The two shadow levels: docs/architecture/ui-core/tokens.md, "Layers and shadows".
 export const SHADOW_LEVELS = ["float", "modal"] as const;
 export type ShadowLevel = (typeof SHADOW_LEVELS)[number];
 
@@ -1151,23 +969,12 @@ export const SHADOW_LAYERS: Record<
 
 // ── Stacking order ──────────────────────────────────────────────────
 
-// The layers over the page, lowest first, each one step above the one before
-// it and the first one step above the page's own (the root's 0, the page
-// column a stacking context of its own, so a part lifted inside the page stays
-// in it): the Shell's sidebar floating its rail and expanded column over the
-// page, a sheet with its scrim over that, a popover over it (a picker's list opened from a sheet's field),
-// and the toasts over both, so a toast raised while a sheet or a confirm is
-// open is seen and its dismiss pressed. A stacking order inside one component
-// is its own structural class, never a layer. (The roster's `LAYERS` are the
-// component tiers, a different concept.)
+// The layers over the page: docs/architecture/ui-core/tokens.md, "Layers and shadows".
 export const STACK_ORDER = ["sidebar", "sheet", "popover", "toasts"] as const;
 
 // ── Motion ──────────────────────────────────────────────────────────
 
-// One scale from a base of 200 ms: `instant` is press feedback only, the
-// rest the 150–300 band a micro-interaction lives in. A size or place never
-// animates through layout; colour, opacity, transform, clip-path and filter
-// may transition, each explaining a change (`guide/voice.md`, Motion).
+// One duration scale: docs/architecture/ui-core/motion.md, "One table of numbers".
 export const DURATIONS = ["instant", "fast", "base", "slow"] as const;
 export type Duration = (typeof DURATIONS)[number];
 
@@ -1206,9 +1013,8 @@ export const FOLLOW_REACH = 0.4;
 // The fill's alpha at the pulse's low (its high is the fill itself).
 export const PULSE_LOW = 0.55;
 
-// How long a read runs before its paint shows, how long an act runs before
-// its pending look shows, and how long a shown paint stays at least (ms).
-// The defaults of `paint.ts`'s `WAIT_DELAY`, `ACT_DELAY` and `waitMin`.
+// The wait delays: docs/architecture/ui-core/reads.md, "Timing".
+// The defaults of `paint.ts`'s `WAIT_DELAY`, `ACT_DELAY` and `waitMin`, in ms.
 const WAIT_DELAY_MS = 400;
 const ACT_DELAY_MS = 300;
 const WAIT_MIN_MS = 0;
@@ -1226,10 +1032,7 @@ export type MotionKnobName =
 	| "actDelay"
 	| "waitMin";
 
-// A number of the motion contract the owner can tune: the one source the CSS
-// emit, `deriveTheme().motion`, the phone's live `tuned` record, the bench's
-// sliders and the write-back all read. `unit` is the CSS unit the variable
-// takes ("" for a scale).
+// A tunable motion number: docs/architecture/ui-core/motion.md, "One table of numbers".
 export interface MotionKnob {
 	name: MotionKnobName;
 	cssVar: string;
@@ -1406,11 +1209,7 @@ export const EASING: Record<Easing, readonly [number, number, number, number]> =
 
 // ── Fonts and the reset ─────────────────────────────────────────────
 
-// Namespaces reset to `initial`, so an off-contract utility compiles to
-// nothing. The numeric `--spacing` base and the `--font-weight-*` ladder stay
-// live: the roles name their weights, and the ownership rule keeps a numeric
-// off a call site. A bare `duration-150` stays live too: Tailwind turns a
-// number into milliseconds without reading the theme.
+// Namespaces reset to `initial`: docs/architecture/ui-core/tokens.md, "Tailwind reset".
 export const ZEROED_NAMESPACES = [
 	"--color-*",
 	"--radius-*",
@@ -1434,19 +1233,14 @@ export const FONT_FALLBACKS: Record<FontRole, string> = {
 
 const FALLBACK_SUFFIX = " Fallback";
 
-// The face a family's metric fallback is declared under: a local platform
-// font sized to the family's box, so the swap moves nothing. The web plugin
-// declares it beside the family's own face and the family stack names it
-// second; a platform that declares no such face skips the name.
+// The metric fallback face: docs/architecture/ui-core/tokens.md, "Fonts and advances".
 export function fallbackFace(family: string): string {
 	return `${family}${FALLBACK_SUFFIX}`;
 }
 
 // ── Words ───────────────────────────────────────────────────────────
 
-// The one vocabulary of tone: a status's mark, a banner's ground and glyph
-// and a toast's glyph name it under the prop `tone`. `running` draws a spinner
-// where a status has a mark; `idle` is the hollow dot.
+// The vocabulary of tone: docs/architecture/ui-core/roster.md, "Status and chips".
 export const TONES = [
 	"active",
 	"running",

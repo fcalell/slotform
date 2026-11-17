@@ -5,16 +5,9 @@ import {
 } from "../schema/organization.ts";
 import type { MemberRow, Membership, Scope, ScopeContext } from "../scope.ts";
 
-// The request context's tenancy capability, which plugin-api's `scope`,
-// `can` and `rbac` procedure options call. Resolution is stateless: the
-// chain comes from the rows, the access from the caller's membership of the
-// organization at its root, never from the session.
+// The request context's tenancy capability: docs/architecture/plugins/auth.md, "Scopes".
 export interface Tenancy {
-	// The rows of `scope`'s chain for `id` as context entries, plus the
-	// caller's `member` row; null when any level is absent, the caller is no
-	// member, or a consumer predicate fails (the membership one at the root, a
-	// scope's visibility one at its level), so a guessed id never confirms that
-	// a row exists. The answer is typed by the scope: `ScopeContext<S>`.
+	// Resolve a scope's chain for an id: docs/architecture/plugins/auth.md, "Scopes".
 	resolve<S extends Scope>(
 		scope: S,
 		id: string,
@@ -49,9 +42,7 @@ interface SelectClient {
 	};
 }
 
-// `pin` restricts every organization match to one organization id, so a call
-// made as an agent resolves its grant's organization and no other the member
-// belongs to: anything else is absent, as a guessed id is.
+// `pin` restricts every match to one organization: docs/architecture/plugins/auth.md, "MCP OAuth".
 export function createTenancy(
 	db: unknown,
 	roles: Record<string, unknown>,

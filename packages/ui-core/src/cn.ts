@@ -10,17 +10,8 @@ import {
 	WIDTHS,
 } from "./tokens.ts";
 
-// tailwind-merge ships no knowledge of the contract's scales, so `text-title`
-// reads as a color and `p-pad` as an unknown class: two members of one scale
-// both survive a merge. Registering them under `theme` puts them where the
-// default config already looks, which reaches all sixteen `rounded*` groups
-// instead of the single group an added class group can name. The lists are
-// the driving token lists themselves; the sizes ride the spacing scale
-// beside the roles, so `min-h-control` and `min-h-control` collapse.
-//
-// A type role owns its size, its leading and its tracking, so a later role has
-// to clear all three. 3.5.0 conflicts `font-size` with `leading` alone, which
-// leaves a stale `tracking-title` riding body text.
+// The contract's scales in the merge: docs/architecture/ui-core/tokens.md, "Composing with cn".
+// tailwind-merge 3.5.0 conflicts `font-size` with `leading` alone, so the config below adds `tracking-`.
 const twMerge = extendTailwindMerge({
 	extend: {
 		theme: {

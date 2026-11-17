@@ -176,21 +176,7 @@ function ElidedBefore(props: {
 	);
 }
 
-// A unified diff at the code role in the frame Code shares: its lines, added
-// on ok-soft and removed on danger-soft, the whole row, each with its line
-// numbers (the old and the new, or the one side a diff that only adds or only
-// removes has) and its `+` or `−` marker. No hunk header's ranges are drawn:
-// where lines go unshown (before a first hunk that starts past line 1, between
-// two hunks) an elided band stands on the group ground, its mark (`┆`) in the
-// marker's column and in the code's the words that say so ("12 lines not
-// shown" where the numbers count them, else "Lines not shown"), then the
-// function git names after the ranges, a middle dot apart. The phone draws
-// one number column, the new side or the only one (`numbersAt`). A long
-// line wraps at its spaces and between tokens, under itself at its own
-// indent: React Native has no text indent, so a wrapped line hangs no further. The frame is a list named by `label`, the phone having no table. Given
-// hunks by a selection it is a frame of them: the failed form with Retry, the
-// missing form and the empty form stand in its box with the generic sentence,
-// and the stale and paused line over it while it holds its read.
+// A unified diff at the code role in the frame Code shares: docs/architecture/plugins/native-ui.md, "Diff". Its frame forms: docs/architecture/ui-core/reads.md, "What a frame draws".
 function LineDiff({ label, hunks, before, after }: DiffProps) {
 	const [h, b, a] = useSelections([hunks, before, after] as const);
 	// The hunks are the diff's frame: two texts are given plain or by a

@@ -29,10 +29,7 @@ import { ActionBarBase } from "../action-bar/base.tsx";
 import type { ActionBarProps } from "../action-bar/index.tsx";
 import { Text } from "../text/index.tsx";
 
-// The form is its rows over its foot: a `ROWS` run of its own columns, or of the
-// columns of the Pane's body or Section's body it stands in, its rows a
-// subgrid of them (`FORM_GROUP`) so every label in the Pane shares one column.
-// A group's band: the title line over the description.
+// The form is its rows over its foot: docs/architecture/ui-core/layout.md, "Rows grid".
 const BAND = "flex flex-col";
 // A sheet's parts after the fields stand in a column.
 const AFTER = "flex flex-col";

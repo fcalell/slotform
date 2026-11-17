@@ -62,10 +62,7 @@ function Record() {
 	);
 }
 
-// Each frame's Place names the page with its one `h1`, drawn apart from sight
-// (the Shell does it from the current place), and the place's Pane draws that
-// name; a record's Pane draws its own after it. A Pane is the same `h2`
-// whether it stands alone or beside the other, and its Sections start at `h3`.
+// Each frame's Place names the page with its one `h1`; a Pane is the same `h2` alone or beside the other: docs/architecture/ui-core/layout.md, "Headings".
 // One Pane: the page, its acts and more on the bar.
 function One() {
 	return (
@@ -80,10 +77,8 @@ function One() {
 const LONG_CONTEXT =
 	"Preview of release 14 billing, invoicing and tax reporting changes";
 
-// One Pane whose bar holds a title, the context pick and two acts: the title
-// keeps its two fifths of the row, and the pick's label truncates before it,
-// at every width. Every form
-// judges its own edge, the `long` one with a label that would take the row.
+// One Pane whose bar holds a title, the context pick and two acts: docs/architecture/ui-core/layout.md, "Bar".
+// Every form judges its own edge, the `long` one with a label that would take the row.
 function Context(props: { preview?: boolean; long?: boolean }) {
 	const [value, setValue] = useState<string | null>(
 		props.preview || props.long ? "preview" : "production",
@@ -138,9 +133,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 						console.error(
 							`the bar's ${one} overlaps its ${two} (${form} context, ${Math.round(row)} px row)`,
 						);
-			// The collapsed pick renders only what it shows: no part of the pick clips
-			// content (an ellipsis is the label's own cut), and its name starts with
-			// its visible text (WCAG 2.5.3).
+			// The collapsed pick renders only what it shows: docs/architecture/ui-core/components.md, "Picker".
 			for (const one of [trigger, ...trigger.querySelectorAll("*")]) {
 				const style = getComputedStyle(one);
 				if (
@@ -937,9 +930,7 @@ function Empty(props: { read: Reads["empty"] }) {
 	);
 }
 
-// A frame that logs an error where a heading stands empty: a heading with no
-// words (and no name of its own) is one for a screen reader to land on and read
-// nothing, so a name that landed empty draws none.
+// A frame that logs an error where a heading stands empty: docs/architecture/ui-core/layout.md, "Headings".
 const SETTLE = 30;
 function NoEmptyHeading(props: { children: ReactNode }) {
 	const host = useRef<HTMLDivElement>(null);

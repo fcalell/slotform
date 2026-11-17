@@ -102,7 +102,7 @@ const shift = (axis: "x" | "y", by: number) =>
 	axis === "x" ? `translateX(${by}px)` : `translateY(${by}px)`;
 
 /**
- * A drag with the finger (`motion.md` §3, follow): the element moves 1:1 with
+ * A drag with the finger (docs/architecture/ui-core/drag.md, "Follow"): the element moves 1:1 with
  * the pointer toward `away` and never against it, with no easing; on release it
  * either settles back on `base` `out` or, past the reach or flung, leaves on
  * the layer's own leave. Spread the returned handlers on the part that is

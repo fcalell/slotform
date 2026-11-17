@@ -22,11 +22,7 @@ function moduleUrl(relativePath: string): TsExpression {
 	};
 }
 
-// Renders `.stack/server.ts`: a thin call into the runtime, so every moving
-// part (module loading, mounting, static serving, service lifecycle) lives
-// in `@fcalell/plugin-node/server` where it is testable, not in generated
-// text. Worker/services are passed as module URLs, not imports — see
-// startNodeServer for why static imports cannot work here.
+// The generated server entry is a thin call into the runtime: docs/architecture/plugins/node.md, "Generated server entry".
 export function aggregateServer(payload: CodegenServerPayload): string {
 	const { bundle } = payload;
 	const imports: TsImportSpec[] = [

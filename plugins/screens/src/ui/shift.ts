@@ -1,8 +1,4 @@
-// The loading shift: a Section stands whatever its data holds, so the page
-// must not move between its waiting form and its loaded one. `measure` reads
-// every Section's heading in the drawn page (a Pane with no Section, its
-// body's direct blocks); `compare` judges the two reads (a pure function,
-// node-tested). The floors run both around `release()`.
+// The loading shift: docs/architecture/plugins/screens.md, "Loading shift comparison".
 
 // What `compare` found: `fails` fail the screen; `reports` are moves a block
 // that appears only with its data caused, which are accepted and told.
@@ -224,26 +220,7 @@ function slotsOf(boxes: readonly SectionBox[]): Map<SectionBox, string> {
 	return slots;
 }
 
-// What moved between the waiting read and the loaded one; none means the page
-// held still. Sections pair by slot (see `slotsOf`), every other block by
-// name; the loaded form may draw more Sections than the waiting one in a
-// column (one per record), and those below the paired ones are not findings.
-// Per Pane, each Section is judged against the Sections above it
-// in its column (those whose horizontal extent overlaps its own and whose top
-// is above its top), never against a Section beside it:
-//  - a Section that stood while waiting is gone loaded: fails;
-//  - a Section with none above it in its column moved by other than what the
-//    text above it grew by (a head's description wrapping) plus, in a column
-//    the page centres, half of what the column's height changed by: fails;
-//  - a Section with some above it moved by other than what the first of its
-//    column moved by plus what the Sections above it grew by: fails;
-//  - a Section changed height with no rows, chart or text in either form: fails;
-//    a block beside the Sections (a Diff between two) changing height the same,
-//    and what it grew by moves the Sections below it;
-// except that a move which a block caused, one absent while waiting and
-// present loaded above the moved one (a Banner that stands only with its
-// data), at least by that block's height, is reported and not failed; so is the
-// move the other way, of a block present while waiting and absent loaded.
+// What moved between the waiting read and the loaded one: docs/architecture/plugins/screens.md, "Loading shift comparison".
 export function compare(
 	waiting: readonly SectionBox[],
 	loaded: readonly SectionBox[],

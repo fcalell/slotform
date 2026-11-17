@@ -25,13 +25,8 @@ const reply = (output: unknown) =>
 const replyError = (error: ORPCError<string, unknown>) =>
 	toFetchResponse(codec.encodeError(error));
 
-// An error a fixture threw as oRPC's own, from any copy of `@orpc/client`: an
-// app that ends up with a second copy (a version split between this package and
-// the app's tanstack-query) throws an `ORPCError` this module's `instanceof`
-// does not know, and a fixture that threw the procedure's error would be
-// reported as a gap. oRPC's error is told by its fields (`code`, `status`,
-// `defined`, which no other error carries together) and rebuilt as this copy's
-// class, so the codec encodes it as its own. Null for any other value.
+// An error a fixture threw as oRPC's own, from any copy of `@orpc/client`; null for any other value.
+// Told by its fields: docs/architecture/plugins/screens.md, "Gaps".
 export function asORPCError(error: unknown): ORPCError<string, unknown> | null {
 	if (error instanceof ORPCError) return error;
 	if (
@@ -53,22 +48,14 @@ export function asORPCError(error: unknown): ORPCError<string, unknown> | null {
 	});
 }
 
-// The routes the api and auth plugins serve for the frame: the scope lookup of the
-// organization or project the URL names and the caller's rules in it. A story
-// forces the state of the screen's reads; the scope is always found (a missing one
-// is the `$org` route's own story), whoever supplies the fixture.
+// Frame routes: docs/architecture/plugins/screens.md, "What a state applies to".
 function isFrameRoute(path: readonly string[]): boolean {
 	const under = (route: readonly string[]) =>
 		route.every((key, at) => path[at] === key);
 	return under(SCOPE_ROUTES_PATH) || under(ORG_RULES_PATH);
 }
 
-// The session read (plugin-auth's `auth.session`) is the frame's precondition:
-// the auth guard and the active organization hang on it, so a forced error or
-// loading would fail the guard in every such story rather than draw the screen
-// in that state. It answers data whoever supplies the fixture, so an app that
-// answers it with its own session (an `activeOrganizationId`, a role) is exempt
-// like the plugin's. The path mirrors plugin-auth's router (`auth`, `session`).
+// The session read: docs/architecture/plugins/screens.md, "What a state applies to".
 const SESSION_PATH = ["auth", "session"] as const;
 
 function isSessionRead(path: readonly string[]): boolean {
@@ -82,9 +69,7 @@ function isFixture(value: unknown): value is Fixture {
 	return typeof value === "function";
 }
 
-// The fixture of a procedure by its path under the router (`projects.list`),
-// from the app's tree, then from each plugin's, so the app overrides a plugin's
-// answer per procedure. `plugin` tells whose it is.
+// Fixture lookup order: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 function findFixture(
 	app: unknown,
 	plugins: readonly unknown[],
@@ -105,15 +90,7 @@ function findFixture(
 	return undefined;
 }
 
-// The same answer with no items, from the value alone: the browser holds the
-// router's type and no schema. A collection answers `[]`, a page of
-// `{ data, nextCursor }` its envelope with no rows, a window of
-// `{ data, total, offset }` the same with a total of 0, and any other object is
-// walked (never into arrays): every array in it becomes `[]`, and a JSON Schema
-// object schema (`type: "object"` and an object `properties`) has its
-// `properties`, the keyed collection of its fields, emptied to `{}`. The rest is kept.
-// A plain object has `Object.prototype` or none; a `Date`, a `Map` or a class
-// instance is a value and stays as it is.
+// The empty answer: docs/architecture/plugins/screens.md, "States".
 const isPlain = (value: unknown): value is Record<string, unknown> => {
 	if (typeof value !== "object" || value === null) return false;
 	const prototype = Object.getPrototypeOf(value);
@@ -160,9 +137,7 @@ function procedurePath(url: string, prefix: string): string[] {
 		.map(decodeURIComponent);
 }
 
-// The procedures a story's queries call, in the order they first did, since
-// the last `holdCalls`. The run finds a screen's reads by watching: nothing
-// declares them, and a dependent or ambient read shows up like any other.
+// Procedures a story's queries call: docs/architecture/plugins/screens.md, "Gaps".
 const seen = new Map<string, readonly string[]>();
 
 export function called(): readonly (readonly string[])[] {
@@ -178,23 +153,14 @@ export function failing(path: readonly string[] | undefined): void {
 	failed = path?.join(".");
 }
 
-// What the fixtures could not answer since the last `holdCalls`: a procedure
-// with no fixture, or a fixture that threw other than the procedure's own
-// error. The screen draws either as a failed read, so the test run fails the
-// story on it rather than judge an error form as the state asked for.
+// What the fixtures could not answer: docs/architecture/plugins/screens.md, "Gaps".
 const gaps = new Set<string>();
 
 export function fixtureGaps(): readonly string[] {
 	return [...gaps];
 }
 
-// The failure of a read that lands on any error in the data state (not found, a
-// refusal such as a bad request or a conflict): the screen's example record is
-// missing or is the wrong one for the procedure, so it would draw an error form
-// as its data. It names the procedure, the route params whose example value the
-// call sent and the error's code (`notFound` and `error` are the states that
-// draw a failure on purpose). A read whose input carries none of them (a setup
-// form's) has no example record to blame and is no gap.
+// A read that errors in the data state: docs/architecture/plugins/screens.md, "Gaps".
 function failedInData(
 	path: readonly string[],
 	input: unknown,
@@ -212,11 +178,7 @@ function failedInData(
 	return `${path.join(".")} answered ${code} in the data state for the param ${named.join(", ")}: give the route an example value the procedure accepts, under its id in the params of src/app/fixtures.ts`;
 }
 
-// The loading state holds its calls on this promise. Nothing releases it in the
-// workbench, so a Loading story stays waiting; the test run releases it to
-// measure the loaded form of the same screen, and holds again before the next
-// story. A release stays open, so the reads that follow the first ones (a
-// query that waits on another's answer) are answered too.
+// The loading hold: docs/architecture/plugins/screens.md, "States".
 let hold = Promise.resolve();
 let open = () => {};
 
@@ -252,14 +214,7 @@ type ProcedureKinds = Readonly<
 	Record<string, { readonly kind: "query" | "mutation" } | undefined>
 >;
 
-// One call to a procedure, answered for the story's state. A state applies to
-// a query, told by the procedure's kind (a direct client call to a query is a
-// POST, as the wire is untouched), or by a GET where the schema lacks the
-// path; a mutation, a
-// frame route (`isFrameRoute`), the session read (`isSessionRead`, whoever
-// answers it) and a procedure a plugin's fixture module answers always answer
-// from their fixture, as the story records. Loading holds a query until `release`, then answers it as
-// data.
+// One call answered for the story's state: docs/architecture/plugins/screens.md, "What a state applies to".
 export async function answer(
 	request: Request,
 	prefix: string,
@@ -351,13 +306,7 @@ function opening(value: unknown): { type: string; payload: unknown } {
 	return { type: "snapshot", payload: value };
 }
 
-// What the socket does on a subscribe: sends the opening frame, closes (the
-// error state), or sends nothing (a gap). The protocol has no error frame and
-// no not-found frame: a channel read fails only when its fold throws on a
-// message type the app defines, which no fixture can name, or when the socket
-// is down. So error closes the socket, which the client backs off from and,
-// after `PAUSE_AFTER`, pauses the channel's read for; not found answers the
-// snapshot as data.
+// What the socket does on a subscribe: docs/architecture/plugins/screens.md, "Channels".
 export type ChannelAnswer =
 	| { send: ChannelFrame; close?: undefined }
 	| { send?: undefined; close: boolean };

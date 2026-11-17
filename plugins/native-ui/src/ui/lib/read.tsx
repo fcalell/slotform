@@ -44,10 +44,7 @@ export function FailedMark({ label }: { label?: string }) {
 	);
 }
 
-// What a failed row draws at its end, in the failed form: the retry icon,
-// in its own square, a spinner in its place once the retry has run
-// `timings.actDelay`, so a retry the server answers at once never flashes one.
-// Pressing the row retries.
+// What a failed row draws at its end: docs/architecture/ui-core/reads.md, "What a frame draws". Pressing the row retries.
 export function RetryMark({ busy }: { busy: boolean }) {
 	const spinning = useShown(busy, timings.actDelay);
 	return (
@@ -69,11 +66,7 @@ export function useSubmitOf(read?: Selection<unknown>) {
 	return { waiting: ended === undefined, ended };
 }
 
-// The empty form. Its sentence may be a read of its own (a selection of what
-// the frame holds), subscribed here and only here: a frame whose read failed has
-// no such observer, which would mount on the failed read again each time the
-// body changes shape and retry it, so the failed form would never settle. The
-// generic sentence stands until the selection lands.
+// The empty form: docs/architecture/ui-core/reads.md, "Missing and failed forms". Its sentence's read is subscribed here and only here.
 function EmptyForm(props: {
 	empty?: { sentence?: Datum<string>; act?: Empty["act"] };
 	fit: EmptyFit;
@@ -93,9 +86,7 @@ function EmptyForm(props: {
 	);
 }
 
-// What a frame draws in place of its body, or its body: the failed, missing
-// and empty forms in the frame's `fit`; ready, waiting and idle are the loaded
-// tree, its leaves painting.
+// What a frame draws in place of its body, or its body: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function FrameBody(props: {
 	frame: Frame;
 	fit: EmptyFit;
@@ -137,12 +128,7 @@ const LINE = "flex-row flex-wrap items-center gap-gap pb-gap";
 // In a form's flow (a group, the form) the gap around it is the room.
 const LINE_IN_FLOW = "flex-row flex-wrap items-center gap-gap";
 
-// A frame's busy mark, after its heading: a spinner while a read it holds
-// refetches or retries, shown after `WAIT_DELAY` so a refetch the server
-// answers at once draws nothing. The spinner's ink is its place's, meta by
-// default. A frame that holds no read and a frame with no heading draw none,
-// and of sibling frames over one read only the first draws it, so one refetch
-// stands as one mark.
+// A frame's busy mark, after its heading: docs/architecture/ui-core/reads.md, "Busy mark".
 export function BusyMark({ frame }: { frame: Frame }) {
 	const busy = frame.holds && frame.marks && frame.busy;
 	const shown = useShown(busy);
@@ -174,9 +160,7 @@ export function StateLine(props: {
 	);
 }
 
-// The line under a control whose options have ended: the failed sentence
-// with Retry, or `words.missing`; nothing while they wait, stand still or
-// answered.
+// The line under a control whose options have ended: docs/architecture/ui-core/reads.md, "Failed, stale and paused lines".
 export function OptionsLine(props: {
 	drawn: Drawn<unknown>;
 	retry: () => Promise<unknown>;
@@ -198,9 +182,7 @@ export function OptionsLine(props: {
 	) : null;
 }
 
-// The line under a frame's heading row when a read it holds has data it could not
-// refresh (stale, with Retry, pending while it runs) or waits for a connection
-// (paused, nothing to press).
+// The line under a frame's heading row, stale or paused: docs/architecture/ui-core/reads.md, "Failed, stale and paused lines".
 export function FrameLine({
 	frame,
 	flow,

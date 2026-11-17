@@ -108,9 +108,7 @@ const pans = (event: MouseEvent | TouchEvent | WheelEvent): boolean => {
 	);
 };
 
-// What the canvas's own chrome takes from the pane: a part marked
-// `data-clear` with the edge it stands against, `left` or `bottom`, and
-// a `pair` of air beyond it.
+// What the canvas's chrome takes from the pane: docs/architecture/plugins/react-ui.md, "Canvas".
 export function clearanceOf(element: HTMLElement | null): Clearance {
 	if (!element) return NO_CLEARANCE;
 	const pane = element.getBoundingClientRect();
@@ -345,10 +343,7 @@ function make(region: RefObject<HTMLElement | null>) {
 	return { viewport, mount };
 }
 
-// The viewport of `region`: d3-zoom on the element, its transform applied to
-// the layer marked `data-layer` and the grid pattern marked `data-grid` inside
-// it. A pan touches no React state. A move lands on the element, which the
-// effect reaches after the commit: one asked for before it lands nowhere.
+// The viewport: d3-zoom on the region: docs/architecture/plugins/react-ui.md, "Canvas".
 export function useViewport(region: RefObject<HTMLElement | null>): Viewport {
 	const [{ viewport, mount }] = useState(() => make(region));
 	useEffect(mount, [mount]);

@@ -1,11 +1,6 @@
 import { createContext } from "react";
 
-// Where a popup mounts. A root frame (the Shell, the Gate) names an element
-// inside its `main`, so an open popup stands inside a landmark, not in the body
-// beside them, and draws the mode of the box the frame stands in. Base
-// UI's portal waits on a `null` container, so a provider names `null` until its
-// element mounts; with no provider the container is `undefined` and the popup
-// mounts in the body.
+// Where a popup mounts: docs/architecture/plugins/react-ui.md, "Popups".
 export const PortalContainer = createContext<HTMLElement | null | undefined>(
 	undefined,
 );

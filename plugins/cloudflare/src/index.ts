@@ -30,35 +30,19 @@ import {
 
 const SOURCE = "cloudflare";
 
-// Default Workers compatibility date. Pinned so wrangler.toml generation is
-// deterministic from (config + plugin version) — not from today's wall clock.
-// Bump alongside plugin releases; consumers who want a newer date push a
-// `cloudflare.slots.compatibilityDate` value with `override: true`.
-//
-// Why pin in source (not a build step): the alternative is reading the wall
-// clock at generate-time, which makes wrangler.toml content depend on which
-// day `stack generate` runs. That dirties `wrangler types` regeneration
-// caches across midnight and thrashes CI build caches for no functional
-// reason. A repo-versioned constant trades "automatic bumps" for
-// bit-exact reproducibility, which is the more important property in practice
-// — compat dates are a stability contract, not a feature flag.
+// The pinned default compatibility date: docs/architecture/plugins/cloudflare.md, "Compatibility date".
 const DEFAULT_COMPATIBILITY_DATE = "2025-01-01";
 
 // `wrangler dev`'s listen port, passed explicitly so the dev process and the
 // worker's dev origin agree.
 const WRANGLER_DEV_PORT = 8787;
 
-// Where miniflare keeps the local worker's state (D1, KV, caches, traces):
-// wrangler's own `.wrangler/state`, at the consumer root. plugin-db's local
-// D1 commands pass the same `--persist-to`.
+// Miniflare's state dir, shared with plugin-db: docs/architecture/plugins/cloudflare.md, "Local state".
 export const LOCAL_PERSIST = ".wrangler/state";
 
 // ── Slot declarations ──────────────────────────────────────────────
 //
-// Plugins that need cloudflare bindings / vars contribute directly into
-// these list/map slots; `wranglerToml` is a derived slot that composes them,
-// with the worker's `api.slots.env` declarations, into the final
-// `.stack/wrangler.toml` source.
+// Bindings and vars compose into wranglerToml: docs/architecture/plugins/cloudflare.md, "Slots and contributions".
 
 const bindings = slot.list<WranglerBindingSpec>({
 	source: SOURCE,
@@ -80,23 +64,14 @@ const compatibilityFlags = slot.list<string>({
 	name: "compatibilityFlags",
 });
 
-// Pinned to a plugin-shipped constant so wrangler.toml generation is
-// deterministic from (config + plugin version), not today's wall clock.
-// Seeding with `new Date()` broke generate-to-generate reproducibility across
-// day boundaries (`wrangler types` output drifted between runs, CI caches
-// invalidated for no reason). Consumers who want a
-// newer date push a `cloudflare.slots.compatibilityDate` value with
-// `override: true`.
+// Seeded from the pinned constant, never the wall clock: docs/architecture/plugins/cloudflare.md, "Compatibility date".
 const compatibilityDate = slot.value<string>({
 	source: SOURCE,
 	name: "compatibilityDate",
 	seed: () => DEFAULT_COMPATIBILITY_DATE,
 });
 
-// Final wrangler.toml source; with vite in the config it serves the web
-// client's build as the worker's static assets. Pure derivation — no
-// ordering dependency between contributions; the aggregator reads every
-// input slot at once.
+// The final wrangler.toml source, a pure derivation: docs/architecture/plugins/cloudflare.md, "Slots and contributions".
 const wranglerInputs = {
 	bindings,
 	routes,
@@ -164,14 +139,7 @@ const serveWranglerToml = slot.derived({
 		renderWrangler(inp, ctx, serve),
 });
 
-// The config and tsconfig every bundling wrangler command reads. The consumer
-// root has no wrangler config, so `--config` names the generated one. esbuild
-// reads the tsconfig nearest each file unless told otherwise, which under the
-// split is the solution `tsconfig.json` with no `paths`, so
-// `virtual:stack-procedure` would not resolve: `--tsconfig` names the one
-// holding them. It is absolute because wrangler hands it to esbuild, which
-// resolves a relative one against the config's directory, `.stack/`, and the
-// config file's own `tsconfig` key fails the same way.
+// The --config and --tsconfig every bundling command reads: docs/architecture/plugins/cloudflare.md, "Wrangler invocation".
 async function wranglerConfigArgs(ctx: ContributionCtx): Promise<string[]> {
 	const tsconfig = await ctx.resolve(cliSlots.workerTsconfig);
 	return [
@@ -214,17 +182,7 @@ export const cloudflare = plugin("cloudflare", {
 	contributes: (self) => [
 		emitArtifact(".stack/wrangler.toml", self.slots.wranglerToml),
 
-		// Dedicated blanket per-IP volume limiter for the api worker's whole
-		// /rpc tree; the name is plugin-api's `RATE_LIMITER_RPC` runtime
-		// constant. A fixed volume ceiling, not a consumer option: 1000 req/60s
-		// per IP is far above any legitimate single client but low enough to
-		// catch a runaway retry loop or scraper, and sized so a shared
-		// carrier-NAT IP (mobile networks, corporate proxies) never trips it.
-		// Kept structurally separate from plugin-auth's
-		// RATE_LIMITER_IP/RATE_LIMITER_EMAIL bindings and from any procedure's
-		// own `rateLimit: "ip"` middleware so none of them share — and none of
-		// them halve — another's budget. A deploy with no worker-owned paths
-		// (no api) has no /rpc tree to limit.
+		// The blanket per-IP volume limiter: docs/architecture/plugins/api.md, "Rate limiting".
 		self.slots.bindings.contribute(async (ctx) => {
 			if ((await ctx.resolve(api.slots.routePrefixes)).length === 0) {
 				return undefined;
@@ -236,10 +194,7 @@ export const cloudflare = plugin("cloudflare", {
 			};
 		}),
 
-		// The app's one queue: `src/worker/queue.ts` is the switch. A producer
-		// `QUEUE` and the consumer of the queue named after the app, with a
-		// fixed batch shape; the app multiplexes its job types on it. Create
-		// the queue once before the first deploy (guide/deploy.md).
+		// The app's one queue: docs/architecture/plugins/cloudflare.md, "wrangler.toml merge contract".
 		self.slots.bindings.contribute(async (ctx) => {
 			if ((await ctx.resolve(api.slots.queueHandler)) === null) {
 				return undefined;
@@ -252,18 +207,7 @@ export const cloudflare = plugin("cloudflare", {
 			};
 		}),
 
-		// Emit `.dev.vars` unless the consumer already has one; an existing
-		// file is topped up with STACK_DEV and every declared var it lacks, at
-		// its dev default, so a var declared after the file was written still
-		// reaches the dev worker, and `wrangler types` types it, as a
-		// `string`: no declared var is in `[vars]`. STACK_DEV never goes through `api.slots.env` —
-		// it must never become a `wrangler secret put` deploy prompt.
-		//
-		// wrangler resolves `.dev.vars` relative to its config file, and the
-		// dev process runs `--config .stack/wrangler.toml`, so the consumer's
-		// root file is invisible to it. The root file stays the consumer's
-		// editing surface; every generate mirrors it into `.stack/.dev.vars`
-		// for wrangler to read.
+		// Emit .dev.vars and mirror it into .stack/: docs/architecture/plugins/cloudflare.md, ".dev.vars".
 		cliSlots.artifactFiles.contribute(async (ctx) => {
 			const stackDevLine =
 				"# STACK_DEV marks local dev; never set in production.\nSTACK_DEV=1\n";
@@ -301,40 +245,24 @@ export const cloudflare = plugin("cloudflare", {
 			(): TsTypeRef => ({ kind: "reference", name: "Env" }),
 		),
 
-		// The worker's own dev origin: with no frontend plugin it is the only
-		// one, so APP_URL's dev default and the dev trusted origins derive
-		// from it. `app.origins` overrides the dev list too, as it does for
-		// vite and expo. It rides the deploy-target list, so a frontend's
-		// origin always comes first.
+		// The worker's own dev origin: docs/architecture/plugins/api.md, "Local and dev origins".
 		api.slots.devTargetOrigins.contribute((ctx) =>
 			ctx.app.origins !== undefined
 				? undefined
 				: `http://localhost:${WRANGLER_DEV_PORT}`,
 		),
 
-		// Same-origin dev: the vite dev server proxies worker-owned paths to
-		// `wrangler dev`, so the RPC and auth clients' relative URLs reach the
-		// worker and its session cookie is first-party. Inert without vite in
-		// the config.
+		// Same-origin dev proxy, inert without vite: docs/architecture/plugins/vite.md, "Dev server proxy, file access and watching".
 		vite.slots.serverProxy.contribute(async (ctx) => {
 			const prefixes = await ctx.resolve(api.slots.routePrefixes);
 			const target = `http://localhost:${WRANGLER_DEV_PORT}`;
 			return prefixes.map((path) => ({ path, target }));
 		}),
 
-		// wrangler keeps its scratch `.wrangler/` beside its config, so the dev
-		// bundle it rewrites on every worker edit lands in
-		// `.stack/.wrangler/tmp/`, inside Vite's root. Tailwind's automatic
-		// source detection scans that bundle and answers a change to a file it
-		// scanned, but no module imports, with a full page reload; Vite's
-		// watcher never sees the directory.
+		// Ignore .stack/.wrangler so Vite never reloads on it: docs/architecture/plugins/cloudflare.md, "Dev and Vite root".
 		vite.slots.watchIgnored.contribute(() => "**/.wrangler/**"),
 
-		// `--config` points at the generated `.stack/wrangler.toml` (the consumer root has
-		// no wrangler config), and `--persist-to` fixes the local D1 so schema
-		// pushes, seeds, and the running worker all share one miniflare
-		// database. The state lives outside `.stack/`, which is Vite's root:
-		// every request writes it, and each write Vite sees is a full reload.
+		// The shared --config and --persist-to, outside .stack/: docs/architecture/plugins/cloudflare.md, "Local state".
 		cliSlots.devProcesses.contribute(async (ctx) => ({
 			name: "wrangler",
 			command: "npx",
@@ -352,10 +280,7 @@ export const cloudflare = plugin("cloudflare", {
 			color: "yellow",
 		})),
 
-		// `stack screens serve`: `wrangler dev` on the run's port and state with a
-		// config of its own, its entry wrapping the worker in the fixture controls
-		// and its `.dev.vars` the generated mirror with the run's env on top. All of
-		// it lives in the run's scratch directory.
+		// The screens serve target: docs/architecture/plugins/cloudflare.md, "Screens serve".
 		screens.slots.serveTargets.contribute(async (ctx) => {
 			if ((await ctx.resolve(api.slots.workerSource)) === null) {
 				return undefined;
@@ -428,13 +353,7 @@ export const cloudflare = plugin("cloudflare", {
 			},
 		})),
 
-		// The web client's headers for every asset: Cloudflare reads a
-		// `_headers` file from the assets directory and never serves it, and
-		// its rules apply to asset responses only, so the worker's paths need
-		// no exclusion. The step runs after vite's build has emptied and
-		// filled the directory. A `public/_headers` Vite copied there is
-		// refused: Cloudflare joins a header two rules set with a comma
-		// (`DENY, SAMEORIGIN` is invalid), so merging is not safe.
+		// The _headers step: docs/architecture/plugins/cloudflare.md, "Client headers".
 		cliSlots.buildSteps.contribute(async (ctx) => {
 			const clientDir = await ctx.resolve(vite.slots.outDir);
 			const headers = await ctx.resolve(vite.slots.clientHeaders);
@@ -466,17 +385,7 @@ export const cloudflare = plugin("cloudflare", {
 			}
 		}),
 
-		// After `.stack/wrangler.toml` is on disk, shell out to `wrangler types`
-		// to regenerate Env typings. Non-fatal by design: a missing binary or a
-		// wrangler crash downgrades to a warning with actionable next steps —
-		// the rest of `stack generate` still completes.
-		//
-		// On every failure path we delete any pre-existing
-		// `.stack/worker-configuration.d.ts`. Leaving a stale d.ts in place is
-		// the worst outcome — the consumer's typecheck silently passes against
-		// last-run's bindings while the real `env.*` shape has drifted. Removing
-		// it forces an immediate "Cannot find name 'Env'" error that points at
-		// the failed regen, instead of a phantom green typecheck.
+		// wrangler types after the toml is written, non-fatal: docs/architecture/plugins/cloudflare.md, "Wrangler invocation".
 		cliSlots.postWrite.contribute((ctx) => async () => {
 			const dtsPath = join(ctx.cwd, ".stack/worker-configuration.d.ts");
 			const removeStaleDts = () => {

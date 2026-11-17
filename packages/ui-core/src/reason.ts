@@ -1,9 +1,4 @@
-// Whether a blocked act's press still stands: a press is kept as the reason
-// the act was blocked by when pressed, and it stands while the act is
-// blocked by that same reason. Unblocking, or a new reason, forgets the
-// press in render, with no state to reset; the new reason waits for its own
-// press (or the form's touch). Both plugins' blocked acts and their reason
-// hosts (an ActionBar, a sheet, a Section, a Banner, a PendingBar) read it.
+// Whether a blocked act's press still stands: docs/architecture/ui-core/acts.md, "Blocked reasons".
 export function pressStands(
 	blocked: string | undefined,
 	pressedUnder: string | undefined,
@@ -11,9 +6,7 @@ export function pressStands(
 	return blocked !== undefined && pressedUnder === blocked;
 }
 
-// The text props of an act (or a link) that a selection may stand in for: a
-// label that counts ("Approve 3"), a reason from a read. Both platforms lift
-// them (`offered` in `./acts.ts`) where they draw an act given as a datum.
+// The text props of an act a selection may stand in for: docs/architecture/ui-core/acts.md, "Blocked reasons".
 export const ACT_TEXT = ["label", "blocked"] as const;
 export type ActText = (typeof ACT_TEXT)[number];
 

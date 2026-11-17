@@ -40,14 +40,9 @@ export interface NodeServerOptions {
 	port: number;
 	// The address to bind; unset binds every interface.
 	host?: string;
-	// The origins the main listener is reached at (the app's CORS list): a
-	// request whose Host is none of theirs, nor the bound address, is refused
-	// with 421; under STACK_DEV a loopback name or an IP literal passes too.
-	// Unset admits every Host.
+	// The app's CORS origins, which the main listener's Host rule admits: docs/architecture/plugins/node.md, "Hosts and listeners".
 	origins?: string[];
-	// Further listeners by name. The worker sees a request on one with the
-	// server's env plus `STACK_LISTENER` (the name) and `STACK_ORIGIN` (its
-	// origin), and only that origin's Host is admitted there.
+	// Further listeners by name: docs/architecture/plugins/node.md, "Hosts and listeners".
 	listeners?: Record<string, NodeListener>;
 	// A request body over this many bytes is refused with 413.
 	maxBody?: number;
@@ -143,9 +138,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 		return fresh;
 	}
 
-	// Every request meets its listener's Host rule first: the static files,
-	// the worker's paths, the `/ws` upgrade and the service mounts alike. The
-	// Host is the raw header, so a request without one is refused too.
+	// The Host rule runs first: docs/architecture/plugins/node.md, "Hosts and listeners".
 	app.use("*", async (c, next) => {
 		const listener = c.env.listener;
 		const incoming = c.env.incoming as
@@ -216,11 +209,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 		});
 	};
 
-	// The typed WS endpoint. Mounted first: neither the worker nor the SPA
-	// ever owns /ws. A browser applies no CORS to a WebSocket, so the upgrade
-	// is admitted here: an Origin the worker's CORS list does not trust is
-	// refused with 403, and with auth in the app so is a request with no
-	// session. The session rides to each channel handler as `conn.session`.
+	// /ws is mounted first and admits the upgrade itself: docs/architecture/plugins/node.md, "WebSocket admission".
 	app.get(
 		"/ws",
 		async (c, next) => {
@@ -244,9 +233,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 		upgradeWebSocket((c) => connectionHandlers(c.get("wsSession") ?? null)),
 	);
 
-	// Service raw-route mounts, after /ws and before the worker/static/SPA:
-	// a longest-prefix match wins, so a service owns its subtree without a
-	// consumer mounting a worker prefix (documented, not guarded).
+	// Service mounts, after /ws and before the worker: docs/architecture/plugins/node.md, "Services".
 	app.use("*", async (c, next) => {
 		const handler = matchMount(c.req.path);
 		if (handler) {
@@ -411,9 +398,8 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 					`stack node: ${name} listening on http://${extra.host ?? "localhost"}:${bound}`,
 				);
 			}
-			// The main listener binds last: its line is the dev supervisor's
-			// ready signal, so it comes once every port answers. Keep the
-			// wording in sync with the plugin's readyPattern.
+			// The main listener binds last: docs/architecture/plugins/node.md, "Dev".
+			// Keep the wording equal to the plugin's readyPattern.
 			const bound = await listen(null, port, host, null);
 			log.info(
 				`stack node: listening on http://${host ?? "localhost"}:${bound}`,

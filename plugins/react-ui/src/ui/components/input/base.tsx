@@ -23,11 +23,7 @@ import { Icon } from "../../parts/icon/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import type { InputKind, TextInputProps } from "./index.tsx";
 
-// The box draws the field's states, and a `Picker`'s trigger in a field draws
-// the same box: the value inside it is a bare line, so the focus ring is the box's and
-// the value's own is off. The box rings on its value's focus alone: an act
-// inside it rings inset on its own. The guard names the act, not the value,
-// so a showcase frame forced to focus still rings the box.
+// The box draws the field's states: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 export const BOX = "flex items-center";
 export const BOX_HOVER = `not-has-focus-visible:hover:border-edge-hover ${FOCUS_EDGE}`;
 // The in-field act answers its own pointer, so the box keeps its edge under it.
@@ -168,11 +164,7 @@ export function InputBase({
 			tabIndex={cell ? -1 : undefined}
 			autoFocus={autoFocus ?? (cell?.starts || inline?.focus)}
 			ref={autoFocus ? caretAtEnd : undefined}
-			// Base UI's Field wires the control (its id, label, description and
-			// validity); the render function hands over its props and state so the
-			// box around the value draws that state. A disabled box carries
-			// `aria-disabled` itself: the unit outside the native control reads as
-			// disabled to a checker only through an ancestor that says so.
+			// Base UI's Field wires the control: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 			render={(control, state) => (
 				// biome-ignore lint/a11y/noStaticElementInteractions: the press forwards focus to the input inside, which the keyboard reaches on its own
 				<div

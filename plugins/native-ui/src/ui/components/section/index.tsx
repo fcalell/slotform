@@ -130,26 +130,8 @@ type Sheet<V extends string | null> = SectionHeadProps & {
 /** A titled stretch of a page over its rows, or its parts. With `items` it draws the sheet of rows (a row item or a file row each); with `children` it frames parts, and `empty` belongs to the `read` it answers for, so one given without the other does not type-check; a parts Section with a `description` takes an `empty` of its `act` alone, since its frame never draws a sentence, and a described sheet draws the sentence it is given, never the generic one. */
 export type SectionProps<V extends string | null = string> = Parts | Sheet<V>;
 
-// A heading with its count, description and act over its body; the title
-// folds the body when `folded` is set. A blocked act says its reason under
-// itself once pressed or once its form or sheet is touched, as a `Button` does.
-// React Native exposes no heading level, so the title is a header at any depth.
-// The title is the heading size, folded or not, and no Section stands in a
-// Section. With `items` the body is the hairline card of its rows, the hairline
-// once between them: one row per item, `PAINT_ROWS` rows while the
-// `items` selection's read waits (each painted, inert and with no link; a tree
-// draws flat then), the failed form with Retry, the missing form and the empty
-// form each in the sheet's place with the generic sentence (under a
-// `description` its act alone, or the word for none), the stale and
-// paused line above the rows, and the count of the loaded rows after the title
-// (its top-level rows, the items it lists, less any row with `counted: false`,
-// an add row or a row that points elsewhere, with any nested row with
-// `counted: true`, an item in its own right: a tree's other nested rows are
-// parts of their row), unless every row has a label (facts, which a count does not number) or
-// `items` is one row given alone (a value, no list). A band with `groups` spans the card, closed by its own rule; `children` on a
-// row item make the sheet a tree. With `children` the body is its parts; the
-// Section draws no card and reads nothing of its children. A Section with
-// `items` and no `title` draws no head: the sheet alone.
+// A heading with its count, description and act over its body: docs/architecture/ui-core/layout.md, "Section".
+// Its frame forms and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function Section<V extends string | null = string>(
 	props: SectionProps<V>,
 ) {

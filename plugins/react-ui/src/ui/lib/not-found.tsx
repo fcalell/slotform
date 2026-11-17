@@ -8,19 +8,12 @@ import { MissingBase } from "../components/missing/base.tsx";
 import { Pane } from "../components/pane/index.tsx";
 import { InPane } from "./frame.ts";
 
-// The slice of the app's router the page for an unknown address needs, typed
-// structurally so react-ui imports no router. The generated entry hands the
-// app's router to `bindNotFound` right after creating it.
+// The slice of the router the not-found page needs: docs/architecture/plugins/react-ui.md, "Router bindings".
 interface NotFoundRouter {
 	update(options: { defaultNotFoundComponent: () => ReactNode }): void;
 }
 
-// The page for an address nothing serves, drawn by the router wherever the miss
-// lands. TanStack's fuzzy mode hands a miss to the deepest matched route that
-// has children: an address under one of the app's routes (`/members/zzz`)
-// stands in that route's layout, here a Shell, and any other miss stands at the
-// root, outside it. Under a record's Pane (its tabs' outlet) the miss is the
-// record's body; beside the place's Pane it stands where a record would.
+// The page for an address nothing serves: docs/architecture/plugins/react-ui.md, "Router bindings".
 function NotFound() {
 	const words = useWords();
 	const home = use(ShellHome);

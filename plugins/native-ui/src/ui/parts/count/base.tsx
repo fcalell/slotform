@@ -4,10 +4,7 @@ import { useInk } from "../../lib/ink";
 import { Decoded } from "../../lib/slot";
 import { useTokenColor } from "../../lib/theme";
 
-// The number every Count and every Button's count renders. `inAct` draws it in
-// the act's ink, not the muted one: a text takes no currentColor, so the ink
-// the button provides (`Ink`) is resolved and set. Outside the package's
-// exports. `painted` is the number while its data is not here: a figure's filler.
+// The number every Count and every Button's count renders: docs/architecture/plugins/native-ui.md, "Ink". Outside the package's exports.
 export function CountBase(props: {
 	value: number | string;
 	inAct?: boolean;

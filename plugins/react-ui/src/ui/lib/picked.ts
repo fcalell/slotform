@@ -9,10 +9,7 @@ export function pickedFrom(file: File): PickedFile {
 	};
 }
 
-// A file attached to a message: an image also carries `src`, an object URL
-// made here for its thumbnail. Nothing in the package knows when the consumer
-// is done showing it, so the consumer revokes it
-// (`URL.revokeObjectURL(file.src)`) once it drops the attachment.
+// A file attached to a message and its `src`: docs/architecture/plugins/react-ui.md, "A picked file's `src`".
 export function attachedFrom(file: File): PickedFile {
 	return {
 		...pickedFrom(file),

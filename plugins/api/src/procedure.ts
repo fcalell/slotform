@@ -8,10 +8,7 @@ import {
 	STACK_WRITES_HEADER,
 } from "./wire.ts";
 
-// Re-exported for `@fcalell/plugin-api/procedure` consumers (generated code,
-// plugins/auth's worker) — see `./wire.ts` for why these live there and not
-// here: client bundles need them without pulling in this file's
-// `@orpc/server` + zod + builder machinery.
+// Re-exported wire constants: docs/architecture/plugins/api.md, "Wire contract".
 export {
 	ORG_RULES_PATH,
 	SCOPE_ROUTES_PATH,
@@ -60,20 +57,14 @@ type Rbac<TStatements extends DefaultStatements> = {
 	];
 }[keyof TStatements & string];
 
-// `can: [action, resource]` (action first) -- the org-level gate, sugar over
-// `rbac` (`rbac` is `[resource, actions[]]`, action last). A tuple of exactly
-// two strings: no third (conditions) element is structurally expressible, so
-// the org layer stays unconditional by construction (statements have no conditions;
-// conditions belong to the record-scoped ability layer instead).
+// `can` is a tuple of exactly two strings, so no conditions element exists: docs/architecture/plugins/api.md, "Procedure factory".
 type Can<TStatements extends DefaultStatements> = {
 	[R in keyof TStatements & string]: readonly [TStatements[R][number], R];
 }[keyof TStatements & string];
 
 interface BaseOptions<TEntity extends string = string> {
 	rateLimit?: RateLimitKind | readonly RateLimitKind[];
-	// `true`: a keyset page (`cursor`, `limit`; answers `{ data, nextCursor }`).
-	// `"window"`: a page at an offset (`offset`, `limit`; answers
-	// `{ data, total, offset }`), which a collection scrolls through by its total.
+	// `paginated`: docs/architecture/plugins/api.md, "Procedure factory".
 	paginated?: boolean | "window";
 	// The most rows one call may ask for (`limit`); 100 unless named.
 	maxLimit?: number;
@@ -81,18 +72,12 @@ interface BaseOptions<TEntity extends string = string> {
 	// `sort?: { column, direction }`, typed to these. A Table over the read
 	// sends its header sort through it.
 	sort?: readonly [string, ...string[]];
-	// Entities this procedure reads/writes, for automatic cache invalidation
-	//. Ships as `x-stack-reads` /
-	// `x-stack-writes` response headers — see `createEntityHeadersMiddleware`.
+	// Entity headers: docs/architecture/plugins/api.md, "Entity headers".
 	reads?: readonly TEntity[];
 	writes?: readonly TEntity[];
 }
 
-// A tenancy level, as the procedure factory sees it: plugin-auth's scope
-// descriptors (`defineScope`, the root `organization`) satisfy it. The input
-// key is `${name}Id`; the phantom `__context` is what resolving the chain
-// adds to the request context. plugin-api never imports plugin-auth, so the
-// descriptor and its resolver (`TenancyContext`) are both structural.
+// A tenancy level, structurally: docs/architecture/plugins/api.md, "Scope".
 export interface ScopeLike<TName extends string = string, TContext = unknown> {
 	readonly name: TName;
 	readonly __context?: TContext;
@@ -119,15 +104,10 @@ interface ScopedOptions<
 	TEntity extends string = string,
 > extends BaseOptions<TEntity> {
 	auth: true;
-	// The scope the procedure acts inside. Its id arrives in the input, the
-	// chain up to the organization resolves per request, and a missing row or
-	// a non-member caller answers NOT_FOUND.
+	// The scope the procedure acts inside: docs/architecture/plugins/auth.md, "Scopes".
 	scope: ScopeLike;
 	rbac?: Rbac<TStatements>;
-	// Preferred spelling over `rbac` -- config gates, handler `assertCan`,
-	// and client `ability.can()` all read as actions-on-subjects. Both may be
-	// set; both middlewares run. Checked against the caller's role in the
-	// scope's organization.
+	// `can`, the preferred spelling over `rbac`: docs/architecture/plugins/api.md, "Procedure factory".
 	can?: Can<TStatements>;
 }
 
@@ -370,12 +350,7 @@ export type ProcedureFactory<
 	config?: O,
 ) => ProcedureBuilder<ResolvedContext<O, TBase>, InputAdditions<O>>;
 
-// The refusal an auth layer's session lookup throws for a credential it
-// rejects, read structurally (api never imports the auth library): an error
-// that carries an HTTP status of 401 or 403 (a revoked, disabled or expired
-// key, or a bearer the lookup does not accept) is UNAUTHORIZED, and 429 (a key
-// over its rate limit) is TOO_MANY_REQUESTS. Any other error is not a
-// credential's fault and is left to surface as a 500.
+// A credential refusal, read structurally: docs/architecture/plugins/api.md, "Auth refusals".
 function credentialRefusal(error: unknown): ORPCError<string, unknown> | null {
 	if (typeof error !== "object" || error === null) return null;
 	const { statusCode, body } = error as {
@@ -423,11 +398,7 @@ function createAuthMiddleware() {
 				},
 			});
 		}
-		// A session-store outage (D1 down, binding misconfigured) must surface
-		// as a 500: folding it into UNAUTHORIZED reads to the client as "your
-		// session is invalid" and triggers a sign-out storm across every client
-		// retrying at once. Only an absent or incomplete session, and a refusal
-		// of the credential itself (below), are auth failures.
+		// A session-store outage surfaces as a 500, never UNAUTHORIZED: docs/architecture/plugins/api.md, "Auth refusals".
 		let sessionData: { user: unknown; session: unknown } | null;
 		try {
 			sessionData = await context.auth.api.getSession({
@@ -472,10 +443,7 @@ function scopeInputKey(scope: ScopeLike): string {
 	return `${scope.name}Id`;
 }
 
-// Resolves the scope the input names and every level above it, and adds
-// their rows (and the caller's `member`) to the context. An absent row and a
-// caller who is no member answer the same NOT_FOUND, so a guessed id never
-// confirms that a row exists.
+// Scope resolution answers NOT_FOUND for an absent row and a non-member alike: docs/architecture/plugins/auth.md, "Scopes".
 function createScopeMiddleware(scope: ScopeLike) {
 	const key = scopeInputKey(scope);
 	return async (
@@ -618,12 +586,7 @@ function createErrorLoggingMiddleware(): OrpcMiddlewareFn {
 	};
 }
 
-// `reads`/`writes` entity names reach `Headers.set` (below) comma-joined,
-// and comma is also the client-side split delimiter (`splitHeaderValue`,
-// `@fcalell/plugin-api/query-invalidation`). Validate at `procedure()`
-// construction time — module init, loud — rather than let an illegal
-// character reach `Headers.set` at request time, which would throw AFTER a
-// mutation's handler already committed.
+// Entity names are validated at construction: docs/architecture/plugins/api.md, "Entities".
 function assertValidEntityNames(
 	kind: "reads" | "writes",
 	entities: readonly string[],
@@ -639,12 +602,7 @@ function assertValidEntityNames(
 	}
 }
 
-// Wire contract: stamps `x-stack-reads` / `x-stack-writes` on the
-// response only when the handler succeeds — a thrown error (ORPCError or
-// otherwise) propagates out of `next()` before either header is set, so a
-// failed request never claims to have touched its declared entities. Only
-// installed when the procedure declares at least one entity (see
-// `createProcedure` below); empty/absent `reads`/`writes` never reach here.
+// Entity headers are stamped only on success: docs/architecture/plugins/api.md, "Entity headers".
 function createEntityHeadersMiddleware(
 	reads: readonly string[],
 	writes: readonly string[],
@@ -783,9 +741,7 @@ interface OrpcTerminal {
 // endpoint reads: a query is read-only, a mutation and a bare handler are not.
 type ProcedureKind = "query" | "mutation";
 
-// A query is also the one kind that answers a GET: oRPC's RPCHandler refuses
-// GET on a procedure whose route method is not GET (`StrictGetMethodPlugin`,
-// on by default), so a mutation or a bare handler never runs from a link.
+// Only a query answers a GET: docs/architecture/plugins/api.md, "Reads travel as GET".
 function stamp(
 	terminal: OrpcTerminal,
 	kind: ProcedureKind,
@@ -803,13 +759,7 @@ interface BuilderState {
 	scope: string | null;
 }
 
-// The input a `scope` or `paginated` procedure validates: the consumer's
-// object extended with the keys the config adds. `safeExtend` clones the
-// object with its unknown-key policy (strict, strip, catchall) and its
-// refinements, where a fresh `z.object` over the two shapes would keep
-// neither. A consumer key the config also adds is refused: the scope
-// middleware reads `<scope>Id` off the raw input before validation, so the
-// consumer's schema could only weaken or contradict the config's.
+// `safeExtend` keeps the unknown-key policy and refinements: docs/architecture/plugins/api.md, "Procedure factory".
 function mergeInput(
 	baseShape: z.ZodRawShape | null,
 	schema: z.ZodType,
@@ -1032,9 +982,7 @@ export interface JobScheduledEvent {
 	readonly scheduledTime: number;
 }
 
-// The two convention files' factories, typed against the app's job context
-// (`.stack/procedure.ts` calls this with its `JobContext`). Each returns its
-// handler as given: the generated worker mounts it.
+// The convention files' factories: docs/architecture/runtime.md, "Background handlers".
 export function createJobs<TContext>(): {
 	defineQueue<Body = unknown>(
 		run: (batch: JobBatch<Body>, context: TContext) => Promise<void>,

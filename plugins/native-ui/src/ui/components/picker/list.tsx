@@ -162,7 +162,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 						const chosen = chosenValues.includes(option.value);
 						const blocked = optionBlocked(option, chosen);
 						const meta = blocked ?? option.line;
-						// The recommended mark is a badge under the label (voice 9), and
+						// The recommended mark is a badge under the label (docs/architecture/ui-core/components.md, "List"), and
 						// the option's line plain text under it, so a recommended option
 						// is two lines at least, its label keeping the row's width at
 						// every size.

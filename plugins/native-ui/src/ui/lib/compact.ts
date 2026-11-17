@@ -6,11 +6,8 @@ const STEPS = [
 	[1e3, "K"],
 ] as const;
 
-// A figure in short notation ("55K"): the mantissa in the device's language,
-// at most one fraction digit, then K, M or B. A mantissa that rounds to 1,000
-// moves up a step, so 999,950 reads "1M".
-// TODO: Hermes on iOS lacks `notation: "compact"`; when it ships, use Intl's
-// compact notation as the web does.
+// A figure in short notation ("55K"): docs/architecture/ui-core/words.md, "On the phone".
+// TODO: Hermes on iOS lacks `notation: "compact"`; use Intl's compact notation as the web does once it ships.
 export function compact(value: number): string {
 	const mantissa = formatterFor("number", undefined, {
 		maximumFractionDigits: 1,

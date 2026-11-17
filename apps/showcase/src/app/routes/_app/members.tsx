@@ -177,9 +177,8 @@ function Record(props: { member?: Member; onClose: () => void }) {
 	);
 }
 
-// The members read, its answer updated in place by each edit as a query's
-// cache is: the mutations own the cache they change. The Section around the
-// table holds the read; the open record's member is the app's own view of it.
+// The members read, its answer updated in place by each edit: docs/architecture/plugins/query.md, "Cache invalidation".
+// The Section around the table holds the read; the open record's member is the app's own view of it.
 function MemberTable(props: { members: Read<readonly Member[]> }) {
 	const queryClient = useQueryClient();
 	const members = useRead(props.members) ?? [];

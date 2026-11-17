@@ -1,18 +1,7 @@
 import type { RosterEntry } from "./shared.ts";
 import { build, matrix } from "./shared.ts";
 
-// A page outside the shell (sign-in, a consent step), a root frame as the
-// Shell is: one centred column at the `auth` width holding the
-// step: the app's mark (a lockup of its logo and name the app gives the UI
-// plugin once; a drawn lockup 40 tall), an optional `StepCount`, the title
-// (the page's one `h1`), the description (runs with the strong one at 500),
-// a `Banner` and the step's body, a fields gap between every part. It hosts
-// `toast()` and `confirm()`. On touch it spans the viewport inside the page
-// inset and the step stands at the top. The first field of a step takes
-// focus, and its `form` (a Form's props over the step's procedure, drawn after
-// the children) is a card of its fields with its bar after the card (web); a
-// step with local state only draws its controls in its children. The title is
-// required, the page's one `h1`.
+// A page outside the shell: docs/architecture/ui-core/layout.md, "Gate".
 export const gateEntry: RosterEntry = {
 	// `acts` is the web's alone, an act list drawn as an `ActionBar` under the
 	// body: the phone's Gate draws its `Button`s in the body.

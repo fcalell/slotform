@@ -1,10 +1,6 @@
 /// <reference path="./virtual.d.ts" />
 
-// Siblings by package name, never relative: this file ships as source for the
-// bundler while its siblings, plugin-api's client and ui-core ship compiled
-// from dist, so a relative import would load a second copy of the registered
-// client, the entity registry and the model's state.
-// `virtual:stack-schema` is `.stack/schema.ts`, which `stack generate` writes and the bundler serves.
+// Siblings by package name, never relative: docs/architecture/plugins/query.md, "Source shipping".
 import { SCHEMA } from "virtual:stack-schema";
 import type { MongoAbility } from "@casl/ability";
 import { registerOperationContext } from "@fcalell/plugin-api/client";
@@ -87,10 +83,7 @@ export {
 	useSuspenseQuery,
 } from "@tanstack/react-query";
 
-// A query outside the API declares what it reads as `meta: { reads: [...] }`
-// (see `@fcalell/plugin-api/query-invalidation`); registering the shape types
-// those names over the app's `EntityName`, on web and phone alike. Other meta
-// keys stay open.
+// Declared reads of a query outside the API: docs/architecture/plugins/api.md, "Cache invalidation".
 declare module "@tanstack/react-query" {
 	interface Register {
 		queryMeta: {
@@ -117,11 +110,7 @@ const NATIVE_DEFAULTS: QueryClientConfig = {
 	},
 };
 
-// Auto-invalidate on every mutation success unless the caller supplied its
-// own `mutationCache` (they own invalidation then, and call `guardReach` in
-// its `onMutate`) or the mutation opted out via
-// `meta: { skipAutoInvalidation: true }`. Every mutation first passes the
-// reach guard: nothing queues for a connection that is not there.
+// Auto-invalidation on mutation success: docs/architecture/plugins/query.md, "Cache invalidation".
 function createAutoInvalidationMutationCache(
 	getQueryClient: () => QueryClient,
 ): MutationCache {
@@ -154,13 +143,7 @@ export function createQueryClient(config?: QueryClientConfig): QueryClient {
 	return queryClient;
 }
 
-// `.read(input)` on every procedure's utils, beside `.queryOptions`: the same
-// input (`skipToken` included), the output typed, as a `Read` handle. A
-// procedure whose output is stack's paginated envelope also gets `.pages(input)`
-// (no `cursor`), a read of the flat list that pages in; one whose output is the
-// window envelope gets `.window(input)` (no `offset`), a read of the rows loaded
-// from the start that a collection under a scroller sizes to the total. Both
-// carry the query they answer (the input less its paging and sort).
+// `.read`, `.pages` and `.window` on every procedure's utils: docs/architecture/plugins/query.md, "Reads".
 type Page<T> = { data: T[]; nextCursor: string | null };
 type Windowed<T> = { data: T[]; total: number; offset: number };
 type ReadsOf<C> = C extends (...a: infer A) => Promise<infer O>
@@ -333,11 +316,7 @@ export interface QueryProviderProps {
 	children: ReactNode;
 }
 
-// The provider the app root is wrapped with (contributed to
-// `plugin-react.slots.providers` by this plugin, and to
-// `plugin-expo.slots.providers` by `plugin-native-ui`). Lazily builds a stable
-// default client when none is supplied so a bare consumer gets sane behaviour
-// with zero config, and the read hooks' port over it.
+// The provider the app root is wrapped with: docs/architecture/plugins/query.md, "Contributions".
 export function QueryProvider(props: QueryProviderProps) {
 	const [client] = useState(() =>
 		withHold(

@@ -6,10 +6,7 @@ export interface PluginConfig<
 	TInput = unknown,
 > {
 	readonly __plugin: TName;
-	// Explicit npm package name used for runtime discovery. Optional for
-	// backward compatibility: when absent, discovery falls back to
-	// `@fcalell/plugin-${__plugin}`. Third-party plugins published under a
-	// different namespace must set this via `plugin(..., { package })`.
+	// `__package` is the npm name discovery imports: docs/architecture/plugin-authoring.md, "Plugin discovery".
 	readonly __package?: string;
 	readonly options: TOptions;
 	// Type-only: the caller's literal input, never set at runtime.
@@ -31,15 +28,7 @@ export interface ValidationResult {
 
 // ── App config ──────────────────────────────────────────────────────
 
-// AppConfig is the top-level identity surface: cross-cutting values that
-// more than one plugin consumes. `name` flows into wrangler / default auth
-// cookie prefix / fallback HTML title; `domain` drives CORS and auth
-// trustedOrigins. Anything that only matters to a single plugin's domain
-// (HTML metadata, typography, …) lives on that plugin's options instead.
-//
-// `origins` overrides the auto-derived CORS allow-list. When omitted, the
-// CLI derives `https://${domain}`, `https://app.${domain}`, and (when a
-// frontend dev server is present) the vite dev-port localhost origin.
+// AppConfig: docs/architecture/consumer-project.md, "Config".
 export interface AppConfig {
 	name: string;
 	domain: string;

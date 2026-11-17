@@ -1,9 +1,6 @@
 import type { RosterEntry } from "./shared.ts";
 
-// A card for a part of a Section's body that draws none of its own (a
-// Prose, a Stats, a Table, a Stages, an Image): the surface inside a
-// hairline, its `children` at the card's inset. A Section's sheet, a Form and
-// a Table are cards of their own and never stand in one.
+// A card for a part of a Section's body: docs/architecture/ui-core/layout.md, "Cards".
 export const cardEntry: RosterEntry = {
 	props: ["children"],
 	draws: ["CARD_PART", "CARD_BODY"],

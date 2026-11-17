@@ -1,9 +1,4 @@
-// When a typing control's value is final: the viewer leaves the field, or
-// presses Enter on a one-line field, having changed the value since the
-// field took focus. Escape puts back the value the field had then and ends
-// the edit. Both platforms' `Input` drive one of these per
-// field, so an autosaving form commits the same moments on the web and on
-// native.
+// When a typing control's value is final: docs/architecture/ui-core/acts.md, "Commit".
 export interface CommitMoment<V> {
 	// The field took focus holding `value`.
 	focus(value: V): void;

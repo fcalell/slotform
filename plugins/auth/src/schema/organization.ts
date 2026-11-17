@@ -1,23 +1,7 @@
-// Better Auth's organization-plugin tables (`organization` / `member` /
-// `invitation`), as Drizzle SQLite tables. Canonical shape derived from
-// `getAuthTables()` (`better-auth/db`, the same introspection
-// `@better-auth/cli generate` uses internally) for `organization({})` on
-// better-auth 1.6.x with no `teams` / `dynamicAccessControl` — neither is
-// wired by `buildAuth` (plugins/auth/src/worker/index.ts), so neither's
-// tables belong here.
-//
-// Shipped from a separate `@fcalell/plugin-auth/schema/organization` subpath
-// so a consumer only re-exports (and only migrates) these tables when
-// `auth({ organization: true })` is enabled — see `./index.ts` for the
-// always-present identity tables and plugins/auth/README.md for the
-// consumer-facing re-export instructions. None of better-auth's own field
-// defs for these tables set `onDelete: "cascade"` (unlike `session.userId` /
-// `account.userId` in `./index.ts`), so the FKs below carry none either.
+// Better Auth's organization-plugin tables (`organization` / `member` / `invitation`), as Drizzle SQLite tables.
+// Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// The drizzle types the emitted declarations spell, named here so they are
-// spelled through plugin-db, the one package drizzle resolves from. Unnamed,
-// tsc writes `import("drizzle-orm/...")`, which a consumer cannot resolve
-// from this package, and every table and row read through it is `any`.
+// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/auth.md, "Schema tables".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
 import type {
 	Many,

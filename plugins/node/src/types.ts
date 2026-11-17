@@ -17,9 +17,7 @@ export const nodeOptionsSchema = z
 		// The address the server binds. Unset binds every interface; a server
 		// behind a proxy, or one that must stay off the network, names loopback.
 		host: z.string().min(1).optional(),
-		// Further listeners by name: the worker reads the name as
-		// `STACK_LISTENER` and the origin as `STACK_ORIGIN` on a request that
-		// came in on one.
+		// Further listeners by name: docs/architecture/plugins/node.md, "Hosts and listeners".
 		listeners: z
 			.record(z.string().regex(/^[a-z][a-z0-9-]*$/), nodeListenerSchema)
 			.default({}),
@@ -57,22 +55,14 @@ export const nodeOptionsSchema = z
 export type NodeOptions = z.input<typeof nodeOptionsSchema>;
 export type NodeOptionsResolved = z.output<typeof nodeOptionsSchema>;
 
-// A plugin's codegen contribution to the generated server's `services`
-// array: a statically imported ServiceSpec (or ServiceSpec[]) expression.
-// Static entries must not import "virtual:stack-procedure" (their modules
-// resolve before startNodeServer registers the hook); the consumer's own
-// services load through `servicesModule` instead.
+// A statically imported ServiceSpec expression: docs/architecture/plugins/node.md, "Generated server entry".
 export interface ServiceEntry {
 	name: string;
 	imports: TsImportSpec[];
 	expression: TsExpression;
 }
 
-// What a plugin adds to the production bundle (`stack build`): a task the
-// bundled server runs before it listens (a function the expression evaluates to,
-// `() => void | Promise<void>`: db applies its migrations), and files copied
-// beside the bundle for it to read at run time. Dev runs neither: it runs the
-// sources, and db pushes the schema.
+// What a plugin adds to the production bundle: docs/architecture/plugins/node.md, "Build and bundle".
 export interface BundleEntry {
 	name: string;
 	imports?: TsImportSpec[];
@@ -108,9 +98,7 @@ export interface CodegenServerPayload {
 	// The generated worker module the source entry loads: `./worker.ts` unless a
 	// `stack screens serve` run loads its own wrapper.
 	workerFile?: string;
-	// Set for the production bundle's entry: the worker and the consumer's
-	// services are imported, not loaded by URL, the web client is found beside
-	// the bundle, and the entries' boot tasks run before it listens.
+	// Set for the production bundle's entry: docs/architecture/plugins/node.md, "Build and bundle".
 	bundle?: {
 		staticDir: string | null;
 		imports: TsImportSpec[];

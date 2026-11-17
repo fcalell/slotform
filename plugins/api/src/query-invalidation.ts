@@ -1,21 +1,8 @@
 import { STACK_READS_HEADER, STACK_WRITES_HEADER } from "./wire.ts";
 
-// The client-side half of entity-based
-// cache invalidation. Framework-agnostic core -- no react/node imports --
-// consumed by `./client.ts` (capture point) and the query plugin's query
-// client (`createQueryClient`, which invalidates on a mutation's success).
-//
-// Query/mutation keys are oRPC's `@orpc/tanstack-query` shape:
-// `[path: readonly string[], { input?, type?, fnOptions? }]`. The path
-// segments joined with "/" (`["todos", "list"]` -> "todos/list") are the same
-// pathKey the server middleware derives its procedure path from, so captured
-// headers key on the identical string the client-side queryKey produces.
+// The client half of entity-based cache invalidation: docs/architecture/plugins/api.md, "Cache invalidation".
 
-// The app's entity names. The generated `.stack/procedure.ts` merges
-// `entity: Entity` (the union of `api.slots.entities`) into this interface, so
-// `invalidateForWrites` and a query's `meta.reads` take those names and a typo
-// fails `tsc`. Unmerged, a name is any string. Type-only: the client bundle
-// carries nothing.
+// The app's entity names: docs/architecture/plugins/api.md, "Cache invalidation".
 // biome-ignore lint/suspicious/noEmptyInterface: an interface so `.stack/procedure.ts` can merge into it
 export interface Register {}
 
@@ -41,10 +28,7 @@ export interface InvalidatableQueryClient {
 	}): unknown;
 }
 
-// What a query outside the API (a better-auth client call) reads, declared
-// on its options as `meta: { reads: [...] }`: the entity names a
-// procedure's `reads` would, and the counterpart of a mutation source's
-// `writes`. An API query's reads come from its response headers instead.
+// Declared reads of a query outside the API: docs/architecture/plugins/api.md, "Cache invalidation".
 function declaredReads(
 	meta: Record<string, unknown> | undefined,
 ): readonly string[] | undefined {
@@ -136,17 +120,7 @@ export function createEntityRegistry(): EntityRegistry {
 	return { capture, invalidateForWrites, handleMutationSuccess };
 }
 
-// The registry `./client.ts` and the query plugin's query client share by
-// default. Tests that need isolation from other tests' captured
-// headers build their own via `createEntityRegistry()` instead.
-//
-// Per-JS-isolate, single-user assumption: like `./client.ts`'s
-// registered-client singleton, this module-level registry assumes one
-// client's captured headers for the lifetime of the isolate (CSR/native) --
-// it is NOT per-request. An SSR target that reuses the same isolate across
-// requests/users must not reuse it: user A's captured entity headers could
-// drive user B's cache invalidation. Build a request-scoped registry via
-// `createEntityRegistry()` instead.
+// The default registry: docs/architecture/plugins/api.md, "Client". It assumes one client and one user per isolate.
 const defaultEntityRegistry: EntityRegistry = createEntityRegistry();
 
 export function captureEntityHeaders(pathKey: string, headers: Headers): void {

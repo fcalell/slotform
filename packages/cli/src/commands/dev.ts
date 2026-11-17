@@ -61,12 +61,7 @@ function attachWatcher(args: {
 	let pendingFilename: string | null = null;
 	const handle = watch(fullPath, { recursive: true }, (_event, filename) => {
 		if (!filename) return;
-		// macOS FSEvents emits a directory-level event, keyed by the directory's
-		// name (the watch root reports under its own basename), alongside every
-		// per-file event. A directory name carries no file identity, so the
-		// `ignore` filter can't apply to it — a watcher whose handler writes into
-		// an ignored path would loop. Skip directory events; the per-file event
-		// they accompany still fires the handler.
+		// Directory events are skipped: docs/architecture/commands.md, "`stack dev`".
 		try {
 			if (statSync(join(fullPath, filename)).isDirectory()) return;
 		} catch {

@@ -61,11 +61,7 @@ function trackHold(
 	};
 }
 
-// A foot region hands focus to its first field when what held it leaves with
-// its own page (a docked `Sheet` closing for the `Thread`'s composer that returns):
-// the document takes focus then. Who held focus is tracked by the page's own
-// focus and press events, never read from the DOM during a render: the React
-// compiler memoizes a render-time ref read, so the answer would be the mount's.
+// A foot region hands focus to its first field: docs/architecture/plugins/react-ui.md, "Focus".
 export function useFootFocus(region: RefObject<HTMLElement | null>) {
 	const held = useRef(false);
 	useEffect(() => trackHold(() => region.current, held), [region]);
@@ -77,10 +73,7 @@ export function useFootFocus(region: RefObject<HTMLElement | null>) {
 	});
 }
 
-// The element an act in a popup (a `Picker`'s or a `Menu`'s) opens a sheet
-// from, which the popup's close unmounts the act's own row from: the popup's
-// trigger, held for the one sheet that opens in the same breath. It is the
-// module's: the app's handler opens the sheet and never sees the trigger.
+// The opener of a sheet opened from a popup's act: docs/architecture/plugins/react-ui.md, "Focus".
 const OPENER_WINDOW = 1000;
 let opener: { element: HTMLElement | null; at: number } | undefined;
 
@@ -106,11 +99,7 @@ function claimOpener(): HTMLElement | null {
 	return held && Date.now() - held.at <= OPENER_WINDOW ? held.element : null;
 }
 
-// Focus on the page a sheet left standing: its head's, or its first control,
-// retried while a route is still drawing the page. The retries are for focus
-// nobody has taken: once any element takes focus (a viewer's Tab, a field that
-// autofocuses, another region's hand-off) the sheet's claim is over, so a late
-// retry never pulls focus off where the viewer has since moved it.
+// Focus on the page a sheet left standing: docs/architecture/plugins/react-ui.md, "Focus".
 function focusPage(): void {
 	// Our own focus lands here too, which ends the chain on success.
 	let moved = false;
@@ -132,12 +121,7 @@ function focusPage(): void {
 	attempt(5);
 }
 
-// A sheet that closes with its focus inside it and nowhere to fall back to
-// (its opener unmounted with the popup that held the act, or no act opened it,
-// a route did) hands focus to its opener when that stands, else to the page's
-// head. Focus is read as `useFootFocus` reads it: from the page's own focus
-// and press events, so a press on the scrim, which moved focus on purpose, is
-// left alone.
+// A closing sheet hands focus back: docs/architecture/plugins/react-ui.md, "Focus".
 export function useReturnFocus(
 	open: boolean,
 	region: RefObject<HTMLElement | null>,
@@ -180,10 +164,7 @@ export function useReturnFocus(
 	}, [open, region]);
 }
 
-// A Pane opened from a press in another Pane takes the keyboard: its head's
-// first control, so the Tab after a row's open is not the list's next row,
-// and a Pane hidden by the opening (below `tablet` of the Place) keeps no
-// focus. A Pane drawn with the page, focus on the body, takes nothing.
+// A Pane opened from a press takes the keyboard: docs/architecture/plugins/react-ui.md, "Focus".
 export function usePaneFocus(pane: HTMLElement | null) {
 	useEffect(() => {
 		if (!pane) return;

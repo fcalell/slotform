@@ -4,15 +4,7 @@ import type {
 	TsImportSpec,
 } from "@fcalell/cli/ast";
 
-// The route barrel's import source, as emitted into `api.slots.workerImports`
-// (see `index.ts`'s `routesHandler`-gated contribution) and consulted by
-// `procedure-codegen.ts` to exclude it from `.stack/procedure.ts`'s imports —
-// route files import `virtual:stack-procedure`, so procedure.ts importing the
-// route barrel back would be a cycle. One shared constant keeps both sides
-// from drifting apart. Explicit index.ts, not the bare directory: plain node
-// (the plugin-node target) supports neither directory imports nor
-// extensionless specifiers, and tsx/esbuild resolve the explicit form
-// identically.
+// The route barrel's import source: docs/architecture/plugins/api.md, "Routes barrel".
 export const ROUTES_BARREL_IMPORT_SOURCE = "../src/worker/routes/index.ts";
 
 // A plugin's runtime contribution to the worker chain. Captured structurally
@@ -32,11 +24,7 @@ export interface PluginRuntimeEntry {
 	options: Record<string, TsExpression>;
 }
 
-// Attached to pluginRuntimes by the worker derivation when a matching entry
-// is present on `api.slots.callbacks`. Contributors to `api.slots.callbacks`
-// push an entry keyed by their plugin name; the worker source derivation
-// splices `callbacks: <identifier>` into the emitted options object and adds
-// the corresponding import, structurally (no ordering dependency).
+// Callback attachment: docs/architecture/plugins/api.md, "Callbacks".
 export interface CallbackSpec {
 	import: TsImportSpec;
 	identifier: string;
@@ -60,10 +48,7 @@ export interface WorkerPayload {
 	callbacks: Record<string, CallbackSpec>;
 }
 
-// A middleware call plus the builder method that mounts it: `use` before the
-// worker injects its plugin context, `useAfterContext` after (the only side
-// that can read `db`/`auth`). One type so `worker.ts` and `procedure.ts`
-// rebuild the identical chain.
+// A middleware call and the builder method that mounts it: docs/architecture/runtime.md, "Middleware".
 export interface MiddlewareCall {
 	call: TsExpression;
 	method: "use" | "useAfterContext";

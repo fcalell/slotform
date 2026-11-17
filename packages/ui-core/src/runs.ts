@@ -1,10 +1,6 @@
 import type { Run, Runs } from "./descriptors.ts";
 
-// The words of a part and a line of parts, free of any view: both UI plugins
-// draw a title, a fact, an overline and a sentence from these, so a test holds
-// the structure of what is drawn once. A `{ quoted }` run is whole here; a
-// badge, an overline or a line cuts it by its own CSS or line count, and the
-// text, the accessible name and the cut tooltip hold all of it.
+// The words of a part and a line of parts, free of any view: docs/architecture/ui-core/words.md, "Text runs".
 
 const several = (part: Run | Runs): part is Runs => Array.isArray(part);
 

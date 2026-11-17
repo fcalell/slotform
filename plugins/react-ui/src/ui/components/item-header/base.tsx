@@ -73,9 +73,7 @@ const NAME = "min-w-0";
 // facts, whatever the facts hold.
 const NAME_ROW = "flex items-start gap-gap";
 const ASIDE = "flex items-center shrink-0 h-lh";
-// The name names a view timeline on the body that scrolls it, which the Pane's
-// bar reads to stand its own name once this one has scrolled up under the bar
-// (`record-name` in globals.css).
+// The record name's view timeline: docs/architecture/ui-core/layout.md, "Record head".
 const NAME_TIMELINE = "record-name";
 const FACTS = "flex flex-wrap items-center";
 const DESCRIPTION = "max-w-measure";

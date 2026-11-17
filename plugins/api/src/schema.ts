@@ -77,9 +77,7 @@ export function inputJsonSchema(schema: z.ZodType | undefined): JsonSchema {
 	return json;
 }
 
-// A built procedure carries its definition under `~orpc`. Read by shape so this
-// module, which route files import for `z`, pulls nothing of the server into a
-// client bundle.
+// Reading a built procedure by shape: docs/architecture/plugins/api.md, "Schema".
 interface Built {
 	"~orpc": { inputSchema?: unknown; meta?: unknown };
 }

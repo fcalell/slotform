@@ -58,11 +58,9 @@ function pluginFiles(options: PluginFilesOptions): Array<[string, string]> {
 	return files;
 }
 
-// Scaffolds a minimal, working plugin skeleton that a third-party author can
-// publish as-is. Mirrors the conventions in docs/architecture/conventions.md:
-// subpath exports for "." and "./runtime", and no barrel index. Inside stack's
-// own workspace it takes each stack package from the workspace, as `stack
-// init` does for an app.
+// Scaffolds a plugin skeleton a third-party author can publish as-is.
+// Layout: docs/architecture/conventions.md, "Plugin folder structure".
+// Inside stack's workspace it takes each stack package from the workspace: docs/architecture/consumer-project.md, "Inside stack's workspace".
 export async function initPlugin(options: InitPluginOptions): Promise<void> {
 	const name = options.name.trim();
 	if (!name) {

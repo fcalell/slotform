@@ -23,12 +23,8 @@ export type ServeSeed<TRouter> = (
 	context: ServeSeedContext<TRouter>,
 ) => void | Promise<void>;
 
-// The default export of the app's `src/app/seed.ts`, which `stack screens serve`
-// runs once the server answers:
-//
-//   export default defineServeSeed<AppRouter>(async ({ client }) => {
-//     await client.projects.create({ name: "Acme" });
-//   });
+// The default export of the app's `src/app/seed.ts`, which `stack screens serve` runs once the server answers.
+// Seed shape: plugins/screens/guide/screens.md, "The seeded server".
 export function defineServeSeed<TRouter = unknown>(
 	seed: ServeSeed<TRouter>,
 ): ServeSeed<TRouter> {

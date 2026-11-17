@@ -13,9 +13,7 @@ const LINT_RULES = [
 	"no-navigate-act",
 ] as const;
 
-// The rules run on the app's own sources: the directory its routes sit in, or
-// `src` (the stylesheet's `@source`) when file routing is off. A routes
-// directory at the project's root leaves the whole project.
+// The rules run on the app's own sources: docs/architecture/plugins/react-ui.md, "Lint rules".
 export function lintPlugins(routesDir: string | null): LintPlugin[] {
 	const appDir = routesDir === null ? "src" : posix.dirname(routesDir);
 	const includes = [appDir === "." ? "**" : `${appDir}/**`];

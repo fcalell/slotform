@@ -2,13 +2,7 @@ import { read } from "@fcalell/plugin-query/read";
 import type { Datum, Read, Selection } from "@fcalell/ui-core/read";
 import type { ShowcaseFrame } from "./cells.ts";
 
-// The reads a frame's showcase drawer hands a frame to show each of its forms:
-// one that never answers, so the frame stays painted, one that always rejects,
-// so it draws its failure, one that rejects as not found, so it draws the
-// missing form, one that answers nothing, one that answers rows and three that
-// hold rows and are busy, stale or paused. No retry, so a failure shows at
-// once. A drawer that draws several frames, or a page of frames, takes each its
-// own set with `readsAt`, so the states of one do not leak into the next.
+// The reads a frame's showcase drawer hands a frame to show each of its forms: docs/architecture/ui-core/showcase.md, "Roster frames".
 export interface Reads {
 	/** A read whose query never resolves: its frame holds the painted form. */
 	waiting: Read<readonly string[]>;

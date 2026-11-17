@@ -341,28 +341,7 @@ export type BarChartProps<T = unknown> = Closed & {
 	level?: boolean;
 };
 
-// The total (the bars' span with `level`) at body 500 with its unit, the parts' keys under it, then the
-// axis beside the plot, its four gridlines a hairline each with its tick centred on it and the baseline with its 0, the columns in the
-// chip marks by part, each bar in its slot of the plot (at least
-// `CHART_SLOTS`, seven: a shorter series, a day's first hours, stands in the
-// first of them, the rest of the plot its gridlines), the first bar's time
-// centred under the first bar and the last bar's under the last, each kept
-// whole inside the plot, and the times between at evenly spaced strides
-// (`timeRoom`), each drawn where its room holds `TIME_ROOM` times the
-// longest time; a chart given `bar.label` names its bars there instead, each
-// name centred under its bar, every one where the names fit and every
-// second, third… one where they would touch (`axisStride`). With `level`, a span that is one reading draws no figure,
-// and each reading is a dot against an axis around the readings
-// (`levelScale`), the baseline's tick its floor. While the `items`
-// selection's read waits, the total is a figure's filler, the legend stands
-// (its names and marks declared, its figures painted), the plot is one
-// painted box at its loaded height with the axis's lane kept and the time
-// line is two fillers at its place, the chart inert. A bar given `bar.partial`
-// (its period not over) is drawn hatched (`Hatch`) and one given `bar.selected`
-// (its record open beside the chart) stands in the selection wash. The chart is a frame of its items: it
-// draws the failed form with Retry, the missing form and the empty form in its
-// own box with the generic sentence, and the stale and paused line above
-// itself while it holds its read, whatever stands above it.
+// A bar chart: docs/architecture/plugins/native-ui.md, "Bar chart". Its frame forms: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function BarChart<T>(props: BarChartProps<T>) {
 	const { keys, unit, level } = props;
 	const { drawn, frame } = useCollection(props.items);

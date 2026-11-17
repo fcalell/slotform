@@ -170,10 +170,7 @@ function buildFontFaceCss(
 	return blocks.join("\n");
 }
 
-// The fonts argument is required — codegen always passes the resolved
-// slot value, and direct callers should import `defaultFonts` explicitly
-// rather than rely on a silent default. That keeps `fonts: []` meaning
-// "no fonts" all the way from consumer config to runtime.
+// The fonts argument is required: docs/architecture/plugins/react-ui.md, "Fonts".
 export function themeFontsPlugin(fonts: FontEntry[]): Plugin {
 	let config: ResolvedConfig;
 

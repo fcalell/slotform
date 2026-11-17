@@ -44,11 +44,7 @@ function regExp(source: string): TsExpression {
 }
 
 // ── Slot declarations ──────────────────────────────────────────────
-//
-// plugin-react owns every fragment of the web bootstrap: entry, providers
-// composition, HTML shell, and the router's type registration. Peer plugins
-// contribute into the list slots; the derived `*Source` slots compose them
-// into the files emitted under `.stack/`.
+// What the slots compose: docs/architecture/plugins/react.md, "plugin-react".
 
 // Sorted by `order` ascending so lower-order providers become outer wrappers.
 const providers = slot.list<ProviderSpec>({
@@ -65,19 +61,14 @@ const entryImports = slot.list<TsImportSpec>({
 	sortBy: (a, b) => a.source.localeCompare(b.source),
 });
 
-// A function a peer needs to call with the router instance (`named` imports
-// only; each is called as `<name>(router)` right after `createRouter`).
-// Sorted by source so the emitted calls are independent of plugin iteration
-// order. Only the default mount calls them: a peer's own mount owns its router.
+// Router bindings: docs/architecture/plugins/react.md, "Bootstrap and mount".
 const routerBindings = slot.list<TsImportSpec>({
 	source: SOURCE,
 	name: "routerBindings",
 	sortBy: (a, b) => a.source.localeCompare(b.source),
 });
 
-// The root mount: verbatim statements with the imports they need. A value
-// slot so a peer plugin can replace the mount; `override: true` lets it cede
-// cleanly. `null` means "no mount" → entry.tsx is skipped.
+// The root mount: docs/architecture/plugins/react.md, "Bootstrap and mount".
 const mountExpression = slot.value<Mount | null>({
 	source: SOURCE,
 	name: "mountExpression",
@@ -96,9 +87,7 @@ const htmlShell = slot.value<URL | null>({
 const htmlHead = slot.list<HtmlInjection>({
 	source: SOURCE,
 	name: "htmlHead",
-	// HTML allows at most one <title> and one of each <html> attribute; two
-	// contributions fail at generate time instead of producing a malformed
-	// document. Other kinds opt out by returning undefined.
+	// One `<title>` and one of each `<html>` attribute: docs/architecture/plugins/react.md, "HTML shell".
 	uniqueBy: (item) => {
 		if (item.kind === "title") return "title";
 		if (item.kind === "html-attr") return `html-attr:${item.name}`;
@@ -111,9 +100,7 @@ const htmlBodyEnd = slot.list<HtmlInjection>({
 	name: "htmlBodyEnd",
 });
 
-// The app's icon, from the `icon` option: the favicon links read it, and a
-// UI plugin that draws the app's mark reads the same value, with the app's
-// drawn lockup (`logo`) when it gave one. Null when no icon.
+// The app's icon: docs/architecture/plugins/react.md, "HTML shell".
 const icon = slot.derived({
 	source: SOURCE,
 	name: "icon",
@@ -139,9 +126,7 @@ const routesDir = slot.derived({
 	},
 });
 
-// The router plugin's options, as data: the app's config runs the plugin on
-// them as they are, and a host that draws the screens reads them to run it with
-// one changed. Null when routing is off.
+// Router plugin options: docs/architecture/plugins/react.md, "Router plugin".
 const routerOptions = slot.derived({
 	source: SOURCE,
 	name: "routerOptions",
@@ -152,9 +137,7 @@ const routerOptions = slot.derived({
 			: { autoCodeSplitting: true, ...routerPaths(inp.dir) },
 });
 
-// The router plugin's call and the imports it needs: TanStack's route-tree
-// generator, on the app's route files. Null when routing is off. A host that
-// draws components renders no route, so it leaves this slot unread.
+// Router plugin call: docs/architecture/plugins/react.md, "Router plugin".
 const routerPlugin = slot.derived({
 	source: SOURCE,
 	name: "routerPlugin",
@@ -194,9 +177,7 @@ const routesDtsSource = slot.derived({
 	compute: (inp): string | null => (inp.dir === null ? null : ROUTES_DTS),
 });
 
-// The static first segments of the app's URLs (`login`, `settings`), for a
-// peer that hands out top-level addresses (an organization's slug) and must
-// not shadow a route. Empty when routing is off.
+// Reserved top-level segments: docs/architecture/plugins/react.md, "Reserved top-level segments".
 const topLevelRoutes = slot.derived({
 	source: SOURCE,
 	name: "topLevelRoutes",
@@ -292,16 +273,12 @@ export const react = plugin("react", {
 				default: "react",
 			}),
 		),
-		// The router plugin is the app's own: a host that draws components
-		// (Storybook's roster) never reads it. It runs before the React plugin,
-		// which `appPlugins` (rendered ahead of `pluginCalls`) keeps by position.
+		// The router plugin is the app's own: docs/architecture/plugins/vite.md, "App-only plugin calls".
 		vite.slots.appPlugins.contribute(
 			async (ctx): Promise<AppPlugin | undefined> =>
 				(await ctx.resolve(self.slots.routerPlugin)) ?? undefined,
 		),
-		// The app's own dev server alone carries the client's policy (a host
-		// drops `clientHeaders`), so the app's config alone allows React
-		// Refresh's preamble in it, hashed from the installed plugin's own.
+		// React Refresh's preamble in the dev policy: docs/architecture/plugins/react.md, "Dev CSP and React Refresh".
 		vite.slots.appPlugins.contribute(
 			(): AppPlugin => ({
 				call: {
@@ -392,10 +369,7 @@ export const react = plugin("react", {
 			}),
 		),
 
-		// React's runtime must be a singleton: a workspace-linked stack
-		// checkout resolving its own copy would ship two, and hooks throw.
-		// TanStack Query and Router hold their client and router in React
-		// context, so a second copy of either reads no provider.
+		// Singleton runtimes: docs/architecture/plugins/react.md, "Singleton runtimes".
 		vite.slots.resolveDedupe.contribute(() => [
 			"react",
 			"react-dom",

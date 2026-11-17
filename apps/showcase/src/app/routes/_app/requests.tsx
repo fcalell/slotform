@@ -17,9 +17,7 @@ export const Route = createFileRoute("/_app/requests")({
 type Request = AppRouter["requests"]["list"]["__output"]["data"][number];
 type Query = { q?: string | undefined };
 
-// A column's key is the name the procedure sorts it by. The method and the id
-// start hidden: the columns menu over the grid shows them, and the table keeps
-// what the viewer chose. The figure columns (took, served) stand narrow.
+// The requests table's columns: docs/architecture/ui-core/components.md, "In the showcase".
 const COLUMNS: TableColumn<Request>[] = [
 	{
 		key: "path",
@@ -66,12 +64,7 @@ const COLUMNS: TableColumn<Request>[] = [
 
 const ROW = { id: (request: Request) => request.id };
 
-// Every request the deploys served, windowed: the table is as long as the
-// total, loads the pages the scrollbar lands on, and sorts by the server. The
-// head tick chooses the search's whole result, and the delete takes that
-// choice as it stands. The keyboard drives it: the arrows, PageUp and PageDown
-// move the active row, Space or x ticks it, Shift with an arrow ticks the rows
-// it crosses.
+// Every request the deploys served, windowed: docs/architecture/ui-core/components.md, "In the showcase".
 function Requests() {
 	const [q, setQ] = useState("");
 	const [picked, setPicked] = useState<Picked<Query>>({ ids: [] });

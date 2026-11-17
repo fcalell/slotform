@@ -1,27 +1,7 @@
 import type { RosterEntry } from "./shared.ts";
 import { ANSWER } from "./shared.ts";
 
-// The acts that close a form, a sheet or a decision, or that apply to the
-// rows chosen in a list: a record's decision bar (Approve, Decline), a
-// Gate's acts, a pane's own close. `acts` in reading order, the one filled
-// act last (`danger` when it is destructive, a hairline `destructive`
-// otherwise), a `LinkAct` an anchor, quiet unless it is the filled act. On the web the width of
-// the block it closes lays it out (the `acts` container): up to the auth
-// width its acts stack one per row across it, the filled act on top; wider
-// they stand at their own width at its end, wrapping to a further row with
-// the filled act last. On the phone `fit` (the phone's alone) is `end`, the
-// default, or `full`, one act per row at the field's height. An act's `onAct` promise is the bar's run: while one
-// pends the others are inert, a rejection stands in the bar's line under the
-// acts, and a blocked act is silent until it is pressed or its form or
-// sheet has taken input, then its reason (the pressed act's, else the last
-// blocked act's) stands in the line under the acts, at the filled act's
-// edge (web), the line leaving with it. `chosen` makes it a selection
-// bar of one row: the count at its start, then the select-all act and the clear
-// icon, and at its end the more menu holding every act but the last, then the
-// filled act; it draws nothing while no row is ticked. `pending` stands a
-// pending bar in its place at its own height. A `Form`'s bar and a `Sheet`'s foot are this bar, and
-// so is the selection bar the route gives a Pane's `foot` for a `Table`'s
-// ticked rows.
+// The acts that close a form, a sheet or a decision: docs/architecture/ui-core/acts.md, "ActionBar".
 export const actionBarEntry: RosterEntry = {
 	props: ["acts", "fit", "chosen", "pending"],
 	draws: [

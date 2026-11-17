@@ -15,25 +15,8 @@ import { DragLayer } from "./drag.tsx";
 
 // The frame's `main` landmark: it holds the toasts' layer over the page.
 const MAIN = "relative flex flex-col grow min-h-0";
-// The toasts stand on their layer over an open sheet's portal, so nothing
-// between them and the root makes a stacking context (no `isolate`, `z-*` or
-// transform on the frame, the column or `main`; verify b-layers holds it).
-// Their foot is the top of what docks at the frame's foot (a place's `foot`, a
-// filling Thread's input, and on touch an open bottom sheet), which names
-// itself the `--docked-foot` anchor: the layer stands above it by layout as it
-// grows, and at `main`'s foot without one. A toast thus covers the page behind
-// a sheet and never the sheet, and the page's last line only where nothing
-// docks. The layer is fixed, as the sheet is: an anchor resolves only for a
-// layer whose containing block is the anchor's own, and an absolute layer in
-// `main` (relative) cannot reach a fixed sheet in the portal, so it fell back
-// to the page inset and stood over the sheet's act. `main` is the frame's last
-// column and reaches the viewport's end and its foot, which is where the layer
-// stands its toasts.
-// The popups' mount: a point at the viewport's origin, so a popup's positioner
-// measures against the viewport as it would in the body (its first frame stands
-// where it settles), while the element itself stands in `main`, a landmark.
-// Being fixed it is a stacking context, so it stands on the popover layer, the
-// top of the layers it holds: over the page and the tab bar, under the toasts.
+// The toasts' layer stands over the sheets: docs/architecture/plugins/react-ui.md, "Toast anchor and stacking".
+// The popups' mount: docs/architecture/plugins/react-ui.md, "Popups".
 const PORTAL = "fixed top-0 left-0 size-0 z-(--layer-popover)";
 // A sheet as tall as the viewport leaves the layer no room above it, so the
 // layer keeps its frontmost toast's height and the page inset round it (Base UI's

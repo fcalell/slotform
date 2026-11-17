@@ -27,10 +27,7 @@ import {
 	experimental_streamedQuery as streamedQuery,
 } from "@tanstack/react-query";
 
-// The TanStack half of a read: the query options a read carries, built from a
-// procedure of oRPC's utils, the first-load hold, the window's page loads and
-// the dev check over the query cache. The model the hooks and this share is
-// `@fcalell/ui-core/read`.
+// The TanStack half of a read: docs/architecture/plugins/query.md, "Reads".
 
 declare module "@fcalell/ui-core/read" {
 	interface ReadBinding {
@@ -256,9 +253,7 @@ export function read<T, E = unknown, Q = unknown>(
 		});
 	const queryFn = options.queryFn;
 	if (kind === "stream") {
-		// A stream is not a load: its first write is the channel's own to hold.
-		// Its query carries `meta.stream`, the one marker of a read that stays
-		// fetching while it is subscribed (`isStreamQuery`).
+		// A stream is not a load: docs/architecture/plugins/query.md, "Reads".
 		const runs = stoppable(queryFn);
 		return Object.assign(
 			bound({
@@ -497,14 +492,7 @@ export function retryOnce(failures: number, error: unknown): boolean {
 	return !isNotFound(error) && failures < 1;
 }
 
-// A read that fails with no data while a leaf paints it and no frame holds it.
-// `QueryProvider` runs this in dev, over the query cache. Level-triggered: the
-// cache's error event says it, and so do its observer events over a read
-// already failed (a painter arriving, a holder leaving), judged against the
-// query's own observers one tick later so the holders that mount in the same
-// commit count. A failure is named once. An ambient read (`meta: { ambient:
-// true }`, the org rules) has no frame by design: its failure leaves what it
-// gates painted and inert.
+// `watchUnheld`: docs/architecture/plugins/query.md, "Reads".
 export function watchUnheld(cache: QueryCache): () => void {
 	if (!dev()) return () => {};
 	const named = new Map<string, number>();

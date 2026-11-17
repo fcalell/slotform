@@ -8,30 +8,7 @@ import {
 } from "node:fs";
 import { dirname } from "node:path";
 
-// Cross-process + in-process exclusion for migration-writing operations.
-//
-// Why: `drizzle-kit generate` writes timestamp-prefixed SQL files into
-// `src/migrations/`. Two writers running concurrently — e.g. `stack
-// generate` invoked manually while `stack dev`'s schema watcher is also
-// pushing — leak each other's output into a "snapshot diff" computation
-// or, worse, produce duplicate-timestamp files. The dir-snapshot diff in
-// `generateMigrations` was the pre-fix race window.
-//
-// Strategy: a process-level lock file (cross-process) layered on top of
-// an in-process Promise mutex (same-process). Both must be acquired
-// before any code touches the migrations dir.
-//
-//   • Cross-process: `fs.openSync(path, "wx")` with O_EXCL semantics.
-//     Atomic on POSIX; second writer fails with EEXIST. Handle stale
-//     locks from crashed processes by inspecting the PID.
-//   • In-process: a Map<lockPath, Promise> keyed on the lock file path.
-//     Sequencer for any code in the same Node process.
-//   • Cleanup: lock file deleted on release; process exit handler clears
-//     leftover locks owned by this PID.
-//
-// Lives inside `plugins/db/src/node/` because it's plugin-internal —
-// per the "core stays domain-agnostic" rule, this is not a candidate
-// for `@fcalell/cli`.
+// Cross-process and in-process migration lock: docs/architecture/plugins/db.md, "Migration lock".
 
 interface LockHandle {
 	readonly path: string;

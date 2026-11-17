@@ -7,11 +7,7 @@ import type { ShowcaseFrame } from "./cells.ts";
 // `undefined` for a cell the component has no form for.
 export type Draw = (frame: ShowcaseFrame) => ReactNode | undefined;
 
-// A frame shrinks to the viewport (`min-w-0`), so a component that fits a
-// narrow screen is drawn fitting it.
-// A frame stands on the canvas: a group ground would re-point the hairline of
-// every surface drawn inside it. Without a drawer, or when it returns
-// undefined, the frame draws its component's name and the cell's strings.
+// A frame shrinks to the viewport and stands on the canvas: docs/architecture/ui-core/showcase.md, "Roster frames".
 export function Frame(props: { frame: ShowcaseFrame; draw?: Draw }) {
 	const { frame } = props;
 	const drawn = props.draw?.(frame);

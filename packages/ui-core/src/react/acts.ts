@@ -1,6 +1,4 @@
-// The hooks a host holds its acts' runs and a control its saves with (the
-// model is `../acts.ts`), over the binding's port, and `createActs`, which
-// binds the act sequence to a platform's toast and its way of opening a route.
+// The hooks a host holds its acts' runs and a control its saves with, and `createActs`: docs/architecture/ui-core/acts.md, "Act model".
 import { useRef, useState } from "react";
 import {
 	drew,
@@ -34,21 +32,11 @@ export interface Draft<T> {
 	/** The read the value is a selection over ended: the control stands with no value and blocked, a change saying so instead of changing. */
 	ended: "failed" | "missing" | undefined;
 	value: T;
-	// A plain edit is kept over a selection until its read's key changes. A
-	// `save` that returns a promise holds `next` (a constant's too) instead, and
-	// the latest save's outcome decides: resolved, the hold waits for the
-	// refetch its invalidation started on this value's reads, then the value
-	// follows its datum unless edited since; rejected, it falls back to the
-	// datum and `failed` hears the error with a way to save the same value again.
-	// It returns that save's promise (never rejecting: the rejection is `failed`'s
-	// to draw), so an act that saves again holds the run.
+	// `change` and how a save settles: docs/architecture/ui-core/acts.md, "Control saves".
 	change: (next: T, save?: () => unknown) => Promise<void> | undefined;
 }
 
-// A field's value: its selection until the viewer edits it, the edit after. An
-// edit belongs to the read it was made over, so a selection over another read
-// drops it (`draftFor`). A constant is the app's own state: it passes through,
-// so a value the app changes shows, and a plain edit has nothing to keep.
+// A field's value: docs/architecture/ui-core/acts.md, "Field values".
 export function useDraft<T>(
 	value: Datum<T>,
 	failed?: (error: unknown, again: () => unknown) => void,

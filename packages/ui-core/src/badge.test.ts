@@ -15,9 +15,7 @@ const parse = (value: string): Oklch => {
 	return { l: Number(match[1]), c: Number(match[2]), h: Number(match[3]) };
 };
 
-// A badge's words are the meta ink on the meta ink's own tenth, laid over the
-// ground the row stands on: the text floor holds on every ground, in both
-// modes, and the ground is a step away from the one under it.
+// A badge's words and ground: docs/architecture/ui-core/tokens.md, "Contrast floors".
 for (const mode of ["light", "dark"] as const) {
 	test(`a badge's words hold 4.5:1 on its fill in ${mode}`, () => {
 		const colors = deriveTheme().colors[mode];

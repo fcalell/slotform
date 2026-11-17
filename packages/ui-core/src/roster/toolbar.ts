@@ -1,26 +1,7 @@
 import type { ChipMark } from "./descriptors.ts";
 import type { RosterEntry } from "./shared.ts";
 
-// The tabs, the search, the filters, the acts and the applied filters' chips
-// over a list. `tabs` are links, each a label and an href, drawn as a
-// `Picker` in `fit: segments`. `filters` are data, each a `Picker`'s own props in a toolbar (a
-// pick of one, `value` a string while set, or of several, set while it
-// holds any): on the desktop two or fewer stand inline as picks (a set one reads "Label:
-// value", an unset one or one on its `null` option its label alone) and
-// three or more (`FOLD_FILTERS_AT`, one constant for both platforms) fold,
-// and at touch every filter folds, all of them, behind one outlined Filters act with the count of those set
-// after its label ("Filters 2", Deel's count beside the select's name),
-// opening the filters as labelled picks that apply at once: a popover
-// under the act at the column's width on the desktop, a sheet on touch,
-// "Clear filters" at its end while any is set. Each set filter of a folded
-// toolbar is a removable neutral chip, "Work type: Change" (a pick of
-// several its one value, from two "Projects: 5 projects"), first in the
-// chips row before the toolbar's own `chips`; removing one sets the filter
-// to its empty value (`null`, `[]` for several), so nothing set is hidden.
-// The words are `filters` and `clearFilters`, and `tabs` names the tab strip's
-// navigation landmark. `options` may be a read, as a
-// `Picker`'s: while it waits the chip paints, and once it ended it draws
-// none (the picker's line says why).
+// The toolbar: docs/architecture/ui-core/components.md, "Toolbar".
 export const toolbarEntry: RosterEntry = {
 	// `tabs` is the web's alone.
 	props: ["tabs", "search", "filters", "chips", "children"],
@@ -77,7 +58,7 @@ export const TOOLBAR_LINE =
 export const TOOLBAR_TABS = "min-w-0 touch:w-full";
 // The search grows from a basis of the short measure up to the `column`
 // width (the filters' range), so the row wraps only when the search cannot
-// keep that measure beside the acts (voice 14: one row, the search leading and
+// keep that measure beside the acts (`guide/voice.md`, "Rows": one row, the search leading and
 // the filters a glyph), never on the input's own width. On the desktop the
 // acts keep the row's end past it; on touch it takes the width they leave.
 export const TOOLBAR_SEARCH =

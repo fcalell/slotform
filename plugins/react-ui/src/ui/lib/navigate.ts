@@ -7,9 +7,7 @@ import {
 	useSyncExternalStore,
 } from "react";
 
-// The slice of the app's router that routing in place needs, typed
-// structurally so react-ui imports no router. The generated entry hands the
-// app's router to `bindRouter` right after creating it.
+// The slice of the router that routing in place needs: docs/architecture/plugins/react-ui.md, "Router bindings".
 interface InPlaceRouter {
 	navigate(options: { href: string }): unknown;
 	preloadRoute(options: { href: string }): unknown;
@@ -35,10 +33,7 @@ interface InPlaceRouter {
 	};
 }
 
-// The page holds one router and one location listener, whatever reads the
-// route: every reader hears it through the store. Unbound (routes off, a
-// render outside the app's router) the location is read from the document
-// and an act loads it.
+// One router and one location listener: docs/architecture/plugins/react-ui.md, "Navigation".
 let bound: InPlaceRouter | undefined;
 // Bound, the router resolves a history move and `onResolved` tells the
 // readers, so the window's events are heard only while unbound.
@@ -63,13 +58,7 @@ const INTENT_DELAY = 50;
 let intent: ReturnType<typeof setTimeout> | undefined;
 let listening = false;
 
-// Every anchor stack draws is a plain `<a href>`, so one delegated listener
-// for the page covers them all, and TanStack's own `Link`, with no prop on
-// any component. A touch's `pointerover` fires as the finger lands, which is
-// the web's press-in. Any other intent in the window drops the pending one;
-// the bound router is read when the timer fires, so a rebind (the screens
-// workbench binds per story) adds no listener and never preloads into a stale
-// router. External, hash-only and current hrefs have nothing to load.
+// One delegated listener for every anchor, and preload: docs/architecture/plugins/react-ui.md, "Navigation".
 function wantsRoute(event: Event): void {
 	clearTimeout(intent);
 	intent = undefined;
@@ -181,11 +170,7 @@ export async function navigate(route: string): Promise<void> {
 	else location.assign(route);
 }
 
-// A form that stands edited holds its leave: bound, the router's history asks
-// before any navigation it makes (a push, a replace, the back button), the
-// question's answer deciding whether it goes ahead, and the page's unload is
-// held only while the form asks; unbound, the unload is all the page can hold,
-// since an act there loads the document. Returns the release.
+// A form that stands edited holds its leave: docs/architecture/ui-core/acts.md, "Leave".
 export function blockLeave(
 	leave: Leave,
 	ask: () => Promise<boolean>,
@@ -203,9 +188,7 @@ export function blockLeave(
 	return () => removeEventListener("beforeunload", unload);
 }
 
-// An anchor's click: a plain primary click on a route of the app opens it in
-// place; every other click (modifier, middle, external, unbound) is the
-// browser's, so a new tab and a copied link keep working.
+// An anchor's click: docs/architecture/plugins/react-ui.md, "Navigation".
 export function follow(event: MouseEvent<HTMLAnchorElement>): void {
 	if (!bound || event.defaultPrevented) return;
 	if (event.button !== 0) return;

@@ -7,29 +7,19 @@ import { CHART_SERIES, SANS_ADVANCE } from "./tokens.ts";
 // Four bands, the last one's bottom the baseline.
 export const BANDS = 4;
 
-// The fewest slots a plot is parted into: a week's days. A series shorter
-// than that (a day's first hours near midnight, a run's first rounds) stands
-// in the first of them, each bar in a slot as wide as it would have among
-// seven, the rest of the plot its gridlines alone, so a lone bar is never a
-// slab across the plot. A series of more fills the plot, one slot a bar.
+// The fewest slots a plot is parted into: docs/architecture/ui-core/components.md, "Slots".
 export const CHART_SLOTS = 7;
 
 export function chartSlots(bars: number): number {
 	return Math.max(bars, CHART_SLOTS);
 }
 
-// How far the top tick, centred on the plot's top edge, reaches above it:
-// half a meta line. The web reads it as `1lh / 2` of the body's meta line;
-// the phone, with no `lh` unit, from the meta line in px where it stands.
+// How far the top tick reaches above the plot: docs/architecture/ui-core/components.md, "Axis".
 export function tickReach(metaLine: number): number {
 	return metaLine / 2;
 }
 
-// How far a fact of a Pane's record head that acts reaches past the facts line's
-// text line above and below it: its hit box stands at the target height and
-// the line at the meta line's, so the line keeps one height whichever kinds
-// of fact it holds. The web reads it as `(target - 1lh) / 2`; the phone, with
-// no `lh` unit, from the target and the meta line in px where it stands.
+// How far a fact of a record head that acts reaches past the facts line: docs/architecture/ui-core/layout.md, "Record head".
 export function factReach(target: number, metaLine: number): number {
 	return (target - metaLine) / 2;
 }
@@ -46,12 +36,7 @@ export interface ChartScale {
 	readonly floor: number;
 }
 
-// The axis scale: four even steps over the largest bar (`peaks`, each bar's
-// stacked height), each step the first whole multiple of its own magnitude.
-// When every figure the chart draws (`figures`, the bars' values and parts)
-// is a whole number and that step falls under 1, the step is 1 and the bands
-// are the peak rounded up, so no tick reads 0.8 of a flag and none stands
-// above what the bars reach.
+// The axis scale over the largest bar: docs/architecture/ui-core/components.md, "Axis".
 export function chartScale(
 	peaks: readonly number[],
 	figures: readonly number[] = peaks,
@@ -91,18 +76,7 @@ function roundOf(raw: number): number {
 	return tidy(times * magnitude);
 }
 
-// The axis of a level (a reading each hour, a share): `BANDS` even steps
-// around its readings, not over zero, since a level's bars from zero stand
-// near one height and flatten the swing the chart is for (a day of 18.2–21°C
-// on a 0–24 axis). The step is the first round step (1, 2 or 5 of a power of
-// ten) that spans the readings in one band fewer than are drawn, and the next
-// round one while the bands do not hold them; the floor is a whole
-// step under the lowest reading and the top over the highest, so neither
-// reading stands on the plot's edge, the readings centred between them as the
-// steps allow. Readings that never go under zero keep a floor at zero or over
-// it. A level of whole numbers (open flags) steps by 1 at least, so no tick
-// reads a part of one. A flat series (one reading) reads against a step a
-// tenth of its own magnitude.
+// The axis of a level: docs/architecture/ui-core/components.md, "Axis".
 export function levelScale(figures: readonly number[]): ChartScale {
 	if (figures.length === 0) return chartScale([]);
 	const low = Math.min(...figures);
@@ -134,11 +108,7 @@ export function chartShare(
 	return run > 0 ? (value - scale.floor) / run : 0;
 }
 
-// The strides a time line labels its bars at, finest first: each a multiple
-// of the one before, so a time that stands at a wide stride stands at every
-// narrower one, and the labels stay evenly spaced as more of them fit. Past
-// the last, each doubles (a day's hours by 2, 6 and 12; a month's days by 6
-// and 12).
+// The strides a time line labels its bars at: docs/architecture/ui-core/components.md, "Time labels".
 const TIME_STRIDES = [1, 2, 6, 12];
 const TIME_STRIDE_LAST = 12;
 
@@ -189,10 +159,7 @@ export function unitOf(unit: ChartUnit, count: number): string | undefined {
 	return count === 1 ? unit.one : unit.other;
 }
 
-// A unit whose figures never add up across bars: a share (`%`, `‰`) or a
-// temperature (`°C`, `°F`, any `°`). A chart counting in one is a level
-// whatever its `level` leaves unsaid, so a day of readings never heads with
-// their sum.
+// A unit whose figures never add up across bars: docs/architecture/ui-core/components.md, "Axis".
 export function levelUnit(unit: ChartUnit | undefined): boolean {
 	if (typeof unit !== "string") return false;
 	const word = unit.trim();
@@ -231,12 +198,7 @@ function spanOf(values: readonly number[]): ChartSpan {
 	return { low: Math.min(...values), high: Math.max(...values) };
 }
 
-// The figures a chart's head draws: the sum of its bars (a flow, counts per
-// day), or with `level` their span, the lowest bar to the highest, and each
-// key's span the same way (a level, a reading each hour, open flags per
-// round). A level's sum means nothing, and its last bar is the thing's own
-// reading, which its record already says: the span is what only the chart
-// knows, and the bars, standing on zero, flatten it.
+// The figures a chart's head draws: docs/architecture/ui-core/components.md, "Head".
 export function chartHead(
 	series: readonly HeadBar[],
 	keys: readonly string[],
@@ -256,9 +218,7 @@ export function chartHead(
 	};
 }
 
-// A level's figure that is one reading, its span's ends written alike (one
-// bar, a flat day): the thing's own reading, which its record already says, so
-// the head draws no figure for it.
+// A level's figure that is one reading: docs/architecture/ui-core/components.md, "Head".
 export function spanFlat(
 	span: ChartSpan,
 	write: (value: number) => string,

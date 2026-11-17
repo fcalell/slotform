@@ -1,13 +1,4 @@
-// Where a sign-in link may send the member after it opens. better-auth's own
-// `originCheckMiddleware` guards this, but the procedures call the server API
-// without a `request`, which skips it; so the procedures check here, against
-// the same trusted origins the instance was built with.
-//
-// Allowed: a path on this app (`/dashboard`, never `//host` or `/\host`), or
-// an absolute URL whose origin one trusted origin names. A trusted origin is
-// an exact origin (`https://app.example.com`), a host wildcard
-// (`https://*.example.com`) or a scheme (`myapp://`, `myapp://*`) for a
-// native deep link.
+// Where a sign-in link may send the member: docs/architecture/plugins/auth.md, "Procedures".
 
 // A control character or backslash lets a browser read a path as another
 // host (`/\evil.com`, a tab inside `//`), so none is accepted anywhere.

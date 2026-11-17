@@ -9,16 +9,7 @@ import {
 	text,
 } from "drizzle-orm/sqlite-core";
 
-// Full-text search over a regular table: an FTS5 virtual table in external-content
-// mode (the index holds tokens only; the text stays in the content table), three
-// triggers that keep it in sync, and a typed handle to query it through.
-//
-// Drizzle does not model virtual tables, so the handle is an `.existing()` view:
-// drizzle-kit ignores it (no CREATE, no diff, no DROP), while the query builder
-// reads it like any selectable. The DDL is plain SQL computed here and carried on
-// the handle under a `Symbol.for` key, so `stack db` reads it from the consumer's
-// schema without sharing a module instance with it. This module is pure (no node
-// imports): the schema file loads it in the Workers bundle too.
+// Full-text index, its handle and DDL: docs/architecture/plugins/db.md, "Full-text indexes".
 
 export const FTS_KEY_NAME = "@fcalell/plugin-db/fts";
 export const FTS_KEY = Symbol.for(FTS_KEY_NAME);
@@ -49,9 +40,7 @@ export interface FtsTableOptions<
 	TContent extends SQLiteTable,
 	TColumn extends keyof TContent["_"]["columns"] & string,
 > {
-	// The regular table whose rows are indexed. It needs an integer primary key
-	// (or name `rowid`): the index addresses rows by that integer, and SQLite
-	// renumbers the implicit rowid of a table without one on VACUUM.
+	// Content table key: docs/architecture/plugins/db.md, "Full-text indexes".
 	content: TContent;
 	// The content table's columns to index, by property name.
 	columns: readonly [TColumn, ...TColumn[]];
@@ -234,9 +223,7 @@ export function ftsDropMigrationSql(name: string): string {
 	])}`;
 }
 
-// Appended to a generated migration that recreates the content table (SQLite
-// alters a table by copying it: the triggers go with the old table and the
-// copied rows may take new rowids), so the index follows the new table.
+// Resync after a table copy: docs/architecture/plugins/db.md, "Full-text indexes".
 export function ftsResyncSql(def: FtsDefinition): string {
 	return join([
 		...dropTriggers(def),
@@ -306,8 +293,7 @@ function rowidColumn(
 //     prefix: [2, 3],
 //   });
 //
-// `stack db generate` writes its DDL as a migration, `stack dev` and
-// `stack db push` apply it, and `match` / `bm25` query it.
+// Generate, push and query: docs/architecture/plugins/db.md, "Full-text indexes".
 export function ftsTable<
 	const TName extends string,
 	TContent extends SQLiteTable,

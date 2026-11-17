@@ -176,11 +176,8 @@ function Triggers() {
 	);
 }
 
-// The chips of a pick of several are pills inset in their box, never
-// edge to edge: the frames that hold one judge every chip run and log an
-// error where a chip stands as tall as its box or off its centre.
-// The frames' cells mount as they are read, so the judge waits well past the
-// first paint.
+// The chips of a pick of several are pills inset in their box; the frames that hold one judge every chip run: docs/architecture/ui-core/components.md, "Picker".
+// The frames' cells mount as they are read, so the judge waits well past the first paint.
 const SETTLE = 90;
 // The least room a chip keeps from its box's edge, in px: the run's badge
 // inset and the box's hairline, less a pixel's rounding.

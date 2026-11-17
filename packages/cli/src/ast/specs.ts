@@ -156,9 +156,7 @@ export type ScaffoldSpec = (
 
 // ── Composition ─────────────────────────────────────────────────────
 
-// Only JSX-shaped expressions are valid children of the composed providers
-// tree. Allowing arbitrary TsExpression (e.g. string/number literals) would
-// emit nonsense output like `<MetaProvider>{props.children}"hi"</MetaProvider>`.
+// Provider children are JSX only: docs/architecture/slot-catalog.md, "Spec types".
 export type TsJsxExpression = Extract<TsExpression, { kind: "jsx" }>;
 
 export type ProviderSpec = {
@@ -167,10 +165,7 @@ export type ProviderSpec = {
 		identifier: string;
 		props?: Array<{ name: string; value: TsExpression }>;
 	};
-	// JSX elements rendered as additional children of the wrapper, after the
-	// wrapped subtree. They are siblings of the wrapped tree (same parent),
-	// not siblings of the wrapper itself — so they can read from the
-	// wrapper's context (e.g. `<Toaster />` inside a `<ToastProvider />`).
+	// Provider siblings read the wrapper's context: docs/architecture/slot-catalog.md, "Spec types".
 	siblings?: TsJsxExpression[];
 	order: number; // lower = outer wrapper
 };
@@ -178,9 +173,7 @@ export type ProviderSpec = {
 export type MiddlewareSpec = {
 	imports: TsImportSpec[];
 	call: TsExpression; // must be a call expression
-	// Every phase but "after-context" mounts before the worker injects its
-	// plugin context; "after-context" mounts after, and is the only one whose
-	// middleware can read `db`/`auth`.
+	// Middleware phases: docs/architecture/slot-catalog.md, "Spec types".
 	phase:
 		| "before-cors"
 		| "after-cors"

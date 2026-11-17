@@ -99,11 +99,7 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 				type="file"
 				accept={accept.join(",")}
 				onChange={pick}
-				// Base UI's Field wires the control (its id, label, description and
-				// validity); the render function hands over its props and state so the
-				// box around the value draws that state. A disabled box carries
-				// `aria-disabled` itself, so the name and size outside the native
-				// control read as disabled to a checker.
+				// Base UI's Field wires the control: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 				render={(control, state) => (
 					// biome-ignore lint/a11y/noStaticElementInteractions: the box only takes a drop; the file input inside it is the control the keyboard reaches
 					<div

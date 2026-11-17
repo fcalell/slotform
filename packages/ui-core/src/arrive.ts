@@ -1,8 +1,4 @@
-// The keys that arrived on their own: those of `keys` the page did not hold
-// when it first drew them. Nothing is known before the first draw, so that
-// draw has no arrivals; every later key that was not known is one, whoever
-// added it: a row the server pushed fades in and pushes at once, and one the
-// viewer's act added fades in the same way.
+// Keys that arrived on their own: docs/architecture/ui-core/motion.md, "Lines and blocks".
 export function arrivals(
 	known: ReadonlySet<string> | undefined,
 	keys: readonly string[],

@@ -10,9 +10,7 @@ import {
 } from "react";
 import type { Viewport } from "./viewport.ts";
 
-// How long a still finger holds before a node lifts, and how far it may stray
-// first: the long press a dragged row takes (`@fcalell/ui-core/drag`), one
-// definition for both.
+// A node lifts after the drag long press: docs/architecture/plugins/react-ui.md, "Canvas".
 export const LIFT_MS = DRAG_HOLD;
 export const SLOP = HOLD_SLOP;
 

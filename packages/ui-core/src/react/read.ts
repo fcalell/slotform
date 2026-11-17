@@ -1,6 +1,4 @@
-// The hooks a leaf, a frame, a collection, a row and a control's options
-// subscribe to their reads with, over the binding's port (`./port.ts`); the
-// model they plan with is `../read.ts`.
+// The hooks a leaf, a frame and a collection subscribe to their reads with: docs/architecture/ui-core/reads.md, "Read hooks".
 import {
 	createContext,
 	createElement,
@@ -48,12 +46,7 @@ import { usePort } from "./port.ts";
 // Distributive, so a `Datum<T>` prop gives `T`.
 type Unwrap<D> = D extends Selection<infer T> ? T : D;
 
-// The leaf's one subscription: each value that is a selection is read, the
-// rest are constants. One observation for any count, so the hook count is
-// fixed. A read still to land draws from the placeholder and says so (`painted`).
-// The plan is memoized by `values`' identity, which keeps `combine` stable
-// (the binding re-runs it when its identity changes); the React Compiler gives
-// a literal list that identity.
+// The leaf's one subscription: docs/architecture/ui-core/reads.md, "Read hooks".
 export function useSelections<const V extends readonly unknown[]>(
 	values: V,
 ): {
@@ -99,11 +92,7 @@ export function usePainted(values: readonly unknown[]): boolean {
 	return port.useReads(plan.queries(placeholderData), combine);
 }
 
-// The query hashes the frames above hold, identity only: it places flags (which
-// frame draws a read's busy mark and its stale and paused line) and changes no
-// frame's form. A nested frame holds the read of its selection that is not in
-// it. A frame that holds nothing passes its parent's holds on, and frames over
-// the same keys share one identity (`holdsOf`).
+// The query hashes the frames above hold: docs/architecture/ui-core/reads.md, "Holding a read".
 const HoldsContext = createContext<Holds>(NO_HOLDS);
 
 export function FrameHolds(props: { holds: Holds; children?: ReactNode }) {
@@ -112,17 +101,7 @@ export function FrameHolds(props: { holds: Holds; children?: ReactNode }) {
 
 const MARKS = createMarks();
 
-// A frame's one subscription: the same observation a leaf makes (placeholder
-// on), with `derive` run in `combine`, so the frame renders when its derived
-// state changes (form, count, busy) and never on a value change. Pass a
-// `derive` that is stable (a module function): its identity is the combine's.
-// The frame's form comes from every non-quiet read of its own selection; it
-// holds at most one read, the first that no enclosing frame holds (its
-// observers carry `heldPlaceholder`, which the dev check reads, and a second is
-// a dev error), and returns `holds`, that hash with the enclosing ones, for its
-// body to publish through `FrameHolds`; `holding` says it holds one, and
-// `marks` that it draws that read's busy mark: of sibling frames over one read,
-// only the first does. `retry` refetches the read it holds.
+// A frame's one subscription: docs/architecture/ui-core/reads.md, "Holding a read".
 export function useFrameRead<S>(
 	selection: Selection<unknown> | undefined,
 	derive: (held: Held) => S,

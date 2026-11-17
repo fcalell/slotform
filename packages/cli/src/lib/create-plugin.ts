@@ -57,11 +57,7 @@ export const callback: CallbackFactory = Object.assign(
 	},
 );
 
-// ── CommandContext ─────────────────────────────────────────────────
-//
-// Plugin subcommands (`stack <plugin> <command>`) run after the slot graph
-// has been built. They receive a `resolve` helper so handlers can read
-// slot values without hand-wiring anything.
+// CommandContext: docs/architecture/commands.md, "Plugin subcommands".
 
 export interface LogContext {
 	info(msg: string): void;
@@ -109,16 +105,7 @@ export interface CommandDefinition<TOptions, TFlags = Record<string, never>> {
 
 // ── Plugin definition ──────────────────────────────────────────────
 
-// The `self` helper passed to a function-form `contributes` array lets a
-// plugin reference its own slots without stamping the plugin name on every
-// slot declaration. `options` is the post-validation view (z.output) — every
-// schema default is guaranteed present, so contribution sites read
-// `self.options` with no cast. A module-level `slot.derived`/`slot.value`
-// (declared before `plugin()`, where `self` is out of scope) types its own
-// `compute`/`seed` by annotating the ctx — `ctx: ContributionCtx<XOptions>`.
-// A raw contribution ctx keeps `options: unknown` on purpose: a cross-plugin
-// contribution runs with the *contributing* plugin's options, so no single
-// type is sound there.
+// The `self` helper of a function-form `contributes`: docs/architecture/plugin-authoring.md, "Options via `schema`".
 export interface PluginSelf<TSlots, TResolvedOptions> {
 	slots: TSlots;
 	options: TResolvedOptions;
@@ -139,25 +126,13 @@ export interface PluginDefinition<
 	TResolvedOptions = TOptions,
 > {
 	label: string;
-	// Explicit npm package name. When omitted, defaults to
-	// `@fcalell/plugin-${name}`. Third-party plugins published under a
-	// different namespace must set this so discovery can import them.
+	// Explicit npm package name: docs/architecture/plugin-authoring.md, "Plugin discovery".
 	package?: string;
 
-	// Zod schema for plugin options. `createPlugin` parses the caller's
-	// options through it (applying defaults and surfacing errors as
-	// `StackError("PLUGIN_CONFIG_INVALID")`). The schema's *input* type
-	// (`z.input<typeof schema>`) flows into `TOptions` (the call signature)
-	// while its *output* type (`z.output<typeof schema>`, defaults applied)
-	// flows into `TResolvedOptions` and is surfaced as `self.options` /
-	// command `ctx.options`. Plugins don't redeclare either shape.
+	// Options schema, input and output types: docs/architecture/plugin-authoring.md, "Options via `schema`".
 	schema?: z.ZodType<TResolvedOptions, TOptions>;
 
-	// Presence-only dependency. Used for nicer error messages and init's and
-	// add's auto-pull; ordering is derived entirely from slot inputs, not from
-	// `requires`. A function reads the plugin's resolved options, for a
-	// requirement that holds in one mode of the plugin only (api serving a worker
-	// needs a deploy target; api naming another app's `server` does not).
+	// Presence-only dependency: docs/architecture/slot-graph.md, "`requires`".
 	requires?:
 		| readonly Requirement[]
 		| ((options: TResolvedOptions) => readonly Requirement[]);
@@ -178,22 +153,16 @@ export interface PluginDefinition<
 
 	callbacks?: TCallbacks;
 
-	// Symmetric footprint declarations — auto-wired into `cliSlots.initDeps`
-	// / `cliSlots.initDevDeps` / `cliSlots.gitignore` / `cliSlots.removeDeps`
-	// / `cliSlots.removeDevDeps` by the plugin builder.
+	// Footprint declarations, auto-wired into the `cliSlots` lists: docs/architecture/plugin-authoring.md, "The `plugin()` contract".
 	dependencies?: Record<string, string>;
 	devDependencies?: Record<string, string>;
 	gitignore?: readonly string[];
 
-	// The plugin's guide pages, each `guide/<page>.md` in its package, with the
-	// trigger that says when to open it. Auto-wired into `cliSlots.guide` under
-	// the plugin's name and package.
+	// The plugin's guide pages: docs/architecture/plugin-authoring.md, "The `plugin()` contract".
 	guide?: readonly { page: string; trigger: string }[];
 }
 
-// A sibling plugin that must be in the config: one by name, or exactly one
-// of several. The first `oneOf` entry is the default `stack init` and
-// `stack add` pick when the selection has none.
+// A sibling plugin that must be in the config: docs/architecture/slot-graph.md, "`requires`".
 export type Requirement = string | OneOfRequirement;
 
 export interface OneOfRequirement {
@@ -223,10 +192,7 @@ export interface InternalCliPlugin<TOptions, TSlots, TResolvedOptions> {
 	devDependencies: Record<string, string>;
 	gitignore: readonly string[];
 	schema?: z.ZodType<TResolvedOptions, TOptions>;
-	// Plugin-scoped template / scaffold resolvers closed over the plugin's
-	// on-disk `templates/` dir. Commands wire these through `ctxForPlugin`
-	// so contributions can call `ctx.template("foo.tsx")` and get a URL
-	// pointing at the owning plugin's package, not the consumer's cwd.
+	// Plugin-scoped template and scaffold resolvers: docs/architecture/plugin-authoring.md, "Templates".
 	template(name: string): URL;
 	scaffold(name: string, target: string): ScaffoldSpec;
 	// Per-config invocation: resolve the plugin's slots + contributions
@@ -344,9 +310,7 @@ export function plugin<
 	definition: PluginDefinition<TOptions, TSlots, TCallbacks, TResolvedOptions>,
 ): PluginFactory<TName, TOptions, TSlots, TCallbacks, TResolvedOptions> {
 	const pkg = definition.package ?? `@fcalell/plugin-${name}`;
-	// Looked up on first use, never on import: a plugin imports its siblings
-	// before `stack init` installs them, and Node keeps a failed resolution
-	// for the rest of the process.
+	// Looked up on first use, never on import: docs/architecture/plugin-authoring.md, "Plugin discovery".
 	const packageInfo = () => findPackageInfo(pkg);
 	const hasCallbacks =
 		definition.callbacks !== undefined &&
@@ -413,11 +377,7 @@ export function plugin<
 			auto.push(cliSlots.guide.contribute(() => entries));
 		}
 
-		// Auto-scaffold the callback file when the plugin declares both
-		// callbacks AND a `./runtime` subpath export. Callback → runtime
-		// wiring for the worker chain itself is performed by plugin-api in a
-		// separate contribution; this hook only ensures the callback file
-		// exists on disk after `stack init` / `stack add`.
+		// Auto-scaffolded callback file: docs/architecture/plugin-authoring.md, "Typed callbacks".
 		const packageExports = packageInfo()?.exports;
 		if (hasCallbacks && packageExports && "./runtime" in packageExports) {
 			auto.push(
@@ -448,10 +408,7 @@ export function plugin<
 					})
 				: (definition.contributes ?? []);
 
-		// Stamp the contributing plugin's name here, where it's authoritatively
-		// known — `collect()` runs once per owning plugin. For a cross-plugin
-		// contribution (e.g. db → cloudflare.slots.bindings) the owner is `name`
-		// ("db"), so the contribution fn later sees db's options, not the target's.
+		// `collect()` runs once per owning plugin, so the stamp is the owner's name: docs/architecture/plugin-authoring.md, "Options via `schema`".
 		return {
 			slots,
 			contributes: [...userContribs, ...autoContributions()].map((c) => ({

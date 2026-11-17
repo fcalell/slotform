@@ -1,9 +1,4 @@
-// The public matrix layer: one cva per table, the axis types a component
-// declares its props with, the single-cell constants, and the family registry
-// with its cell enumeration. The tables themselves stay internal to the
-// package. What one component alone draws is declared in its
-// `roster/<component>.ts` and re-exported here; a motion cell is spelled
-// beside the matrices that compose it and read from here.
+// The public matrix layer: docs/architecture/ui-core/roster.md, "Variants".
 import type { ChangeKind } from "./descriptors.ts";
 import { BANNER, BANNER_GLYPH, banner, bannerGlyph } from "./roster/banner.ts";
 import {
@@ -820,34 +815,16 @@ export const ROW_CURRENT_BAR =
 // row's own inset above the hairline; no press (each platform sets that on its
 // own box).
 export const ROW_PROGRESS = "w-full pt-badge";
-// A row is a flex group of two groups, and these are the two (each platform
-// sets the direction and the centring, which are overlays). Its text group is
-// the title or label over its description or facts line, a column that gives
-// way to its end group: below its own content, so its text wraps or truncates
-// inside the room the end group leaves. Its end group is what stands at the
-// row's end (a value, a status, a lock, a control, an act, a chevron), a line
-// centred on the row, its parts an inside apart. A row with no end item draws
-// no end group, so nothing reserves room for one; room that holds an alignment
-// is a group's gap or padding, never an empty element.
+// A row's text group and end group: docs/architecture/ui-core/layout.md, "Text group and end group".
 export const ROW_TEXT = "min-w-0 shrink";
-// Who gives way first when a line is out of room is a flex shrink weight, and
-// the weights stand in one order, first to last: the text that may be cut
-// (`YIELDS_FIRST`, 10^7), then the named local weights in between (a file
-// row's count lanes 10^5 and its directory 10^4, a row end's state 100 before
-// its age, a form label's 3), then the default 1 (a name, a chip, a control's
-// text), then what gives only when nothing else can (`YIELDS_LAST`, 0.0001, a
-// non-wrapping badge line's badges before its last one). A weight is read off
-// this scale, never a number written beside a class.
+// Who gives way first: docs/architecture/ui-core/layout.md, "Who gives way first".
 export const YIELDS_FIRST = "shrink-10000000";
 export const YIELDS_LAST = "shrink-[0.0001]";
 // `YIELDS_LAST` on each child, spelled whole: Tailwind reads a class as written,
 // so a variant cannot be composed around it at run time.
 export const YIELDS_LAST_EACH = "*:shrink-[0.0001]";
 export const ROW_END = "gap-gap";
-// A row's text group keeps at least two fifths of the row's content width, the
-// Pane head's floor (a fraction, never a width), whatever else stands in the
-// row (a leading, a more act). The end group takes what is left and its value
-// truncates inside it.
+// The text group's floor: docs/architecture/ui-core/layout.md, "Text group and end group".
 export const ROW_TEXT_FLOOR = "basis-2/5 shrink-0";
 // A glyph and its words a gap apart: a table cell's warning (a warn glyph and
 // its phrase) and a row's boolean marks in the end group. A row's facts are
@@ -1154,11 +1131,7 @@ export function avatarStep(name: string): AvatarStep {
 	return String((hash % 8) + 1) as AvatarStep;
 }
 
-// A painted fill's whole animation: the appear fade after `--wait-delay`
-// (`paint-in`), then the breath on the fill's alpha (`pulse-fill`, both
-// keyframes in the web's `globals.css`), one phase across the page. Under
-// reduced motion `--pulse-name` is `none`, so the fade snaps and the fill
-// stands still. The phone breathes in `lib/motion`.
+// A painted fill's animation: docs/architecture/ui-core/motion.md, "Wait and settle".
 export const PULSE =
 	"animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_var(--wait-delay)_both,var(--pulse-name,pulse-fill)_var(--pulse)_var(--ease-in-out)_infinite]";
 
@@ -1170,12 +1143,7 @@ export const PULSE =
 export const SCRAMBLE =
 	"relative rounded-chip motion-safe:bg-transparent animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_var(--wait-delay)_both]";
 
-// The layer cells (`motion.md` §3): what stands over the page enters on `base`
-// `out` from where it belongs and leaves on `base` `in` the way it came, the
-// same properties over the same distances reversed; on transform and opacity,
-// a Base UI popup carrying `data-starting-style` on its mount and
-// `data-ending-style` on its way out. A popover drops a float from its anchor
-// (below it, else rising from the side it flipped to) and returns to it.
+// The layer cells: docs/architecture/ui-core/motion.md, "Layers".
 export const LAYER_POPOVER =
 	"transition-[opacity,translate] duration-base ease-out data-starting-style:-translate-y-gap data-[side=top]:data-starting-style:translate-y-gap data-starting-style:opacity-0 data-ending-style:-translate-y-gap data-[side=top]:data-ending-style:translate-y-gap data-ending-style:opacity-0 data-ending-style:ease-in";
 
@@ -1188,16 +1156,9 @@ export const LAYER_CARD =
 export const LAYER_SCRIM =
 	"transition-opacity duration-base ease-out data-starting-style:opacity-0 data-ending-style:opacity-0 data-ending-style:ease-in";
 
-// A line that appears in flow (a blocked act's reason, a field's error, a
-// checking line, a notice, a stage's moment) fades in on `fast` `out` and
-// pushes what follows at once; it leaves at once. The fade is the
-// `paint-in` keyframes in the web's `globals.css`, so it is a class the
-// element carries while it stands, played as it mounts. The phone fades its
-// lines in Reanimated (`lineIn`), which these classes leave alone.
+// A line that appears in flow: docs/architecture/ui-core/motion.md, "Lines and blocks".
 export const LINE_IN =
 	"animate-[paint-in_var(--transition-duration-fast)_var(--ease-out)_both]";
-// A block that arrives on its own (nothing the viewer did moved it in) fades
-// in on `base` `out` and pushes what follows at once; a block the viewer's act
-// brings in or takes out lands at once.
+// A block that arrives on its own: docs/architecture/ui-core/motion.md, "Lines and blocks".
 export const BLOCK_IN =
 	"animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_both]";

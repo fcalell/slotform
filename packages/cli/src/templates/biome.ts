@@ -1,12 +1,8 @@
 import type { LintPlugin } from "../specs.ts";
 
-// An app in stack's own workspace extends the checkout's root config by path
-// (`rootConfig`, from the app to it): Biome refuses a second root config below
-// it, so the formatter and linter settings stay the checkout's and only the
-// generated plugins are the app's.
+// An app in stack's workspace extends the checkout's root config: docs/architecture/consumer-project.md, "Inside stack's workspace".
 //
-// TODO: Biome 2.4 takes the `//` shorthand for the root only as a lone
-// `extends` string, so it cannot sit beside `./.stack/biome.json`. Use
+// TODO: Biome 2.4 takes the `//` shorthand for the root only as a lone `extends` string. Use
 // `["//", "./.stack/biome.json"]` once an `extends` array takes it.
 export function biomeTemplate(options: { rootConfig: string | null }): string {
 	const config = options.rootConfig
@@ -22,24 +18,12 @@ export function biomeTemplate(options: { rootConfig: string | null }): string {
 
 export const LINT_PATH = ".stack/biome.json";
 
-// `.stack/biome.json`: the plugins' GritQL rules, each on the sources it names.
-// `root: false` keeps Biome from reading it as a second root config where the
-// consumer's `files.includes` does not skip `.stack`.
+// `.stack/biome.json`, the plugins' rules and ignores: docs/architecture/consumer-project.md, "Lint".
 //
-// TODO: Biome resolves a plugin path against the directory of the root config
-// (or the nested one), not the extending file, and fails a package specifier,
-// so a package's file is spelled under `node_modules/` and each plugin takes
-// its `includes` through an override (Biome 2.4 reads no `includes` on a plugin
-// entry). Drop both when Biome resolves `@scope/pkg/file.grit` and takes
-// per-plugin `includes` (2.5's object form).
-//
-// `ignore` lists generated sources Biome skips: a plugin's output follows its
-// tool's formatting, not the consumer's. They are an override that turns the
-// linter, formatter and import sorting off for them, never a `files.includes`
-// exclusion: an `includes` list in an extending config replaces the one before
-// it (a lone `["!src/migrations"]` leaves nothing to check, `biome check .`
-// processing 0 files), where overrides accumulate and leave the shared preset's
-// list in force.
+// TODO: Biome resolves a plugin path against the root config's directory and takes no `includes`
+// on a plugin entry, so a package's file is spelled under `node_modules/` and `includes` sits in an
+// override. Drop both when Biome resolves `@scope/pkg/file.grit` and takes per-plugin `includes`
+// (2.5's object form).
 export function lintConfig(
 	plugins: readonly LintPlugin[],
 	ignore: readonly string[],

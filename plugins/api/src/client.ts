@@ -7,22 +7,7 @@ import { STACK_NOT_FOUND_HEADER } from "./wire.ts";
 export { isNotFound } from "./not-found.ts";
 export type { RouterClient } from "./types.ts";
 
-// ---------- Default-client registration ----------
-// Mirrors `defaultEntityRegistry` (./query-invalidation.ts): a module-level
-// singleton so `useAbility()` needs zero wiring in the common case (one
-// client per app). `createClient` below calls `registerApiClient`
-// internally only when nothing is registered yet, so the first client
-// created wins as the default; an explicit call always overwrites,
-// regardless of call order.
-//
-// Per-JS-isolate, single-user assumption: this module-level singleton
-// assumes one client for the lifetime of the isolate (CSR in a browser tab,
-// or a native app's single JS runtime) -- it is NOT per-request. An SSR
-// target that reuses the same isolate across requests/users (Node, most
-// non-Workers SSR runtimes) must never rely on it: a request from user A
-// could read user B's registered client. SSR consumers should call
-// `registerApiClient` (or otherwise thread the client explicitly) within
-// each request's own scope instead of depending on this default.
+// Default client registration: docs/architecture/plugins/api.md, "Client".
 let registeredApiClient: unknown;
 
 export function registerApiClient(client: unknown): void {
@@ -72,11 +57,7 @@ function resolveClientUrl(url: string): string {
 	return new URL(url, location.origin).toString();
 }
 
-// oRPC's TanStack Query utils tag every call they make with an operation
-// context (`queryOptions` -> "query", `mutationOptions` -> "mutation", ...)
-// under the symbol `@orpc/tanstack-query` exports. That package is the query
-// plugin's peer, which this entry must not import, so its `createApiQueryUtils`
-// hands the symbol over before its calls are made.
+// Operation context handed over by the query plugin: docs/architecture/plugins/api.md, "Client".
 let operationContext: symbol | undefined;
 
 export function registerOperationContext(symbol: symbol): void {
@@ -86,9 +67,7 @@ export function registerOperationContext(symbol: symbol): void {
 // The operation types oRPC's own docs send as GET.
 const READ_OPERATIONS = new Set(["query", "streamed", "live", "infinite"]);
 
-// A read travels as GET (its input in `?data=`), so a reader of the wire, the
-// screens workbench's answerer, tells a query from a mutation by the method.
-// Every other call (a mutation, a call outside TanStack Query) is a POST.
+// Reads travel as GET: docs/architecture/plugins/api.md, "Reads travel as GET".
 function methodOf(options: { context: object }): "GET" | "POST" {
 	if (operationContext === undefined) return "POST";
 	const operation = (

@@ -2,9 +2,7 @@ import { raisedGroundTokens, softGroundTokens } from "@fcalell/ui-core/emit";
 import { type PropsWithChildren, useMemo } from "react";
 import { ScopedVariables, useCSSVariable } from "uniwind";
 
-// A ground's re-point as the variable it declares and the one it reads: a
-// scoped variable on native takes a value, never a `var()`, so the scope
-// resolves the read in the active mode.
+// A ground's re-point as the variable it declares and the one it reads: docs/architecture/plugins/native-ui.md, "Raised grounds and room".
 interface Ground {
 	names: string[];
 	reads: string[];
@@ -35,10 +33,7 @@ function Repoint({ ground, children }: PropsWithChildren<{ ground: Ground }>) {
 const RAISED = groundOf(raisedGroundTokens());
 const SOFT = groundOf(softGroundTokens());
 
-// A raised ground (`RAISED_GROUNDS`) for everything inside it: `edge` reads
-// `edge-raised`, so a part's `border-edge` draws the raised hairline, as the
-// web's rule on the grounds' fill classes does. Native has no selector, so
-// each raised surface wraps its content in it.
+// A raised ground (`RAISED_GROUNDS`) for everything inside it: docs/architecture/plugins/native-ui.md, "Raised grounds and room".
 export function RaisedGround({ children }: PropsWithChildren) {
 	return <Repoint ground={RAISED}>{children}</Repoint>;
 }

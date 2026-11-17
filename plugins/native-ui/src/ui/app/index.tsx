@@ -8,10 +8,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 const FLEX_FILL = { flex: 1 } as const;
 
-// The UI-shell providers, composed for use outside the generated entry
-// (tests, a screenshot harness). The real app entry composes the same stack,
-// plus Auth and Query, through plugin-expo's `providers` slot. uniwind theming
-// needs no provider (it is CSS-first), so there is no ThemeProvider here.
+// The UI-shell providers for use outside the generated entry: docs/architecture/plugins/native-ui.md, "Provider order".
 export function AppProviders({
 	children,
 	words,

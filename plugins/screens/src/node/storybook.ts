@@ -12,11 +12,7 @@ export interface ScreensMainOptions {
 	root?: string;
 }
 
-// The Storybook config of `.stack/screens/main.ts` and
-// `.stack/screens-test/main.ts`, run from the project root: the story files
-// `stack-screens/` holds are its stories, and the host is Vite on the config
-// the screens plugin derives. `stories` is relative to the config directory,
-// two levels under the root: the Vitest plugin joins it to that directory.
+// The Storybook config of the screens and test hosts: docs/architecture/plugins/screens.md, "Storybook host".
 export function screensMain({
 	floors,
 	root = process.cwd(),

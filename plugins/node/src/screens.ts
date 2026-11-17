@@ -2,11 +2,7 @@ import { channelAnswer, currentStory } from "@fcalell/plugin-screens/channels";
 import { ws } from "@fcalell/plugin-screens/msw";
 import type { ServerFrame } from "./ws/index.ts";
 
-// What the screens workbench contributes for the app's socket: the server's
-// `/ws`, answering each `sub` with the snapshot the story's fixtures give that
-// channel, as the frame the client decodes. Lives under its own subpath because
-// it imports MSW through the screens package, which only the workbench's
-// browser loads.
+// The workbench's /ws handler: docs/architecture/plugins/node.md, "Screens serve".
 const socket = ws.link("*/ws");
 
 // The story is plugin-screens' one module-level selection: a handler reads it

@@ -26,15 +26,7 @@ const THROTTLE: Record<string, number> = {
 	networkConcurrency: 2,
 };
 
-// Merges stack's install settings into the consumer's `pnpm-workspace.yaml`,
-// writing only the entries it lacks. `allowBuilds` carries each stack
-// package's build-script verdicts, which the first install already needs:
-// pnpm refuses an install that meets an undecided build. A git tarball keeps
-// the `workspace:*` ranges between stack packages, so (`github`) every package
-// the consumer's own reach is overridden to its spec, and each runs its
-// `prepare` to build `dist/`. A consumer that installs from npm or links a
-// stack checkout (`link`) installs no git package, so it takes the verdicts
-// alone.
+// Merges stack's install settings into `pnpm-workspace.yaml`: docs/architecture/consumer-project.md, "Installing stack".
 export function pnpmWorkspaceTemplate(
 	existing: string | null,
 	packages: Iterable<StackPackage>,

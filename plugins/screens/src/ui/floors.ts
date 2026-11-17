@@ -19,10 +19,7 @@ import { controlPoint, floorsAt, hiddenHeight, READ_BUSY } from "./page.ts";
 import { compare, measure, type SectionBox } from "./shift.ts";
 import { densityMark, settled, watchFirstPaint } from "./walk.ts";
 
-// The checks a test run adds to every screen, as preview annotations the test
-// run's Storybook config loads and the workbench never does: axe with every
-// rule, no horizontal overflow at the rubric's widths, the render walk
-// (`walk.ts`) at each, and no console output.
+// The checks a test run adds to every screen: docs/architecture/plugins/screens.md, "Test run order".
 
 declare module "vitest" {
 	interface ProvidedContext {
@@ -58,10 +55,7 @@ const slug = (text: string): string =>
 		.filter(Boolean)
 		.join("-");
 
-// Where a story's screenshot at a width goes, or null when the run saves none:
-// `<dir>/<screen>/<story>-<width>.png`, the screen its title without
-// `Screens/` and the story its name in kebab case (`Data, dark` is
-// `data-dark`); the open pass adds `-open-<control>`.
+// Screenshot path: docs/architecture/plugins/screens.md, "Screenshots".
 function shotPath(
 	title: string,
 	name: string,
@@ -292,10 +286,7 @@ async function clean(): Promise<void> {
 	await settle(false);
 }
 
-// `--open`: presses the control named `text` with real input, waits for what
-// it opens to settle, judges and shoots the screen at `width` with it open,
-// then closes it with Escape. The control must be there: a screen that does
-// not draw it fails the run.
+// `--open`: plugins/screens/guide/screens.md, "Opening a popup, a search for a filter".
 async function opened(
 	pins: ReturnType<typeof unpin>,
 	title: string,
@@ -325,12 +316,7 @@ async function opened(
 	return found;
 }
 
-// The screen at each width, back at the size it started with: the horizontal
-// overflow, then the walk once the width has settled. A loading story also
-// has each width's Sections measured, its held calls answered, and the
-// Sections measured again: they must not have moved (`shift.ts`). A
-// screenshot at a width is taken once the floors there ran, so a loading
-// story's shows its waiting form.
+// The screen at each width: docs/architecture/plugins/screens.md, "Test run order".
 async function visit(
 	loading: boolean,
 	title: string,
@@ -412,14 +398,7 @@ async function resize(
 	await settle(false);
 }
 
-// A data story's screen with one of its reads failed at a time. The reads are
-// the procedures the story called, found by watching (`called`); the run
-// answers one with an error and every other with data, resets those queries
-// so they fetch again, waits for the page to settle, and applies the width
-// floors and the console capture to it. A failed read draws in its frame, and
-// the dev error for a read no frame holds is a console line here. Fewer than
-// two procedures is the error story's case already (it fails them all), so it
-// runs only when a read can fail while another holds data.
+// Each read failed: docs/architecture/plugins/screens.md, "Test run order".
 async function perRead(): Promise<string[]> {
 	const paths = called();
 	const client = storyClient();
@@ -459,9 +438,7 @@ const floors: Preview = {
 	parameters: {
 		a11y: {
 			test: "error",
-			// A screen is a page, so the document-level rules judge it. The a11y
-			// addon turns `region` off for components, and axe leaves `target-size`
-			// off.
+			// Document-level axe rules: docs/architecture/plugins/screens.md, "Test run order".
 			config: {
 				rules: [
 					{ id: "region", enabled: true },

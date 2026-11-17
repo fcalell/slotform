@@ -1,7 +1,4 @@
-// The decisions a collection (a Section's sheet, a `Table`, a `Picker` in `fit: list`) and the
-// Stats meter, StepCount and Stages states make before they draw, free of any
-// framework: both platforms run this one source, and it is tested without
-// rendering.
+// The decisions a collection and the Stats meter, StepCount and Stages states make before they draw: docs/architecture/ui-core/components.md, "Collections and lists".
 
 import type {
 	ChangeCell,
@@ -162,16 +159,7 @@ export function folding(
 // The characters a definition value keeps at its end when the row cuts it.
 const VALUE_TAIL = 4;
 
-// A definition value, cut for a row too narrow for it: the stem gives way
-// from its end (an ellipsis after it) and the tail, its last VALUE_TAIL
-// characters, never does, so the start and the end of a long identifier stay
-// (`SHA256:uNiV…k3Qz`). Only a value of one word longer than twice the tail is
-// cut: a value with a space is words (`No history yet`), which read from their
-// start, and a shorter one has no middle to give; both stay one stem, so no
-// space ends a node and no word is split in two. Each platform draws the stem
-// truncating to its own box, so the row measures the room it gives; the two
-// parts together are the whole value, which stays the accessible text and the
-// copy payload. Both platforms read it, so one value cuts the same way.
+// A definition value cut for a row too narrow for it: docs/architecture/ui-core/layout.md, "Title and facts".
 export function valueCut(value: string): { stem: string; tail: string } {
 	const characters = Array.from(value);
 	if (characters.length <= VALUE_TAIL * 2 || /\s/.test(value))
@@ -306,10 +294,7 @@ export function choose<V extends string>(
 	choice.onChange(toggled(choice.value, option));
 }
 
-// A toolbar on the desktop holding this many filters or more folds all of them
-// behind one Filters act; fewer stand inline as picks. At touch the toolbar is
-// one row, so every filter folds. One value for both platforms, not a
-// consumer's option.
+// The filter count at which a desktop toolbar folds its filters: docs/architecture/ui-core/components.md, "Toolbar".
 export const FOLD_FILTERS_AT = 3;
 
 // Whether a toolbar folds its `count` filters, at touch or on the desktop.
@@ -372,9 +357,7 @@ export interface TableRecord {
 	cells: Readonly<Record<string, TableCell>>;
 }
 
-// The Table's rows: each item through the row map, every column's `cell` and
-// the reasons its choice gives. Over the painted items (the placeholder) a
-// slot that throws paints as the item itself, never throws the page.
+// The Table's rows over painted items: docs/architecture/ui-core/reads.md, "Paint forms".
 export function tableRecords<T>(
 	items: readonly T[],
 	columns: readonly TableColumn<T>[],
@@ -587,14 +570,7 @@ export function chooseReason(row: TableRecord): string | undefined {
 	return row.blocked ?? row.moved;
 }
 
-// The columns whose values a touch row says with their column's label
-// (`Staging: Passing`, `Observed: usd`): a value whose kind stands in more than
-// one column of the row, since each is ambiguous among the others. Statuses
-// are one kind, words (`text`, `source`, a column with no kind) another; a
-// number always carries its label, a chip its own mark, a change says what it
-// is, and a lone value of its kind is the row's one such fact. The row's first
-// age is its live trailing age and stands outside `columns`; an age among them
-// is a further one, which says its label, since "1 day ago" alone is ambiguous.
+// The columns a touch row names with their label: docs/architecture/ui-core/layout.md, "Touch rows".
 export function touchNamed(
 	columns: readonly { key: string; kind?: string }[],
 ): ReadonlySet<string> {
@@ -618,13 +594,7 @@ export function touchNamed(
 	);
 }
 
-// The rows a Section's head counts: its top-level rows, the items it lists,
-// less those marked `counted: false` (an add row, a row that only points
-// elsewhere), and at any depth below them the rows marked `counted: true`
-// (a nested row that is an item in its own right). A nested
-// row is otherwise a part of its row, never counted.
-// A row is an `object` here: the descriptors the Section lists carry these
-// two members when they have them.
+// The rows a Section's head counts: docs/architecture/ui-core/layout.md, "Head".
 type Counted = { counted?: boolean; children?: readonly object[] };
 export function listedRows(rows: readonly object[]): readonly object[] {
 	const nested = (row: object): readonly object[] =>
@@ -666,9 +636,7 @@ export function optionReads(rows: readonly PickingRow[]): Selection<unknown>[] {
 	});
 }
 
-// The most characters a touch row's fact holds: the short measure. A fact is no
-// longer than that; a longer value is a sentence, said whole in the row's line,
-// which a cut badge would hide and touch cannot hover to read.
+// The most characters a touch row's fact holds: docs/architecture/ui-core/layout.md, "Touch rows".
 export const TOUCH_FACT_FITS = MEASURE_CHARACTERS["measure-short"];
 
 // A touch row's facts and sentences from a table's values, in the order the
@@ -1025,10 +993,7 @@ export function order(
 	return cell;
 }
 
-// How much a status asks of the viewer, the mildest first: what is done or
-// live asks nothing, what has not started waits, and what waits on someone, needs
-// a look or failed asks more in turn. `TONES` lists the states, not
-// their weight, so a status column sorts by this and then by its label.
+// A status's weight for sorting: docs/architecture/ui-core/components.md, "Sort".
 const STATUS_SEVERITY: Record<Tone, number> = {
 	done: 0,
 	active: 1,
@@ -1117,11 +1082,7 @@ export function changeMeta(
 	}
 }
 
-// A change mark's glyph by kind: drawn, and named by the kind's own word. A
-// glyph means one thing, so none is an act's or a state's: `added` and
-// `removed` are the boxed plus and minus a diff's file marks are, never the
-// bare plus of an add act standing on the same screen, nor a circle that
-// reads as a picked radio beside a list's kind.
+// A change mark's glyph by kind: docs/architecture/ui-core/roster.md, "Marks".
 export const CHANGE_GLYPH: Readonly<Record<ChangeKind, IconName>> = {
 	added: "SquarePlus",
 	changed: "PencilLine",
@@ -1130,10 +1091,7 @@ export const CHANGE_GLYPH: Readonly<Record<ChangeKind, IconName>> = {
 	stale: "History",
 };
 
-// Whether a sheet's rows are facts alone: every row names what it is in the
-// label column (a definition list). A count is a list's, the things it
-// holds, so a Section of facts draws none beside its title. Both platforms
-// read it.
+// Whether a sheet's rows are facts alone: docs/architecture/ui-core/layout.md, "Head".
 export function factsOnly(rows: readonly object[]): boolean {
 	return (
 		rows.length > 0 &&
@@ -1141,19 +1099,12 @@ export function factsOnly(rows: readonly object[]): boolean {
 	);
 }
 
-// The back act's glyph, on every platform and at every density. A chevron
-// says "opens here" and an arrow "leads elsewhere", so the way back is the
-// arrow: a back chevron would say a second thing with the fold's glyph.
+// The back act's glyph: docs/architecture/ui-core/roster.md, "Marks".
 export const BACK_GLYPH: IconName = "ArrowLeft";
 
 export type MeterLevel = "under" | "near" | "over" | "met";
 
-// The level a share of the max stands at: past the max over, from `near` near
-// (`METER_NEAR`, or a meter's own mark), else under. A meter of a goal (tests
-// passing of all of them) reads the other way: full is `met`, the good tone,
-// and anything short of it is `under`, the neutral one, never near or over,
-// since more of a goal is never a warning. Both platforms read it, so one meter
-// draws one level.
+// The level a share of the max stands at: docs/architecture/ui-core/components.md, "Stats meter".
 export function levelOf(
 	share: number,
 	near: number = METER_NEAR,
@@ -1173,9 +1124,7 @@ export function stepStateOf(step: number, at: number): StepState {
 	return "later";
 }
 
-// The stages a rail draws: all of them, or, once the rail has ended, those up
-// to the last done one (every stage after it gives way to the terminal row).
-// Both platforms read it, so one rail draws the same rows.
+// The stages a rail draws: docs/architecture/ui-core/components.md, "Stages".
 export function stagesShown<T extends { state: string }>(
 	steps: readonly T[],
 	ended: boolean,
@@ -1189,21 +1138,10 @@ export function stagesShown<T extends { state: string }>(
 // The characters a file name keeps at its start and before its extension.
 const NAME_LEAD = 3;
 
-// The room a file row's directory keeps beside the name's floor: two
-// characters, its first and the ellipsis after it ("d…"). The engine keeps a
-// cut box's first character before the ellipsis, so a one-character box draws
-// a clipped sliver of the next glyph and no ellipsis; two read as cut. Both
-// platforms add it to the path's floor when the path has a directory.
+// The room a file row's directory keeps beside the name's floor: docs/architecture/ui-core/components.md, "File rows".
 export const DIRECTORY_LEAD = 2;
 
-// A file row's name, cut: its end (`tail`, never cut) is the extension and the
-// NAME_LEAD characters before it (twice that without an extension), but its
-// stem keeps its first NAME_LEAD characters, so a short name never loses its
-// start. `floor` is the least characters the path shows of the name: the whole
-// name when it is short, else its cut form (the lead, an ellipsis, the tail).
-// The name is the path after its last slash; the slash stays with the
-// directory, so a path whose directory has given way draws none. Both
-// platforms read it, so one name cuts the same way.
+// A file row's name, cut: docs/architecture/ui-core/components.md, "File rows".
 export function pathCut(name: string): {
 	stem: string;
 	tail: string;
@@ -1289,9 +1227,7 @@ export function titleWords(title: RowTitle): string {
 }
 
 // ── Facts ──────────────────────────────────────────────────────────────
-// A list of facts (`Fact`) is told apart by the keys its members carry. These
-// are the one reading of it; a component's drawing takes its facts through
-// `splitFacts`, which hands the kinds apart in the order each draws them.
+// Fact kinds are told apart by the keys they carry: docs/architecture/ui-core/roster.md, "Facts".
 
 const keyed = (fact: unknown, ...keys: string[]): boolean =>
 	typeof fact === "object" &&

@@ -1,7 +1,4 @@
-// The contract as a DESIGN.md (github.com/google-labs-code/design.md, version
-// `alpha`): the tokens as YAML front matter, the matrices as its components,
-// and the eight body sections as a snapshot of what the contract draws. A pure
-// function of a resolved theme, so the committed file is checked against it.
+// The contract as a DESIGN.md, a pure function of a resolved theme: docs/architecture/ui-core/roster.md, "DESIGN.md".
 import type { ResolvedTheme } from "./derive.ts";
 import { rootTokens } from "./emit.ts";
 import {

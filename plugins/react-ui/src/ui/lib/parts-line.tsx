@@ -1,15 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { ReactNode } from "react";
 
-// A text line of parts a middle dot apart (a record head's overline, a
-// message's provenance): one text that never breaks at a separator. The dot is
-// bound to the word before it and the word after it by no-break spaces, so a
-// line breaks only between the words of a part. A box beside a no-break space
-// still takes a break, so the caller draws a part's code inline (`RunText`
-// `whole`). Where the line is cut at its end (an overline, truncating) or set
-// to its end, nothing marks a line's start for a dot to be clipped at. Facts
-// are no such text: a row's, a head's and a node's status are badges
-// (`BadgesLine`), which have no separator.
+// A text line of parts a middle dot apart: docs/architecture/plugins/react-ui.md, "Text".
 
 // The dot of one text, bound to the words beside it.
 const BOUND = " · ";

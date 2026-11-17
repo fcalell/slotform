@@ -2,16 +2,12 @@ import { posix } from "node:path";
 import type { ContributionCtx } from "@fcalell/cli";
 import { z } from "zod";
 
-// A client-only app (web or native) names the stack app it talks to by its
-// path. Everything it needs of that app is a file the app's own `stack
-// generate` wrote under its `.stack/`.
+// Client-only apps: docs/architecture/plugins/api.md, "Client-only apps".
 export const SERVER_SCHEMA = ".stack/schema.ts";
 export const SERVER_MANIFEST = ".stack/server.json";
 const SERVER_ROUTER_TYPES = ".stack/types/.stack/worker.d.ts";
 
-// What the server app tells its clients beyond its procedures. `auth` is
-// whether it has `auth()`, which decides whether a client app stands the
-// sign-in provider.
+// The server manifest: docs/architecture/plugins/api.md, "Client-only apps".
 const serverManifestSchema = z.object({ auth: z.boolean() });
 type ServerManifest = z.infer<typeof serverManifestSchema>;
 

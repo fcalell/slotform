@@ -20,11 +20,7 @@ import {
 } from "react";
 import { type Act, useAct } from "./act.ts";
 
-// Drag and drop on pointer events, which keep going when the dragged row
-// leaves the window of a long collection (a native drag's source unmounts
-// with its row), reach a finger, and carry the scroller under the pointer. One
-// drag stands at a time, held here, outside React: the rows and the drops
-// that take part read it through `useSyncExternalStore`.
+// Drag and drop on pointer events: docs/architecture/ui-core/drag.md, "Web drag".
 
 /** What a press on a row hands the store, once it becomes a drag. */
 export interface Source {

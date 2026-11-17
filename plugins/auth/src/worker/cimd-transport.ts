@@ -1,15 +1,6 @@
 import { isPublicRoutableHost } from "@better-auth/core/utils/host";
 
-// The fetch transport `@better-auth/cimd` requires for a client's metadata
-// document, for a Worker: Better Auth supplies one for Node only. It fetches
-// public HTTPS hosts and nothing else, resolving the host over DNS over HTTPS
-// and refusing any answer that is not publicly routable.
-//
-// Better Auth's contract also asks for the connection pinned to the checked
-// address, which a Worker cannot do: its `fetch` dials by name, so a rebinding
-// between the lookup and the fetch is not closed. A Worker's egress reaches the
-// public internet only, never a private network of ours, which is why the
-// window is accepted.
+// Fetch transport `@better-auth/cimd` requires on a Worker: docs/architecture/plugins/auth.md, "MCP OAuth".
 
 const DOH_ENDPOINT = "https://cloudflare-dns.com/dns-query";
 const TYPE_A = 1;

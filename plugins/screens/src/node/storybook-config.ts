@@ -8,13 +8,7 @@ import { renderComponentHostConfig } from "./config.ts";
 
 const STORYBOOK_VITE_CONFIG = ".stack/storybook.vite.config.ts";
 
-// The Vite config of a Storybook that draws components, not routes (the
-// showcase's roster), written under `.stack/` and returned as a path for
-// Storybook's `viteConfigPath` or Vite's `loadConfigFromFile`: the app's own
-// plugin calls and values, resolved from the slot graph, with the host's
-// adaptations and without the router plugin, which `vite.slots.appPlugins` keeps
-// out of the calls a host reads. A consumer without such a Storybook calls
-// nothing, so it gets no file.
+// The Vite config of a Storybook that draws components: docs/architecture/plugins/screens.md, "A Storybook that draws components".
 export async function writeStorybookConfig(options: {
 	config: StackConfig;
 	cwd: string;

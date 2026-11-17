@@ -1,10 +1,7 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
-// expo-router reads the route for an address nothing serves from a
-// `+not-found` file at the root of the routes directory, whichever extension;
-// without one it draws its own "Unmatched Route". It reads no other place, so
-// a page stack draws is a file the app's routes directory holds.
+// expo-router reads the not-found route from the routes directory: docs/architecture/plugins/expo.md, "Routes".
 const OWN = /^\+not-found\.[cm]?[jt]sx?$/;
 
 export const NOT_FOUND_FILE = "+not-found.tsx";

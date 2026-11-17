@@ -1,4 +1,2 @@
-// The one copy of MSW the workbench runs, for a plugin's handler module to
-// import by this package's name: a handler built on another copy would not
-// match the worker the host starts.
+// The one copy of MSW: docs/architecture/plugins/screens.md, "Single copies for plugin modules".
 export * from "msw";

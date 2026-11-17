@@ -6,22 +6,14 @@ import {
 	CLIENT_PLATFORM_HEADER,
 } from "../version-gate-shared.ts";
 
-// `Application.nativeBuildVersion` reads the compiled binary's build number
-// (iOS `CFBundleVersion` / Android `versionCode`) directly off the native
-// module at runtime. This differs from `expo-constants`'s `expoConfig`,
-// which reflects the app config the JS bundle shipped with and can drift
-// from what the store build actually is. `null` on web and whenever the
-// native module can't resolve it (e.g. Expo Go on some platforms).
+// The build number comes off the native module: docs/architecture/plugins/expo.md, "Version gate".
 function currentPlatform(): "ios" | "android" | null {
 	return Platform.OS === "ios" || Platform.OS === "android"
 		? Platform.OS
 		: null;
 }
 
-// The wire contract's two headers, or `{}` when the build number/platform
-// can't be read. Never throws: the server-side gate fails open on missing
-// headers by design, so an undetectable
-// build degrades to "unwalled" rather than breaking every request.
+// versionHeaders never throws, the gate fails open: docs/architecture/plugins/expo.md, "Version gate".
 export function versionHeaders(): Record<string, string> {
 	const build = Application.nativeBuildVersion;
 	const platform = currentPlatform();

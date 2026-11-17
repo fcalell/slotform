@@ -1,13 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-// drizzle-kit alters a SQLite table it cannot alter in place (a dropped
-// default, a changed constraint) by copying it: `CREATE TABLE __new_t`,
-// `INSERT INTO __new_t(...) SELECT ... FROM t`, `DROP TABLE t`, rename. When the
-// same change also adds a column, its copy names the new column in the SELECT,
-// which the old table does not have, and the migration fails where it applies
-// (`no such column`). The copy must read only the columns the table had before
-// the migration: the added one takes its default, or null.
+// The table-copy rewrite: docs/architecture/plugins/db.md, "drizzle-kit".
 
 interface Snapshot {
 	tables?: Record<

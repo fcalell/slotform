@@ -4,11 +4,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { useNavigation } from "expo-router";
 import { useEffect } from "react";
 
-// While a `Form` stands edited, leaving its screen (the back, a swipe, a
-// navigate) asks once: discard the edit, or keep editing. The screen's
-// `beforeRemove` is prevented, the decision queue asks, and a discard
-// dispatches the action the navigation had. The question is the decision
-// queue's, so the app passes nothing.
+// The leave guard of a `Form`: docs/architecture/ui-core/acts.md, "Leave".
 export function useLeaveGuard(leave: Leave, guarded: boolean): void {
 	const words = useWords();
 	const navigation = useNavigation();

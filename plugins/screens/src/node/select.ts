@@ -4,9 +4,7 @@ import type { PreviewGlobal } from "../types.ts";
 import { WIDTHS } from "../widths.ts";
 import { globalTag, SCREEN_STATES, screenTitle, stateTag } from "./screens.ts";
 
-// What `stack screens test` narrows a run by. The run excludes the tags
-// (`screens.ts`) of every value it was not asked for, so the narrowing across
-// globals and states multiplies where an include list would add.
+// What a run is narrowed by: docs/architecture/plugins/screens.md, "Narrowing a run".
 
 export function parseList(value: unknown): string[] {
 	if (typeof value !== "string") return [];
@@ -103,9 +101,7 @@ export interface RunSelection {
 	search: string | null;
 }
 
-// The directory `--shots` names, resolved from the app's root; null when the
-// flag is absent. It must lie inside the app: Vitest writes a screenshot only
-// where Vite's `server.fs.allow` reaches, the workspace.
+// The `--shots` directory: docs/architecture/plugins/screens.md, "Screenshots".
 export function parseShots(value: unknown, cwd: string): string | null {
 	if (value === undefined) return null;
 	if (typeof value !== "string" || value.trim() === "") {

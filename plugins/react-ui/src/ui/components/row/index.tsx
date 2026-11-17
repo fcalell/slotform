@@ -113,18 +113,9 @@ import { CopyAct, IdValue } from "./fact.tsx";
 import { RowProgress } from "./progress.tsx";
 import { RowStatusDot, RowStatusWord, StatusValue } from "./status.tsx";
 
-// The row is one box on the sheet's rows: a flex line of its leading, its text
-// group and its end group. A row with a label is the two columns of the sheet
-// (`DEFINITION_BOX`, a subgrid of `ROWS`): the label in the first and the same
-// line in the second, so every label of a Pane stands in one column as wide as
-// the widest.
+// The row is one box on the sheet's rows: docs/architecture/ui-core/layout.md, "Definition rows".
 const ROW = "relative flex items-center min-h-row";
-// A definition row stands its value under its label on touch (`touch:`) and in a
-// Pane too narrow for a label and a value side by side at the short measure
-// (`definitions-stacked:`, `definitionsOneRow`; voice 11). Each twin below is
-// the `definitions-stacked:` form of a `touch:` class of the definition row
-// family in ui-core's variants, as `TEXT_ADAPTS` is `TEXT_WORDS`'s; the form
-// field uses them too.
+// A definition row stands its value under its label: docs/architecture/ui-core/layout.md, "Definition rows".
 export const STACKED_BOX =
 	"definitions-stacked:flex definitions-stacked:flex-col definitions-stacked:items-stretch";
 export const STACKED_OPTIONAL_NAME = "definitions-stacked:pt-0";
@@ -145,7 +136,7 @@ export const STACKED_ALONE_UNDER =
 // its change mark, tick and tree lane on the first line; its end group stays
 // centred on the row. A label stands on the value's first line too, whatever
 // the value's lines (facts that wrap beside a switch included), so it shares
-// that line's baseline (structure 21) as on a one-line row; on touch the label
+// that line's baseline as on a one-line row; on touch the label
 // stands over the line.
 const ROW_WHOLE = "relative flex items-start min-h-row";
 const ROW_LABELLED = "relative";
@@ -153,7 +144,7 @@ const ROW_LABELLED = "relative";
 const LINE = "flex items-center min-w-0";
 // Without a title, a facts line or an entry, a row with a label stands the
 // label and the end group on one line on touch too, as a titled row does: a
-// switch or an act is an end-group part on the first line (voice 9 and 14),
+// switch or an act is an end-group part on the first line (docs/architecture/ui-core/layout.md, "Title and facts"),
 // never a value under its label. The label wraps in the room the end group
 // leaves it. A form's toggle field stands the same way.
 export const ASIDE =
@@ -168,7 +159,7 @@ export const ASIDE_LINE = "touch:grow definitions-stacked:grow";
 // at that floor and the control do not fit side by side, the end group stands
 // under the text, at the line's end, a gap below it. A value with no
 // description is one line that truncates, and acts stay on the value's line
-// (voice 14), each keeping the row's floor of two fifths beside its end.
+// (docs/architecture/ui-core/layout.md, "Title and facts"), each keeping the row's floor of two fifths beside its end.
 const LINE_WRAPS = "flex-wrap gap-y-gap";
 const TEXT_READS = "basis-[min(100%,var(--container-measure-short))]";
 // Started at the top, the line still runs the row's height, so its end group
@@ -220,18 +211,7 @@ const TICK = "relative size-target";
 // content); on touch it is two lines at every width, and a row with a mark, an
 // entry or the steps at every width and on every device.
 const CONTAINED = "@container/row";
-// In the two-line form a name wraps before it is cut (voice 14), to the third
-// line: a name that is a sentence ("Stopped: the deploy failed its health check"),
-// beside an end group of a glyph and an age at 320, is two lines and a word,
-// and a cut that takes the word it is about loses more than the line it saves.
-//
-// A title that wraps keeps its longest word whole in every form: its text
-// group is as wide as its minimum content (`break-words` makes the word, not a
-// letter, the minimum), held to the row by `max-w-full`, and never shrinks; it
-// grows into spare room. So the end group, which truncates, gives way first,
-// and a word wider than the row is the last resort: held to the row, it breaks
-// at the row's edge, never past it.
-// The three lines are `ROW_TITLE_LINES` (ui-core's fold), the phone's `numberOfLines`.
+// A title wraps to three lines and keeps its longest word whole: docs/architecture/ui-core/layout.md, "Title and facts".
 const TITLE_COMPACT = "line-clamp-3 whitespace-normal break-words";
 const TITLE_ADAPTS =
 	"row-two-line:line-clamp-3 row-two-line:whitespace-normal row-two-line:break-words";
@@ -242,15 +222,7 @@ const TEXT_ADAPTS =
 // the title's longest word sets it, never a badge.
 const BADGES_APART = "[contain:inline-size]";
 const BADGES_APART_ADAPTS = "row-two-line:[contain:inline-size]";
-// The text group (structure 21) is one list per form, `textGroup`, and no list
-// holds a class another class in it overrides. It is a column that grows and
-// may be cut (`min-w-0`); the lists differ in what it yields to and how far.
-// Its weight is read off ui-core's scale of who gives way (`YIELDS_FIRST`
-// above the default 1): a group with no floor to keep gives way first, so the
-// end group keeps its room; a group with a floor (`ROW_TEXT_FLOOR`) stands
-// at it and gives way at the default weight, since its end group is the one
-// that truncates; a group whose words stay whole never shrinks.
-// Its title line and the meta line under it stand a `badge` apart.
+// The text group, one class list per form: docs/architecture/ui-core/layout.md, "Text group and end group".
 const TEXT_LINES = "flex flex-col grow min-w-0 gap-badge";
 // `ROW_TEXT_FLOOR`'s basis at the default weight, since the floor's own
 // `shrink-0` would stand against the end group's yielding.
@@ -289,9 +261,9 @@ const END_SELF = "self-center";
 // An end group overflows the row's line centred, so the row keeps its height
 // whatever it holds: an icon act's, a switch's and a pick's box stand over the
 // row's inset, as tall as the row at most (the control height is the row's), so
-// a row with a pick stands at the rows' one height (voice 9: "its first-line
+// a row with a pick stands at the rows' one height: its first-line
 // box and the gap above and below it (32 px desktop, 44 touch), never a set
-// height").
+// height.
 const END_LINE = "h-line-body";
 // The end group's controls stand whole: the group never shrinks below them, and
 // the text group gives way past its floor (`ROW_TEXT_FLOOR` is where it stops
@@ -301,9 +273,10 @@ const END_LINE = "h-line-body";
 // row's status (`STATE_WORD` truncates), so a group that holds one shrinks.
 const END_WHOLE = "shrink-0";
 // On touch a two-line row's end group stands on the title's line, at its end,
-// and the facts line runs the row's whole width under both (voice 14): the
-// title's line is its own flex line, the end group on its first line box. A
-// control taller than the line overflows it centred, into the row's gap.
+// and the facts line runs the row's whole width under both
+// (docs/architecture/ui-core/layout.md, "Title and facts"): the title's line is
+// its own flex line, the end group on its first line box. A control taller
+// than the line overflows it centred, into the row's gap.
 const HEAD = "flex flex-wrap items-start min-w-0";
 const HEAD_END = "self-start";
 // The title's group in that line keeps its floor as its basis, so the end group
@@ -439,7 +412,7 @@ function trailingWord(trailing: RowTrailing): ReactNode {
 	return trailing.value;
 }
 
-/** The one row of a Section's sheet, whatever it holds. Its box is a line of three groups: a leading slot (the change mark, then the leading mark: a glyph, a status dot, an avatar, a type's mark or a tick; a tree's rails), a text group (the title over the facts line) and an end group, in one order: the marks whose words are not drawn (`words: false`: a glyph named by its label, with a tooltip), the trailing value, a switch, a pick, the act (an icon act), the copy act, the more act, a tree's fold. The facts line is a line of badges (`BadgesLine`, voice 19), each fact one badge in the order given, none breaking inside, none separated from the next by a dot, whole badges wrapping to the next line: the status its tone's mark and word, the row's lock (the lock glyph and its reason, a link to what holds the fact with an `href`, inert without one) right after it, a warning the warn glyph and phrase, a chip its family's dot and value, a ring (outlined, its centre filled) or a flag its glyph and label, words and a code in the mono their text; a blocked tick's reason is the first badge, plain. A badge too long for the line is cut inside its box with an ellipsis. A sentence is not a fact: the row's `line` is text under the title and the badges, in the meta ink at the meta role, wrapping whole at every width (runs, a code run moving whole to the next line), a badge's gap below the badges above it, so a row with a line is at least two lines (the line under the title where the badges follow it on its line); empty it draws nothing, painted it is one sentence's filler. A row with a mark is two lines at every width; a row with fact words alone is one line where it is wide enough and two below (the `row` container, `rowOneLine`: a rule of the row's width, never a measure of its content), and on touch two at every width. In a one-line row the badges follow the title on its line on one line, the last one cut where the line is out of room; under the title, and under a wrapped title (`wrap`), they wrap whole. A lone `{ code }` fact is no badge: it is the row's value, the mono cut in its middle and, in the two-line form, whole. A room place's row whose only mark is a status keeps it in the end group's start after the facts, a dot and its word, one line. A row with a `label` stands in the sheet's two columns, the label in the first at the body role in the meta ink (a `code` label in the code role) in a column as wide as the widest label of the Pane, and the line in the second; on touch the line stands under the label. A row without one spans the sheet from its start. A row that opens (`href` or `onOpen`) draws no chevron: it is one hit, washing under the pointer, current (the bar) when `selected`, or at its `href` unless `selected` is `false`; a linked badge (the lock) stands above the hit and takes the pointer, the rest of the line none. A title truncates on one line unless `wrap`, whether the row has a label or not; the end group is centred on the row; an absent word is in the meta ink, a status title is its tone's mark and word at the title's start, plain (no pill: colour stays on the glyph), a copyable code is the mono and, too long for its room, cut in its middle. The painted form is the loaded one with every part in its filler, a badge's filler at the loaded badge's size, inert. The row is the frame of the selections it draws (`title`, `facts`, `line`): one that failed, with no frame above holding it, makes the failed form (the label stays, the end shows the failure mark and the retry icon, the facts line reads "This didn't load." as text, and pressing the row retries). Outside the package's exports. */
+/** The one row of a Section's sheet, whatever it holds. Its box is a line of three groups: a leading slot (the change mark, then the leading mark: a glyph, a status dot, an avatar, a type's mark or a tick; a tree's rails), a text group (the title over the facts line) and an end group, in one order: the marks whose words are not drawn (`words: false`: a glyph named by its label, with a tooltip), the trailing value, a switch, a pick, the act (an icon act), the copy act, the more act, a tree's fold. The facts line is a line of badges (`BadgesLine`), each fact one badge in the order given, none breaking inside, none separated from the next by a dot, whole badges wrapping to the next line: the status its tone's mark and word, the row's lock (the lock glyph and its reason, a link to what holds the fact with an `href`, inert without one) right after it, a warning the warn glyph and phrase, a chip its family's dot and value, a ring (outlined, its centre filled) or a flag its glyph and label, words and a code in the mono their text; a blocked tick's reason is the first badge, plain. A badge too long for the line is cut inside its box with an ellipsis. A sentence is not a fact: the row's `line` is text under the title and the badges, in the meta ink at the meta role, wrapping whole at every width (runs, a code run moving whole to the next line), a badge's gap below the badges above it, so a row with a line is at least two lines (the line under the title where the badges follow it on its line); empty it draws nothing, painted it is one sentence's filler. A row with a mark is two lines at every width; a row with fact words alone is one line where it is wide enough and two below (the `row` container, `rowOneLine`: a rule of the row's width, never a measure of its content), and on touch two at every width. In a one-line row the badges follow the title on its line on one line, the last one cut where the line is out of room; under the title, and under a wrapped title (`wrap`), they wrap whole. A lone `{ code }` fact is no badge: it is the row's value, the mono cut in its middle and, in the two-line form, whole. A room place's row whose only mark is a status keeps it in the end group's start after the facts, a dot and its word, one line. A row with a `label` stands in the sheet's two columns, the label in the first at the body role in the meta ink (a `code` label in the code role) in a column as wide as the widest label of the Pane, and the line in the second; on touch the line stands under the label. A row without one spans the sheet from its start. A row that opens (`href` or `onOpen`) draws no chevron: it is one hit, washing under the pointer, current (the bar) when `selected`, or at its `href` unless `selected` is `false`; a linked badge (the lock) stands above the hit and takes the pointer, the rest of the line none. A title truncates on one line unless `wrap`, whether the row has a label or not; the end group is centred on the row; an absent word is in the meta ink, a status title is its tone's mark and word at the title's start, plain (no pill: colour stays on the glyph), a copyable code is the mono and, too long for its room, cut in its middle. The painted form is the loaded one with every part in its filler, a badge's filler at the loaded badge's size, inert. The row is the frame of the selections it draws (`title`, `facts`, `line`): one that failed, with no frame above holding it, makes the failed form (the label stays, the end shows the failure mark and the retry icon, the facts line reads "This didn't load." as text, and pressing the row retries). Outside the package's exports. */
 export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	const {
 		change: kind,
@@ -953,7 +926,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		pick !== undefined ||
 		acting;
 	// On touch a row of two lines stands its end group on the title's line and
-	// runs its facts line the row's whole width under both (voice 14), its
+	// runs its facts line the row's whole width under both (docs/architecture/ui-core/layout.md, "Title and facts"), its
 	// leading on the title's line with them; an entry, the steps and a label
 	// keep the end group centred on the row.
 	const headed =
@@ -964,10 +937,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		listed === undefined &&
 		hasEnd &&
 		titleLine !== null;
-	// In a tree the row is the focus stop and the hit is the pointer's alone; the
-	// row's own controls (its tick, pick, act and more menu) stand in the tab
-	// order only on the row that holds the stop, so the tree is one stop and the
-	// controls of the row at it, never one stop per row.
+	// A tree is one focus stop: docs/architecture/ui-core/layout.md, "Trees".
 	const pointed = tree ? -1 : undefined;
 	const rove = tree && !tree.tabbable ? (-1 as const) : undefined;
 	let hit = null;

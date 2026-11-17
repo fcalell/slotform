@@ -13,9 +13,7 @@ import type { LayoutChangeEvent, View } from "react-native";
 import type { Route } from "./route";
 import { useCSSVariable } from "./theme";
 
-// What the frame molecules hand each other. The Shell hands its switcher to
-// each Pane, which draws its trigger at the start of its bar when it has no
-// back act.
+// What the frame molecules hand each other: docs/architecture/ui-core/layout.md, "On the phone".
 export const ShellSwitcher = createContext<OptionPick | undefined>(undefined);
 
 // The Shell hands its tab bar to each Place, which draws it under its Pane.
@@ -27,18 +25,14 @@ export interface ToastBox {
 	height: number;
 }
 
-// The Shell's root and its way to place the toasts' layer. The layer stands
-// after the sheets' host, outside the page's tree, so it takes the box the
-// Pane draws (its body over its docked foot and the tab bar) by measuring
-// that box against the root.
+// The Shell's root and its way to place the toasts' layer: docs/architecture/plugins/native-ui.md, "Frame host".
 export interface ToastFrame {
 	root: RefObject<View | null>;
 	place: (box: ToastBox) => void;
 }
 export const ToastFrame = createContext<ToastFrame | null>(null);
 
-// The ref and `onLayout` of the box a page draws for the toasts: each layout
-// of the box places the toasts' layer over it.
+// The ref and `onLayout` of the box a page draws for the toasts: docs/architecture/plugins/native-ui.md, "Frame host".
 // TODO: the layer follows the box one layout late (a growing foot, the
 // keyboard); place it by layout once React Native can stand a layer after the
 // sheets' host from the page's tree, or once the sheets host the toasts.
@@ -59,9 +53,7 @@ export function useToastBox() {
 // around it leads back.
 export const PlaceRoute = createContext<Route | undefined>(undefined);
 
-// The route a Pane's back act returns to, where the Pane's own read that
-// answers not found leads back; with none it leads to `PlaceRoute`. `false`
-// says there is no way back at all.
+// The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
 export const BackRoute = createContext<Route | false | undefined>(undefined);
 
 // The name of the Shell's current place (the tab's label, "More" on the More
@@ -72,12 +64,7 @@ export const PlaceName = createContext<string | undefined>(undefined);
 // insets its head by the room set's page inset.
 export const DistanceContext = createContext(false);
 
-// What a docked foot's region hands the docked `Sheet` it draws: `height` is the
-// region the foot shares with what stands over it (a Thread's or a Pane's
-// `Lifted` column), read off that column's layout since Yoga has no
-// container units; `chrome` the foot's own block padding and border;
-// `logFloor` what the region keeps for a log above the foot (zero where none
-// shares it). All zero until the first layout.
+// What a docked foot's region hands the docked `Sheet` it draws: docs/architecture/plugins/native-ui.md, "Docked sheet".
 export interface FootRegionValue {
 	height: number;
 	chrome: number;
@@ -115,8 +102,5 @@ export function useTokenPx(name: string): number {
 	return tokenPx(useCSSVariable(name));
 }
 
-// The claim a docked foot region holds for the input that returns: a docked
-// `Sheet` leaving the region sets it, and the `Thread`'s composer that mounts in
-// its place takes focus and clears it (React runs the leaving tree's cleanups
-// before the arriving tree's effects).
+// The claim a docked foot region holds for the input that returns: docs/architecture/plugins/native-ui.md, "Docked sheet".
 export const FootReturn = createContext<RefObject<boolean> | null>(null);

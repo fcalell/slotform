@@ -1,7 +1,5 @@
-// Writes `src/icon-name.ts`: the names of Lucide's glyphs as a literal union, so that `IconName`
-// needs no Lucide types. ui-core ships these names, not the icon set: a package that draws one
-// (react-ui, native-ui) depends on Lucide itself, and a server that only reads ui-core's
-// descriptors installs none of it. `src/icon-name.test.ts` holds the file to the installed Lucide.
+// Writes `src/icon-name.ts`, the glyph names as a literal union: docs/architecture/ui-core/roster.md, "The canon and the closed props".
+// `src/icon-name.test.ts` holds the file to the installed Lucide.
 //
 //   pnpm --filter @fcalell/ui-core icon-name
 import { writeFileSync } from "node:fs";

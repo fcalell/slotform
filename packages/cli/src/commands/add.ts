@@ -78,9 +78,7 @@ export async function add(
 	const cwd = process.cwd();
 	const nonInteractive = !process.stdin.isTTY;
 
-	// A plugin meeting a one-of the app already meets replaces the plugin
-	// meeting it (node for cloudflare as the server target). It goes first,
-	// so its removed dependencies never take one the new plugin brings.
+	// A plugin meeting a one-of the app already meets replaces the one meeting it: docs/architecture/commands.md, "Installing the requires closure".
 	const configured = await loadInstalledPlugins(configuredNames);
 	const displaced = displacedBy(pluginName, configured);
 	if (existingConfig && displaced.length > 0) {
@@ -108,10 +106,7 @@ export async function add(
 	);
 	const existingNames = new Set(existingPluginNames);
 
-	// Install the plugin, then each plugin it requires that the app lacks: a
-	// plugin's `requires` is known only once it is loaded. The closure starts
-	// from the app's plugins so a one-of the app already meets adds nothing,
-	// and an unmet one-of takes its first plugin.
+	// The requires closure: docs/architecture/commands.md, "Installing the requires closure".
 	let pluginsToAdd = [pluginName];
 	let available: DiscoveredPlugin[];
 	for (;;) {
@@ -191,9 +186,7 @@ export async function add(
 		cwd,
 	});
 
-	// Prompts — run each added plugin's spec through the proper adapter so
-	// non-interactive mode resolves to sensible defaults (e.g. db's
-	// placeholder databaseId), exactly like `stack init`.
+	// Prompts, with non-interactive defaults as in `stack init`: docs/architecture/commands.md, "Prompts".
 	const promptAdapter = createPromptContext({ nonInteractive });
 	const allPrompts = await graph.resolve(cliSlots.initPrompts);
 	for (const spec of allPrompts) {

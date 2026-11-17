@@ -33,9 +33,7 @@ import { Turn } from "../turn.tsx";
 const BOX = "relative inline-flex items-center justify-center shrink-0";
 // Inside a field or a clipping frame the ring is drawn inset.
 const INSET = "focus-visible:-outline-offset-2";
-// A trigger stays pressed while its popup is open: `aria-expanded`, which the
-// menu, picker and sheet triggers set and the tooltip's own trigger does not
-// (its `data-popup-open` would press every act that shows its name).
+// A trigger stays pressed while its popup is open: docs/architecture/plugins/react-ui.md, "Icon acts".
 const PRESS =
 	"hover:bg-wash-hover hover:text-ink-body active:bg-wash-press active:text-ink-body aria-expanded:bg-wash-press aria-expanded:text-ink-body";
 // A disclosure (a branch's fold) is expanded while its body shows, which is no
@@ -168,12 +166,7 @@ export function IconButtonBase({
 	);
 }
 
-// The act's name in a tooltip: on a pointer resting on it or on the keyboard
-// reaching it, hidden by Escape, a press or leaving. The label stays the
-// element's accessible name (the tooltip adds none), and touch draws none: a
-// press there is not a rest, and the name would cover the act under the finger.
-// Focus a dialog hands its own first act (its close) shows no name: the name
-// would take the first Escape, which belongs to the dialog; Tab inside it does.
+// The act's name in a tooltip: docs/architecture/plugins/react-ui.md, "Icon acts".
 function handedByDialog(event: Event): boolean {
 	if (!(event instanceof FocusEvent) || !(event.target instanceof Element))
 		return false;

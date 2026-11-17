@@ -1,9 +1,6 @@
 import type { MiddlewareHandler } from "hono";
 
-// A query procedure travels as `GET <prefix>/…?data=<its input>`, so Hono's
-// own `logger()`, which prints the path with its query string, would put every
-// read's input (an email, an id, a search term) in the worker's logs. This one
-// prints the method and the pathname only.
+// Request log without query strings: docs/architecture/plugins/api.md, "Logging".
 
 function formatDuration(ms: number): string {
 	return ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(1)}s`;

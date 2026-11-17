@@ -1,7 +1,4 @@
-// Framework-free descriptors: a composed region is data, so the owning
-// molecule renders it. A descriptor one component alone takes is declared in
-// its `roster/<component>.ts`, one several take in `roster/descriptors.ts`, and
-// each is re-exported here.
+// Framework-free descriptors, each re-exported here: docs/architecture/ui-core/roster.md, "Descriptors".
 
 export type { IconName } from "./icon-name.ts";
 export type { ChosenCount } from "./roster/action-bar.ts";

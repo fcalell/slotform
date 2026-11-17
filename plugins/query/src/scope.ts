@@ -5,10 +5,7 @@ import {
 	type ScopeSchema,
 } from "@fcalell/ui-core/scope";
 
-// The route's scope set on oRPC's query utils: every call of a scoped
-// procedure takes the registered ids (`@fcalell/ui-core/scope`) in its input
-// before the query key is built, so the id stays in the key and two scopes never
-// share a cache entry.
+// The route's scope set on oRPC's query utils: docs/architecture/plugins/query.md, "Scope".
 
 // The utils methods that take the call's input in their options. A key built
 // without an input is a prefix (`orpc.projects.list.key()` matches every
@@ -31,13 +28,8 @@ const OPTIONS = new Set([
 type Fn = (...args: unknown[]) => unknown;
 
 /**
- * oRPC's query utils with the scope key of each scoped procedure (`schema`) set
- * from the registered scope in the input of every call: `queryOptions`,
- * `infiniteOptions`, the keys, `call`, and the `mutationFn` of `mutationOptions`.
- * The merge precedes the key, which carries the id. A procedure the schema does
- * not name, or names with no scope, is left as it is. `schema` is a parameter
- * because `virtual:stack-schema` resolves only in the bundler, which builds
- * `./tanstack-query.tsx` and not this file.
+ * oRPC's query utils with the scope key of each scoped procedure (`schema`) set from the registered scope.
+ * Scope: docs/architecture/plugins/query.md, "Scope".
  */
 export function withScope(
 	// biome-ignore lint/suspicious/noExplicitAny: oRPC's utils proxy is dynamically typed

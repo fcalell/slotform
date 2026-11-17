@@ -26,11 +26,7 @@ export interface DiscoveredPlugin {
 	options: unknown;
 }
 
-// First-party plugins published under `@fcalell/plugin-*`. This list exists
-// only for discovery commands (e.g. `stack init` and `stack add`) that need
-// to offer a picker before any consumer config exists. Third-party plugins
-// appear via the consumer's `stack.config.ts` and its `__package` fields,
-// not here — discovery cannot enumerate them ahead of config load.
+// First-party plugins, for pickers before any config exists: docs/architecture/plugin-authoring.md, "Plugin discovery".
 export const FIRST_PARTY_PLUGINS = [
 	{ name: "cloudflare", package: "@fcalell/plugin-cloudflare" },
 	{ name: "db", package: "@fcalell/plugin-db" },
@@ -98,9 +94,7 @@ async function loadPlugin(
 	return { name, cli: pluginExport.cli, factory: pluginExport, options };
 }
 
-// The named first-party plugins, each installed already. Node caches a
-// failed resolution for the rest of the process, so a plugin probed before
-// its install stays unresolvable after it: never load an absent one.
+// Never load an absent plugin: docs/architecture/plugin-authoring.md, "Plugin discovery".
 export async function loadInstalledPlugins(
 	names: readonly string[],
 ): Promise<DiscoveredPlugin[]> {
@@ -126,16 +120,7 @@ export type ChooseRequirement = (
 
 const chooseFirst: ChooseRequirement = async (req) => req.oneOf[0];
 
-// Transitive `requires` closure for a set of selected plugin names, resolved
-// against the available (first-party) plugins. Returns the selected names PLUS
-// every transitively-required sibling, deduped, with each plugin's named
-// requirements ordered before it (post-order). Shared by `stack init` and
-// `stack add` so both auto-pull the *full* dependency chain, not just one
-// level — picking `auth` pulls `db`, and `db`'s own requirements in turn.
-// One-of requirements settle after the named closure, so a plugin pulled by
-// name anywhere meets them whatever the visit order; one still unmet adds the
-// plugin `choose` picks, the first of `oneOf` unless told otherwise. Unknown
-// names (e.g. third-party plugins not in `available`) pass through as leaves.
+// Transitive `requires` closure, shared by `stack init` and `stack add`: docs/architecture/commands.md, "Installing the requires closure".
 export async function resolveRequiresClosure(
 	names: readonly string[],
 	available: readonly DiscoveredPlugin[],
@@ -184,11 +169,7 @@ export async function discoverPlugins(
 	return plugins;
 }
 
-// Presence check only. Ordering is derived by the slot graph from data
-// dependencies — a plugin that reads `otherPlugin.slots.foo` as a derived
-// input is implicitly ordered after it. `requires` exists so a missing
-// dependency surfaces an actionable error rather than a cryptic slot-lookup
-// failure.
+// Presence check only: docs/architecture/slot-graph.md, "`requires`".
 export function validateDependencies(plugins: DiscoveredPlugin[]): void {
 	const available = new Set(plugins.map((p) => p.name));
 

@@ -8,9 +8,8 @@ export interface ServeWorker {
 // The path every control lives under.
 export const FIXTURE_PREFIX = "/fixture";
 
-// A plugin's or an app's own controls: asked first of every `/fixture/*`
-// request, in the order given, so one can answer a generic path (plugin-auth's
-// `link`); undefined passes to the next, then to the generic controls.
+// A plugin's or an app's own controls for `/fixture/*`.
+// Order and fall-through: docs/architecture/plugins/screens.md, "Serve".
 export type ExtraControls = (
 	request: Request,
 	context: {
@@ -36,15 +35,8 @@ function matcher(pattern: string): RegExp {
 	return new RegExp(source);
 }
 
-// Answers a worker's requests as the app does, and the `/fixture/*` paths:
-//
-//   delay?match=<pattern>&ms=<n>     slow each request whose path matches; ms=0 clears
-//   fail?match=<pattern>&status=<n>  answer each one with status n; status=0 clears
-//   link[?to=/path]                  sign the browser in as the fixture member:
-//                                    a control extra answers (plugin-auth's), 404 when none does
-//
-// A pattern is a part of the path, `*` standing for any run. The rules live in
-// the worker instance. `socket` is the node server's: it owns the sockets.
+// Answers a worker's requests as the app does, and the `/fixture/*` paths.
+// The paths and their patterns: docs/architecture/plugins/screens.md, "Serve".
 export function fixtureControls<W extends ServeWorker>(
 	worker: W,
 	...extra: ExtraControls[]

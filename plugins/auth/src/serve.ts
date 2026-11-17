@@ -4,13 +4,7 @@ import {
 } from "@fcalell/plugin-screens/serve";
 import { AUTH_PREFIX } from "./types.ts";
 
-// The served app's `/fixture/link`, for `stack screens serve`: signs the
-// browser in as the fixture member through the email-code routes, with the
-// address and fixed code plugin-auth's `serveEnv` gives the run
-// (`STACK_SERVE_EMAIL`, `STACK_SERVE_CODE`), and redirects with the session
-// cookie. Runs inside the worker (Node or workerd): web APIs only. A control
-// of `fixtureControls` in `@fcalell/plugin-screens/serve`; a hand-written serve
-// entry passes it in: `fixtureControls(worker, link)`.
+// The served app's `/fixture/link`: docs/architecture/plugins/auth.md, "Screens".
 export default async function link(
 	request: Request,
 	context: Parameters<ExtraControls>[1],

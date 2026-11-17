@@ -1,26 +1,7 @@
 import type { Peaks } from "./descriptors.ts";
 import type { RosterEntry } from "./shared.ts";
 
-// The player's dock, the part an app gives a Shell's `foot` (`<Shell foot={<Dock />}>`):
-// while a track is loaded (`lib/player`) it stands under the place at the column's
-// width, a hairline over the surface: the picture (a track with none, or one that
-// did not load, stands as the tile's failed form, so the name keeps its place), the
-// name over its line, previous, play or pause (the primary glyph) and next, the
-// elapsed time, the seek (the waveform where the track has peaks, else a slider)
-// and the total, mute and volume (not on touch, where the device's own buttons set
-// the volume), and a close. On the web the name, the transport and the seek share
-// the bar's width by flex, so the transport stands at its centre; on touch the
-// transport and the name stand on one row and the seek on a second. On the phone it
-// is one bar with a hairline of progress along its top, and a press opens a `Sheet`
-// with the full player. It draws what the player holds (`lib/player`, over
-// `createPlayer` of `@fcalell/ui-core/player`: the track, an optional queue, a
-// `QueueProvider` such as `windowQueue` for a list too long to hold, the clock, the
-// volume) and makes no sound: the app passes the sound as an `Output` once
-// (`audioOutput()` on the web, `@fcalell/plugin-native-ui/audio/expo` on the phone),
-// and nothing mounts a Dock by default. While it stands it takes Space and the
-// horizontal arrows anywhere that is not typing or a control that takes those keys
-// itself (a Table's grid takes them where it acts on them), and the system's media
-// keys.
+// The player's dock and its keys: docs/architecture/ui-core/sound.md, "Dock".
 export const dockEntry: RosterEntry = {
 	props: [],
 	draws: [

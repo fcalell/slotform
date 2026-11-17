@@ -1,15 +1,10 @@
 import type { NodeWorker } from "./worker.ts";
 import type { ConnectionSession } from "./ws-hub.ts";
 
-// plugin-auth mounts better-auth under this worker path (its `AUTH_PREFIX`).
-// This package cannot import plugin-auth, so, as plugin-expo's version gate
-// does, it names the path: the auth plugin is configured exactly when the
-// worker owns it.
+// The auth path this package names: docs/architecture/plugins/node.md, "Auth coupling".
 const AUTH_PREFIX = "/api/auth";
 
-// plugin-auth publishes `{ sessionId }` here when Better Auth deletes a
-// session (a sign-out, a revoke, a deleted user), named here for the same
-// reason as the prefix: the server closes that session's sockets.
+// The session-ended channel this package names: docs/architecture/plugins/node.md, "Auth coupling".
 export const SESSION_ENDED_CHANNEL = "stack:auth:session-ended";
 
 export function hasAuth(workerPaths: readonly string[]): boolean {
@@ -20,16 +15,7 @@ type WsUpgradeDecision =
 	| { allow: true; session: ConnectionSession | null }
 	| { allow: false; reason: "origin" | "session" };
 
-// The whole admission rule, apart from how its inputs are found. A browser
-// applies no CORS to a WebSocket and sends its Origin, so a page open beside
-// the app opens a socket with the user's cookies: an upgrade must name the
-// page it comes from, and an Origin the app does not trust is refused first
-// (a native client's WebSocket sends one too). The one upgrade with no Origin
-// admitted is a headless client's (a daemon holding a device key), which
-// carries its credential as `Authorization: Bearer`, a header no browser page
-// can set on a WebSocket; it is judged by that credential alone, its cookies
-// unread. The session comes next, which an app with auth requires of every
-// socket.
+// The whole admission rule: docs/architecture/plugins/node.md, "WebSocket admission".
 export function wsUpgradeDecision(input: {
 	origin: string | null;
 	originAllowed: boolean;
@@ -48,11 +34,7 @@ export function wsUpgradeDecision(input: {
 	return { allow: true, session: input.session };
 }
 
-// Whether the worker's CORS layer answers `origin`: a preflight through
-// `worker.fetch` reads the same effective list the worker's own
-// `isForbiddenOrigin` guard does (production origins, plus the dev origins
-// only under STACK_DEV), so no second list exists to drift. A worker with
-// no CORS, or none at all, trusts no browser origin.
+// Whether the worker's CORS layer answers an origin: docs/architecture/plugins/node.md, "WebSocket admission".
 async function workerAllowsOrigin(
 	worker: NodeWorker | null,
 	env: unknown,
@@ -79,12 +61,8 @@ async function workerAllowsOrigin(
 	}
 }
 
-// The session the request's credentials hold, asked of the same auth the
-// RPC calls resolve it from (better-auth's `get-session`, answered by the
-// worker), from the database rather than the signed cookie cache, so a
-// session revoked a moment ago opens nothing. Anything but a session is
-// null: an error refuses the socket. `credentials` names the request headers
-// it forwards.
+// The session comes from the worker's auth, not the cookie cache: docs/architecture/plugins/node.md, "WebSocket admission".
+// `credentials` names the request headers it forwards.
 async function workerSession(
 	worker: NodeWorker | null,
 	env: unknown,
@@ -144,9 +122,7 @@ async function trustedOrigin(options: {
 
 const BEARER_ONLY = ["authorization"] as const;
 const EVERY_CREDENTIAL = ["cookie", "authorization"] as const;
-// The methods a browser reads with and sends no Origin on from the app's own
-// page (an image, a link, a download): a route answers them without changing
-// state, so a cookie on one opens nothing a page elsewhere can use.
+// Reads carry no Origin: docs/architecture/plugins/node.md, "Service route sessions".
 const READS = new Set(["GET", "HEAD"]);
 
 // Admits or refuses a `/ws` upgrade request: the origin first, so a
@@ -182,13 +158,7 @@ export async function authorizeUpgrade(options: {
 	});
 }
 
-// The session a mounted route's request holds, by `/ws`'s rule for the one
-// credential a browser attaches by itself: its cookies are read only when the
-// request comes from one of the app's pages, an Origin it trusts, or a read
-// with no Origin (a browser sends one on every cross-origin request and on a
-// same-origin one that changes state). A bearer key, which no page holds, is
-// read on any request. So a page elsewhere that posts to a route with the
-// user's cookies is anonymous, and the route needs no Origin check of its own.
+// The session a mounted route's request holds: docs/architecture/plugins/node.md, "Service route sessions".
 export async function mountSession(options: {
 	worker: NodeWorker | null;
 	env: unknown;

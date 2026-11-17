@@ -1,8 +1,6 @@
 import type { Client } from "@orpc/client";
 
-// `TScope` is the input key the procedure's scope adds (`organizationId`), or
-// `never`: the client type makes that key optional, for the route's scope
-// boundary to fill (the query plugin merges the registered scope in).
+// `TScope`: docs/architecture/plugins/api.md, "Scope".
 export interface Procedure<
 	TInput = unknown,
 	TOutput = unknown,
@@ -61,19 +59,14 @@ export type ScopedRouterClient<T> = {
 
 export type InferRouter<T> = T extends { _router: infer R } ? R : never;
 
-// Value checks the worker asserts once per isolate on the first request.
-// Presence is always checked; hints tighten it. `devLocalhost` refuses to
-// serve when STACK_DEV is set but the value's hostname is not local: the
-// canary for a deploy that accidentally shipped dev settings.
+// Env value checks: docs/architecture/plugins/api.md, "Env vars".
 export interface EnvValidation {
 	minLength?: number;
 	url?: boolean;
 	devLocalhost?: boolean;
 }
 
-// One env var the worker reads, declared by the plugin that reads it. A
-// `devDefault` must satisfy its own `validate` hints or a fresh project
-// refuses to serve.
+// One env var the worker reads: plugins/api/guide/config.md, "Rules".
 export interface EnvSpec {
 	name: string;
 	devDefault: string;

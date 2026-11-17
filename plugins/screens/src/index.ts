@@ -41,40 +41,28 @@ import { HEIGHT, SHOT_MAX_HEIGHT, WIDTHS } from "./widths.ts";
 
 const SOURCE = "screens";
 
-// Modules a plugin contributes for the endpoints it owns outside the app's
-// router (better-auth's session): each default-exports an array of MSW request
-// handlers, answered beside the app's procedures in every screen's story, and
-// is imported from the Storybook host's virtual module by its specifier.
+// Handler modules: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 const handlerModules = slot.list<string>({
 	source: SOURCE,
 	name: "handlerModules",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// Modules a plugin contributes for the oRPC procedures it owns (plugin-auth's
-// `auth.session`): each default-exports a fixtures tree, answered after the
-// app's own in every screen's story, so the app overrides a plugin's answer
-// per procedure. Imported from the Storybook host's virtual module by its
-// specifier.
+// Fixture modules: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 const fixtureModules = slot.list<string>({
 	source: SOURCE,
 	name: "fixtureModules",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// The toolbar globals a plugin owns: the design system's mode and density,
-// pinned on the document root before a story paints. The host knows no design
-// system; a global's `apply` says how its value reaches the root.
+// Toolbar globals: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 const previewGlobals = slot.list<PreviewGlobal>({
 	source: SOURCE,
 	name: "previewGlobals",
 	sortBy: (a, b) => a.name.localeCompare(b.name),
 });
 
-// What `stack screens serve` runs on: the steps that make the scratch state (the
-// database migrated and seeded), the env a plugin adds to the server's, and the
-// deploy target's server. A target may be one only: the first contribution
-// starts.
+// What `stack screens serve` runs on: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 const serveSteps = slot.list<ServeStep>({
 	source: SOURCE,
 	name: "serveSteps",
@@ -87,10 +75,7 @@ const serveEnv = slot.list<(serve: { url: string }) => Record<string, string>>({
 	name: "serveEnv",
 });
 
-// Modules whose default export is an `ExtraControls` of the served worker
-// (`@fcalell/plugin-screens/serve`): a plugin that owns a `/fixture/*` path
-// (plugin-auth's `link`) contributes its module's specifier, and each target
-// wraps the worker in `fixtureControls(worker, …)` with them.
+// Serve controls: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 const serveControls = slot.list<string>({
 	source: SOURCE,
 	name: "serveControls",
@@ -224,13 +209,7 @@ export const screens = plugin("screens", {
 		},
 	],
 
-	// The workbench host's own packages, peers of this package (optional, so an
-	// app that has auth or react-ui without `screens()` installs none of them):
-	// `stack add screens` writes them into the app, where the host's
-	// Storybook config, test config and preview resolve them. The oRPC packages
-	// the host answers with are this package's own dependencies, not the app's:
-	// a second copy of `@orpc/client` in the app (plugin-react's tanstack-query
-	// pulls one) is a second `ORPCError` class.
+	// The host's optional peers and the oRPC dependencies: docs/architecture/plugins/screens.md, "Dependencies".
 	devDependencies: {
 		"@storybook/addon-a11y": "^10.6.1",
 		"@storybook/addon-vitest": "^10.6.1",

@@ -28,10 +28,7 @@ type Draft = {
 	token?: string;
 };
 
-// A new API key: the token is a masked line (`control: "secret"`), left out of
-// the form's `values` so it is never read back, and the form's `after` is a
-// function of the input the fields make, so the request it would send is a read
-// drawn after the fields, from the first values and as the viewer types.
+// A new API key, its `after` a read drawn from the fields' input: docs/architecture/ui-core/acts.md, "Forms".
 function Preview({ draft }: { draft: Draft }) {
 	// The preview asks for the token's length, never the token: a secret stays
 	// out of a read's address.

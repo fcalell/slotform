@@ -1,6 +1,4 @@
-// How a figure that changes while shown moves (its
-// value): the old one leaves and the new one arrives from the side the change
-// went to, free of any framework so both platforms read one rule.
+// How a figure that changes while shown moves: docs/architecture/ui-core/motion.md, "Value and fills".
 
 // A rise: the figure grew, so the old leaves upward and the new rises from
 // below. A fall: the old leaves downward and the new descends from above.

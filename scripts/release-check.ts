@@ -1,17 +1,4 @@
-// The check a release passes before anything is published (docs/architecture/releasing.md).
-//
-// It builds every package, packs the public ones, inspects the tarballs, installs consumer
-// projects from those tarballs alone (so no workspace link and no registry copy of a stack
-// package can stand in for a tarball), generates and builds them, counts the copies of each
-// stack package the install holds, and ends with `pnpm -r publish --dry-run`. It publishes
-// nothing, logs in nowhere and starts no server.
-//
-//   node scripts/release-check.ts [--out <dir>] [--only web,node,native] [--keep] [--no-build]
-//
-// `--out` is where the tarballs, the consumers and the logs go (a fresh directory under the
-// system temp directory by default). `--keep` keeps each consumer's `node_modules`, which are
-// removed after a consumer is checked to spare the disk. `--no-build` skips `turbo run build`
-// when the packages are already built.
+// The check a release passes before anything is published: docs/architecture/releasing.md, "The check".
 
 import { spawnSync } from "node:child_process";
 import {

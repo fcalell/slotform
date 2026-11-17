@@ -22,18 +22,10 @@ export async function generateFromConfig(
 	const rawFiles = await graph.resolve(cliSlots.artifactFiles);
 	const postWrite = await graph.resolve(cliSlots.postWrite);
 
-	// Collapse duplicate artifact contributions to the same path. Identical
-	// content is fine — multiple `emitArtifact` helpers can resolve to the
-	// same string and that's a no-op. Conflicting content is a structural
-	// bug: two plugins fighting over the same generated file at runtime is
-	// guaranteed to produce one of two surprising outputs depending on
-	// resolver order. Throw with a clear error so the conflict is fixed at
-	// the contribution site, not papered over by silent last-write-wins.
+	// One content per path: docs/architecture/codegen.md, "Artifact emit".
 	const byPath = new Map<string, GeneratedFile>();
 	for (const raw of rawFiles) {
-		// Single source→file normalization: every artifact ends with exactly one
-		// trailing newline. Aggregators emit raw content; the rule lives here, at
-		// the write boundary, instead of being re-applied at every renderer.
+		// One trailing newline: docs/architecture/codegen.md, "Artifact emit".
 		const file = raw.content.endsWith("\n")
 			? raw
 			: { ...raw, content: `${raw.content}\n` };

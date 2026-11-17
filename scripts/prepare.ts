@@ -1,10 +1,5 @@
-// A stack package's `prepare` (run from the package's directory: `node ../../scripts/prepare.ts`).
-//
-// An install of a checkout (`link:`, a git spec, `pnpm install` in the workspace) has no `dist/`
-// until this builds it. `pnpm pack` and `pnpm publish` run `prepare` too, but a release builds
-// once, before either (`pnpm turbo run build`, which `pnpm release:check` and `pnpm release`
-// run), so under those two commands a `dist/` already there is the build, and building it again
-// would only repeat it. Without one, it builds.
+// A stack package's `prepare`, run from the package's directory: `node ../../scripts/prepare.ts`.
+// When it builds: docs/architecture/releasing.md, "Prepare script".
 
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";

@@ -14,9 +14,7 @@ import type {
 	RouterOptions,
 } from "../types.ts";
 
-// TanStack's router plugin call on a set of options, with the imports it
-// needs: what `react.slots.routerPlugin` holds, and what a host that runs the
-// plugin on options of its own renders.
+// The router plugin call on a set of options: docs/architecture/plugins/react.md, "Router plugin".
 export function routerPluginFor(options: RouterOptions): AppPlugin {
 	return {
 		imports: [
@@ -58,14 +56,7 @@ export function aggregateEntry(payload: CodegenEntryPayload): string | null {
 	return `${importsBlock}\n\n${payload.mount.body}\n`;
 }
 
-// Emits `.stack/virtual-providers.tsx`. Providers arrive pre-sorted ascending
-// by `order` (lower = outer) via the owning `react.slots.providers` list
-// slot, whose stable sort keeps contribution order among equal orders; a
-// second sort here would lose that tiebreak.
-//
-// Siblings render as additional children of the wrapper, after the wrapped
-// subtree, so they share the wrapper's context. Returns null when no
-// provider contributes — the Vite resolver then serves a pass-through stub.
+// `.stack/virtual-providers.tsx`: docs/architecture/plugins/react.md, "Providers module".
 export function aggregateProviders(
 	payload: CompositionProvidersPayload,
 ): string | null {

@@ -559,11 +559,7 @@ type Run = {
 	read?: Datum<readonly PlaceSpec[]>;
 };
 
-// The consecutive places of one group, in order: the sidebar draws a run under
-// its group's heading. A group that owns its places (a `places` of its own)
-// stands where it stands in `groups`: before the first plain run whose group
-// `groups` lists after it, else after the plain runs. The footer group is drawn
-// apart. A place naming a group `groups` does not list is a contract error.
+// The sidebar draws the places of one group as a run: docs/architecture/ui-core/layout.md, "Sidebar and groups".
 function runs(
 	places: readonly PlaceSpec[],
 	groups: readonly ShellGroup[] | undefined,

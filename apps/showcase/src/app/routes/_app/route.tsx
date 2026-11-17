@@ -69,9 +69,7 @@ const SWITCHER: OptionPick = {
 	act: { label: "New workspace", icon: "Plus", onAct: act },
 };
 
-// The boards are places in folders: a leaf takes a dragged task, with the
-// count of what it holds, and the tasks of the table drag onto them. A folder is
-// a place that only opens and folds (its route is a spot).
+// The boards are places in folders: docs/architecture/ui-core/layout.md, "Places".
 function App() {
 	const work = useWork();
 	const place = (node: BoardNode): PlaceSpec => {

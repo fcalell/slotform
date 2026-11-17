@@ -82,20 +82,12 @@ export interface ScreensPluginOptions extends ScreensModuleOptions {
 const SCREENS = "virtual:stack-screens";
 const WORKER = "/mockServiceWorker.js";
 
-// Storybook runs Vite in middleware mode and never calls `server.listen()`,
-// the call that starts Vite's dependency optimizer: without it `optimizeDeps`
-// never scans or pre-bundles, a CJS dependency behind a `node_modules` import
-// (`react-dom/client` through Storybook's dom shim) is served raw ("require is
-// not defined"), and each dependency found late reloads the page.
+// Why the optimizer is started here: docs/architecture/plugins/screens.md, "Vite plugin".
 function startOptimizer(server: ViteDevServer): void {
 	void server.environments.client.depsOptimizer?.init();
 }
 
-// A package installed under `node_modules` is pre-bundled; one linked from a
-// checkout is served as source, so pre-bundling a module of it would load a
-// second copy beside the one the app's own imports load (react-ui's router
-// binding would bind a copy no component reads). One that cannot be resolved
-// is left to the optimizer.
+// Installed and linked packages: docs/architecture/plugins/screens.md, "Vite plugin".
 function installed(specifier: string, root: string): boolean {
 	try {
 		const path = createRequire(join(root, "package.json")).resolve(specifier);
@@ -112,11 +104,7 @@ export function storybookHost(): Plugin {
 	return { name: "stack:storybook-host", configureServer: startOptimizer };
 }
 
-// The Vite plugin only the screens host runs: it serves what a story needs
-// (the app's route tree, fixtures and entry imports as one virtual module, MSW's
-// worker from this package), keeps the story files in step with the routes and
-// starts the dependency optimizer. It is added to the config `.stack/screens.vite.config.ts` only,
-// never to the app's.
+// The screens host's Vite plugin: docs/architecture/plugins/screens.md, "Vite plugin".
 export function screensPlugin(options: ScreensPluginOptions): Plugin {
 	// From this package, beside the `msw` the preview imports: the worker file
 	// and the library are one copy.

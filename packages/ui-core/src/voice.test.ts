@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-// `guide/voice.md` states a length by its token. A px value stands only as the
-// value at the default `size` (or `radius`) knob, written
-// "`token` (32 px, 44 px on touch, at the default `size`)", or is a true
-// constant below: a number no knob moves. A formula never joins this list.
+// A px value in the voice guide: docs/architecture/ui-core/showcase.md, "Enforcement".
 const CONSTANTS: readonly { phrase: string; reason: string }[] = [
 	{ phrase: "1 px edge", reason: "the hairline (HAIRLINE_PX), fixed" },
 	{ phrase: "1 px rail", reason: "the hairline (HAIRLINE_PX), fixed" },

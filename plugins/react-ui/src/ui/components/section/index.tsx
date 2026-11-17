@@ -45,11 +45,7 @@ import { SheetCard } from "../../parts/section/card.tsx";
 import { SectionHead } from "./head.tsx";
 import { keyOf, Rows } from "./rows.tsx";
 
-// The Section is a `ROWS` run of its own, so its head and its body span both
-// columns; in a Pane's body (or any `ROWS` that is a grid) it subgrids the
-// parent's two columns instead, and its body and sheet subgrid it in turn, so
-// every definition row in the Pane puts its label in the Pane's one label
-// column.
+// The Section subgrids the Pane's columns: docs/architecture/ui-core/layout.md, "Rows grid".
 const BOX = "min-w-0";
 // The body is its parts, each a card of its own, a `ROWS` run too.
 const BODY = ROWS;

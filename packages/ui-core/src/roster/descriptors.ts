@@ -3,9 +3,7 @@
 import type { IconName } from "../icon-name.ts";
 import type { ChipFamily, Tone } from "../tokens.ts";
 
-// What every act is: the run it starts. A thenable `onAct` returns holds the
-// act pending until it settles; a rejection draws the server's refusal when it
-// words one, else the generic `actFailed`.
+// What every act is: docs/architecture/ui-core/acts.md, "Act model".
 export interface ActBase {
 	onAct: () => unknown;
 }
@@ -37,12 +35,7 @@ export interface Act extends ActBase {
 	to?: string;
 }
 
-// An act that goes to a route: a link on the web, an anchor to `href` that the
-// router follows in place, and a press that navigates on the phone. Wherever a
-// host takes an `Act` for a labelled act (a Section's, a Banner's, a row's, a
-// toast's, a pending bar's, a canvas's, an empty state's) it takes a `LinkAct`
-// too, and a menu takes one as an entry. A `Pane`'s missing form's way back is one; it is
-// no create act. It has no run, so it never pends.
+// An act that goes to a route: docs/architecture/ui-core/acts.md, "Link acts".
 export interface LinkAct {
 	// The link's visible text (a short phrase; truncates).
 	label: string;
@@ -56,15 +49,7 @@ export type IconAct = Act & { icon: IconName };
 
 export type IconLinkAct = LinkAct & { icon: IconName };
 
-// A run of text: plain words, a quoted name (`quoted`: words given verbatim, in typographic
-// quotes in the slot's own role, drawn whole: a badge, an overline or a line
-// cuts it by its own width, a title wraps it), a span of code (`code`: the inline
-// code style; a row's whole title or a fact list that is this one run alone is
-// one value that cuts in its middle, keeping its start and end, `valueCut`, and
-// a later run wraps with the text around it) or a run at strong weight
-// (`strong`: the address a sentence names). A name that wraps breaks an
-// identifier (an address, a host, a dotted name) after its `@` and its dots,
-// never inside a word.
+// A run of text: docs/architecture/ui-core/words.md, "Text runs".
 export type Run =
 	| string
 	| { quoted: string }
@@ -75,19 +60,14 @@ export type Run =
 // at its end.
 export type Runs = readonly Run[];
 
-// A status: its tone's mark (the dot, the running dots) beside its word. The one
-// shape of a status everywhere (a fact, a row's title, a table cell, a canvas
-// node; a row's or a pick option's leading is the dot alone, named by its word); a row's facts may hold several, the first leading the line.
+// A status: docs/architecture/ui-core/roster.md, "Status and chips".
 export interface StatusMark {
 	tone: Tone;
 	// The tone's word (a word; truncates when its line is out of room), when the tone's own word does not say it.
 	label?: string;
 }
 
-// A value's tag: an outlined pill with a dot in its family's hue; the
-// neutral family, which has no hue, its word on a soft ground, no edge, no dot.
-// The one shape of a chip everywhere (a fact, a table cell, a picker option, a
-// toolbar's applied filter).
+// A value's tag: docs/architecture/ui-core/roster.md, "Status and chips".
 export interface ChipMark {
 	family: ChipFamily;
 	// The value (a word; truncates past the short measure, 20 characters).
@@ -151,13 +131,7 @@ export interface LinkSegment {
 	value?: never;
 }
 
-// A list row's leading: a glyph, a status's mark (`{ tone }`: its dot, or the
-// spinner while `running`; its `label`, when given, names the dot and is not drawn), a person's
-// avatar, a tick that chooses the row (drawn disabled when `blocked`, the
-// reason the row cannot be ticked, which the row carries among its facts), or a
-// type's mark (one or two characters in the family's hue). An avatar, a glyph,
-// a mark or a tick stands in one slot at the avatar's size; a status takes its
-// own mark's room.
+// A list row's leading: docs/architecture/ui-core/layout.md, "Leading".
 export type RowLeading =
 	| {
 			icon: IconName;
@@ -199,12 +173,7 @@ export type RowMark =
 	| { ring: boolean; label: string; words?: false }
 	| { flag: IconName; label: string; words?: false };
 
-// A fact: one thing a list says of a thing, in the order given. Every list of
-// facts holds these kinds (a row's `facts`, a message detail's row, a record
-// head's `facts` among its own): words (`Run`, one fact each, a string's own
-// middle dot no part of it), a status, a chip, what is wrong (`{ warning }`) or
-// a boolean mark. The kinds are told apart by their keys, so a fact needs no
-// tag; a list may hold several statuses, each its own badge with its tone mark (the first leads the line, and the row's lock follows it).
+// A fact: docs/architecture/ui-core/roster.md, "Facts".
 export type Fact = Run | StatusMark | ChipMark | { warning: string } | RowMark;
 
 // A pick that applies at once where a value stands (a row's trailing, a
@@ -277,10 +246,7 @@ export type RowTitle =
 	| { absent: string }
 	| StatusMark;
 
-// What a typing control inside a bound `FormField` takes: the field's value,
-// its change handler, and, when the binding autosaves, what hears each
-// commit (`CommitMoment` in `./commit`: the viewer left the field or pressed
-// Enter having changed it).
+// What a typing control in a bound `FormField` takes: docs/architecture/ui-core/acts.md, "Commit".
 export interface FieldControl<V> {
 	readonly value: V;
 	onChange: (value: V) => unknown;
@@ -333,26 +299,14 @@ export interface Confirmation extends Decision {
 // What a menu holds: acts that run and links that go.
 export type MenuEntry = Act | LinkAct;
 
-// The routes an app has, registered by a platform through declaration merging
-// into `@fcalell/ui-core/descriptors`, which re-exports this interface
-// (`interface RouteRegistry { route: ... }`): native-ui registers the
-// app's expo-router paths. Every route a descriptor carries reads it, and an
-// unregistered route is any string.
+// The routes an app has, merged in by a platform: docs/architecture/ui-core/layout.md, "Places".
 // biome-ignore lint/suspicious/noEmptyInterface: a platform merges its route type in
 export interface RouteRegistry {}
 export type Route = RouteRegistry extends { route: infer R extends string }
 	? R
 	: string;
 
-// A file the viewer chose or dropped, the same on both platforms so one
-// upload serves both: the web wraps its `File` (`blob` resolves to it), the
-// phone the document picker's asset (`blob` reads its uri). `size` is in
-// bytes and `type` a MIME type, empty when the platform knows none. `src` is
-// a local address the file can be drawn from before it is uploaded (an
-// `Attachment`'s thumbnail): the phone's asset uri, set on every file and
-// needing no revoke, and on the web an object URL that `Thread`'s composer's attach
-// path makes for an image alone, which the consumer revokes
-// (`URL.revokeObjectURL`) when it detaches the attachment.
+// A file the viewer chose or dropped: docs/architecture/ui-core/components.md, "File controls".
 export interface PickedFile {
 	name: string;
 	size: number;
@@ -371,10 +325,7 @@ export type Picked<Q = unknown> =
 	| { ids: string[] }
 	| { query: Q; except: string[] };
 
-// Where a record, a row or a field stands in a change set: added, changed,
-// removed, `unchanged` (so a marked set lines up) or `stale` (the change set
-// no longer matches what it was made against). One mark draws it on every
-// part that carries a `change`.
+// A change set's mark: docs/architecture/ui-core/roster.md, "Marks".
 export type ChangeKind =
 	| "added"
 	| "changed"
@@ -404,13 +355,7 @@ export interface Dragged<Q = unknown> {
 	picked: Picked<Q>;
 }
 
-// A place that takes a drag, as data: the kinds it `accepts`, the `label` of
-// what releasing on it does (a short phrase, "Add to Chill"), which is also the
-// entry the platform adds to the more menu of every row that carries a kind it
-// accepts, so the drag has a way without a pointer, and `onDrop`, which hears
-// what was dragged. It carries its wiring as an act does: `confirm` is asked
-// first, `done` is toasted once `onDrop` resolves, `to` is gone to after, a
-// rejection toasts as a failed act does. `blocked` is why it takes nothing now.
+// A place that takes a drag: docs/architecture/ui-core/drag.md, "Drag and drop".
 export interface Drop<Q = unknown> {
 	accepts: string | readonly string[];
 	label: string;

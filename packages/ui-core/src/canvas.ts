@@ -1,6 +1,4 @@
-// The canvas's graph logic: pure and framework-free, so the web canvas and a
-// consumer that numbers or reads its nodes share one answer. Inputs are
-// structural, so a consumer passes its own objects.
+// The canvas's graph logic, framework-free: docs/architecture/ui-core/components.md, "Canvas".
 
 import type { CanvasEdge, CanvasNode, IconName } from "./descriptors.ts";
 

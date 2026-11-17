@@ -34,17 +34,7 @@ export function pinnedStackCommit(cwd: string): string | null {
 	return pinnedCommit({ ...pkg.dependencies, ...pkg.devDependencies });
 }
 
-// Brings the app's install in line with the stack packages its `package.json`
-// names, then installs. Inside the pnpm workspace this CLI belongs to, each is
-// the workspace's own package (`workspace:*`) and the workspace root installs;
-// an app that links a stack checkout (`@fcalell/cli` as `link:`) links each
-// from that checkout; elsewhere each is an npm version range and
-// `pnpm-workspace.yaml` carries only the third-party build verdicts. Only an
-// unpublished CLI (version 0.0.0) takes each from stack's repository instead,
-// with `pnpm-workspace.yaml` overriding each to its spec, at the commit the
-// app's specs pin when they pin one. The yaml and the install belong to the
-// app's own pnpm workspace when it is a project of one (a consumer monorepo),
-// else to the app.
+// Brings the app's stack packages in line with its `package.json`, then installs: docs/architecture/consumer-project.md, "Installing stack".
 export function installStack(cwd: string): void {
 	const pkgPath = join(cwd, "package.json");
 	const pkg = readManifest(pkgPath);

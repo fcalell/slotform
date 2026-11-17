@@ -25,20 +25,14 @@ import {
 	WIDTH_VALUE,
 } from "./tokens.ts";
 
-// The three scales density moves, as numbers: px on the desktop and touch
-// sets, canvas units on the room set. Each follows one base, the body size,
-// which the `size` knob sets (`bodyOf`); every function takes the knob last and
-// defaults to the sheet's. They depend on nothing else, so a platform that
-// scales the room set at runtime (native) reads them without the theme.
+// The scales density moves: docs/architecture/ui-core/tokens.md, "Density and room".
 
 // The nearest even pixel; a tie rounds up.
 function roundEven(value: number): number {
 	return 2 * Math.round(value / 2);
 }
 
-// The body size at a density for the `size` knob, the desktop's: touch and the
-// room keep the sheet's ratio to the desktop, never under their own sheet
-// value's floor of 16 (iOS Safari zooms a field under it on focus).
+// The body size at a density: docs/architecture/ui-core/tokens.md, "Type roles".
 export function bodyOf(density: Density, size = KNOB_DEFAULTS.size): number {
 	if (density === "desktop") return size;
 	return Math.max(
@@ -94,9 +88,7 @@ export function spacingFor(
 	return record(SPACING_ROLES, (role) => `${spacingOf(density, role, size)}px`);
 }
 
-// A px width: a unit width is its count of the space base, which the `size`
-// knob moves with the body size and no density does (a phone keeps the
-// desktop's toast).
+// A px width: docs/architecture/ui-core/tokens.md, "Widths".
 export function widthPx(width: PxWidth, size = KNOB_DEFAULTS.size): number {
 	const base = (SPACE_BASE * bodyOf("desktop", size)) / BODY_SIZE.desktop;
 	return Math.round(base * WIDTH_VALUE[width]);

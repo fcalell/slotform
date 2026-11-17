@@ -1,6 +1,4 @@
-// A QR code's modules as one SVG path, free of any framework so both
-// platforms draw the same code: the encoding is lean-qr's (ISO 18004, no
-// dependencies of its own), the drawing is ours.
+// A QR code's modules as one SVG path: docs/architecture/ui-core/components.md, "QR code".
 
 import { correction, generate } from "lean-qr";
 

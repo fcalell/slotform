@@ -223,10 +223,8 @@ function Record(props: {
 	);
 }
 
-// A step the deploy opened, sections in the deploy's own Pane after its steps
-// (a Place holds a place's Pane and one record's, so a record's parts stand in
-// its body): the result and the log of the step. The step is a selection of the
-// deploy's read, so a step that is gone draws the empty form.
+// A step the deploy opened, a section in the deploy's own Pane: docs/architecture/ui-core/layout.md, "Record head".
+// The step is a selection of the deploy's read, so a step that is gone draws the empty form.
 export function DeployStep(props: { deployId: string; stepId: string }) {
 	const deploy = deployRead(props.deployId);
 	const step = deploy.at((each) =>
@@ -397,11 +395,8 @@ export function DeployList() {
 	);
 }
 
-// The deploy opened beside the list, read by its id: the Pane holds the read,
-// so an address after its removal draws the missing form. The bar holds where
-// the deploy lives and its Close returns to the list; the deploy's message
-// stands whole in its head. The route keys it by the deploy, so the status
-// picked is the open deploy's.
+// The deploy opened beside the list, read by its id: docs/architecture/ui-core/layout.md, "Record head".
+// The bar holds where the deploy lives and its Close returns to the list.
 export function DeployRecord(props: {
 	deployId: string;
 	file?: string;

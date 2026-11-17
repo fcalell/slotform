@@ -287,22 +287,7 @@ function logOf<T>(
 		: messages;
 }
 
-// The messages a sections gap apart, one rung above a reply's block gap, and
-// the input a sections gap under them. It fills what it stands in (a Pane's
-// body) by plain flex: the log scrolls inside it at the Pane's inset, opening
-// at the newest message and following each that arrives while the reader is at
-// the end, the input docked at the foot over the keyboard; while the reader is
-// scrolled up, a Latest act floats centred above the foot and returns to the
-// newest message. It draws one Message per item, and with `replying` set one
-// waiting Message of the other author after them, followed as any message is
-// and replaced in place when the reply's item arrives and `replying` clears; the `reply` read draws its turn after them the same way, from its own subscription.
-// While the `items` selection's read waits, an ask of yours and the other
-// author's reply stand in the log (`PAINT_TURNS`), painted and inert. The thread is a frame of its
-// items: the failed form with Retry and the missing form stand in the log's
-// place, in its box with the generic sentence, and the empty form is one
-// sentence in the meta ink (`empty`, else the generic one) over its act; the foot and the reply stand through each of them, so
-// a thread whose items failed still sends. The stale and paused line stands
-// over the log while it holds its read.
+// The phone's thread: docs/architecture/plugins/native-ui.md, "Thread". Its frame forms and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 	props: ThreadProps<T, P>,
 ) {

@@ -1,8 +1,4 @@
-// What a `Form` is made of on both platforms: how an input key draws (`FieldSpec`),
-// and what it reads of a procedure's input schema (the JSON Schema `stack
-// generate` writes to `.stack/schema.ts`) to draw one field: the control, whether
-// the field is required, and the values it can take. No React: each platform
-// draws the controls.
+// What a Form is made of on both platforms, no React: docs/architecture/ui-core/acts.md, "Forms".
 import type { Option, PickedFile, Run, Runs } from "./descriptors.ts";
 import { filled, type Words } from "./tokens.ts";
 

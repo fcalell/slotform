@@ -618,10 +618,7 @@ const LAYER: Fact[] = [
 ];
 const FACT_ROW = { id: (fact: Fact) => fact.id };
 
-// Tests by environment: two status columns, each cell the verdict of one
-// environment. Below `tablet` a row says which environment each word is of
-// ("Staging: Passing"), each its own status badge with its tone mark (the
-// failing one's mark too, not the first alone); the grid has the column's head.
+// Tests by environment, two status columns, each cell the verdict of one environment: docs/architecture/ui-core/components.md, "In the showcase".
 interface Check {
 	id: string;
 	page: string;
@@ -658,10 +655,7 @@ const CHECK_COLUMNS: TableColumn<Check>[] = [
 	},
 ];
 
-// A destination's variables: an editable name, a few short columns and a long
-// Description in a column that wraps. Below `tablet` the Description is the
-// row's `line`, wrapping whole under the name, never a cut badge; the short
-// columns stand as the row's facts.
+// A destination's variables, an editable name, a few short columns and a long Description: docs/architecture/ui-core/components.md, "In the showcase".
 interface Variable {
 	id: string;
 	name: string;

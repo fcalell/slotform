@@ -1,8 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-// Sentinel seeded by `stack init` when the consumer hasn't created a D1
-// database yet. Single source of truth so the init prompt and the deploy guard
-// agree on the placeholder.
+// The placeholder database ID: docs/architecture/plugins/db.md, "Deploy gates".
 export const D1_PLACEHOLDER_ID = "YOUR_D1_DATABASE_ID";
 
 const UUID_RE =
@@ -60,10 +58,7 @@ export function createD1Database(name: string): D1CreateResult {
 	};
 }
 
-// Fail-fast guard for `stack deploy`: a d1 deploy whose `databaseId` is still
-// the placeholder (or isn't a UUID) would push migrations against a database
-// that doesn't exist and fail opaquely deep inside wrangler. Throw an
-// actionable error before any cloud mutation instead.
+// The database ID guard: docs/architecture/plugins/db.md, "Deploy gates".
 export function assertDeployableDatabaseId(
 	databaseId: string | undefined,
 ): void {

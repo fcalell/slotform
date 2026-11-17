@@ -1,11 +1,7 @@
 import { isIP } from "node:net";
 import { LISTENER_ENV, ORIGIN_ENV } from "@fcalell/plugin-api/wire";
 
-// Who a listener answers: the Host rule every request on it meets before
-// anything else runs (static files, worker paths, the `/ws` upgrade, service
-// mounts), and the env the worker sees on it. A rebinding page reaches a
-// server under its own name, so a Host the listener does not serve is
-// refused, never trusted.
+// The Host rule and the env a listener gives the worker: docs/architecture/plugins/node.md, "Hosts and listeners".
 
 // A Host header's characters: a name, an IPv4 address or a bracketed IPv6
 // one, and a port. Anything else (a path, userinfo, a space) is refused
@@ -51,11 +47,7 @@ export function boundHost(
 	return hostOf(`${name}:${port}`, "http:");
 }
 
-// The main listener's rule: the Host of one of the app's origins, or the
-// bound address itself; under STACK_DEV also a loopback name or an IP
-// literal (a dev server reached as 127.0.0.1, a phone on the LAN). Without
-// an origin list (a server built by hand) every Host is admitted, as is
-// every Host under a wildcard origin.
+// The main listener's rule: docs/architecture/plugins/node.md, "Hosts and listeners".
 export function mainAdmits(input: {
 	host: string | undefined;
 	origins: readonly string[] | undefined;

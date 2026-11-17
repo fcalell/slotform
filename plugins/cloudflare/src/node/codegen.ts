@@ -9,29 +9,7 @@ import { parse as parseToml } from "smol-toml";
 import type { CodegenWranglerPayload, WranglerBindingSpec } from "../types.ts";
 
 // ── Wrangler.toml merge contract ─────────────────────────────────────
-//
-// (1) FRAMEWORK_MANAGED — consumer cannot specify; if present in the
-//     consumer file we throw with an actionable message. The framework owns
-//     these keys end-to-end (driven by plugin contributions to
-//     cloudflare.slots.bindings / compatibilityFlags, and by vite's client
-//     build for `[assets]`).
-// (2) FRAMEWORK_DEFAULTED_SCALARS — consumer wins if present; otherwise the
-//     framework supplies a default. (`name`, `compatibility_date`, `main`.)
-// (3) CONSUMER_MERGED_LISTS — `[[routes]]` and `[[r2_buckets]]`, and
-//     the `[queues]` tables `producers` / `consumers`: consumer entries merge
-//     next to framework contributions, and a collision (route pattern, r2 or
-//     queue binding name, consumed queue) is a hard error so a future slot
-//     contributor can never silently shadow a consumer entry.
-// (4) `[triggers]` and `[browser]` pass through verbatim, but `crons` is
-//     checked against `src/worker/scheduled.ts`, and a consumer queue consumer
-//     against `src/worker/queue.ts`.
-// (5) Everything else is consumer-only and passes through verbatim
-//     (e.g. `account_id`, `dev`, `build`, `observability`).
-//
-// `[vars]` is a hybrid: consumer keys pass through, framework keys (vars
-// from contributions, var-bindings) overlay; collisions across
-// consumer/framework or across plugin contributions throw. A secret never
-// lands in `[vars]`, though a consumer var of its name still collides.
+// The merge contract, key by key: docs/architecture/plugins/cloudflare.md, "wrangler.toml merge contract".
 
 const FRAMEWORK_MANAGED = new Set<string>([
 	"d1_databases",
@@ -92,11 +70,7 @@ export function aggregateWrangler(opts: {
 	assertTriggersMatchHandler(consumerParsed, opts.payload.scheduledHandler);
 	assertQueueConsumersMatchHandler(consumerQueues, opts.payload.queueHandler);
 
-	// Fail-fast on conflicts across the whole wrangler namespace before
-	// rendering any TOML. `[vars]` keys and top-level binding identifiers share
-	// one namespace at runtime — `env.DB` is ambiguous if `DB` is both a D1
-	// binding and a `[vars]` key, or two plugins both register `AUTH_SECRET`.
-	// Consumer-merged r2 bindings live in the same namespace.
+	// One namespace check before any TOML renders: docs/architecture/plugins/cloudflare.md, "Env namespace".
 	assertNoNamespaceCollisions(
 		opts.payload,
 		consumerR2.map((e) => String(e.binding)),
@@ -410,9 +384,7 @@ function extractConsumerQueues(
 	};
 }
 
-// `crons` and the scheduled handler come together: a schedule with no handler
-// fires into nothing, and a handler with no schedule never runs. Schedules stay
-// in the root file because a cron cannot be inferred.
+// crons and the scheduled handler come together: docs/architecture/plugins/cloudflare.md, "wrangler.toml merge contract".
 function assertTriggersMatchHandler(
 	parsed: Record<string, TomlValue>,
 	hasHandler: boolean,
@@ -546,12 +518,7 @@ function overlayVars(
 }
 
 // ── Namespace collision detection ────────────────────────────────────
-//
-// Every identifier that lands at the top of `env.*` — d1/kv/r2 bindings,
-// rate_limiter binding names, `kind: "var"` names, `extraVars` keys, and
-// `secrets[].name` — shares one flat namespace. Duplicates are runtime
-// ambiguities, so we catch them at generate time with a single pass and
-// report both shapes that clashed.
+// Every env identifier shares one flat namespace: docs/architecture/plugins/cloudflare.md, "Env namespace".
 
 type NamespaceKind =
 	| "d1 binding"
@@ -632,10 +599,7 @@ function assertNoNamespaceCollisions(
 	);
 }
 
-// Rate-limit namespace ids are account-global: two workers sharing an id
-// share one counter bucket. Deriving the id from (worker name, binding name)
-// keeps it deterministic across generates while separating apps in the same
-// account. FNV-1a 32-bit, folded into wrangler's positive-integer range.
+// Rate-limit namespace ids: docs/architecture/plugins/cloudflare.md, "Rate limiters".
 function rateLimitNamespaceId(workerName: string, binding: string): string {
 	const input = `${workerName}/${binding}`;
 	let hash = 0x811c9dc5;
@@ -651,10 +615,7 @@ function appendBindingsToTables(
 	arrayTables: Array<{ path: string[]; entries: Record<string, TomlValue> }>,
 	workerName: string,
 ): void {
-	// Canonical order: list-slot contributions arrive in config plugin-array
-	// order, but generated output must be byte-identical however the consumer
-	// orders `plugins:`. Names are unique (duplicate check above), so sorting
-	// by name within each kind-grouped section is total.
+	// Canonical order: docs/architecture/plugins/cloudflare.md, "wrangler.toml determinism".
 	const bindings = [...rawBindings].sort((a, b) => {
 		const nameOf = (x: WranglerBindingSpec) =>
 			x.kind === "var" ? x.name : x.binding;
@@ -747,9 +708,7 @@ function appendBindingsToTables(
 				`Invalid rate_limiter "${b.binding}": period must be 10 or 60 (got period=${period}).`,
 			);
 		}
-		// The documented (and miniflare-enforced) unsafe-binding form:
-		// namespace_id plus a nested simple table. The flat limit/period
-		// shape fails both `wrangler dev` and deploy validation.
+		// The unsafe-binding form: docs/architecture/plugins/cloudflare.md, "Rate limiters".
 		arrayTables.push({
 			path: ["unsafe", "bindings"],
 			entries: {

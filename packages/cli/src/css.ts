@@ -1,15 +1,4 @@
-// Shared CSS escape/validation primitives for plugin codegen.
-//
-// Plugins assemble CSS as strings — `@font-face`, `:root`/`@theme` token
-// blocks, `@import`/`@source` statements, `@layer` blocks. Every interpolation
-// point that crosses the consumer trust boundary (font/family names, URLs,
-// layer/token names, supports expressions) MUST flow through these helpers so a
-// hostile or careless input cannot break out of its CSS context. This is a
-// security boundary — keep it in one place so a future hardening can't be
-// applied to one copy and missed in another.
-//
-// Pure ASCII string functions, no runtime deps. The `label` argument only
-// flavours error messages so a thrown error names the offending plugin.
+// Shared CSS escape and validation primitives for plugin codegen: docs/architecture/codegen.md, "CSS escape boundary".
 
 // ── Strings & URLs ──────────────────────────────────────────────────
 
@@ -79,15 +68,7 @@ export function cssIdent(value: string, label: string): string {
 
 // ── Parenthesis balance ─────────────────────────────────────────────
 
-// A single unbalanced value fails the CSS parser loudly. A *pair* does not:
-// an unclosed `calc(` in one declaration and a stray `)` in a later one fuse
-// every declaration between them into one, and the stylesheet builds clean
-// with the whole block gone. Both halves are individually well-formed, so
-// nothing downstream catches it.
-//
-// This rule has a sibling: `packages/ui-core/src/schema.ts` applies the same
-// check to `overrides.scales`, because ui-core cannot depend on the CLI. Keep
-// the two in sync by hand.
+// Parentheses are checked per value: docs/architecture/codegen.md, "CSS escape boundary".
 function parensBalanced(value: string): boolean {
 	let depth = 0;
 	for (const ch of value) {

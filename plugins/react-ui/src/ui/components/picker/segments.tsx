@@ -18,22 +18,7 @@ import { follow, useRoute } from "../../lib/navigate.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
 import type { PickerSegmentsProps } from "./index.tsx";
 
-// The segments keep their natural width and a label is never cut: where they
-// do not fit the track's room the track scrolls sideways, with no scrollbar
-// drawn, as a phone's tab row does, and the chosen segment is scrolled into
-// view (below), and the track fades at the edge that has more (`scroll-fade-x`),
-// so a tab at the edge never stands cut with nothing to say so. It hugs its segments in a column too (a FormField), never
-// stretching to the field. Its cap is its container's, important: a Pane's
-// body caps what stands in it at the measure by a child selector, which would
-// otherwise outrank `max-w-full` and leave a track wider than its column,
-// scrolling the page. A scroll container has no automatic minimum height, so
-// `shrink-0` keeps it from giving up its height to a column that overflows (a
-// Pane's body above a tall facet). It is positioned, so it is its segments'
-// offset parent: the radio group scrolls the chosen segment into view by its
-// offset in the track (`offsetLeft` up the offset parents), and from any
-// further ancestor that offset is the segment's place in the page, which reads
-// as a segment past the track's end and scrolls it to the end: a chosen segment
-// that fits stands scrolled past the ones before it.
+// The track keeps natural widths and scrolls: docs/architecture/plugins/react-ui.md, "Picker segments".
 const TRACK =
 	"relative inline-flex shrink-0 min-w-0 max-w-full! items-center w-fit overflow-x-auto scrollbar-none scroll-fade-x";
 // A segment rings inset, so the ring clears its neighbours; an idle one
@@ -50,7 +35,7 @@ const LABEL = "truncate max-w-measure-short";
 // cut; only the track's own scroll moves, never an ancestor, and only when the
 // segment is not already whole in view (a pixel of subpixel rounding is whole).
 // This reads two boxes in JavaScript because CSS cannot scroll a track to a
-// child on its own (structure rule 7's segments' scroll); it looks the chosen
+// child on its own; it looks the chosen
 // segment up in the track, since a ref on a child runs before its parent's is
 // set, which is why the reveal on mount was lost. A key's focus scrolls its own
 // segment natively.

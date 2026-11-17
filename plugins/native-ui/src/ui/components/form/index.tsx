@@ -121,11 +121,8 @@ export function useDerivedForm<P extends ProcedureCall>(
 	};
 }
 
-// The descriptor of the control a field draws, which `FormField` draws in its
-// value line. A form that commits by field hands each control `commit`: a
-// typed control (a line, a text area) calls it on leaving the field, any other
-// control on its change, and each returns the save's promise for the field to
-// hold.
+// The descriptor of the control a field draws, which `FormField` draws in its value line.
+// A form that commits by field hands each control `commit`: docs/architecture/ui-core/acts.md, "Commit".
 function controlOf(field: FieldModel) {
 	const { derived, spec, value, options, set, commit, said, saved } = field;
 	// The schema's control decides which `Held` the value is: each case names

@@ -14,20 +14,12 @@ const painted = () =>
 		requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
 	);
 
-// The dev checks of plugin-query's acts (a mutation an act started without
-// returning its promise, a failure nothing drew) log to `console.error`; a
-// story that trips one fails, so a route or a story that wires an act wrong
-// cannot pass.
+// A story that trips a plugin-query act dev check fails: docs/architecture/ui-core/showcase.md, "Storybook config".
 const DEV_CHECK = /returned no promise|nothing drew its failure/;
 const tripped: string[] = [];
 const logged = console.error;
 
-// The painted fills' breath repaints every one of them each frame. The test
-// browser paints in software, so a story that draws dozens of fills (a
-// roster's loading states, a screen's waiting form) spends its frames there
-// and every wait on one runs several times slower. A story judges a frame,
-// not the loop, so the breath is still (`--pulse-name: none`, what reduced
-// motion sets).
+// The painted fills' breath is still (`--pulse-name: none`): docs/architecture/ui-core/showcase.md, "Storybook config".
 
 const preview: Preview = {
 	beforeEach: () => {

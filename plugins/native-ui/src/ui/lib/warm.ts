@@ -49,11 +49,7 @@ function moduleOf(
 	return node ? { module: node.loadRoute(), params } : undefined;
 }
 
-// A press-in on a route starts the reads its screen is about to make: the route
-// file's `preload` export, which the binding calls with its client and the
-// href's params, as a web route's `loader` is. A route with no `preload` has
-// nothing to start. Navigation never waits on it, and one that fails to start
-// must not stop it.
+// A press-in on a route starts the reads its screen is about to make: docs/architecture/plugins/native-ui.md, "Routes and preload".
 export function warm(
 	start: ReadPort["warm"],
 	matches: Matches,

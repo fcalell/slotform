@@ -89,9 +89,7 @@ async function main(): Promise<void> {
 	}
 	if (!command) usage();
 
-	// `stack plugin init <name>` — CLI-built scaffolder for third-party plugin
-	// authors. Handled ahead of plugin-subcommand routing so it never collides
-	// with a hypothetical user plugin literally named "plugin".
+	// `stack plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
 	if (command === "plugin") {
 		if (subcommand !== "init") {
 			log.error(

@@ -1,8 +1,4 @@
-// What a part draws while its data is not here, free of any framework: the
-// filler text a slot paints, how many rows a collection paints, and how long
-// a read runs before the paint shows. Both platforms run these, so a painted
-// form measures the same everywhere and the same filler comes back for the
-// same slot.
+// What a part draws while its data is not here, free of any framework: docs/architecture/ui-core/reads.md, "Paint".
 
 import { record } from "./record.ts";
 import { createTicker, groupZeros } from "./scramble.ts";
@@ -22,20 +18,14 @@ const DEFAULTS = Object.fromEntries(
 	MOTION_KNOBS.map((knob) => [knob.name, knob.default]),
 ) as Record<MotionKnobName, number>;
 
-// How long a read runs before its paint shows (ms): a read the local server
-// answers in a few milliseconds paints nothing. Fixed, not an option: one
-// rhythm for every paint of an app.
+// How long a read runs before its paint shows: docs/architecture/ui-core/reads.md, "Timing".
 export const WAIT_DELAY = DEFAULTS.waitDelay;
 
 // How long an act runs before its pending look shows (ms): the act is inert
 // at the press, and one the server answers at once never flashes a spinner.
 export const ACT_DELAY = DEFAULTS.actDelay;
 
-// The live tuning record, every knob of the motion contract: the phone's
-// source for a number the web reads from a CSS variable, set by the bench and
-// applied on the next read, as the variables are. A reader that must follow a
-// change reads `tuned[name]` as a `useSyncExternalStore` snapshot over
-// `subscribeMotion`, and a writer goes through `tune` so it is told.
+// The live tuning record of every motion knob: docs/architecture/ui-core/motion.md, "Tuning record".
 export const tuned: Record<MotionKnobName, number> = { ...DEFAULTS };
 
 // Tells every subscriber a knob or a loading paint moved.
@@ -48,9 +38,7 @@ export function tune(name: MotionKnobName, value: number): void {
 
 export const subscribeMotion = motion.subscribe;
 
-// The paint each glyph slot's waiting form takes: module state, set from
-// `theme.loading` as the app starts (omitted, all pulse) and live by the bench,
-// read by every painted slot through `scrambled`.
+// The paint each glyph slot's waiting form takes: docs/architecture/ui-core/reads.md, "Waiting paint".
 export const loading: Record<LoadingSlot, LoadingPaint> = record(
 	LOADING_SLOTS,
 	(): LoadingPaint => "pulse",
@@ -77,9 +65,7 @@ function scrambles(role: PaintRole): boolean {
 	return !WRAPS.has(role);
 }
 
-// Whether a role's waiting slot is scrambled, not pulsing: its kind's paint is
-// the scramble and its slot is one line (a wrapping one always pulses). The
-// platforms still their scramble under reduced motion.
+// Whether a role's waiting slot is scrambled, not pulsing: docs/architecture/ui-core/reads.md, "Waiting paint".
 export function scrambled(role: PaintRole): boolean {
 	return loading[kindOf(role)] === "scramble" && scrambles(role);
 }
@@ -102,9 +88,7 @@ export const timings = {
 	},
 };
 
-// How much longer a first load's data waits (ms) when it comes `elapsed` ms
-// after the fetch began: nothing while the paint has not shown, else until
-// the paint has stood for `waitMin`. `QueryProvider hold` takes it.
+// How much longer a first load's data waits: docs/architecture/ui-core/reads.md, "Timing".
 export function holdFor(elapsed: number): number {
 	if (elapsed < timings.waitDelay) return 0;
 	return Math.max(0, timings.waitDelay + timings.waitMin - elapsed);
@@ -178,9 +162,7 @@ export function paintShape(role: PaintRole, at = 0, locale?: string): string {
 	return role === "figure" ? groupZeros(text, locale) : text;
 }
 
-// A row slot run over a painted item: a slot that throws on the filler (it
-// reads a field the filler does not have) paints as the item itself, never
-// throws the page.
+// A row slot run over a painted item: docs/architecture/ui-core/reads.md, "Paint forms".
 export function painting<T, R>(fn: (item: T) => R, item: T): R | T {
 	try {
 		return fn(item);

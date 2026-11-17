@@ -28,10 +28,7 @@ const LATEST = [
 
 const NAME = { you: "You", other: "Assistant" } as const;
 
-// An assistant's home: its tasks and the latest exchange as sections. On touch
-// they scroll under the ask field docked at the Pane's foot, which the route
-// gives (a `Composer`); on the desktop the field stands under the exchange. A
-// question sent opens the conversation.
+// An assistant's home, its ask field docked at the Pane's foot on touch: docs/architecture/ui-core/layout.md, "Foot".
 function Home() {
 	const tasks = orpc.tasks.list.read();
 	const touch = useTouch();

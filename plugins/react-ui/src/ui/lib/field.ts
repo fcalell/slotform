@@ -1,11 +1,7 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { createContext } from "react";
 
-// A toggle a row's label targets (a FormField's checkbox form, a list Picker
-// row), handed to the Checkbox the row draws: it draws its box with no hit box
-// of its own, so the box sits on the label's first line. A row that wraps the
-// toggle in its label names it by its label line, so the row's other text (its
-// mark) stays out of the name.
+// A toggle a row's label targets: docs/architecture/ui-core/acts.md, "Fields".
 export interface LabelFit {
 	labelledBy?: string;
 }
@@ -25,28 +21,18 @@ export interface Fielded {
 /** The keys a `FormField` supplies to the control it draws. */
 export type FieldedKey = keyof Fielded;
 
-// Set by a `FormField` around a group of controls (a list Picker, a
-// segments Picker): the id of its label, which names the group. No field
-// context reaches the controls inside, so each keeps its own name.
+// The label that names a group of controls: docs/architecture/ui-core/acts.md, "Fields".
 export const GroupName = createContext<{ labelledBy: string } | undefined>(
 	undefined,
 );
 
-// A `Table` cell's edit, handed to the control the cell draws: it stands in the
-// cell at the field's bar fit, named by the cell (its column, then its row),
-// out of the tab order (the grid's cursor reaches it); a number reads
-// end-aligned in tabular figures, as the cell does. A control mounted with
-// `starts` is the edit the keyboard or a tap started (the cell mounts it
-// afresh), so it takes focus.
+// A `Table` cell's edit: docs/architecture/ui-core/acts.md, "Fields".
 export interface CellFit {
 	label: string;
 	starts: boolean;
 }
 
-// An `Input` a row draws with no `FormField` around it (a list row's entry, a
-// `Rules` term's typed value): it stands at the field's bar fit, named by
-// `label`, and takes focus as it mounts when `focus` says the viewer's own act
-// brought it.
+// An `Input` a row draws without a `FormField`: docs/architecture/ui-core/acts.md, "Fields".
 export interface InlineFit {
 	label: string;
 	focus?: boolean;

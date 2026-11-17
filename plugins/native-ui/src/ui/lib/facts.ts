@@ -14,17 +14,9 @@ import {
 } from "@fcalell/ui-core/runs";
 import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
 
-// The words of a line of facts and the badges a list of facts draws, free of
-// any view so a test holds the structure of what is drawn (`facts.test.ts`):
-// no import here is relative, since a consumer's type-check follows this source
-// and a `.ts` specifier fails it.
+// The words of a line of facts, free of any view: docs/architecture/plugins/native-ui.md, "Type-checking". No import here is relative.
 
-// A list of facts as the badges a line draws: the one reading of the list the
-// row, the record head and the picker's option draw from, free of any view so
-// a test holds its structure (`badges.test.ts`). Each fact is one badge, in the
-// order given; the badge says what it draws (`kind`), the words it reads as
-// (`name`, the accessible name, which is also the full text a cut badge keeps)
-// and, where it is painted, no words at all.
+// A list of facts as the badges a line draws: docs/architecture/ui-core/roster.md, "Facts".
 
 /** What a badge draws: a status's tone mark, a warning, a lock, a chip's family dot, the required ring, a flag, a count's figure, or words alone, each with its words. */
 type BadgeKind =

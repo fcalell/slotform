@@ -2,9 +2,8 @@ import type { TsImportSpec } from "@fcalell/cli/ast";
 import type { RouterOptions } from "@fcalell/plugin-react";
 import type { ViteConfigValues } from "@fcalell/plugin-vite/node";
 
-// One toolbar global a plugin pins on the document root before a story's first
-// paint (a mode, a density): data the host applies without knowing the design
-// system that reads it.
+// One toolbar global a plugin pins on the document root before a story's first paint.
+// Toolbar globals: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
 export interface PreviewGlobal {
 	// The key in Storybook's globals.
 	name: string;
@@ -17,10 +16,7 @@ export interface PreviewGlobal {
 	// The values `stack screens test` checks every screen in, each a story named
 	// for it; only `default` when absent.
 	checked?: string[];
-	// Whether the root's own rules decide the value from the viewport (a media
-	// query on width and pointer) once the pin is off: the test run takes the pin
-	// off at each width, so a phone width draws the phone's value, and puts it
-	// back after.
+	// `byViewport`: docs/architecture/plugins/screens.md, "Toolbar globals".
 	byViewport?: boolean;
 	// How the chosen value reaches the root: `attribute` sets it, `classes` adds
 	// the class named for the value (a value with no entry adds none) and removes

@@ -1,8 +1,5 @@
-// Record-scoped authorization and the statement compile. A thin, typed wrapper over CASL's `MongoAbility` — CASL is
-// wrapped, never exposed: consumers must not install or import
-// `@casl/ability` directly, the same rule as drizzle/hono/zod. Isomorphic:
-// no `node:*` imports, no imports from this plugin's `node/` or `worker/`
-// code, safe to import from worker handlers and client bundles alike.
+// Record-scoped authorization and the statement compile: a typed wrapper over CASL's `MongoAbility`.
+// Access control: docs/architecture/plugins/auth.md, "Access control".
 import type {
 	AnyMongoAbility,
 	ForcedSubject,
@@ -118,18 +115,13 @@ export function assertCan<TAbility extends AnyMongoAbility>(
 
 // ---------- pack / unpack ----------
 
-// Wire format is exactly CASL's `packRules` output (arrays), no wrapping —
-// exported type-only so client bundles can type a query's output without
-// pulling any server code.
+// Wire format of packed rules: docs/architecture/plugins/auth.md, "Ability wire format".
 export type PackedRules<TAbility extends AnyMongoAbility = AnyMongoAbility> =
 	PackRule<TAbility["rules"][number]>[];
 
 type PackedConditions = Record<string, unknown> | 0 | undefined;
 
-// `PackedRules` written out for a rule set of any subject: the shape a
-// procedure answers, naming no CASL type, so the consumer's emitted
-// declaration needs no `@casl/ability`. `packAbility` of any ability is
-// assignable to it.
+// Packed rules written out for any subject: docs/architecture/plugins/auth.md, "Ability wire format".
 export type PackedRule =
 	| [string, string]
 	| [string, string, PackedConditions]
@@ -158,18 +150,7 @@ export function unpackAbility<TAbility extends AnyMongoAbility>(
 
 // ---------- compileStatements ----------
 
-// One-way compile: better-auth's statements model (`resource -> actions`,
-// no conditions) is a strict subset of CASL's rule model, so every grant
-// becomes an unconditional CASL rule. Statements stay the source of truth
-// (better-auth's organization endpoints consult them internally); this never
-// runs the other direction. Pure, uncached — the compile is trivial.
-//
-// CASL reserves the action `"manage"` and the subject `"all"` as wildcards
-// (`can("manage", "all")` grants everything); better-auth's statements model
-// has no such concept and treats both as literal names. Compiling a
-// statements record that uses either would silently produce a CASL rule that
-// over-grants every action/subject client-side — refuse instead of
-// generating a broken ability.
+// Statements compile one way into CASL rules: docs/architecture/plugins/auth.md, "Access control".
 const FORBIDDEN_ACTION = "manage";
 const FORBIDDEN_SUBJECT = "all";
 

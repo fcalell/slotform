@@ -32,14 +32,11 @@ export interface Empty {
 	act?: Act | LinkAct;
 }
 
-// The form an empty state draws, by the drawer that stands it: a `Pane`'s
-// `page` (centred in what the body leaves), a `Section`'s or a collection's
-// `frame` (a hairline frame; a collection's, one quiet sentence when only that is given).
+// The form an empty state draws, by the drawer that stands it: docs/architecture/ui-core/reads.md, "Missing and failed forms".
 export type EmptyFit = "page" | "part" | "frame";
 
-// The empty state every empty `Pane`, `Section` and collection, a failed read
-// and a missing one draw: the sentence and the act. Outside the package's
-// exports: `fit` and `tone` are the drawers' alone.
+// The empty state every empty `Pane`, `Section` and collection, a failed read and a missing one draw:
+// docs/architecture/ui-core/reads.md, "Missing and failed forms". Outside the package's exports.
 export function EmptyBase(props: {
 	fit: EmptyFit;
 	tone: "rest" | "failed" | "missing";

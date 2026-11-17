@@ -1,9 +1,4 @@
-// The output shapes of the `auth.*` procedures whose better-auth types name a
-// package a consumer does not install. The consumer's `AppRouter` is emitted
-// as a declaration; a type aliasing a third-party one is emitted under that
-// package's path and degrades to `any` where the package does not resolve. So
-// each is written out here, and each procedure declares it as its output:
-// the compiler checks the endpoint's value against it.
+// Written-out output shapes of the `auth.*` procedures: docs/architecture/plugins/auth.md, "Procedures".
 
 // The public face of an OAuth client: the fields the endpoint answers and a
 // consent screen draws.

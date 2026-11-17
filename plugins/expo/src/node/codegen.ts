@@ -26,11 +26,7 @@ function renderJsLiteral(value: unknown, indent: string): string {
 }
 
 // ── metro.config.cjs (CommonJS) ────────────────────────────────────
-//
-// Emitted as `.cjs` for the same reason as app.config: the root `metro.config.js`
-// shim `require()`s this through Node, and the consumer is `type: module`, so a
-// `.js` here would be parsed as ESM and its `require`/`module.exports` would
-// throw. `.cjs` is unconditionally CommonJS.
+// Emitted as .cjs: docs/architecture/plugins/expo.md, "Config files are .cjs".
 
 const BASE_METRO_REQUIRE: MetroRequireSpec = {
 	names: ["getDefaultConfig"],
@@ -82,10 +78,7 @@ export function aggregateMetroConfig(payload: CodegenMetroPayload): string {
 		lines.push(`config = ${wrapper.callee}(${args});`);
 	}
 	lines.push("");
-	// The generated modules plugin-api writes to `.stack/`, which a bundler
-	// resolves by their `virtual:` name (the web through plugin-vite): the
-	// native `Form` reads `virtual:stack-schema`. Metro resolves a name no
-	// package holds through `resolveRequest`, chained after any wrapper's.
+	// Metro resolves virtual: names through resolveRequest: docs/architecture/plugins/expo.md, "Metro resolution".
 	lines.push("const virtualModules = {");
 	for (const [name, file] of Object.entries(VIRTUAL_MODULES)) {
 		lines.push(`	${JSON.stringify(name)}: ${JSON.stringify(file)},`);
@@ -131,16 +124,7 @@ function dedupeMetroRequires(specs: MetroRequireSpec[]): MetroRequireSpec[] {
 }
 
 // ── app.config.cjs (CommonJS) ──────────────────────────────────────
-//
-// Emitted as `.cjs`, not `.ts` or `.js`. Expo's config loader
-// (`@expo/require-utils`) transpiles only the ROOT `app.config.ts` shim, then
-// `require()`s what it re-exports through Node. The consumer is always
-// `type: module` (the scaffold hardcodes it), so a `.js` dependency would be
-// parsed as ESM and its `module.exports` would throw, and a `.ts` can't be
-// `require()`d at all. `.cjs` is unconditionally CommonJS — the one extension
-// that loads here regardless of `package.json` `type`. A JSDoc `@type`
-// preserves the `ExpoConfig` shape the `.ts` annotation carried. (metro.config
-// + babel.config hit the same constraint — see their templates.)
+// Emitted as .cjs, with a JSDoc @type: docs/architecture/plugins/expo.md, "Config files are .cjs".
 
 function renderConfigPlugin(plugin: ExpoConfigPlugin): string {
 	const value =

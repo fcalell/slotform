@@ -36,10 +36,7 @@ export function SwitchBase({
 	const absent = painted || ended;
 	const on = draft.value && !absent;
 	const state = on ? "on" : "off";
-	// A field around it disables it through Base UI's field context, which
-	// sets `disabled` and `data-disabled` on the hit box and the thumb.
-	// The hit box is a native button: on a span, Base UI reads the hidden
-	// input's `labels` after every render, a walk of the whole document.
+	// A field disables the switch through Base UI's field context: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 	return (
 		<Base.Root
 			nativeButton

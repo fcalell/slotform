@@ -105,10 +105,8 @@ const appCssLayers = slot.list<CssLayer>({
 	name: "appCssLayers",
 });
 
-// Resolved font entries, from options only so every other contribution reads
-// one source of truth. The `??` is load-bearing: an omitted `fonts` takes
-// `defaultFonts`, while `fonts: []` means no fonts at all (no `@font-face`,
-// no preload, no `<style>` tag).
+// Resolved fonts: docs/architecture/plugins/react-ui.md, "Fonts".
+// The `??` is load-bearing: `fonts: []` means none, an omitted option means `defaultFonts`.
 const fonts = slot.derived({
 	source: SOURCE,
 	name: "fonts",
@@ -267,12 +265,7 @@ export const reactUi = plugin("react-ui", {
 				args,
 			};
 		}),
-		// A built page's one inline script is the mode script above (the dev
-		// server adds React Refresh's preamble, which plugin-react allows); a
-		// policy with `script-src 'self'` blocks it, so this plugin allows it by
-		// hash. The hash is of the string `themeModePlugin` emits for the same
-		// theme, not a copy of it. `style-src` is the consumer's: a hash does not cover the
-		// inline `style=` attributes React sets.
+		// The mode script's hash in the CSP: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 		vite.slots.clientHeaders.contribute(async (ctx) => {
 			const { defaultMode, loading } = await ctx.resolve(
 				self.slots.resolvedTheme,
@@ -281,9 +274,7 @@ export const reactUi = plugin("react-ui", {
 				"Content-Security-Policy": modeScriptPolicy(defaultMode, loading),
 			};
 		}),
-		// Vite's dev optimizer pre-bundles this package's `.tsx`, which a
-		// `?worker` import cannot survive: the canvas's layout module is served
-		// as source, and ELK's CJS API is pre-bundled by name.
+		// The canvas layout module is served as source: docs/architecture/plugins/react-ui.md, "Canvas serving".
 		vite.slots.configImports.contribute(
 			(): TsImportSpec => ({
 				source: "@fcalell/plugin-react-ui/node/canvas",
@@ -300,13 +291,7 @@ export const reactUi = plugin("react-ui", {
 		vite.slots.configImports.contribute(
 			(): TsImportSpec => ({ source: "node:url", named: ["fileURLToPath"] }),
 		),
-		// Fonts are served straight out of this package's node_modules
-		// (@fontsource). When the stack is workspace-linked those files sit
-		// outside the consumer's workspace root and Vite's dev server 403s
-		// them, so allow this package's own workspace root. import.meta.resolve
-		// runs in the generated config and yields the real (symlink-resolved)
-		// location; installed from a registry it lands inside the consumer's
-		// already-allowed root and the entry is inert.
+		// Fonts are served from this package's node_modules: docs/architecture/plugins/react-ui.md, "Fonts".
 		vite.slots.fsAllow.contribute(
 			(): TsExpression => ({
 				kind: "call",
@@ -341,9 +326,7 @@ export const reactUi = plugin("react-ui", {
 			};
 		}),
 
-		// An organization is served at `/<slug>`, which the app's routes share,
-		// so their first segments are slugs auth refuses. This plugin reads
-		// both the routes and auth; neither of those reads the other.
+		// Top-level routes are reserved slugs: docs/architecture/plugins/react-ui.md, "Organization routes".
 		auth.slots.reservedSlugs.contribute((ctx) =>
 			ctx.resolve(react.slots.topLevelRoutes),
 		),
@@ -369,9 +352,7 @@ export const reactUi = plugin("react-ui", {
 			};
 		}),
 
-		// The app's mark, mounted once from the react plugin's icon and the app's
-		// name; an app with no icon mounts none and the Shell and the Gate draw
-		// no mark.
+		// The app's mark: docs/architecture/plugins/react-ui.md, "App mark".
 		react.slots.providers.contribute(
 			async (ctx): Promise<ProviderSpec | undefined> => {
 				const icon = await ctx.resolve(react.slots.icon);
@@ -441,9 +422,7 @@ export const reactUi = plugin("react-ui", {
 			densityLayer(await ctx.resolve(self.slots.resolvedTheme)),
 		),
 
-		// CSS is react-ui's domain: the entry's `import "./app.css"` pairs with
-		// the artifact, so a react()-only consumer neither imports nor emits a
-		// stylesheet.
+		// The entry imports the sheet: docs/architecture/plugins/react-ui.md, "Generated files".
 		react.slots.entryImports.contribute(
 			(): TsImportSpec => ({ source: "./app.css", sideEffect: true }),
 		),
@@ -459,9 +438,7 @@ export const reactUi = plugin("react-ui", {
 				};
 			},
 		),
-		// The page for an address nothing serves, set as the router's default
-		// not-found page: the app passes nothing, and a route of its own that
-		// matches (a catch-all) or sets a `notFoundComponent` wins.
+		// The default not-found page: docs/architecture/plugins/react-ui.md, "Router bindings".
 		react.slots.routerBindings.contribute(
 			async (ctx): Promise<TsImportSpec | undefined> => {
 				if ((await ctx.resolve(react.slots.routesDir)) === null)
@@ -472,11 +449,7 @@ export const reactUi = plugin("react-ui", {
 				};
 			},
 		),
-		// The mode and the density the sheet keys on (a `dark` class and
-		// `data-density` on the root), as toolbars the screens workbench pins
-		// before a story paints. The workbench opens in the theme's default mode,
-		// and a test run checks both modes, with the density the viewport gives each
-		// width.
+		// Mode and density as workbench toolbars: docs/architecture/plugins/react-ui.md, "Screens workbench".
 		screens.slots.previewGlobals.contribute(
 			async (ctx): Promise<PreviewGlobal[]> => {
 				const { defaultMode } = await ctx.resolve(self.slots.resolvedTheme);
@@ -494,9 +467,7 @@ export const reactUi = plugin("react-ui", {
 						title: "Density",
 						values: ["desktop", "touch"],
 						default: "desktop",
-						// The test run takes the pin off at each width, so 320 draws the
-						// touch set and 1280 and 1920 the desktop one, as a phone and a
-						// laptop do.
+						// The density pin at each width: docs/architecture/plugins/react-ui.md, "Screens workbench".
 						byViewport: true,
 						apply: { attribute: "data-density" },
 					},

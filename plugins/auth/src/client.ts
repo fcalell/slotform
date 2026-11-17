@@ -16,17 +16,13 @@ import {
 	type ReactAuthClient,
 } from "better-auth/react";
 
-// The consumer's organization access control as codegen bakes it for the
-// worker too: the statements of `ac` and each role's grants, plain records
-// that a generated file can hold.
+// Organization access control as codegen bakes it: docs/architecture/plugins/auth.md, "Access control".
 export interface OrganizationAccess {
 	statements?: Record<string, readonly string[]>;
 	roles?: Record<string, Record<string, readonly string[]>>;
 }
 
-// The web client: better-auth's React client, so `useSession()` is a hook.
-// The consumer calls it with the flags its `auth()` options set, so the
-// client offers what the server serves.
+// The web client: docs/architecture/plugins/auth.md, "Web client".
 export interface AuthClientOptions {
 	// Origin of the worker's `/api/auth`. Omitted, the client calls `/api/auth`
 	// on the page's own origin.

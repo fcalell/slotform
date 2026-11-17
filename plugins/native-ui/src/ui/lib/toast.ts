@@ -4,10 +4,7 @@ import { TOAST_MS, type Tone } from "@fcalell/ui-core/tokens";
 import { createContext, useSyncExternalStore } from "react";
 import type { Act } from "./act";
 
-// The toast queue. `toast()` is called from anywhere; the `Shell` renders the
-// queue. Client-owned, so never an undo: a toast's act is a route or a retry.
-// `tone` says how the act it reports ended (`failed` for a refused edit,
-// `done`, the default, for a finished one).
+// The toast queue: docs/architecture/plugins/native-ui.md, "Frame host".
 export interface ToastOptions {
 	tone?: Tone;
 	act?: Act | LinkAct;

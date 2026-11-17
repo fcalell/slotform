@@ -398,12 +398,7 @@ export function elidedBefore(
 	return at > 0 ? {} : undefined;
 }
 
-// Where a line of code may wrap besides its spaces: after a run of the
-// punctuation that ends a token (a member's dot, a call's paren, a path's
-// slash, a comma, an operator's last sign), so a line wider than its box
-// breaks between tokens. Each part ends at one such place; a platform joins
-// them with its break opportunity (a web `<wbr>`, a zero-width space on the
-// phone).
+// Where a line of code may wrap besides its spaces: docs/architecture/ui-core/components.md, "Code and Diff".
 const TOKEN_END = /(?<=[.,;:([{/=&|>])(?=[^\s.,;:([{/=&|>])/;
 
 export function tokenParts(text: string): string[] {

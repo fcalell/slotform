@@ -13,10 +13,7 @@ import type {
 	TsTypeRef,
 } from "./specs.ts";
 
-// ts-morph prints the TypeScript `generate` writes, and only there: it is an optional peer of
-// the CLI, which the app declares as a devDependency (`stack init` writes it), so an install
-// that only runs the app (no `stack`) holds none of it. It loads when the first file is printed,
-// not when the CLI starts, so `stack init` runs from a directory that has none yet.
+// ts-morph loads on the first print, never at CLI start: docs/architecture/codegen.md, "Printer loading".
 const require = createRequire(import.meta.url);
 function loadTsMorph(): typeof import("ts-morph") {
 	try {

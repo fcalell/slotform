@@ -4,9 +4,7 @@ import { fileURLToPath } from "node:url";
 import { buildGraphFromConfig } from "@fcalell/cli/build-graph";
 import { cliSlots } from "@fcalell/cli/cli-slots";
 
-// What `stack dev` and `stack build` write holds no trace of `serve`'s controls:
-// the files generate writes are what both run from.
-// (`/fixtures` is the workbench's own file, which stays.)
+// `stack dev` and `stack build` hold no trace of `serve`'s controls: docs/architecture/plugins/screens.md, "Serve".
 const TRACES =
 	/fixtureControls|plugin-screens\/serve|\/fixture(?!s)|STACK_SERVE/;
 

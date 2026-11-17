@@ -31,12 +31,7 @@ import {
 } from "./recreate.ts";
 import { executeSql, MIGRATIONS_TABLE, migrationsApply } from "./wrangler.ts";
 
-// The sqlite file a `stack db` command works on: the one the node server would
-// open. The `fileVar` env var (`DB_FILE`) names it, and `path` is its dev
-// default, so a command run with `DB_FILE=./scratch.sqlite` touches the
-// scratch copy and never the dev database. `scratch` is a `stack screens
-// serve` run's own file, in place of both. Relative to the project root, as
-// the server's is.
+// The sqlite file a command works on: docs/architecture/plugins/db.md, "Local dev push".
 export function sqliteFile(
 	cwd: string,
 	options: DbOptions,
@@ -65,13 +60,7 @@ function sqliteLocalUrl(
 	return url;
 }
 
-// Where miniflare persists a local D1 under plugin-cloudflare's
-// `--persist-to`: one sqlite file per database id, named by miniflare's
-// deterministic durable-object id (`durableObjectNamespaceIdFromName`):
-// HMAC-SHA256 keyed on sha256("miniflare-D1DatabaseObject"), first 16 bytes
-// over the database id, then 16 bytes over that digest. Deriving the exact
-// filename (instead of globbing the dir) stays correct when old persist
-// state holds databases from a previous `databaseId`.
+// The miniflare D1 filename, derived exactly: docs/architecture/plugins/cloudflare.md, "Local state".
 const MINIFLARE_D1_DIR = `${LOCAL_PERSIST}/v3/d1/miniflare-D1DatabaseObject`;
 
 function miniflareD1Path(cwd: string, databaseId: string): string {
@@ -128,27 +117,21 @@ export async function pushSchemaLocal(
 		const configDir = join(cwd, ".db-kit");
 		mkdirSync(configDir, { recursive: true });
 
-		// The d1 dialect pushes into the exact miniflare sqlite the running
-		// `wrangler dev` worker reads, so a schema change is live
-		// without a restart. Migrations stay the remote deploy path; the local
-		// database is disposable (`stack db reset`).
+		// Push targets the miniflare D1 that wrangler dev reads: docs/architecture/plugins/cloudflare.md, "Local state".
+		// The local database is disposable (`stack db reset`).
 		const dbUrl =
 			options.dialect === "d1"
 				? ensureMiniflareD1(cwd, options.databaseId ?? "")
 				: sqliteLocalUrl(cwd, options);
 
 		const configPath = join(configDir, "drizzle.config.ts");
-		// Full-text indexes are virtual tables drizzle does not model: push
-		// would offer to drop them and their shadow tables, so they are left
-		// out of its view, and applied after it from the schema's own SQL.
+		// Full-text tables stay out of push's view: docs/architecture/plugins/db.md, "Local dev push".
 		const fts = loadFtsDefinitions(cwd);
 		const ftsNames = new Set([
 			...fts.map((d) => d.name),
 			...(await existingFtsNames(resolve(cwd, dbUrl))),
 		]);
-		// `stack db apply` records into wrangler's migrations table in this same
-		// database. The schema declares no such table, so push would offer to
-		// drop it, behind a data-loss prompt nothing answers.
+		// Wrangler's migrations table stays out of push's view: docs/architecture/plugins/db.md, "Local dev push".
 		writeDrizzleConfig(configPath, {
 			schema: "./src/schema/index.ts",
 			dbCredentials: { url: dbUrl },
@@ -271,9 +254,7 @@ export async function applyMigrationsRemote(
 	});
 }
 
-// `scratch` is where a `stack screens serve` run keeps its database: the
-// sqlite file, or the d1 miniflare state directory. Without it the dev
-// database is the target.
+// `scratch` is a screens-serve run's database: docs/architecture/plugins/db.md, "Seed".
 export async function applyMigrationsLocal(
 	cwd: string,
 	options: DbOptions,
@@ -306,9 +287,7 @@ export async function applyMigrationsLocal(
 			);
 		}
 
-		// `localD1Flags()` (plugin-cloudflare's `--persist-to` and
-		// `.stack/wrangler.toml`) so the migration lands in the exact
-		// miniflare D1 that `wrangler dev` reads.
+		// Local migrations share wrangler's --config and --persist-to: docs/architecture/plugins/cloudflare.md, "Local state".
 		migrationsApply(cwd, databaseName, "local", scratch);
 	});
 }

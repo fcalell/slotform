@@ -15,15 +15,7 @@ import { z } from "zod";
 import { isListedModule } from "../listed.ts";
 import type { BundleEntry } from "../types.ts";
 
-// What the production bundle is: the server, the app's sources and every
-// dependency written into ONE file (`server.mjs`) by esbuild, plus the few things
-// a file cannot hold: a package with a native addon (it keeps its binary, so it is
-// copied with its own dependencies under `node_modules/` beside the bundle, where
-// Node finds it) and the files an entry asks to be copied (db's migrations). The
-// directory then runs on a box with only `node` on it, wherever the app was built
-// (a `link:` to a checkout, a workspace package, TypeScript under `node_modules`
-// are all followed at build). Every module of `src/bin/` is a second kind of entry,
-// bundled the same way to `bin/<name>.mjs`: a tool run by hand on that box.
+// What the production bundle is: docs/architecture/plugins/node.md, "Build and bundle".
 
 interface BundleOptions {
 	cwd: string;
@@ -123,15 +115,7 @@ function keepNative(
 	}
 }
 
-// A worker thread is started from a module the bundle holds no file for, and a
-// directory listed at run time lists the source's files, not the bundle's. Two
-// idioms the build reads in the app's own sources (never a dependency's) and
-// rewrites, so neither needs a registry or a second build step:
-//   new Worker(new URL("./w.ts", import.meta.url))  the module is bundled on its own
-//       to `workers/<name>.mjs` beside the server, and the URL names that file;
-//   loadModules(new URL("./jobs/", import.meta.url))  (`@fcalell/plugin-node/server`)
-//       the directory's modules are listed at build and imported, lazily, by the
-//       bundle; from source the same call reads the directory.
+// The two idioms the build reads and rewrites: docs/architecture/plugins/node.md, "Build and bundle".
 const WORKER =
 	/(new\s+Worker\(\s*(?:fileURLToPath\(\s*)?)new\s+URL\(\s*(["'])(\.{1,2}\/[^"']+)\2\s*,\s*import\.meta\.url\s*\)/g;
 const LOAD_MODULES =
@@ -237,10 +221,7 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 		},
 	});
 
-	// Loaded here: esbuild is the plugin's optional peer, which the app declares
-	// as a devDependency (`stack init` and `stack add node` write it), so a config
-	// that only reads this plugin, and an install that only runs the app, never
-	// pay for it.
+	// esbuild is the plugin's optional peer, loaded here: docs/architecture/plugins/node.md, "Build and bundle".
 	let build: typeof import("esbuild").build;
 	try {
 		({ build } = await import("esbuild"));

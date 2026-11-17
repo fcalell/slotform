@@ -13,12 +13,7 @@ const FOOT =
 	"absolute bottom-page inset-x-0 flex justify-center pointer-events-none";
 const ACT = "pointer-events-auto";
 
-// The buttons of the zoom stack, stacked at the bottom left: zoom in, zoom out,
-// fit, then arrange when the canvas can move nodes. A press here starts no pan.
-// A zoom is unavailable at its end of the scale (`atMax`, `atMin`); the button
-// keeps focus, as a disabled icon act does. A fit stays clear of the stack,
-// which `data-clear` names to the viewport. A waiting canvas draws them with no
-// act, inside its inert region.
+// The zoom stack: docs/architecture/plugins/react-ui.md, "Canvas".
 function ZoomButtons({
 	atMax = false,
 	atMin = false,

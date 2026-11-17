@@ -63,10 +63,7 @@ export function CheckboxBase({
 	const absent = painted || ended;
 	const value = draft.value;
 	const state = STATES[absent ? "false" : (`${value}` as const)];
-	// A field around it disables it through Base UI's field context, which
-	// sets `disabled` and `data-disabled` on the hit box and the mark.
-	// The hit box is a native button: on a span, Base UI reads the hidden
-	// input's `labels` after every render, a walk of the whole document.
+	// A field disables the checkbox through Base UI's field context: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 	return (
 		<Base.Root
 			nativeButton

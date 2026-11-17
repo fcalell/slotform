@@ -14,14 +14,7 @@ import { boundPieces } from "./bound.ts";
 const CUT = "flex min-w-0";
 const STEM = "min-w-0 truncate";
 const TAIL = "shrink-0";
-// A code run in a line of text is one box (drawn or bare): it moves whole to
-// the next line and is cut with an ellipsis only where it alone is wider than
-// the line, never broken inside its word. In a text read whole (a row's `wrap`,
-// a field's error) it is cut nowhere: it moves whole to the next line as a word
-// does, and one wider than the line wraps at its path or URL separators
-// (`CodeWhole`), breaking inside a segment only where that segment alone is
-// wider than the line. A bare run (a name) flows as text there; a boxed one is
-// an atom (`ATOM`), so its box is one box, never drawn again on each line.
+// A code run in a line of text: docs/architecture/plugins/react-ui.md, "Text".
 const SPAN = "inline-block max-w-full align-bottom truncate";
 const SPAN_WHOLE = "wrap-anywhere box-decoration-clone";
 // Where a whole value of code may break before it breaks anywhere: after a run
@@ -122,7 +115,7 @@ const MARK_LAST = "shrink-0 self-baseline-last";
 const GLUED = "inline-flex max-w-full items-baseline";
 const FLEX_CODE = "min-w-0";
 
-/** Runs as one text: words, a `{ quoted }` run in typographic quotes, a `{ strong }` run at strong weight in the meta role, a `{ code }` run in the mono, which never cuts in its middle: boxed in the inline code style inside a sentence (`fit` `span`, the default), bare where the runs are a name, a crumb or a row's line (`fit` `name`, voice 7); `whole` (a text read whole) wraps a code run inside its one box at its separators (`CodeWhole`) instead of cutting it at its end, and the brackets and the stop that touch a boxed run stay on its line with it. Outside the package's exports. */
+/** Runs as one text: words, a `{ quoted }` run in typographic quotes, a `{ strong }` run at strong weight in the meta role, a `{ code }` run in the mono, which never cuts in its middle: boxed in the inline code style inside a sentence (`fit` `span`, the default), bare where the runs are a name, a crumb or a row's line (`fit` `name`); `whole` (a text read whole) wraps a code run inside its one box at its separators (`CodeWhole`) instead of cutting it at its end, and the brackets and the stop that touch a boxed run stay on its line with it. Outside the package's exports. */
 export function RunText(props: {
 	runs: Runs;
 	whole?: boolean;

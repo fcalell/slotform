@@ -14,21 +14,7 @@ import {
 	cssTokenValue,
 } from "./css-escape.ts";
 
-// Emits `.stack/app.css` as `@import` statements, the `@source` declarations,
-// the top-level `@theme` / `@utility` / `@custom-variant` blocks, then the `@layer` blocks. The
-// block/layer split is the cascade: `@theme` compiles into `@layer theme`,
-// which Tailwind sorts before `base`, so a `@layer base` block overrides a
-// seeded token. Returns null when no contributions exist so consumers don't
-// see an empty file.
-//
-// Every interpolation point is routed through the css-escape helpers —
-// strings via `cssString`, idents via `cssIdent`, declaration property names
-// via `cssProperty`, declaration values via `cssTokenValue`, supports
-// expressions via `cssSupportsExpression`. The slot schemas (`cssImportSchema`
-// / `cssBlockSchema` / `cssLayerSchema` in types.ts) reject malformed
-// contributions on entry, but we re-validate on render as defense-in-depth:
-// any contribution that reaches here invalid is a bug in the contributing
-// plugin and we want a loud error, not silently-corrupt CSS.
+// The `.stack/app.css` render, escaped and validated: docs/architecture/codegen.md, "CSS escape boundary".
 export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 	if (
 		payload.imports.length === 0 &&
@@ -43,10 +29,7 @@ export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 	for (const imp of payload.imports) {
 		lines.push(renderImport(cssImportSchema.parse(imp)));
 	}
-	// Tailwind's automatic content detection roots at this sheet's directory,
-	// `.stack/`, and would scan every generated file there (the worker types,
-	// wrangler's bundle). The `tailwindcss` import turns it off with
-	// `source(none)`, so the consumer's sources are declared explicitly.
+	// `source(none)` roots the scan at declared sources: docs/architecture/plugins/react-ui.md, "Stylesheet assembly".
 	lines.push(`@source "../src";`);
 	for (const pattern of payload.sources) {
 		lines.push(
@@ -82,10 +65,7 @@ export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 	return `${lines.join("\n")}\n`;
 }
 
-// A rule whose declarations cross the same render boundary as a block's.
-// `appCssLayers` passes layer content through untouched, so a plugin
-// contributing a token block builds it with this rather than by hand. The
-// selector is the contributing plugin's own constant, never an input.
+// A rule whose declarations cross the render boundary: docs/architecture/codegen.md, "CSS escape boundary".
 export function renderRule(
 	selector: string,
 	declarations: Record<string, string>,

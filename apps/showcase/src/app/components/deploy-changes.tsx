@@ -39,12 +39,8 @@ function lines(from: string, other: string): number {
 export const filesRead = (id: string) => orpc.deploys.files.read({ id });
 export const logRead = (id: string) => orpc.deploys.log.read({ id });
 
-// The files a deploy changed, from their own read, over the diff of the one
-// open (`?file=`, the first without it), which its row marks; the files
-// before it are seen. The Section holds the read as its items, so the list
-// paints while it waits and the Section draws the failed and empty forms. The
-// app's own view of the read is its files once they land, for the open file's
-// place; the diff reads that file as a selection.
+// The files a deploy changed, as the Section's items: docs/architecture/ui-core/layout.md, "Sheet of rows".
+// The open file is `?file=` (the first without it), its row marked and the files before it seen; the app's own view of the read is its files once they land, for the open file's place.
 function useChangedFiles(id: string, named: string | undefined) {
 	const route = useRoute();
 	const files = filesRead(id);

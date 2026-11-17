@@ -1,16 +1,8 @@
-// Converts arbitrary JS values from `stack.config.ts` options into TsExpression
-// nodes so plugins can inline consumer options into generated code. This is the
-// only authoring helper the AST layer ships — for everything else plugins write
-// the raw `TsExpression` discriminated union directly (see @fcalell/cli/ast).
+// literalToProps, the one authoring helper: docs/architecture/codegen.md, "The AST and its printers".
 
 import type { TsExpression } from "./specs.ts";
 
-// Converts an arbitrary JS value (plain object/array/primitive) into a
-// TsExpression. Used when plugins need to inline user-provided options
-// (from stack.config.ts) into generated code. Non-plain objects (Date,
-// Map, Set, class instances) and non-JSON primitives (function, bigint,
-// symbol) throw a TypeError — callers must produce a structured
-// TsExpression node for those cases.
+// Value to TsExpression, and what throws: docs/architecture/codegen.md, "The AST and its printers".
 function literal(value: unknown): TsExpression {
 	if (value === null) return { kind: "null" };
 	if (value === undefined) return { kind: "undefined" };
@@ -39,11 +31,7 @@ function literal(value: unknown): TsExpression {
 	);
 }
 
-// Converts a record of arbitrary JS values into a key→TsExpression map,
-// preserving insertion order. The shape matches `PluginRuntimeEntry.options`
-// so plugins can auto-seed from `ctx.options` and then mutate individual
-// keys (`rt.options.trustedOrigins = …`) without re-literalising the whole
-// object every time.
+// Record of plain values to a key-to-TsExpression map: docs/architecture/codegen.md, "The AST and its printers".
 export function literalToProps(
 	value: Record<string, unknown>,
 ): Record<string, TsExpression> {

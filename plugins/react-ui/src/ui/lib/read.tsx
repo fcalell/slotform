@@ -111,9 +111,7 @@ export function FrameBody(props: {
 	noun?: string;
 	// The sentence a missing read says, in place of the noun's (a Pane's).
 	missing?: string;
-	// The failed form is the heading that names the page where the title never
-	// lands (a Pane's), as the missing form is, and whose missing form offers the
-	// Pane's way back.
+	// The failed form where the title never lands: docs/architecture/ui-core/reads.md, "Missing and failed forms".
 	headed?: boolean;
 	children?: ReactNode;
 }) {

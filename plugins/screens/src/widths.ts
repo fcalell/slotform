@@ -1,6 +1,4 @@
-// The widths a screen is checked at: the narrowest phone (touch), a laptop
-// (the list and the record stand together) and a desktop monitor (the only
-// width where a cap leaves dead space).
+// The widths a screen is checked at: docs/architecture/plugins/screens.md, "Rubric widths".
 export const WIDTHS = [320, 1280, 1920] as const;
 
 // The viewport's height at every width.

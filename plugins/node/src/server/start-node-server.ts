@@ -11,17 +11,11 @@ import type { NodeWorker } from "./worker.ts";
 
 export interface NodeServerBootOptions
 	extends Omit<NodeServerOptions, "worker" | "services" | "staticRoot"> {
-	// Module URLs, not static imports: consumer route files import
-	// "virtual:stack-procedure", a specifier plain node cannot resolve (tsx
-	// and esbuild resolve it via tsconfig paths; node does not). Static
-	// imports in the entry would resolve at link time, before any hook can
-	// register, so the boot loads these dynamically after registerHooks.
+	// Module URLs, not static imports: docs/architecture/plugins/node.md, "Generated server entry".
 	workerModule?: URL | null;
 	procedureModule?: URL | null;
 	servicesModule?: URL | null;
-	// The production bundle's form of the three above: a bundler has already
-	// followed the imports (and aliased "virtual:stack-procedure"), so the
-	// entry hands over the modules themselves.
+	// The bundle's form hands over the modules themselves: docs/architecture/plugins/node.md, "Generated server entry".
 	modules?: { worker: NodeWorker | null; services: ServiceSpec[] };
 	services?: NodeServerOptions["services"];
 	// The web client's directory relative to the working directory

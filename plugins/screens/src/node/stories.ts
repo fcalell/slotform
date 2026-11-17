@@ -131,13 +131,7 @@ export async function listScreens(routes: string): Promise<string[]> {
 	return (await scanRoutes(routes)).screens;
 }
 
-// One route's CSF file: its title and a story per state, then a hidden story
-// per state for every combination of the globals' checked values, which only
-// the test run lists (`!dev` leaves the story out of the sidebar and keeps the
-// `test` tag). Every story is tagged with its state and the value of each
-// global the run checks, which is how a run narrows to some of them. The
-// imports are the screen's graph, as side effects so the transform keeps
-// every one: an import of a name nothing uses is dropped.
+// One route's CSF file: docs/architecture/plugins/screens.md, "Story generation".
 function renderStoryFile(
 	routeId: string,
 	imports: string[],
@@ -184,10 +178,7 @@ interface SyncOptions {
 	previewGlobals: PreviewGlobal[];
 }
 
-// Brings the stories folder to one file per screen: written for a new route,
-// rewritten when its content changed, removed for a deleted one and left
-// untouched otherwise. A file's content is the route's id and the paths of the
-// files its screen imports, so an edit to a route file rewrites nothing.
+// The stories folder's upkeep: docs/architecture/plugins/screens.md, "Story generation".
 export async function syncStories(options: SyncOptions): Promise<void> {
 	const dir = join(options.root, STORIES_DIR);
 	const found = await scanRoutes(options.routes);

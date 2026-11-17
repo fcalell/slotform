@@ -1,53 +1,7 @@
 import type { RosterEntry } from "./shared.ts";
 import { ANSWER, build, GIVE, matrix, PRESS, text } from "./shared.ts";
 
-// The pick outside a form that applies at once: a field box, or (a row's
-// trailing, `fit: row`) its value and a chevron in a `WORD_ACT`, a value
-// that carries a state being the compact state pill with its chevron
-// inside at its end, the pill the trigger, as in a record's head; either
-// opens a popover of rows (a sheet of rows on touch), a search field
-// above six options; an option may lead with its avatar, and one act
-// (the act that makes a new option) ends the list under a hairline. At
-// the `bar` fit the field box fills its column. At the `bar` fit, outside
-// a rule's row (a toolbar's pick), a pick that is set reads its
-// label, a colon and its value ("Work type: Change"), so a value other
-// filters could share is told apart; unset, or on its `null` option (the
-// empty choice, "All kinds"), it reads its label alone, in the
-// placeholder's ink; every other fit, and a rule's term, whose row names
-// it, reads its value alone. An option's `chip` draws
-// after its label in the list and on the trigger. Its `value` an array
-// makes it a pick of several: the rows tick and the list stays open, and
-// the box holds one removable neutral chip per value. An option's
-// `blocked` reason replaces its `line` in the disabled ink and
-// the option takes no pick, until it is in the value. `value` and
-// `options` are data: a selection paints the trigger, inert and its
-// content undrawn, until its read lands. A `value` whose read ended leaves
-// the box empty and blocked: opening it says the failed sentence and
-// opens nothing. Options that have failed draw the
-// failed sentence with Retry (or `missing`) in a line under the trigger,
-// which stays painted; the picker holds that read, so it needs no frame
-// and draws no busy or stale flag.
-// `fit: list` stands the options in the page: check rows under group
-// labels on a hairline card, a chosen option checked (the row takes no
-// wash); radio rows when `value` is one value or null, a radiogroup whose
-// chosen ring holds its dot. The recommended mark on its `line`;
-// the `children` under a chosen option at its label's start. A list that is
-// the body of a titled Section is `headed`: the Section's title names it
-// and it draws no field. Static
-// `options` never paint; `items`, constants or a selection, paint
-// `PAINT_ROWS` rows while the read waits, in the slots `option` declares
-// (a `line` under each label, a label over the group), inert, and a
-// `value` selection paints the boxes or rings; the empty form is the
-// frame's, the Pane, Section, Sheet or Form that holds the read, and
-// `items` that have failed draw the failed sentence with Retry (or
-// `missing`) in a line under the rows, the list holding that read where no
-// frame does. An option's `blocked` reason replaces its `line` in the
-// disabled ink and its box or radio is disabled, until it is in the value.
-// `fit: segments` stands a few options as one row of segments, the chosen
-// one under the selection wash; a segment given an `href` and no value is
-// a link, the one whose href is the location's path or its nearest parent
-// the selected one, and a press opens it. A field as every control is
-// (`Input`): the field fit, a list and choice segments draw it alone.
+// The pick outside a form: docs/architecture/ui-core/components.md, "Picker".
 export const pickerEntry: RosterEntry = {
 	props: [
 		"label",
@@ -187,11 +141,7 @@ export const pickerEntry: RosterEntry = {
 	},
 };
 
-// One segment of a `Picker` in `fit: segments`: a choice (its `value`), or a
-// link (an `href` and no value), which the Picker marks selected while the
-// location is its href or below it, and opens when it is pressed. A Picker
-// holds choices or links, never both. A label is a word, up to the short
-// measure.
+// One segment of a `Picker`: docs/architecture/ui-core/components.md, "Picker".
 export interface ChoiceSegment<V extends string = string> {
 	value: V;
 	label: string;
@@ -289,7 +239,7 @@ export const OPTION_GROUP_LABEL = "px-pad pt-gap";
 export const PICKER_EMPTY = "text-ink-meta";
 // The value a row's pick shows in its box (`PICKER {fit: row}`), bounded as a
 // status' label is so a long one truncates before the title beside it does,
-// in the body ink: it is the value the row's label names (voice 7, 11), as a
+// in the body ink: it is the value the row's label names (`guide/voice.md`, "Type"), as a
 // plain value beside it is, its chevron alone in the trigger's meta ink. The
 // field fit's value is `FIELD_VALUE`'s.
 export const PICKER_VALUE =
@@ -311,7 +261,7 @@ export const ITEM_PILL_HIT = `group min-h-target min-w-target -my-[calc((var(--s
 // A head's pick fact whose chosen option carries a state is the state pill
 // itself (`STATE_CHIP`) with its chevron, one box: under the pointer and
 // pressed its hairline darkens to the state's ink, as an outlined control's
-// darkens to the strong edge (voice 5), so its soft fill keeps its hue.
+// darkens to the strong edge (`guide/voice.md`, "Controls"), so its soft fill keeps its hue.
 export const ITEM_PILL_STATE_ACT = `gap-gap group-hover:border-current group-active:border-current in-data-[modality=keyboard]:group-focus-visible:outline-2 group-focus-visible:outline-ring ${ANSWER}`;
 // In a head a pill, outlined or a state's, stands at the badge's height, the
 // meta line, its hairlines inside it; in a row it is a chip's, the caption
@@ -325,9 +275,7 @@ export const OPTION_LIST =
 	"gap-gap p-gap rounded-card border border-edge bg-surface";
 export const OPTION_LINE = "gap-gap";
 export const OPTION_CHILDREN = "ms-icon-control px-pad pb-gap";
-// The children stand in past the box by the box's width (the group's margin)
-// and the gap after it (the body's): room is a margin on a box that draws,
-// never an empty element.
+// Room is a margin on a box that draws: docs/architecture/ui-core/roster.md, "Cells".
 export const OPTION_INDENT = "ms-gap";
 // The chosen radio's dot, centred in its ring.
 export const OPTION_RADIO_DOT = `size-dot rounded-full bg-toggle-on ${RADIO_DOT}`;

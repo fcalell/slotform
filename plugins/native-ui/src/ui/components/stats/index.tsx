@@ -62,12 +62,8 @@ export interface StatsProps extends Closed {
 
 const number = formatterFor("number");
 
-// A cell without a bound: its label over its figure. The cell is the frame of
-// the selection it draws, as a meter is: its read failed with no enclosing
-// frame holding it, it draws the failed form itself (the label stays, the
-// figure slot shows the failure mark and the retry icon, the line under reads
-// "This didn't load." and a press retries); a read an enclosing frame holds
-// draws nothing of its own.
+// A cell without a bound: its label over its figure. It is the frame of the selection it
+// draws: docs/architecture/ui-core/reads.md, "What a frame draws".
 function Cell({
 	item,
 	at,

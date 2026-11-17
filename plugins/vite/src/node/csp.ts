@@ -1,7 +1,4 @@
-// The merge rule of `vite.slots.clientHeaders`: two contributions of one
-// header combine only for `Content-Security-Policy`, per directive. Beside it,
-// what a plugin allows its inline script with. Pure, so the rules are tested
-// without a graph.
+// The merge rule of `vite.slots.clientHeaders`: docs/architecture/plugins/vite.md, "Content-Security-Policy".
 
 import { createHash } from "node:crypto";
 

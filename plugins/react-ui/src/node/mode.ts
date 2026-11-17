@@ -7,15 +7,7 @@ type Mode = "light" | "dark";
 // a slot left out pulses).
 type Loading = Partial<Record<"text" | "figure" | "id", "pulse" | "scramble">>;
 
-// The mode before first paint, so a dark viewer never sees a light flash: the
-// viewer's stored choice, else the theme's `defaultMode`, else the system
-// preference. It sets the `dark` class the stylesheet keys on. A mode that
-// came from the system keeps following it: a change of the system's colour
-// scheme (a schedule that darkens a screen at dusk, a viewer's switch) moves
-// the class while the page is open, unless the viewer has stored a choice by
-// then; a stored choice or a `defaultMode` is the page's own and no change of
-// the system moves it. Blocked storage or a missing `matchMedia` leaves the
-// fallback in place: the script runs before the page and never throws into it.
+// The mode before first paint: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 export function modeScript(
 	defaultMode: Mode | undefined,
 	loading: Loading = {},
@@ -29,9 +21,7 @@ export function modeScript(
 	return `(function(){${loadingScript(loading)}try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=${fallback};if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}${follow}})();`;
 }
 
-// The paint each glyph slot waits in, as `data-loading-<slot>` on the root:
-// the stylesheet and `lib/scramble` read it, so the first frame of a page that
-// waits is already in the theme's voice. A slot that pulses carries none.
+// The paint each glyph slot waits in: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 function loadingScript(loading: Loading): string {
 	return (["text", "figure", "id"] as const)
 		.filter((slot) => loading[slot] === "scramble")
@@ -42,12 +32,7 @@ function loadingScript(loading: Loading): string {
 		.join("");
 }
 
-// The `Content-Security-Policy` that lets the page run `modeScript` and
-// nothing else inline: `script-src 'self'` plus the hash of the script as
-// `themeModePlugin` injects it. Hashing the same `modeScript(…)` string the
-// plugin emits keeps the two from drifting. No `style-src`: a hash on a
-// `<style>` element does not cover `style=` attributes, so that directive is
-// the consumer's.
+// The CSP that lets the page run `modeScript`: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 export function modeScriptPolicy(
 	defaultMode: Mode | undefined,
 	loading: Loading = {},

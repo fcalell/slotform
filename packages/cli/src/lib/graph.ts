@@ -55,9 +55,7 @@ export function buildGraph(
 	// Collect every slot declared by any plugin.
 	const slotById = new Map<symbol, Slot<unknown>>();
 	const slotOwner = new Map<symbol, string>();
-	// A slot is matched by identity, so one name held by two slots is two
-	// installed copies of its package: a contribution to one copy never
-	// reaches a resolve of the other, and would vanish without a word.
+	// A slot is matched by identity: docs/architecture/slot-graph.md, "Slot identity".
 	const slotByName = new Map<string, symbol>();
 	function claim(s: Slot<unknown>, owner: string): void {
 		const name = `${s.source}:${s.name}`;
@@ -80,10 +78,7 @@ export function buildGraph(
 		}
 	}
 
-	// A slot referenced (contributed to, derived from, resolved) whose plugin
-	// is absent from the config is still a valid slot, owned by its `source`
-	// and resolving to its empty composition. This is how a plugin reads a
-	// peer the consumer left out: the list is `[]`, the map is `{}`.
+	// A slot whose plugin is absent: docs/architecture/slot-graph.md, "A slot whose plugin is absent".
 	function register(s: Slot<unknown>): void {
 		if (slotById.has(s.id)) return;
 		claim(s, s.source);

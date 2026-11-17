@@ -1,8 +1,4 @@
-// OKLCH, OKLab and sRGB by Björn Ottosson's reference matrices. The
-// derivation mixes in OKLab (a hover fill toward black, a pending fill toward
-// its label), clamps a re-hued accent's chroma into the sRGB gamut, and
-// converts the shadows to sRGB because React Native's `boxShadow` parses no
-// oklch; the verify script measures the contrast contracts through it.
+// OKLCH, OKLab and sRGB by Ottosson's reference matrices: docs/architecture/ui-core/tokens.md, "Derivation".
 // Internal: no subpath exports it.
 
 export interface Lab {

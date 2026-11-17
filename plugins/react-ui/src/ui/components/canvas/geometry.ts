@@ -732,10 +732,7 @@ export function union(boxes: readonly Box[]): Box {
 
 const fixed = (value: number): number => Math.round(value * 100) / 100;
 
-// The points moved onto pixel centres: a 1 px stroke at a whole coordinate
-// straddles two pixel columns at half intensity, so the layer stands at a whole
-// translate (`fitTransform`, `openTransform`) and a stroke at `n + 0.5` is one
-// solid column at scale 1.
+// Points moved onto pixel centres: docs/architecture/plugins/react-ui.md, "Canvas".
 export function crisp(points: readonly CanvasPoint[]): CanvasPoint[] {
 	return points.map(({ x, y }) => ({
 		x: Math.floor(x) + PIXEL_CENTRE,

@@ -1,8 +1,4 @@
-// What a read is at this moment, free of any framework: both platforms derive
-// one phase and the flags beside it from the same few fields of a query's
-// result, and the derivation is tested without rendering. A result of
-// TanStack's `useQuery` satisfies `ReadResult`, but ui-core names only the
-// fields it reads, so it imports neither TanStack nor React.
+// What a read is at this moment, free of any framework: docs/architecture/ui-core/reads.md, "Read model".
 
 import { createStore } from "./store.ts";
 import type { Words } from "./tokens.ts";
@@ -76,11 +72,7 @@ export function readState(
 	};
 }
 
-// What a frame (a Pane, Section, Sheet or Form) draws from: its non-quiet reads
-// and the value its collection or leaf draws, painted or real. The form comes
-// from every read; busy, stale and paused only from the `held` one, which draws
-// them (a read an enclosing frame holds is drawn there). `more`: the drawn
-// value is one page of several.
+// What a frame draws from: docs/architecture/ui-core/reads.md, "Frames".
 export interface Held {
 	drawn?: { painted: boolean; value: unknown; more?: boolean };
 	reads?: {
@@ -90,10 +82,7 @@ export interface Held {
 	}[];
 }
 
-// ready: the loaded tree, its leaves real. waiting: the loaded tree, its
-// leaves painted. still: the same, painted while the root is not asked for or
-// waits for a connection, so nothing is coming yet. empty: the answer holds
-// nothing. failed, missing: the read ended.
+// A frame's form: docs/architecture/ui-core/reads.md, "Phases".
 export type FrameForm =
 	| "ready"
 	| "waiting"
@@ -115,11 +104,7 @@ export interface FrameState {
 	paused: boolean;
 }
 
-// The frame's form from its reads, never from a value's change: only the
-// form, the count and busy move it. The first read failed with no data ends the
-// frame (failed, or missing by its own `missing`), held or not; busy, stale and
-// paused are the held reads'; the frame stands still when any read is idle or
-// paused with no data.
+// The frame's form from its reads: docs/architecture/ui-core/reads.md, "Form and flags".
 export function frameOf(held: Held): FrameState {
 	const reads = held.reads ?? [];
 	const all = reads.map((r) => readState(r.result, r.missing));
@@ -163,13 +148,7 @@ export function frameOf(held: Held): FrameState {
 	};
 }
 
-// The turn an app writes into a conversation: none where nothing is being
-// written, waiting for the first chunk, writing while chunks arrive, written
-// once it settles, stopped where the stream failed (or a refresh of it did, the
-// partial value kept), failed where it failed or went missing before any text
-// was written (a value that is null or the empty string is no text). Waiting, stopped and failed are the read's states, so a turn
-// draws them only when it holds the read; under a frame that holds it, that
-// frame says them once and the turn draws its value alone.
+// The turn an app writes into a conversation: docs/architecture/ui-core/reads.md, "Conversation turn states".
 export type TurnForm =
 	| "none"
 	| "waiting"
@@ -205,10 +184,7 @@ export function turnOf(held: Held): { form: TurnForm; value: unknown } {
 	return { form: s?.streaming ? "writing" : "written", value };
 }
 
-// The reason an act or a control stands blocked under once the read it depends
-// on has ended (a frame's `form`, or a selection's `phase`): the failed
-// sentence, or `words.missing`. None while the read waits, stands still or
-// answered.
+// The reason a blocked act or control stands under once its read ended: docs/architecture/ui-core/acts.md, "Blocked reasons".
 export function endedReason(words: Words, phase?: string): string | undefined {
 	return isEnded(phase) ? endedSentence(words, phase) : undefined;
 }
@@ -225,11 +201,7 @@ export function endedSentence(words: Words, ended: "failed" | "missing") {
 	return ended === "failed" ? words.readFailed : words.missing;
 }
 
-// The read handle: one query by its key plus how its failure reads as "not
-// found", and `Selection`s that pick from one or several reads. Pure, so the
-// hooks in `./react/read.ts` and the binding that runs the reads share one
-// core. A leaf subscribes to a selection, paints it while its reads wait, and
-// draws it once they land (`states.md` §2).
+// The read handle, pure so the hooks and the binding share one core: docs/architecture/ui-core/reads.md, "Read handle".
 
 const SELECTION = Symbol.for("@fcalell/ui-core/selection");
 const PLACEHOLDER = Symbol.for("@fcalell/ui-core/placeholder");
@@ -252,11 +224,7 @@ export interface Selection<T> {
 	or<F>(fallback: F): Selection<T | F>;
 }
 
-// How a read's query behaves: a plain `query`, an infinite one of stack's
-// paginated envelope (`pages`), a sparse window over a total whose pages load
-// where the viewer scrolls (`window`: its value is the rows loaded from the
-// start, `useWindow` has the rest), or one that stays fetching while it writes
-// (`stream`: fetching with data is writing, not busy).
+// How a read's query behaves: docs/architecture/ui-core/reads.md, "Read kinds".
 export type ReadKind = "query" | "pages" | "window" | "stream";
 
 /** The input of a paginated read less what pages it and orders it (`cursor`, `offset`, `limit`, `sort`): what a selection over the read names. */
@@ -272,9 +240,7 @@ export interface Sorting<T, Q> {
 	) => Read<T, Q>;
 }
 
-// What the binding that runs a read gives it: the read's query by identity
-// (two reads with one key are one query). The binding adds what it runs the
-// query with (`@fcalell/plugin-query` merges its query options in as `options`).
+// What the binding that runs a read gives it: docs/architecture/ui-core/reads.md, "Read handle".
 export interface ReadBinding {
 	readonly key: string;
 }
@@ -423,11 +389,7 @@ export function lift<T, K extends string>(
 	return made as Datum<T>;
 }
 
-// What a leaf draws for one value: a constant or real data as given, or a
-// selection with a read still to land, whose `value` is the placeholder's and
-// whose `phase` says why. waiting: asked for, no answer. still: not asked for,
-// or paused with no data, so nothing is coming (paints still, no sentence).
-// failed, missing: the read ended (the failed sentence, `words.missing`).
+// What a leaf draws for one value: docs/architecture/ui-core/reads.md, "Phases".
 export type DrawnPhase = "waiting" | "still" | "failed" | "missing";
 export type Drawn<T> =
 	| { readonly painted: false; readonly value: T }
@@ -437,29 +399,17 @@ export type Drawn<T> =
 			readonly phase: DrawnPhase;
 	  };
 
-// Whether a leaf draws its paint: while its read waits (or stands still). A
-// leaf whose read ended draws its loaded-empty form instead, no line for a
-// text and nothing for a mark; the frame that holds the read says why, once.
+// Whether a leaf draws its paint: docs/architecture/ui-core/reads.md, "Phases".
 export function paints(drawn: Drawn<unknown>): boolean {
 	return (
 		drawn.painted && (drawn.phase === "waiting" || drawn.phase === "still")
 	);
 }
 
-// The placeholder: the stand-in for data not yet there, shaped by nothing. It
-// is every key of itself and callable, so a selector walks it to a value and
-// takes its default branch (comparisons are false, lookups miss, `new Date`
-// is the epoch, a number formats as 0, `map` and `filter` give it back).
-// Nothing is frozen on the target (a frozen function would pin `name` and
-// `length` against the traps); the traps refuse every write instead.
+// The placeholder: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
 const NO_KEYS = new Set(["then", "toJSON", "$$typeof"]);
 
-// A selector run over the placeholder or the sample follows keys that are
-// always there, so a walk that goes on while it finds one (`while (n.parent)
-// n = n.parent`) never reaches an end. A run over either is given this many
-// reads of them: past it the run throws, which a guarded selector turns into
-// the placeholder, a sample into none, as any other throw over a placeholder.
-// Far above what a selector reads for a record's shape.
+// The walk limit over a placeholder or a sample: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
 const WALK_LIMIT = 10_000;
 let depth = 0;
 let steps = 0;
@@ -511,11 +461,7 @@ export function isPlaceholder(v: unknown): boolean {
 	);
 }
 
-// Two constant functions: TanStack compares a function `placeholderData` by
-// identity between option sets, and the dev check reads them back off a
-// query's observers. `placeholderData` marks an observer as a painter (a leaf
-// that draws the read), `heldPlaceholder` as a holder (a frame, or a leaf that
-// draws the failure itself). Both return the placeholder.
+// Two constant functions, compared by identity: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
 export const placeholderData = (): unknown => P;
 export const heldPlaceholder = (): unknown => P;
 
@@ -601,10 +547,7 @@ export function isSelection(v: unknown): v is Selection<unknown> {
 	return typeof v === "object" && v !== null && SELECTION in v;
 }
 
-// A selector or `combine` function runs over the placeholder (a waiting slot
-// picks over it, an idle or failed read's missing data included), so one that
-// throws there is not a bug in the data: its slot is the placeholder, silently.
-// Over real data the throw is the app's.
+// A selector that throws over the placeholder: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
 function guarded<T>(data: readonly unknown[], run: () => T): T {
 	try {
 		return bounded(run);
@@ -614,10 +557,7 @@ function guarded<T>(data: readonly unknown[], run: () => T): T {
 	}
 }
 
-// A selection is never a plain object: TanStack's structural sharing
-// (`replaceEqualDeep`, run over every `combine` result) rebuilds a changed
-// plain object from its string keys, which drops `SELECTION`; an object on a
-// prototype of its own passes through whole.
+// A selection is never a plain object: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
 const SELECTION_PROTOTYPE = {};
 
 function selection<T>(
@@ -728,9 +668,7 @@ export function combine<const S extends readonly Selection<unknown>[], R>(
 	);
 }
 
-// The part of `.stack/schema.ts` the sort reads: each procedure by dotted
-// path with its input as JSON Schema, whose `sort` property names the columns
-// a procedure that declares `sort` takes.
+// The part of `.stack/schema.ts` the sort reads: docs/architecture/ui-core/reads.md, "Sort".
 export type SortSchema = Readonly<
 	Record<string, { readonly input: object | null } | undefined>
 >;
@@ -838,17 +776,7 @@ export function isRead(v: unknown): v is Read<unknown> {
 	return isSelection(v) && v[SELECTION].reads[0] === v;
 }
 
-// The pure core of `useFrameRead`: the frame's selection planned like a leaf's,
-// and `combine` deriving the frame's state from its reads. The form comes from
-// every non-quiet read of the selection, held or not (a frame never reads its
-// form off a context). `enclosing` is the query hashes the frames above it
-// hold: the frame holds the first other non-quiet read, which draws its busy
-// mark and its stale and paused line, so a nested frame draws those only for
-// what its ancestors do not (a `combine` under a read-less Pane holds its read;
-// an `x.at()` under a holder of `x` holds none). A frame holds at most one:
-// `extra` are the further unheld ones, a mistake `holdReads` names in dev.
-// `query` looks up a read's query in the cache: a plain observer's result says
-// nothing of a next page being fetched, but the query's `fetchMeta` does.
+// The pure core of `useFrameRead`: docs/architecture/ui-core/reads.md, "Holding a read".
 export function planFrame<S>(
 	selection: Selection<unknown> | undefined,
 	derive: (held: Held) => S,
@@ -954,15 +882,10 @@ export function draftFor<T>(
 	return draft && draft.key === key ? draft : null;
 }
 
-// Dev checks read the query cache's own observers: a leaf that draws a read is
-// an observer whose `placeholderData` is `placeholderData`, a frame (or a leaf
-// that draws the failure itself) one whose is `heldPlaceholder`. The bundler
-// inlines `process.env.NODE_ENV`, so a production build drops them.
+// Dev checks read the query cache's own observers: docs/architecture/ui-core/reads.md, "Dev checks".
 export const dev = () => process.env.NODE_ENV !== "production";
 
-// What a frame publishes to its body: the hashes it and the frames around it
-// hold. It places flags only (which frame draws a read's busy mark and its
-// stale and paused line); no frame's form reads it.
+// What a frame publishes to its body: docs/architecture/ui-core/reads.md, "Holding a read".
 export type Holds = ReadonlySet<string>;
 
 // What a frame outside every frame sees: nothing held.
@@ -990,11 +913,7 @@ export function holdsOf(
 	return holds;
 }
 
-// Frames that hold one read with none enclosing another (sibling Sections over
-// one read) each hold it and each draw its failed form, but its busy mark stands
-// once: at the first of them to take it, in mount order (document order for
-// siblings), passing to the next when that one leaves. `take` returns the
-// release; `marks` says whether `id` draws the mark of the read `hash`.
+// Frames that hold one read share its busy mark: docs/architecture/ui-core/reads.md, "Holding a read".
 export interface Marks {
 	take: (hash: string, id: string) => () => void;
 	marks: (hash: string, id: string) => boolean;
@@ -1022,11 +941,7 @@ export function createMarks(): Marks {
 	};
 }
 
-// A frame holds one read. Given the frame's unheld non-quiet reads, the first is
-// the one it holds, so each further one is a mistake named by both keys: its
-// failure still draws (the form comes from every read) but its flags do not.
-// Sibling frames over one read are no mistake; each holds and fails, and the
-// first draws its busy mark (`createMarks`).
+// A frame holds one read: docs/architecture/ui-core/reads.md, "Holding a read".
 export function holdReads(reads: readonly Read<unknown>[]): void {
 	if (!dev()) return;
 	const keys = reads.map((r) => r.key);

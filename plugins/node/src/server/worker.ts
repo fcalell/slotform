@@ -1,7 +1,4 @@
-// The worker shape emitted by plugin-api's `.stack/worker.ts` (its
-// `WorkerExport`), reduced to what this target calls. On Node, `env` is
-// `process.env` and there is no execution context; the worker runtime
-// degrades both gracefully.
+// The worker shape this target calls: docs/architecture/plugins/node.md, "Worker contract".
 export interface NodeWorker {
 	fetch(
 		request: Request,

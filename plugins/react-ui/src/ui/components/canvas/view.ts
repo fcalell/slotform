@@ -57,9 +57,7 @@ export function inside(
 	);
 }
 
-// A transform stands at whole pixels, so a stroke at a pixel's centre (`crisp`),
-// a node's border and a dot of the grid stay solid at scale 1. The viewport
-// applies it to every transform the canvas sets itself.
+// A transform at whole pixels: docs/architecture/plugins/react-ui.md, "Canvas".
 export const whole = ({ x, y, k }: Transform): Transform => ({
 	k,
 	x: Math.round(x),

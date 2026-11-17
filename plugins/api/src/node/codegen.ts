@@ -20,12 +20,7 @@ import type {
 export function aggregateWorker(payload: WorkerPayload): string {
 	const statements: TsStatement[] = [];
 
-	// Plugin runtimes live alongside middleware in the chain but are emitted
-	// separately so callbacks can be spliced in without touching the
-	// TsExpression tree. Order is: base → pluginRuntimes (.use) →
-	// middlewareChain (.use) → handler. Plugin runtimes run first so
-	// composition middleware sees the context they inject (e.g. `c.var.db`,
-	// `c.var.auth`).
+	// Runtimes are emitted apart from the middleware so callbacks splice in without touching the expression tree: docs/architecture/runtime.md, "Chain order".
 	const runtimeImports: TsImportSpec[] = [];
 	const callbackImports: TsImportSpec[] = [];
 
@@ -150,13 +145,7 @@ const MIDDLEWARE_PHASE_ORDER: Record<
 	"after-context": 4,
 };
 
-// Returns the ordered middleware call expressions plus the imports needed
-// for them. Consumed by two derived slots: `api.slots.middlewareCalls` (the
-// calls themselves) and `api.slots.middlewareImports` (deduplicated imports
-// to pull into `workerImports`).
-//
-// Ordering: primary key is `phase` (before-cors < after-cors < before-routes
-// < after-routes); secondary key is `order` (ascending). Stable within ties.
+// The ordered middleware calls and their imports, for `middlewareCalls` and `middlewareImports`: docs/architecture/runtime.md, "Middleware".
 export function aggregateMiddleware(payload: MiddlewarePayload): {
 	imports: TsImportSpec[];
 	calls: MiddlewareCall[];

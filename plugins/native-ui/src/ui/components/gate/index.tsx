@@ -30,16 +30,8 @@ const PAGE_ROOM = "justify-center";
 // The toasts stand at the page's foot, above the home indicator.
 const TOAST_BOX = "absolute inset-x-0 top-0";
 
-// A page outside the shell, a root frame as the Shell is: one column at the
-// `auth` width inside the page inset on the surface, one step: the
-// `StepCount`, the title, the description, the banner and the body, a fields
-// gap between each. It keeps the safe area and scrolls over
-// the keyboard, so the focused field and the submit act stay in view. An
-// `Input` or code `Input` that mounts in it takes focus unless one holds it,
-// each step claiming afresh as its field mounts, and its `form`'s bar
-// draws `full`. It hosts `toast()` and `confirm()` as the Shell does, and
-// draws no word of its own. A first run is a titled Gate whose body is its
-// `Button`s.
+// A page outside the shell, a root frame as the Shell is: docs/architecture/ui-core/layout.md, "Gate".
+// Its body claims focus through `FieldClaim`: docs/architecture/plugins/native-ui.md, "Gate".
 // biome-ignore lint/suspicious/noExplicitAny: any procedure
 type AnyCall = any;
 

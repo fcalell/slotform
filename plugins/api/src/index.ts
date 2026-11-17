@@ -54,13 +54,9 @@ export const apiOptionsSchema = z.object({
 			error: "api: prefix must start with /",
 		})
 		.default("/rpc"),
-	// Env vars the consumer's own worker code reads (an email provider key),
-	// declared like a plugin's so every deploy target and the env assertion
-	// see them.
+	// Consumer env vars: docs/architecture/plugins/api.md, "Env vars".
 	env: z.array(envSpecSchema).default([]),
-	// Names of state the app keeps outside any plugin's tables (git, files, a
-	// remote), declared so `reads`/`writes` type them. A table's name is
-	// already an entity, so a name a plugin declares is an error.
+	// Entity names outside any plugin's tables: docs/architecture/plugins/api.md, "Entities".
 	entities: z
 		.array(
 			z.string().regex(ENTITY_NAME_RE, {
@@ -69,20 +65,13 @@ export const apiOptionsSchema = z.object({
 			}),
 		)
 		.default([]),
-	// The stack app this app is a client of, as a path from this app's root
-	// (`"../server"`), for a web or native app that owns no worker: `generate` copies
-	// that app's `.stack/schema.ts` and writes `.stack/server.ts`, its `AppRouter`
-	// type. The server's address stays the app's to give its client.
+	// The server this app is a client of: docs/architecture/plugins/api.md, "Client-only apps".
 	server: z.string().min(1).optional(),
 });
 
 export type ApiOptions = z.input<typeof apiOptionsSchema>;
 
-// Every worker fragment the plugin owns is a slot; peer plugins contribute
-// into them by importing `api.slots.*` and calling `.contribute(fn)`. The
-// final `.stack/worker.ts` comes out of the `workerSource` derivation, which
-// structurally reads every other slot — no ordering between contributions to
-// reason about.
+// Every worker fragment is a slot: docs/architecture/plugins/api.md, "Overview".
 
 const SOURCE = "api";
 
@@ -107,11 +96,7 @@ const workerImports = slot.list<TsImportSpec>({
 	sortBy: (a, b) => a.source.localeCompare(b.source),
 });
 
-// Sort runtimes by plugin name so the generated `.use(...)` chain is
-// deterministic regardless of `config.plugins` array order. Hono middleware
-// order within pluginRuntimes is semantically independent — each runtime
-// attaches its own `c.var.<plugin>` — so a stable sort gives order-invariant
-// worker source without changing behavior.
+// Runtimes sort by plugin name: docs/architecture/runtime.md, "Chain order".
 const pluginRuntimes = slot.list<PluginRuntimeEntry>({
 	source: SOURCE,
 	name: "pluginRuntimes",
@@ -141,25 +126,14 @@ const middlewareImports = slot.derived({
 		aggregateMiddleware({ entries: inp.entries }).imports,
 });
 
-// The handler is a value slot — api seeds it conditionally on whether the
-// consumer has at least one routable file under `src/worker/routes`. Other
-// plugins may override via `override: true` if they own the root handler
-// shape.
-//
-// Why "routable file" and not "directory exists": the worker imports from
-// `../src/worker/routes` (resolves to the generated `index.ts` barrel). If
-// the barrel skips emission (no routes), the import would dangle. Gate the
-// handler on the same predicate so handler + barrel + import are wired (or
-// not) together.
+// The routes handler is gated on routable files, as the barrel is: docs/architecture/runtime.md, "Chain order".
 const routesHandler = slot.value<{ identifier: string } | null>({
 	source: SOURCE,
 	name: "routesHandler",
 	seed: (ctx) => (hasRoutableFiles(ctx.cwd) ? { identifier: "routes" } : null),
 });
 
-// Whether the worker holds an OAuth provider for MCP clients, which
-// authenticates `/mcp`: auth contributes true under `auth({ mcp: true })` (api
-// never imports auth). `src/worker/mcp.ts` is refused without it.
+// MCP auth flag: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
 const mcpAuth = slot.value<boolean>({
 	source: SOURCE,
 	name: "mcpAuth",
@@ -167,9 +141,7 @@ const mcpAuth = slot.value<boolean>({
 	seed: () => false,
 });
 
-// Whether the server this app talks to has `auth()`: auth contributes true in
-// the app that owns the worker (api never imports auth). A client app has no
-// auth in its config, so it reads the flag from the manifest its server wrote.
+// Whether the server has `auth()`: docs/architecture/plugins/api.md, "Client-only apps".
 const serverAuth = slot.value<boolean, z.output<typeof apiOptionsSchema>>({
 	source: SOURCE,
 	name: "serverAuth",
@@ -179,9 +151,7 @@ const serverAuth = slot.value<boolean, z.output<typeof apiOptionsSchema>>({
 			: (await readServerManifest(ctx, ctx.options.server)).auth,
 });
 
-// `.stack/schema.ts` of a client app: the server's, verbatim (a copy, not a
-// re-export, because Metro bundles only what sits under the app's root). Null
-// for an app that owns its worker, which writes its own after the barrel.
+// A client app's `.stack/schema.ts`: docs/architecture/plugins/api.md, "Client-only apps".
 const serverSchemaSource = slot.derived({
 	source: SOURCE,
 	name: "serverSchemaSource",
@@ -244,9 +214,7 @@ const mcpMount = slot.derived({
 	},
 });
 
-// A background handler's mount: set when its convention file exists, and then
-// refused unless the app has a worker to mount it on (a routes directory or a
-// plugin runtime). null without the file.
+// A background handler's mount: docs/architecture/runtime.md, "Background handlers".
 function handlerMount<TIdentifier extends string>(
 	name: string,
 	file: string,
@@ -280,59 +248,41 @@ const scheduledHandler = handlerMount(
 	"scheduled",
 );
 
-// Free-form extra CORS origins contributed by frontend plugins (e.g. vite's
-// localhost). Users override the CORS allow-list entirely via
-// `app.origins` — see `cors` below.
+// Frontend-contributed CORS origins: docs/architecture/plugins/api.md, "The production list".
 const corsOrigins = slot.list<string>({
 	source: SOURCE,
 	name: "corsOrigins",
 });
 
-// Dev-only origins: the localhost dev servers frontend plugins run (vite,
-// metro). Kept out of `cors` because that list is baked into the deployed
-// worker: a production deploy that accepts credentialed localhost origins is
-// an open door. The runtime appends these only when `STACK_DEV` is set.
+// Dev-only origins: docs/architecture/plugins/api.md, "Local and dev origins".
 const devCorsOrigins = slot.list<string>({
 	source: SOURCE,
 	name: "devCorsOrigins",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// Dev-only origins of the deploy targets' own dev processes (the node
-// server, wrangler). Kept apart from `devCorsOrigins` so the frontends'
-// origins always come first: every dev list is `[...devCorsOrigins,
-// ...devTargetOrigins]`, and APP_URL's dev default is a frontend's origin
-// whenever there is one.
+// Dev origins of the deploy targets: docs/architecture/plugins/api.md, "Local and dev origins".
 const devTargetOrigins = slot.list<string>({
 	source: SOURCE,
 	name: "devTargetOrigins",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// The deep-link scheme of the app's native client: a trusted client origin
-// no CORS list can carry, since `<scheme>://` is no HTTP origin. The native
-// frontend contributes it; null without one.
+// The native client's deep-link scheme: docs/architecture/plugins/api.md, "Local and dev origins".
 const nativeScheme = slot.value<string | null>({
 	source: SOURCE,
 	name: "nativeScheme",
 	seed: () => null,
 });
 
-// Where local origins in `app.origins` belong. `dev`: they are dev origins,
-// stripped from the deployed allow-list and re-admitted under STACK_DEV.
-// `deployed`: the deploy target itself is local (the node server bound to
-// loopback), so they are the deployed allow-list. The target contributes.
+// Where local origins belong: docs/architecture/plugins/api.md, "Local and dev origins".
 const localOrigins = slot.value<"dev" | "deployed">({
 	source: SOURCE,
 	name: "localOrigins",
 	seed: () => "dev",
 });
 
-// URL prefixes the worker owns. Deploy-target plugins read this to route
-// requests to the worker (a Node server mounts these paths on the worker
-// fetch handler; a proxy forwards them) without reaching into api's
-// options. api contributes its own `prefix`; a plugin that mounts extra
-// worker-owned paths (e.g. auth's /api/auth) contributes them here too.
+// Worker-owned URL prefixes: docs/architecture/plugins/api.md, "Worker-owned URL prefixes".
 const routePrefixes = slot.list<string>({
 	source: SOURCE,
 	name: "routePrefixes",
@@ -347,29 +297,13 @@ const rpcPrefix = slot.value<string, z.output<typeof apiOptionsSchema>>({
 	seed: (ctx) => ctx.options.prefix,
 });
 
-// The final CORS list peer plugins actually read.
-//
-// Override contract: `app.origins` is *present, even when empty* = override
-// verbatim; *absent* = derive defaults from `app.domain` and append any
-// extras contributed to `corsOrigins`. The check is `!== undefined`
-// deliberately — `[]` is a valid (and meaningful) override that the runtime
-// catches as a misconfiguration. Using truthiness (`if (origins)`) silently
-// swallows the empty-array case because `Boolean([]) === true`, but the
-// semantic must be explicit so future readers don't reintroduce a JS coercion
-// quirk as load-bearing behavior.
-//
-// Wildcard guard: mixing `"*"` with specific origins has undefined semantics
-// in the CORS spec (and across browser implementations). We refuse the mix at
-// codegen time so the failure is loud and traceable, not a runtime surprise.
+// The final CORS list: docs/architecture/plugins/api.md, "The production list".
 const cors = slot.derived({
 	source: SOURCE,
 	name: "cors",
 	inputs: { extras: corsOrigins, local: localOrigins },
 	compute: (inp, ctx): string[] => {
-		// Local origins in an explicit list are dev origins unless the
-		// target is local itself: they move to `devCorsOrigins` (see the
-		// contribution below) so a deployed worker never trusts localhost,
-		// and the runtime re-admits them under STACK_DEV.
+		// Local origins in an explicit list move to `devCorsOrigins`: docs/architecture/plugins/api.md, "Local and dev origins".
 		const result =
 			ctx.app.origins !== undefined
 				? ctx.app.origins.filter(
@@ -395,32 +329,20 @@ const cors = slot.derived({
 	},
 });
 
-// Callback files a peer plugin wants wired into its runtime entry. Key is
-// the plugin name; must match `PluginRuntimeEntry.plugin`. The worker
-// aggregator splices `callbacks: <identifier>` into the corresponding
-// runtime's options object and imports the identifier.
+// Callback files for a peer plugin's runtime: docs/architecture/plugins/api.md, "Callbacks".
 const callbacks = slot.map<CallbackSpec>({
 	source: SOURCE,
 	name: "callbacks",
 });
 
-// Env vars the worker reads, each declared once by the plugin that reads it.
-// Deploy targets render the list (cloudflare into `.dev.vars` and `[vars]`,
-// node into the dev process env); `workerBase` bakes it into `envChecks` on
-// both. A duplicate name is an error: two plugins disagreeing on a
-// `devDefault` is a misconfiguration. Unsorted, so `.dev.vars` keeps the
-// declaring plugin's order.
+// Env vars the worker reads: docs/architecture/plugins/api.md, "Env vars".
 const env = slot.list<EnvSpec>({
 	source: SOURCE,
 	name: "env",
 	uniqueBy: (e) => e.name,
 });
 
-// The type of the worker's `env`, handed over by the deploy target that
-// declares one (cloudflare: the global `Env` `wrangler types` writes).
-// `workerBase` bakes it as `createWorker`'s type argument, so every handler's
-// `context.env` carries it. `null` (the seed) means no target names one and
-// `env` stays `unknown`. `override: true` because one target is authoritative.
+// The worker's `env` type: docs/architecture/plugins/api.md, "Runtime".
 const envType = slot.value<TsTypeRef | null>({
 	source: SOURCE,
 	name: "envType",
@@ -449,10 +371,7 @@ const workerBase = slot.derived({
 				value: { kind: "string", value: options.prefix },
 			});
 		}
-		// Always emit cors — preserving an empty `[]` when the consumer
-		// explicitly opted out via `app.origins: []`. The runtime decides
-		// what to do (throw on empty, apply on non-empty); silently dropping
-		// an empty cors here would turn the override into a no-op.
+		// `cors` is always emitted, an empty list included: docs/architecture/plugins/api.md, "The production list".
 		properties.push({
 			key: "cors",
 			value: {
@@ -460,9 +379,7 @@ const workerBase = slot.derived({
 				items: inp.cors.map((o) => ({ kind: "string", value: o })),
 			},
 		});
-		// Emitted separately from cors, and applied by the runtime only under
-		// STACK_DEV. Omitted entirely when empty so a worker with no dev
-		// origin carries no dev surface at all.
+		// `devCors` is omitted when empty: docs/architecture/plugins/api.md, "Local and dev origins".
 		const devCors = [...inp.devCors, ...inp.devTargets];
 		if (devCors.length > 0) {
 			properties.push({
@@ -473,11 +390,7 @@ const workerBase = slot.derived({
 				},
 			});
 		}
-		// Env value assertions, baked from `env`
-		// plus each entry's validation hints. The runtime asserts them once
-		// per isolate on the first request, replacing per-request
-		// presence-only checks. Flattened (hints beside `name`) so the
-		// emitted literal stays small.
+		// Env value assertions: docs/architecture/plugins/api.md, "Env vars".
 		if (inp.env.length > 0) {
 			properties.push({
 				key: "envChecks",
@@ -519,17 +432,7 @@ const workerBase = slot.derived({
 	},
 });
 
-// RBAC action statements for `procedure({ rbac: [...] })` / `procedure({ can:
-// [...] })`'s type-level autocomplete, handed over by plugin-auth (its
-// `organization.ac.statements` — plain JSON, resource -> allowed actions)
-// when organization access control is configured. `null` (the seed) means no
-// plugin contributed one; `.stack/procedure.ts` falls back to
-// `Record<never, never>`, which resolves `Rbac<...>`/`Can<...>` to `never` —
-// both options become un-settable rather than accepting an arbitrary string
-// that would TypeError at request time (no organization plugin means no
-// `hasPermission` to check against).
-// `override: true` because only one plugin's statements can be authoritative
-// — auth is the only first-party contributor today.
+// RBAC statements for `rbac` and `can`: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
 const rbacStatements = slot.value<Record<string, readonly string[]> | null>({
 	source: SOURCE,
 	name: "rbacStatements",
@@ -537,20 +440,7 @@ const rbacStatements = slot.value<Record<string, readonly string[]> | null>({
 	seed: () => null,
 });
 
-// Entity vocabulary for `procedure({ reads, writes })`'s type-level
-// autocomplete — a UNION across every
-// contributor of entity names: the consumer's `entities` option names state
-// outside any plugin's tables (a repo, files), plugin-db contributes the
-// consumer's Drizzle schema table export names, plugin-auth contributes its
-// own runtime-owned tables (`account`/`session`/`user`/`verification`, plus
-// `invitation`/`member`/`organization` when `organization` is enabled) so
-// `procedure({ reads: ["member"] })` (e.g. auth's own `orgRules` procedure)
-// type-checks and participates in cache invalidation without the consumer
-// re-declaring auth's tables. `uniqueBy` fails loudly on a genuine name
-// collision between two contributors instead of silently letting one
-// shadow the other — mirrors `vite.slots.resolveAliases`. Empty list
-// (nothing contributed) falls back to `Entity = string` in
-// `.stack/procedure.ts` (reads/writes still work, just without narrowing).
+// The entity vocabulary: docs/architecture/plugins/api.md, "Entities".
 const entities = slot.list<string>({
 	source: SOURCE,
 	name: "entities",
@@ -558,14 +448,7 @@ const entities = slot.list<string>({
 	uniqueBy: (e) => e,
 });
 
-// The rendered `src/worker/routes/index.ts` barrel. Returns null when
-// there's nothing to barrel (no routes dir, or routes dir contains no
-// routable files). emitArtifact below skips the write on null — without
-// this gate the generator would emit a header-only stub into the
-// consumer's working tree on every `stack generate`, even for worker-only
-// / no-routes projects. Has no slot inputs because it reads `ctx.cwd`
-// directly via `generateRouteBarrel` / `hasRoutableFiles` — the routes
-// directory is part of the consumer's source tree, not slot data.
+// The routes barrel is null with nothing to barrel: docs/architecture/plugins/api.md, "Routes barrel".
 const routeBarrelSource = slot.derived({
 	source: SOURCE,
 	name: "routeBarrelSource",
@@ -575,9 +458,7 @@ const routeBarrelSource = slot.derived({
 	},
 });
 
-// The rendered `.stack/worker.ts` source. Pulled into `cli.slots.artifactFiles`
-// by the auto-contribution below, gated on the worker having anything to
-// run: at least one plugin runtime or at least one consumer route.
+// The `.stack/worker.ts` source: docs/architecture/plugins/api.md, "Generated files".
 const workerSource = slot.derived({
 	source: SOURCE,
 	name: "workerSource",
@@ -615,18 +496,8 @@ const workerSource = slot.derived({
 	},
 });
 
-// The rendered `.stack/procedure.ts` source — the `virtual:stack-procedure`
-// target a consumer's `src/worker/routes/*.ts` imports (mapped via a
-// tsconfig `paths` alias; see `packages/cli/src/templates/tsconfig.ts`).
-// Gated the same way `workerSource` is: no runtimes and no routes, no
-// artifact. This is the ONLY place that gate is checked —
-// `aggregateProcedure` itself is ungated (it would happily render a
-// runtimes-less chain); the slot compute is the natural place to decide
-// whether the artifact exists at all.
-//
-// Mirrors `middlewareCalls`/`middlewareImports` alongside `pluginRuntimes` so
-// the rebuilt `__chain` in `.stack/procedure.ts` extends `TContext` exactly
-// the way the real worker's chain does — see `node/procedure-codegen.ts`.
+// The `.stack/procedure.ts` source and its gate: docs/architecture/runtime.md, "`virtual:stack-procedure`".
+// The chain it rebuilds: docs/architecture/runtime.md, "The rebuilt chain".
 const procedureSource = slot.derived({
 	source: SOURCE,
 	name: "procedureSource",
@@ -755,10 +626,7 @@ export const api = plugin("api", {
 		),
 		self.slots.env.contribute(() => self.options.env),
 		self.slots.entities.contribute(() => self.options.entities),
-		// The dev half of the explicit-origins partition: local origins the
-		// consumer listed in `app.origins` are honoured, but only under
-		// STACK_DEV. The `cors` derivation above strips them from the baked
-		// production list.
+		// Local origins the consumer listed in `app.origins`: docs/architecture/plugins/api.md, "Local and dev origins".
 		self.slots.devCorsOrigins.contribute(async (ctx) =>
 			(await ctx.resolve(self.slots.localOrigins)) === "dev"
 				? ctx.app.origins?.filter(isLocalOrigin)
@@ -818,13 +686,7 @@ export const api = plugin("api", {
 			},
 		),
 
-		// Consumer middleware is an implicit contribution via two conventional
-		// files, each published via `middlewareEntries` so third-party plugins
-		// can interleave middleware around them.
-		//
-		// `middleware.ts` runs before context injection: the cheap, ctx-free
-		// guards (a header check, a redirect) that should reject a request
-		// before the worker pays for a db client.
+		// Consumer middleware convention files: docs/architecture/runtime.md, "Middleware".
 		self.slots.middlewareEntries.contribute(async (ctx) => {
 			const hasMiddleware = await ctx.fileExists("src/worker/middleware.ts");
 			if (!hasMiddleware) return undefined;
@@ -841,9 +703,7 @@ export const api = plugin("api", {
 			} as MiddlewareSpec;
 		}),
 
-		// `middleware.context.ts` runs after it, so it and the raw Hono routes
-		// it registers reach `db`/`auth` through `stackContext(c)` instead of
-		// rebuilding their own clients.
+		// `middleware.context.ts` runs after context injection: docs/architecture/runtime.md, "Middleware".
 		self.slots.middlewareEntries.contribute(async (ctx) => {
 			const has = await ctx.fileExists("src/worker/middleware.context.ts");
 			if (!has) return undefined;
@@ -860,11 +720,7 @@ export const api = plugin("api", {
 			} as MiddlewareSpec;
 		}),
 
-		// `virtual:stack-procedure` -> `.stack/procedure.ts` tsconfig `paths`
-		// alias. Consumed by `stack init`'s tsconfig template (never by `stack
-		// generate` — tsconfig.json is scaffolded once). Own presence is the
-		// gate: no runtimes means no `.stack/procedure.ts` either, but the alias
-		// is harmless to declare in that case (it just never resolves).
+		// The `virtual:stack-procedure` alias: docs/architecture/runtime.md, "`virtual:stack-procedure`".
 		cliSlots.tsconfigPaths.contribute(() => ({
 			"virtual:stack-procedure": ["./.stack/procedure.ts"],
 		})),
@@ -878,12 +734,7 @@ export const api = plugin("api", {
 		// workerSource (no runtimes, no artifact).
 		emitArtifact(".stack/procedure.ts", self.slots.procedureSource),
 
-		// `.stack/schema.ts`, the `virtual:stack-schema` target: each procedure of
-		// the router with its input as JSON Schema, its kind and its scope key.
-		// It reads the router, so it is written once the barrel and
-		// `.stack/procedure.ts` are on disk; null without routes writes nothing.
-		// `.stack/server.json` beside it tells a client app of this server what the
-		// schema does not.
+		// `.stack/schema.ts` and `.stack/server.json`: docs/architecture/plugins/api.md, "Schema".
 		cliSlots.postWrite.contribute(async (ctx) => {
 			const auth = await ctx.resolve(self.slots.serverAuth);
 			return async () => {

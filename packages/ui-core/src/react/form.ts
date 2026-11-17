@@ -1,6 +1,4 @@
-// The model of a form over its procedure on both platforms: its fields' state,
-// what each field draws, the input they make and the submit. Each platform
-// maps a `FieldModel` to its own `FormField` and control.
+// The model of a form over its procedure on both platforms: docs/architecture/ui-core/acts.md, "Forms".
 import { useState } from "react";
 import { drew, type Issue, placed } from "../acts.ts";
 import type { Act, Option, PickedFile, Run, Runs } from "../descriptors.ts";

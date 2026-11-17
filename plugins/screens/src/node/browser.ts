@@ -20,12 +20,7 @@ import {
 } from "./chrome.ts";
 import { Tab } from "./tab.ts";
 
-// The one Chrome every screens command on the machine shares. Its address is
-// `chrome.json` in `$XDG_RUNTIME_DIR/stack/` (the OS tmp dir without it); a
-// lock file makes the start and the last-one-out check atomic across
-// processes. A command opens its own browser context and disposes it at the
-// end. A Chrome a command started closes when its last context is gone; one
-// `stack screens browser` started stays until `stack screens browser stop`.
+// The shared Chrome: docs/architecture/plugins/screens.md, "Shared browser".
 
 interface BrowserState {
 	port: number;

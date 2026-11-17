@@ -609,8 +609,7 @@ export const HOPS: Row[] = hops.map(
 
 // A branching journey as a tree of three levels: a choice point's legs under
 // it, a leg's steps under that, the leg off the run's path dimmed whole. Its
-// End row is no step, so it opts out of the head's count (`counted: false`):
-// the head says 1 step, the nested legs and steps being parts of it.
+// Its End row is no step, so it opts out of the head's count: docs/architecture/ui-core/layout.md, "Head".
 export const LEGS: Row[] = [
 	{
 		key: "tree-signup",
@@ -1137,11 +1136,8 @@ export const HOST_KEYS: Row[] = [
 	},
 ];
 
-// A fact's copyable code is read to its end, as a definition is: whole on as
-// many lines as it takes, at a URL's or a path's separators first, then
-// anywhere (a fingerprint), never cut in its middle. The first is a command
-// line that wraps at its spaces and its URL, the second a path past any width
-// at 320, one segment of it a long word.
+// A fact's copyable code is read to its end: docs/architecture/ui-core/words.md, "Text runs".
+// The first is a command line that wraps at its spaces and its URL, the second a path past any width at 320, one segment of it a long word.
 export const SERVER: Row[] = [
 	{
 		key: "line",

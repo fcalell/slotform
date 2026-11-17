@@ -132,7 +132,7 @@ const LABEL = "shrink min-w-0 text-ink-meta";
 // own.
 const END = "flex-row items-center self-center shrink min-w-0";
 // A row of two lines stands its end group on the title's line, at its end,
-// and its facts line the row's whole width under both (voice 14): the title's
+// and its facts line the row's whole width under both (docs/architecture/ui-core/layout.md, "Title and facts"): the title's
 // line is its own flex line, the end group on its first line box. A control
 // taller than the line overflows it centred, into the row's gap.
 const HEAD = "flex-row items-start min-w-0";
@@ -398,7 +398,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		!Array.isArray(plain) &&
 		"quoted" in plain;
 	const whole = wrap || quotedWraps;
-	// The two-line row's title wraps to a third line before it is cut (voice 14);
+	// The two-line row's title wraps to a third line before it is cut (docs/architecture/ui-core/layout.md, "Title and facts");
 	// a one-line row's stays on its line.
 	const titleLines = whole ? undefined : lined ? ROW_TITLE_LINES : 1;
 	const box = cn(titleRole, FIGURES, TITLE);
@@ -535,7 +535,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		acting ||
 		tree?.fold !== undefined;
 	// On the phone a row of two lines stands its end group on the title's line
-	// and runs its facts line the row's whole width under both (voice 14), its
+	// and runs its facts line the row's whole width under both (docs/architecture/ui-core/layout.md, "Title and facts"), its
 	// leading on the title's line with them; an entry, the steps and a label
 	// keep the end group centred on the row.
 	const headed =

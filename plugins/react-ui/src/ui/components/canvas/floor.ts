@@ -9,9 +9,7 @@ import { spacing } from "../../lib/media.ts";
 import { type Box, spreadBoxes } from "./geometry.ts";
 import { EXTENT } from "./view.ts";
 
-// A node's smallest text is the caption role, and its size is the text floor:
-// the same number, so a node draws its words from zoom 1 up and its glyph alone
-// below. Both are read from the type scale at the desktop body size.
+// A node's text floor: docs/architecture/plugins/react-ui.md, "Canvas".
 export const TEXT_FLOOR = Math.round(
 	BODY_SIZE.desktop * TYPE_SCALE.caption.size,
 );
@@ -22,9 +20,7 @@ export const TEXT_FLOOR = Math.round(
 // node is its glyph alone. Raised, never lowered, by `overviewFloorFor`.
 export const OVERVIEW_FLOOR = 0.5;
 
-// The variable the region keeps at `1 / zoom`, and the style that holds a part
-// of the layer at its own size on screen: a coordinate of the layer, known at
-// run time, written outside React.
+// The variable that holds a part at its own size on screen: docs/architecture/plugins/react-ui.md, "Canvas".
 export const UNZOOM_VAR = "--canvas-unzoom";
 export const UNZOOM = { scale: `var(${UNZOOM_VAR})` };
 

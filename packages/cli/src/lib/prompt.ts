@@ -70,25 +70,15 @@ export function createLogContext(): CommandContext<unknown>["log"] {
 
 interface PromptContextOptions {
 	/**
-	 * When true, prompt methods resolve immediately with sensible defaults
-	 * instead of rendering an interactive prompt. Used for CI and scripted
-	 * scaffolding where no stdin is available.
-	 *
-	 * - `text(msg, { default })` returns the default (or empty string)
-	 * - `confirm(msg)` returns false
-	 * - `select(msg, options)` returns the first option's value
-	 * - `multiselect(msg, options)` returns an empty array
+	 * When true, prompt methods resolve at once with defaults instead of rendering.
+	 * Prompts: docs/architecture/commands.md, "Prompts".
 	 */
 	nonInteractive?: boolean;
 }
 
 /**
- * Shared `prompt` adapter backed by `@clack/prompts`. Cancels exit the
- * process via `unwrap` so plugin handlers don't need to check for cancel
- * sentinels.
- *
- * Pass `{ nonInteractive: true }` to skip rendering and resolve with
- * defaults — for CI and `stack init --plugins ...` flows.
+ * Shared `prompt` adapter backed by `@clack/prompts`.
+ * Prompts: docs/architecture/commands.md, "Prompts".
  */
 export function createPromptContext(
 	options: PromptContextOptions = {},

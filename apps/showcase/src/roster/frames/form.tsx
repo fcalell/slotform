@@ -163,12 +163,8 @@ function Grouped(props: { read: Selection<unknown> }) {
 	);
 }
 
-// A form's controls show their placeholder or value whole: a long label makes
-// the label column wide, and the Pane stands the value under its label where it
-// cannot hold both (`definitionsOneRow`), so no input and no pick cuts what it
-// shows; a toggle has no value to stand under its name, so it keeps its name's
-// line at every width (voice 14). The frame logs an error where one is cut or
-// a toggle falls under its name or off its name's line (a description beneath).
+// A form's controls show their placeholder or value whole: docs/architecture/ui-core/layout.md, "Definition rows".
+// The frame logs an error where one is cut or a toggle falls under its name or off its name's line (a description beneath).
 const SETTLE = 60;
 function ControlsJudged({ children }: { children: ReactNode }) {
 	const host = useRef<HTMLDivElement>(null);

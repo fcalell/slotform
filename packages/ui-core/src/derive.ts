@@ -96,10 +96,7 @@ export interface ResolvedTheme {
 	// The two family stacks: the knob's family, its metric fallback face, then
 	// the platform fallback.
 	fonts: Record<FontRole, string>;
-	// Numbers, so a platform that animates outside CSS (a native timing
-	// call) reads the same record the web renders as custom properties:
-	// each duration in milliseconds, each easing as its four cubic-bezier
-	// control values.
+	// The motion scale as numbers: docs/architecture/ui-core/motion.md, "One table of numbers".
 	motion: {
 		durations: Record<Duration, number>;
 		loop: number;
@@ -152,10 +149,7 @@ function hueOf(hue: Hue, knobs: Knobs): number {
 	return hue;
 }
 
-// A declared value, its chroma held inside sRGB at the same lightness: a
-// re-hued accent then keeps its luminance and contrast and loses saturation
-// instead of clipping to another color. The sheet's own values are already
-// in gamut, so at the default hue nothing moves.
+// Gamut clamp: docs/architecture/ui-core/tokens.md, "Derivation".
 function literal(value: ColorValue, knobs: Knobs): Resolved {
 	const h = hueOf(value.hue, knobs);
 	return {
@@ -168,10 +162,7 @@ function literal(value: ColorValue, knobs: Knobs): Resolved {
 
 const HOLD_STEP = 0.005;
 
-// The declared lightness, moved away from each ground in 0.005 steps until
-// every contract holds, the chroma re-clamped at each step. Each ground is
-// the luminance a contract measures against. The sheet carries the held
-// value at its own hue.
+// Contrast hold: docs/architecture/ui-core/tokens.md, "Derivation".
 function holding(
 	color: Resolved,
 	contracts: readonly Holds[],

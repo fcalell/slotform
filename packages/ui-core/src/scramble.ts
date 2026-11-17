@@ -1,7 +1,4 @@
-// The scramble, free of any framework: what a
-// glyph slot draws instead of the pulse when the theme's `loading` says so.
-// Every function is pure over the tick it is given, so both platforms draw the
-// same frame for the same slot, and one ticker serves every slot of a page.
+// The scramble, free of any framework: docs/architecture/ui-core/motion.md, "Scramble and decode".
 
 import { createStore } from "./store.ts";
 import type { LoadingSlot } from "./tokens.ts";

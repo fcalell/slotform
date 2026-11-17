@@ -73,11 +73,7 @@ export async function generateRouteTree(
 	await new Generator({ config, root }).run();
 }
 
-// The declarations that register the app's router with TanStack Router, so
-// `Link`, `useNavigate` and `useParams` are typed by the route tree. They
-// live in `.stack/routes.d.ts`, the file the consumer's type-check loads;
-// the entry, which builds the router itself, never enters that program (its
-// providers module is Vite-only).
+// The router's `Register` declaration: docs/architecture/plugins/react.md, "Generated files".
 export const ROUTES_DTS = `import type { createRouter } from "@tanstack/react-router";
 import type { routeTree } from "./routeTree.gen.ts";
 

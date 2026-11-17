@@ -1,13 +1,6 @@
-// Where a text may and may not break, as the web draws it (`CodeBound`,
-// `CodeWhole`, a Section title's hyphens): the platform breaks a line after a
-// hyphen and never before one, and a long path or URL has no place to break but
-// anywhere. Pure strings, so a test reads them.
+// Where a text may and may not break: docs/architecture/plugins/native-ui.md, "Text breaks". Pure strings, so a test reads them.
 
-// A word joiner (U+2060) after a hyphen takes the platform's break after it
-// away, and before one takes the break before it away; a zero-width space
-// (U+200B) gives a break after a path's or URL's separator. Only for a text
-// drawn and never selected: a copy act copies the source, so neither character
-// leaves the screen.
+// The joiner and the break are for a text drawn and never selected: docs/architecture/plugins/native-ui.md, "Text breaks".
 const JOINER = "\u2060";
 const BREAK = "\u200B";
 

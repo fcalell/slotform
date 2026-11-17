@@ -1,9 +1,6 @@
 import { createStore } from "@fcalell/ui-core/store";
 
-// The colour tokens a canvas draws with. A canvas has no class to restyle, so it
-// reads the roles' resolved values off its own element, once per mode: the
-// version moves when the mode or the density pin changes on the root, and a
-// reader draws again.
+// The colour tokens a canvas draws with: docs/architecture/plugins/react-ui.md, "Canvas".
 const version = createStore(0, {
 	source: (store) => {
 		const watch = new MutationObserver(() => store.set(store.get() + 1));

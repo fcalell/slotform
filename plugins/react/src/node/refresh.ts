@@ -1,13 +1,7 @@
 import { allowScript, scriptHash } from "@fcalell/plugin-vite/csp";
 import type { Plugin } from "vite";
 
-// `@vitejs/plugin-react` puts React Refresh's preamble on the dev server's
-// page as an inline script. A policy that restricts scripts blocks it, and
-// every component module then throws "can't detect preamble", so the dev
-// server's policy also allows the preamble by hash. `preambleCode` is the
-// installed plugin's own (`react.preambleCode`, `__BASE__` standing for the
-// config's `base`), so the hash follows an upgrade. A build serves no
-// preamble and keeps the policy as it is.
+// React Refresh's preamble in the dev policy: docs/architecture/plugins/react.md, "Dev CSP and React Refresh".
 export function refreshPolicyPlugin(preambleCode: string): Plugin {
 	return {
 		name: "fcalell:refresh-policy",

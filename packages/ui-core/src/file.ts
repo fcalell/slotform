@@ -2,12 +2,7 @@ import type { PickedFile } from "./descriptors.ts";
 import { formatterFor } from "./format.ts";
 import type { Words } from "./tokens.ts";
 
-// A file control's `accept` entries: a MIME type (`text/csv`), a MIME family
-// (`image/*`) or an extension with its dot (`.har`). A file matches when any
-// entry does; no entries accept every file. The web's file dialog narrows
-// itself by `accept`, but a dropped file and the phone's document picker
-// (which names MIME types alone) can still bring any, so the control checks
-// every file it is handed.
+// A file control's `accept` entries: docs/architecture/ui-core/components.md, "File controls".
 export function accepts(
 	file: Pick<PickedFile, "name" | "type">,
 	accept: readonly string[],
@@ -53,9 +48,7 @@ export function kindsOf(
 	return [...new Set(kinds)];
 }
 
-// What the phone's document picker is asked for: the MIME types when `accept`
-// names nothing else, and every type otherwise, since the system picker
-// filters by MIME type alone and an extension would hide files it matches.
+// What the phone's document picker is asked for: docs/architecture/ui-core/components.md, "File controls".
 export function pickerTypes(accept: readonly string[]): string[] {
 	const types = accept.map((entry) => entry.trim());
 	return types.length === 0 || types.some((entry) => entry.startsWith("."))
@@ -63,9 +56,7 @@ export function pickerTypes(accept: readonly string[]): string[] {
 		: types;
 }
 
-// A file's size in the viewer's language: whole bytes below a thousand
-// ("39 bytes"), then kilobytes, megabytes and gigabytes at one decimal below
-// ten ("9.1 kB", "12 kB"). Both platforms read it, so one file reads the same.
+// A file's size in the viewer's language: docs/architecture/ui-core/words.md, "Formatters".
 const SIZE_UNITS = ["byte", "kilobyte", "megabyte", "gigabyte"] as const;
 export function fileSize(bytes: number): string {
 	let value = Math.max(0, bytes);

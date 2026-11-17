@@ -4,10 +4,7 @@ import { z } from "zod";
 // and the codegen contribution to `api.slots.routePrefixes` can never drift.
 export const AUTH_PREFIX = "/api/auth";
 
-// The discovery documents an MCP client reads before it opens an
-// authorization: the authorization server's and the protected resource's.
-// Served by better-auth at the issuer-inserted and resource-inserted
-// aliases below these prefixes, so each prefix is a worker route.
+// Discovery prefixes of the authorization server and the protected resource: docs/architecture/plugins/auth.md, "MCP OAuth".
 export const OAUTH_DISCOVERY_PREFIXES = [
 	"/.well-known/oauth-authorization-server",
 	"/.well-known/oauth-protected-resource",
@@ -27,10 +24,7 @@ const rateLimiterIpSchema = z
 	})
 	.default({ binding: "RATE_LIMITER_IP", limit: 100, period: 60 });
 
-// Cloudflare rate-limiter bindings only accept `period` 10 or 60 (seconds) —
-// https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/.
-// Default: 3 sends per 60s, an OTP-send abuse gate that still allows one quick
-// resend.
+// Email limiter defaults and the 10 or 60 s period: docs/architecture/plugins/auth.md, "Rate limiting".
 const rateLimiterEmailSchema = z
 	.object({
 		binding: z.string().default("RATE_LIMITER_EMAIL"),
@@ -137,9 +131,7 @@ export const authOptionsSchema = z
 					.optional(),
 			})
 			.optional(),
-		// The plugin owns the identity tables, so they carry no consumer columns:
-		// data a consumer keeps per user or per organization lives in its own
-		// table, keyed by that id.
+		// Identity tables carry no consumer columns: docs/architecture/plugins/auth.md, "Schema tables".
 		user: z
 			.object({
 				// Account deletion (App Store 5.1.1(v) requires it for a native app).
@@ -169,14 +161,7 @@ export const authOptionsSchema = z
 				apple: z.union([z.boolean(), appleProviderConfigSchema]).optional(),
 			})
 			.optional(),
-		// Native (Expo) consumer flag. When set, the worker enables Better Auth's
-		// server-side `expo()` plugin — required for a native client's deep-link /
-		// cookie / origin handling — and adds the deep-link scheme expo registers
-		// (`api.slots.nativeScheme`) to `trustedOrigins`. The CSRF origin check runs
-		// even for native ID-token sign-in, so the scheme must be trusted.
-		// A server that is no Expo app (a web or node server serving a separate phone
-		// app) names the phone's scheme: `expo: { scheme: "acme" }`, which wins
-		// over an `expo()` plugin's.
+		// Native (Expo) consumer flag: docs/architecture/plugins/auth.md, "Native client".
 		expo: z
 			.union([z.boolean(), z.object({ scheme: z.string().min(1) })])
 			.optional(),
@@ -278,11 +263,7 @@ function resolveProvider(
 	return resolved;
 }
 
-// Normalize the consumer's `socialProviders` option into resolved env-var
-// references. `true` enables a provider with conventional var names; an object
-// overrides them. Disabled / absent providers are omitted, so the result keys
-// are exactly the enabled providers — both the secrets contribution and the
-// baked runtime config iterate this.
+// Normalize `socialProviders` into env-var references: docs/architecture/plugins/auth.md, "Social providers".
 export function resolveSocialProviders(
 	input: ResolvedAuthOptions["socialProviders"],
 ): Partial<Record<SocialProviderName, ResolvedSocialProvider>> {
@@ -318,15 +299,7 @@ export type OtpType =
 	| "forget-password"
 	| "change-email";
 
-// Single source for the consumer callback file's shape. Both the plugin
-// declaration (`callbacks:` in `./index.ts`, node-side) and the worker
-// runtime's `AuthCallbacks` type (`./worker/index.ts`) derive their payload
-// types from here, so the two can never drift apart. Every callback is
-// optional in the type, each gated on the option that turns its feature on;
-// `sendOTP` is required at runtime while `emailOtp` (on by default) is, and
-// `sendMagicLink` while `magicLink` is. Every payload carries `env`, so a
-// callback reaches per-request bindings (an email send binding, a queue)
-// instead of module scope.
+// The callback file's payload shapes: docs/architecture/plugins/auth.md, "Callbacks".
 export interface AuthCallbackPayloads<TEnv = unknown> {
 	sendOTP: { email: string; code: string; type: OtpType; env: TEnv };
 	// `url` is the link to send; `token` is the plain token it carries.

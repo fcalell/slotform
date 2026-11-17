@@ -51,11 +51,7 @@ const RANGES = [
 	{ value: "90d", label: "90 days" },
 ];
 
-// The frames below judge their tracks' scroll and log an error where it breaks:
-// a track scrolls no further than its chosen segment needs (one that stands
-// whole at the track's start leaves the track at the start, the segments before
-// it in view), and fades at each edge that has more, so a segment at an edge is
-// never cut with nothing to say so.
+// The frames below judge their tracks' scroll and log an error where it breaks: docs/architecture/ui-core/components.md, "Segments".
 const SETTLE = 30;
 const FADES =
 	typeof CSS !== "undefined" && CSS.supports("animation-timeline: scroll()");

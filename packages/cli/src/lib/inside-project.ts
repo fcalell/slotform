@@ -1,10 +1,8 @@
 import { isAbsolute, relative, resolve, sep } from "node:path";
 import { StackError } from "./errors.ts";
 
-// Resolves `path` against `cwd` and answers the absolute path, refusing one
-// that is the project root itself or lies outside it. Contributed paths
-// (`removeFiles`, artifact `path`) are written and deleted, so a `..` segment
-// or an absolute path must never reach the filesystem.
+// Resolves `path` against `cwd`, refusing the root itself or a path outside it.
+// Path containment: docs/architecture/codegen.md, "Path containment".
 export function insideProject(cwd: string, path: string): string {
 	const absolute = resolve(cwd, path);
 	const rel = relative(cwd, absolute);

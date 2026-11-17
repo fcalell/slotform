@@ -21,9 +21,7 @@ export interface McpDefinition {
 	tools: Partial<Record<string, string>>;
 }
 
-// `src/worker/mcp.ts` default-exports this, typed against the routes barrel:
-// `defineMcp<typeof routes>({ instructions, tools })`. It checks nothing at
-// runtime; the worker refuses an unservable tool when it is built.
+// `defineMcp`: docs/architecture/plugins/api.md, "MCP".
 export function defineMcp<TRoutes>(definition: {
 	instructions: string;
 	tools: { [K in ProcedurePath<TRoutes>]?: string };

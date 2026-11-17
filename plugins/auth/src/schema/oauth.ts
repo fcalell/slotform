@@ -1,37 +1,7 @@
-// The tables of the OAuth provider for MCP: `oauthClient`, `oauthResource`,
-// `oauthClientResource`, `oauthRefreshToken`, `oauthAccessToken`,
-// `oauthConsent` and `oauthClientAssertion` from `@better-auth/oauth-provider`,
-// and the signing keys' `jwks` from better-auth's `jwt` plugin, as Drizzle
-// SQLite tables. The canonical shape `auth generate` (better-auth's CLI)
-// emits for a sqlite drizzle adapter with `jwt()`, `mcp()` and `cimd()` on
-// better-auth 1.7.7, ported as `./passkey.ts` is. A foreign key carries
-// `onDelete` exactly where better-auth's own field definition names one (the
-// resource link's two cascades, a session's `set null`), as `./organization.ts`
-// does: the generator's cascade default is not ported, so a user with grants
-// is undeletable, as one with memberships is. The generator's `user` and
-// `session` relation inverses are left out, since `./index.ts` must not
-// reference a table the consumer only migrates when `mcp` is on. Regenerate
-// and diff after a Better Auth bump.
-//
-// Two departures from the generator's output. It types every JSON and string
-// list field `text(..., { mode: "json" })`, but better-auth's adapter already
-// writes those as JSON text for sqlite, so drizzle's json mode would encode
-// the text a second time and a drizzle read would answer a string, not the
-// value. They are plain `text` here, which stores what better-auth stores; a
-// list is read with `scopesOf` below.
-//
-// One addition the generator does not emit: a unique index on the consent's
-// client, user and reference, so a grant is one row per client, member and
-// organization however the authorization races.
-//
-// Shipped from a separate `@fcalell/plugin-auth/schema/oauth` subpath so a
-// consumer only re-exports (and only migrates) these tables when
-// `auth({ mcp: true })` is enabled; see plugins/auth/README.md.
+// The OAuth provider's tables for MCP, with the `jwt` plugin's `jwks`, as Drizzle SQLite tables.
+// Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// The drizzle types the emitted declarations spell, named here so they are
-// spelled through plugin-db, the one package drizzle resolves from. Unnamed,
-// tsc writes `import("drizzle-orm/...")`, which a consumer cannot resolve
-// from this package, and every table and row read through it is `any`.
+// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/auth.md, "Schema tables".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
 import type {
 	Many,

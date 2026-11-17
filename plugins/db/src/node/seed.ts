@@ -115,9 +115,7 @@ function insertStatements(
 	return statements;
 }
 
-// `DELETE` of rows whose primary key is no longer in the seed. Kept as a
-// `NOT IN` so FK links pointing at surviving rows are untouched and rows
-// deleted here rely on the schema's `ON DELETE SET NULL` to spare user data.
+// The prune is a DELETE ... NOT IN: docs/architecture/plugins/db.md, "Seed".
 function pruneStatement(
 	table: string,
 	pkColumns: string[],
@@ -135,13 +133,7 @@ function pruneStatement(
 	return `DELETE FROM ${ident(table)} WHERE (${target}) NOT IN (${keep});`;
 }
 
-// Pure SQL builder — the whole seed as idempotent statements. With `prune`
-// (the default), tables with a primary key upsert-then-prune; tables without
-// one are replaced wholesale; an empty seed for a table prunes it. Without
-// `prune`, only upserts remain: a table with a primary key keeps every row
-// outside the seed, and a table with no primary key or seeded with `[]` is
-// left alone, since neither can be written without deleting. Fully
-// unit-testable without a database.
+// The seed SQL builder: docs/architecture/plugins/db.md, "Seed".
 export function buildSeedSql(
 	specs: TableSeedSpec[],
 	{ prune = true }: { prune?: boolean } = {},
@@ -247,9 +239,7 @@ function tableToSpec(
 	return { table: tableName, pkColumns: [...pkNames], rows: specRows };
 }
 
-// A seeded database is pruned (rows outside the seed deleted) locally always,
-// and remotely only when the seed file exports `prune = true`: the deployed
-// database holds rows users wrote, which a deploy must not delete unasked.
+// Prune on a remote seed is opt-in: plugins/db/guide/seed.md, "When it runs".
 interface LoadedSeed {
 	specs: TableSeedSpec[];
 	prune: boolean;
@@ -295,13 +285,7 @@ async function buildSeedSqlFromCwd(
 	return sql.length ? sql : null;
 }
 
-// Apply the seed to the target database. d1 goes through
-// `wrangler d1 execute --file` (local hits the same miniflare D1 `wrangler dev`
-// reads; remote hits the deployed DB, upserting only unless the seed file
-// exports `prune = true`); sqlite executes directly against the file.
-// `scratch` is a `stack screens serve` run's own database: the sqlite file, or
-// the d1 miniflare state directory. Returns `false` when there was nothing to
-// seed.
+// Where the seed applies: docs/architecture/plugins/db.md, "Seed".
 export async function applySeed(
 	cwd: string,
 	options: DbOptions,

@@ -38,10 +38,7 @@ import { DESKTOP_MEDIA, ROOM_SCOPE, TOUCH_MEDIA } from "../density.ts";
 import type { CssBlock, CssLayer, CssSourceInline } from "../types.ts";
 import { renderMediaRule, renderRule } from "./codegen.ts";
 
-// The tokens the web owns on top of the shared contract: the keyframe
-// animations, timed by the contract's rungs and curves. `content-show` and
-// `content-hide` are keyframes in `globals.css`; `spin` is Tailwind's own,
-// which it emits beside this `--animate-spin`.
+// Web-only keyframe tokens: docs/architecture/ui-core/motion.md, "Web motion".
 const WEB_ONLY: Record<string, string> = {
 	"--animate-content-show":
 		"content-show var(--transition-duration-base) var(--ease-out)",
@@ -59,9 +56,7 @@ export function themeBlock(resolved: ResolvedTheme): CssBlock {
 	};
 }
 
-// Every contract utility, generated whether or not a source spells it: the
-// showcase's foundations page builds its classes from the token names. The vocabulary is the contract's, not a
-// usage scan's; the cost is the whole contract in every sheet.
+// Every contract utility is generated: docs/architecture/plugins/react-ui.md, "Stylesheet assembly".
 export function tokenSources(): CssSourceInline[] {
 	const set = (names: readonly string[]) => `{${names.join(",")}}`;
 	return [
@@ -94,15 +89,7 @@ export function rootLayer(resolved: ResolvedTheme): CssLayer {
 	return { name: "base", content: renderRule(":root", rootTokens(resolved)) };
 }
 
-// The desktop set draws under the density rule's desktop query: it overrides
-// the seeded touch set in `@layer base`, the same cascade the dark layer
-// rides, so every cell that names a size or a type role (`min-h-control`,
-// `text-body`) follows with no class of its own. `data-density` on the root
-// pins any set on any device, which is how the showcase and a board
-// address a density. The room set is the one a `Place` declares: its values are
-// `calc`s over `--room-unit`, which the scope holds itself, so the unit
-// resolves where it is read; the scope comes last so a root pinned to the
-// room beats the desktop query.
+// The desktop and room sets: docs/architecture/plugins/react-ui.md, "Density".
 const PINNED_DESKTOP = ':root[data-density="desktop"]';
 const PINNED_TOUCH = ':root[data-density="touch"]';
 
@@ -125,11 +112,7 @@ export function densityLayer(resolved: ResolvedTheme): CssLayer {
 
 const slot = (selector: string) => `${selector} & {\n\t@slot;\n}`;
 
-// `touch:` draws where the density layer draws the touch set: under the touch
-// pin, or with no desktop pin outside the desktop query, and inside a room
-// scope, which draws the touch structure. It is how a
-// molecule's structure (not a token) follows density; a size or a type role
-// follows through its variable and never needs it.
+// The `touch:` variant: docs/architecture/plugins/react-ui.md, "Density".
 export function touchVariant(): CssBlock {
 	return {
 		kind: "variant",
@@ -142,23 +125,7 @@ export function touchVariant(): CssBlock {
 	};
 }
 
-// A Pane is the `page` size container and a Place the `place` one:
-// `page-<breakpoint>:` / `page-max-<breakpoint>:` draw from or below a
-// breakpoint's width of the Pane, so a molecule inside decides its form by
-// the room its Pane has rather than the viewport's, and `place-…:` by the
-// the place's, which is how a Pane knows whether its Place stands it alone.
-// A list row that may stand one line is the `row` container: `row-two-line:`
-// draws below `rowOneLine` of the row, where its meta stands under the title.
-// A rules list is the `rules` container: `rules-stacked:` draws below
-// `rulesOneRow` of the list, where each rule stacks its terms.
-// `definitions-stacked:` draws below `definitionsOneRow` of a Pane, where a
-// definition row stands its value under its label.
-// An action bar is the `acts` container: `acts-stacked:` draws up to
-// `actsStackedMax` of the bar, where its acts stack one per row.
-// A bar chart's time between its ends is the `time` container, a box as wide
-// as its room in the plot over `TIME_ROOM` times its longest time's characters
-// (in the time's own font), so `time-fits:` draws the time where the room
-// holds them: one `ch` of that box is the whole test.
+// The size containers and their variants: docs/architecture/plugins/react-ui.md, "Size containers and variants".
 export function pageVariants(resolved: ResolvedTheme): CssBlock[] {
 	const size = resolved.knobs.size;
 	const row: CssBlock = {
@@ -223,15 +190,7 @@ export function safeAreaUtilities(): CssBlock[] {
 	];
 }
 
-// Each mode is a class scope in `@layer base`, not a third block kind:
-// `@theme` compiles into `@layer theme` and Tailwind sorts `base` after it,
-// so the layered values win over the seeded light ones. `.dark` on the root
-// is the mode; `.light` inside it restores the light set for its subtree, so
-// a light frame renders light under a dark page. `color-scheme` travels with
-// the colors so UA controls follow the scope. A raised ground's fill class
-// then re-points the hairline for its subtree, after the mode scopes so an
-// element that is both keeps the re-point; a soft ground's fill class re-points
-// it to the strong edge.
+// Each mode is a class scope in `@layer base`: docs/architecture/plugins/react-ui.md, "Modes".
 export function modeLayer(resolved: ResolvedTheme): CssLayer {
 	const rules = MODES.map((mode) =>
 		renderRule(`.${mode}`, {

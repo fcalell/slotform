@@ -1,8 +1,4 @@
-// CSS escaping/validation for the native-ui `global.css` codegen.
-//
-// The escape/validation primitives are a shared security boundary — see
-// `@fcalell/cli/css`. This thin layer only stamps the plugin label into error
-// messages so a thrown error points at native-ui's input.
+// CSS escaping for the native-ui `global.css` codegen: docs/architecture/codegen.md, "CSS escape boundary".
 import {
 	cssIdent as cssIdentBase,
 	cssString,

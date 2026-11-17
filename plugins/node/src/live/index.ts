@@ -5,10 +5,7 @@ import type { z } from "zod";
 import { PAUSE_AFTER, type WsClient } from "../client/index.ts";
 import type { ChannelDef, MessageSchemas } from "../ws/index.ts";
 
-// A channel as a read: its frames fold into one value, written to the query
-// cache as they arrive, so a frame holds it like any other read (`states.md`
-// §8). The queryFn stays in flight for the subscription's life: that is what
-// ties the subscription to the observers, ending it when the last one leaves.
+// A channel as a read: docs/architecture/plugins/node.md, "Channels".
 
 // One handler per message type; a type without one is ignored. The first
 // value a handler returns is the read's first data (the snapshot). A handler

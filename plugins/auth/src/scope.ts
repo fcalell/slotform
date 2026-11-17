@@ -10,16 +10,7 @@ import {
 	organization as organizationTable,
 } from "./schema/organization.ts";
 
-// A tenancy level: a row found by its `id`, whose parent is found by a
-// column on that row, the chain ending at the organization, where the
-// caller's membership decides access. A descriptor and nothing else, so the
-// scopes module is isomorphic: the worker resolves it, the web names a
-// boundary with the same object. The consumer's predicates are drizzle `SQL`
-// fragments for the same reason.
-//
-// The procedure factory in plugin-api reads only `name` (the input key is
-// `${name}Id`, the context gains the chain's rows) and hands the descriptor
-// to the resolver the auth runtime puts on the request context.
+// A tenancy level is a descriptor: docs/architecture/plugins/api.md, "Scope".
 
 type ScopeTable = SQLiteTable & { id: SQLiteColumn };
 
@@ -61,9 +52,7 @@ export const organization: Scope<
 	where: null,
 };
 
-// Which `member` rows count as a membership at all: a fragment over the
-// `member` table, which the root lookup already has in its `FROM`, correlated
-// to any consumer table it needs. The scopes module exports at most one.
+// Which `member` rows count as a membership: docs/architecture/plugins/auth.md, "Scopes".
 export interface Membership {
 	readonly kind: "membership";
 	readonly where: SQL;
@@ -73,10 +62,7 @@ export function defineMembership(where: SQL): Membership {
 	return { kind: "membership", where };
 }
 
-// A resolved level's row lands in the procedure context under its scope's
-// name, so a scope named after a key the context already carries would
-// overwrite it. plugin-api's base context, checked against its type so a key
-// it gains is refused here too:
+// Scope names refused: keys of plugin-api's base context, checked against its type: docs/architecture/plugins/auth.md, "Scopes".
 type BaseContextKey = keyof {
 	[K in keyof BaseContext as string extends K ? never : K]: unknown;
 };
@@ -87,9 +73,7 @@ const BASE_CONTEXT: Record<BaseContextKey, true> = {
 	resHeaders: true,
 	executionCtx: true,
 };
-// ...and what the runtimes and middlewares add before a scope resolves:
-// plugin-api's dev flag, plugin-db's client, this plugin's runtime and auth
-// middleware, the MCP endpoint's caller, and the organization level.
+// ...and the keys the runtimes and middlewares add before a scope resolves: docs/architecture/plugins/auth.md, "Scopes".
 const RESERVED = new Set([
 	...Object.keys(BASE_CONTEXT),
 	"_devMode",

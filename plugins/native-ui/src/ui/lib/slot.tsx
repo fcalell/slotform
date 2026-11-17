@@ -6,14 +6,8 @@ import { clipWhen, Painted, PaintText } from "./paint";
 import { Decoding } from "./scramble";
 import { Roll } from "./swap";
 
-// A figure or id of a read, in both its forms: its filler in a `PaintText`
-// while `painted`, then its `text`. The slot is one instance across the
-// switch, so it knows whether it waited: when the paint stood for `waitDelay`
-// and the theme scrambles its kind, the text decodes as it arrives (otherwise
-// it lands at once), and it rolls when `of`, its number,
-// changes while shown. The layout is the loaded one from the first frame: the
-// decode is paint alone. `className`, `style` and `numberOfLines` are its
-// text's; `text` undefined draws an empty text once the read is here.
+// A figure or id of a read, in both its forms: docs/architecture/ui-core/reads.md, "Waiting paint".
+// `className`, `style` and `numberOfLines` are its text's; `text` undefined draws an empty text once the read is here.
 export function Decoded(props: {
 	role: "figure" | "id";
 	painted?: boolean;

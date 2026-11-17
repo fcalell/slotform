@@ -490,9 +490,7 @@ export function FieldBody(props: Body) {
 		);
 	if (alone) {
 		const group = form === "options" || form === "segments";
-		// A field that fills a line takes the label column of the run of rows it
-		// stands in (a `Card`); a toggle, a slider and a group of controls keep
-		// their name over them.
+		// A field that fills a line takes the label column: docs/architecture/ui-core/layout.md, "Rows grid".
 		const lined = !atEnd && !group && form !== "slider";
 		const head =
 			form === "slider" ? (
@@ -643,7 +641,7 @@ export function FieldBody(props: Body) {
 				stacked && FIELD_OPTIONAL_BOX,
 				// A toggle has no value to stand under its name: on touch and in a
 				// narrow Pane the name and the toggle keep one line, as a row's label
-				// and its end group do (voice 14).
+				// and its end group do (docs/architecture/ui-core/layout.md, "Definition rows").
 				atEnd && cn(ASIDE, TOGGLE_GRID),
 			)}
 		>

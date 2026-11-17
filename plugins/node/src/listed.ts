@@ -1,7 +1,6 @@
 /**
- * Whether a file of a directory is a module `loadModules` lists, by name without the extension. A
- * test, a declaration and an `index` are not modules. The one rule `loadModules` (at run time) and
- * the bundle (at build) both apply.
+ * Whether a file of a directory is a module `loadModules` lists, by name without the extension.
+ * The one rule `loadModules` and the bundle apply: docs/architecture/plugins/node.md, "Services".
  */
 export function isListedModule(file: string): boolean {
 	return (

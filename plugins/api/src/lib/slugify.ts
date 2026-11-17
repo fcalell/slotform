@@ -1,8 +1,6 @@
 import slugifyPkg from "slugify";
 
-// The words a slug may never be: the addresses every stack app serves or a
-// router reads as an act. plugin-auth refuses them as organization slugs,
-// beside the consumer's own top-level routes.
+// Reserved slugs: docs/architecture/plugins/auth.md, "Reserved slugs".
 export const RESERVED_SLUGS = [
 	"admin",
 	"api",

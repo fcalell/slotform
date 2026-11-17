@@ -502,7 +502,7 @@ export function FieldBody(props: Body) {
 			</View>
 		);
 	// A toggle has no value to stand under its name: the name and the toggle
-	// keep one line, as a row's label and its end group do (voice 14), the
+	// keep one line, as a row's label and its end group do (docs/architecture/ui-core/layout.md, "Definition rows"), the
 	// description or the error under both.
 	if (atEnd)
 		return (

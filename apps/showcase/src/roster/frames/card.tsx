@@ -11,9 +11,7 @@ const NOTE =
 	"Every pull request gets its own preview URL, torn down when the branch merges.";
 const change = () => {};
 
-// A usage window: its meter is a Stats, a card of its own, and the reserve a
-// part that is no row, in a Card beside it. A Stats never stands in a Card (a
-// box in a box).
+// A usage window: its meter is a Stats and the reserve a part that is no row, in a Card beside it: docs/architecture/ui-core/layout.md, "Cards".
 const WINDOW = [
 	{
 		label: "Used",

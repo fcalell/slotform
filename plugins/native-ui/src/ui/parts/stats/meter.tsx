@@ -114,20 +114,8 @@ interface MeterLine {
 
 type MeterProps = MeterBase & MeterLine;
 
-// The meter form of a bound stat, a cell like the plain one: the label in meta
-// (it wraps at its words), the share in percent as its figure under it, the bar
-// under them filling by the share in the meta ink,
-// amber once near full (at its `mark` when it has one) and `danger` once over
-// (a `goal`, tests passing of all of them, the meta ink short of it and the
-// good tone once reached, never amber or `danger`), the line under the bar:
-// the `line`, or the counts as links. A `value` or
-// `bound` that is a selection paints in its place until its read lands; once
-// its read ended the meter stands empty (no share, no fill) in the same box.
-// The meter is the frame of the selections it draws: when one failed and no
-// enclosing frame holds that read, the label stays, the share slot shows the
-// failure mark and the retry icon, the line under the bar reads "This didn't
-// load." and pressing the meter retries. React Native has no meter role: it is
-// a progress bar. Outside the package's exports.
+// The meter form of a bound stat: docs/architecture/plugins/native-ui.md, "Stats meter". Its frame forms: docs/architecture/ui-core/reads.md, "What a frame draws".
+// React Native has no meter role, so it is a progress bar. Outside the package's exports.
 export function Meter({
 	label,
 	value,

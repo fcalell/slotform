@@ -11,9 +11,7 @@ export interface HubSocket {
 	readyState: number;
 }
 
-// The close code and reason a socket gets when its session ends: 1008, a
-// policy violation, so the client's reconnect meets the upgrade's own
-// refusal rather than a socket that just dropped.
+// A session end closes with 1008: docs/architecture/plugins/node.md, "Channels".
 const SESSION_ENDED = { code: 1008, reason: "session ended" };
 
 const OPEN = 1;
@@ -31,13 +29,8 @@ export interface ChannelConnection<S extends MessageSchemas> {
 	// state on (presence, a watch), the same across every message and the
 	// unsubscribe.
 	id: string;
-	// The session the socket was opened with, fixed at the upgrade. A session
-	// auth ends (a sign-out, a revoke) closes the socket, as does
-	// `ws.closeSession(id)` for one the app ends itself; a lost membership
-	// changes nothing here, so a handler that must honour it re-checks. Null
-	// only when the app has no auth, where every connection is anonymous. A
-	// channel's `onSubscribe` and `onMessage` read it to decide what this
-	// connection may see or do.
+	// The session the socket was opened with, fixed at the upgrade, null only when the app has no auth.
+	// Connection sessions: docs/architecture/plugins/node.md, "Channels".
 	readonly session: ConnectionSession | null;
 	send<K extends keyof S & string>(type: K, payload: z.input<S[K]>): void;
 }

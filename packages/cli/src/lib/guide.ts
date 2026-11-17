@@ -23,11 +23,7 @@ export const cliGuide: readonly { page: string; trigger: string }[] = [
 	},
 ];
 
-// `.stack/guide.md`, which the consumer's `CLAUDE.md` imports: each line a
-// trigger and the page's path from the consumer root, grouped by domain in the
-// slot's order. Claude Code imports an `@` only at a line start or after
-// whitespace; a scoped package's `@` follows `node_modules/`, so no page loads
-// until a session opens it.
+// Renders `.stack/guide.md`: docs/architecture/consumer-project.md, "The guide".
 export function renderGuide(entries: readonly GuideEntry[]): string {
 	const domains = new Map<string, string[]>();
 	const seen = new Set<string>();

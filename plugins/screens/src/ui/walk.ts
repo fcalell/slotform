@@ -60,19 +60,12 @@ import {
 	type WordMeasure,
 } from "./walk-checks.ts";
 
-// The render walk: one pass over the page's elements that reads what is drawn
-// against the contract's values, in the page's own computed custom
-// properties at the density it is in (so the numbers are the ones the theme
-// emitted, never a second copy). The test run calls it once per width after
-// the resize settles.
+// The render walk: docs/architecture/plugins/screens.md, "Render walk".
 
 export type { Finding } from "./walk-checks.ts";
 export { format } from "./walk-checks.ts";
 
-// The named exceptions, the one place the walk lets a rule pass over an
-// element: the rule, a selector the element (or an ancestor) matches, for
-// `nested-radius` the selector of the rounded box it stands in, and why. Never
-// a baseline: each stands for a thing the contract itself draws off the rule.
+// The named exceptions: docs/architecture/plugins/screens.md, "Render walk exceptions".
 export interface Exception {
 	rule: string;
 	selector: string;
@@ -271,10 +264,7 @@ const CONTROL_MEASURES: readonly Measure[] = [
 	{ name: "4 × line-body", css: "calc(4 * var(--spacing-line-body))" },
 ];
 const ROW_MEASURES: readonly Measure[] = [sized("row")];
-// Insets and gaps that are not spacing roles: a field's border, and the
-// centring insets a recipe spells, half of what one size has over another (an
-// icon act's glyph in the control, a field's line in it, a switch's knob in its
-// track, a line of parts' dot).
+// Insets that are no spacing role: docs/architecture/plugins/screens.md, "Render walk rules".
 const INSET_MEASURES: readonly Measure[] = [
 	sized("hairline"),
 	{
@@ -1124,9 +1114,7 @@ function outerOf(
 
 // ── alignment ───────────────────────────────────────────────────────
 
-// What a row, a line and a box are held to (`align-*`): a row is a text group
-// and an end group centred on the row, a line of mixed sizes has one baseline,
-// nothing takes room and draws nothing, and the layout is flex alone.
+// What a row, a line and a box are held to: docs/architecture/plugins/screens.md, "Render walk rules".
 
 // The colour draws nothing: transparent, or an alpha of zero in either
 // notation the page's computed colours take.
@@ -1490,11 +1478,7 @@ function lineOf(column: Element): Element | undefined {
 	);
 }
 
-// The rows on the page and what stands at the end of each: a row is a flex
-// row with a row's role, or one whose floor is a row token's (a control with
-// that floor is no row); a flex column that is one stands its end items on its
-// label line, which is then the row measured, centre and all. Its label is its
-// first text, and its end items are what draws beyond the label's right edge.
+// The rows on the page: docs/architecture/plugins/screens.md, "Render walk rules".
 function rows(seen: Seen[], scopes: Scopes): RowMeasure[] {
 	const out: RowMeasure[] = [];
 	for (const { element, style } of seen) {

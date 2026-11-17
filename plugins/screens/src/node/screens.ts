@@ -16,10 +16,7 @@ export const globalTag = (name: string, value: string): string =>
 	`${name}:${value}`;
 export const stateTag = (state: string): string => `state:${state}`;
 
-// The sidebar title of a route's screens: its id under `Screens/` without the
-// segments that add no URL (a pathless layout `_app`, a group `(auth)`), a
-// trailing slash (an index route) named `index` so it never shares a title
-// with the route it indexes.
+// A route's sidebar title: docs/architecture/plugins/screens.md, "Story generation".
 export function screenTitle(routeId: string): string {
 	const path = routeId
 		.replace(/^\//, "")

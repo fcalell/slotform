@@ -21,9 +21,7 @@ import { paint, SCRAMBLE } from "@fcalell/ui-core/variants";
 import { useId, useLayoutEffect, useRef } from "react";
 import { reducedNow } from "./media.ts";
 
-// The theme's paint per glyph slot reaches the page as `data-loading-<slot>`
-// on the root (`themeModePlugin`, set before first paint), and the shared
-// `loading` record reads it once here, so any module that can paint knows it.
+// The `loading` record read from the root: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 const ATTRIBUTES: Record<LoadingSlot, string> = {
 	text: "loadingText",
 	figure: "loadingFigure",

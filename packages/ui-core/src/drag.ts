@@ -1,9 +1,4 @@
-// Drag and drop, free of any framework: when a press becomes a drag, which side
-// of a row a pointer is on, where a move lands in an order, the speed a
-// scroller is carried at near its edge, how long a hold opens a branch and
-// which drop a drag is accepted by.
-// The web runs it over pointer events (`lib/drag` of react-ui); the arithmetic
-// is here so it is tested without a DOM.
+// Drag arithmetic, tested without a DOM: docs/architecture/ui-core/drag.md, "Web drag".
 
 import type { Moved } from "./descriptors.ts";
 

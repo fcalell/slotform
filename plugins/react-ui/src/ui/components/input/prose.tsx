@@ -62,10 +62,7 @@ export function ProseBase({
 			placeholder={placeholder}
 			autoFocus={autoFocus}
 			ref={autoFocus ? caretAtEnd : undefined}
-			// Base UI's Field wires the control; the render function hands over its
-			// props and state so the box around the value draws that state. A
-			// disabled box carries `aria-disabled` itself, so the budget outside the
-			// native control reads as disabled to a checker.
+			// Base UI's Field wires the control: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 			render={(control, state) => (
 				<div
 					aria-disabled={state.disabled || ended || undefined}

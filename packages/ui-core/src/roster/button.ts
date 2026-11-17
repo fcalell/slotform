@@ -10,19 +10,7 @@ import {
 	toneOf,
 } from "./shared.ts";
 
-// One act in three forms. Labelled it runs: its label, a glyph before it
-// and a count after it, pending after the press, blocked with a reason.
-// With an `href` it is the link form: an anchor to a route or an external
-// URL that runs nothing, in an act's look or, with no `act`, in accent
-// ink in the line it sits in (`inline`) or on the target height. With
-// `glyph` the icon alone, the label its accessible name and its
-// tooltip: square, no boundary at rest, a field's end at the `field`
-// fit.
-// A press runs the act's wiring in one order: its `confirm` asked as a
-// decision over the page (declined, nothing runs), its `onAct`, its `done`
-// toasted, then its `to` followed; a `sheet` is opened in place of `onAct`
-// and closed on dismiss or once its submit resolves. The labelled and icon
-// forms take all four, and every host that draws an act hands them on.
+// One act in three forms and its press order: docs/architecture/ui-core/acts.md, "Act press".
 export const buttonEntry: RosterEntry = {
 	props: [
 		"act",
@@ -91,15 +79,7 @@ export const TOOLTIP = `${NAME_GROUND} max-w-measure-short`;
 // grow to the full measure.
 export const TOOLTIP_CUT = `${NAME_GROUND} max-w-measure`;
 
-// `act` is the button's kind: `primary` the accent fill (one per screen),
-// `danger` the danger fill (a confirm's one filled act), `secondary` a
-// hairline with no fill, `destructive` the hairline with its label in
-// `danger`, `quiet` words in the meta ink with no fill and no hairline (a
-// resend, a skip). `fit` is its container's: a control on its own, or full
-// width at a field's height under the field it submits. min-h,
-// never h: the label must be able to grow the control under OS font scaling.
-// The fill carries the act's ink for the web's glyph and spinner
-// (currentColor); the label repeats it, since a native Text inherits none.
+// A button's kinds and fit: docs/architecture/ui-core/roster.md, "Controls".
 export const BUTTON = matrix({
 	base: `gap-gap rounded-control px-pad ${ANSWER}`,
 	variants: {

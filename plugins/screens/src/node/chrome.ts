@@ -2,9 +2,7 @@ import { spawn } from "node:child_process";
 import { accessSync, constants, readFileSync } from "node:fs";
 import { delimiter, join } from "node:path";
 
-// The Chrome the screens commands drive, and the DevTools protocol (CDP) client
-// that talks to it over Node's own WebSocket. Nothing here waits without a
-// limit: every call rejects, naming what it waited for.
+// The Chrome process and the CDP client: docs/architecture/plugins/screens.md, "Shared browser".
 
 const LAUNCH_TIMEOUT = 20_000;
 const CONNECT_TIMEOUT = 10_000;

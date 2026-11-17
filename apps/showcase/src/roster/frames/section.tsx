@@ -91,9 +91,7 @@ function openMore(stage: HTMLElement) {
 	press(trigger);
 }
 
-// The frame at touch is the page its rows decide their structure by (below
-// `tablet` an act stands under the row's text, a lock shows its glyph alone);
-// at the desktop it stands in no page, as a row inside a wide sheet does.
+// The frame at touch is the page its rows decide their structure by, the desktop none: docs/architecture/ui-core/layout.md, "Touch rows".
 function Page(props: { children: ReactNode }) {
 	return (
 		<div className="flex flex-col gap-section w-sheet max-w-full touch:@container/page">
@@ -647,9 +645,7 @@ function drawPart(frame: ShowcaseFrame, name: PartName, pair: boolean) {
 				) : null}
 			</>
 		);
-	// A tree's head counts its top-level rows, the steps it lists; the nested
-	// rows are parts of a step, counted only where one says `counted: true`
-	// (held by ui-core's `listedRows` test).
+	// A tree's head counts its top-level rows: docs/architecture/ui-core/layout.md, "Head". Held by ui-core's `listedRows` test.
 	return held(
 		<Section
 			title={name === "legs" ? "Steps" : undefined}

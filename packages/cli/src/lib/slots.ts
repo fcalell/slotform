@@ -7,10 +7,7 @@ export type SlotKind<T> =
 	| {
 			type: "list";
 			sortBy?: (a: ItemOf<T>, b: ItemOf<T>) => number;
-			// Per-item key extractor enforcing list-wide uniqueness. Returning
-			// `undefined` opts an item out of the check (lets a list mix unique-by-
-			// kind items with free-form items). Duplicate keys throw
-			// SlotConflictError, mirroring slot.map semantics — see composeList.
+			// `uniqueBy`: docs/architecture/slot-graph.md, "The four slot kinds".
 			uniqueBy?: (item: ItemOf<T>) => string | undefined;
 	  }
 	| {
@@ -19,11 +16,7 @@ export type SlotKind<T> =
 			// Two keys with one identity are one entry; the first-seen spelling is
 			// the key of the result.
 			keyOf?: (key: string) => string;
-			// How two contributions of one entry combine, `(a, b, key) => value`,
-			// `key` being the identity. Returning `undefined` declines the merge
-			// and the duplicate throws SlotConflictError, as with no `merge`.
-			// Applied pairwise in contribution order, so a rule that is
-			// associative gives a result independent of the grouping.
+			// `merge`: docs/architecture/slot-graph.md, "The four slot kinds".
 			merge?: (a: unknown, b: unknown, key: string) => unknown;
 	  }
 	| {
@@ -91,12 +84,7 @@ export interface LogContext {
 	error(msg: string): void;
 }
 
-// `TOptions` types `options`. It defaults to `unknown` — which is the only
-// sound type for a *contribution* fn, whose ctx may carry the contributing
-// (foreign) plugin's options when contributing cross-plugin. A slot's own
-// `seed`/`compute` always runs with the owning plugin's options, so those
-// callbacks can opt into a precise type by annotating their `ctx` parameter
-// (e.g. `compute: (inp, ctx: ContributionCtx<MyOptions>) => …`).
+// `TOptions` defaults to `unknown`: docs/architecture/plugin-authoring.md, "Options via `schema`".
 export interface ContributionCtx<TOptions = unknown> {
 	app: AppConfig;
 	options: TOptions;

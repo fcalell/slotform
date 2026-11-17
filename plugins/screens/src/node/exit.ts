@@ -1,6 +1,4 @@
-// Why a child process failed, or null when it passed. A process killed by a
-// signal (the OOM killer's SIGKILL, a Ctrl-C) exits with no code: that is no
-// pass, so `stack screens test` never exits 0 over a run that did not finish.
+// Why a child process failed: docs/architecture/plugins/screens.md, "Test run exit".
 export function exitFailure(
 	label: string,
 	code: number | null,

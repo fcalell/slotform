@@ -2,15 +2,8 @@ import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { isErrno } from "./errno.ts";
 
-// Write one generated file so a process watching it under `stack dev` (wrangler
-// on `.stack/wrangler.toml`, Vite on `.stack/vite.config.ts`) never reads it
-// empty or half-written, and never sees it change when nothing did. A file
-// whose content is already on disk is left alone (mtime and inode kept, so no
-// watcher fires); a changed one is written whole to a sibling temporary file
-// and renamed over the target, which replaces it in one step. A plain
-// `writeFile` truncates the target first, and wrangler reading its config in
-// that window exits with "Missing entry-point" and is not restarted.
-// Returns whether the file was written.
+// Writes one generated file atomically, leaving an unchanged one alone; returns whether it wrote.
+// Atomic, skip-unchanged writes: docs/architecture/codegen.md, "Artifact emit".
 export async function writeArtifact(
 	absPath: string,
 	content: string,

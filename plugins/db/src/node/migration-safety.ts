@@ -17,14 +17,11 @@ import {
 	pendingFtsMigrations,
 } from "./fts.ts";
 
-// A migration acknowledged as an intentional, reviewed drop carries this
-// marker anywhere in its `.sql` (a plain comment line). Kept as a bare token so
-// `-- stack:allow-destructive` reads naturally in a SQL file.
+// The destructive marker: docs/architecture/plugins/db.md, "Deploy gates".
 const ALLOW_DESTRUCTIVE_MARKER = "stack:allow-destructive";
 
-// Temp workspace for the drift check. Lives under the already-gitignored
-// `.db-kit` and is RELATIVE to cwd on purpose: drizzle-kit 0.31 mangles
-// absolute `--out` paths, so every drift path stays relative.
+// Drift paths stay relative to cwd: docs/architecture/plugins/db.md, "drizzle-kit".
+// The workspace lives under the gitignored `.db-kit`.
 const DRIFT_DIR = ".db-kit/drift";
 const DRIFT_CONFIG = ".db-kit/drift.config.ts";
 
@@ -111,9 +108,7 @@ export function hasDrops(report: DropReport): boolean {
 	);
 }
 
-// The destructive-migration gate. Diffs the NEWEST migration's drizzle meta
-// snapshot against its predecessor. Older migrations are shipped history and
-// never re-flagged. Returns `null` when there are no migrations at all.
+// The destructive-migration gate: docs/architecture/plugins/db.md, "Deploy gates".
 export function detectLatestDrops(
 	cwd: string,
 	options: DbOptions,
@@ -167,9 +162,7 @@ export function formatDropReport(
 	].join("\n");
 }
 
-// Hard gate used by both `stack db check` and the pre-deploy `deployChecks`
-// contribution. Throws the expand/contract explainer when the newest migration
-// drops something without an acknowledgement marker.
+// The destructive-migration gate: docs/architecture/plugins/db.md, "Deploy gates".
 export function assertNoUnacknowledgedDrops(
 	cwd: string,
 	options: DbOptions,
@@ -184,10 +177,7 @@ function countSqlFiles(dir: string): number {
 	return readdirSync(dir).filter((f) => f.endsWith(".sql")).length;
 }
 
-// The drift gate. Copies committed migrations into a throwaway, gitignored
-// dir and runs `drizzle-kit generate` with `--out` pointed there against the
-// live schema. A newly emitted `.sql` means the schema changed without
-// `stack db generate`. The real migrations dir is never touched.
+// The drift gate: docs/architecture/plugins/db.md, "Deploy gates".
 export function detectSchemaDrift(cwd: string, options: DbOptions): boolean {
 	const migrationsDir = migrationsDirOf(cwd, options);
 	const driftAbs = join(cwd, DRIFT_DIR);
@@ -201,9 +191,7 @@ export function detectSchemaDrift(cwd: string, options: DbOptions): boolean {
 		}
 		const before = countSqlFiles(driftAbs);
 
-		// `out` is relative to cwd (drizzle-kit resolves config paths against
-		// cwd, matching push.ts), kept relative to dodge the 0.31 absolute-path
-		// bug.
+		// Config paths stay relative to cwd: docs/architecture/plugins/db.md, "drizzle-kit".
 		writeDrizzleConfig(configAbs, {
 			schema: "./src/schema/index.ts",
 			out: `./${DRIFT_DIR}`,

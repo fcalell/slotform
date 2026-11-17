@@ -4,9 +4,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { useEffect } from "react";
 import { blockLeave } from "./navigate.ts";
 
-// While a `Form` stands edited, leaving its page (a router navigation, the
-// back button, a reload or a closed tab) asks once: discard the edit, or keep
-// editing.
+// A `Form` that stands edited asks before it is left: docs/architecture/ui-core/acts.md, "Leave".
 export function useLeaveGuard(leave: Leave, guarded: boolean): void {
 	const words = useWords();
 	useEffect(() => {

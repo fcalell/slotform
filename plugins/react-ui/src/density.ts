@@ -1,9 +1,6 @@
 import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
 
-// The density rule, built once for the density layer, the `touch:` variant
-// and `useTouch`: the desktop set draws where the primary pointer is fine and
-// the viewport is at least `tablet` wide, the touch set everywhere else. A
-// `data-density` attribute on the root pins any set over it.
+// The density rule, one query for the layer, `touch:` and `useTouch`: docs/architecture/plugins/react-ui.md, "Density".
 export const DESKTOP_MEDIA = `(pointer: fine) and (width >= ${BREAKPOINT_PX.tablet}px)`;
 export const TOUCH_MEDIA = `not (${DESKTOP_MEDIA})`;
 

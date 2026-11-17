@@ -89,9 +89,7 @@ export function PaneHead(props: {
 		) : switcher ? (
 			<SwitcherPick switcher={switcher} />
 		) : null;
-	// An act is painted, inert, while its own datum waits; a selection's shape
-	// is unknown until it lands, so its paint is a bare glyph. One whose read
-	// ended stands blocked with the sentence for its name, never a false yes.
+	// A painted act is inert; one whose read ended stands blocked: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 	const built = actionAt.map((one, at) => {
 		if (!one.painted) {
 			return <Button glyph key={one.value.label} {...asIconAct(one.value)} />;

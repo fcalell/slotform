@@ -7,28 +7,21 @@ import {
 } from "react";
 import type { IconAct } from "./act.ts";
 
-// What the frame molecules hand each other. On touch the Shell hands the act
-// that opens its places layer to the Pane, which draws it at the start of a
-// bar with no way back; on the desktop there is none.
+// The Shell's places-layer act, handed to the Pane: docs/architecture/ui-core/layout.md, "Frame context".
 export const ShellMenu = createContext<IconAct | undefined>(undefined);
 
 // The route of the Shell's current place, where a read with no Pane's
 // `back` around it leads back.
 export const PlaceRoute = createContext<string | undefined>(undefined);
 
-// The route a Pane's back act returns to, where the Pane's own read that
-// answers not found leads back; with none it leads to `PlaceRoute`. `false`
-// says there is no way back at all.
+// The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
 export const BackRoute = createContext<string | false | undefined>(undefined);
 
 // The two kinds of Pane a Place holds, one of each at most: the place's own,
 // and a record's after it.
 export type PaneKind = "place" | "record";
 
-// What a Place hands its Panes: its name (the place's, the sidebar's label),
-// which titles the place's Pane and stands before a record's name in a
-// record's bar, and the count each Pane stands in, which throws on a second
-// Pane of a kind. `undefined` outside a Place.
+// What a Place hands its Panes: docs/architecture/ui-core/layout.md, "Place".
 export const PlaceFrame = createContext<
 	| { name: string | undefined; stand: (kind: PaneKind) => () => void }
 	| undefined
@@ -42,14 +35,7 @@ export const InPane = createContext(false);
 // a Thread's log and a Table's grid take).
 export const PageTitle = createContext<string | undefined>(undefined);
 
-// What a docked foot's region hands the docked `Sheet` it draws, in whole pixels:
-// `height` is the region the foot shares with what stands over it (a Thread
-// or a footed Pane), `chrome` the foot's own block padding and border and
-// the block padding of the body over it,
-// and `logFloor` what the region keeps for a log above the foot (zero where
-// none shares it). Container units cannot give the height: a size container
-// takes no height from its content, so the region would collapse in a column
-// of auto height. All zero until measured, where the body is unbounded.
+// What a docked foot's region hands the docked `Sheet`: docs/architecture/ui-core/layout.md, "Frame context".
 export interface FootRegionValue {
 	height: number;
 	chrome: number;

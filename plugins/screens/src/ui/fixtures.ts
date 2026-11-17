@@ -1,10 +1,8 @@
 import type { Procedure } from "@fcalell/plugin-api/types";
 import type { RegisteredRouter } from "@tanstack/react-router";
 
-// The answers of an app's procedures, by the router's own shape: each
-// procedure is optional (one without an answer shows as a gap, never a
-// request), and each takes the procedure's input and returns its output, so
-// a fixture that drifts from its procedure fails the type-check.
+// The answers of an app's procedures, by the router's own shape.
+// Fixtures: plugins/screens/guide/screens.md, "Fixtures".
 export type Fixtures<TRouter> = {
 	[K in keyof TRouter]?: TRouter[K] extends Procedure<infer I, infer O>
 		? (input: I) => O
@@ -46,23 +44,16 @@ type Under<Root extends string, Id extends string> = Id extends
 	? Id
 	: never;
 
-// The example values of the app's routes, by name; a screen draws its route at
-// the URL these fill in. A key that is a route id holds the values of that
-// route and every route under it (only their param names), the most specific id
-// winning; the other keys are the values of every route (any route's param
-// name). Typed from the route tree, so a misspelt id or name fails the
-// type-check.
+// The example values of the app's routes, by name.
+// Keys and typing: docs/architecture/plugins/screens.md, "How a screen is served".
 export type RouteParams<Id extends string = RouteId> = string extends Id
 	? { [name: string]: string | ParamValues }
 	: { [Name in NamesOf<Id>]?: string } & {
 			[K in Id]?: { [Name in NamesOf<Under<K, Id>>]?: string };
 		};
 
-// The opening frame of each channel the app's screens read over plugin-node's
-// socket, by the channel's name, the reply to its subscribe: the payload of its
-// "snapshot" message, or `{ type, payload }` naming another server message
-// (a channel that opens with `status`). `TSnapshots` types it (plugin-node's
-// `Snapshots`).
+// The opening frame of each channel the app's screens read over plugin-node's socket, by channel name.
+// Channel fixtures: plugins/screens/guide/screens.md, "Fixtures".
 export type ChannelFixtures<TSnapshots = Record<string, unknown>> = {
 	[K in keyof TSnapshots]?: (params: ParamValues) => TSnapshots[K];
 };
@@ -76,14 +67,8 @@ export interface ScreenFixtures<TRouter, TSnapshots = Record<string, unknown>> {
 	channels: ChannelFixtures<TSnapshots>;
 }
 
-// The default export of the app's `src/app/fixtures.ts`:
-//
-//   export default defineFixtures<AppRouter>(
-//     { projects: { list: () => [{ id: "p1", name: "Acme" }] } },
-//     { projectId: "p1", "/_app/orgs/$orgId/reports": { projectId: "p2" } },
-//     { inbox: () => ({ items: [] }) },
-//     "?token=abc", // optional: the search a screen that reads one is drawn at
-//   );
+// The default export of the app's `src/app/fixtures.ts`.
+// Fixtures: plugins/screens/guide/screens.md, "Fixtures".
 export function defineFixtures<TRouter, TSnapshots = Record<string, unknown>>(
 	procedures: Fixtures<TRouter>,
 	params: RouteParams = {},

@@ -376,11 +376,7 @@ function drawFile(frame: ShowcaseFrame) {
 	);
 }
 
-// A field's error is a sentence read whole: a long path in it, a `{ code }`
-// run, wraps inside its box on a narrow screen at a slash, never inside a
-// segment that fits a line, and never cut at its end. A run that fits a line
-// moves to it whole, one box and never two (a URL after "or"), and the
-// brackets around a long command stay on its line with it.
+// A field's error is a sentence read whole: docs/architecture/ui-core/acts.md, "Fields".
 const PATH = "../../apps/web/src/routes/settings/bil";
 const ADDRESS = [
 	{ code: "ftp://ha.lan" },

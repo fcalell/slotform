@@ -81,17 +81,12 @@ import {
 import { publishSessionEnded } from "./session-ended.ts";
 import { createTenancy, resolveGrants, type Tenancy } from "./tenancy.ts";
 
-// The code and sentence a refused sign-up answers with, on every way in. A
-// client reads the code (`data.code` of the `ORPCError`, `error.code` of
-// Better Auth's client) and shows its own words, or the sentence as it stands.
+// The sign-up refusal code and sentence: docs/architecture/plugins/auth.md, "Sign-up policy".
 const SIGN_UP_CLOSED = "SIGN_UP_CLOSED";
 const SIGN_UP_CLOSED_MESSAGE =
 	"Sign-up is closed. Ask for an invitation to join.";
 
-// The routes `devices` takes off HTTP: the plugin's key routes. The
-// `auth.devices` procedures call them on the server API, where the name,
-// count and expiry limits are enforced; over HTTP those limits would be
-// bypassed.
+// Routes `devices` takes off HTTP: docs/architecture/plugins/auth.md, "Devices".
 const DEVICE_DISABLED_PATHS = [
 	"/api-key/create",
 	"/api-key/delete",
@@ -113,10 +108,7 @@ const MCP_DISABLED_PATHS = [
 	"/oauth2/delete-consent",
 ];
 
-// Better Auth's own helpers a sign-in flow of the app's own needs (an
-// endpoint, the session cookie it mints, fields added to the session),
-// re-exported so the app holds no second copy of better-auth: a second
-// `APIError` would no longer read as the router's own.
+// Better Auth helpers re-exported: docs/architecture/plugins/auth.md, "Worker runtime".
 export type { BetterAuthPlugin } from "better-auth";
 export {
 	APIError,
@@ -150,22 +142,12 @@ export type { AuthProcedureFactory, OAuthRedirect } from "./procedures.ts";
 // consumer's generated `.stack/procedure.ts` names it through this subpath.
 export type { Tenancy } from "./tenancy.ts";
 
-// Structural match with plugin-api's `RateLimitBinding` (procedure.ts) — not
-// imported directly since plugin-api doesn't expose it on a public subpath;
-// both sides only rely on this shape.
+// Structural match with plugin-api's `RateLimitBinding`: docs/architecture/plugins/auth.md, "Rate limiting".
 export interface RateLimitBinding {
 	limit(opts: { key: string }): Promise<{ success: boolean }>;
 }
 
-// Consumer-implemented hooks. `AuthCallbackPayloads` (`../types`) is the
-// single source for the payload shapes; see that type's doc comment. Pass the
-// worker's own `Env` (`AuthCallbacks<Env>`) to type the `env` every payload
-// carries.
-//
-// Method syntax throughout, deliberately: it keeps the payload parameter
-// bivariant, so a consumer who narrows the env (`AuthCallbacks<Env>`) still
-// satisfies the `AuthCallbacks` the runtime input declares. The framework is
-// the only caller and always passes the real env.
+// Consumer-implemented hooks: docs/architecture/plugins/auth.md, "Callbacks".
 export interface AuthCallbacks<TEnv = unknown> {
 	// Required while `emailOtp` is on: the runtime refuses to build without it.
 	sendOTP?(
@@ -245,49 +227,28 @@ export interface AuthRuntimeInput {
 	// Resolved provider → env-var references (var names, never secrets — the
 	// runtime reads credentials from `env` at request time).
 	socialProviders?: Partial<Record<SocialProviderName, ResolvedSocialProvider>>;
-	// Set by codegen when the consumer enables `expo`. Adds Better Auth's
-	// server-side expo() plugin (native client deep-link / cookie / origin
-	// handling); contributes no database tables.
+	// Set by codegen for `expo`: docs/architecture/plugins/auth.md, "Native client".
 	expo?: boolean;
-	// Set by codegen when the consumer enables `mcp`: the OAuth authorization
-	// server for MCP clients and the `oauth` capability on the request context.
-	// Needs `organization`.
+	// Set by codegen for `mcp`: docs/architecture/plugins/auth.md, "MCP OAuth".
 	mcp?: boolean;
 	// Set by codegen when the consumer enables `devices`: device credentials,
 	// bearer keys that stand in for their member's session.
 	devices?: boolean;
-	// Set by codegen when the consumer enables `passkey`, every default
-	// already derived; a listener with an origin of its own adjusts them per
-	// instance (`passkeyFor`).
+	// Set by codegen for `passkey`: docs/architecture/plugins/auth.md, "Passkeys".
 	passkey?: BakedPasskey;
-	// Wrangler rate-limiter binding names, baked by the `runtimeOptions`
-	// derivation from the plugin's `rateLimiter` schema defaults. Limit/period
-	// aren't included here — they're enforced by the binding config itself,
-	// not read at request time.
-	// `agent` is baked with `mcp` only.
+	// Wrangler rate-limiter binding names: docs/architecture/plugins/auth.md, "Rate limiting".
 	rateLimiter?: {
 		ip: { binding: string };
 		email: { binding: string };
 		agent?: { binding: string };
 	};
-	// The slugs an organization may not take, baked by codegen with
-	// organizations on: plugin-api's reserved words and the app's top-level
-	// routes, since an organization is served at `/<slug>`.
+	// Slugs an organization may not take: docs/architecture/plugins/auth.md, "Reserved slugs".
 	reservedSlugs?: readonly string[];
-	// The consumer's `src/shared/scopes.ts` module namespace, when it exists:
-	// every scope descriptor it exports gets a `bySlug` lookup, and the
-	// membership predicate it exports, if any, applies at every resolution.
+	// The consumer's scopes module: docs/architecture/plugins/auth.md, "Scopes".
 	scopes?: Record<string, unknown>;
 }
 
-// Structural surface of the better-auth instance our code, and consumers'
-// `procedure({ auth: true })` handlers via `InferAuthContext`
-// (`plugins/api/src/procedure.ts`), actually touch: `handler` (the fetch
-// entrypoint below) and the session lookup the auth middleware calls.
-// better-auth's own `Auth<Options>` requires the literal `BetterAuthOptions`
-// object passed to `betterAuth(...)`; `buildAuth` below constructs that
-// object from runtime conditionals, so there's no single literal `Options`
-// to parameterize `Auth<Options>` with here.
+// Structural surface of the Better Auth instance: docs/architecture/plugins/auth.md, "Worker runtime".
 export type AuthApi = {
 	getSession: (opts: { headers: Headers }) => Promise<{
 		user: Record<string, unknown>;
@@ -308,14 +269,7 @@ type OAuthContext<TOptions> = TOptions extends { mcp: true }
 	? { oauth: OAuth }
 	: object;
 
-// `$Infer.Session` is derived from `AuthRuntimeInput` via the SAME
-// `SessionUser`/`SessionOf` types `@fcalell/plugin-auth/infer` exposes
-// for the client (organization → `activeOrganizationId`), one derivation,
-// two consumers, instead of re-deriving the branching twice.
-// `TOptions` is inferred from the literal object `.stack/procedure.ts` /
-// `.stack/worker.ts` pass to `authRuntime(...)` at the call site (codegen
-// always emits an inline object literal), so e.g. `organization: true`
-// stays a literal, not a widened `boolean`.
+// `$Infer.Session` and `TOptions`: docs/architecture/plugins/auth.md, "Worker runtime".
 export interface AuthInstance<
 	TOptions extends AuthRuntimeInput = AuthRuntimeInput,
 > {
@@ -362,10 +316,7 @@ function trustedOriginsOf(
 	];
 }
 
-// With email OTP on, better-auth would issue codes nobody receives.
-// The code and field error an organization slug the app's routes hold is
-// refused with. A form reads `fieldErrors` off the answer, as it reads an
-// API procedure's refusal, and shows it under the field that made the slug.
+// Code and field error of a reserved organization slug: docs/architecture/plugins/auth.md, "Reserved slugs".
 const ORGANIZATION_SLUG_RESERVED = "ORGANIZATION_SLUG_RESERVED";
 
 function refuseReservedSlug(
@@ -691,10 +642,7 @@ function buildAuth(
 
 	plugins.push(...(options.callbacks?.plugins ?? []));
 
-	// Read each configured provider's credentials from env (never baked into
-	// the worker — only the var names are). Apple optionally carries the app
-	// bundle id for native ID-token validation. The generated worker's
-	// `envChecks` asserts each var is set, so the `as string` reads hold.
+	// Provider credentials are read from env: docs/architecture/plugins/auth.md, "Social providers".
 	const socialProviders: NonNullable<BetterAuthOptions["socialProviders"]> = {};
 	const google = options.socialProviders?.google;
 	if (google) {
@@ -714,11 +662,7 @@ function buildAuth(
 	const socialProvidersOption =
 		Object.keys(socialProviders).length > 0 ? socialProviders : undefined;
 
-	// Dev-server origins are trusted only under STACK_DEV, and only then do
-	// web cookies need sameSite=none: in dev the frontend origin and the
-	// worker are cross-origin, so a lax cookie is dropped. In production the
-	// baked value stands (none for native consumers, the browser default
-	// otherwise).
+	// Dev origins and `sameSite`: docs/architecture/plugins/auth.md, "Origins and cookies".
 	const devOrigins = isDevMode(env) ? (options.devTrustedOrigins ?? []) : [];
 	const trustedOrigins = trustedOriginsOf(options, env);
 	const sameSite = devOrigins.length > 0 ? "none" : options.sameSite;
@@ -731,15 +675,7 @@ function buildAuth(
 		// biome-ignore lint/suspicious/noExplicitAny: drizzleAdapter DB type is opaque.
 		database: drizzleAdapter(db as any, {
 			provider: "sqlite",
-			// Map Better Auth's models to the framework-owned tables explicitly, so
-			// resolution never depends on the consumer's schema export names.
-			// organization/member/invitation only when the plugin is actually
-			// registered — the consumer only migrates those tables (via
-			// `@fcalell/plugin-auth/schema/organization`) when `organization` is
-			// enabled, so the adapter must never reference them otherwise. Same
-			// for `passkey`. The consumer's own schema (the drizzle client's)
-			// comes first, so a model a `callbacks.plugins` entry declares
-			// resolves to the consumer's table of that name.
+			// The Drizzle adapter's schema map: docs/architecture/plugins/auth.md, "Schema tables".
 			schema: {
 				...(db as { _?: { fullSchema?: Record<string, unknown> } })._
 					?.fullSchema,
@@ -773,12 +709,7 @@ function buildAuth(
 			expiresIn: options.session?.expiresIn,
 			updateAge: options.session?.updateAge,
 			freshAge: options.session?.freshAge,
-			// Signed session cache: skips a D1 read on getSession for most
-			// authenticated requests (Workers/D1 best practice), ~5 min freshness.
-			// Off for native: the cache sets a second `session_data` cookie
-			// alongside `session_token`, and React Native reliably round-trips
-			// only one cookie — the device ends up sending session_data without
-			// session_token, so every authed request resolves to no session.
+			// Signed session cache: docs/architecture/plugins/auth.md, "Worker runtime".
 			cookieCache: options.expo
 				? { enabled: false }
 				: { enabled: true, maxAge: 300 },
@@ -819,10 +750,7 @@ function buildAuth(
 						: undefined,
 				}
 			: undefined,
-		// A session deleted by any path (sign-out, revoke, a deleted user, an
-		// expired session found) is announced, so the Node target closes its
-		// sockets. The sign-up policy, when there is one, refuses a user it
-		// does not admit before the row is written.
+		// Session deletions are announced; the sign-up policy runs first: docs/architecture/plugins/auth.md, "Session end".
 		databaseHooks: {
 			...(policy ? { user: { create: { before: policy.beforeCreate } } } : {}),
 			session: {
@@ -917,10 +845,7 @@ async function checkRateLimit(
 
 // ---------- auth.orgRules and auth.scope.<name>.bySlug ----------
 //
-// `routes(procedure)` receives plugin-api's procedure factory as `unknown`
-// (`RuntimePlugin` is framework-agnostic, see `packages/cli/src/runtime.ts`).
-// `AuthProcedureFactory` (`./procedures.ts`) is that factory over the context
-// these procedures read.
+// `routes(procedure)` takes the factory as `unknown`: docs/architecture/plugins/auth.md, "Worker runtime".
 
 // A slug names the organization on its own; below it, a slug is unique only
 // within its parent, whose id comes along.
@@ -984,10 +909,7 @@ function consumerMembership(
 	return declared[0]?.[1] ?? null;
 }
 
-// `reads: ["member"]`: a role-changing mutation that declares
-// `writes: ["member"]` invalidates this query through the entity-header
-// contract. "member" is a legal `Entity` because auth contributes it to
-// `api.slots.entities` (see `../index.ts`).
+// `orgRules` reads `member`: docs/architecture/plugins/query.md, "Abilities".
 function orgRulesProcedure(
 	factory: AuthProcedureFactory,
 	roles: Record<string, unknown>,
@@ -1003,9 +925,7 @@ function orgRulesProcedure(
 	});
 }
 
-// A lookup reads its chain's tables and the caller's membership, so a
-// mutation that declares `writes` on any of them (a renamed project, a
-// changed role) invalidates the scope it resolved.
+// A scope lookup is invalidated by writes on its chain: docs/architecture/plugins/auth.md, "Scopes".
 function bySlugProcedure<S extends Scope>(
 	factory: AuthProcedureFactory,
 	scope: S,
@@ -1150,20 +1070,9 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 
 	return {
 		name: "auth",
-		// context() reads upstream.db (the drizzle client dbRuntime provides) —
-		// declare the edge so createWorker runs db's context first regardless of
-		// `.use()` registration order.
-		// Env presence/value checks live in the generated worker's `envChecks`
-		// assertion, fed by this plugin's `api.slots.env`
-		// contribution — not in a per-request validateEnv here.
+		// `context()` reads `upstream.db`: docs/architecture/plugins/auth.md, "Worker runtime".
 		dependsOn: ["db"],
-		// Framework-owned procedures under the `auth` router key: the session,
-		// sign-out and profile update always; the sign-in sends with `emailOtp`
-		// and `magicLink`; with organizations on, the organization, member and
-		// invitation calls, the caller's compiled ability in the organization
-		// the input names (so `useAbility` drives UI affordances from the same
-		// grants `can` checks server-side), and per scope with a slug, the
-		// lookup `ScopeBoundary` resolves a URL slug with.
+		// Framework-owned procedures: docs/architecture/plugins/auth.md, "Procedures".
 		routes(procedure: unknown) {
 			// The worker passes plugin-api's `createProcedure<TContext>()` result;
 			// `RuntimePlugin` types the argument `unknown`. Its context carries

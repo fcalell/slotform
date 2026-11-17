@@ -30,10 +30,7 @@ import {
 } from "@fcalell/ui-core/tokens";
 import { useMemo, useState, useSyncExternalStore } from "react";
 
-// The dev tuning page for the phone's motion: one slider per knob of the
-// contract, written to the live `tuned` record, so the next animation played
-// takes it. The changed knobs are a text dump to copy for the write-back: save
-// it and run `pnpm --filter @fcalell/ui-core motion:apply values.json`.
+// The dev tuning page for the phone's motion: docs/architecture/ui-core/motion.md, "Tuning record".
 const GROUPS: { title: string; names: MotionKnob["name"][] }[] = [
 	{ title: "Rungs", names: ["instant", "fast", "base", "slow"] },
 	{ title: "Loop and pulse", names: ["loop", "pulse"] },

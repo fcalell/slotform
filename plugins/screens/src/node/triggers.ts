@@ -44,11 +44,7 @@ function linked(cwd: string, name: string): string | null {
 	}
 }
 
-// The globs of the files Vitest's `--changed` cannot see in the module graph,
-// whose change must rerun every test file: for each workspace package the app
-// links, the files under its `src/` that no source export serves. A served
-// directory is in the graph; a compiled entry (`dist/`, gitignored) holds none
-// of its `src/`. A published app links nothing, so its list is empty.
+// Files `--changed` cannot see: docs/architecture/plugins/screens.md, "Changed runs".
 export function workspaceTriggers(cwd: string): string[] {
 	// The manifests are the package manager's own: only the fields named here
 	// are read.

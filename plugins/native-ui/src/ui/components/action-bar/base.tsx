@@ -158,11 +158,7 @@ export function ActionBarBase({
 	const [pressedUnder, setPressedUnder] = useState<string>();
 	const pressed = pressStands(ended, pressedUnder);
 	const { touched, leave } = useTouched();
-	// A blocked act waits for a touch: inert and silent until it is pressed, or
-	// until its form or sheet has taken input; then its reason stands in the line
-	// a failure would draw in (the pressed act's, else the last blocked act's).
-	// The filled act's, once its read ended, is the body's and draws on a press
-	// alone.
+	// Blocked reasons in the bar's line: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 	const reasoned = ended === undefined ? acts : acts.slice(0, -1);
 	const reason = reasoned.findLast((act) => act.blocked !== undefined)?.blocked;
 	const pressedReason = reasoned.some((act) =>

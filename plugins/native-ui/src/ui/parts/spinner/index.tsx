@@ -30,21 +30,12 @@ const LAYER = "absolute inset-0";
 // only once wrapped.
 const Turning = withUniwind(Animated.View);
 
-// A turning ring in the ink of its place, the size of the glyph it replaces;
-// A view takes no currentColor, so the place's ink is resolved and set as
-// the border colour: the arc's `border-t-transparent` is the top edge's own
-// key and survives it. uniwind's free build has no `animate-*`, so the turn
-// is Reanimated's own loop over the contract's loop duration, on the UI
-// thread, linear and repeating; it enters by a fade on `fast` and, as the
-// contract's loop, keeps turning under reduced motion (a spinner that stops
-// is a wait that looks over).
+// A turning ring in the ink of its place, the size of the glyph it replaces: docs/architecture/ui-core/motion.md, "Spinner".
 export function Spinner() {
 	return busyScrambles() ? <Glyphs /> : <Ring />;
 }
 
-// Where the theme scrambles its text (`theme.loading`) the busy glyph is three
-// mono glyphs cycling at the tick, `···` under reduced motion: the mono face
-// gives each one advance, so the box is three glyphs wide with no measure.
+// The busy glyph where the theme scrambles its text: docs/architecture/ui-core/motion.md, "Spinner".
 function Glyphs() {
 	const color = useTokenColor(`--color-${useInk() ?? "ink-meta"}`);
 	return (

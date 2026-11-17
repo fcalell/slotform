@@ -15,9 +15,7 @@ const parse = (value: string): Oklch => {
 	return { l: Number(match[1]), c: Number(match[2]), h: Number(match[3]) };
 };
 
-// A part on a tone's soft ground names `edge` and draws `edge-strong`, so the
-// strong edge is a boundary (3:1) on every soft ground, in both modes, a veiled
-// ground over each ground it can lie on.
+// The strong edge on every soft ground: docs/architecture/ui-core/tokens.md, "Edges".
 for (const mode of ["light", "dark"] as const) {
 	test(`the strong edge holds 3:1 on every soft ground in ${mode}`, () => {
 		const colors = deriveTheme().colors[mode];

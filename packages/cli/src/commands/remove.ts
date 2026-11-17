@@ -115,10 +115,7 @@ export async function remove(
 		);
 	}
 
-	// A sibling with a requirement `pluginName` meets blocks removal; a
-	// one-of is met by exactly one plugin, so it is `pluginName`.
-	// Only enforceable when discovery succeeded; in the degraded path we
-	// can't see plugin metadata, so we trust the consumer.
+	// A sibling's requirement blocks removal: docs/architecture/commands.md, "Removing a plugin".
 	if (discovered) {
 		const dependents = discovered.filter((p) =>
 			p.cli
@@ -181,12 +178,7 @@ export async function uninstall(
 	const plugin = discovered?.find((p) => p.name === pluginName) ?? null;
 	const targetEntry = config.plugins.find((p) => p.__plugin === pluginName);
 
-	// Two sources of "what to remove":
-	//   1. The slot graph (when the plugin loaded) — gives us the plugin's
-	//      contributed removeFiles / removeDeps / removeDevDeps.
-	//   2. The plugin's __package — always known from the consumer's config,
-	//      even when the module failed to load. We always prune this from
-	//      package.json as a baseline so the package itself goes away.
+	// What to remove comes from the graph and `__package`: docs/architecture/commands.md, "Removing a plugin".
 	const packageName =
 		plugin?.cli.package ??
 		targetEntry?.__package ??
@@ -214,11 +206,7 @@ export async function uninstall(
 		]);
 	}
 
-	// Delete files (directories too — `rm -rf` semantics). Empty in the
-	// degraded path; that's OK — the user can clean up by hand once their
-	// workspace is fixed. Some are the consumer's own trees (`src/app/`,
-	// `src/migrations/`), so each path must lie inside the project and the
-	// list is confirmed before anything goes.
+	// Delete files, confined to the project: docs/architecture/commands.md, "Removing a plugin".
 	const targets = files.map((path) => insideProject(cwd, path));
 	if (targets.length > 0 && !yes) {
 		const listing = targets.map((t) => `  ${relative(cwd, t)}`).join("\n");

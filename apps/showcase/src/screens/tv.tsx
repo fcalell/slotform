@@ -29,11 +29,7 @@ function useDarkUnlessAsked() {
 	}, []);
 }
 
-// A screen read from across a room: a room Place whose one column holds the
-// strips of counts, a cell each, filling the viewport, dark unless the
-// URL asks `?mode=light`. It carries no view toggles, since a television has
-// no pointer; the scale follows the window, so a browser at 1280, 1920 and
-// 3840 wide draws the sizes of those screens.
+// A screen read from across a room: docs/architecture/ui-core/showcase.md, "The app".
 export function Tv() {
 	useDarkUnlessAsked();
 	return (

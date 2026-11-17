@@ -1,6 +1,4 @@
-// The decisions a Rules editor and a Picker make before they draw, free of any
-// framework: both platforms run this one source, and it is tested without
-// rendering.
+// The decisions a Rules editor and a Picker make before they draw: docs/architecture/ui-core/components.md, "Rules editor".
 
 import type {
 	EitherValue,

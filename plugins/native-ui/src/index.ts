@@ -22,41 +22,28 @@ import {
 
 const SOURCE = "native-ui";
 
-// Generated uniwind entry stylesheet + its build-time type output. Both land
-// under `.stack/` (already gitignored). The Metro wrapper paths are resolved
-// relative to Metro's projectRoot — the consumer root (see plugin-expo's
-// generated metro.config) — so they point back into `.stack/`. The stylesheet's
-// own `@source` roots stay relative to the file in `.stack/` (e.g. `../src`).
+// Generated files: docs/architecture/plugins/native-ui.md, "Generated files".
 const GLOBAL_CSS_ARTIFACT = ".stack/global.css";
 const NATIVE_AUTH_ARTIFACT = ".stack/native-auth.ts";
 const NATIVE_THEME_ARTIFACT = ".stack/native-theme.ts";
 const UNIWIND_CSS_ENTRY = "./.stack/global.css";
 const UNIWIND_DTS = "./.stack/uniwind-types.d.ts";
 
-// `@source` roots are relative to global.css (in `.stack/`). uniwind scans for
-// classNames from the stylesheet's directory, so without these it would only
-// see `.stack/` and miss the consumer app, this plugin's primitives, and the
-// matrix cell strings inside ui-core — a dependency package is never scanned
-// unless named.
+// `@source` roots: docs/architecture/plugins/native-ui.md, "Stylesheet".
 const SOURCES = [
 	"../src",
 	"../node_modules/@fcalell/plugin-native-ui/src",
 	"../node_modules/@fcalell/ui-core/src",
 ];
 
-// The consumer configures the native clients in `src/lib/` (see the
-// native-provider-wiring decision); these defaults point the provider wiring at
-// that convention. Paths are relative to `.stack/entry.tsx`. Overridable via
-// options for non-conventional layouts.
+// Native client defaults: docs/architecture/plugins/native-ui.md, "Native clients in src/lib".
 const DEFAULT_AUTH_MODULE = { source: "../src/lib/auth", export: "authClient" };
 const DEFAULT_QUERY_MODULE = {
 	source: "../src/lib/query",
 	export: "queryClient",
 };
 
-// `withUniwindConfig` must wrap every other Metro plugin (uniwind's
-// requirement). Metro wrappers apply ascending by `order`, so the highest order
-// is applied last = outermost.
+// Metro wrapper order: docs/architecture/plugins/native-ui.md, "What it contributes".
 const UNIWIND_METRO_ORDER = 100;
 
 // ── Slot declarations ──────────────────────────────────────────────
@@ -100,13 +87,7 @@ const appCssSource = slot.derived({
 
 // ── Provider specs ─────────────────────────────────────────────────
 //
-// Composed around `<ExpoRoot>` in `.stack/entry.tsx`, outer → inner by `order`.
-// GestureHandlerRootView must be outermost. The gorhom bottom-sheet modal host
-// is innermost, inside the gesture + safe-area context: gorhom draws a sheet's
-// content in its host, outside the screen that opened it, so every context a
-// sheet body reads (words, Query, Auth) wraps the host. It serves the screens
-// with no Shell; a Shell holds its own. No ThemeProvider: uniwind theming is
-// CSS-first (global `Uniwind.setTheme`), not context-based.
+// Provider order: docs/architecture/plugins/native-ui.md, "Provider order".
 
 const FLEX_FILL: TsExpression = {
 	kind: "object",
@@ -151,9 +132,7 @@ const bottomSheetProvider: ProviderSpec = {
 	order: 30,
 };
 
-// The consumer's words, wrapped around the app so every molecule reads them
-// through `useWords()`. Absent, the context's English default applies and no
-// provider is generated.
+// The consumer's words provider: docs/architecture/ui-core/words.md, "Words".
 function wordsProvider(opts: NativeUiOptions): ProviderSpec | undefined {
 	if (!opts.words) return undefined;
 	return {
@@ -224,12 +203,7 @@ function authProvider(opts: NativeUiOptions): ProviderSpec {
 	};
 }
 
-// Constants the scaffolded src/lib/auth.ts imports. Generated, so the
-// native client's scheme and cookie prefix always match what expo bakes into
-// the app config and what the worker sets on its session cookies. A
-// hand-copied literal fails silently on mismatch: the client filters
-// Set-Cookie by prefix, so every sign-in succeeds server-side while the
-// device never persists the session.
+// Native auth constants: docs/architecture/plugins/native-ui.md, "Native auth client".
 const nativeAuthSource = slot.derived({
 	source: SOURCE,
 	name: "nativeAuthSource",
@@ -246,12 +220,7 @@ const nativeAuthSource = slot.derived({
 		].join("\n"),
 });
 
-// The theme's `defaultMode`, `loading`, `radius` and `size`, applied once at
-// startup: the mode a viewer starts in until the app sets another, ahead of
-// the system's, the glyph slots the app waits in the scramble (`setLoading`;
-// a slot left out pulses), and the room's knobs when either is not the default
-// (`setRoomKnobs`; the density sets carry theirs in the stylesheet). With
-// none of them there is no file and uniwind follows the system.
+// Theme startup file: docs/architecture/plugins/native-ui.md, "Theme startup".
 const nativeThemeSource = slot.derived({
 	source: SOURCE,
 	name: "nativeThemeSource",
@@ -310,13 +279,7 @@ export const nativeUi = plugin("native-ui", {
 
 	schema: nativeUiOptionsSchema,
 
-	// It contributes into expo's slots and reads api's (`nativeScheme`,
-	// `serverAuth`), so both are required: an app owns its worker or names the
-	// server it is a client of with `api({ server })`. auth is imported for its
-	// slots and provider subpath but stays optional, since a client app has no
-	// `auth()` of its own; the Auth provider stands when the app's server has it.
-	// The query plugin holds the client its QueryProvider mounts and the port the
-	// components' reads run on.
+	// Requires: docs/architecture/plugins/native-ui.md, "Requires and peers".
 	requires: ["expo", "api", "query"],
 
 	guide: [
@@ -385,10 +348,7 @@ export const nativeUi = plugin("native-ui", {
 		"expo-secure-store": "~56.0.0",
 		"@tanstack/react-query": "^5.101.0",
 		"@better-auth/expo": "1.7.7",
-		// @better-auth/expo's client statically imports expo-constants +
-		// expo-linking and dynamically imports expo-network + expo-web-browser.
-		// They're declared optional peers there, but Metro bundles every import
-		// (dynamic included), so a native consumer can't bundle without them.
+		// Metro bundles optional peers: docs/architecture/plugins/native-ui.md, "Requires and peers".
 		"expo-constants": "~56.0.0",
 		"expo-linking": "~56.0.0",
 		"expo-network": "~56.0.0",
@@ -430,9 +390,7 @@ export const nativeUi = plugin("native-ui", {
 		expo.slots.providers.contribute(() => safeAreaProvider),
 		expo.slots.providers.contribute(() => wordsProvider(self.options)),
 		expo.slots.providers.contribute(() => queryProvider(self.options)),
-		// The Auth provider stands with `auth()` in the config (the app owns the
-		// server's auth), with a client module the app names, or, in a client of
-		// a server with auth, with the default client module the app wrote.
+		// When the Auth provider stands: docs/architecture/plugins/native-ui.md, "Provider order".
 		expo.slots.providers.contribute(async (ctx) =>
 			(await ctx.resolve(auth.slots.clientFlags)) === null &&
 			self.options.authClientModule === undefined &&
@@ -468,12 +426,7 @@ export const nativeUi = plugin("native-ui", {
 
 		// ── Scaffold the native client modules the entry imports ──────────
 		//
-		// The generated `.stack/entry.tsx` imports `queryClient` / `authClient`
-		// from `src/lib/{query,auth}.ts` (the provider defaults above). Without a
-		// scaffold those files don't exist and the app won't compile, so seed
-		// editable starters — copy-once, like the auth callback file. Skipped
-		// when the consumer points a provider at their own module via
-		// `queryClientModule` / `authClientModule`; that path is theirs to own.
+		// Scaffolds: docs/architecture/plugins/native-ui.md, "Native clients in src/lib".
 		cliSlots.initScaffolds.contribute((ctx) => {
 			if (self.options.queryClientModule) return undefined;
 			return ctx.scaffold("lib-query.ts", "src/lib/query.ts");
@@ -489,12 +442,7 @@ export const nativeUi = plugin("native-ui", {
 			"src/lib/auth.ts",
 		]),
 
-		// uniwind's global augmentation (className + the per-prop *ClassName
-		// variants) must load wherever native-ui's source is type-checked — the
-		// consumer compiles those `.tsx` directly (the plugin ships source, not
-		// declarations). Consumed by `stack init`'s tsconfig template via
-		// `cliSlots.tsconfigTypes`; own presence is the gate, so a plain Expo
-		// consumer without `nativeUi()` gets no dangling type reference.
+		// uniwind types: docs/architecture/plugins/native-ui.md, "Type-checking".
 		cliSlots.tsconfigTypes.contribute(() => "uniwind/types"),
 	],
 });

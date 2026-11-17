@@ -21,12 +21,7 @@ class ScaffoldError extends StackError {
 	}
 }
 
-// Legacy accommodation for the CLI's own base-file templates (package.json,
-// tsconfig.json, biome.json, .gitignore, stack.config.ts). Base templates are
-// dynamic and return strings; they are not contributed via cliSlots.initScaffolds,
-// so they do not flow through writeScaffoldSpecs. Plugin-contributed scaffolds
-// must go through ScaffoldSpec + writeScaffoldSpecs — do not reach for this
-// helper for plugin-driven content.
+// For the CLI's base files only, never plugin content: docs/architecture/plugin-authoring.md, "Templates".
 export function writeIfMissingString(path: string, content: string): boolean {
 	if (existsSync(path)) {
 		log.info(`${path} already exists, skipping`);
@@ -41,9 +36,7 @@ export async function writeScaffoldSpecs(
 	specs: ScaffoldSpec[],
 	cwd: string,
 ): Promise<string[]> {
-	// Duplicate-target detection runs BEFORE any writes. Two plugins that
-	// claim the same scaffold target is a programming error — the old
-	// "last writer wins" behaviour silently dropped contributions.
+	// Every target is checked before any write: docs/architecture/plugin-authoring.md, "Templates".
 	const seen = new Map<string, string>();
 	for (const spec of specs) {
 		const prior = seen.get(spec.target);

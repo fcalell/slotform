@@ -54,56 +54,26 @@ import { SheetDocked } from "../sheet/docked.tsx";
 import type { SheetProps } from "../sheet/index.tsx";
 import { PaneHead } from "./head.tsx";
 
-// A Pane is a column of its place's row and the size container what stands
-// in it decides its form by (a Table its grid). Drawn alone it is the last: it
-// takes the rest of the row. Which Panes stand, which holds the list width and
-// gives way to its floor, and which of a record's acts stand are the Place's to
-// say of the Panes it holds (`shell/place.tsx`): a Pane reads none of its
-// siblings. The place's Pane standing before an expanded record's is hidden by
-// the Place: both keep it mounted, so its scroll and typed text survive, and
-// out of the tab order. It marks itself `data-page`, which the Place and the
-// focus order name it by, and "last" is the last Pane, not the last child: a
-// Sheet in the Place leaves its focus guards after it.
+// A Pane is a column of its place's row: docs/architecture/ui-core/layout.md, "Place".
 const PANE =
 	"@container/page group/pane flex flex-col min-h-0 grow basis-0 min-w-0";
-// A record's head names a view timeline on the body (its name's), which the
-// Pane lifts over its bar for the bar's name to follow (`record-scope` in
-// globals.css).
+// A record's head names a view timeline: docs/architecture/ui-core/layout.md, "Record head".
 const RECORD_SCOPE = "record-scope";
-// The body scrolls under the fixed head, taking a tab stop only while it
-// scrolls with nothing tabbable inside. What stands in it stands within the
-// reading width at its start, so a label stays near its value and a Save near the
-// fields it saves; wide content (`data-wide`: a Table, a line Diff, a Canvas) stands
-// at the body's width, and so does the part that holds it.
-// The body is the head of the `ROWS` chain: its two columns (`auto minmax(0,1fr)`)
-// are the label column and the value column of every definition list in it,
-// which its Sections and Forms subgrid down to their rows, so the lists read as
-// one grid. A Thread or a Canvas that fills the body (`fill`), and the Pane's
-// own failed, missing and empty forms, take the free height by plain flex, the
-// body's height being definite, so that body is a flex column (grid rows cannot
-// hand one child the free height) and carries no `ROWS`.
+// The body scrolls under the fixed head: docs/architecture/ui-core/layout.md, "Body".
 const BODY = "grow min-h-0 overflow-y-auto focus-visible:-outline-offset-2";
 const GRID = "auto-rows-max content-start";
 const FLEX = "flex flex-col";
-// A subgrid draws in its parent's columns, so a cap on each part's box would not
-// bound its rows: the body's own columns end at the reading width, a third
-// track taking the rest (`ROWS_MEASURED`).
+// A subgrid draws in its parent's columns: docs/architecture/ui-core/layout.md, "Rows grid".
 const MEASURED =
 	"*:max-w-reading [&>[data-wide]]:max-w-none [&>:has([data-wide])]:max-w-none";
 // What the body and the docked foot share: the head stands outside it, so the
 // foot's bound is the whole of it and the body keeps the rest. With a foot its
 // measurement bounds a docked sheet's body.
 const REGION = "flex flex-col grow min-h-0";
-// The foot stays under the body, which scrolls past it, and spans it; a field
-// keeps its own measure column inside, which the foot centres at every density.
-// The docked foot names itself the anchor the Shell's toasts stand above, and
-// draws nothing, border and inset included, while it holds nothing (a selection
-// bar with no row ticked).
+// The docked foot is the toasts' anchor: docs/architecture/plugins/react-ui.md, "Toast anchor and stacking".
 const DOCKED =
 	"flex flex-col items-center shrink-0 empty:hidden [anchor-name:--docked-foot]";
-// A selection bar stands at the body's column, the reading width at its start;
-// where the body holds wide content (a Table, whose rows the bar acts on) the
-// column is the body's width (`ACTION_BAR_SELECTION` reads the property).
+// A selection bar stands at the body's column: docs/architecture/ui-core/layout.md, "Foot".
 const FOOT_WIDE = "has-[[data-wide]]:[--foot-column:100%]";
 
 export type { RecordFact } from "@fcalell/ui-core/descriptors";

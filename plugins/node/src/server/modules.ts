@@ -3,11 +3,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { isListedModule } from "../listed.ts";
 
 /**
- * The modules of a directory, by file name without the extension: a registry the code does not
- * list by hand (`jobs/*.ts`, `importers/*.ts`). The directory is `new URL("./dir/", import.meta.url)`,
- * written in the call: `stack build` reads that argument and imports the directory's modules into
- * the bundle, where a listing at run time would find no directory. A test, a declaration and an
- * `index` are not modules.
+ * The modules of a directory, by file name without the extension.
+ * The URL is written in the call because `stack build` reads it: docs/architecture/plugins/node.md, "Services".
  */
 export async function loadModules(
 	directory: URL,

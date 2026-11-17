@@ -1,9 +1,4 @@
-// What the read hooks and the components ask of the binding that runs the
-// reads (`@fcalell/plugin-query`), which provides it around the app. The
-// members that observe are hooks themselves, called at the hook's top level in
-// a fixed order; the others are plain calls. One port per provider: its
-// identity is stable for the provider's life. With no provider above, the
-// context's default answers.
+// What the read hooks and the components ask of the binding that runs the reads: docs/architecture/ui-core/reads.md, "The port".
 import {
 	createContext,
 	createElement,
@@ -80,9 +75,7 @@ function unbound(what: string): never {
 
 const NO_ANSWERS: readonly ReadAnswer[] = [];
 
-// The port with no binding mounted: plain values draw, an act runs as it is
-// and its failure reads as the generic sentence; a member handed a read, a
-// procedure or an ability throws naming the binding. There is no cache to warm.
+// The port with no binding mounted: docs/architecture/ui-core/reads.md, "The port".
 const UNBOUND: ReadPort = {
 	useReads<R>(
 		observed: readonly Observed[],

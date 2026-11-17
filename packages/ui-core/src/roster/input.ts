@@ -1,28 +1,6 @@
 import { ANSWER, build, matrix, type RosterEntry } from "./shared.ts";
 
-// What is typed or picked, by `kind`. A line of text (`text`, `search`,
-// `secret`, `source`, `number`, `email`, `date`); `prose`, many lines in a box that
-// grows from three, its `budget` counted under it; `code`, a one-time
-// code, a box per digit over one input, checked when the last lands; `file`,
-// the field box that chooses a file: empty, its whole box is the act (a
-// leading glyph and the `chooseFile` word); chosen, the name, the size and
-// an act that removes it. The web's file box also takes a dropped file,
-// ringed while one is over it. A file of another type is refused in a line
-// under the box and never reaches `onChange`.
-// Every control is a field, named by its `label`, one drawer for them
-// all (the `FormField` body): placed alone it draws its field, the name
-// over the control a gap apart (`FIELD_ALONE`; a toggle at the end of its
-// name's line, `FIELD_ALONE_LINE`; a slider's head is its name; in a run of
-// rows, a `Card`, a line's name takes the run's label column,
-// `FIELD_ALONE_ROW`) with the
-// word `optional` under the name, and the `description` or the `error` (a
-// refused save's reason, until the next change) under the control. Where
-// an owner names it (a Form's field, a Toolbar) and at a fit that reads
-// the label in its box (`search`, a Picker's `bar`, `row` and `pill`), the
-// label is its accessible name and nothing is drawn around it. A Picker
-// `headed`, a list that is the body of a titled Section, is named by the
-// Section's title and draws nothing around it. A place's tabs are
-// links, no control, and take none.
+// What is typed or picked, by `kind`: docs/architecture/ui-core/acts.md, "Fields".
 export const inputEntry: RosterEntry = {
 	props: [
 		"label",

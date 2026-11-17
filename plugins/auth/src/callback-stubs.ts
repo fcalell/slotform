@@ -1,6 +1,4 @@
-// The scaffolded callbacks file (`templates/callbacks.ts`) marks each stub
-// with a TODO line. `stack deploy` refuses while a marker for a callback the
-// app needs is still there: the stub sends nothing (it throws outside dev).
+// Deploy check over the scaffold's TODO markers: docs/architecture/plugins/auth.md, "Callbacks".
 
 export const CALLBACK_MARKERS = {
 	sendOTP: "// TODO: send OTP email",

@@ -184,19 +184,8 @@ function shown(column: TableColumn, cell: TableCell | undefined): string {
 	return shownWith(column, cell, age);
 }
 
-// From `tablet` of the window a grid: a header of sort acts over one row per
-// record, every column at the short measure, scrolling sideways under its
-// frozen leading column; a press on a row opens it, a press on an editable
-// value edits it in place (typed in an `Input`). Below `tablet` one `RowItem` per record
-// under the sort's pick. The table sorts in its own state: newest or largest
-// first, then turned over, then off. While the `items` selection's read
-// waits, `PAINT_ROWS` rows stand in the columns the table declares (the slots
-// are run over the placeholder), the header constant over them, each cell
-// painted by its column's kind and the rows inert; below `tablet` the list
-// paints the same records as its rows. The table is a frame of its
-// items: it draws the failed form with Retry, the missing form and the empty
-// form (its `empty`, else the generic sentence) in its own box, and the stale and paused line above its rows while it
-// holds its read, whatever stands above it.
+// The phone's table: docs/architecture/plugins/native-ui.md, "Table". Its frame forms and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
+// It sorts in its own state: newest or largest first, then turned over, then off.
 export function Table<T>(props: TableProps<T>) {
 	const { selected, current, onOpen, onEdit } = props;
 	// The phone has no columns menu: a column that starts `hidden` stays out.

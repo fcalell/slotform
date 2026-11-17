@@ -1,9 +1,4 @@
-// How a long collection windows, free of any framework: from how many loaded
-// rows it draws only those near the scroller's view, how far past each edge
-// the view it keeps rows, and the arithmetic that turns the rows a virtualizer
-// placed into the children of the box (rows and the spacers that stand in for
-// the rest). The web runs it over TanStack Virtual; the arithmetic is here so
-// it is tested without a DOM.
+// How a long collection windows: docs/architecture/ui-core/components.md, "Collections and lists".
 
 // Loaded rows from which a collection windows, under a scroller. Fewer
 // always draw whole, so a painted form (PAINT_ROWS) never windows. Fifty is

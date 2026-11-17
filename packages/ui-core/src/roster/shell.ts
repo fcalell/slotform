@@ -11,30 +11,7 @@ import {
 	toneOf,
 } from "./shared.ts";
 
-// The sidebar on the desktop, the tab bar on touch. A Shell whose places name
-// groups (each listed in `groups`, which carry the icon) draws the sidebar as
-// a rail of icon entries (the ungrouped places first, named by their first
-// place, a press going to the group's first place; the footer places and the
-// dock act at its foot) beside the docked column of the current place's
-// group (the group's switcher, its places; the app's switcher leads the
-// rail). A pointer resting on an entry or a focus on it shows its group in
-// the column; folded to the rail, the sidebar opens over the page to its
-// labels with that column beside it instead. It goes back once the pointer
-// and the focus leave, on Escape or when the route changes; a menu or sheet
-// the column opened holds it, and a pointer heading for the column keeps
-// the group shown. One
-// with no groups keeps the one sidebar. On touch the places layer lists the
-// groups first.
-// The column holds the place: the route's Panes in a row, each but the last
-// at the list width giving way to its floor, the last taking the rest, and
-// below `tablet` of the column only the last standing; a route draws no
-// place of its own.
-// A `foot` stands under the place across the column (on the phone, above the
-// tab bar), whatever the route: the app's, a `Dock` for a player; the Shell
-// draws nothing there without one and owns no sound.
-// A place with a `drop` takes what is dragged from a row (`DROP_ON` under the
-// drag); the frame draws the label that follows the pointer (`DRAG_GHOST`)
-// and the line a reordered row lands at (`DROP_LINE`).
+// The sidebar on the desktop, the tab bar on touch: docs/architecture/ui-core/layout.md, "Sidebar and groups".
 export const shellEntry: RosterEntry = {
 	props: ["places", "groups", "banner", "switcher", "foot", "children"],
 	draws: [
@@ -127,28 +104,14 @@ export interface PlaceSpec<Q = unknown> {
 	label: string;
 	icon: IconName;
 	count?: number;
-	// The name of the group the place stands in (a word; truncates), which the
-	// Shell's `groups` lists. A group is an entry on the sidebar's rail and the
-	// column that entry shows; a place with none stands in the ungrouped run, the
-	// rail's first entry. The tab bar and the More page ignore it.
+	// A place's group: docs/architecture/ui-core/layout.md, "Places".
 	group?: string;
-	// The place stands in the footer group at the sidebar's bottom (settings, an
-	// exit), after the others and under no label. The tab bar and the More page
-	// ignore it.
+	// The footer group: docs/architecture/ui-core/layout.md, "Places".
 	end?: boolean;
 	// The drop this place is (a board): a drag of a kind it accepts released
 	// on it runs its `onDrop`. The tab bar ignores it.
 	drop?: Drop<Q>;
-	// The places standing under this one (a folder's boards), each with
-	// children of its own to any depth: the place is a branch, its sidebar row
-	// opens and folds them one level in. A branch is a place like any other
-	// (its route, its count, its `drop`); its row also carries the viewer's
-	// choice of open or folded, which the browser keeps. Unchosen, a branch is
-	// open when the current place is under it, else folded. A branch is the
-	// current place's ancestor, drawn as on its path. A place named by `group`
-	// carries its children into that group's run; `end` places have none. The
-	// phone's tab bar and More page are flat: they draw the top level only and
-	// ignore `children`, except that a route under a branch selects its tab.
+	// A branch place: docs/architecture/ui-core/layout.md, "Places".
 	children?: readonly PlaceSpec<Q>[];
 }
 
@@ -311,12 +274,7 @@ export const SHELL_RAIL_MOTION =
 export const SHELL_COLUMN_MOTION =
 	"invisible translate-x-[calc(var(--dir)*-1*var(--sidebar-travel))] [clip-path:inset(0_calc(max(0,-1*var(--dir))*(100%-var(--spacing-hairline)))_0_calc(max(0,var(--dir))*(100%-var(--spacing-hairline))))] transition-[translate,clip-path,visibility] duration-base ease-out data-expanded:visible data-expanded:translate-x-0 data-expanded:[clip-path:inset(0_calc(max(0,-1*var(--dir))*-1*var(--spacing-hairline))_0_calc(max(0,var(--dir))*-1*var(--spacing-hairline)))] data-expanded:pointer-events-auto before:absolute before:inset-y-0 before:start-0 before:w-hairline before:bg-edge before:translate-x-[calc(var(--dir)*var(--container-sidebar))] data-expanded:before:translate-x-0 before:transition-[translate] before:duration-base before:ease-out motion-reduce:transition-none motion-reduce:before:transition-none";
 export const SHELL_COLUMN_FLOAT = "border-e border-edge";
-// As the viewer docks or folds the sidebar, the page takes its new room at
-// once and slides from where it stood (`data-slide` on the frame: `dock` from
-// the strip's end, `fold` from the body's), its end moving with the body's
-// end, on the body's `base` `out`; the `page-slide` keyframes are in the web's
-// `globals.css`. Each part of the page carries it (the banner, the place, the
-// foot), since the frame, the column and `main` hold no transform.
+// The page slides as the sidebar docks or folds: docs/architecture/ui-core/motion.md, "Navigate and stream".
 export const SHELL_PAGE_SLIDE =
 	"in-data-[slide=dock]:[--page-from:calc(var(--dir)*-1*var(--sidebar-travel))] in-data-[slide=fold]:[--page-from:calc(var(--dir)*var(--sidebar-travel))] in-data-slide:animate-[page-slide_var(--transition-duration-base)_var(--ease-out)]";
 // A group's label, at the rows' inline inset, a pair over its rows.

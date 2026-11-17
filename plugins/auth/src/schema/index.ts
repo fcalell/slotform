@@ -1,33 +1,7 @@
-// Better Auth's core identity tables (user / session / account / verification),
-// as Drizzle SQLite tables. This is the canonical shape emitted by
-// `@better-auth/cli generate` for a sqlite/D1 adapter with OAuth social
-// providers and emailOTP off — ported verbatim so the framework owns identity
-// persistence instead of leaving it to each consumer.
-//
-// The Drizzle adapter NEVER issues DDL: these tables must exist in the database
-// before any sign-in. Two seams carry them there:
-//   • the worker runtime passes them to `drizzleAdapter({ schema })` (so model
-//     resolution never depends on the consumer's export names), and
-//   • the consumer re-exports this module from `src/schema` so drizzle-kit
-//     migrates them and the worker's Drizzle instance registers them.
-//
-// `verification` is required even for OAuth-only: it stores the OAuth `state` /
-// PKCE `codeVerifier` across the sign-in round-trip. Regenerate + diff this file
-// with `@better-auth/cli generate` after a Better Auth bump or a table-bearing
-// plugin (organization, twoFactor, …) is enabled — the organization plugin's own
-// tables (`organization` / `member` / `invitation`) live in `./organization.ts`,
-// shipped from the `@fcalell/plugin-auth/schema/organization` subpath and
-// re-exported by the consumer only when `organization` is enabled (see
-// plugins/auth/README.md). `session.activeOrganizationId` below is the one
-// organization-plugin field that lands here instead: it's a column on this
-// always-present table, not a new one, so it can't be gated behind the
-// separate subpath — nullable, so it's a no-op for consumers who never enable
-// organizations.
+// Better Auth's core identity tables (user / session / account / verification), as Drizzle SQLite tables.
+// Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// The drizzle types the emitted declarations spell, named here so they are
-// spelled through plugin-db, the one package drizzle resolves from. Unnamed,
-// tsc writes `import("drizzle-orm/...")`, which a consumer cannot resolve
-// from this package, and every table and row read through it is `any`.
+// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/auth.md, "Schema tables".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
 import type {
 	Many,

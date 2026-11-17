@@ -3,9 +3,7 @@ import { emailOTPClient } from "better-auth/client/plugins";
 import { createAuthClient as createBetterAuthClient } from "better-auth/react";
 import { createContext, type ReactNode, useContext } from "react";
 
-// Derive the secure-storage shape from `expoClient`'s own option so we stay in
-// lockstep with `@better-auth/expo` without importing `expo-secure-store` here
-// (which would pull native modules into every importer, including Node tests).
+// Secure-storage shape derived from `expoClient`'s option: docs/architecture/plugins/auth.md, "Native client".
 type ExpoClientStorage = NonNullable<
 	Parameters<typeof expoClient>[0]
 >["storage"];
@@ -20,17 +18,11 @@ export interface AuthClientConfig {
 	// Deep-link scheme for the OAuth redirect back into the app. Matches the
 	// Expo app `scheme` (and `plugin-expo`'s `scheme` option).
 	scheme: string;
-	// Secure key-value store tokens are persisted in. The consumer passes the
-	// imported module (e.g. `expo-secure-store`) so this layer stays
-	// storage-agnostic and never pulls native modules into Node-side tests.
+	// Secure key-value store tokens persist in: docs/architecture/plugins/auth.md, "Native client".
 	storage: ExpoClientStorage;
 	// Prefix for stored keys. Defaults to the scheme.
 	storagePrefix?: string;
-	// Prefix of the session cookies the worker sets. Must equal the
-	// `auth({ cookies: { prefix } })` value in `stack.config.ts`, which `stack
-	// init` defaults to `app.name`. A mismatch is silent and total: the client
-	// filters the server's Set-Cookie by this prefix, so every device drops a
-	// still-valid session and the app reads as signed out.
+	// Prefix of the session cookies the worker sets: docs/architecture/plugins/auth.md, "Cookie prefix".
 	cookiePrefix?: string;
 }
 
@@ -83,9 +75,7 @@ export interface AuthProviderProps {
 	children: ReactNode;
 }
 
-// Exposes the configured auth client to the tree so screens read it via
-// `useAuthClient()` rather than importing a module singleton. Contributed to
-// `plugin-expo.slots.providers` by `plugin-native-ui`.
+// Auth client provider: docs/architecture/plugins/auth.md, "Native client".
 export function AuthProvider(props: AuthProviderProps) {
 	return (
 		<AuthClientContext.Provider value={props.client}>
@@ -132,21 +122,7 @@ export function signInWithGoogle(
 
 // ── Native ID-token sign-in ─────────────────────────────────────────
 //
-// The helpers above open the system browser for the OAuth redirect (works in
-// Expo Go). The two below skip the browser: they drive the OS account sheet via
-// the platform SDK, then hand the resulting ID token to the worker, which
-// verifies it server-side. This is the better UX but pulls in build-time native
-// modules — they require a custom dev/native build and are absent from Expo Go.
-// The native modules are dynamically imported so merely importing this file (in
-// Node tests or a web consumer) never loads them.
-//
-// They are optional peers: an app that signs in with the browser flow installs
-// neither. This file ships as source and the app's `tsc` reads it, so it names
-// no type from them. What it uses of each is declared below, and the import is
-// cast to it; the ignore directive above each import only silences "cannot find
-// module" where the app has not installed the package (Metro still bundles the
-// literal specifier). Where it has, the app's own types describe the module and
-// the cast narrows it to this.
+// Native ID-token helpers: docs/architecture/plugins/auth.md, "Native client".
 
 interface GoogleSigninModule {
 	GoogleSignin: {
@@ -177,9 +153,7 @@ interface AppleAuthenticationModule {
 }
 
 export interface NativeGoogleSignInConfig {
-	// Google "Web application" OAuth client id. Google issues the native ID token
-	// to this audience, so it must equal the worker's GOOGLE_CLIENT_ID for the
-	// server to verify it.
+	// Google "Web application" OAuth client id: docs/architecture/plugins/auth.md, "Native client".
 	webClientId: string;
 	// Google "iOS" OAuth client id (recommended on iOS).
 	iosClientId?: string;

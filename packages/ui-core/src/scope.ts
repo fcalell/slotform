@@ -1,9 +1,4 @@
-// The scope the route supplies to the client. The URL names the scope by slug;
-// the boundary that resolves it registers the ids here (`ScopeBoundary` in
-// `./react/scope.ts`), and the binding's query utils merge them into the input
-// of every call before the query key is built, so the id stays in the key and
-// two scopes never share a cache entry. No React import: a client bundle holds
-// one copy of this module, reached by package name.
+// The scope the route supplies to the client: docs/architecture/ui-core/reads.md, "Scope ids".
 
 /** The ids a boundary registers: `{ organizationId }`, and under a project `{ organizationId, projectId }`. */
 export type ScopeIds = Readonly<Record<string, string>>;

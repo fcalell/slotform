@@ -123,12 +123,7 @@ export function sqliteView(
 	};
 }
 
-// The table, relation and row types a plugin's typed surface names
-// (plugin-auth's tables and scopes). A plugin's emitted declarations name a
-// drizzle type through this module, the one it depends on; drizzle itself
-// resolves from plugin-db alone, so a type missing here is emitted as a
-// `drizzle-orm` import that resolves to nothing in a consumer, and every row
-// read through it is `any`.
+// Plugin declarations name drizzle types through this module: docs/architecture/plugins/db.md, "Type resolution".
 export type {
 	InferInsertModel,
 	InferSelectModel,

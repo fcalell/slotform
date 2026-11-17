@@ -1,8 +1,6 @@
 import { StackError } from "@fcalell/cli/errors";
 
-// A declared env var becomes a `.dev.vars` key, a `wrangler secret put` name
-// and a member of the worker's `Env`; all three read it as a shell-style
-// identifier.
+// The env-name rule: docs/architecture/plugins/cloudflare.md, "Env namespace".
 const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 export function assertEnvName(name: string): void {

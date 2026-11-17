@@ -136,12 +136,12 @@ const ROW_OPEN = "bg-wash-press text-ink-body";
 const ROW_VALUE = "truncate";
 // A pick standing as a fact of a record's head (`fact`) is one pill, the
 // trigger itself: the outlined pill around a plain value, named in the body
-// ink as the facts beside it are (voice 7), or, where the chosen option
+// ink as the facts beside it are, or, where the chosen option
 // carries a state, the state pill (its dot and word) with the chevron in its
 // own ink, never a state pill inside an outlined one. The hit is the target's, pulled back to
 // the badge's line (`ITEM_FACT_HIT`), as a fact that opens is. A row's pick whose
 // chosen option carries a state is that same state pill at a chip's height
-// (the caption line between its hairlines, voice 12), so a status that moves has
+// (the caption line between its hairlines), so a status that moves has
 // one shape in a row and in a head: the pill is the trigger, its chevron
 // inside at its end; its hit, the target's, overflows the row's line centred
 // as every end item's does.

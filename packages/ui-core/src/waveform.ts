@@ -1,7 +1,4 @@
-// A waveform's arithmetic, free of any framework and of the canvas: the peaks
-// reduced to the columns a width draws, the moment a pointer or a key names, and
-// the keyboard's steps. The web draws it on a canvas; the phone would draw the
-// same columns.
+// A waveform's arithmetic, free of any framework and of the canvas: docs/architecture/ui-core/sound.md, "Player".
 import type { Peaks } from "./descriptors.ts";
 
 // What the arrow keys and the page keys move a playhead by, in seconds: an arrow

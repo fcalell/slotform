@@ -61,10 +61,8 @@ const leave = () => timing("base", "in");
 const ScrimBase = withUniwind(BottomSheetBackdrop);
 const ViewBody = withUniwind(BottomSheetView);
 
-// What the head, the foot and the scrim draw. gorhom renders each slot as an
-// element type, so a new component identity remounts its tree (a typing
-// field in the head loses focus): the slots are module components reading
-// this, never closures.
+// What the head, the foot and the scrim draw: docs/architecture/plugins/native-ui.md, "Sheets". The slots are module
+// components reading this, never closures.
 interface Parts {
 	title: string;
 	head?: ReactNode;
@@ -85,11 +83,7 @@ function useParts(): Parts {
 	return parts;
 }
 
-// gorhom draws the sheet outside the tree that opens it, so the sheet's
-// contexts, and the read port its body's leaves read through, start at the
-// container it draws everything in.
-// A value a sheet's layer reads: gorhom draws the layer in its provider's host
-// and pushes it only when the modal itself re-renders.
+// A sheet's layer reads its value through a store: docs/architecture/plugins/native-ui.md, "Sheets".
 function layerOf(parts: Store<Parts>) {
 	return function Layer({ children }: PropsWithChildren) {
 		const current = useSyncExternalStore(parts.subscribe, parts.get);

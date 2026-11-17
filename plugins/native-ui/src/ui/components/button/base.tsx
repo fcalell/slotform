@@ -77,9 +77,7 @@ const BLOCKED: Record<ButtonAct, string> = {
 	quiet: "",
 };
 
-// Pending and blocked are both inert, so one look is chosen: pending over
-// blocked, and neither takes the press. A pending act keeps its rest look
-// until the delay has run.
+// Pending and blocked look: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 function lookOf(
 	kind: ButtonAct,
 	pending: boolean,
@@ -91,17 +89,8 @@ function lookOf(
 	return "";
 }
 
-// The act every Button renders. It holds its own run: inert at the press, then (after `ACT_DELAY`) its
-// glyph and label hidden under the spinner, its name kept; a rejection is a
-// failed toast with Retry. `pending` is a host's state handed down: the
-// host holds the run, so a press calls the handler as it is; `line`
-// draws a rejection under the act instead (the public Button standing alone).
-// Pending and blocked acts stay focusable and ignore the press, a
-// blocked one says why under itself once pressed or once its form or sheet is
-// touched, or on the line of the host that holds it. Its ink reaches the glyph
-// and the spinner through `Ink`, since a native view takes no currentColor.
-// `painted` is the act while its data is not here: its box filled, its content
-// not drawn, inert. Outside the package's exports.
+// The act every Button renders; outside the package's exports.
+// Its run, pending, blocked and painted forms: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 export function ButtonBase({
 	act,
 	fit,

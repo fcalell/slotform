@@ -4,10 +4,7 @@ import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { Tab } from "./tab.ts";
 
-// What `shoot` and `drive` judge a page with: the test run's own page code
-// (`src/ui/inject.ts`: the render walk, the overflow check, the control hit
-// test), bundled once and injected into each tab, and axe with the rules the
-// test run turns on.
+// What `shoot` and `drive` judge a page with: docs/architecture/plugins/screens.md, "Judging shoot and drive".
 
 const packageRoot = fileURLToPath(new URL("../..", import.meta.url));
 

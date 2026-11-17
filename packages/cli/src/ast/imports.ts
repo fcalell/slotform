@@ -1,11 +1,6 @@
 import type { TsImportSpec } from "./specs.ts";
 
-// Merge contributions to `.stack/*.ts` import statements. Plugins emit imports
-// independently during codegen aggregation; merging guarantees one well-formed
-// import line per source. Conflicting contributions throw — silent dedupe used
-// to swallow real disagreements (two plugins binding the same local name to
-// different exports), so any disagreement now surfaces with an actionable
-// error instead of producing wrong code at runtime.
+// Import merge: docs/architecture/codegen.md, "Import merge".
 export function dedupeImports(specs: TsImportSpec[]): TsImportSpec[] {
 	interface Accum {
 		source: string;
@@ -16,10 +11,7 @@ export function dedupeImports(specs: TsImportSpec[]): TsImportSpec[] {
 		// statements, so their `typeOnly` intent is independent.
 		namedTypeOnly: boolean | null;
 		defaultTypeOnly: boolean | null;
-		// local-name -> imported-name mapping. For `named: ["foo"]`, both names
-		// are `"foo"`. For `named: [{ name: "bar", alias: "foo" }]`, local is
-		// `"foo"` and imported is `"bar"`. Two contributions producing the same
-		// local with different imported names is a hard conflict.
+		// Keyed by local name: docs/architecture/codegen.md, "Import merge".
 		namedByLocal: Map<string, { imported: string; alias: string | null }>;
 		// Plain default imports: `import D from "foo"`. At most one distinct `D`
 		// per source — same string from N contributors collapses, different

@@ -8,19 +8,13 @@ import {
 } from "react-native-reanimated";
 import { timing } from "./motion";
 
-// What lets go of a gesture eases (`motion.md` §3, follow): a thing carried
-// and let go settles where it lands on `base` `out`. gorhom's bottom sheet
-// carries the sheet's own drag; this is the timing it settles and leaves on
-// once released, read when the sheet opens so a tuned rung is the next one's.
+// What lets go of a gesture eases: docs/architecture/ui-core/drag.md, "Follow". Read when the sheet
+// opens so a tuned rung is the next one's.
 export const released = () => timing("base", "out");
 
 /**
- * A swipe toward the inline end: the view moves 1:1 with the finger along its
- * line and never against it, with no easing; let go past the reach or flung it
- * carries on out of the screen on `fast` `in` and hands over to `onAway`, else
- * it settles back on `base` `out`. Spread `style` on the animated view, and wrap
- * it in a `GestureDetector` over `gesture`. The pure
- * decision is `@fcalell/ui-core/follow`'s, the web's as well.
+ * A swipe toward the inline end: docs/architecture/ui-core/drag.md, "Follow". Spread `style` on
+ * the animated view, and wrap it in a `GestureDetector` over `gesture`.
  */
 export function useSwipe(onAway: () => void) {
 	const x = useSharedValue(0);

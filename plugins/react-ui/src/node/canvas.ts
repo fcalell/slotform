@@ -1,8 +1,6 @@
 import type { Plugin } from "vite";
 
-// Vite's dev optimizer pre-bundles this package's `.tsx`, and a `?worker`
-// import cannot survive pre-bundling. The module holding it is served as
-// source, and its CJS dependency is pre-bundled by name.
+// The canvas layout module stays out of the pre-bundle: docs/architecture/plugins/react-ui.md, "Canvas serving".
 export function canvasPlugin(): Plugin {
 	return {
 		name: "fcalell:canvas",
