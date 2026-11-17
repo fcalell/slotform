@@ -79,9 +79,46 @@ export interface ControlPoint {
 	hit: string;
 }
 
+interface Rect {
+	left: number;
+	top: number;
+	right: number;
+	bottom: number;
+}
+
+const middle = (rect: Rect) => ({
+	x: (rect.left + rect.right) / 2,
+	y: (rect.top + rect.bottom) / 2,
+});
+
+// Where a press lands on a control: the middle of the part inside the
+// viewport of its first client rect (one per line box) that shows a pixel or
+// more, so an inline link wrapped over two lines is pressed on a line, never
+// between them. With none showing, the middle of its box, where the hit test
+// finds nothing of it.
+export function pressPoint(
+	box: Rect,
+	rects: Iterable<Rect>,
+	width: number,
+	height: number,
+): { x: number; y: number } {
+	for (const rect of rects) {
+		const seen = {
+			left: Math.max(rect.left, 0),
+			top: Math.max(rect.top, 0),
+			right: Math.min(rect.right, width),
+			bottom: Math.min(rect.bottom, height),
+		};
+		const area =
+			Math.max(seen.right - seen.left, 0) * Math.max(seen.bottom - seen.top, 0);
+		if (area > 0.99) return middle(seen);
+	}
+	return middle(box);
+}
+
 // Where to press the control whose visible text or accessible name is `text`:
 // the first visible, enabled match, scrolled into view, with a hit test of
-// what is drawn at its centre. Null when none matches.
+// what is drawn at its press point (`pressPoint`). Null when none matches.
 export function controlPoint(text: string): ControlPoint | null {
 	const want = words(text);
 	const matches = [...document.querySelectorAll<HTMLElement>(CONTROLS)].filter(
@@ -104,9 +141,12 @@ export function controlPoint(text: string): ControlPoint | null {
 	);
 	if (!element) return null;
 	element.scrollIntoView({ block: "center", inline: "center" });
-	const box = element.getBoundingClientRect();
-	const x = box.left + box.width / 2;
-	const y = box.top + box.height / 2;
+	const { x, y } = pressPoint(
+		element.getBoundingClientRect(),
+		element.getClientRects(),
+		window.innerWidth,
+		window.innerHeight,
+	);
 	const hit = document.elementFromPoint(x, y);
 	return {
 		x,

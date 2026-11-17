@@ -56,3 +56,54 @@ test("rest sends nothing to a touch tab, which has no pointer", async () => {
 	await tab.rest();
 	assert.equal(sent.length, 0);
 });
+
+// A tab over a Cdp that answers `Page.navigate` with `reply` and lets the test
+// fire the tab's events.
+function navigating(reply: object, ended?: string) {
+	const handlers: {
+		method: string;
+		handler: (p: unknown, s: string) => void;
+	}[] = [];
+	const cdp = {
+		send: async (method: string) => (method === "Page.navigate" ? reply : {}),
+		on: (method: string, handler: (p: unknown, s: string) => void) => {
+			handlers.push({ method, handler });
+		},
+		ended: () => ended,
+	};
+	const fire = (method: string, params: unknown) => {
+		for (const entry of handlers)
+			if (entry.method === method) entry.handler(params, "session");
+	};
+	// The fake has only the part of Cdp a Tab calls.
+	return { cdp: cdp as never, fire };
+}
+
+test("a same-document goto (no loaderId) is done at the reply, with no load event", async () => {
+	const { cdp } = navigating({ frameId: "f" });
+	const tab = await Tab.open(cdp, "session", "target");
+	await tab.goto("http://x/page#top", 200);
+});
+
+test("goto waits for its own document's load, not another one's", async () => {
+	const { cdp, fire } = navigating({ frameId: "f", loaderId: "new" });
+	const tab = await Tab.open(cdp, "session", "target");
+	let done = false;
+	const going = tab.goto("http://x/next", 2000).then(() => {
+		done = true;
+	});
+	fire("Page.lifecycleEvent", { loaderId: "old", name: "load" });
+	await new Promise((resolve) => setTimeout(resolve, 120));
+	assert.equal(done, false);
+	fire("Page.lifecycleEvent", { loaderId: "new", name: "load" });
+	await going;
+});
+
+test("goto on a crashed tab fails at once, naming the crash", async () => {
+	const { cdp } = navigating(
+		{ frameId: "f", loaderId: "new" },
+		"the tab crashed",
+	);
+	const tab = await Tab.open(cdp, "session", "target");
+	await assert.rejects(tab.goto("http://x/next", 30_000), /the tab crashed/);
+});

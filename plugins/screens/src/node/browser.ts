@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import {
 	closeSync,
 	mkdirSync,
@@ -134,9 +135,28 @@ async function liveUrl(
 	return browserUrl(state.port);
 }
 
+// Whether a process's command line (as `ps` prints it, its arguments joined
+// by spaces) is a Chrome on `profile`: a stale state's pid may since belong to
+// another process. The argument is matched whole, so a profile path that
+// holds a space still matches and a longer one does not.
+export function runsProfile(command: string, profile: string): boolean {
+	return ` ${command.trim()} `.includes(` --user-data-dir=${profile} `);
+}
+
+// Whether `pid` is the Chrome on `profile`. `ps` reads a command line the same
+// way on Linux and macOS; `-ww` keeps it whole, and a pid that is gone prints
+// nothing.
+function isProfileChrome(pid: number, profile: string): boolean {
+	const ps = spawnSync("ps", ["-ww", "-o", "command=", "-p", String(pid)], {
+		encoding: "utf8",
+	});
+	if (ps.error) throw ps.error;
+	return runsProfile(ps.stdout, profile);
+}
+
 function discard(state: BrowserState | undefined): void {
 	const { state: file, profile } = files();
-	if (state && pidAlive(state.pid)) {
+	if (state && isProfileChrome(state.pid, profile)) {
 		try {
 			process.kill(state.pid, "SIGKILL");
 		} catch {

@@ -1,4 +1,5 @@
 import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
+import type { ControlPoint } from "../ui/page.ts";
 import { type Cdp, sleep } from "./chrome.ts";
 
 // One tab, driven over CDP: navigation, evaluation, the viewport, real input
@@ -60,20 +61,12 @@ export function busyRequests(
 	return busy;
 }
 
-export interface ControlPoint {
-	x: number;
-	y: number;
-	label: string;
-	// Whether the element at the point is the control or inside it.
-	ok: boolean;
-	hit: string;
-}
-
 export class Tab {
 	touch = false;
 	private open = new Map<string, OpenRequest>();
 	private lastNet = 0;
-	private loadedAt = 0;
+	// The documents (loader ids) whose load event fired since the last goto.
+	private loaded = new Set<string>();
 
 	readonly cdp: Cdp;
 	readonly sessionId: string;
@@ -137,9 +130,12 @@ export class Tab {
 		};
 		this.listen("Network.loadingFinished", done);
 		this.listen("Network.loadingFailed", done);
-		this.listen<void>("Page.loadEventFired", () => {
-			this.loadedAt = Date.now();
-		});
+		this.listen(
+			"Page.lifecycleEvent",
+			(p: { loaderId: string; name: string }) => {
+				if (p.name === "load") this.loaded.add(p.loaderId);
+			},
+		);
 		// A page that guards its edits asks before it unloads: a goto leaves it. The
 		// dialog may be gone by the time the answer arrives.
 		this.listen("Page.javascriptDialogOpening", () => {
@@ -147,7 +143,11 @@ export class Tab {
 				() => {},
 			);
 		});
-		await Promise.all([this.send("Page.enable"), this.send("Network.enable")]);
+		await Promise.all([
+			this.send("Page.enable"),
+			this.send("Page.setLifecycleEventsEnabled", { enabled: true }),
+			this.send("Network.enable"),
+		]);
 		await this.media();
 	}
 
@@ -186,16 +186,20 @@ export class Tab {
 		});
 	}
 
+	// Opens `url` and waits for the load of the document it made. A
+	// same-document navigation (a fragment, on the page it names) makes none
+	// (`loaderId` is absent), so it is done when the reply comes.
 	async goto(url: string, timeout = 30_000): Promise<void> {
-		const since = Date.now();
-		const { errorText } = await this.send<{ errorText?: string }>(
-			"Page.navigate",
-			{ url },
-			timeout,
-		);
+		const end = Date.now() + timeout;
+		this.loaded.clear();
+		const { errorText, loaderId } = await this.send<{
+			errorText?: string;
+			loaderId?: string;
+		}>("Page.navigate", { url }, timeout);
 		if (errorText) throw new Error(`cannot open ${url}: ${errorText}`);
-		const end = since + timeout;
-		while (this.loadedAt < since) {
+		while (loaderId && !this.loaded.has(loaderId)) {
+			const ended = this.cdp.ended(this.sessionId);
+			if (ended) throw new Error(`${url} did not load: ${ended}`);
 			if (Date.now() > end)
 				throw new Error(`${url} did not finish loading within ${timeout} ms`);
 			await sleep(50);
@@ -233,9 +237,13 @@ export class Tab {
 				Date.now() - this.lastNet >= 400
 			) {
 				// A page mid-navigation has no context to evaluate in: not idle yet.
+				// A tab that ended never will be.
 				const idle = await this.evaluate<boolean>(
 					`document.readyState==="complete"&&document.querySelector(${JSON.stringify(busy)})===null`,
-				).catch(() => false);
+				).catch((error: unknown) => {
+					if (this.cdp.ended(this.sessionId)) throw error;
+					return false;
+				});
 				if (idle) return undefined;
 			}
 			await sleep(100);

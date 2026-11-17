@@ -123,6 +123,7 @@ type Handler = (params: never, sessionId: string | undefined) => void;
 
 interface Pending {
 	method: string;
+	sessionId: string | undefined;
 	resolve: (value: never) => void;
 	reject: (error: Error) => void;
 	timer: NodeJS.Timeout;
@@ -131,11 +132,14 @@ interface Pending {
 const CALL_TIMEOUT = 30_000;
 
 // One connection to Chrome's browser endpoint. A call to a tab names its
-// `sessionId` (flat sessions); `Session` binds it.
+// `sessionId` (flat sessions); `Tab` binds it. A tab that crashes or detaches
+// fails its pending calls at once, and every call to it after.
 export class Cdp {
 	private id = 0;
 	private pending = new Map<number, Pending>();
 	private handlers = new Set<{ method: string; handler: Handler }>();
+	// Why each ended session ended.
+	private ends = new Map<string, string>();
 	closed = false;
 
 	private socket: WebSocket;
@@ -162,6 +166,13 @@ export class Cdp {
 		});
 		socket.addEventListener("close", () => this.fail("the connection closed"));
 		socket.addEventListener("error", () => this.fail("the connection failed"));
+		this.on("Target.detachedFromTarget", (params: { sessionId: string }) =>
+			this.end(params.sessionId, "the tab closed"),
+		);
+		// A tab's own event: flat sessions always name it.
+		this.on("Inspector.targetCrashed", (_, sessionId) => {
+			if (sessionId) this.end(sessionId, "the tab crashed");
+		});
 	}
 
 	static connect(url: string): Promise<Cdp> {
@@ -188,11 +199,28 @@ export class Cdp {
 
 	private fail(reason: string): void {
 		this.closed = true;
-		for (const call of this.pending.values()) {
+		this.reject(() => true, reason);
+	}
+
+	// A crash, then the detach that follows it, keeps the first reason.
+	private end(sessionId: string, reason: string): void {
+		if (this.ends.has(sessionId)) return;
+		this.ends.set(sessionId, reason);
+		this.reject((call) => call.sessionId === sessionId, reason);
+	}
+
+	private reject(which: (call: Pending) => boolean, reason: string): void {
+		for (const [id, call] of this.pending) {
+			if (!which(call)) continue;
 			clearTimeout(call.timer);
+			this.pending.delete(id);
 			call.reject(new Error(`CDP ${call.method}: ${reason}`));
 		}
-		this.pending.clear();
+	}
+
+	// Why the tab on `sessionId` ended, or undefined while it lives.
+	ended(sessionId: string): string | undefined {
+		return this.ends.get(sessionId);
 	}
 
 	send<T = unknown>(
@@ -204,6 +232,8 @@ export class Cdp {
 			return Promise.reject(
 				new Error(`CDP ${method}: the connection is closed`),
 			);
+		const ended = options.sessionId && this.ends.get(options.sessionId);
+		if (ended) return Promise.reject(new Error(`CDP ${method}: ${ended}`));
 		const id = ++this.id;
 		const timeout = options.timeout ?? CALL_TIMEOUT;
 		return new Promise<T>((resolve, reject) => {
@@ -211,7 +241,13 @@ export class Cdp {
 				this.pending.delete(id);
 				reject(new Error(`CDP ${method} timed out after ${timeout} ms`));
 			}, timeout);
-			this.pending.set(id, { method, resolve, reject, timer });
+			this.pending.set(id, {
+				method,
+				sessionId: options.sessionId,
+				resolve,
+				reject,
+				timer,
+			});
 			this.socket.send(
 				JSON.stringify({ id, method, params, sessionId: options.sessionId }),
 			);

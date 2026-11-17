@@ -1,10 +1,11 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import type { ControlPoint } from "../ui/page.ts";
 import { HEIGHT, SHOT_MAX_HEIGHT } from "../widths.ts";
 import { withLease } from "./browser.ts";
 import { call, judge, prepare, settle } from "./judge.ts";
 import { parseList } from "./select.ts";
-import type { ControlPoint, Tab } from "./tab.ts";
+import type { Tab } from "./tab.ts";
 
 // `stack screens shoot` and `drive`: a live app opened in the shared browser,
 // judged and shot at each width and mode. `shoot` visits routes; `drive` runs a

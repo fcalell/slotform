@@ -417,14 +417,23 @@ Every screens command on the machine shares one headless Chrome. Its address is 
 (`{ port, pid }`, plus `kept` when `stack screens browser` started it) in `$XDG_RUNTIME_DIR/stack/`
 (the OS tmp dir without it). A `chrome.lock` file taken by exclusive create orders every start and
 every last-one-out check across processes, and a stale `chrome.json` (a dead pid, a port that does
-not answer) is replaced. Each command opens its own browser context (`Target.createBrowserContext`,
+not answer) is replaced. Its pid is killed only when its command line (`ps -ww -o command=`, the same
+on Linux and macOS) names the shared profile as a whole argument, since a stale pid may since belong to
+another process. Each command opens its own browser context (`Target.createBrowserContext`,
 disposed on detach) with its tabs inside, and disposes it at the end, on failure and on SIGINT or
 SIGTERM. A Chrome a command started closes when `Target.getBrowserContexts` is empty; one
 `stack screens browser` started stays until `stack screens browser stop`. A connect that fails because
 the browser has just closed starts it once more.
 
 The DevTools protocol (CDP) client talks to it over Node's own WebSocket. Nothing there waits without a
-limit: every call carries a timeout and rejects, naming its method. The test run's provider (`src/node/provider.ts`
+limit: every call carries a timeout and rejects, naming its method. A tab that crashes
+(`Inspector.targetCrashed`) or detaches (`Target.detachedFromTarget`) fails its pending calls at once
+with that reason, and every call to it after, so a run says "the tab crashed" instead of timing out. A
+`goto` waits for the `load` lifecycle event of the document its `Page.navigate` made (the reply's
+`loaderId`); a same-document navigation, such as a fragment on the open page, makes no document and is
+done at the reply. A press lands in the middle of the part inside the viewport of the control's first
+client rect that shows a pixel or more (`pressPoint`), so an inline link wrapped over two lines is pressed
+on a line, and the hit test reads what is drawn there. The test run's provider (`src/node/provider.ts`
 over `browser.ts`) is a Vitest browser provider with one context per session, reduced motion, a device
 scale of 1, and the commands `__vitest_viewport`, `__vitest_takeScreenshot`, `press` and `key`.
 
