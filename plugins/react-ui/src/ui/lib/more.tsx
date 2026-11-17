@@ -1,10 +1,9 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import type { More, Read } from "@fcalell/ui-core/read";
-import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
+import { fetchesMore, type More, type Read } from "@fcalell/ui-core/read";
 import type { ReactNode } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ButtonBase } from "../components/button/base.tsx";
 import { StateLine } from "./read.tsx";
 
@@ -27,20 +26,7 @@ interface MoreProps {
 	scrolled?: boolean;
 }
 
-/** Whether the rows a collection's `Window` mounts include the last of its `count` loaded, once it windows (`VIRTUAL_FROM` rows): the viewer is near the end, so the next page loads as the end nears and "Show more" stays for a short collection. `reached` holds for the count it was seen at, so a page that lands is not taken for the end again before the window has ranged over it. Hand `onRange` to the `Window`. */
-export function useReach(count: number) {
-	const [seen, setSeen] = useState<number>();
-	const onRange = useCallback(
-		(indices: readonly number[]) => {
-			const end = count >= VIRTUAL_FROM && indices.includes(count - 1);
-			setSeen((now) => (end ? count : now === undefined ? now : undefined));
-		},
-		[count],
-	);
-	return { reached: seen === count, onRange };
-}
-
-/** A collection's last row over a read that pages (a pages read, or a window read the collection does not size to its total): "Show more" while a next page remains (pressed by the viewer; a long list that scrolls loads it as the end nears instead), the painted rows `paint` draws while it loads, "Couldn't load more" with Retry when it failed. An empty first page that has more is not empty: the next page is fetched at once. Only this row renders on the next page's fetch; the frame is not busy then. */
+/** A collection's last row over a read that pages (a pages read, or a window read the collection does not size to its total): "Show more" while a next page remains (pressed by the viewer; a long windowed list loads it once its mounted rows reach the end, docs/architecture/ui-core/reads.md, "Paging"), the painted rows `paint` draws while it loads, "Couldn't load more" with Retry when it failed. An empty first page that has more is not empty: the next page is fetched at once. Only this row renders on the next page's fetch; the frame is not busy then. */
 export function MoreRow(props: MoreProps) {
 	return props.read.kind === "window" ? (
 		<WindowMoreRow {...props} />
@@ -63,7 +49,7 @@ function MoreLine(props: MoreProps & { more: More }) {
 	const { next, fetching, failed } = more;
 	const fetch = useRef(more.fetch);
 	fetch.current = more.fetch;
-	const fetches = (empty || scrolled === true) && next && !fetching && !failed;
+	const fetches = fetchesMore(more, empty || scrolled === true);
 	useEffect(() => {
 		if (fetches) fetch.current();
 	}, [fetches]);

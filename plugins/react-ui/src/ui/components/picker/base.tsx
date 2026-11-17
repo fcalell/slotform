@@ -11,6 +11,8 @@ import {
 import {
 	type Grouped,
 	groupsOf,
+	type OptionRow,
+	optionRows,
 	type PickOptions,
 	pickCurrent,
 	SEARCH_PAST,
@@ -1053,12 +1055,6 @@ function SearchItemBase<V extends string | null>(props: SearchItemProps<V>) {
 // `memo` returns a component without the type parameter it wraps.
 const SearchItem = memo(SearchItemBase) as typeof SearchItemBase;
 
-// A row of a virtual search list: a group's label, or one of the filtered
-// options at its place among them.
-type SearchRow<V extends string | null> =
-	| { label: string }
-	| { option: Option<V>; index: number };
-
 // The rows of a long search list: the filtered options, a group's label ahead
 // of its first match, in a box the list's scroller holds. Only the rows near
 // the scroller's view stand, and the highlighted one stays mounted and is
@@ -1076,15 +1072,12 @@ function SearchRows<V extends string | null>(props: {
 	const box = useRef<HTMLDivElement>(null);
 	const rows = useMemo(() => {
 		const kept = new Set(matches.map((option) => option.value));
-		const all: SearchRow<V>[] = [];
-		let index = 0;
-		for (const group of props.groups) {
-			const hits = group.options.filter((option) => kept.has(option.value));
-			if (hits.length === 0) continue;
-			if (group.label) all.push({ label: group.label });
-			for (const option of hits) all.push({ option, index: index++ });
-		}
-		return all;
+		return optionRows(
+			props.groups.map((group) => ({
+				label: group.label,
+				options: group.options.filter((option) => kept.has(option.value)),
+			})),
+		);
 	}, [matches, props.groups]);
 	const { highlight } = props;
 	const lit = highlight
@@ -1102,12 +1095,12 @@ function SearchRows<V extends string | null>(props: {
 				count={rows.length}
 				keyOf={(at) => {
 					// `Window` hands only indexes under its `count`, the list's length.
-					const row = rows[at] as SearchRow<V>;
+					const row = rows[at] as OptionRow<V>;
 					return "option" in row ? String(row.option.value) : row.label;
 				}}
 				row={(at) => {
 					// `Window` hands only indexes under its `count`, the list's length.
-					const row = rows[at] as SearchRow<V>;
+					const row = rows[at] as OptionRow<V>;
 					if (!("option" in row))
 						return <GroupLabel key={row.label}>{row.label}</GroupLabel>;
 					const { option } = row;

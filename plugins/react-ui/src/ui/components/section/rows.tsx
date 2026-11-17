@@ -1,6 +1,8 @@
 import { cn } from "@fcalell/ui-core/cn";
 import {
 	folding,
+	type SheetEntry,
+	sheetEntries,
 	toggled,
 	treeMove,
 	treeRows,
@@ -8,6 +10,7 @@ import {
 } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
+import { useReach } from "@fcalell/ui-core/react/read";
 import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
@@ -24,7 +27,7 @@ import {
 	useState,
 } from "react";
 import { TREE_DIVIDER } from "../../atoms/section/card.tsx";
-import { MoreRow, useReach } from "../../lib/more.tsx";
+import { MoreRow } from "../../lib/more.tsx";
 import { ListedRoute, useRoute } from "../../lib/navigate.ts";
 import { edgeOf, type Movable } from "../../lib/reorder.ts";
 import { Window } from "../../lib/window.tsx";
@@ -139,8 +142,6 @@ export function Rows(props: RowsInternal) {
 	// Every index below is one a loop, the window or `treeMove` hands out over
 	// the list it reads, so it is in range: the index casts are what
 	// `noUncheckedIndexedAccess` cannot see.
-	// The next page loads as the window reaches the last row loaded.
-	const reach = useReach(items.length);
 	// A sheet is a tree once any of its list items declares `children`.
 	const tree = !painted && items.some((item) => childrenOf(item) !== undefined);
 	// The rows that came on their own once the list was drawn fade in as they
@@ -153,20 +154,81 @@ export function Rows(props: RowsInternal) {
 	const paintedAt = (index: number) => (painted ? index : undefined);
 	const keyAt = (index: number) =>
 		painted ? `waiting-${index}` : keyOf(items[index] as Row);
+	// A tree's rows are the visible ones: each item, then its open children.
+	const visible = tree
+		? treeRows(items, { key: keyOf, children: childrenOf }, folded)
+		: undefined;
+	// The sheet's entries: its rows, and with groups a band before the first
+	// row of each group (and every empty group's, after the last); a tree's
+	// child stands with its parent.
+	const entries = sheetEntries(
+		visible
+			? visible.map((each) => ({
+					key: each.key,
+					depth: each.depth,
+					group: each.depth === 0 ? rank(each.item) : -1,
+				}))
+			: items.map((item, index) => ({
+					key: keyAt(index),
+					depth: 0,
+					group: rank(item),
+				})),
+		groups,
+		props.counted === true,
+	);
+	// The next page loads as the window reaches the sheet's last entry.
+	const reach = useReach(entries.length);
+	// One row by its kind: a file row alone has a shape of its own; a tree's rows take their place in it.
+	const rowOf = (
+		item: Row,
+		key: string,
+		index: number | undefined,
+		place?: Omit<
+			ComponentProps<typeof RowItem>,
+			"item" | "id" | "painted" | "arrived"
+		>,
+	) => {
+		if ("path" in item)
+			return (
+				<FileRowItem key={key} item={item} index={index} painted={painted} />
+			);
+		return (
+			<RowItem
+				key={key}
+				id={key}
+				{...place}
+				item={item}
+				index={index}
+				painted={painted}
+				arrived={arrived.has(key)}
+			/>
+		);
+	};
 	// The sheet is the rows' box: they stand in it directly, so its hairline
 	// falls once between them, a tree's too (its rails run unbroken); facts draw
 	// none. The rows read the route the Section read once, through `ListedRoute`.
-	// The rows are built by their index, so a long flat list's Window builds
-	// only the ones it mounts; the others draw all of them.
+	// The entries are built by their index, so a long Window builds only the
+	// ones it mounts; the others draw all of them.
 	const frame = (
-		count: number,
-		keyOf: (index: number) => string,
 		rowAt: (index: number) => ReactElement,
 		nav?: TreeNav,
 		keep?: number,
 	) => {
+		const entryAt = (at: number) => {
+			const entry = entries[at] as SheetEntry;
+			if (entry.kind === "row") return rowAt(entry.index);
+			const group = groups?.[entry.index] as Band;
+			return (
+				<BandHead
+					key={entry.key}
+					label={group.label}
+					count={entry.count}
+					act={group.act}
+				/>
+			);
+		};
 		const rows = () =>
-			Array.from({ length: count }, (_, index) => rowAt(index));
+			Array.from({ length: entries.length }, (_, at) => entryAt(at));
 		if (props.tail) return <ListedRoute value={at}>{rows()}</ListedRoute>;
 		// The more row ends the box, so the rows it paints stand at the box's
 		// rhythm; a tree's box holds treeitems alone, so its row follows it.
@@ -197,12 +259,18 @@ export function Rows(props: RowsInternal) {
 		// A tree's rows window too, the one holding the tab stop kept mounted.
 		const shown = (
 			<Window
-				count={count}
-				keyOf={keyOf}
-				row={rowAt}
+				count={entries.length}
+				keyOf={(at) => (entries[at] as SheetEntry).key}
+				row={entryAt}
 				box={nav ? treeBox : box}
-				keep={keep}
-				onRange={reach.onRange}
+				keep={
+					keep === undefined
+						? undefined
+						: entries.findIndex(
+								(entry) => entry.kind === "row" && entry.index === keep,
+							)
+				}
+				onRange={(indices) => reach.onLast(indices.at(-1) ?? -1)}
 			/>
 		);
 		const stand: ReactNode = nav ? (
@@ -225,107 +293,22 @@ export function Rows(props: RowsInternal) {
 			</ListedRoute>
 		);
 	};
-	// With groups, the entries are the rows with a band before the first row of
-	// each group (and every empty group's, after the last): `groupAt` is a root
-	// row's group index, `undefined` for a tree's child, which stands with its
-	// parent.
-	const banded = (
-		groupAt: (index: number) => number | undefined,
-		...args: Parameters<typeof frame>
-	) => {
-		const [count, keyOf, rowAt, nav, keep] = args;
-		if (!groups) return frame(count, keyOf, rowAt, nav, keep);
-		const entries: ({ band: number } | { row: number })[] = [];
-		const counts = groups.map(() => 0);
-		let roots = 0;
-		let shown = 0;
-		for (let index = 0; index < count; index++) {
-			const group = groupAt(index);
-			if (group !== undefined) roots++;
-			if (group !== undefined && group >= 0) {
-				counts[group] = (counts[group] as number) + 1;
-				for (; shown <= group; shown++) entries.push({ band: shown });
-			}
-			entries.push({ row: index });
-		}
-		for (; shown < groups.length; shown++) entries.push({ band: shown });
-		// One band holding every row would repeat the head's count: it draws none.
-		const lone =
-			props.counted === true && groups.length === 1 && counts[0] === roots;
-		const bandKey = (at: number) =>
-			`band:${(groups[at] as { key: string }).key}`;
-		return frame(
-			entries.length,
-			(at) => {
-				const entry = entries[at] as (typeof entries)[number];
-				return "row" in entry ? keyOf(entry.row) : bandKey(entry.band);
-			},
-			(at) => {
-				const entry = entries[at] as (typeof entries)[number];
-				if ("row" in entry) return rowAt(entry.row);
-				const group = groups[entry.band] as (typeof groups)[number];
-				return (
-					<BandHead
-						key={bandKey(entry.band)}
-						label={group.label}
-						count={lone ? 0 : (counts[entry.band] as number)}
-						act={group.act}
-					/>
-				);
-			},
-			nav,
-			keep === undefined
-				? undefined
-				: entries.findIndex((entry) => "row" in entry && entry.row === keep),
-		);
-	};
-	// One row by its kind: a file row alone has a shape of its own; a tree's rows take their place in it.
-	const rowOf = (
-		item: Row,
-		key: string,
-		index: number | undefined,
-		place?: Omit<
-			ComponentProps<typeof RowItem>,
-			"item" | "id" | "painted" | "arrived"
-		>,
-	) => {
-		if ("path" in item)
-			return (
-				<FileRowItem key={key} item={item} index={index} painted={painted} />
-			);
-		return (
-			<RowItem
-				key={key}
-				id={key}
-				{...place}
-				item={item}
-				index={index}
-				painted={painted}
-				arrived={arrived.has(key)}
-			/>
-		);
-	};
-	if (!tree) {
-		return banded(
-			(index) => rank(items[index] as Row),
-			items.length,
-			keyAt,
-			(index) =>
-				rowOf(
-					items[index] as Row,
-					keyAt(index),
-					paintedAt(index),
-					props.movable && {
-						movable: props.movable,
-						edge: edgeOf(index, items.length),
-					},
-				),
+	if (!visible) {
+		return frame((index) =>
+			rowOf(
+				items[index] as Row,
+				keyAt(index),
+				paintedAt(index),
+				props.movable && {
+					movable: props.movable,
+					edge: edgeOf(index, items.length),
+				},
+			),
 		);
 	}
 	// Each row of the tree reads its depth, fold and tab stop from its own
-	// provider; the keys and focus its `treeitem`s send up move the stop and
+	// provider; the keys and focus its `treeitem` stops send up move the stop and
 	// fold the branches (the WAI-ARIA tree pattern, `treeMove`).
-	const visible = treeRows(items, { key: keyOf, children: childrenOf }, folded);
 	const stop = treeStop(visible, active);
 	// A row carries its key (`data-key`), so a key finds the row's place over
 	// `visible` when it is pressed, whichever rows the window mounts.
@@ -355,13 +338,7 @@ export function Rows(props: RowsInternal) {
 			setActive(visible[indexOf(target)]?.key);
 		},
 	};
-	return banded(
-		(index) => {
-			const each = visible[index] as (typeof visible)[number];
-			return each.depth === 0 ? rank(each.item) : undefined;
-		},
-		visible.length,
-		(index) => visible[index]?.key as string,
+	return frame(
 		(index) => {
 			const each = visible[index] as (typeof visible)[number];
 			return rowOf(each.item, each.key, undefined, {
