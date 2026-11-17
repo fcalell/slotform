@@ -484,9 +484,6 @@ repository (the CLI's `shortfall.md`), and only the work that cannot ship withou
   `extends` array. The trigger is a Biome that does (2.5 has the object form of `plugins`): then
   `.stack/biome.json` names `@scope/pkg/file.grit` with its `includes` on the entry, and an app in
   stack's workspace extends `["//", "./.stack/biome.json"]`.
-- plugin-react installs `@vitejs/plugin-react` at `^5.2`: 6.x requires vite 8 and
-  `@rolldown/plugin-babel`, and plugin-vite is on vite 7. The trigger is moving plugin-vite to
-  vite 8.
 
 ## In the code
 

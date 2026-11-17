@@ -52,7 +52,7 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"peerDependencies": {
-		"vite": "^7.0.4"
+		"vite": "^8.3.8"
 	},
 	"peerDependenciesMeta": {
 		"vite": {
@@ -68,6 +68,6 @@
 		"@fcalell/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"typescript": "^7.0.2",
-		"vite": "^7.0.4"
+		"vite": "^8.3.8"
 	}
 }

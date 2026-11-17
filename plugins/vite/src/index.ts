@@ -176,7 +176,7 @@ export const vite = plugin("vite", {
 	// The consumer runs vite: its generated config imports it and the dev
 	// process and the build step run its bin.
 	devDependencies: {
-		vite: "^7.0.4",
+		vite: "^8.3.8",
 	},
 	label: "Vite",
 

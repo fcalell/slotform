@@ -6,7 +6,7 @@ import {
 } from "@orpc/client/standard";
 import { StandardRPCCodec } from "@orpc/server/standard";
 import { toFetchResponse } from "@orpc/standard-server-fetch";
-import { http } from "msw";
+import { http } from "msw/http";
 
 // What a screen's queries answer: the fixture's value, nothing yet, a failure,
 // the collection with no items, or that the thing does not exist.

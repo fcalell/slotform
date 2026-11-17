@@ -132,8 +132,6 @@ export const STACK_PACKAGES = {
 	"@fcalell/plugin-vite": {
 		dir: "plugins/vite",
 		dependencies: ["@fcalell/cli", "@fcalell/plugin-api"],
-		// vite's esbuild.
-		builds: { esbuild: true },
 	},
 } as const satisfies Record<
 	string,

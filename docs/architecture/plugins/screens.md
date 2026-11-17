@@ -35,9 +35,9 @@ browser.
 | `./browser` | Vitest's browser provider over the shared Chrome, `chrome()` |
 | `./serve` | `defineServeSeed`, `fixtureControls`: run in the served app's worker, web APIs only |
 
-As source the host's Vite compiles: `./fixtures`, `./channels`, `./msw` (the app's MSW, re-exported
-for a plugin's handler module), `./preview`, `./checks` (the test run's checks), `./shift` (the
-loading shift), `./walk` (the render walk) and `./stories`.
+As source the host's Vite compiles: `./fixtures`, `./channels`, `./msw` (`HttpResponse`, `http` and
+`ws` from the app's MSW, for a plugin's handler module), `./preview`, `./checks` (the test run's
+checks), `./shift` (the loading shift), `./walk` (the render walk) and `./stories`.
 
 ## Dependencies
 
@@ -159,8 +159,8 @@ or name fails the type-check.
 ## Answers
 
 MSW answers every call under the worker's route prefixes in oRPC's wire format from the fixtures. A
-request outside the answered prefixes that reaches for another origin or a worker path fails
-(`onUnhandledRequest`).
+request or socket outside the answered prefixes that reaches for another origin or a worker path
+fails (`onUnhandledFrame`).
 
 ### States
 

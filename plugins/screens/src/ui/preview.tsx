@@ -1,21 +1,35 @@
 import Providers from "virtual:stack-providers";
 import { prefixes, previewGlobals } from "virtual:stack-screens";
 import type { Preview } from "@storybook/react-vite";
+import { HttpNetworkFrame, WebSocketNetworkFrame } from "msw/experimental";
 import { mswLoader } from "msw-storybook-addon/csf3";
 import { mustBeMocked } from "./answer.ts";
 import { RememberClient } from "./client.tsx";
 import { applyGlobals, globalTypes, initialGlobals } from "./globals.ts";
 
-// The worker answers the app's procedures; a request outside it that reaches
-// for the network is an error, not a silent call.
+// The URL an unanswered frame reaches for: a request's, or a socket's. MSW
+// frames are those two kinds, so any other is unanswered wherever it goes.
+function frameUrl(frame: unknown): string | null {
+	if (frame instanceof HttpNetworkFrame) return frame.data.request.url;
+	if (frame instanceof WebSocketNetworkFrame)
+		return frame.data.connection.client.url.href;
+	return null;
+}
+
+// The worker answers the app's procedures; a request or socket outside it that
+// reaches for the network is an error, not a silent call.
 async function startWorker() {
 	const { setupWorker } = await import("msw/browser");
 	const worker = setupWorker();
 	await worker.start({
 		quiet: true,
 		serviceWorker: { url: "/mockServiceWorker.js" },
-		onUnhandledRequest(request, print) {
-			if (mustBeMocked(request.url, location.origin, prefixes)) print.error();
+		async onUnhandledFrame({ frame, defaults }) {
+			const url = frameUrl(frame);
+			if (url !== null && !mustBeMocked(url, location.origin, prefixes)) return;
+			// MSW 3's `defaults.error()` only prints; a rejection errors the frame.
+			await defaults.error();
+			throw new Error(`Unanswered call: ${url ?? frame.protocol}`);
 		},
 	});
 	return worker;

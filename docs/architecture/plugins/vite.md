@@ -167,7 +167,7 @@ The `./preset` subpath exports the node-side Vite plugins the generated config r
 - **Exclude.** `vite.slots.optimizeExclude` holds package names rendered into
   `optimizeDeps.exclude`. A package installed under `node_modules` (by git or npm, not `link:`) that
   imports a virtual module a Vite plugin of this config serves is pre-bundled by the dev optimizer,
-  which runs esbuild without those plugins and fails to resolve the import, so the plugin serving the
+  which runs Rolldown without those plugins and fails to resolve the import, so the plugin serving the
   module contributes the importer here.
 - **Include.** The optimizer's scan stops at a package in `optimizeDeps.exclude`, so what that
   package imports is found when a page first loads it, bundled then, and the page reloads (a screens

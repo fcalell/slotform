@@ -18,7 +18,7 @@ and route conventions are the guide (`plugins/react/guide/`), and the slots are 
 | `.stack/routes.d.ts` | `react.slots.routesDtsSource` | The router's `Register` declaration |
 | `.stack/routeTree.gen.ts` | `cliSlots.postWrite` | TanStack Router's route tree |
 
-`.stack/vite.config.ts` gains `tanstackRouter()` ahead of `react()` (with the React Compiler),
+`.stack/vite.config.ts` gains `tanstackRouter()`, `react()` and `babel()` with the React Compiler ([React Compiler](#react-compiler)),
 `refreshPolicyPlugin(react.preambleCode)` ([Dev CSP and React Refresh](#dev-csp-and-react-refresh))
 and `resolve.dedupe` for the singleton runtimes ([Singleton runtimes](#singleton-runtimes)).
 
@@ -101,12 +101,21 @@ so a second copy of either reads no provider. The plugin contributes `react`, `r
 
 ## React Compiler
 
-Stack's UI packages ship TypeScript source that a consumer installs under `node_modules` (pnpm nests
-them as `.pnpm/@fcalell+<pkg>@.../node_modules/@fcalell/<pkg>`). Two filters keep them out of the
-React Compiler's reach by default, and `COMPILED_SOURCE` (`@fcalell/cli/compiled-source`) widens both
-to let `@fcalell` packages through while every other dependency stays out:
+The compiler is `babel-plugin-react-compiler`, the one the phone runs, through `@vitejs/plugin-react`'s
+`reactCompilerPreset` on `@rolldown/plugin-babel`: `babel()` sits beside `react()` in
+`.stack/vite.config.ts`, and `react()` itself only sets up JSX and React Refresh for Oxc.
+`@babel/core` is on the 7 line, the one Expo's Babel plugins peer on: in stack's workspace a Babel 8
+becomes the `@babel/core` that React Native's tree resolves, and Expo's plugins refuse it.
 
-- `@vitejs/plugin-react` leaves every `/node_modules/` path out of Babel (`exclude`).
+Stack's UI packages ship TypeScript source that a consumer installs under `node_modules` (pnpm nests
+them as `.pnpm/@fcalell+<pkg>@.../node_modules/@fcalell/<pkg>`). Three filters keep them out of the
+compiler's and React Refresh's reach by default, and `OTHER_DEPENDENCY` and `COMPILED_SOURCE`
+(`@fcalell/cli/compiled-source`) widen each to let `@fcalell` packages through while every other
+dependency stays out:
+
+- `react()` leaves every `/node_modules/` path out of React Refresh (`exclude`).
+- `babel()` leaves every `/node_modules/` path out of Babel (`exclude`, which also keeps Rolldown's
+  runtime helper module out, as the plugin's default `exclude` does).
 - The compiler skips any filename holding `node_modules` (`sources`, a positive test, so it is the
   same pattern wrapped in a negative lookahead).
 

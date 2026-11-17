@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { basename } from "node:path";
 import { fallbackFace } from "@fcalell/ui-core/tokens";
-import type { Plugin, ResolvedConfig, Rollup } from "vite";
+import type { Plugin, ResolvedConfig, Rolldown } from "vite";
 import type { FontEntry } from "../types.ts";
 import { cssString, cssUrl } from "./css-escape.ts";
 
@@ -105,7 +105,7 @@ function joinBase(base: string, path: string): string {
 }
 
 function findBundleUrl(
-	bundle: Rollup.OutputBundle,
+	bundle: Rolldown.OutputBundle,
 	base: string,
 	fontAbs: string,
 ): string | null {
@@ -183,13 +183,13 @@ export function themeFontsPlugin(fonts: FontEntry[]): Plugin {
 
 		// Nothing in the module graph imports the woff2 files — the
 		// @font-face CSS is injected as a raw <style> tag in
-		// transformIndexHtml below, not through an `import` Rollup can trace
+		// transformIndexHtml below, not through an `import` Rolldown can trace
 		// — so a build never bundles them on its own. Emit each configured
 		// font as a build asset explicitly; transformIndexHtml then finds it
 		// in `ctx.bundle` by original filename (`findBundleUrl`).
 		// `transformIndexHtml`'s hook `this` is only a
 		// `MinimalPluginContext` (no `emitFile`/`getFileName`), so the
-		// emission has to happen in a real Rollup hook like this one.
+		// emission has to happen in a real build hook like this one.
 		buildStart() {
 			if (config.command !== "build") return;
 			for (const font of fonts) {

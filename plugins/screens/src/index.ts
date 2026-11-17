@@ -215,7 +215,7 @@ export const screens = plugin("screens", {
 		"@storybook/addon-vitest": "^10.6.7",
 		"@storybook/react-vite": "^10.6.7",
 		"@vitest/browser": "^5.0.3",
-		msw: "^2.15.0",
+		msw: "^3.0.6",
 		"msw-storybook-addon": "^3.0.3",
 		storybook: "^10.6.7",
 		vitest: "^5.0.3",

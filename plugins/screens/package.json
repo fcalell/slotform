@@ -74,7 +74,7 @@
 		"@storybook/react-vite": "^10.6.7",
 		"@tanstack/react-router": "^1.170.46",
 		"@vitest/browser": "^5.0.3",
-		"msw": "^2.15.0",
+		"msw": "^3.0.6",
 		"msw-storybook-addon": "^3.0.3",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
@@ -138,13 +138,13 @@
 		"@types/react": "^19.3.0",
 		"@types/react-dom": "^19.3.0",
 		"@vitest/browser": "^5.1.0",
-		"msw": "^2.15.0",
+		"msw": "^3.0.6",
 		"msw-storybook-addon": "^3.0.3",
 		"react": "^19.3.1",
 		"react-dom": "^19.3.1",
 		"storybook": "^10.6.7",
 		"typescript": "^7.0.2",
-		"vite": "^7.3.6",
+		"vite": "^8.3.8",
 		"vitest": "^5.1.0"
 	}
 }

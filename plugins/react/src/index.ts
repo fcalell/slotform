@@ -43,6 +43,11 @@ function regExp(source: string): TsExpression {
 	};
 }
 
+// Rolldown's runtime helper module, which `@rolldown/plugin-babel`'s default
+// `exclude` skips and an `exclude` of its own must skip again; the plugin does
+// not export its default.
+const ROLLDOWN_RUNTIME = "^\\x00rolldown/runtime\\.js$";
+
 // ── Slot declarations ──────────────────────────────────────────────
 // What the slots compose: docs/architecture/plugins/react.md, "plugin-react".
 
@@ -235,13 +240,15 @@ export const react = plugin("react", {
 		"@tanstack/react-query": "^5.107.1",
 		"@tanstack/react-router": "^1.170.46",
 	},
-	// The generated vite config imports them from the consumer, and Babel
-	// resolves the compiler plugin from there.
+	// The generated vite config imports them from the consumer, and the React
+	// Compiler's Babel preset resolves the compiler plugin from there.
 	devDependencies: {
+		"@babel/core": "^7.29.13",
+		"@rolldown/plugin-babel": "^0.3.1",
 		// `stack generate` writes the route tree with it: an optional peer of the plugin.
 		"@tanstack/router-generator": "^1.168.0",
 		"@tanstack/router-plugin": "^1.169.0",
-		"@vitejs/plugin-react": "^5.2.0",
+		"@vitejs/plugin-react": "^6.3.0",
 		"babel-plugin-react-compiler": "^1.0.0",
 	},
 
@@ -267,12 +274,11 @@ export const react = plugin("react", {
 
 	contributes: (self) => [
 		// ── Vite integration ────────────────────────────────────────────
-		vite.slots.configImports.contribute(
-			(): TsImportSpec => ({
-				source: "@vitejs/plugin-react",
-				default: "react",
-			}),
-		),
+		vite.slots.configImports.contribute((): TsImportSpec[] => [
+			{ source: "@vitejs/plugin-react", default: "react" },
+			{ source: "@vitejs/plugin-react", named: ["reactCompilerPreset"] },
+			{ source: "@rolldown/plugin-babel", default: "babel" },
+		]),
 		// The router plugin is the app's own: docs/architecture/plugins/vite.md, "App-only plugin calls".
 		vite.slots.appPlugins.contribute(
 			async (ctx): Promise<AppPlugin | undefined> =>
@@ -300,65 +306,68 @@ export const react = plugin("react", {
 				],
 			}),
 		),
-		vite.slots.pluginCalls.contribute(
-			(): TsExpression => ({
+		// React and the React Compiler over the app and stack's packages: docs/architecture/plugins/react.md, "React Compiler".
+		vite.slots.pluginCalls.contribute((): TsExpression[] => [
+			{
 				kind: "call",
 				callee: { kind: "identifier", name: "react" },
+				args: [
+					{
+						kind: "object",
+						properties: [{ key: "exclude", value: regExp(OTHER_DEPENDENCY) }],
+					},
+				],
+			},
+			{
+				kind: "call",
+				callee: { kind: "identifier", name: "babel" },
 				args: [
 					{
 						kind: "object",
 						properties: [
 							{
 								key: "exclude",
-								value: regExp(OTHER_DEPENDENCY),
+								value: {
+									kind: "array",
+									items: [regExp(OTHER_DEPENDENCY), regExp(ROLLDOWN_RUNTIME)],
+								},
 							},
 							{
-								key: "babel",
+								key: "presets",
 								value: {
-									kind: "object",
-									properties: [
+									kind: "array",
+									items: [
 										{
-											key: "plugins",
-											value: {
-												kind: "array",
-												items: [
-													{
-														kind: "array",
-														items: [
-															{
-																kind: "string",
-																value: "babel-plugin-react-compiler",
-															},
-															{
-																kind: "object",
-																properties: [
-																	{
-																		key: "sources",
-																		value: {
-																			kind: "arrow",
-																			params: [{ name: "filename" }],
-																			body: {
-																				kind: "call",
-																				callee: {
-																					kind: "member",
-																					object: regExp(COMPILED_SOURCE),
-																					property: "test",
-																				},
-																				args: [
-																					{
-																						kind: "identifier",
-																						name: "filename",
-																					},
-																				],
-																			},
-																		},
-																	},
-																],
-															},
-														],
-													},
-												],
+											kind: "call",
+											callee: {
+												kind: "identifier",
+												name: "reactCompilerPreset",
 											},
+											args: [
+												{
+													kind: "object",
+													properties: [
+														{
+															key: "sources",
+															value: {
+																kind: "arrow",
+																params: [{ name: "filename" }],
+																body: {
+																	kind: "call",
+																	callee: {
+																		kind: "member",
+																		object: regExp(COMPILED_SOURCE),
+																		property: "test",
+																	},
+																	args: [
+																		{ kind: "identifier", name: "filename" },
+																	],
+																},
+															},
+														},
+													],
+												},
+											],
 										},
 									],
 								},
@@ -366,8 +375,8 @@ export const react = plugin("react", {
 						],
 					},
 				],
-			}),
-		),
+			},
+		]),
 
 		// Singleton runtimes: docs/architecture/plugins/react.md, "Singleton runtimes".
 		vite.slots.resolveDedupe.contribute(() => [
