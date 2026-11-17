@@ -47,14 +47,18 @@ its failed, missing and empty shapes and its stale and paused line are its own
 A cell cursor is the grid's keyboard: the arrows move by a cell, PageUp and PageDown by a page of
 rows, Home and End along the row, and with Ctrl the first and last cell. Enter opens the row from
 any cell. Space and `x` tick the row when the table chooses, and Shift with an up or down arrow
-ticks the rows it crosses; Space is not claimed otherwise.
+ticks the rows it crosses; Space is not claimed otherwise. The cursor holds its record and its
+column, not their places, so a row landing above it, a sort or a column hidden leaves it on its cell;
+it keeps its place where the record or the column is gone, and on a window's row not loaded yet.
 
 ### Sort
 
 It sorts in its own state (descending, ascending, off). A header sorts words from A, and figures and
 ages largest and newest first, then turns over, then is off. A status column sorts by how much a
 status asks of the viewer, mildest first, then by its label: what is done or live asks nothing, what
-has not started waits, and what waits on someone, needs a look or failed asks more in turn. `TONES`
+has not started waits, and what waits on someone, needs a look or failed asks more in turn. An empty
+cell sorts last either way, as does a figure that is not finite (0/0) or an age that does not parse.
+Words compare with the numbers in them read as numbers ("item 2" before "item 10"). `TONES`
 lists the states, not their weight, so the weight is its own table (`STATUS_SEVERITY` in
 `list-state.ts`).
 

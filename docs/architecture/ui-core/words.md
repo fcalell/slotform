@@ -42,7 +42,7 @@ Ages, moments and every other `Intl` formatter come from ui-core, so no word of 
 the platform's own relative-time and date words speak them in the reader's language.
 
 - `formatterFor(kind, lang, options)` in `@fcalell/ui-core/format` builds each formatter (`number`,
-  `date`, `relative`) once per kind, language and options at module scope: building one costs far
+  `date`, `relative`, and `collate`, the collator a table's sort compares words with) once per kind, language and options at module scope: building one costs far
   more than formatting with it (Hermes most of all), and an age, a moment or a figure is formatted per
   row and per render. Both plugins read every formatter here; `lang` undefined is the platform's own.
 - `new Intl.` appears in `format.ts` and, for `groupZeros`, in `scramble.ts`.

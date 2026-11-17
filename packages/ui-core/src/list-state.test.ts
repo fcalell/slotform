@@ -2,20 +2,26 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
 	chipWidth,
+	chooseAllToggled,
 	columnAsked,
 	columnFloor,
 	columnsChanged,
 	columnsKey,
 	columnWidth,
 	gridFloor,
+	idsChooser,
 	levelOf,
 	listedRows,
 	nextSort,
+	type Sort,
+	sorted,
+	type TableRecord,
 	TOUCH_FACT_FITS,
 	touchFacts,
 	touchNamed,
 } from "./list-state.ts";
 import { scrollEdges } from "./pick.ts";
+import type { TableColumn } from "./roster/table.ts";
 import { MEASURE_CHARACTERS } from "./tokens.ts";
 
 test("a touch row names the columns of a kind that stands more than once", () => {
@@ -285,4 +291,98 @@ test("the columns differ from the table's own once the viewer's choice does", ()
 	assert.equal(columnsChanged(columns, { b: false }), true);
 	assert.equal(columnsChanged(columns, { c: true }), true);
 	assert.equal(columnsChanged(columns, { b: true, c: false }), false);
+});
+
+const columnOf = (key: string, kind: "number" | "text" | "age") =>
+	({ key, label: key, kind, cell: () => null }) satisfies TableColumn;
+
+const record = (id: string, cells: TableRecord["cells"]): TableRecord => ({
+	id,
+	href: undefined,
+	editable: false,
+	locked: undefined,
+	warning: undefined,
+	change: undefined,
+	blocked: undefined,
+	moved: undefined,
+	act: undefined,
+	more: undefined,
+	drop: undefined,
+	cells,
+});
+
+test("a number that is not finite sorts as an empty cell, last either way", () => {
+	const values = [5, Number.NaN, 1, 9, 3, Number.NaN, 2, 8, 4, 7, 6];
+	const rows = values.map((value, at) => record(`r${at}`, { ratio: value }));
+	const column = columnOf("ratio", "number");
+	const read = (direction: Sort["direction"]) =>
+		sorted(rows, [column], { key: "ratio", direction }).map(
+			(row) => row.cells.ratio,
+		);
+	assert.deepEqual(read("ascending"), [
+		1,
+		2,
+		3,
+		4,
+		5,
+		6,
+		7,
+		8,
+		9,
+		Number.NaN,
+		Number.NaN,
+	]);
+	assert.deepEqual(read("descending"), [
+		9,
+		8,
+		7,
+		6,
+		5,
+		4,
+		3,
+		2,
+		1,
+		Number.NaN,
+		Number.NaN,
+	]);
+	// A moment that does not parse is empty too.
+	const ages = ["2024-01-02", "not a date", "2024-01-01"].map((age, at) =>
+		record(`a${at}`, { seen: age }),
+	);
+	assert.deepEqual(
+		sorted(ages, [columnOf("seen", "age")], {
+			key: "seen",
+			direction: "ascending",
+		}).map((row) => row.id),
+		["a2", "a0", "a1"],
+	);
+});
+
+test("text sorts with numbers in it read as numbers", () => {
+	const rows = ["item 10", "item 2", "Item 1"].map((title, at) =>
+		record(`t${at}`, { title }),
+	);
+	assert.deepEqual(
+		sorted(rows, [columnOf("title", "text")], {
+			key: "title",
+			direction: "ascending",
+		}).map((row) => row.cells.title),
+		["Item 1", "item 2", "item 10"],
+	);
+});
+
+test("the ticks read and change the chosen ids in their order", () => {
+	const rows = ["a", "b", "c"].map((id) => record(id, {}));
+	const changes: string[][] = [];
+	const chooser = idsChooser(rows, ["c", "a"], (ids) => changes.push(ids));
+	assert.equal(chooser.ticked("a"), true);
+	assert.equal(chooser.ticked("b"), false);
+	assert.equal(chooser.head, "mixed");
+	chooser.toggleAll();
+	chooser.tickSet(["b"], ["c"]);
+	assert.deepEqual(changes, [
+		["c", "a", "b"],
+		["a", "b"],
+	]);
+	assert.deepEqual(chooseAllToggled(rows, ["c", "a", "b"]), []);
 });

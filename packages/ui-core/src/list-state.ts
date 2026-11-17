@@ -28,6 +28,7 @@ import type {
 	TableRowRegions,
 	ToolbarFilter,
 } from "./descriptors.ts";
+import { formatterFor } from "./format.ts";
 import { painting } from "./paint.ts";
 import { isSelection, type Selection } from "./read.ts";
 import { nounOf } from "./rules.ts";
@@ -430,7 +431,8 @@ export function chooseHead(
 	chosen: readonly string[],
 ): boolean | "mixed" {
 	const reach = tickable(rows);
-	const ticked = reach.filter((row) => chosen.includes(row.id)).length;
+	const held = new Set(chosen);
+	const ticked = reach.filter((row) => held.has(row.id)).length;
 	if (ticked === 0) return false;
 	return ticked === reach.length ? true : "mixed";
 }
@@ -452,9 +454,12 @@ export function chooseAllToggled(
 	chosen: readonly string[],
 ): string[] {
 	const reach = tickable(rows).map((row) => row.id);
-	if (chooseHead(rows, chosen) === true)
-		return chosen.filter((id) => !reach.includes(id));
-	return [...chosen, ...reach.filter((id) => !chosen.includes(id))];
+	if (chooseHead(rows, chosen) === true) {
+		const reached = new Set(reach);
+		return chosen.filter((id) => !reached.has(id));
+	}
+	const held = new Set(chosen);
+	return [...chosen, ...reach.filter((id) => !held.has(id))];
 }
 
 // What a table's tick column reads and does, whichever way the rows are chosen
@@ -489,16 +494,16 @@ export function idsChooser(
 	change: (ids: string[]) => void,
 ): Chooser {
 	const reach = tickable(rows).map((row) => row.id);
+	const held = new Set(chosen);
 	return {
-		ticked: (id) => chosen.includes(id),
+		ticked: (id) => held.has(id),
 		pick: { ids: [...chosen] },
 		head: chooseHead(rows, chosen),
 		tick: (id, on) => change(chooseRow(chosen, id, on)),
-		tickSet: (on, off) =>
-			change([
-				...chosen.filter((id) => !on.includes(id) && !off.includes(id)),
-				...on,
-			]),
+		tickSet: (on, off) => {
+			const moved = new Set([...on, ...off]);
+			change([...chosen.filter((id) => !moved.has(id)), ...on]);
+		},
 		toggleAll: () => change(chooseAllToggled(rows, chosen)),
 		count: chosen.length,
 		of: reach.length,
@@ -979,19 +984,23 @@ export function shown(
 }
 
 // What a cell sorts by: a number or a moment as itself, anything else as the
-// text it reads as; an empty cell as "".
+// text it reads as; an empty cell, and a number or moment that is not finite
+// (0/0, a moment that does not parse), as "".
 export function order(
 	column: TableColumn,
 	cell: TableCell | undefined,
 ): number | string {
 	if (cell === null || cell === undefined) return "";
-	if (typeof cell === "number") return cell;
+	if (typeof cell === "number") return finite(cell);
 	if (isChangeCell(cell)) return cell.after ?? "";
 	if (typeof cell === "object")
 		return "tone" in cell ? (cell.label ?? cell.tone) : cell.label;
-	if (column.kind === "age") return Date.parse(cell);
+	if (column.kind === "age") return finite(Date.parse(cell));
 	return cell;
 }
+
+const finite = (value: number): number | "" =>
+	Number.isFinite(value) ? value : "";
 
 // A status's weight for sorting: docs/architecture/ui-core/components.md, "Sort".
 const STATUS_SEVERITY: Record<Tone, number> = {
@@ -1016,20 +1025,24 @@ export function sorted(
 	const column = columns.find((c) => c.key === sort?.key);
 	if (!sort || !column) return rows;
 	const sign = sort.direction === "ascending" ? 1 : -1;
-	return [...rows].sort((a, b) => {
-		const x = order(column, a.cells[column.key]);
-		const y = order(column, b.cells[column.key]);
+	// Text compares as `localeCompare(…, undefined, { numeric: true })` does,
+	// through one collator: `localeCompare` builds one on every call.
+	const collator = formatterFor("collate", undefined, { numeric: true });
+	const keyed = rows.map((row) => {
+		const cell = row.cells[column.key];
+		return { row, cell, key: order(column, cell) };
+	});
+	keyed.sort((a, b) => {
+		const [x, y] = [a.key, b.key];
 		if (x === "" || y === "") return x === y ? 0 : x === "" ? 1 : -1;
-		const [left, right] = [a.cells[column.key], b.cells[column.key]];
-		if (isStatusCell(left) && isStatusCell(right)) {
-			const apart = STATUS_SEVERITY[left.tone] - STATUS_SEVERITY[right.tone];
+		if (isStatusCell(a.cell) && isStatusCell(b.cell)) {
+			const apart = STATUS_SEVERITY[a.cell.tone] - STATUS_SEVERITY[b.cell.tone];
 			if (apart !== 0) return apart * sign;
 		}
 		if (typeof x === "number" && typeof y === "number") return (x - y) * sign;
-		return (
-			String(x).localeCompare(String(y), undefined, { numeric: true }) * sign
-		);
+		return collator.compare(String(x), String(y)) * sign;
 	});
+	return keyed.map((each) => each.row);
 }
 
 // What a change cell is: both values, a value added (no before) or removed (no

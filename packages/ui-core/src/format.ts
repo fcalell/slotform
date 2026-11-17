@@ -6,6 +6,8 @@ const BUILD = {
 		new Intl.DateTimeFormat(lang, options),
 	relative: (lang?: string, options?: Intl.RelativeTimeFormatOptions) =>
 		new Intl.RelativeTimeFormat(lang, options),
+	collate: (lang?: string, options?: Intl.CollatorOptions) =>
+		new Intl.Collator(lang, options),
 };
 
 type Build = typeof BUILD;

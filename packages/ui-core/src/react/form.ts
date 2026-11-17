@@ -1,19 +1,22 @@
 // The model of a form over its procedure on both platforms: docs/architecture/ui-core/acts.md, "Forms".
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { drew, type Issue, placed } from "../acts.ts";
 import type { Act, Option, PickedFile, Run, Runs } from "../descriptors.ts";
 import {
 	type Can,
+	changedSince,
 	type Derived,
 	derive,
 	type FieldSpec,
 	type FormFields,
 	type FormGroupOf,
 	type FormSubmit,
+	firstRefused,
 	type Held,
 	type InputOf,
 	invalidReason,
 	isEmpty,
+	leftWith,
 	markedRuns,
 	type OutputOf,
 	type PickWords,
@@ -22,6 +25,7 @@ import {
 	pickWords,
 	readPicked,
 	requiredReason,
+	sameHeld,
 	toInput,
 	toShown,
 } from "../form.ts";
@@ -86,8 +90,12 @@ export interface FieldModel {
 	derived: Derived;
 	/** Under the control: the `locked` reason, else the field's description once it lands. */
 	description: string | undefined;
-	/** The server's refusal of the value, else the typed text's own issue once the viewer has typed it. */
+	/** The server's refusal of the value, else the typed text's own issue once the viewer has typed it and left the field. */
 	error: Run | Runs | undefined;
+	/** Set afresh when a refusal names this field first in the fields' order: the platform hands its control focus, once per refusal. */
+	seek: object | undefined;
+	/** The viewer left the field: its typed text's own issue stands from then on. */
+	leave: () => void;
 	/** The field may be left empty and says so (never in a form that commits by field). */
 	optional: boolean;
 	/** The field stands inert: the caller may not submit, or the field is `locked`. */
@@ -128,14 +136,16 @@ export interface FormModel<P extends ProcedureCall, A> {
 		| undefined;
 	/** How the form commits. */
 	commit: "submit" | "field" | undefined;
-	/** The bar's acts, the submit last; undefined on a form that commits by field with no other act. */
-	bar: { acts: (A | Act)[] } | undefined;
+	/** The bar's acts, the submit last, and `onBlocked`, which the platform's bar calls on a press of the blocked submit (a pointer, Enter, a tap): every field is left, so each typed field's own issue stands. Undefined on a form that commits by field with no other act. */
+	bar: { acts: (A | Act)[]; onBlocked: (() => void) | undefined } | undefined;
 	/** The form's frame: its `read`, else a selection of its `values`. */
 	read: Selection<unknown> | undefined;
 	/** The input the fields make now: `given` and every field that holds a value, as the procedure would take them, a file as the picked file. */
 	sent: Partial<InputOf<P>>;
 	/** The reads the bar paints under besides the form's own: the ability `can` asks. */
 	outer: readonly unknown[];
+	/** A field holds a value other than its first: what a leave asks about. A value put back is no edit. */
+	edited: boolean;
 	/** Drops the viewer's edits and the refusals they drew. */
 	clear: () => void;
 }
@@ -166,14 +176,33 @@ export function useFormModel<P extends ProcedureCall, A>(
 	const words = useWords();
 	const send = port.useSubmit(props?.act);
 	const [draft, setDraft] = useState<Draft>({});
+	// The draft as it stands now, which a send's late answer reads against
+	// the draft it sent.
+	const now = useRef(draft);
+	useEffect(() => {
+		now.current = draft;
+	});
 	const [refused, setRefused] = useState<readonly Issue[]>([]);
+	// The refusal's first field, which takes focus: a fresh object per refusal.
+	const [seek, setSeek] = useState<{ key: string }>();
+	// The fields the viewer left since the form started over: their typed
+	// text's own issue stands.
+	const [left, setLeft] = useState<ReadonlySet<string>>(new Set());
 	// The saved secrets the viewer is replacing: their field is the empty input.
 	const [replacing, setReplacing] = useState<readonly string[]>([]);
-	const clear = () => {
-		setDraft({});
+	// The form starts over: the viewer's edits but those `kept` dropped, with
+	// the refusals, the secrets being replaced, the fields left and the focus a
+	// refusal asked for.
+	const startOver = (kept: ReadonlySet<string>) => {
+		setDraft((all) =>
+			Object.fromEntries(Object.entries(all).filter(([key]) => kept.has(key))),
+		);
 		setRefused([]);
 		setReplacing([]);
+		setLeft(new Set());
+		setSeek(undefined);
 	};
+	const clear = () => startOver(new Set());
 	// The caller's ability in the route's organization, a read the form paints
 	// under until it lands; no organization answers no. The ids are those the
 	// innermost `ScopeBoundary` above registered, none under no boundary.
@@ -299,6 +328,10 @@ export function useFormModel<P extends ProcedureCall, A>(
 			? first
 			: undefined;
 	};
+	// A press of the submit while it is blocked, or while a typed issue waits
+	// unseen: every field is left, so each typed field's own issue stands.
+	const order = [...shown.keys()];
+	const press = () => setLeft((all) => leftWith(all, order));
 	const clearRefused = (key: string) =>
 		setRefused((all) => all.filter((issue) => issue.path[0] !== key));
 
@@ -356,8 +389,10 @@ export function useFormModel<P extends ProcedureCall, A>(
 				continue;
 			}
 			if ("issue" in made) {
+				// A typed issue blocks only once its field is left, so the bar never
+				// says what the field itself does not.
 				wrong.set(key, made.issue);
-				blocked ??= made.issue;
+				if (left.has(key)) blocked ??= made.issue;
 				continue;
 			}
 			sent[key] = made.value;
@@ -457,7 +492,20 @@ export function useFormModel<P extends ProcedureCall, A>(
 		return output;
 	};
 
+	// The fields stay editable while a send runs: its answer reaches only the
+	// fields left as they were sent, so what the viewer typed meanwhile is
+	// neither refused nor reset.
 	const onAct = async () => {
+		const snapshot = draft;
+		// A typed issue the viewer has not seen yet (its field not left) does not
+		// block the act; the press shows every field's and sends nothing.
+		const unseen = [...wrong].find(([key]) => !left.has(key));
+		if (unseen) {
+			press();
+			const error = new Error(unseen[1]);
+			placed(error);
+			throw error;
+		}
 		try {
 			const input = await wire(sent);
 			const output = await send(input);
@@ -465,16 +513,24 @@ export function useFormModel<P extends ProcedureCall, A>(
 			// The fields go back to `values` only where the form stays: a sheet
 			// drops its edits as it opens again and leaves over what was sent, and
 			// a form whose submit goes `to` a page is left as it was.
-			if (stays && submit?.to === undefined) clear();
+			if (stays && submit?.to === undefined)
+				startOver(changedSince(shown, snapshot, now.current));
 			return output;
 		} catch (error) {
-			const found = port.issues(error);
-			if (found.length > 0) {
-				setRefused(found);
+			// A field changed since the send is past its refusal.
+			const changed = changedSince(shown, snapshot, now.current);
+			const standing = port
+				.issues(error)
+				.filter((issue) => !changed.has(String(issue.path[0])));
+			if (standing.length > 0) {
+				setRefused(standing);
+				const key = firstRefused(fields, standing);
+				if (key !== undefined) setSeek({ key });
 				drew(error);
-				// A value refusal stands under its field: where every issue names a
-				// field the form shows, the bar draws none of them again.
-				if (found.every((issue) => shown.has(String(issue.path[0]))))
+				// A value refusal stands under its field: where every refusal that
+				// stands names a field the form shows, the bar draws none of them
+				// again; one whose fields all changed says the press failed.
+				if (standing.every((issue) => shown.has(String(issue.path[0]))))
 					placed(error);
 			}
 			throw error;
@@ -513,13 +569,14 @@ export function useFormModel<P extends ProcedureCall, A>(
 			typeof spec.options === "function"
 				? within(held as Held | undefined, choices.get(key))
 				: held;
-		// A typed text's own issue stands once the viewer has typed it; the
-		// server's own sentence boxes the names it puts between backticks.
+		// A typed text's own issue stands once the viewer has typed it and left
+		// the field, so a half-typed value is not called wrong; the server's own
+		// sentence boxes the names it puts between backticks.
 		const said = refused.find((issue) => issue.path[0] === key)?.message;
 		const error =
 			said !== undefined
 				? markedRuns(said)
-				: key in draft
+				: key in draft && left.has(key)
 					? wrong.get(key)
 					: undefined;
 		const file = derived.control === "file";
@@ -550,6 +607,8 @@ export function useFormModel<P extends ProcedureCall, A>(
 				derived,
 				description: spec.locked ?? saying(key),
 				error,
+				seek: seek?.key === key ? seek : undefined,
+				leave: () => setLeft((all) => leftWith(all, [key])),
 				optional: !derived.required && !byField,
 				disabled: denied !== undefined || spec.locked !== undefined,
 				value,
@@ -588,6 +647,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 									onAct,
 								},
 							],
+					onBlocked: byField ? undefined : press,
 				};
 	return {
 		fields,
@@ -601,6 +661,10 @@ export function useFormModel<P extends ProcedureCall, A>(
 		read: read ?? (isSelection(values) ? values : undefined),
 		sent: sent as Partial<InputOf<P>>,
 		outer: [mayHere],
+		edited: [...shown].some(
+			([key, derived]) =>
+				key in draft && !sameHeld(derived, draft[key], holds(key, {})),
+		),
 		clear,
 	};
 }

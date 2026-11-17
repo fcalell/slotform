@@ -11,6 +11,13 @@ export interface JsonSchema {
 	/** A string's length bounds; equal, they are a fixed length (a one-time code's digits). */
 	minLength?: number;
 	maxLength?: number;
+	/** A number's bounds, inclusive, and exclusive (zod `.gt()`, `.positive()`). */
+	minimum?: number;
+	maximum?: number;
+	exclusiveMinimum?: number;
+	exclusiveMaximum?: number;
+	/** What a string matches, an ECMA-262 pattern (zod emits one beside every format but `uri` and `jwt`). */
+	pattern?: string;
 	/** A list's fewest items. */
 	minItems?: number;
 	enum?: readonly unknown[];
@@ -96,13 +103,27 @@ export interface Derived {
 	instant: boolean;
 	/** The picked file is sent as base64 (the schema's `contentEncoding`), not as text. */
 	base64: boolean;
-	/** A `code` field's digits: the schema's fixed length. */
-	length: number | undefined;
 	/** The types a `lines` field's items take, as the schema's `items` says them. */
 	kinds: readonly LineKind[] | undefined;
 	/** A pick of several's fewest picks, the schema's `minItems`: with none, no pick is a value the procedure takes (an empty list). */
 	fewest: number;
+	/** What the schema asks of a string or a number the field sends, checked before the send. */
+	checks: Checks;
 }
+
+/** The schema's constraints on a value a field sends as typed: a string's length, pattern and format, a number's bounds. */
+export type Checks = Pick<
+	JsonSchema,
+	| "type"
+	| "minLength"
+	| "maxLength"
+	| "minimum"
+	| "maximum"
+	| "exclusiveMinimum"
+	| "exclusiveMaximum"
+	| "pattern"
+	| "format"
+>;
 
 /** A field with no control: the hint a mono line, a text area, the code boxes, a date, a file pick, lines or json adds, which the schema cannot say. */
 export type Hint =
@@ -288,10 +309,20 @@ function deriveField(
 		values: undefined,
 		instant: false,
 		base64: false,
-		length: undefined,
 		kinds: undefined,
 		fewest: 0,
 		fallback: entry.default,
+		checks: {
+			type: schema.type,
+			exclusiveMinimum: schema.exclusiveMinimum,
+			exclusiveMaximum: schema.exclusiveMaximum,
+			minLength: schema.minLength,
+			maxLength: schema.maxLength,
+			minimum: schema.minimum,
+			maximum: schema.maximum,
+			pattern: schema.pattern,
+			format: schema.format,
+		},
 	};
 	if (hint === "lines") {
 		const kinds = schema.type === "array" ? kindsOf(schema.items) : undefined;
@@ -337,7 +368,7 @@ function deriveField(
 						"is a code field whose schema is not a fixed length (`z.string().length(n)`)",
 					);
 				}
-				return { ...base, control: "code", length: schema.minLength };
+				return { ...base, control: "code" };
 			}
 			if (hint === "secret") return { ...base, control: "secret" };
 			if (hint === "file") {
@@ -450,8 +481,60 @@ function lineOf(
 	return kinds.includes("string") ? { value: line } : undefined;
 }
 
-/** The input's value for what the control holds; `invalid` where it holds no value of that type (a number that is not one, a date no calendar has, a code with a box unfilled); an `issue` where the text says why (a line that fits no item type, JSON that does not parse). */
+/** The input's value for what the control holds; `invalid` where it holds no value of that type (a number that is not one, a date no calendar has, a code with a box unfilled); an `issue` where the text says why (a line that fits no item type, JSON that does not parse, a value the schema's checks refuse: `checked`). */
 export function toInput(
+	derived: Derived,
+	shown: Held,
+	words: Words,
+): { value: unknown } | { issue: string } | "invalid" {
+	const made = converted(derived, shown, words);
+	if (typeof made !== "object" || !("value" in made)) return made;
+	const issue = checked(derived.checks, made.value, words);
+	return issue === undefined ? made : { issue };
+}
+
+// The formats zod emits with no `pattern` beside them, each as loose as the
+// server's check, so the client never refuses what the server takes.
+const FORMATS: Readonly<Record<string, RegExp>> = {
+	uri: /^\s*[a-z][a-z\d+.-]*:/i,
+	jwt: /^[^.]+\.[^.]*\.[^.]*$/,
+};
+
+/** What the schema's `checks` refuse in a value a field sends, as its issue: a string shorter or longer than its bounds or not in its format (the pattern zod emits beside it), a number outside its bounds or, for an integer, not whole. A value of another type (a list, a `Date`) is not checked. */
+export function checked(
+	checks: Checks,
+	value: unknown,
+	words: Words,
+): string | undefined {
+	const { minLength, maxLength, minimum, maximum, pattern, format } = checks;
+	const { exclusiveMinimum: above, exclusiveMaximum: below } = checks;
+	if (typeof value === "number") {
+		if (checks.type === "integer" && !Number.isInteger(value))
+			return words.wholeNumber;
+		if (minimum !== undefined && value < minimum)
+			return filled(words.leastNumber, { min: String(minimum) });
+		if (above !== undefined && value <= above)
+			return filled(words.moreThan, { min: String(above) });
+		if (maximum !== undefined && value > maximum)
+			return filled(words.mostNumber, { max: String(maximum) });
+		if (below !== undefined && value >= below)
+			return filled(words.lessThan, { max: String(below) });
+		return undefined;
+	}
+	if (typeof value !== "string") return undefined;
+	if (minLength !== undefined && value.length < minLength)
+		return filled(words.fewestCharacters, { min: String(minLength) });
+	if (maxLength !== undefined && value.length > maxLength)
+		return filled(words.mostCharacters, { max: String(maxLength) });
+	// Only a pattern zod emits beside a format is checked: its flags are known.
+	// A bare pattern (`.regex`) loses its flags in the schema and may not
+	// compile under `u`, so it is the server's to judge.
+	if (format === undefined) return undefined;
+	const shape = FORMATS[format] ?? (pattern && new RegExp(pattern, "u"));
+	return shape && !shape.test(value) ? words.badFormat : undefined;
+}
+
+function converted(
 	derived: Derived,
 	shown: Held,
 	words: Words,
@@ -491,7 +574,9 @@ export function toInput(
 			return Number.isNaN(value.getTime()) ? "invalid" : { value };
 		}
 		case "code":
-			return shown.length === derived.length ? { value: shown } : "invalid";
+			return shown.length === derived.checks.minLength
+				? { value: shown }
+				: "invalid";
 		default:
 			return { value: shown };
 	}
@@ -582,4 +667,51 @@ export function pickWords(
 /** What a pick over a string is handed for the value it holds: a string over options holds the empty string untouched; it holds nothing. */
 export function heldPick<T>(value: T): T | undefined {
 	return value === "" ? undefined : value;
+}
+
+/** Whether two values a field's control holds are one value, each read against the control's own empty: a switch's is off, a typing control's the empty box, a pick's nothing; a pick of several compares as a set. */
+export function sameHeld(
+	derived: Derived,
+	a: Held | undefined,
+	b: Held | undefined,
+): boolean {
+	if (derived.control === "several") {
+		const set = (held: Held | undefined) =>
+			new Set<unknown>(Array.isArray(held) ? held : []);
+		const [x, y] = [set(a), set(b)];
+		return x.size === y.size && [...x].every((item) => y.has(item));
+	}
+	const empty = derived.control === "switch" ? false : "";
+	return (a ?? empty) === (b ?? empty);
+}
+
+/** The fields whose held value differs between two drafts: what the viewer changed since `before` (a submit's send). A field one draft lacks holds nothing there. */
+export function changedSince(
+	fields: ReadonlyMap<string, Derived>,
+	before: Readonly<Record<string, Held>>,
+	after: Readonly<Record<string, Held>>,
+): Set<string> {
+	const changed = new Set<string>();
+	for (const [key, derived] of fields)
+		if (!sameHeld(derived, before[key], after[key])) changed.add(key);
+	return changed;
+}
+
+/** The first of `fields` (in the order they stand) an issue names that can take focus (not disabled): the field a refusal hands focus to. */
+export function firstRefused(
+	fields: readonly { key: string; disabled: boolean }[],
+	issues: readonly { path: readonly PropertyKey[] }[],
+): string | undefined {
+	const named = new Set(issues.map((issue) => String(issue.path[0])));
+	return fields.find((field) => !field.disabled && named.has(field.key))?.key;
+}
+
+/** The fields left, with `more` left too: the one the viewer leaves, or every field on a press of the submit while a typed field has an issue. */
+export function leftWith(
+	left: ReadonlySet<string>,
+	more: readonly string[],
+): ReadonlySet<string> {
+	return more.every((key) => left.has(key))
+		? left
+		: new Set([...left, ...more]);
 }

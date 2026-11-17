@@ -137,15 +137,27 @@ host shows the reason from then on, or once its form is touched.
 
 A `Form` or a `Sheet` is **touched** once a field inside it takes input; fields call `touch` on
 change. A blocked act inside shows its reason from then on, or once it is pressed; before either it
-is inert and the reason is unshown. The same input edits the form's `leave` (see [Leave](#leave)),
-which an `ActionBar` presses: touched keeps its meaning (the reason shows) while the edit comes and
-goes with the act.
+is inert and the reason is unshown. Touched is sticky; the form's edit, which its `leave` asks about
+(see [Leave](#leave)), is by value: `edited` of `useFormModel`, a field holding a value other than its
+first (`sameHeld`, each value read against its control's empty, a switch's off, and a pick of several
+as a set), so a field put back un-edits the form while touched stays. `useEditedByValue` is
+the leave's one writer, as that edit turns; a sheet's leave is its form's, since a bare control in its
+body holds the app's value. An `ActionBar` presses the leave: the edit comes and goes with the act.
 
 ## Rejections
 
 A rejection whose every sentence already stands where it belongs (a form's refused values, each
 under the field it names) is marked `placed`: the host that ran the act draws no line and no toast
 of its own for it, so the sentence stands once.
+
+A `Form`'s fields stay editable while its submit runs, so the answer reaches only the fields left as
+they were sent (`changedSince` between the draft at the send and the draft now): a refusal of a field
+changed meanwhile is dropped, and a form that stays puts back only the unchanged fields, keeping what
+was typed during the send. Where every refused field changed, no refusal stands and the bar says the
+press failed, as for any rejection. A refusal hands focus to its first refused field in the fields'
+order that can take it, a disabled or locked one passed over (`firstRefused`; the field model's `seek`,
+set afresh per refusal and dropped when the form starts over): on the web the field's first tabbable
+control, which scrolls it into view, on the phone its typing control.
 
 An act refused before it was sent because the server is out of reach rejects with `Unreached`. The
 host draws it as any failed press, the generic sentence with no Retry; the connection's own sentence
@@ -310,6 +322,28 @@ under its label in the meta ink (a form that commits by field marks no field). A
 blocks the submit while it is empty. A value of the wrong type blocks the submit naming the field
 (`checkField`), and a saved secret left untouched is not sent.
 
+A value the field sends as typed is checked against its schema entry before the send (`checked` in
+`form.ts`, run by `toInput`): a string's `minLength` and `maxLength` (`fewestCharacters`,
+`mostCharacters`) and its `format` (`badFormat`), a number's `minimum`, `exclusiveMinimum`, `maximum`
+and `exclusiveMaximum` (`leastNumber`, `moreThan`, `mostNumber`, `lessThan`) and, for an `integer`,
+that it is whole (`wholeNumber`). A format is checked by the `pattern` zod emits beside it, compiled
+with the `u` flag (its flags are known), and `uri` and `jwt`, which zod emits with none, by a loose shape
+as loose as the server's, so the client never refuses what the server takes. A bare `pattern` (`.regex`)
+is not checked: the schema drops the regex's flags and the pattern may not compile under `u`, so it is
+the server's. A value the control turns into another type (a moment sent as a `Date`, a list) is not
+checked. A refused value is the field's issue, as a `lines` line or a `json` parse error is.
+
+A typed field's own issue (a check, a `lines` line, a `json` parse) stands under it once the viewer has
+typed and left the field, and from then on follows each change, so a value half typed is not called
+wrong; only then does it block the submit, so the bar never gives a reason the field does not show. A
+press of the submit while a typed issue waits unseen sends nothing: it leaves every field, so each
+issue stands and blocks (`leftWith`), and the press ends as a placed rejection, with no line and no
+toast. A press of the submit while it is blocked leaves every field the same: the model's
+`bar.onBlocked`, which a form that submits gives (a form that commits by field has no submit, so none),
+and the form's bar (`ActionBarBase`) calls on a blocked press of its filled act (a pointer, Enter, a
+tap). The field's `leave` hears the field left: on the web focus leaving the field's row (not moving
+within it), on the phone a typing control's blur.
+
 ### Rows and the bar
 
 The field is a definition row: its label in the label column, as wide as the form's widest, its
@@ -344,8 +378,9 @@ the field it draws for each key and the bar of acts that submits, are no app's t
 ## Leave
 
 `createLeave()` (`leave.ts`) decides whether leaving a form asks, with one question per leave. A
-`Form` holds one `Leave`: a field's input edits it, the filled act's press hands the edit to the act,
-and a leave attempt asks the viewer while the form stands edited: discard the edit, or keep editing.
+`Form` holds one `Leave`: the form's edit by value writes it (`edit`, [touched](#touched)), the filled
+act's press hands the edit to the act, and a leave attempt asks the viewer while the form stands edited: discard the edit, or keep
+editing.
 Both plugins' `Form` and `ActionBar` drive it, so the web and the phone ask under the same rules.
 
 - **Web.** A leave is a router navigation, the back button, a reload or a closed tab. Bound to the

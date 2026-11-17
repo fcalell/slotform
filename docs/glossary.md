@@ -345,6 +345,10 @@ to fix, and a new term enters this page in the change that introduces it.
   [drag](architecture/ui-core/drag.md#reorder)
 - **follow**: What a finger or pointer carries, moving 1:1 with it until its release eases.
   [drag](architecture/ui-core/drag.md#follow)
+- **edge band**: The strip inside a scroller's or a pane's edge where a drag carries it, faster the
+  deeper the pointer stands. [drag](architecture/ui-core/drag.md#web-drag)
+- **edge pan**: A canvas's view panning toward the edge band a drag stands in.
+  [plugin-react-ui](architecture/plugins/react-ui.md)
 - **track**: A record that plays, given as a descriptor. [sound](architecture/ui-core/sound.md#track)
 - **dock**: The player's bar an app mounts in the Shell's foot. [sound](architecture/ui-core/sound.md#dock)
 

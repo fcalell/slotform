@@ -62,13 +62,17 @@ export function oklchToRgb(
 	return [r ?? 0, g ?? 0, b ?? 0];
 }
 
-function relative([r, g, b]: readonly number[]): number {
+// WCAG 2 relative luminance of 8-bit channels: the color a browser paints
+// and a contrast checker measures, not the unrounded one, which can pass a
+// floor its painted color misses.
+function relative(rgb: readonly number[]): number {
+	const [r, g, b] = rgb.map((x) => decode(x / 255));
 	return 0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0);
 }
 
-// WCAG 2 relative luminance and the contrast ratio between two opaque colors.
+// The luminance of an opaque color; with `contrastRatio`, the ratio between two.
 export function luminance(l: number, c: number, h: number): number {
-	return relative(oklchToLinear(l, c, h));
+	return relative(oklchToRgb(l, c, h));
 }
 
 export interface Oklch {
@@ -78,16 +82,17 @@ export interface Oklch {
 }
 
 // The luminance of a veil at `alpha` drawn over an opaque ground, blended as
-// a browser composites a translucent background: in gamma-encoded sRGB.
+// a browser composites a translucent background: the two 8-bit colors
+// blended in gamma-encoded sRGB, the result painted in 8 bits.
 export function veiledLuminance(
 	veil: Oklch,
 	alpha: number,
 	ground: Oklch,
 ): number {
-	const top = oklchToLinear(veil.l, veil.c, veil.h).map(encode);
-	const bottom = oklchToLinear(ground.l, ground.c, ground.h).map(encode);
+	const top = oklchToRgb(veil.l, veil.c, veil.h);
+	const bottom = oklchToRgb(ground.l, ground.c, ground.h);
 	return relative(
-		top.map((x, i) => decode(x * alpha + (bottom[i] ?? 0) * (1 - alpha))),
+		top.map((x, i) => Math.round(x * alpha + (bottom[i] ?? 0) * (1 - alpha))),
 	);
 }
 

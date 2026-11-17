@@ -2,15 +2,18 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
 	accepts,
+	bandAt,
 	DRAG_DELAY_SLOP,
 	DRAG_SLOP,
+	edgeDepth,
 	edgeSpeed,
 	movedTo,
 	moveEntry,
 	moveOf,
 	pressed,
 	SCROLL_EDGE,
-	SCROLL_MAX,
+	SCROLL_RAMP,
+	SCROLL_SPEED,
 	sideOf,
 	stepOf,
 } from "./drag.ts";
@@ -120,16 +123,33 @@ test("an entry moves in a list and the others keep their order", () => {
 });
 
 test("a scroller is carried near its edges and not in the middle", () => {
-	assert.equal(edgeSpeed(300, 0, 600), 0);
-	assert.equal(edgeSpeed(SCROLL_EDGE, 0, 600), 0);
-	assert.equal(edgeSpeed(0, 0, 600), -SCROLL_MAX);
-	assert.equal(edgeSpeed(-50, 0, 600), -SCROLL_MAX);
-	assert.equal(edgeSpeed(600, 0, 600), SCROLL_MAX);
-	assert.equal(edgeSpeed(700, 0, 600), SCROLL_MAX);
-	const half = edgeSpeed(SCROLL_EDGE / 2, 0, 600);
-	assert.ok(half < 0 && half > -SCROLL_MAX);
+	assert.equal(edgeDepth(300, 0, 600), 0);
+	assert.equal(edgeDepth(SCROLL_EDGE, 0, 600), 0);
+	assert.equal(edgeDepth(0, 0, 600), -1);
+	assert.equal(edgeDepth(-50, 0, 600), -1);
+	assert.equal(edgeDepth(600, 0, 600), 1);
+	assert.equal(edgeDepth(700, 0, 600), 1);
+	assert.equal(edgeDepth(SCROLL_EDGE / 2, 0, 600), -0.5);
 	// a view shorter than two edges splits at its middle
-	assert.equal(edgeSpeed(50, 0, 100), 0);
+	assert.equal(edgeDepth(50, 0, 100), 0);
+});
+
+test("a scroller is carried at one speed a second whatever the frame rate, ramping up from entry", () => {
+	const ramped = SCROLL_RAMP;
+	// 60 Hz and 144 Hz carry it the same distance a second.
+	const at60 = edgeSpeed(1, 1000 / 60, ramped) * 60;
+	const at144 = edgeSpeed(1, 1000 / 144, ramped) * 144;
+	assert.equal(at60, SCROLL_SPEED);
+	assert.ok(Math.abs(at144 - SCROLL_SPEED) <= 144 / 2);
+	// A frame that ran long carries it no further than one at 60 Hz.
+	assert.equal(edgeSpeed(-1, 250, ramped), edgeSpeed(-1, 1000 / 60, ramped));
+	// On entry it does not move; halfway through the ramp it is at half speed.
+	assert.equal(edgeSpeed(1, 1000 / 60, 0), 0);
+	assert.equal(
+		edgeSpeed(1, 1000 / 60, SCROLL_RAMP / 2),
+		Math.round(SCROLL_SPEED / 120),
+	);
+	assert.equal(edgeSpeed(0, 1000 / 60, ramped), 0);
 });
 
 test("a drop takes the kinds it accepts", () => {
@@ -137,4 +157,14 @@ test("a drop takes the kinds it accepts", () => {
 	assert.ok(accepts(["task", "project"], "project"));
 	assert.ok(!accepts("task", "project"));
 	assert.ok(!accepts(["track"], undefined));
+});
+
+test("a drag's band is entered afresh in another scroller or toward another side, and keeps its entry while it stays", () => {
+	const list = {};
+	const first = bandAt(undefined, list, 1, 100);
+	assert.deepEqual([first.elapsed, first.since], [0, 0]);
+	const next = bandAt(first.band, list, 1, 116);
+	assert.deepEqual([next.elapsed, next.since], [16, 16]);
+	assert.equal(bandAt(next.band, list, -1, 132).since, 0);
+	assert.equal(bandAt(next.band, {}, 1, 132).since, 0);
 });

@@ -83,8 +83,8 @@ The subpaths:
 - `@fcalell/ui-core/reason`: `pressStands(blocked, pressedUnder)`, whether a blocked act's press
   still shows its reason: a press is kept as the reason it came under and stands while the act
   is blocked by that reason, so unblocking or a different reason forgets it in render.
-- `@fcalell/ui-core/leave`: `createLeave()`, whether leaving a form asks: a field's input edits it, the
-  filled act's press clears the edit while the act runs (a rejection puts it back), and a leave
+- `@fcalell/ui-core/leave`: `createLeave()`, whether leaving a form asks: the form's edit by value writes it (a
+  value put back un-edits it), the filled act's press clears the edit while the act runs (a rejection puts it back), and a leave
   attempt asks once while the form stands edited. Both plugins' forms drive it.
 - `@fcalell/ui-core/form`: what a `Form` is made of on both platforms: the `FieldSpec`, `FormFields`,
   `FormGroupOf`, `Can` and `FormSubmit` types, `pathOf` (a procedure's dotted path, from its mutation key), and the derivation of a field from a procedure's input JSON Schema
@@ -140,7 +140,7 @@ The subpaths:
 - `@fcalell/ui-core/roll`: how a figure that changes while shown moves: `rollOf` and `rollShift`.
 - `@fcalell/ui-core/scramble`: the glyph region's scramble, pure over the tick it is given: `frame`, `decode`, `lockedAt`, `seedOf`, `busy` and `createTicker`, the one ticker every region of a page shares.
 - `@fcalell/ui-core/window`: how a long collection windows: `windowEntries`, `ranged`, `pagesCovering`, `VIRTUAL_FROM` and `OVERSCAN`.
-- `@fcalell/ui-core/drag`: drag and drop, free of any framework: when a press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands (`movedTo`, `moveOf`, `stepOf`, `moveEntry`), the scroller's speed near an edge (`edgeSpeed`) and the drop a drag is accepted by (`accepts`).
+- `@fcalell/ui-core/drag`: drag and drop, free of any framework: when a press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands (`movedTo`, `moveOf`, `stepOf`, `moveEntry`), how deep a drag stands in a scroller's edge band and the distance a frame carries it there (`edgeDepth`, `edgeSpeed`), the band's entry and steps (`bandAt`) and the drop a drag is accepted by (`accepts`).
 - `@fcalell/ui-core/waveform`: a waveform's arithmetic: the peaks reduced to columns (`columns`), the moment a pointer or key names (`momentAt`, `seekKey`, `shareOf`) and the keyboard's steps (`SEEK`).
 - `@fcalell/ui-core/player`: the audio player's rules, free of the sound: `createPlayer` over an `Output` an app passes, `windowQueue`, `trackTime`, `keyOf`, `neighbour` and `shortcut`, with `QueueProvider` and the player's types.
 - `@fcalell/ui-core/qr`: `qrModules`, a QR code's modules as one SVG path, so both platforms draw the same code.

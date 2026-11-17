@@ -1,6 +1,6 @@
 // Whether a form or a sheet has taken input, and the leave its edit asks from
 // (the leave's model is `../leave.ts`).
-import { createContext, use, useMemo, useState } from "react";
+import { createContext, use, useEffect, useMemo, useState } from "react";
 import { createLeave, type Leave } from "../leave.ts";
 
 // A form or a sheet is touched once a field inside it takes input: docs/architecture/ui-core/acts.md, "Touched".
@@ -30,15 +30,22 @@ export function useTouchState() {
 	const value = useMemo<Touched>(
 		() => ({
 			touched,
-			touch: () => {
-				leave.edit();
-				setTouched(true);
-			},
+			touch: () => setTouched(true),
 			leave,
 		}),
 		[touched, leave],
 	);
 	return [value, setTouched] as const;
+}
+
+// The one writer of a leave's edit: the form derived from its procedure, which
+// knows its edit by value (a field put back to its first value un-edits it,
+// which a change event cannot tell). A sheet's leave is its form's, since a
+// bare control in its body holds the app's value. It writes the leave as that
+// edit turns, so a press's hold on the edit stands while the values do not
+// move.
+export function useEditedByValue(touch: Touched, edited: boolean) {
+	useEffect(() => touch.leave.edit(edited), [touch.leave, edited]);
 }
 
 // A sheet as it opens, and a new page (a wizard's, or the next queued

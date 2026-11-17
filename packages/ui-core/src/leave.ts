@@ -1,9 +1,7 @@
 // Whether leaving a form asks: docs/architecture/ui-core/acts.md, "Leave".
 export interface Leave {
-	// A field took input.
-	edit(): void;
-	// The form starts over (a sheet opened, a new page): no edit stands.
-	clear(): void;
+	// Whether the form stands edited: a field holds a value other than its first (`true`), or none does (`false`).
+	edit(edited: boolean): void;
 	// The filled act was pressed: the form no longer stands edited and holds no question while the act runs, so an act that navigates (at once or once its promise resolves) is never asked.
 	press(): void;
 	// The filled act ended, resolved or `rejected` (an act that throws or whose promise rejects): a rejection puts back the edit the press took, since the form was not saved.
@@ -22,12 +20,8 @@ export function createLeave(): Leave {
 	let asking = false;
 	const asks = () => edited && !pending;
 	return {
-		edit() {
-			edited = true;
-		},
-		clear() {
-			edited = false;
-			held = false;
+		edit(now) {
+			edited = now;
 		},
 		press() {
 			held = edited;

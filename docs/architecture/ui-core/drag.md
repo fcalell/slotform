@@ -68,20 +68,32 @@ long collection, reach a finger and carry the scroller under the pointer.
 rows and the drops that take part read it through `useSyncExternalStore`. A drag runs this way:
 
 1. A press on a row becomes a drag past `DRAG_SLOP`; a finger's becomes one after `DRAG_DELAY`, and a
-   finger that moves sooner is a scroll.
+   finger that moves sooner is a scroll. Only the pointer that started the press moves, drops or ends
+   it: a second finger's touch and lift do nothing to the drag.
 2. The drag listens on the window and hit-tests `elementsFromPoint` for a drop (`data-drop`) or,
    within the dragging collection, the row under the pointer (`data-row`). The line lands on the half
    the pointer is in (`sideOf`).
-3. Near a scroller's edges it carries the scroller under the pointer (`edgeSpeed`), whichever list
-   holds it.
+3. Within `SCROLL_EDGE` of a scroller's edge it carries the scroller, whichever list holds it: the
+   innermost scroller under the pointer whose band it stands in and that can still move that way, so
+   one at its end passes the drag to the next one out. The speed is per second, not per frame
+   (`SCROLL_SPEED` at the edge, the same at 60 and 144 Hz, a long frame counted as one at 60 Hz), and
+   ramps up over `SCROLL_RAMP` from the pointer's entry into the band, so a row picked up inside the
+   band does not scroll away at once (`edgeDepth`, `edgeSpeed`). The band's entry and steps are
+   `bandAt`'s, which the canvas's edge pan shares.
 4. Held over a folded branch for `DROP_HOLD` it opens the branch (`data-hold`).
 
 The Shell's container host draws the label that follows the pointer and the line (`DragLayer`); a drop
-under the drag takes `DROP_ON`.
+under the drag takes `DROP_ON`. Every part `press` drags (a draggable `Row`, a `Table` that drags or
+reorders) calls `useTouchHold` as it mounts: the first registers the one non-passive `touchmove`
+listener on the window and the last to unmount removes it, so it stands before any touch with or
+without the layer, and it stops the page scrolling under a finger's drag only while one stands. WebKit
+ignores a `preventDefault` from a listener added after the touch began, and a finger's drag begins
+after its hold. The canvas's lift is not `press`'s: d3-zoom holds that touch itself.
 
 The pure parts are `@fcalell/ui-core/drag`, free of any framework and tested without a DOM: when a
 press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands
-in an order (`moveOf`, `stepOf`), the speed a scroller is carried at near its edge (`edgeSpeed`), how
+in an order (`moveOf`, `stepOf`), how deep a drag stands in a scroller's edge band and how far a frame carries it there (`edgeDepth`,
+`edgeSpeed`), how
 long a hold opens a branch (`DROP_HOLD`) and which drop a drag is accepted by (`accepts`).
 
 ## Follow

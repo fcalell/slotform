@@ -60,18 +60,21 @@ hue at the chroma declared for it, a constant per role and mode.
 `deriveTheme(theme)` resolves the knobs into final values, one string per token. A contrast contract
 is one a role keeps at any accent or cast hue: the derivation moves the role's lightness from the
 declared one (a literal or a `mix`) in 0.005 steps away from each ground until every contract holds,
-re-clamping the chroma at each step. Each ground is the luminance a contract measures against. A
+re-clamping the chroma at each step. Each ground is the luminance a contract measures against.
+Every contract is measured on the painted 8-bit sRGB value (each gamma-encoded channel rounded to
+0..255), the colour a browser paints and a contrast checker reads, and on nothing else: the unrounded colour can pass a floor its painted colour misses by a rounding. A
 green accent's link then stays readable on a group where the blue one is at the declared lightness
 already. `under` names a veil over the ground, composited as a browser draws a translucent fill over
-an opaque one (an alpha blend in gamma sRGB): a label on a pressed part. The token values carry the held
+an opaque one (an alpha blend of the two 8-bit colours in gamma sRGB, the result painted in 8
+bits): a label on a pressed part. The token values carry the held
 value at its own hue.
 
 A declared value keeps its chroma inside sRGB at the same lightness, so a re-hued accent keeps its
 luminance and contrast and loses saturation at a hue the gamut cannot carry, never clipping to
 another colour. The token values are in gamut, so at the default hue nothing moves. The
 contracts the token values carry include `accent-ink` on `group` and on `accent-soft` at 4.5:1, the dark
-`accent` on `group` at 3:1 and `act-accent-pending` at 3:1 under `on-act-accent`; they hold at every
-hue of either knob.
+`accent` on `group` at 3:1 and `act-accent-pending` at 3:1 under `on-act-accent`; they hold on the
+painted colour at every hue of either knob (`derive.test.ts` sweeps both knobs over 0..359).
 
 The conversions are Björn Ottosson's reference matrices for OKLCH, OKLab and sRGB (`oklch.ts`,
 internal, no subpath). The derivation mixes in OKLab (a hover fill toward black, a pending fill

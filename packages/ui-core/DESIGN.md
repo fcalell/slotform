@@ -122,8 +122,8 @@ colors:
   accent-dark: "oklch(0.54 0.19 264)"
   on-accent-dark: "oklch(1 0 0)"
   accent-soft-dark: "oklch(0.29 0.06 264)"
-  accent-ink-dark: "oklch(0.725 0.13 264)"
-  accent-edge-dark: "oklch(0.507 0.095 264)"
+  accent-ink-dark: "oklch(0.72 0.13 264)"
+  accent-edge-dark: "oklch(0.505 0.095 264)"
   ok-dark: "oklch(0.66 0.17 150)"
   ok-soft-dark: "oklch(0.28 0.05 150)"
   ok-edge-dark: "oklch(0.47 0.11 150)"
@@ -185,8 +185,8 @@ colors:
   fill-disabled-dark: "oklch(0.97 0.002 264 / 0.06)"
   fill-neutral-dark: "oklch(0.97 0.002 264 / 0.08)"
   fill-badge-dark: "oklch(0.76 0.01 264 / 0.1)"
-  ring-dark: "oklch(0.725 0.13 264)"
-  selected-outline-dark: "oklch(0.725 0.13 264)"
+  ring-dark: "oklch(0.72 0.13 264)"
+  selected-outline-dark: "oklch(0.72 0.13 264)"
   edge-hover-dark: "oklch(0.585 0.01 264)"
   edge-error-dark: "oklch(0.71 0.178 25)"
   ink-error-dark: "oklch(0.71 0.178 25)"
@@ -2720,8 +2720,8 @@ Colors are OKLCH, named by the place they draw. Neutrals cast on one hue at a fi
 | `accent` | `oklch(0.52 0.19 264)` | `oklch(0.54 0.19 264)` | the filled act |
 | `on-accent` | `oklch(1 0 0)` | `oklch(1 0 0)` | text on `accent` |
 | `accent-soft` | `oklch(0.95 0.023 264)` | `oklch(0.29 0.06 264)` | a tinted tile |
-| `accent-ink` | `oklch(0.505 0.19 264)` | `oklch(0.725 0.13 264)` | a link, the focus ring, a selection outline |
-| `accent-edge` | `oklch(0.728 0.107 264)` | `oklch(0.507 0.095 264)` |  |
+| `accent-ink` | `oklch(0.505 0.19 264)` | `oklch(0.72 0.13 264)` | a link, the focus ring, a selection outline |
+| `accent-edge` | `oklch(0.728 0.107 264)` | `oklch(0.505 0.095 264)` |  |
 | `ok` | `oklch(0.49 0.129 150)` | `oklch(0.66 0.17 150)` | the `done` mark, an added line's ink |
 | `ok-soft` | `oklch(0.965 0.04 150)` | `oklch(0.28 0.05 150)` | the ground under an `ok` mark, an added line |
 | `ok-edge` | `oklch(0.728 0.085 150)` | `oklch(0.47 0.11 150)` |  |
@@ -2783,8 +2783,8 @@ Colors are OKLCH, named by the place they draw. Neutrals cast on one hue at a fi
 | `fill-disabled` | `oklch(0.2 0.008 264 / 0.06)` | `oklch(0.97 0.002 264 / 0.06)` | a disabled act's or chip's box |
 | `fill-neutral` | `oklch(0.2 0.008 264 / 0.08)` | `oklch(0.97 0.002 264 / 0.08)` | a resting neutral ground: a grey chip, a message bubble |
 | `fill-badge` | `oklch(0.45 0.012 264 / 0.1)` | `oklch(0.76 0.01 264 / 0.1)` | a badge's soft ground: the meta ink at a tenth, the words in the meta ink at 4.5:1 on it |
-| `ring` | `oklch(0.505 0.19 264)` | `oklch(0.725 0.13 264)` | the focus ring |
-| `selected-outline` | `oklch(0.505 0.19 264)` | `oklch(0.725 0.13 264)` | a selected tile's outline |
+| `ring` | `oklch(0.505 0.19 264)` | `oklch(0.72 0.13 264)` | the focus ring |
+| `selected-outline` | `oklch(0.505 0.19 264)` | `oklch(0.72 0.13 264)` | a selected tile's outline |
 | `edge-hover` | `oklch(0.59 0.012 264)` | `oklch(0.585 0.01 264)` | a field's boundary under the pointer |
 | `edge-error` | `oklch(0.515 0.19 25)` | `oklch(0.71 0.178 25)` | a field's boundary in error |
 | `ink-error` | `oklch(0.515 0.19 25)` | `oklch(0.71 0.178 25)` | an error message |
@@ -3060,4 +3060,4 @@ Each is a CSS custom property on the web and a number in `deriveTheme().motion` 
 - Do draw one `title` per screen, no `heading` inside a row, no `caption` sentence; emphasis is weight, never size.
 - Do keep text at 4.5:1 or more on its fill; the contract measures every pair it draws.
 - Do time motion with a duration rung and a contract curve; don't write a literal duration.
-- Do take every word a component draws from `words`; a sentence is a prop. A counted word (`earlierLines`, `unshownLines`, `dragged`) is `{ one, other }`, each form spelling `{count}` where the number stands, drawn through `counted(word, count)`. A blank word (`wrongType`, `stepOf`, `chosenOf`, `chosenNounOf`, `countOver`, `missingNoun`, `badLine`, `giveField`, `pickField`, `checkField`, `savedEndsIn`) spells its named blanks as `{name}` where each value stands, drawn through `filled(word, values)`.
+- Do take every word a component draws from `words`; a sentence is a prop. A counted word (`earlierLines`, `unshownLines`, `dragged`) is `{ one, other }`, each form spelling `{count}` where the number stands, drawn through `counted(word, count)`. A blank word (`wrongType`, `stepOf`, `chosenOf`, `chosenNounOf`, `countOver`, `missingNoun`, `badLine`, `fewestCharacters`, `mostCharacters`, `leastNumber`, `mostNumber`, `moreThan`, `lessThan`, `giveField`, `pickField`, `checkField`, `savedEndsIn`) spells its named blanks as `{name}` where each value stands, drawn through `filled(word, values)`.

@@ -12,10 +12,17 @@ export const DRAG_SLOP = 4;
 export const DRAG_DELAY = 400;
 export const DRAG_DELAY_SLOP = 8;
 
-// The band (px) inside a scroller's edge where a drag carries it, and the most
-// (px a frame) it carries it at, at the edge itself and beyond.
+// The band (px) inside a scroller's edge where a drag carries it; the speed
+// (px a second) it carries it at, at the edge itself and beyond; and the time
+// (ms) the speed ramps up over from the pointer's entry into the band, so a
+// row picked up inside the band does not scroll away at once.
 export const SCROLL_EDGE = 48;
-export const SCROLL_MAX = 24;
+export const SCROLL_SPEED = 1440;
+export const SCROLL_RAMP = 400;
+
+// The longest frame (ms) a step is measured over: a frame that ran long (a
+// stalled tab) carries the scroller no further than one at 60 Hz.
+const SCROLL_FRAME = 1000 / 60;
 
 // An accepted drag held this long (ms) over a folded branch opens it.
 export const DROP_HOLD = 600;
@@ -110,17 +117,50 @@ export function moveEntry<T>(
 	return next;
 }
 
-/** How far (px) a drag at `at` carries a scroller whose view runs from `start` to `end`: negative toward the start, positive toward the end, nothing in the middle, growing to `SCROLL_MAX` at the edge and beyond it. */
-export function edgeSpeed(at: number, start: number, end: number): number {
+/** How deep a drag at `at` stands in the edge band of a scroller whose view runs from `start` to `end`: toward -1 at the start edge, toward 1 at the end edge (each reached at the edge and beyond it), 0 in the middle. A view shorter than two bands splits at its middle. */
+export function edgeDepth(at: number, start: number, end: number): number {
 	const edge = Math.min(SCROLL_EDGE, (end - start) / 2);
 	if (edge <= 0) return 0;
-	if (at < start + edge) {
-		return -Math.round(SCROLL_MAX * Math.min(1, (start + edge - at) / edge));
-	}
-	if (at > end - edge) {
-		return Math.round(SCROLL_MAX * Math.min(1, (at - (end - edge)) / edge));
-	}
+	if (at < start + edge) return -Math.min(1, (start + edge - at) / edge);
+	if (at > end - edge) return Math.min(1, (at - (end - edge)) / edge);
 	return 0;
+}
+
+/** How far (px) a frame of `elapsed` ms carries a scroller a drag stands `depth` deep in (`edgeDepth`), `since` ms after it entered the band: `SCROLL_SPEED` a second at the edge, whatever the frame rate, ramped up over `SCROLL_RAMP`, a frame counted at most as long as one at 60 Hz. */
+export function edgeSpeed(
+	depth: number,
+	elapsed: number,
+	since: number,
+): number {
+	const ramp = Math.min(1, since / SCROLL_RAMP);
+	const seconds = Math.min(elapsed, SCROLL_FRAME) / 1000;
+	return Math.round(depth * ramp * SCROLL_SPEED * seconds);
+}
+
+/** A drag standing in an edge band: what it carries (`on`, a scroller or a pane), toward which side, when it entered the band there (ms) and when its last step ran. */
+export interface Band {
+	on: object;
+	side: number;
+	entered: number;
+	last: number;
+}
+
+/** A step at `now` of a drag in the band of `on` toward `side`: the band as it stands after it (entered afresh where the drag was in no band, or in another one or toward another side) and the `elapsed` and `since` `edgeSpeed` takes. A drag out of every band holds no band. */
+export function bandAt(
+	band: Band | undefined,
+	on: object,
+	side: number,
+	now: number,
+): { band: Band; elapsed: number; since: number } {
+	const kept =
+		band?.on === on && band.side === side
+			? band
+			: { on, side, entered: now, last: now };
+	return {
+		band: { ...kept, last: now },
+		elapsed: now - kept.last,
+		since: now - kept.entered,
+	};
 }
 
 /** Whether a drop that `accepts` a kind (one, or several) takes what is dragged: a drag of no kind (a reorder alone) is taken by none. */
