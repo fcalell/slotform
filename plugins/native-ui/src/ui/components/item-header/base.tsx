@@ -57,7 +57,7 @@ const ASIDE = "flex-row items-center shrink-0";
 // kinds of fact it carries; a fact that opens a sheet is a control of the same
 // kind, and a linked badge takes the same reach as a hit slop (`Badge`).
 const FACTS = "flex-row items-center";
-function useReach() {
+function useFactReach() {
 	return {
 		marginVertical: -factReach(
 			useTokenPx("--spacing-target"),
@@ -99,7 +99,7 @@ function FactPart({
 }) {
 	const warm = useWarm();
 	const words = useWords();
-	const REACH = useReach();
+	const REACH = useFactReach();
 	// Words that go to a route: a linked badge, its words underlined and no
 	// chevron, its hit reaching the touch target.
 	if (typeof fact === "object" && "href" in fact && "label" in fact) {
@@ -175,7 +175,7 @@ function FactPart({
 // a word. A status keeps its form, its box and a word's filler, and a pick its
 // control.
 function PaintedFact({ fact, at }: { fact: unknown; at: number }) {
-	const REACH = useReach();
+	const REACH = useFactReach();
 	// A fact with a `pick` is a status that moves (`{ pick: OptionPick }`).
 	if (typeof fact === "object" && fact !== null && "pick" in fact)
 		return (

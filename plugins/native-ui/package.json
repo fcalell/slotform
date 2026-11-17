@@ -112,6 +112,7 @@
 		"@fcalell/plugin-auth": "workspace:^",
 		"@fcalell/plugin-expo": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
+		"@legendapp/list": "~3.7.2",
 		"class-variance-authority": "^0.7.1",
 		"lucide": "^1.73.0",
 		"zod": "^4.6.7",

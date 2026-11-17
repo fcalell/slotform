@@ -207,11 +207,11 @@ export const placeIn = () =>
 		.reduceMotion(ReduceMotion.System);
 
 // A message that arrives at the end of a log rises as it fades in: docs/architecture/ui-core/motion.md, "Navigate and stream".
-// The log and each message are drawn upside down, so the offset is negative.
+// It starts a pair below its place.
 const PAIR = SPACE_BASE * SPACING_RATIO.touch.gap;
 export const streamIn = () =>
 	new Keyframe({
-		0: { opacity: 0, transform: [{ translateY: -PAIR }] },
+		0: { opacity: 0, transform: [{ translateY: PAIR }] },
 		100: { opacity: 1, transform: [{ translateY: 0 }], easing: curve("out") },
 	})
 		.duration(tuned.base)

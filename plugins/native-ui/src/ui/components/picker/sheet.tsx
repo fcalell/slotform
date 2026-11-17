@@ -3,6 +3,8 @@ import { optionBlocked, optionLeading } from "@fcalell/ui-core/list-state";
 import {
 	type Grouped,
 	groupsOf,
+	type OptionRow,
+	optionRows,
 	type PickOptions,
 	SEARCH_PAST,
 } from "@fcalell/ui-core/pick";
@@ -17,13 +19,15 @@ import {
 	text,
 	textStrong,
 } from "@fcalell/ui-core/variants";
-import { useMemo, useState } from "react";
+import { useBottomSheetScrollableCreator } from "@gorhom/bottom-sheet";
+import { Fragment, useMemo, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import { StatusDot } from "../../atoms/status/dot";
 import type { IconAct } from "../../lib/act";
 import { asIconAct, useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
+import { List } from "../../lib/hosts";
 import { Ink } from "../../lib/ink";
 import { Avatar } from "../avatar";
 import { Chip } from "../chip";
@@ -50,6 +54,11 @@ const KIND = "shrink-0 self-center";
 // inset below the line.
 const ACT_REGION = "border-t pt-gap";
 const ACT_GLYPH = "shrink-0";
+// A row's key: its option's value, or its group's label.
+const keyOf = <V extends string | null>(entry: OptionRow<V>) =>
+	"option" in entry
+		? `option:${String(entry.option.value)}`
+		: `label:${entry.label}`;
 // What a search that matches nothing says, on a row of the sheet.
 const NO_MATCHES = "py-gap";
 
@@ -176,16 +185,104 @@ export function PickSheet<V extends string | null>({
 		() =>
 			typed === ""
 				? groups
-				: groups
-						.map((group) => ({
-							...group,
-							options: group.options.filter((option) =>
-								option.label.toLowerCase().includes(typed),
-							),
-						}))
-						.filter((group) => group.options.length > 0),
+				: groups.map((group) => ({
+						...group,
+						options: group.options.filter((option) =>
+							option.label.toLowerCase().includes(typed),
+						),
+					})),
 		[groups, typed],
 	);
+	// The options under their group labels, one row each; a searching sheet
+	// windows them in its own scroll, which drags the sheet as its body would.
+	const rows = optionRows(shown);
+	const scroll = useBottomSheetScrollableCreator();
+	const rowOf = (entry: OptionRow<V>) => {
+		if (!("option" in entry))
+			return (
+				<RNText
+					accessibilityRole="header"
+					className={cn(
+						OPTION_GROUP_LABEL,
+						text({ role: "meta" }),
+						textStrong({ role: "meta" }),
+					)}
+				>
+					{entry.label}
+				</RNText>
+			);
+		const { option } = entry;
+		const chosen = set ? set.includes(option.value) : option.value === value;
+		const blocked = optionBlocked(option, chosen);
+		return (
+			<Pressable
+				accessibilityRole={set ? "checkbox" : "radio"}
+				accessibilityLabel={option.label}
+				accessibilityState={{
+					checked: chosen,
+					disabled: blocked !== undefined,
+				}}
+				disabled={blocked !== undefined}
+				onPress={() => {
+					if (!set) onClose();
+					onChange(option.value);
+				}}
+				className={cn(
+					row(),
+					OPTION_ROW,
+					OPTION,
+					blocked === undefined && PRESS,
+				)}
+			>
+				<OptionText option={option} chosen={chosen} />
+				{chosen ? (
+					<View className={TICK}>
+						<Ink.Provider value="ink-body">
+							<Icon name="Check" fit="body" />
+						</Ink.Provider>
+					</View>
+				) : null}
+			</Pressable>
+		);
+	};
+	const none = (
+		<RNText
+			className={cn(row(), OPTION_ROW, text({ role: "meta" }), NO_MATCHES)}
+		>
+			{words.noMatches}
+		</RNText>
+	);
+	const foot = act ? (
+		<View className={cn(HAIRLINE, ACT_REGION)}>
+			<Pressable
+				accessibilityRole={"href" in act ? "link" : "button"}
+				accessibilityState={{ disabled: act.blocked !== undefined }}
+				disabled={act.blocked !== undefined}
+				onPress={() => {
+					onClose();
+					acting.attempt(true, asIconAct(act));
+				}}
+				className={cn(
+					row(),
+					OPTION_ROW,
+					OPTION,
+					act.blocked === undefined && PRESS,
+				)}
+			>
+				<View className={ACT_GLYPH}>
+					<Ink.Provider value="ink-meta">
+						<Icon name={act.icon} />
+					</Ink.Provider>
+				</View>
+				<RNText
+					numberOfLines={1}
+					className={cn(text({ role: "body" }), OPTION_TEXT)}
+				>
+					{act.label}
+				</RNText>
+			</Pressable>
+		</View>
+	) : null;
 	return (
 		<>
 			<SheetLayer
@@ -193,6 +290,7 @@ export function PickSheet<V extends string | null>({
 				onClose={onClose}
 				title={title}
 				tall={searching}
+				scrolls={searching}
 				head={
 					<SheetHead
 						title={title}
@@ -212,104 +310,27 @@ export function PickSheet<V extends string | null>({
 					/>
 				}
 			>
-				<View accessibilityLabel={title} className={ROWS}>
-					{shown.map((group, at) => (
-						<View key={group.label ?? at}>
-							{group.label ? (
-								<RNText
-									accessibilityRole="header"
-									className={cn(
-										OPTION_GROUP_LABEL,
-										text({ role: "meta" }),
-										textStrong({ role: "meta" }),
-									)}
-								>
-									{group.label}
-								</RNText>
-							) : null}
-							{group.options.map((option) => {
-								const chosen = set
-									? set.includes(option.value)
-									: option.value === value;
-								const blocked = optionBlocked(option, chosen);
-								return (
-									<Pressable
-										key={String(option.value)}
-										accessibilityRole={set ? "checkbox" : "radio"}
-										accessibilityLabel={option.label}
-										accessibilityState={{
-											checked: chosen,
-											disabled: blocked !== undefined,
-										}}
-										disabled={blocked !== undefined}
-										onPress={() => {
-											if (!set) onClose();
-											onChange(option.value);
-										}}
-										className={cn(
-											row(),
-											OPTION_ROW,
-											OPTION,
-											blocked === undefined && PRESS,
-										)}
-									>
-										<OptionText option={option} chosen={chosen} />
-										{chosen ? (
-											<View className={TICK}>
-												<Ink.Provider value="ink-body">
-													<Icon name="Check" fit="body" />
-												</Ink.Provider>
-											</View>
-										) : null}
-									</Pressable>
-								);
-							})}
-						</View>
-					))}
-					{shown.length === 0 ? (
-						<RNText
-							className={cn(
-								row(),
-								OPTION_ROW,
-								text({ role: "meta" }),
-								NO_MATCHES,
-							)}
-						>
-							{words.noMatches}
-						</RNText>
-					) : null}
-					{act ? (
-						<View className={cn(HAIRLINE, ACT_REGION)}>
-							<Pressable
-								accessibilityRole={"href" in act ? "link" : "button"}
-								accessibilityState={{ disabled: act.blocked !== undefined }}
-								disabled={act.blocked !== undefined}
-								onPress={() => {
-									onClose();
-									acting.attempt(true, asIconAct(act));
-								}}
-								className={cn(
-									row(),
-									OPTION_ROW,
-									OPTION,
-									act.blocked === undefined && PRESS,
-								)}
-							>
-								<View className={ACT_GLYPH}>
-									<Ink.Provider value="ink-meta">
-										<Icon name={act.icon} />
-									</Ink.Provider>
-								</View>
-								<RNText
-									numberOfLines={1}
-									className={cn(text({ role: "body" }), OPTION_TEXT)}
-								>
-									{act.label}
-								</RNText>
-							</Pressable>
-						</View>
-					) : null}
-				</View>
+				{searching ? (
+					<List
+						data={rows}
+						keyExtractor={keyOf}
+						getItemType={(entry) => ("option" in entry ? "option" : "label")}
+						renderItem={({ item }) => rowOf(item)}
+						ListEmptyComponent={none}
+						ListFooterComponent={foot}
+						renderScrollComponent={scroll}
+						accessibilityLabel={title}
+						contentContainerClassName={ROWS}
+					/>
+				) : (
+					<View accessibilityLabel={title} className={ROWS}>
+						{rows.map((entry) => (
+							<Fragment key={keyOf(entry)}>{rowOf(entry)}</Fragment>
+						))}
+						{rows.length === 0 ? none : null}
+						{foot}
+					</View>
+				)}
 			</SheetLayer>
 			<ActSheet
 				acting={acting}

@@ -1,7 +1,13 @@
-import { toggled, treeRows } from "@fcalell/ui-core/list-state";
+import {
+	type SheetEntry,
+	sheetEntries,
+	toggled,
+	treeRows,
+} from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
+import { useReach } from "@fcalell/ui-core/react/read";
+import type { Drawn } from "@fcalell/ui-core/read";
 import { HAIRLINE } from "@fcalell/ui-core/variants";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
@@ -14,7 +20,7 @@ import {
 import { View } from "react-native";
 import { cn } from "../../lib/cn";
 import { between } from "../../lib/group";
-import { MoreRow } from "../../lib/more";
+import { List } from "../../lib/hosts";
 import { FileRowItem } from "../file-row";
 import { RowItem as RowView } from "../row";
 import { BandHead } from "./band";
@@ -24,8 +30,10 @@ import type { Band, Row, RowItem } from "./index";
 export interface RowsInternal {
 	/** The items as the Section subscribed to them: real, or the placeholder while the read waits, which paints `PAINT_ROWS` rows. */
 	drawn: Drawn<readonly Row[]>;
-	/** The pages read the items come from, when it has pages: the sheet ends in its more row. */
-	more?: Read<unknown>;
+	/** What ends the rows (a more row), given whether the rows mounted reach the last (`useReach`) and the count of entries above it. */
+	foot?: (reached: boolean, entries: number) => ReactElement;
+	/** The rows stand alone in their Pane (`BodyAlone`): they window in their own scroll. */
+	alone?: boolean;
 	/** The Section's `groups`. */
 	groups?: readonly Band[];
 	/** The Section's head counts the rows, so a lone band holding every row draws no count of its own: one band, one count. */
@@ -48,15 +56,6 @@ function keyOf(row: Row): string {
 	if (typeof row.label === "string") return row.label;
 	if (row.label) return row.label.code;
 	return typeof row.title === "string" ? row.title : "";
-}
-
-// One entry of the sheet: a row, or a band over the rows after it.
-interface Entry {
-	key: string;
-	node: ReactElement;
-	band?: boolean;
-	/** A tree's child: its depth, where the hairline above it starts. */
-	depth?: number;
 }
 
 // The hairline above a tree's child starts at its rail: past the row's inset
@@ -132,106 +131,77 @@ export function Rows(props: RowsInternal) {
 				branch: false,
 				open: false,
 			}));
-	// Each row with its group's rank, -1 for a tree's child, which stands with
-	// its parent, and for a row of no group.
-	const rows = visible.map((each, index): { entry: Entry; group: number } => {
-		const { item, key } = each;
-		const group = each.depth ? -1 : rank(item);
-		if ("path" in item)
-			return {
-				entry: { key, node: <FileRowItem item={item} painted={painted} /> },
-				group,
-			};
-		const entry: Entry = {
-			key,
-			depth: each.depth,
-			node: (
-				<RowView
-					item={item}
-					id={key}
-					index={painted ? index : undefined}
-					painted={painted}
-					fold={fold}
-					depth={each.depth}
-					open={each.branch ? each.open : undefined}
-					arrived={arrived.has(key)}
-				/>
-			),
-		};
-		return { entry, group };
-	});
-	// With groups, the entries are the rows with a band before the first row of
-	// each group (and every empty group's, after the last); a tree's child
-	// stands with its parent.
-	const entries: Entry[] = [];
-	if (groups) {
-		const counts = groups.map(() => 0);
-		for (const { group } of rows)
-			if (group >= 0) counts[group] = (counts[group] ?? 0) + 1;
-		// One band holding every row would repeat the head's count: it draws none.
-		const roots = visible.filter((each) => !each.depth).length;
-		const lone =
-			props.counted === true && groups.length === 1 && counts[0] === roots;
-		const band = (at: number): Entry => {
-			// Every caller's `at` runs below `groups.length`.
-			const each = groups[at] as Band;
-			return {
-				key: `band:${each.key}`,
-				band: true,
-				node: (
-					<BandHead
-						label={each.label}
-						count={lone ? 0 : (counts[at] ?? 0)}
-						act={each.act}
-					/>
-				),
-			};
-		};
-		let shown = 0;
-		for (const { entry, group } of rows) {
-			for (; shown <= group; shown++) entries.push(band(shown));
-			entries.push(entry);
+	// The sheet's entries: its rows, and with groups a band before the first
+	// row of each group (and every empty group's, after the last); a tree's
+	// child stands with its parent.
+	const entries = sheetEntries(
+		visible.map((each) => ({
+			key: each.key,
+			depth: each.depth ?? 0,
+			group: each.depth ? -1 : rank(each.item),
+		})),
+		groups,
+		props.counted === true,
+	);
+	// The next page loads as the rows the list mounts reach its last entry.
+	const reach = useReach(entries.length);
+	const nodeOf = (entry: SheetEntry) => {
+		if (entry.kind === "band") {
+			// A band's index runs below `groups.length`.
+			const band = groups?.[entry.index] as Band;
+			return <BandHead label={band.label} count={entry.count} act={band.act} />;
 		}
-		for (; shown < groups.length; shown++) entries.push(band(shown));
-	} else entries.push(...rows.map(({ entry }) => entry));
-	// The card is the rows' box: each entry after the first draws the card's
-	// hairline above it, but for the row a band closes with its own rule.
-	const lines = entries.map((entry, index) => {
-		const ruled = !entries[index - 1]?.band && index > 0;
-		const depth = entry.depth ?? 0;
-		const child = ruled && depth > 0;
+		// A row's index runs below `visible.length`.
+		const each = visible[entry.index] as (typeof visible)[number];
+		if ("path" in each.item)
+			return <FileRowItem item={each.item} painted={painted} />;
 		return (
-			<View key={entry.key} className={between(ruled && !child ? index : 0)}>
-				{entry.node}
-				{child ? <RailRule depth={depth} /> : null}
+			<RowView
+				item={each.item}
+				id={each.key}
+				index={painted ? entry.index : undefined}
+				painted={painted}
+				fold={fold}
+				depth={each.depth}
+				open={each.branch ? each.open : undefined}
+				arrived={arrived.has(each.key)}
+			/>
+		);
+	};
+	// The card is the rows' box: each ruled entry draws the card's hairline
+	// above it; a tree's child draws it from its rail.
+	const line = (entry: SheetEntry, index: number) => {
+		const child = entry.ruled && entry.kind === "row" && entry.depth > 0;
+		return (
+			<View
+				key={entry.key}
+				className={between(entry.ruled && !child ? index : 0)}
+			>
+				{nodeOf(entry)}
+				{child ? <RailRule depth={entry.depth} /> : null}
 			</View>
 		);
-	});
-	// The more row ends the card, behind the hairline a further row would have;
-	// the rows it paints stand in its place at the card's rhythm.
-	if (!props.more || painted) return lines;
-	const sheet = props;
-	return [
-		...lines,
-		<View key="more" className={between(entries.length)}>
-			<MoreRow
-				read={props.more}
-				empty={items.length === 0}
-				inset
-				paint={() => (
-					<Rows
-						{...sheet}
-						more={undefined}
-						// The next page paints in the shape of the rows that stand.
-						paint={sheet.paint ?? items.find(isRow)}
-						drawn={{
-							painted: true,
-							phase: "waiting",
-							value: placeholderData(),
-						}}
-					/>
-				)}
-			/>
-		</View>,
-	];
+	};
+	// The foot (a more row) ends the rows, behind the hairline a further entry
+	// would have.
+	const foot = props.foot?.(reach.reached, entries.length);
+	if (!props.alone)
+		return (
+			<>
+				{entries.map(line)}
+				{foot}
+			</>
+		);
+	// Alone in its Pane, the rows window in their own scroll and report the
+	// last entry they mount, which loads the next page once it is the end.
+	return (
+		<List
+			data={entries}
+			keyExtractor={(entry) => entry.key}
+			getItemType={(entry) => entry.kind}
+			renderItem={({ item, index }) => line(item, index)}
+			onViewableItemsChanged={({ endBuffered }) => reach.onLast(endBuffered)}
+			ListFooterComponent={foot}
+		/>
+	);
 }

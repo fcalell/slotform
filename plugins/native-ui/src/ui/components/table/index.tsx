@@ -66,7 +66,14 @@ import {
 	text,
 	textStrong,
 } from "@fcalell/ui-core/variants";
-import { memo, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+	memo,
+	useContext,
+	useMemo,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from "react";
 import {
 	Pressable,
 	Text as RNText,
@@ -84,8 +91,10 @@ import { Turn } from "../../atoms/turn";
 import { age } from "../../lib/age";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
+import { BodyAlone } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
 import type { CellFit } from "../../lib/field";
+import { FILL } from "../../lib/hosts";
 import { Ink } from "../../lib/ink";
 import { MoreRow } from "../../lib/more";
 import { navigate, useWarm } from "../../lib/navigate";
@@ -195,6 +204,9 @@ export function Table<T>(props: TableProps<T>) {
 	);
 	const [sort, setSort] = useState<Sort>();
 	const { width } = useWindowDimensions();
+	// It stands alone in its Pane: below `tablet` it fills the body and its rows
+	// window.
+	const alone = useContext(BodyAlone);
 	const { drawn, frame } = useCollection(props.items);
 	const { painted } = drawn;
 	// Painted, `PAINT_ROWS` records over the placeholder, in the order the
@@ -217,10 +229,14 @@ export function Table<T>(props: TableProps<T>) {
 		: undefined;
 	if (width < BREAKPOINT_PX.tablet)
 		return (
-			<View className={ROOT} accessibilityLabel={props.label}>
+			<View
+				className={cn(ROOT, alone && FILL)}
+				accessibilityLabel={props.label}
+			>
 				<FrameBody frame={frame} fit="frame" empty={props.empty}>
 					<FrameLine frame={frame} />
 					<Phone
+						alone={alone}
 						columns={columns}
 						rows={records}
 						sort={sort}
@@ -1072,6 +1088,7 @@ function Phone(props: {
 	warns: boolean;
 	links: boolean;
 	changes: boolean;
+	alone: boolean;
 }) {
 	const words = useWords();
 	const { columns, sort, choose } = props;
@@ -1247,6 +1264,31 @@ function Phone(props: {
 			onOpen: onOpen ? () => onOpen(record.id) : undefined,
 		};
 	};
+	// The more row ends the rows; its painted next page stands a rows gap under
+	// them.
+	const { more: read, blank } = props;
+	const more =
+		read && blank
+			? (reached: boolean) => (
+					<MoreRow
+						read={read}
+						empty={props.rows.length === 0}
+						scrolled={reached}
+						paint={() => (
+							<View className={MORE_PAGE}>
+								<Rows
+									drawn={{
+										painted: true,
+										phase: "waiting",
+										value: placeholderData(),
+									}}
+									paint={rowOf(blank, true)}
+								/>
+							</View>
+						)}
+					/>
+				)
+			: undefined;
 	return (
 		<>
 			{pick}
@@ -1262,25 +1304,9 @@ function Phone(props: {
 				paint={
 					painted && props.rows[0] ? rowOf(props.rows[0], true) : undefined
 				}
+				alone={props.alone}
+				foot={more}
 			/>
-			{props.more && props.blank ? (
-				<MoreRow
-					read={props.more}
-					empty={props.rows.length === 0}
-					paint={() => (
-						<View className={MORE_PAGE}>
-							<Rows
-								drawn={{
-									painted: true,
-									phase: "waiting",
-									value: placeholderData(),
-								}}
-								paint={props.blank ? rowOf(props.blank, true) : undefined}
-							/>
-						</View>
-					)}
-				/>
-			) : null}
 		</>
 	);
 }

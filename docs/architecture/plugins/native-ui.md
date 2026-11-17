@@ -21,6 +21,10 @@ imports `expo-network` and `expo-web-browser`. They are optional peers there, bu
 import, dynamic ones included, so a native consumer cannot bundle without them: they are among the
 plugin's `dependencies`, which the consumer declares ([Native client](./auth.md#native-client)).
 
+`@legendapp/list` is a dependency, not a peer: it is JavaScript only, with `react` its one peer, so a
+consumer has nothing of its own to resolve ([releasing](../releasing.md#peers-one-copy-of-each-stack-package)).
+It windows the phone's long collections ([Long collections](#long-collections)).
+
 ## What it contributes
 
 - `.stack/global.css`: the uniwind entry stylesheet ([Stylesheet](#stylesheet)).
@@ -223,12 +227,17 @@ rows. The sort cycle is [Sort](../ui-core/components.md#sort).
 ### Thread
 
 The messages stand a sections gap apart, one rung above a reply's block gap, and the input a
-sections gap under them. The thread fills what it stands in (a Pane's body) by plain flex: the log
-scrolls inside it at the Pane's inset, opening at the newest message and following each that arrives
-while the reader is at the end, the input docked at the foot over the keyboard. While the reader is
-scrolled up, a Latest act floats centred above the foot and returns to the newest message. With
-`replying` set, one waiting `Message` of the other author follows the messages, followed as any
-message is and replaced in place when the reply's item arrives. The rest is
+sections gap under them. The thread fills what it stands in (a Pane's body) by plain flex (`FILL`),
+and the log is a LegendList inside it at the Pane's inset, oldest message first. It opens at the
+newest message (`initialScrollAtEnd`), and a short log stands at the bottom (`alignItemsAtEnd`).
+While the reader is at the end the log follows each arrival, a streaming reply's growth and the
+keyboard's resize (`maintainScrollAtEnd`, threshold 0: LegendList's 1 px edge, the same as
+`AT_END`). A reader scrolled up keeps their place. While the reader is more than `AT_END` from the
+end, the Latest act floats centred above the foot and `scrollToEnd`s. With `replying` set, one
+waiting `Message` of the other author follows the messages, followed as any message is and
+replaced in place when the reply's item arrives. The turn being written is the list's footer, which
+`maintainScrollAtEnd` follows as it grows. The failed, missing and empty shapes are the list's empty
+component. The rest is
 [Thread](../ui-core/components.md#thread).
 
 ### Stats meter
@@ -242,6 +251,65 @@ counts as links. Once its read ended the meter stands empty (no share, no fill) 
 failed read keeps the label, shows the failure mark and the retry icon in the share region, reads
 "This didn't load." under the bar, and a press retries. React Native has no meter role, so it is a
 progress bar.
+
+## Long collections
+
+A collection windows on the phone where it owns a scroll: it mounts only the rows near the view, and
+LegendList (`@legendapp/list/react-native`, through `List` in `lib/hosts.tsx`) places and measures
+them. LegendList windows only against its own scroll view and never against a parent's: on React
+Native it reads its visible length from its own layout and its offset from its own scroll events
+(`scrollElement` and `useWindowScroll` resolve only on the web), so a collection that shares the
+Pane's scroll with other parts draws every row.
+
+- **Which collections.** A `Thread`'s log always windows. A Picker's sheet windows once it is `tall`
+  (past `SEARCH_PAST` options, where it searches). A `Section`'s rows and a `Table`'s rows below
+  `tablet` window when they stand alone in their Pane (below). The rows grid from `tablet`, a
+  `Gallery`, a `Picker` at `fit: list`, a `BarChart` and every collection that shares the body draw
+  whole ([Scope](#scope)).
+- **Standing alone.** A Pane whose children are one `Section` element with `items` or one `Table`
+  element, and that has no `record` head, tells that part it stands alone (`BodyAlone`, `lib/container.ts`). Only the
+  element itself counts: a Section inside `Columns` or a card, or a consumer component that returns
+  a Section, is not told, so it never takes the height its siblings need. The part takes the body's
+  free height by plain flex (`FILL`, `lib/hosts.tsx`), as a Thread does. The Pane's `Scroll` stays
+  around it, and its content then fits the view, so only the list scrolls. A Section that stands
+  alone keeps its head and picks line over its card. The card is the list's box: it hugs a short
+  list and is bounded by the body for a long one, and the rows scroll inside its clip. A Table keeps
+  its sort pick over the rows. Either one, standing beside any other part, draws its rows whole in
+  the Pane's scroll. A sheet one of its rows opens is told nothing: gorhom draws it outside
+  the providers above it ([Sheets](#sheets)).
+- **Rows.** The list's data is the sheet's entries (`sheetEntries`, `@fcalell/ui-core/list-state`):
+  rows, bands and a tree's flattened children, each with its key, its kind (`getItemType`) and
+  whether the card's hairline stands above it, so a row draws the same wherever it is mounted.
+  `keyExtractor` is the entry's key. Rows are not recycled (`recycleItems={false}`, set once in
+  `List`: an omitted prop logs a dev warning), so a row's state is its own and each mount is a fresh
+  row. A row's first size is the `row` spacing (`estimatedItemSize`, read from the theme where the
+  list stands), and every row is measured from then on.
+- **Paging.** The more row is the rows' foot, the list's footer when they window. A windowed list
+  with at least `VIRTUAL_FROM` loaded entries fetches its next page itself once the rows it mounts
+  reach its last entry, as the web does ([paging](../ui-core/reads.md#paging)). The list reports its
+  mounted range through `onViewableItemsChanged`, which fires when the viewable set changes:
+  `endBuffered`, the last index it mounts (view plus draw distance), goes into `useReach`'s `onLast`,
+  and the hook's `reached` reaches the foot's `MoreRow` as `scrolled`. `onEndReached` goes unused:
+  it measures in fractions of the screen (`onEndReachedThreshold`), and the rule is said once, in row
+  indices (`reachesEnd`). A shorter list, and a Section or Table that shares its Pane's scroll,
+  keep the "Show more" press. The painted next page stands in the footer and never windows, since it
+  holds fewer than `VIRTUAL_FROM` rows.
+- **Painted rows.** A waiting collection paints `min(last loaded, VIRTUAL_FROM - 1)` rows, inside
+  the list when the collection windows.
+- **Arrivals.** A row that arrived after the first draw fades in as it mounts (`useArrivals`). A row
+  that mounts by scrolling is already known and does not fade.
+- **Keyboard.** No windowed list is keyboard-aware itself. The Pane's and the Thread's `Lifted`
+  column lifts the list and the docked foot over the keyboard, as it lifts the body, and no windowed
+  row holds a text field. `KeyboardAwareLegendList` (`@legendapp/list/keyboard`, which needs
+  keyboard-controller 1.21.7 or later) goes unused: its `KeyboardChatScrollView` lifts the content
+  for the keyboard itself, which inside `Lifted` would lift it a second time.
+- **Sheets.** A tall Picker sheet's body is the list itself. `SheetLayer` with `scrolls` drops its
+  `BottomSheetScrollView`, and the list scrolls through gorhom's `useBottomSheetScrollableCreator()`
+  (`renderScrollComponent`), so a drag on the rows moves the sheet as a drag on any sheet body does;
+  gorhom takes one scrollable per sheet. The group labels are entries and so are the options
+  (`optionRows`, `@fcalell/ui-core/pick`), the same rows a short sheet draws whole. "No matches" is
+  the list's empty component and the sheet's act is its footer. A tall sheet stands at `FULL`, so
+  gorhom never sizes it from the list's estimated height.
 
 ## Raised grounds and room
 
@@ -363,6 +431,13 @@ pure strings, so a test reads them.
 
 ## Scope
 
+- The tablet Table grid draws its rows whole: its frozen leading column and its sideways cells are two
+  columns, which would need two lists kept in step. That cost is not paid.
+- A `Gallery` draws whole: its wrapping tiles would need `numColumns` and aspect sizing, which are
+  unbuilt.
+- A Section or Table that does not stand alone in its Pane draws whole: LegendList windows only against
+  its own scroll ([Long collections](#long-collections)).
+
 The toasts' layer follows the page's box one layout late (a growing foot, the keyboard), because it
 is placed by measuring and React Native cannot stand a layer after the sheets' host from the page's
 tree. The upgrade is to place it by layout once React Native can, or once the sheets host the toasts.
@@ -382,9 +457,11 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 - `plugins/native-ui/src/ui/lib/ink.ts`: `Ink`.
 - `plugins/native-ui/src/ui/atoms/count/base.tsx`: the count number.
 - `plugins/native-ui/src/ui/components/shell/host.tsx`: `ContainerHost`.
-- `plugins/native-ui/src/ui/lib/container.ts`: the toasts' placement and the docked foot region.
+- `plugins/native-ui/src/ui/lib/container.ts`: the toasts' placement, the docked foot region and `BodyAlone`.
+- `plugins/native-ui/src/ui/lib/hosts.tsx`: `Scroll`, `Lifted`, `FILL` and `List`.
 - `plugins/native-ui/src/ui/lib/toast.ts`: the toast queue.
-- `plugins/native-ui/src/ui/components/sheet/layer.tsx`: the sheet layer and its regions.
+- `plugins/native-ui/src/ui/components/sheet/layer.tsx`: the sheet layer, its regions and its body.
+- `plugins/native-ui/src/ui/components/section/rows.tsx`: a Section's rows, whole or windowed.
 - `plugins/native-ui/src/ui/components/sheet/index.tsx`: the sheet and its body's claim region.
 - `plugins/native-ui/src/ui/lib/field.ts`: `FieldClaim` and a typing control's claim.
 - `plugins/native-ui/src/ui/lib/route.ts`: the phone's route type.

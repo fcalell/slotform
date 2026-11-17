@@ -164,12 +164,62 @@ interface SheetLayerProps {
 	// list does not jump as the filter narrows); the rest grow with their
 	// content.
 	tall?: boolean;
+	// The children scroll themselves (a long list, through gorhom's
+	// `useBottomSheetScrollableCreator`), so the sheet gives them no scroll of
+	// its own: gorhom takes one scrollable per sheet. Only a `tall` sheet, which
+	// never sizes from its content.
+	scrolls?: boolean;
 	// The children over the whole screen inside the safe area (an image's full
 	// size), with no head, ground or foot, so no accessible name of its own
 	// (the children name themselves): the scrim and the children's own close
 	// act dismiss it.
 	view?: boolean;
 	children?: ReactNode;
+}
+
+// A sheet's body: the view over the whole screen, the children that scroll
+// themselves, or the children in the sheet's scroll.
+function SheetBody(props: {
+	view?: boolean;
+	scrolls?: boolean;
+	footed: boolean;
+	children?: ReactNode;
+}) {
+	const insets = useSafeAreaInsets();
+	// The body's end keeps the home indicator's inset, gorhom adding the
+	// footer's height to it.
+	const end = { paddingBottom: insets.bottom };
+	if (props.view)
+		return (
+			<ViewBody
+				style={{
+					paddingTop: insets.top,
+					paddingBottom: insets.bottom,
+					paddingLeft: insets.left,
+					paddingRight: insets.right,
+				}}
+				className={VIEW}
+			>
+				{props.children}
+			</ViewBody>
+		);
+	if (props.scrolls)
+		return (
+			<RaisedGround>
+				<View style={end} className={VIEW}>
+					{props.children}
+				</View>
+			</RaisedGround>
+		);
+	return (
+		<BottomSheetScrollView
+			enableFooterMarginAdjustment={props.footed}
+			keyboardShouldPersistTaps="handled"
+			contentContainerStyle={end}
+		>
+			<RaisedGround>{props.children}</RaisedGround>
+		</BottomSheetScrollView>
+	);
 }
 
 // A bottom sheet over the scrim, content-tall and growing with its content up
@@ -184,6 +234,7 @@ export function SheetLayer({
 	foot,
 	holds = false,
 	tall,
+	scrolls,
 	view,
 	children,
 }: SheetLayerProps) {
@@ -233,9 +284,6 @@ export function SheetLayer({
 	});
 	useLayoutEffect(() => partsStore.set(parts));
 	const footed = foot !== undefined;
-	// The body's end keeps the home indicator's inset, gorhom adding the
-	// footer's height to it.
-	const end = { paddingBottom: insets.bottom };
 	return (
 		<BottomSheetModal
 			ref={ref}
@@ -258,27 +306,9 @@ export function SheetLayer({
 			snapPoints={full ? FULL : undefined}
 			animationConfigs={settled ? timings.release : timings.enter}
 		>
-			{view ? (
-				<ViewBody
-					style={{
-						paddingTop: insets.top,
-						paddingBottom: insets.bottom,
-						paddingLeft: insets.left,
-						paddingRight: insets.right,
-					}}
-					className={VIEW}
-				>
-					{children}
-				</ViewBody>
-			) : (
-				<BottomSheetScrollView
-					enableFooterMarginAdjustment={footed}
-					keyboardShouldPersistTaps="handled"
-					contentContainerStyle={end}
-				>
-					<RaisedGround>{children}</RaisedGround>
-				</BottomSheetScrollView>
-			)}
+			<SheetBody view={view} scrolls={scrolls} footed={footed}>
+				{children}
+			</SheetBody>
 		</BottomSheetModal>
 	);
 }

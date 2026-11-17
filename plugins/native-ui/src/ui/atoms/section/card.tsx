@@ -10,8 +10,10 @@ const BOX = "overflow-hidden";
 
 // The card's clip rounds the rows' outer corners.
 /** The hairline card every Section's rows stand on; the rows pad themselves with its inset. Outside the package's exports. */
-export function SheetCard(props: { children: ReactNode }) {
-	return <View className={cn(CARD, BOX)}>{props.children}</View>;
+export function SheetCard(props: { className?: string; children: ReactNode }) {
+	return (
+		<View className={cn(CARD, BOX, props.className)}>{props.children}</View>
+	);
 }
 
 /** A card of entries the owner draws itself (a Rules' cards, a Table's facts), the hairline once between them; an entry that came on its own once the card was drawn is a block that fades in as it mounts. Outside the package's exports. */

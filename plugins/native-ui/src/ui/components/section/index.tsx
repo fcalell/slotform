@@ -26,23 +26,31 @@ import {
 	type Datum,
 	isSelection,
 	pagesOf,
+	placeholderData,
 	type Selection,
 	sampleOf,
 } from "@fcalell/ui-core/read";
 import { SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
-import { type ReactNode, useMemo, useState } from "react";
+import { type ReactNode, useContext, useMemo, useState } from "react";
 import { View } from "react-native";
 import { SheetCard } from "../../atoms/section/card";
 import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
+import { BodyAlone } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
+import { between } from "../../lib/group";
+import { FILL } from "../../lib/hosts";
+import { MoreRow } from "../../lib/more";
 import { FrameBody, FrameLine, StateLine } from "../../lib/read";
 import { SectionHead } from "./head";
-import { Rows } from "./rows";
+import { Rows, type RowsInternal } from "./rows";
 
 const BOX = "min-w-0";
 const BODY_FOLDED = "hidden";
+// Alone in its Pane, the card is the rows' scroll box: it hugs a short list
+// and the body bounds a long one, which scrolls inside its clip.
+const CARD_BOUNDED = "shrink min-h-0";
 
 /** A band as the platform draws it: its act may open a sheet. */
 export type Band = Omit<BandData, "act"> & { act?: IconAct | IconLinkAct };
@@ -237,6 +245,42 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 	// record (its leading mark, its facts, its trailing value), so the text and
 	// the end group stand where the loaded rows' will.
 	const paint = useMemo(() => paintOf(items), [items]);
+	// It stands alone in its Pane: it fills the body and its rows window.
+	const alone = useContext(BodyAlone);
+	const more = pagesOf(items);
+	const rows: Omit<RowsInternal, "drawn" | "foot" | "alone"> = {
+		paint,
+		groups: bands.painted ? undefined : bands.value,
+		counted:
+			!one && title !== undefined && (drawn.painted || !factsOnly(drawn.value)),
+	};
+	// The more row ends the card, behind the hairline a further row would have;
+	// the next page paints in the shape of the rows that stand, at the card's
+	// rhythm.
+	const foot =
+		more && !drawn.painted
+			? (reached: boolean, entries: number) => (
+					<View className={between(entries)}>
+						<MoreRow
+							read={more}
+							empty={loaded.length === 0}
+							inset
+							scrolled={reached}
+							paint={() => (
+								<Rows
+									{...rows}
+									paint={paint ?? loaded.find((row) => !("path" in row))}
+									drawn={{
+										painted: true,
+										phase: "waiting",
+										value: placeholderData(),
+									}}
+								/>
+							)}
+						/>
+					</View>
+				)
+			: undefined;
 	const body = (
 		<FrameBody
 			frame={frame}
@@ -245,25 +289,17 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 		>
 			{title === undefined ? <FrameLine frame={frame} /> : null}
 			<PicksLine rows={loaded} />
-			<SheetCard>
-				<Rows
-					drawn={drawn}
-					more={pagesOf(items)}
-					paint={paint}
-					groups={bands.painted ? undefined : bands.value}
-					counted={
-						!one &&
-						title !== undefined &&
-						(drawn.painted || !factsOnly(drawn.value))
-					}
-				/>
+			<SheetCard className={alone ? CARD_BOUNDED : undefined}>
+				<Rows {...rows} drawn={drawn} foot={foot} alone={alone} />
 			</SheetCard>
 		</FrameBody>
 	);
-	if (title === undefined) return body;
+	if (title === undefined)
+		return alone ? <View className={FILL}>{body}</View> : body;
 	return (
 		<Titled
 			{...props}
+			fill={alone}
 			title={title}
 			list={!one && (drawn.painted || !factsOnly(drawn.value))}
 			frame={frame}
@@ -312,9 +348,12 @@ function Titled(
 		list: boolean;
 		count?: number;
 		body: ReactNode;
+		// The Section stands alone in its Pane: it and its body fill the free height.
+		fill?: boolean;
 	},
 ) {
 	const {
+		fill,
 		title,
 		list,
 		count,
@@ -331,7 +370,7 @@ function Titled(
 	return (
 		<View
 			accessibilityState={{ busy: frame.holds && frame.shape === "waiting" }}
-			className={cn(SECTION, BOX)}
+			className={cn(SECTION, BOX, fill && FILL)}
 		>
 			<SectionHead
 				title={title}
@@ -350,7 +389,9 @@ function Titled(
 			/>
 			{/* A section without children draws no body. */}
 			{body == null || body === false ? null : (
-				<View className={cn(SECTION_BODY, !open && BODY_FOLDED)}>{body}</View>
+				<View className={cn(SECTION_BODY, fill && FILL, !open && BODY_FOLDED)}>
+					{body}
+				</View>
 			)}
 		</View>
 	);

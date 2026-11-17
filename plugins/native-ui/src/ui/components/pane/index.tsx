@@ -11,7 +11,13 @@ import {
 	PAGE_BODY_TOAST_SPACE,
 	PAGE_HEAD_SPACE,
 } from "@fcalell/ui-core/variants";
-import { type ReactNode, useContext, useRef } from "react";
+import {
+	Children,
+	isValidElement,
+	type ReactNode,
+	useContext,
+	useRef,
+} from "react";
 import { View } from "react-native";
 import { ToastSpace } from "../../atoms/toast/space";
 import type { IconAct, MenuEntry } from "../../lib/act";
@@ -19,6 +25,7 @@ import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import {
 	BackRoute,
+	BodyAlone,
 	DistanceContext,
 	FootReturn,
 	PlaceName,
@@ -31,8 +38,10 @@ import { useParentRoute } from "../../lib/navigate";
 import { FrameBody } from "../../lib/read";
 import { useToasts } from "../../lib/toast";
 import { ItemHeaderBase, type ItemHeaderParts } from "../item-header/base";
+import { Section } from "../section";
 import type { SheetProps } from "../sheet";
 import { SheetDocked } from "../sheet/docked";
+import { Table } from "../table";
 import { PaneHead } from "./head";
 
 const PANE = "flex-1";
@@ -154,13 +163,24 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 			image={record.image}
 		/>
 	) : null;
+	// A Section with items or a Table that is the Pane's only child, with no
+	// record head, stands alone in the body: it fills it and scrolls its own
+	// rows. Only that element is told, never a part inside another part
+	// (`Columns`, a card, a Section of parts).
+	const parts = Children.toArray(children);
+	const only = parts.length === 1 ? parts[0] : undefined;
+	const alone =
+		!record &&
+		isValidElement<{ items?: unknown }>(only) &&
+		((only.type === Section && only.props.items !== undefined) ||
+			only.type === Table);
 	const content = record ? (
 		<>
 			{head}
 			{children}
 		</>
 	) : (
-		children
+		<BodyAlone.Provider value={alone}>{children}</BodyAlone.Provider>
 	);
 	return (
 		<BackRoute.Provider value={toward}>

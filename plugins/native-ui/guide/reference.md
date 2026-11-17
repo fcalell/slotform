@@ -34,8 +34,10 @@ refetches when the app returns to the foreground. Pass nothing.
 
 ## Long collections
 
-The phone draws every row of a collection for now, whatever its length, and a `Thread` keeps its
-inverted log; the web windows a long one (`VIRTUAL_FROM`), the phone's waits on a device.
+A `Thread`, a searching Picker's sheet, and a `Section` or `Table` that is a Pane's only child show
+only the rows near the view; put a long list alone in its Pane to get that. Next to other content a
+list draws every row. A long list that stands alone loads its next page as you scroll near its end;
+next to other content, or under 50 rows, it ends in Show more for you to press.
 
 ## Acts
 

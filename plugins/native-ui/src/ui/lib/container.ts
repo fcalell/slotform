@@ -64,6 +64,11 @@ export const PlaceName = createContext<string | undefined>(undefined);
 // insets its head by the room set's page inset.
 export const DistanceContext = createContext(false);
 
+// Whether the part stands alone in its Pane's body (the Pane's one child, no
+// record head): a Section or Table then fills the body and windows its rows in
+// its own scroll. docs/architecture/plugins/native-ui.md, "Long collections".
+export const BodyAlone = createContext(false);
+
 // What a docked foot's region hands the docked `Sheet` it draws: docs/architecture/plugins/native-ui.md, "Docked sheet".
 export interface FootRegionValue {
 	height: number;

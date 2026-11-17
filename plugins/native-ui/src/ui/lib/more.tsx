@@ -1,6 +1,6 @@
 import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import type { More, Read } from "@fcalell/ui-core/read";
+import { fetchesMore, type More, type Read } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { View } from "react-native";
 import { ButtonBase } from "../components/button/base";
@@ -31,6 +31,9 @@ interface MoreProps {
 	// The collection's rows pad themselves with the card's inset, so this row
 	// does too.
 	inset?: boolean;
+	// The rows a windowed list mounts reach the last one loaded (`useReach`):
+	// the next page loads without a press.
+	scrolled?: boolean;
 }
 
 function PagesMoreRow(props: MoreProps) {
@@ -42,12 +45,12 @@ function WindowMoreRow(props: MoreProps) {
 }
 
 function MoreLine(props: MoreProps & { more: More }) {
-	const { more, empty, paint, inset } = props;
+	const { more, empty, paint, inset, scrolled } = props;
 	const words = useWords();
 	const { next, fetching, failed } = more;
 	const fetch = useRef(more.fetch);
 	fetch.current = more.fetch;
-	const fetches = empty && next && !fetching && !failed;
+	const fetches = fetchesMore(more, empty || scrolled === true);
 	useEffect(() => {
 		if (fetches) fetch.current();
 	}, [fetches]);
