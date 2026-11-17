@@ -1180,7 +1180,7 @@ export const MOVES = [
 	"toggle",
 	"layer",
 	"block",
-	"line",
+	"flow",
 	"value",
 	"wait",
 	"follow",

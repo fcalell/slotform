@@ -34,7 +34,7 @@ import {
 	SHELL_GROUP_LABEL,
 	SHELL_INSET,
 	SHELL_LAYER,
-	SHELL_MARK,
+	SHELL_LOCKUP,
 	SHELL_PAGE_SLIDE,
 	SHELL_PLACES,
 	SHELL_RAIL,
@@ -462,7 +462,7 @@ function leadOf(
 	const rail = onRail !== undefined;
 	// The sidebar is the dark calibration in both modes: the dark icon stands.
 	const glyph = lockup ? (
-		<img src={lockup.dark ?? lockup.src} alt="" className={SHELL_MARK} />
+		<img src={lockup.dark ?? lockup.src} alt="" className={SHELL_LOCKUP} />
 	) : undefined;
 	if (switcher)
 		return <SwitcherPick switcher={switcher} glyph={glyph} onExpand={onRail} />;

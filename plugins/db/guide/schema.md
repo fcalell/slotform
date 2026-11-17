@@ -31,7 +31,7 @@ they are migrated with the app's own; the auth pages say which.
 
 - Import every Drizzle piece (tables, columns, constraints, operators, `sql`, `alias`,
   `relations`, row types such as `InferSelectModel`) from `@fcalell/plugin-db/orm`, never from
-  `drizzle-orm`. A piece `/orm` lacks is a gap in stack, not a reason to import `drizzle-orm`.
+  `drizzle-orm`. A piece `/orm` lacks is a shortfall in stack, not a reason to import `drizzle-orm`.
 - Keep every table in `src/schema/index.ts`: the worker, the migrations and the entity
   vocabulary all read that one file.
 - Export one table per `export const`, and only tables, views and their relations: every value

@@ -126,17 +126,17 @@ const storybookMain = slot.derived({
 	name: "storybookMain",
 	inputs: { routesDir: react.slots.routesDir },
 	compute: (inp): string | null =>
-		inp.routesDir === null ? null : renderStorybookMain({ floors: false }),
+		inp.routesDir === null ? null : renderStorybookMain({ checks: false }),
 });
 
-// `.stack/screens-test/main.ts`: the same Storybook config with the floors,
+// `.stack/screens-test/main.ts`: the same Storybook config with the checks,
 // which only the test run loads.
 const testMain = slot.derived({
 	source: SOURCE,
 	name: "testMain",
 	inputs: { routesDir: react.slots.routesDir },
 	compute: (inp): string | null =>
-		inp.routesDir === null ? null : renderStorybookMain({ floors: true }),
+		inp.routesDir === null ? null : renderStorybookMain({ checks: true }),
 });
 
 // `.stack/screens.vitest.config.ts`: the test run's config, which extends

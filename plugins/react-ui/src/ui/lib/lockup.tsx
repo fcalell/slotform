@@ -1,7 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import {
+	GATE_LOCKUP,
 	GATE_LOGO,
-	GATE_MARK,
 	text,
 	textStrong,
 } from "@fcalell/ui-core/variants";
@@ -56,7 +56,7 @@ function Logo(props: { src: string; className?: string }) {
 			src={props.src}
 			alt=""
 			onError={() => setFailed(props.src)}
-			className={cn(GATE_MARK, IMAGE, props.className)}
+			className={cn(GATE_LOCKUP, IMAGE, props.className)}
 		/>
 	);
 }

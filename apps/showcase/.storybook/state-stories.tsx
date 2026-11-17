@@ -1,30 +1,32 @@
 import type { StoryObj } from "@storybook/react-vite";
-import { showcaseFrames } from "../src/roster/cells.ts";
-import { type Draw, Frame } from "../src/roster/frame.tsx";
+import { showcaseScenes } from "../src/roster/class-sets.ts";
+import { type Draw, Scene } from "../src/roster/scene.tsx";
 
-const FRAMES = showcaseFrames();
+const SCENES = showcaseScenes();
 
 interface Args {
-	cell: string;
+	classSet: string;
 }
 
-// One story per component and state: every cell the component draws in that
+// One story per component and state: every class set the component draws in that
 // state, light and dark side by side, at the toolbar's density. The `rest`
-// story takes a `cell` arg to browse one cell.
+// story takes a `classSet` arg to browse one class set.
 export function stateStories(component: string, draw?: Draw) {
-	const own = FRAMES.filter((frame) => frame.component === component);
+	const own = SCENES.filter((scene) => scene.component === component);
 	return (state: string): StoryObj<Args> => {
-		const cells = [
+		const classSets = [
 			...new Set(
-				own.filter((frame) => frame.state === state).map((f) => f.cell.name),
+				own
+					.filter((scene) => scene.state === state)
+					.map((f) => f.classSet.name),
 			),
 		];
 		return {
-			args: { cell: "all" },
+			args: { classSet: "all" },
 			argTypes: {
-				cell:
+				classSet:
 					state === "rest"
-						? { control: "select", options: ["all", ...cells] }
+						? { control: "select", options: ["all", ...classSets] }
 						: { table: { disable: true } },
 			},
 			parameters: { layout: "padded" },
@@ -32,22 +34,25 @@ export function stateStories(component: string, draw?: Draw) {
 				const density = String(context.globals.density);
 				return (
 					<div key={density} className="flex flex-col gap-inside">
-						{cells
-							.filter((cell) => args.cell === "all" || args.cell === cell)
-							.map((cell) => (
+						{classSets
+							.filter(
+								(classSet) =>
+									args.classSet === "all" || args.classSet === classSet,
+							)
+							.map((classSet) => (
 								<div
-									key={cell}
+									key={classSet}
 									className="flex flex-row flex-wrap gap-pair min-w-0"
 								>
 									{own
 										.filter(
-											(frame) =>
-												frame.cell.name === cell &&
-												frame.state === state &&
-												frame.density === density,
+											(scene) =>
+												scene.classSet.name === classSet &&
+												scene.state === state &&
+												scene.density === density,
 										)
-										.map((frame) => (
-											<Frame key={frame.id} frame={frame} draw={draw} />
+										.map((scene) => (
+											<Scene key={scene.id} scene={scene} draw={draw} />
 										))}
 								</div>
 							))}

@@ -36,7 +36,7 @@ browser.
 | `./serve` | `defineServeSeed`, `fixtureControls`: run in the served app's worker, web APIs only |
 
 As source the host's Vite compiles: `./fixtures`, `./channels`, `./msw` (the app's MSW, re-exported
-for a plugin's handler module), `./preview`, `./floors` (the test run's checks), `./shift` (the
+for a plugin's handler module), `./preview`, `./checks` (the test run's checks), `./shift` (the
 loading shift), `./walk` (the render walk) and `./stories`.
 
 ## Dependencies
@@ -58,7 +58,7 @@ reaches the app's `.stack/vite.config.ts`:
   itself.
 
 `.stack/screens/main.ts` (`storybookMain`) and `.stack/screens-test/main.ts` (`testMain`, the same
-with the floors, which only `stack screens test` loads) are the Storybook configs, run from the project
+with the checks, which only `stack screens test` loads) are the Storybook configs, run from the project
 root: the files `stack-screens/` holds are the stories, and the host is Vite on the config the plugin
 derives. `stories` is relative to the config directory, two levels under the root, because the Vitest
 plugin joins it to that directory. Both are null without routes.
@@ -141,7 +141,7 @@ a title with the route it indexes.
 A story renders `createRouter({ routeTree, history: createMemoryHistory({ initialEntries }) })` in the
 app's `virtual:stack-providers`, after the entry's own `bindRouter` calls. The URL is the route's full
 path with each param filled from the example values the fixtures give it. A required param without
-one throws, naming the route, the param and where it looked, so the gap is the story's error and never
+one throws, naming the route, the param and where it looked, so the failure is the story's error and never
 a path with `$id` in it.
 
 The fixtures are the default export of the app's `src/app/fixtures.ts`,
@@ -197,7 +197,7 @@ overrides it and follows the state.
   answers data whoever supplies the fixture, so an app that answers it with its own session (an
   `activeOrganizationId`, a role) is exempt like the plugin's.
 
-### Gaps
+### Unanswered calls
 
 The answerer records the procedures a story's queries call, in the order they first did, since the
 last `holdCalls` (`called`). The run finds a screen's reads by watching: nothing declares them, and a
@@ -213,12 +213,12 @@ conflict) fails the story: the screen's example record is missing or is the wron
 procedure, so it would draw an error form as its data. The failure names the procedure, the route
 params whose example value the call sent and the error's code (`notFound` and `error` are the states
 that draw a failure on purpose). A read whose input carries none of them (a setup form's) has no
-example record to blame and is no gap.
+example record to blame and is no unanswered call.
 
 An error a fixture threw as oRPC's own may come from any copy of `@orpc/client`: an app with a second
 copy (a version split between this package and the app's tanstack-query) throws an `ORPCError` this
 module's `instanceof` does not know, and a fixture that threw the procedure's error would be reported
-as a gap. oRPC's error is told by its fields (`code`, `status`, `defined`, which no other error carries
+as an unanswered call. oRPC's error is told by its fields (`code`, `status`, `defined`, which no other error carries
 together) and rebuilt as this copy's class, so the codec encodes it as its own.
 
 ### Channels
@@ -236,7 +236,7 @@ loading holds it with the queries, and empty applies `emptyOf`. The protocol has
 not-found frame: a channel read fails only when its fold throws on a message type the app defines,
 which no fixture can name, or when the socket is down. So error closes the socket, which the client
 backs off from and, after `PAUSE_AFTER`, pauses the channel's read for; not found sends the snapshot as
-data. A channel with no fixture sends nothing, logs one console error and is a gap of the test run.
+data. A channel with no fixture sends nothing, logs one console error and is an unanswered call of the test run.
 
 ## Single copies for plugin modules
 
@@ -251,7 +251,7 @@ answer is the one copy the stories set.
 .stack/screens.vitest.config.ts` (`--changed [<ref>]` unless `--all` or `--screen`,
 `--passWithNoTests`, then the story files `--screen` names). The config spreads
 `.stack/screens.vite.config.ts`, so the run's host is the workbench's, and runs the Storybook test
-plugin on `.stack/screens-test/`, whose `main.ts` adds `./floors`.
+plugin on `.stack/screens-test/`, whose `main.ts` adds `./checks`.
 
 ### Vitest config
 
@@ -259,7 +259,7 @@ plugin on `.stack/screens-test/`, whose `main.ts` adds `./floors`.
 Storybook test plugin on the test run's config directory and one browser project, `chrome()` as its
 provider, headless at 1280x800. Each parallel page is one renderer, so two open at most. The CLI's
 narrowing reaches it in the environment: the tags to leave out go to the storybook plugin, and the
-widths and the screenshot directory to the floors, which read them with `inject` (`provide`).
+widths and the screenshot directory to the checks, which read them with `inject` (`provide`).
 Without the environment (Vitest run by hand) every story and every width run, and no screenshot is
 saved.
 
@@ -284,7 +284,7 @@ published app links nothing, so its list is empty.
 
 ### Test run order
 
-The floors are preview annotations the test run's Storybook config loads and the workbench never does.
+The checks are preview annotations the test run's Storybook config loads and the workbench never does.
 Each story runs:
 
 1. axe with every rule on. A screen is a page, so the document-level rules judge it: `region`, which
@@ -293,12 +293,12 @@ Each story runs:
    overflow check, then the render walk once the width has settled. A loading story also has each
    width's Sections measured, its held calls answered and the Sections measured again
    ([Loading shift comparison](#loading-shift-comparison)). The screenshot at a width is taken once the
-   floors there ran, so a loading story's shows its waiting shape.
+   checks there ran, so a loading story's shows its waiting shape.
 3. The console check: `console.error`, `console.warn` and the window's `error` event.
 
 A data story's screen also runs with one of its reads failed at a time. The reads are the procedures
 the story called (`called`); the run answers one with an error and every other with data, resets
-those queries so they fetch again, waits for the page to settle, and applies the width floors and the
+those queries so they fetch again, waits for the page to settle, and applies the width checks and the
 console capture. A failed read draws in its frame, and the dev error for a read no frame holds is a
 console line here. With fewer than two procedures this is the error story's case already (it fails
 them all), so it runs only when a read can fail while another holds data.
@@ -318,7 +318,7 @@ phone's value (the touch density), and puts it back after.
 
 A Section stands whatever its data holds, so the page must not move between its waiting shape and its
 loaded one. `measure` reads every Section's heading in the drawn page (in a Pane with no Section, its
-body's direct blocks); `compare` judges the two reads, a pure function tested in node. The floors run
+body's direct blocks); `compare` judges the two reads, a pure function tested in node. The checks run
 both around `release()`.
 
 Sections pair by slot (`slotsOf`), every other block by name. The loaded shape may draw more Sections
@@ -472,10 +472,10 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/node/judge.ts`: what `shoot` and `drive` judge with.
 - `plugins/screens/src/ui/fixtures.ts`: the fixtures and the example values.
 - `plugins/screens/src/ui/route.ts`: the URL a route is drawn at.
-- `plugins/screens/src/ui/answer.ts`: the answerer, states, gaps, channels.
+- `plugins/screens/src/ui/answer.ts`: the answerer, states, unanswered calls, channels.
 - `plugins/screens/src/ui/channels.ts`: the channel answer a plugin's handler module imports.
 - `plugins/screens/src/ui/msw.ts`: the one MSW copy.
-- `plugins/screens/src/ui/floors.ts`: the test run's checks and their order, screenshot paths.
+- `plugins/screens/src/ui/checks.ts`: the test run's checks and their order, screenshot paths.
 - `plugins/screens/src/ui/shift.ts`: the loading shift.
 - `plugins/screens/src/ui/walk.ts`: the render walk and its exceptions.
 - `plugins/screens/src/ui/walk-checks.ts`: the walk's pure checks.

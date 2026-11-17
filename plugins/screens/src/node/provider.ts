@@ -69,7 +69,7 @@ const takeScreenshot: BrowserCommand<[string, ScreenshotOptions]> = async (
 	return { buffer, path };
 };
 
-// The inputs the floors send. They name the config's `browser.commands`: the
+// The inputs the checks send. They name the config's `browser.commands`: the
 // page's `commands` module lists a command only if it is registered before the
 // first page opens, which the provider, built lazily, is not.
 const press: BrowserCommand<[number, number]> = ({ tab }, x, y) =>

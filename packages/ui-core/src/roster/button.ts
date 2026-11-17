@@ -44,7 +44,7 @@ export const buttonEntry: RosterEntry = {
 		"SWAP_OUT",
 	],
 	states: [...PRESS, "disabled", "pending"],
-	motion: ["answer", "give", "layer", "line", "value", "wait"],
+	motion: ["answer", "give", "layer", "flow", "value", "wait"],
 	owns: {
 		roles: ["body", "meta", "caption"],
 		colors: [

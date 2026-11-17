@@ -32,7 +32,7 @@ reads its descriptors (a server) installs neither React nor Lucide.
   images, code and the rest).
 - [Sound](ui-core/sound.md): the track, the player, the dock and the waveform.
 - [Drag](ui-core/drag.md): drag, drop, reorder and the follow.
-- [Showcase](ui-core/showcase.md): the showcase app, the roster frames, Storybook, the guide pages and
+- [Showcase](ui-core/showcase.md): the showcase app, the roster scenes, Storybook, the guide pages and
   enforcement.
 
 ## Source map

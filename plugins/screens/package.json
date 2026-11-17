@@ -44,7 +44,7 @@
 		},
 		"./channels": "./src/ui/channels.ts",
 		"./fixtures": "./src/ui/fixtures.ts",
-		"./floors": "./src/ui/floors.ts",
+		"./checks": "./src/ui/checks.ts",
 		"./msw": "./src/ui/msw.ts",
 		"./preview": "./src/ui/preview.tsx",
 		"./shift": "./src/ui/shift.ts",

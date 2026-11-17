@@ -8,11 +8,11 @@
   (one copy of each stack package, the version rule); `pnpm release:check` proves the tarballs. The
   owner publishes; never run `publish` without `--dry-run`.
 - Editing a ui component: read `packages/ui-core/guide/structure.md` first. A roster fix carries
-  the frame that draws the edge it fixes (a long word, 320 px, empty and full) in the showcase app,
-  `apps/showcase/src/roster/frames/`, which `pnpm stories` draws (the roster's stories are
-  generated from the frames into the gitignored `apps/showcase/stories/`); a frame draws through
+  the scene that draws the edge it fixes (a long word, 320 px, empty and full) in the showcase app,
+  `apps/showcase/src/roster/scenes/`, which `pnpm stories` draws (the roster's stories are
+  generated from the scenes into the gitignored `apps/showcase/stories/`); a scene draws through
   react-ui's public exports only, as a consumer does, so a part stands inside the composition that
-  hosts it; some frames judge their own edge and log an error where it breaks,
+  hosts it; some scenes judge their own edge and log an error where it breaks,
   the others are looked at there. `test-screens` runs only
   the screens (`stack-screens/**`), so it holds a fix only through a showcase screen that draws the
   component: add the edge to one when a screen can draw it. What gets checked depends on what changed:
@@ -23,7 +23,7 @@
 | Automated | `pnpm check`, unit tests for logic and tokens, the screen run on showcase screens that draw the part | `pnpm check`, the screen run on changed routes |
 | Look at | the part in each form it has at 320 and 1920 dark: alignment, rhythm, overlap, wrapping | the whole screen at both widths: hierarchy, grouping, one primary act, words, empty states |
 | Do not check | any app's use case | component internals |
-| If it looks wrong | fix the part; add a walk rule if a machine could catch it | fix the composition; if every use would look wrong it is a stack gap, filed and not patched in the app |
+| If it looks wrong | fix the part; add a walk rule if a machine could catch it | fix the composition; if every use would look wrong it is a stack shortfall, filed and not patched in the app |
 | Also | native by reading source, said so; light mode once per component in Storybook | a seeded server once per phase for server behaviour |
 
   The shoot command is `pnpm --filter showcase test-screens --screen <a,b> --mode dark --width 320,1920 --state data,empty --shots shots/<round>`;

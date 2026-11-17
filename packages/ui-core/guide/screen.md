@@ -17,7 +17,7 @@ what the render is stood beside at the end.
 
 ## 3. Map every part to the roster
 
-The platform's rules page is `node_modules/@fcalell/plugin-react-ui/guide/rules.md` (or `plugin-native-ui`'s), the tokens are `node_modules/@fcalell/ui-core/DESIGN.md`, and a gap is defined in `node_modules/@fcalell/cli/guide/gap.md`.
+The platform's rules page is `node_modules/@fcalell/plugin-react-ui/guide/rules.md` (or `plugin-native-ui`'s), the tokens are `node_modules/@fcalell/ui-core/DESIGN.md`, and a shortfall is defined in `node_modules/@fcalell/cli/guide/shortfall.md`.
 
 ## 4. Compose
 
@@ -54,7 +54,7 @@ finding; one that looks wrong on the specimen too is a stack finding, fixed on t
 A critic that did not build the screen reads the shots and the source with
 [critique](./critique.md), and stands the render beside the anchor screen from step 2: which looks
 better. A `blocking` finding holds the screen: fix it (a composition finding is yours, back to step
-4; a roster finding is stack's, filed as a gap) and shoot again, only what the fix can move. A round
+4; a roster finding is stack's, filed as a shortfall) and shoot again, only what the fix can move. A round
 is shoot, look, fix, at most two. A `minor` finding goes on the maintainer's list and starts no
 fix. The builder never judges its own shots. The maintainer sees a screen only on `ship`, beside the
 anchor screen, with the three largest differences the critic found.

@@ -38,7 +38,7 @@ export const stagesEntry: RosterEntry = {
 		"SWAP_OUT",
 	],
 	states: ["rest", "loading"],
-	motion: ["block", "line", "value", "wait"],
+	motion: ["block", "flow", "value", "wait"],
 	owns: {
 		roles: ["body", "meta"],
 		colors: [

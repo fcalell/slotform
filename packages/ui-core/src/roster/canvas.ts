@@ -69,7 +69,7 @@ export const canvasEntry: RosterEntry = {
 		"SPINNER_ARC",
 	],
 	states: ["rest", "selected", "loading", "empty", "error"],
-	motion: ["answer", "give", "block", "line", "wait", "follow"],
+	motion: ["answer", "give", "block", "flow", "wait", "follow"],
 	owns: {
 		roles: ["body", "meta", "caption"],
 		colors: [

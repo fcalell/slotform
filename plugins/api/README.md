@@ -40,7 +40,7 @@ plugin's (`@fcalell/plugin-query`).
 | `@fcalell/plugin-api/schema` | `z` (Zod re-export), `ZodObject`, `ZodType`, `ZodRawShape`, `selector()` / `Selector` (rows a mutation acts on: ids, or a read's query less the unticked ids), `inputJsonSchema()` (a procedure's input as JSON Schema, also the MCP tool's), `routerSchema()` (every procedure of a router, the worker's `_router`: what `stack generate` writes to `.stack/schema.ts`) |
 | `@fcalell/plugin-api/lib/cursor` | `encodeCursor`, `decodeCursor`, `paginate` (keyset over one or more order columns), `clampLimit`, constants |
 | `@fcalell/plugin-api/lib/window` | `paginateWindow`: a `paginated: "window"` procedure's page at an offset with the filter's total, ordered by columns or SQL expressions over an optional join |
-| `@fcalell/plugin-api/lib/selection` | `chosenWhere`, `chosenIds`: a `selector()` (from `/schema`) resolved to a where clause or ids |
+| `@fcalell/plugin-api/lib/chosen` | `chosenWhere`, `chosenIds`: a `selector()` (from `/schema`) resolved to a where clause or ids |
 | `@fcalell/plugin-api/lib/slugify` | `slugify`, `isReservedSlug`, `createSlugify`, `RESERVED_SLUGS` |
 | `@fcalell/plugin-api/local-origin` | `isLocalOrigin()`: whether an origin's hostname is a local-dev one |
 

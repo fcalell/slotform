@@ -90,8 +90,8 @@ export const gate = (): BetterAuthPlugin => ({
 });
 ```
 
-Before writing one, check [sign-in](./sign-in.md): a flow every app needs is a gap in stack
-(`node_modules/@fcalell/cli/guide/gap.md`).
+Before writing one, check [sign-in](./sign-in.md): a flow every app needs is a shortfall in stack
+(`node_modules/@fcalell/cli/guide/shortfall.md`).
 
 **Check:** `stack generate`, then `pnpm check` passes, and under `pnpm dev` a sign-in code
 reaches `sendOTP`; `stack deploy` stops at the `// TODO` marker until the stub is replaced.

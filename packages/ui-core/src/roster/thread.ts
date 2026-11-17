@@ -93,7 +93,7 @@ export const threadEntry: RosterEntry = {
 		"active",
 		"disabled",
 	],
-	motion: ["stream", "answer", "toggle", "block", "wait", "give", "line"],
+	motion: ["stream", "answer", "toggle", "block", "wait", "give", "flow"],
 	owns: {
 		colors: [
 			"raised",

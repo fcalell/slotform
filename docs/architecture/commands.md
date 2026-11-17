@@ -236,11 +236,11 @@ the app. The handler resolves no slot: both screens files are `generate` artifac
 `stack screens test [--all | --changed <ref>] [--shots <dir>]` runs `ctx.generate()` and then the
 app's own Vitest on `.stack/screens.vitest.config.ts`, adding `--changed` (with the ref when given)
 unless `--all` ([test run](./plugins/screens.md#test-run), [changed runs](./plugins/screens.md#changed-runs)).
-It runs on `.stack/screens-test/`, the same Storybook config plus the floors
-(`@fcalell/plugin-screens/floors`): axe with every rule on (`region` and `target-size` included),
+It runs on `.stack/screens-test/`, the same Storybook config plus the checks
+(`@fcalell/plugin-screens/checks`): axe with every rule on (`region` and `target-size` included),
 no horizontal overflow at 320, 1280 and 1920 px (`horizontal overflow at <w>px: scrollWidth <n>`),
 and no `console.error`, `console.warn` or window `error`. A test is a story, named for the screen's
-title, the state and the mode (`Screens/projects/$id`, `Data, dark`). With `--shots`, the floors
+title, the state and the mode (`Screens/projects/$id`, `Data, dark`). With `--shots`, the checks
 also save a PNG of each story at each width into the directory
 ([screenshots](./plugins/screens.md#screenshots)).
 
@@ -248,7 +248,7 @@ also save a PNG of each story at each width into the directory
 
 - `--full`: a shot grows the page to all it holds, up to 16384 px; without it a shot is the 800 px
   viewport.
-- `--open <control text>`: after a story draws, the floors press the control with that text or
+- `--open <control text>`: after a story draws, the checks press the control with that text or
   accessible name through the provider's `press` command, wait for it to settle, then judge and
   shoot with it open ([screenshots](./plugins/screens.md#screenshots)); a screen with no such
   control fails, naming it.

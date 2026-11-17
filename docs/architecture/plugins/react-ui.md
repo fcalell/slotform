@@ -239,7 +239,7 @@ states, and its value inside is a bare line, so the ring is the box's and the va
 The box ring is 2 px centred on its 1 px edge (`--focus-ring-edge-offset`, -1 px), for the keyboard
 alone; under the pointer the box takes the accent edge alone (`FOCUS_EDGE`). The box rings on its
 value's focus alone: an act inside it rings inset on its own focus, so the box yields to it. The
-guard names the act, not the value, so a showcase frame forced to focus still rings the box.
+guard names the act, not the value, so a showcase scene forced to focus still rings the box.
 
 Base UI's `Field` wires the control (its id, label, description and validity); the render function
 hands over its props and state, so the box around the value draws that state. A disabled box carries

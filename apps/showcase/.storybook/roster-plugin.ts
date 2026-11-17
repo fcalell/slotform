@@ -1,20 +1,20 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 import type { Plugin } from "vite";
-import { CELLS_FILE, FRAMES_DIR, writeStories } from "./roster.ts";
+import { CLASS_SETS_FILE, SCENES_DIR, writeStories } from "./roster.ts";
 
 const require = createRequire(import.meta.url);
 
 // ui-core's built roster and variants: a roster edit lands here.
 const UI_CORE_DIST = path.dirname(require.resolve("@fcalell/ui-core/roster"));
 
-// Rewrites the generated story modules when the roster, its cells or a frame
+// Rewrites the generated story modules when the roster, its class sets or a scene
 // drawer change; Storybook re-indexes the modules that changed.
 export function rosterPlugin(): Plugin {
 	return {
 		name: "stack:roster-stories",
 		configureServer(server) {
-			const watched = [CELLS_FILE, FRAMES_DIR, UI_CORE_DIST];
+			const watched = [CLASS_SETS_FILE, SCENES_DIR, UI_CORE_DIST];
 			server.watcher.add(watched);
 			let timer: ReturnType<typeof setTimeout> | undefined;
 			const regenerate = (file: string) => {

@@ -1,7 +1,7 @@
 import { SHOT_MAX_HEIGHT } from "../widths.ts";
 import { findings, format } from "./walk.ts";
 
-// What the test run's floors and `stack screens shoot` and `drive` share about
+// What the test run's checks and `stack screens shoot` and `drive` share about
 // a drawn page: what a read holds busy, how far its scrollers hide content,
 // the judgement at a width, and where a control is.
 
@@ -36,7 +36,7 @@ export function hiddenHeight(): number {
 }
 
 // The screen at one width: the horizontal overflow and the walk's findings.
-export function floorsAt(width: number, fonts: boolean): string[] {
+export function checksAt(width: number, fonts: boolean): string[] {
 	const failures: string[] = [];
 	const scrollWidth = Math.max(
 		document.documentElement.scrollWidth,

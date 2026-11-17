@@ -55,7 +55,7 @@ export const sheetEntry: RosterEntry = {
 		"stale",
 		"paused",
 	],
-	motion: ["answer", "give", "layer", "block", "line", "wait", "follow"],
+	motion: ["answer", "give", "layer", "block", "flow", "wait", "follow"],
 	owns: {
 		roles: ["heading", "body", "meta"],
 		colors: [

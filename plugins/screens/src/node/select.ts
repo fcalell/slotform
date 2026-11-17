@@ -90,7 +90,7 @@ export interface RunSelection {
 	widths: number[];
 	// Tags the storybook plugin leaves out.
 	exclude: string[];
-	// The absolute directory the floors save each width's PNG into; null takes
+	// The absolute directory the checks save each width's PNG into; null takes
 	// none.
 	shots: string | null;
 	// `--full`: a shot grows the page to all it holds.

@@ -30,7 +30,7 @@ export const shellEntry: RosterEntry = {
 		"SHELL_COLUMN_FLOAT",
 		"SHELL_INSET",
 		"SHELL_LAYER",
-		"SHELL_MARK",
+		"SHELL_LOCKUP",
 		"SHELL_COLUMN",
 		"SHELL_BANNER",
 		"SWITCHER_REGION",
@@ -223,7 +223,7 @@ export const SHELL_BANNER = "p-page";
 export const SWITCHER_REGION = "box-content min-h-control py-gap";
 // The app's lockup in a place row's glyph region: the icon size, its image fit
 // inside.
-export const SHELL_MARK = "size-icon object-contain";
+export const SHELL_LOCKUP = "size-icon object-contain";
 // The places scroll between the switcher bar and the footer group, which stay
 // fixed, so no place is ever clipped; each run of consecutive places under one
 // group stands a fields gap from the next.

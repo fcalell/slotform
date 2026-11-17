@@ -197,7 +197,7 @@ const MOVE_USE: Record<Move, string> = {
 	layer: "what stands over the page enters and leaves",
 	block:
 		"a block that arrives on its own fades in and pushes what follows at once",
-	line: "a flow line appears in flow, fading in and pushing what follows",
+	flow: "a flow line appears in flow, fading in and pushing what follows",
 	value: "a measured value changes while shown: a fill, a figure, a mark",
 	wait: "a read that lasts shows it: the delay, the pulse, the spinner",
 	follow: "a gesture carries what it holds 1:1, and only its release eases",
@@ -591,7 +591,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"",
 		"#### Moves",
 		"",
-		"A component names the moves it makes in the roster's `motion` field: a class-set move (answer, give, toggle, layer, block, line, value, wait) is a class set it draws, a hook move (follow, stream) a marker its source imports.",
+		"A component names the moves it makes in the roster's `motion` field: a class-set move (answer, give, toggle, layer, block, flow, value, wait) is a class set it draws, a hook move (follow, stream) a marker its source imports.",
 		"",
 		...table(
 			["Move", "Answers"],

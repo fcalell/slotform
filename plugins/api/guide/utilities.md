@@ -102,7 +102,7 @@ these". The mutation takes that as a field, `selector(query)` from `@fcalell/plu
 (`{ ids } | { query, except }`, the query typed as the list's filter), and resolves it:
 
 ```ts
-import { chosenWhere } from "@fcalell/plugin-api/lib/selection";
+import { chosenWhere } from "@fcalell/plugin-api/lib/chosen";
 
 const query = z.object({ q: z.string().optional() });
 const where = ({ q }: z.infer<typeof query>) => (q ? like(tasks.title, `%${q}%`) : undefined);

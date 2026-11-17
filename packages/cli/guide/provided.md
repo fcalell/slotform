@@ -28,6 +28,6 @@ domain missing from the config arrives with `stack add <plugin>`.
   A line that rebuilds a row (a login flow, a migration check, a fetch wrapper, an invalidation
   call, a theme) is cut.
 - A row that falls short of the feature is used as it stands, or, when the feature cannot ship
-  without more, a [gap](./gap.md); never rebuilt in the app.
+  without more, a [shortfall](./shortfall.md); never rebuilt in the app.
 
 **Check:** no line of the spec or the estimate covers a row's "Stack derives" column.

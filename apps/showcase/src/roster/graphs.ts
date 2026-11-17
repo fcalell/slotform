@@ -6,7 +6,7 @@ import type {
 	CanvasPath,
 } from "@fcalell/ui-core/descriptors";
 
-// The graphs the roster's canvas frames draw.
+// The graphs the roster's canvas scenes draw.
 
 export interface Graph {
 	nodes: CanvasNode[];
@@ -209,8 +209,8 @@ export const HOLLOW_PLACED: Graph = {
 };
 
 // Two single-node sections side by side under a brief, each a group whose head
-// is longer than its frame: under the text floor a frame is its glyph and its
-// padding, a few words wide, and its head takes the frame's whole width, never
+// is longer than its scene: under the text floor a scene is its glyph and its
+// padding, a few words wide, and its head takes the scene's whole width, never
 // the part a stack's column would leave (the stack stands at the foot, below it).
 export const SECTIONS: Graph = {
 	nodes: [
@@ -554,7 +554,7 @@ export const ROLES: Graph = {
 };
 
 // A graph taller than any pane: a fit holds it at the scale the words draw at
-// and frames its start, so the reader pans for the rest.
+// and scenes its start, so the reader pans for the rest.
 const STEPS: readonly (readonly [string, CanvasNode["icon"]])[] = [
 	["Read the request", "FileText"],
 	["Draft a plan", "ListChecks"],

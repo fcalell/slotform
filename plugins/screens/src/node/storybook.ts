@@ -4,8 +4,8 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import { STORIES_DIR } from "./stories.ts";
 
 export interface ScreensMainOptions {
-	// Also load the floors, the checks a test run adds to every screen.
-	floors: boolean;
+	// Also load the test run's checks, which add to every screen.
+	checks: boolean;
 	// The project root, where `.stack/` lives. The generated `main.ts` passes the
 	// root it sits two levels under; without it, the process's directory, which
 	// is the root only when Storybook or Vitest was started from there.
@@ -14,7 +14,7 @@ export interface ScreensMainOptions {
 
 // The Storybook config of the screens and test hosts: docs/architecture/plugins/screens.md, "Storybook host".
 export function screensMain({
-	floors,
+	checks,
 	root = process.cwd(),
 }: ScreensMainOptions): StorybookConfig {
 	return {
@@ -31,8 +31,8 @@ export function screensMain({
 		previewAnnotations: (entries = []) => [
 			...entries,
 			fileURLToPath(import.meta.resolve("@fcalell/plugin-screens/preview")),
-			...(floors
-				? [fileURLToPath(import.meta.resolve("@fcalell/plugin-screens/floors"))]
+			...(checks
+				? [fileURLToPath(import.meta.resolve("@fcalell/plugin-screens/checks"))]
 				: []),
 		],
 	};

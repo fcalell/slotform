@@ -95,7 +95,7 @@ export const pickerEntry: RosterEntry = {
 		"SEGMENT_LABEL",
 	],
 	states: [...PRESS, "loading", "selected", "disabled", "error"],
-	motion: ["answer", "give", "toggle", "layer", "block", "line", "wait"],
+	motion: ["answer", "give", "toggle", "layer", "block", "flow", "wait"],
 	owns: {
 		roles: ["body", "meta", "caption"],
 		colors: [

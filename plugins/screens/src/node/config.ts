@@ -137,14 +137,14 @@ export function renderComponentHostConfig(values: ViteConfigValues): string {
 }
 
 // `.stack/screens/main.ts`: Storybook's config directory holds this one file.
-// The one for the test run (`.stack/screens-test/main.ts`) adds the floors.
-export function renderStorybookMain(options: { floors: boolean }): string {
+// The one for the test run (`.stack/screens-test/main.ts`) adds the checks.
+export function renderStorybookMain(options: { checks: boolean }): string {
 	return [
 		'import { fileURLToPath } from "node:url";',
 		'import { screensMain } from "@fcalell/plugin-screens/storybook";',
 		"",
 		"export default screensMain({",
-		`\tfloors: ${options.floors},`,
+		`\tchecks: ${options.checks},`,
 		"\t// The project root, two levels above this file.",
 		'\troot: fileURLToPath(new URL("../..", import.meta.url)),',
 		"});",

@@ -244,8 +244,8 @@ export {
 	FILL_FADE,
 	GATE,
 	GATE_COLUMN,
+	GATE_LOCKUP_ROW,
 	GATE_LOGO,
-	GATE_MARK_ROW,
 	STEP_COUNT,
 	STEP_COUNT_SEGMENTS,
 	stepCountSegment,
@@ -403,7 +403,7 @@ export {
 	SHELL_GROUP_LABEL,
 	SHELL_INSET,
 	SHELL_LAYER,
-	SHELL_MARK,
+	SHELL_LOCKUP,
 	SHELL_PAGE_SLIDE,
 	SHELL_PLACES,
 	SHELL_RAIL,
@@ -1023,7 +1023,7 @@ export const IMAGE_TILE_NARROWEST = 3 / 4;
 // ── Layout ──────────────────────────────────────────────────────────
 
 export const GATE_STEP = "gap-stack";
-export const GATE_MARK =
+export const GATE_LOCKUP =
 	"size-[calc(var(--spacing-line-body)+var(--spacing-badge))]";
 
 // A Pane's head is one line at every width. The title truncates and holds at

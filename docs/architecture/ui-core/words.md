@@ -114,4 +114,4 @@ what is drawn once.
 - `packages/ui-core/src/roster/descriptors.ts`: the `Run` descriptor.
 - `plugins/native-ui/src/index.ts`: the generated `WordsProvider` on the phone.
 - `plugins/native-ui/src/ui/lib/age.ts`, `plugins/native-ui/src/ui/lib/moment.ts`, `plugins/native-ui/src/ui/lib/compact.ts`: the phone's ages, moments and compact figures over Hermes.
-- `apps/showcase/src/roster/frames/section-rows.ts`, `apps/showcase/src/roster/frames/text.tsx`: the frames that draw a copyable code fact and code in a sentence at 320.
+- `apps/showcase/src/roster/scenes/section-rows.ts`, `apps/showcase/src/roster/scenes/text.tsx`: the scenes that draw a copyable code fact and code in a sentence at 320.

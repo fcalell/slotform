@@ -1,4 +1,4 @@
-import { showcaseFrames } from "../src/roster/cells.ts";
+import { showcaseScenes } from "../src/roster/class-sets.ts";
 
 // Runs in a child process so each listing reads the roster fresh: Node caches
 // an ES module for the life of a process, and the roster is edited while
@@ -7,14 +7,14 @@ const components = new Map<
 	string,
 	{ layer: string; component: string; states: Set<string> }
 >();
-for (const frame of showcaseFrames()) {
-	const entry = components.get(frame.component) ?? {
-		layer: frame.layer,
-		component: frame.component,
+for (const scene of showcaseScenes()) {
+	const entry = components.get(scene.component) ?? {
+		layer: scene.layer,
+		component: scene.component,
 		states: new Set<string>(),
 	};
-	entry.states.add(frame.state);
-	components.set(frame.component, entry);
+	entry.states.add(scene.state);
+	components.set(scene.component, entry);
 }
 console.log(
 	JSON.stringify({

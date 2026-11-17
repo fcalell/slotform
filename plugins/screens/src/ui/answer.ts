@@ -26,7 +26,7 @@ const replyError = (error: ORPCError<string, unknown>) =>
 	toFetchResponse(codec.encodeError(error));
 
 // An error a fixture threw as oRPC's own, from any copy of `@orpc/client`; null for any other value.
-// Told by its fields: docs/architecture/plugins/screens.md, "Gaps".
+// Told by its fields: docs/architecture/plugins/screens.md, "Unanswered calls".
 export function asORPCError(error: unknown): ORPCError<string, unknown> | null {
 	if (error instanceof ORPCError) return error;
 	if (
@@ -137,7 +137,7 @@ function procedurePath(url: string, prefix: string): string[] {
 		.map(decodeURIComponent);
 }
 
-// Procedures a story's queries call: docs/architecture/plugins/screens.md, "Gaps".
+// Procedures a story's queries call: docs/architecture/plugins/screens.md, "Unanswered calls".
 const seen = new Map<string, readonly string[]>();
 
 export function called(): readonly (readonly string[])[] {
@@ -153,14 +153,14 @@ export function failing(path: readonly string[] | undefined): void {
 	failed = path?.join(".");
 }
 
-// What the fixtures could not answer: docs/architecture/plugins/screens.md, "Gaps".
-const gaps = new Set<string>();
+// What the fixtures could not answer: docs/architecture/plugins/screens.md, "Unanswered calls".
+const unanswered = new Set<string>();
 
-export function fixtureGaps(): readonly string[] {
-	return [...gaps];
+export function unansweredCalls(): readonly string[] {
+	return [...unanswered];
 }
 
-// A read that errors in the data state: docs/architecture/plugins/screens.md, "Gaps".
+// A read that errors in the data state: docs/architecture/plugins/screens.md, "Unanswered calls".
 function failedInData(
 	path: readonly string[],
 	input: unknown,
@@ -197,7 +197,7 @@ export function holdCalls(): void {
 	});
 	held = new Set();
 	seen.clear();
-	gaps.clear();
+	unanswered.clear();
 	failed = undefined;
 }
 
@@ -251,7 +251,7 @@ export async function answer(
 	if (state === "notFound") return replyError(new ORPCError("NOT_FOUND"));
 	if (!found) {
 		const message = `no fixture for ${path.join(".")}`;
-		gaps.add(message);
+		unanswered.add(message);
 		return replyError(new ORPCError("NOT_IMPLEMENTED", { message }));
 	}
 	let input: unknown;
@@ -267,11 +267,11 @@ export async function answer(
 				query && story === "data" && !isContainerRoute(path)
 					? failedInData(path, input, currentStory().params, thrown.code)
 					: undefined;
-			if (lost) gaps.add(lost);
+			if (lost) unanswered.add(lost);
 			return replyError(thrown);
 		}
 		const message = error instanceof Error ? error.message : String(error);
-		gaps.add(`the fixture for ${path.join(".")} threw: ${message}`);
+		unanswered.add(`the fixture for ${path.join(".")} threw: ${message}`);
 		return replyError(new ORPCError("INTERNAL_SERVER_ERROR", { message }));
 	}
 }
@@ -321,7 +321,7 @@ export async function channelAnswer(
 ): Promise<ChannelAnswer> {
 	if (state === "error") return { close: true };
 	const fixture = channels?.[channel];
-	if (!fixture) return gap(`no fixture for channel ${channel}`);
+	if (!fixture) return leaveUnanswered(`no fixture for channel ${channel}`);
 	if (state === "loading") await hold;
 	try {
 		const { type, payload } = opening(fixture(params));
@@ -335,15 +335,17 @@ export async function channelAnswer(
 		};
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		return gap(`the fixture for channel ${channel} threw: ${message}`);
+		return leaveUnanswered(
+			`the fixture for channel ${channel} threw: ${message}`,
+		);
 	}
 }
 
-// A subscribe left unanswered: one gap, one console error (the floors fail the
+// A subscribe left unanswered: one unanswered call, one console error (the checks fail the
 // story on either).
-function gap(message: string): ChannelAnswer {
-	if (!gaps.has(message)) {
-		gaps.add(message);
+function leaveUnanswered(message: string): ChannelAnswer {
+	if (!unanswered.has(message)) {
+		unanswered.add(message);
 		console.error(message);
 	}
 	return { close: false };

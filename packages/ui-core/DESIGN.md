@@ -2521,7 +2521,7 @@ components:
     backgroundColor: "{colors.surface}"
   shell-layer-dark:
     backgroundColor: "{colors.surface-dark}"
-  shell-mark:
+  shell-lockup:
     height: "{spacing.icon}"
     width: "{spacing.icon}"
   shell-rail:
@@ -2892,13 +2892,13 @@ A docked sheet's body keeps 3 rows (`row`) at least and scrolls past 40% of its 
 | `Slider` | atom | `FIELD_ALONE`, `FIELD_ERROR_LINE`, `SLIDER`, `SLIDER_HEAD`, `SLIDER_LABEL`, `SLIDER_VALUE`, `SLIDER_TRACK`, `SLIDER_FILL`, `SLIDER_REST`, `SLIDER_THUMB`, `PAINT.kind.control` | rest, hover, focus, active, disabled |
 | `Switch` | atom | `FIELD_ALONE`, `FIELD_ALONE_LINE`, `DEFINITION_NAME`, `FIELD_OPTIONAL`, `FIELD_ERROR_LINE`, `SWITCH`, `SWITCH_THUMB`, `PAINT.kind.control` | rest, hover, focus, active, disabled, selected |
 | `Pane` | layout | `TITLE_CODE`, `PAGE_WITHIN`, `PAGE_WITHIN_SEP`, `PAGE_HEAD`, `PAGE_HEAD_SPACE`, `PAGE_TOP_BAR`, `PAGE_TOP_BAR_START`, `PAGE_TOP_BAR_END`, `PAGE_TITLE_FLOOR`, `PAGE_CONTEXT`, `TEXT.role.title`, `PAGE_BODY`, `ROWS_MEASURED`, `FOOT_DOCKED`, `PAGE_BODY_OVER_FOOT`, `PAGE_BODY_TOAST_SPACE`, `PAGE_BODY_UNDER_TOAST`, `ICON_BUTTON.fit.body`, `ICON_BUTTON_DESTRUCTIVE`, `EMPTY_COLUMN`, `EMPTY_TEXT`, `EMPTY_LINE`, `EMPTY_PART`, `EMPTY_SENTENCE`, `EMPTY_MARK`, `ICON.fit.control`, `TEXT.role.heading`, `TEXT.role.meta`, `PAINT.kind.glyphs`, `SCRAMBLE`, `PAINT.kind.control`, `BLOCK_IN`, `ITEM_HEADER`, `ITEM_HEADER_PICTURE`, `ITEM_OVERLINE`, `ICON.fit.body`, `IMAGE.fit.thumb`, `IMAGE.state.rest`, `IMAGE.state.loading`, `IMAGE.state.error`, `IMAGE_PICTURE.fit.thumb`, `IMAGE_FAILED_INK`, `ITEM_FACTS`, `ITEM_FACT`, `WORD_ACT`, `ICON.fit.meta`, `STATUS`, `STATUS_DOT`, `STATUS_SPINNER`, `STATUS_LABEL`, `SPINNER`, `SPINNER_TRACK`, `SPINNER_ARC`, `COUNT`, `COUNT_LABEL`, `PAINT.kind.box`, `CARD_PART`, `BUTTON.act.secondary`, `BUTTON.fit.body`, `BUTTON_LABEL.act.secondary` | rest, loading, empty, error, busy, stale, paused |
-| `Gate` | layout | `BLOCK_IN`, `GATE`, `GATE_COLUMN`, `GATE_STEP`, `GATE_MARK`, `GATE_MARK_ROW`, `GATE_LOGO`, `STEP_COUNT`, `STEP_COUNT_SEGMENTS`, `STEP_COUNT_SEGMENT`, `TEXT.role.title`, `TEXT.role.meta`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `BUTTON.act.primary`, `BUTTON.fit.body`, `BUTTON_LABEL.act.primary` | rest |
+| `Gate` | layout | `BLOCK_IN`, `GATE`, `GATE_COLUMN`, `GATE_STEP`, `GATE_LOCKUP`, `GATE_LOCKUP_ROW`, `GATE_LOGO`, `STEP_COUNT`, `STEP_COUNT_SEGMENTS`, `STEP_COUNT_SEGMENT`, `TEXT.role.title`, `TEXT.role.meta`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `BUTTON.act.primary`, `BUTTON.fit.body`, `BUTTON_LABEL.act.primary` | rest |
 | `Section` | layout | `SECTION`, `DROP_ON`, `DROP_LINE`, `SECTION_HEAD`, `PAGE_TITLE_FLOOR`, `SECTION_HEAD_ROW`, `SECTION_ACTS`, `SECTION_BODY`, `SECTION_TITLE`, `SECTION_LABEL`, `SECTION_TOGGLE`, `TEXT.role.heading`, `TEXT.role.meta`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `EMPTY_COLUMN`, `EMPTY_TEXT`, `EMPTY_LINE`, `EMPTY_SENTENCE`, `CARD_PART`, `EMPTY_MARK`, `ICON.fit.control`, `ICON.fit.body`, `COUNT`, `COUNT_LABEL`, `BUTTON.act.secondary`, `BUTTON.act.destructive`, `BUTTON_LABEL.act.secondary`, `BUTTON_LABEL.act.destructive`, `PAINT.kind.glyphs`, `SCRAMBLE`, `PAINT.kind.control`, `TEXT.role.caption`, `LINE_BOX.role.meta`, `CHEVRON`, `GROUP`, `LIST_BAND`, `BLOCK_IN`, `CODE_NAME`, `ROW.state.rest`, `ROW.state.highlighted`, `ROW.state.pressed`, `ROW.state.selected`, `ROW.state.selected-hover`, `ROW_TITLE`, `ROW_INLINE`, `ROW_MARK`, `ROW_CURRENT_BAR`, `ROW_PROGRESS`, `METER_TRACK`, `METER_FILL`, `ROW_STEPS`, `ROW_STEP`, `TREE_RAIL`, `TREE_BLEED`, `ROW_LEADING`, `ROW_LEADING_STATUS`, `ROW_TEXT`, `ROW_END`, `ROW_TEXT_FLOOR`, `ROW_META_LINE`, `ROW_TRAILING`, `ROW_MARKS`, `ROW_WARNING`, `LOCK_GLYPH`, `ROW_ACTS`, `CHANGE_MARK`, `CHECKBOX`, `CHECKBOX_MARK`, `ICON`, `AVATAR`, `AVATAR_LABEL`, `STATUS`, `STATUS_DOT`, `STATE_CHIP`, `STATE_CHIP_LABEL`, `STATUS_SPINNER`, `STATUS_LABEL`, `SPINNER`, `SPINNER_TRACK`, `SPINNER_ARC`, `BUSY_GLYPHS`, `MENU`, `MENU_GROUP`, `MENU_LABEL`, `CHIP`, `CHIP_DOT`, `CHIP_LABEL`, `FIELD.trailing.none`, `FIELD.state.rest`, `FIELD.state.error`, `FIELD_VALUE.kind.text`, `FIELD_PLACEHOLDER`, `ROW_ENTRY`, `FIELD_ERROR_LINE`, `LINE_BOX.role.body`, `PAINT.kind.box`, `FLOW_IN`, `DEFINITION_BOX`, `DEFINITION_LINE`, `DEFINITION_UNDER`, `DEFINITION_LABEL`, `DEFINITION_NAME`, `DEFINITION_VALUE`, `DEFINITION_ABSENT`, `ROW_RETRY`, `TEXT.role.code`, `LINK.fit.inline`, `FILE_COUNT`, `FILE_COUNT_YIELD`, `FILE_COUNTS`, `FILE_PATH`, `FILE_PATH_PART`, `SWAP_IN`, `SWAP_OUT` | rest, hover, focus, active, disabled, loading, empty, error, busy, stale, paused, more, selected |
 | `Card` | layout | `CARD_PART`, `CARD_BODY` | rest |
 | `Form` | layout | `BLOCK_IN`, `FORM_FOOT`, `FORM_GROUP`, `FORM_FOOT_STUCK`, `ROWS`, `CARD`, `GROUP_ITEM`, `LIST_BAND`, `TEXT.role.heading`, `TEXT.role.meta`, `FIELD_ERROR_LINE`, `FIELD_OPTIONAL`, `FIELD_SPLIT`, `FIELD_SPLIT_TEXT`, `FIELD_SPLIT_VALUE`, `FIELD_SPLIT_FREE`, `FORM_FIELD_SUMMARY_GLYPH`, `ROW.state.rest`, `DEFINITION_BOX`, `DEFINITION_LINE`, `DEFINITION_UNDER`, `DEFINITION_LABEL`, `DEFINITION_NAME`, `DEFINITION_VALUE`, `ROW_END`, `CHANGE_MARK`, `ICON.fit.body`, `ICON.fit.meta`, `LINE_BOX.role.body`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `PAINT.kind.control`, `FLOW_IN`, `ACTION_BAR`, `ACTION_BAR_ACTS`, `BUTTON.act.primary`, `BUTTON.fit.body`, `BUTTON.fit.field`, `BUTTON_LABEL.act.primary` | rest, loading, empty, error, busy, stale, paused, disabled, pending |
 | `Toolbar` | layout | `TOOLBAR`, `TOOLBAR_TABS`, `TOOLBAR_ROW`, `TOOLBAR_LINE`, `TOOLBAR_SEARCH`, `TOOLBAR_CHIPS`, `TOOLBAR_FILTERS`, `TOOLBAR_FILTERS_POPOVER`, `POPOVER`, `LAYER_POPOVER` | rest |
 | `Columns` | layout | `COLUMNS` | rest |
-| `Shell` | layout | `SHELL_SIDEBAR`, `SHELL_RAIL`, `SHELL_CONTAINER`, `SHELL_RAIL_REGION`, `SHELL_SIDEBAR_REGION`, `SHELL_RAIL_PANEL`, `SHELL_COLUMN_AT`, `SHELL_RAIL_ENTRY`, `SHELL_RAIL_GLYPH`, `SHELL_RAIL_MOTION`, `SHELL_COLUMN_MOTION`, `SHELL_PAGE_SLIDE`, `SHELL_COLUMN_FLOAT`, `SHELL_INSET`, `SHELL_LAYER`, `SHELL_MARK`, `SHELL_COLUMN`, `SHELL_BANNER`, `SWITCHER_REGION`, `SWITCHER`, `SHELL_PLACES`, `PLACE_ROW`, `PLACE_ROW_GLYPH`, `PLACE_NEST`, `DROP_ON`, `DROP_LINE`, `DRAG_GHOST`, `SHELL_TAB_BAR`, `PLACE_TAB`, `PLACE_TAB_LABEL`, `TOASTS`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `TEXT.role.meta`, `ICON_BUTTON.fit.body`, `CHEVRON`, `ICON.fit.body`, `ICON.fit.control`, `COUNT`, `COUNT_LABEL` | rest, hover, focus, active, selected |
+| `Shell` | layout | `SHELL_SIDEBAR`, `SHELL_RAIL`, `SHELL_CONTAINER`, `SHELL_RAIL_REGION`, `SHELL_SIDEBAR_REGION`, `SHELL_RAIL_PANEL`, `SHELL_COLUMN_AT`, `SHELL_RAIL_ENTRY`, `SHELL_RAIL_GLYPH`, `SHELL_RAIL_MOTION`, `SHELL_COLUMN_MOTION`, `SHELL_PAGE_SLIDE`, `SHELL_COLUMN_FLOAT`, `SHELL_INSET`, `SHELL_LAYER`, `SHELL_LOCKUP`, `SHELL_COLUMN`, `SHELL_BANNER`, `SWITCHER_REGION`, `SWITCHER`, `SHELL_PLACES`, `PLACE_ROW`, `PLACE_ROW_GLYPH`, `PLACE_NEST`, `DROP_ON`, `DROP_LINE`, `DRAG_GHOST`, `SHELL_TAB_BAR`, `PLACE_TAB`, `PLACE_TAB_LABEL`, `TOASTS`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `TEXT.role.meta`, `ICON_BUTTON.fit.body`, `CHEVRON`, `ICON.fit.body`, `ICON.fit.control`, `COUNT`, `COUNT_LABEL` | rest, hover, focus, active, selected |
 | `Sheet` | shared | `BLOCK_IN`, `SHEET`, `SHEET_DESKTOP`, `SHEET_CENTERED`, `SHEET_HEAD`, `SHEET_HEAD_ROW`, `SHEET_PARTS`, `SHEET_PARTS_END`, `SHEET_FOOT`, `SHEET_DOCKED_HEAD`, `SHEET_DOCKED_BODY`, `SHEET_DOCKED_FOOT`, `SHEET_DOCKED_FLOOR`, `THREAD_COLUMN`, `SCRIM`, `LAYER_CARD`, `LAYER_SHEET_BOTTOM`, `LAYER_SCRIM`, `TEXT.role.heading`, `TEXT.role.body`, `TEXT_STRONG.role.body`, `TEXT.role.meta`, `FIELD_ERROR_LINE`, `ICON_BUTTON.fit.body`, `BUTTON.act.primary`, `BUTTON_LABEL.act.primary`, `PAINT.kind.control`, `FLOW_IN` | rest, disabled, loading, pending, empty, error, busy, stale, paused |
 | `ActionBar` | shared | `ACTION_BAR`, `ACTION_BAR_ACTS`, `ACTION_BAR_CHOSEN`, `ACTION_BAR_CHOSEN_COLUMN`, `ACTION_BAR_ALL`, `BUTTON`, `BUTTON_LABEL`, `TEXT.role.meta`, `FIELD_ERROR_LINE`, `PENDING_BAR`, `FLOW_IN` | rest, disabled, pending, error |
 | `Picker` | shared | `FIELD_ALONE`, `FIELD_ALONE_LINE`, `FIELD_ALONE_ROW`, `FIELD_ALONE_ROW_AREA`, `FIELD_ALONE_LINE_AREA`, `FIELD_ALONE_UNDER`, `DEFINITION_NAME`, `FIELD_OPTIONAL`, `FIELD_ERROR_LINE`, `FIELD_QUIET`, `PICKER`, `HAIRLINE`, `ROW_LEADING`, `AVATAR`, `AVATAR_LABEL`, `WORD_ACT`, `PICKER_VALUE`, `ICON.fit.meta`, `CHIP`, `CHIP_DOT`, `CHIP_LABEL`, `FIELD.trailing.none`, `FIELD.state.rest`, `FIELD.state.error`, `FIELD_VALUE.kind.text`, `FIELD_VALUE.kind.search`, `FIELD_PLACEHOLDER`, `FIELD_GLYPH`, `CHIPS_RUN`, `CHIPS_TRIGGER`, `ICON.fit.control`, `PICKER_EMPTY`, `POPOVER`, `LAYER_POPOVER`, `PICKER_POPOVER`, `ROW.state.rest`, `ROW.state.highlighted`, `ROW.state.pressed`, `OPTION_ROW`, `TEXT.role.body`, `TEXT.role.meta`, `ICON.fit.body`, `BUTTON.act.quiet`, `BUTTON_LABEL.act.quiet`, `PAINT.kind.control`, `CHEVRON`, `BLOCK_IN`, `OPTION_LIST`, `OPTION_GROUP_LABEL`, `TEXT_STRONG.role.meta`, `OPTION_LINE`, `LINE_BOX.role.body`, `LINE_BOX.role.meta`, `CHECKBOX`, `CHECKBOX_MARK`, `OPTION_RADIO`, `OPTION_RADIO_DOT`, `ROW_TITLE_LINE`, `ROW_META_LINE`, `CHIP.family.neutral`, `CHIP_LABEL.family.neutral`, `OPTION_CHILDREN`, `OPTION_INDENT`, `PAINT.kind.glyphs`, `SCRAMBLE`, `FLOW_IN`, `SEGMENTED_CONTROL`, `SEGMENT`, `SEGMENT_GROUND`, `SEGMENT_TRACK`, `SEGMENT_CHOSEN`, `SEGMENT_IDLE`, `SEGMENT_LABEL` | rest, hover, focus, active, loading, selected, disabled, error |
@@ -2977,7 +2977,7 @@ Durations are read as `duration-<rung>`; every rung is 0 under `prefers-reduced-
 
 #### Moves
 
-A component names the moves it makes in the roster's `motion` field: a class-set move (answer, give, toggle, layer, block, line, value, wait) is a class set it draws, a hook move (follow, stream) a marker its source imports.
+A component names the moves it makes in the roster's `motion` field: a class-set move (answer, give, toggle, layer, block, flow, value, wait) is a class set it draws, a hook move (follow, stream) a marker its source imports.
 
 | Move | Answers |
 | --- | --- |
@@ -2986,7 +2986,7 @@ A component names the moves it makes in the roster's `motion` field: a class-set
 | `toggle` | a control's own value moves: a thumb, a mark, a ground |
 | `layer` | what stands over the page enters and leaves |
 | `block` | a block that arrives on its own fades in and pushes what follows at once |
-| `line` | a flow line appears in flow, fading in and pushing what follows |
+| `flow` | a flow line appears in flow, fading in and pushing what follows |
 | `value` | a measured value changes while shown: a fill, a figure, a mark |
 | `wait` | a read that lasts shows it: the delay, the pulse, the spinner |
 | `follow` | a gesture carries what it holds 1:1, and only its release eases |
@@ -3018,21 +3018,21 @@ Each is a CSS custom property on the web and a number in `deriveTheme().motion` 
 | Component | Moves |
 | --- | --- |
 | `Text` | none |
-| `Button` | `answer`, `give`, `layer`, `line`, `value`, `wait` |
-| `Input` | `answer`, `line`, `wait` |
+| `Button` | `answer`, `give`, `layer`, `flow`, `value`, `wait` |
+| `Input` | `answer`, `flow`, `wait` |
 | `Slider` | `answer`, `wait` |
 | `Switch` | `answer`, `toggle`, `wait` |
 | `Pane` | `answer`, `give`, `block`, `wait` |
 | `Gate` | `answer`, `give`, `block` |
-| `Section` | `answer`, `give`, `toggle`, `wait`, `block`, `line`, `value` |
+| `Section` | `answer`, `give`, `toggle`, `wait`, `block`, `flow`, `value` |
 | `Card` | none |
-| `Form` | `block`, `answer`, `give`, `line`, `wait`, `value` |
+| `Form` | `block`, `answer`, `give`, `flow`, `wait`, `value` |
 | `Toolbar` | `block`, `layer` |
 | `Columns` | none |
 | `Shell` | `answer`, `give` |
-| `Sheet` | `answer`, `give`, `layer`, `block`, `line`, `wait`, `follow` |
-| `ActionBar` | `answer`, `give`, `line`, `wait` |
-| `Picker` | `answer`, `give`, `toggle`, `layer`, `block`, `line`, `wait` |
+| `Sheet` | `answer`, `give`, `layer`, `block`, `flow`, `wait`, `follow` |
+| `ActionBar` | `answer`, `give`, `flow`, `wait` |
+| `Picker` | `answer`, `give`, `toggle`, `layer`, `block`, `flow`, `wait` |
 | `Toast` | `answer`, `give`, `layer`, `follow` |
 | `Banner` | `answer`, `give`, `block`, `wait` |
 | `Prose` | `answer`, `wait` |
@@ -3040,16 +3040,16 @@ Each is a CSS custom property on the web and a number in `deriveTheme().motion` 
 | `Diff` | `wait` |
 | `Table` | `answer`, `toggle`, `wait` |
 | `Rules` | `block` |
-| `Stages` | `block`, `line`, `value`, `wait` |
+| `Stages` | `block`, `flow`, `value`, `wait` |
 | `Stats` | `answer`, `value`, `wait` |
 | `BarChart` | `value`, `wait` |
 | `Dock` | none |
 | `Waveform` | `follow` |
-| `Thread` | `stream`, `answer`, `toggle`, `block`, `wait`, `give`, `line` |
+| `Thread` | `stream`, `answer`, `toggle`, `block`, `wait`, `give`, `flow` |
 | `Image` | `answer`, `give`, `layer`, `wait` |
 | `Gallery` | `answer`, `give`, `layer`, `wait` |
 | `QrCode` | `wait` |
-| `Canvas` | `answer`, `give`, `block`, `line`, `wait`, `follow` |
+| `Canvas` | `answer`, `give`, `block`, `flow`, `wait`, `follow` |
 
 ## Do's and Don'ts
 

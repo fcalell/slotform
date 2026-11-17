@@ -1,24 +1,24 @@
 import { read } from "@fcalell/plugin-query/read";
 import type { Datum, Read, Selection } from "@fcalell/ui-core/read";
-import type { ShowcaseFrame } from "./cells.ts";
+import type { ShowcaseScene } from "./class-sets.ts";
 
-// The reads a frame's showcase drawer hands a frame to show each of its shapes: docs/architecture/ui-core/showcase.md, "Roster frames".
+// The reads a scene's showcase drawer hands a scene to show each of its shapes: docs/architecture/ui-core/showcase.md, "Roster scenes".
 export interface Reads {
 	/** A read whose query never resolves: its frame holds the painted shape. */
 	waiting: Read<readonly string[]>;
-	/** A read whose query rejects: its frame draws the failed shape. */
+	/** A read whose query rejects: its scene draws the failed shape. */
 	failing: Read<readonly string[]>;
-	/** A read that answers not found: its frame draws the missing shape. */
+	/** A read that answers not found: its scene draws the missing shape. */
 	missing: Read<readonly string[]>;
-	/** A read that answers no rows: its frame draws its empty shape. */
+	/** A read that answers no rows: its scene draws its empty shape. */
 	empty: Read<readonly string[]>;
-	/** A read that answers rows and refetches without end: its frame draws the loaded tree and its busy mark. */
+	/** A read that answers rows and refetches without end: its scene draws the loaded tree and its busy mark. */
 	busy: Read<readonly string[]>;
-	/** A read whose refetch failed over rows it holds: its frame draws the loaded tree and its stale line. */
+	/** A read whose refetch failed over rows it holds: its scene draws the loaded tree and its stale line. */
 	stale: Read<readonly string[]>;
-	/** A read that holds rows and waits for a connection: its frame draws the loaded tree and its paused line. */
+	/** A read that holds rows and waits for a connection: its scene draws the loaded tree and its paused line. */
 	paused: Read<readonly string[]>;
-	/** A read that answers rows: its frame draws the loaded tree and, for an array, its count. */
+	/** A read that answers rows: its scene draws the loaded tree and, for an array, its count. */
 	ready: Read<readonly string[]>;
 }
 
@@ -104,10 +104,10 @@ export const waitingText = waiting.at(() => "");
 
 const itemed = new Map<string, Read<readonly unknown[]>>();
 
-/** A read in a frame's state of `items`: it answers them at rest and none when empty, never answers while loading and rejects in error. The same read for the same key, so each frame takes its own key. */
+/** A read in a scene's state of `items`: it answers them at rest and none when empty, never answers while loading and rejects in error. The same read for the same key, so each scene takes its own key. */
 export function itemsAt<T>(
 	key: string,
-	state: ShowcaseFrame["state"],
+	state: ShowcaseScene["state"],
 	items: readonly T[],
 ): Read<readonly T[]> {
 	const held = itemed.get(key);
@@ -132,7 +132,7 @@ export type MoreState = (typeof HOWS)[number];
 
 const paged = new Map<string, Read<readonly unknown[]>>();
 
-/** A pages read that holds `rows` as its first page with another after it: the next page answers nothing, so it loads for good ("fetching"), fails ("failed"), or is not asked for ("next", where "Show more" stands). The same read for the same key, so each frame takes its own key. Its one caller, `Paged`, passes each form's own key, state and rows. */
+/** A pages read that holds `rows` as its first page with another after it: the next page answers nothing, so it loads for good ("fetching"), fails ("failed"), or is not asked for ("next", where "Show more" stands). The same read for the same key, so each scene takes its own key. Its one caller, `Paged`, passes each form's own key, state and rows. */
 export function pagesAt<T>(
 	key: string,
 	how: MoreState,
@@ -165,7 +165,7 @@ export function pagesAt<T>(
 
 const gone = new Map<string, Selection<readonly unknown[]>>();
 
-/** The items a collection draws in its `empty` and `error` frames, each under the title of the section that stands it: one that answers none; one that fails and one that answers not found, which the `error` frame draws side by side as a Pane's does. No frame above holds them, so the collection draws its own form. The same reads for the same key. */
+/** The items a collection draws in its `empty` and `error` scenes, each under the title of the section that stands it: one that answers none; one that fails and one that answers not found, which the `error` scene draws side by side as a Pane's does. No frame above holds them, so the collection draws its own form. The same reads for the same key. */
 export function endedAt<T>(
 	key: string,
 	state: "empty" | "error",

@@ -71,7 +71,7 @@ the file itself.
   dependency (the phone compiles the same set); the dev server's pre-bundled copies of those
   packages run uncompiled.
 - Never write a Vite config, an `index.html` or an entry file: they are generated, and a change
-  to them is an option on `react()`, `vite()` or a gap
-  (`node_modules/@fcalell/cli/guide/gap.md`).
+  to them is an option on `react()`, `vite()` or a shortfall
+  (`node_modules/@fcalell/cli/guide/shortfall.md`).
 
 **Check:** `stack generate`, then `pnpm check` passes, and the page loads under `pnpm dev`.

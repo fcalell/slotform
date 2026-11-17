@@ -10,7 +10,7 @@ import {
 	MODES,
 	type ShowcaseDensity,
 	type ShowcaseMode,
-} from "../roster/cells.ts";
+} from "../roster/class-sets.ts";
 
 export interface View {
 	mode: ShowcaseMode;

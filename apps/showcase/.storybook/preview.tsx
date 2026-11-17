@@ -7,7 +7,7 @@ import { configure } from "storybook/test";
 // one: under load a state a story waits for can take past a second to draw.
 configure({ asyncUtilTimeout: 5_000 });
 
-// The dev checks below judge a frame the viewer sees: a play that ends on a
+// The dev checks below judge a scene the viewer sees: a play that ends on a
 // press has its state committed but not yet laid out and painted.
 const painted = () =>
 	new Promise<void>((resolve) =>
@@ -49,7 +49,7 @@ const preview: Preview = {
 	},
 	decorators: [
 		(Story, context) => {
-			// Pinned before the story's first paint; a component's frames carry
+			// Pinned before the story's first paint; a component's scenes carry
 			// their own mode.
 			document.documentElement.dataset.density = String(
 				context.globals.density,

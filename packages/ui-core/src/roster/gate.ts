@@ -11,8 +11,8 @@ export const gateEntry: RosterEntry = {
 		"GATE",
 		"GATE_COLUMN",
 		"GATE_STEP",
-		"GATE_MARK",
-		"GATE_MARK_ROW",
+		"GATE_LOCKUP",
+		"GATE_LOCKUP_ROW",
 		"GATE_LOGO",
 		"STEP_COUNT",
 		"STEP_COUNT_SEGMENTS",
@@ -74,9 +74,9 @@ export const STEP_COUNT_SEGMENTS = "gap-gap";
 export const GATE = "bg-surface p-page";
 export const GATE_COLUMN = "w-full max-w-auth";
 
-// The app's lockup is the logo (`GATE_MARK`, the avatar's size) and the
+// The app's lockup is the logo (`GATE_LOCKUP`, the avatar's size) and the
 // app's name a row apart, a row of the step.
-export const GATE_MARK_ROW = "gap-gap";
+export const GATE_LOCKUP_ROW = "gap-gap";
 // An app's drawn lockup stands in the row in place of the logo and the name,
 // its width from its own proportion, held to the row, two body lines tall.
 export const GATE_LOGO =

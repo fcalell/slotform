@@ -14,7 +14,7 @@ pnpm add -D @fcalell/cli
 
 ## Guide
 
-How to build an app on stack lives in `guide/`, and each plugin ships its own pages beside it. The CLI's pages are [`provided.md`](./guide/provided.md), [`config.md`](./guide/config.md), [`commands.md`](./guide/commands.md) and [`gap.md`](./guide/gap.md).
+How to build an app on stack lives in `guide/`, and each plugin ships its own pages beside it. The CLI's pages are [`provided.md`](./guide/provided.md), [`config.md`](./guide/config.md), [`commands.md`](./guide/commands.md) and [`shortfall.md`](./guide/shortfall.md).
 
 ## Exports
 

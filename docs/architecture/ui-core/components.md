@@ -123,10 +123,10 @@ The parts the phone's Table leaves out are in [ui-core's limits](../ui-core.md#l
   procedure sorts it by. The method and the id start hidden; the figure columns (took, served) stand
   narrow. The head tick chooses the search's whole result, and the delete takes that choice as it
   stands.
-- The roster frame of tests by environment has two status columns, each cell the verdict of one
+- The roster scene of tests by environment has two status columns, each cell the verdict of one
   environment. Below `tablet` a row says which environment each word is of ("Staging: Passing"),
   each its own status badge with its tone mark, the failing one's mark too.
-- The roster frame of a destination's variables has an editable name, a few short columns and a
+- The roster scene of a destination's variables has an editable name, a few short columns and a
   long Description in a column that wraps. Below `tablet` the Description is the row's `line`,
   wrapping whole under the name, never a cut badge; the short columns stand as the row's facts.
 
@@ -158,8 +158,8 @@ disabled in a list) until it is in the value.
 
 `value` an array makes it a pick of several: the rows tick and the list stays open, and the box holds
 one removable neutral chip per value. The chips are pills inset in their box, never edge to edge:
-the roster frames that hold one judge every chip run and log an error where a chip stands as tall as
-its box or off its centre. The frames' cells mount as they are read, so that judge waits well past
+the roster scenes that hold one judge every chip run and log an error where a chip stands as tall as
+its box or off its centre. The scenes' class sets mount as they are read, so that judge waits well past
 the first paint.
 
 ### Reads
@@ -426,5 +426,5 @@ dependencies of its own, pinned to an exact version in ui-core's manifest); the 
 - `packages/ui-core/src/qr.ts`: `qrModules`
 - `apps/showcase/src/app/routes/_app/requests.tsx`: a windowed `Table` sorted by the server
 - `apps/showcase/src/app/routes/_app/assistant.tsx`: a streamed conversation
-- `apps/showcase/src/roster/frames/table.tsx`: the comparison and wrapping column frames
-- `apps/showcase/src/roster/frames/picker.tsx`, `picker-segments.tsx`, `pane.tsx`: the frames that judge a pick's chips, its tracks and its collapsed name
+- `apps/showcase/src/roster/scenes/table.tsx`: the comparison and wrapping column scenes
+- `apps/showcase/src/roster/scenes/picker.tsx`, `picker-segments.tsx`, `pane.tsx`: the scenes that judge a pick's chips, its tracks and its collapsed name

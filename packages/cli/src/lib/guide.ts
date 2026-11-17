@@ -17,7 +17,7 @@ export const cliGuide: readonly { page: string; trigger: string }[] = [
 		trigger: "Running a `stack` command, or deciding which one a change needs",
 	},
 	{
-		page: "gap",
+		page: "shortfall",
 		trigger:
 			"A part the app needs that stack lacks: a component, variant, token, option or procedure feature",
 	},

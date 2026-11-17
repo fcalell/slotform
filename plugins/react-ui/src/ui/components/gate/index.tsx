@@ -9,7 +9,7 @@ import {
 	CARD,
 	GATE,
 	GATE_COLUMN,
-	GATE_MARK_ROW,
+	GATE_LOCKUP_ROW,
 	GATE_STEP,
 	ROWS,
 	text,
@@ -158,7 +158,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 									>
 										<GateStep key={title} fresh={title !== opened}>
 											{lockup ? (
-												<Lockup lockup={lockup} className={GATE_MARK_ROW} />
+												<Lockup lockup={lockup} className={GATE_LOCKUP_ROW} />
 											) : null}
 											{step ? <StepCount at={step.at} of={step.of} /> : null}
 											<h1 id={titleId} className={text({ role: "title" })}>

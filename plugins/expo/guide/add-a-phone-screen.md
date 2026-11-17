@@ -11,7 +11,7 @@ Run the screen recipe's steps 1 to 3 with the phone as the platform, mapping eac
 phone's rules page (`node_modules/@fcalell/plugin-native-ui/guide/rules.md`) to a component in
 `node_modules/@fcalell/plugin-native-ui/src/ui/components/`.
 
-**Check:** every part names its component, or its gap.
+**Check:** every part names its component, or its shortfall.
 
 ## 2. Add the route
 

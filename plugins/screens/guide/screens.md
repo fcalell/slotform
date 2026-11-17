@@ -97,7 +97,7 @@ export default defineFixtures<AppRouter>(
   or a conflict) fails the story, naming the procedure, the param and the error code
   (`projects.get answered NOT_FOUND in the data state for the param projectId "p1"`): the example
   record does not exist or is the wrong kind for the procedure. A read whose input carries no
-  route param's example value (a setup form's) is no gap. The not found and error states draw
+  route param's example value (a setup form's) is no unanswered call. The not found and error states draw
   those forms on purpose.
 - A route that reads its search (the router's `useSearch`, `location.searchStr`; never
   `window.location`, which a story's memory history does not set) is drawn at the example search
@@ -202,7 +202,7 @@ it changing height (a Stats strip's painted rows, a tabs row), never the head's 
 
 A screen with one read failed is a state the five do not reach: the error story fails every query at
 once, so a frame that holds a read nobody else does never meets it alone. After the Data story's
-floors, when the screen called two or more procedures, the run fails each procedure in turn and
+checks, when the screen called two or more procedures, the run fails each procedure in turn and
 draws the screen again:
 
 1. the procedure's queries answer a server error and every other procedure answers its fixture;
@@ -228,7 +228,7 @@ its failure draws nowhere and the leaf stays painted.
   seconds for each procedure it calls (on the showcase, 4 to 5 procedures take 10 to 15 seconds).
 
 `called()` and `failing()` in `src/ui/answer.ts` hold the record and the failure, and `perRead()` in
-`src/ui/floors.ts` the run.
+`src/ui/checks.ts` the run.
 
 ### The render walk
 
@@ -305,7 +305,7 @@ Combine the rows: a loading change on one screen's touch tree is
 
 ### Screenshots
 
-`--shots <dir>` saves a PNG of every story the run visits, at each width, once the floors at that
+`--shots <dir>` saves a PNG of every story the run visits, at each width, once the checks at that
 width ran: `<dir>/<screen>/<story>-<width>.png`, for example `shots/projects/$id/data-dark-1920.png`.
 The directory is resolved from the app's root and lies inside it (Vitest writes a screenshot only
 within the workspace Vite serves; gitignore it), and the default mode's story has no mode in its name
@@ -320,13 +320,13 @@ edit, name it and one of each: `stack screens test --screen deploys --state data
 - A loading story's shot is its waiting shape.
 - A run writes over the files it takes and leaves the others; empty the directory first for a set
   from one run alone.
-- The shots are taken whether or not the screen passes its floors.
+- The shots are taken whether or not the screen passes its checks.
 
 ### Opening a popup, a search for a filter
 
 - `--open <control text>` presses, once a story has drawn, the control whose visible text or accessible
   name is that text (with real mouse input after a hit test), waits for what it opens to settle, then
-  runs the floors and takes the shot with it open, named `<story>-<width>-open-<slug>.png`; Escape
+  runs the checks and takes the shot with it open, named `<story>-<width>-open-<slug>.png`; Escape
   closes it. A Menu, a Picker, a Dialog or a Sheet is then judged and seen. A screen that draws no such
   control fails, naming it: narrow the run with `--state` to the states that draw it. Each width starts
   from a clean page: before each press and after each Escape the pointer is moved off the page and the

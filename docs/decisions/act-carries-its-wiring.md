@@ -15,5 +15,5 @@ sheet an act opens. Each is one shape repeated, so it is the act's data, not the
 
 **Trade-off.** The `Act` descriptor is the platform's one orchestration point, so an act that
 needs an order the platform does not sequence (a toast before a confirm, two sheets) has no form
-and is a gap to file, not a hand-wired exception. `sheet` is a platform widening of the ui-core
+and is a shortfall to file, not a hand-wired exception. `sheet` is a platform widening of the ui-core
 descriptor (ui-core imports no React), as `WithReads` widens a row.

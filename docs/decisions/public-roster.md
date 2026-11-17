@@ -17,5 +17,5 @@ data removes the decision and the duplicated public type on each platform.
 
 **Trade-off.** A consumer cannot place a part on its own (a `Status` beside running text, a
 `ListRow` outside a `Section`); it names the part in the owner's data instead, and a part with no
-owner is a gap to file, never a new public component. A part's states are verified through its
+owner is a shortfall to file, never a new public component. A part's states are verified through its
 owner's stories.

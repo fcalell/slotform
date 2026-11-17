@@ -70,7 +70,7 @@ export const formEntry: RosterEntry = {
 		"disabled",
 		"pending",
 	],
-	motion: ["block", "answer", "give", "line", "wait", "value"],
+	motion: ["block", "answer", "give", "flow", "wait", "value"],
 	owns: {
 		roles: ["heading", "body", "meta"],
 		colors: [

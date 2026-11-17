@@ -25,7 +25,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
   [reads](architecture/ui-core/reads.md), [acts](architecture/ui-core/acts.md),
   [components](architecture/ui-core/components.md), and [plugin-react-ui](architecture/plugins/react-ui.md)
   or [plugin-native-ui](architecture/plugins/native-ui.md). The root `CLAUDE.md` names the guide pages
-  and the showcase frames a component change carries.
+  and the showcase scenes a component change carries.
 - **The showcase, Storybook or the screen run:** [showcase](architecture/ui-core/showcase.md),
   [plugin-screens](architecture/plugins/screens.md).
 - **A manifest's `files`, `exports`, dependencies or peers:** [releasing](architecture/releasing.md).
@@ -64,7 +64,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
 - [Components](architecture/ui-core/components.md): Table, Picker, Thread, charts and the other content contracts.
 - [Sound](architecture/ui-core/sound.md): track, player, dock and waveform.
 - [Drag](architecture/ui-core/drag.md): drag, drop, reorder and follow.
-- [Showcase](architecture/ui-core/showcase.md): the showcase app, roster frames, Storybook, enforcement.
+- [Showcase](architecture/ui-core/showcase.md): the showcase app, roster scenes, Storybook, enforcement.
 
 ### Plugins
 

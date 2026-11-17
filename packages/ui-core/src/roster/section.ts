@@ -170,7 +170,7 @@ export const sectionEntry: RosterEntry = {
 		"more",
 		"selected",
 	],
-	motion: ["answer", "give", "toggle", "wait", "block", "line", "value"],
+	motion: ["answer", "give", "toggle", "wait", "block", "flow", "value"],
 	owns: {
 		roles: ["heading", "meta", "body", "caption", "code"],
 		colors: [

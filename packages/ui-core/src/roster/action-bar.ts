@@ -18,7 +18,7 @@ export const actionBarEntry: RosterEntry = {
 		"FLOW_IN",
 	],
 	states: ["rest", "disabled", "pending", "error"],
-	motion: ["answer", "give", "line", "wait"],
+	motion: ["answer", "give", "flow", "wait"],
 	owns: {
 		roles: ["body", "meta"],
 		colors: [

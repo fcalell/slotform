@@ -7,12 +7,12 @@ import {
 	asORPCError,
 	channelAnswer,
 	emptyOf,
-	fixtureGaps,
 	heldReads,
 	holdCalls,
 	release,
 	type ScreenState,
 	setStory,
+	unansweredCalls,
 } from "./answer.ts";
 
 test("an array answers []", () => {
@@ -239,7 +239,7 @@ test("loading holds the frame until release", async () => {
 	assert.deepEqual((await held).send?.payload, inbox);
 });
 
-test("a channel with no fixture sends nothing and is a gap", async () => {
+test("a channel with no fixture sends nothing and is an unanswered call", async () => {
 	holdCalls();
 	const errors: unknown[] = [];
 	const log = console.error;
@@ -252,11 +252,11 @@ test("a channel with no fixture sends nothing and is a gap", async () => {
 	} finally {
 		console.error = log;
 	}
-	assert.deepEqual(fixtureGaps(), ["no fixture for channel chat"]);
+	assert.deepEqual(unansweredCalls(), ["no fixture for channel chat"]);
 	assert.deepEqual(errors, [["no fixture for channel chat"]]);
 });
 
-test("a channel fixture that throws is a gap", async () => {
+test("a channel fixture that throws is an unanswered call", async () => {
 	holdCalls();
 	const log = console.error;
 	console.error = () => {};
@@ -272,7 +272,7 @@ test("a channel fixture that throws is a gap", async () => {
 	} finally {
 		console.error = log;
 	}
-	assert.deepEqual(fixtureGaps(), [
+	assert.deepEqual(unansweredCalls(), [
 		"the fixture for channel inbox threw: boom",
 	]);
 });
@@ -336,7 +336,7 @@ test("an error with only a code, or no error at all, is no ORPCError", () => {
 	assert.equal(asORPCError("NOT_FOUND"), null);
 });
 
-test("a fixture throwing another copy's error answers its status, not a gap", async () => {
+test("a fixture throwing another copy's error answers its status, not an unanswered call", async () => {
 	const tree = {
 		projects: {
 			get: () => {
@@ -400,7 +400,7 @@ const getProject = (state: ScreenState) =>
 		state,
 	);
 
-test("a read that lands not found in the data state is a gap naming the procedure and the param", async () => {
+test("a read that lands not found in the data state is an unanswered call naming the procedure and the param", async () => {
 	holdCalls();
 	setStory({
 		channels: undefined,
@@ -408,7 +408,7 @@ test("a read that lands not found in the data state is a gap naming the procedur
 		state: "data",
 	});
 	assert.equal((await getProject("data")).status, 404);
-	assert.deepEqual(fixtureGaps(), [
+	assert.deepEqual(unansweredCalls(), [
 		'projects.get answered NOT_FOUND in the data state for the param id "p9": give the route an example value the procedure accepts, under its id in the params of src/app/fixtures.ts',
 	]);
 });
@@ -431,32 +431,32 @@ const getRefused = (state: ScreenState) =>
 		state,
 	);
 
-test("a read that is refused in the data state is a gap naming the procedure, the param and the code", async () => {
+test("a read that is refused in the data state is an unanswered call naming the procedure, the param and the code", async () => {
 	holdCalls();
 	setStory({ channels: undefined, params: { id: "p9" }, state: "data" });
 	assert.equal((await getRefused("data")).status, 409);
-	assert.deepEqual(fixtureGaps(), [
+	assert.deepEqual(unansweredCalls(), [
 		'projects.get answered CONFLICT in the data state for the param id "p9": give the route an example value the procedure accepts, under its id in the params of src/app/fixtures.ts',
 	]);
 });
 
-test("a refusal without a route param's value in its input, and the error state, are no gap", async () => {
+test("a refusal without a route param's value in its input, and the error state, are no unanswered call", async () => {
 	holdCalls();
 	setStory({ channels: undefined, params: { id: "p1" }, state: "data" });
 	assert.equal((await getRefused("data")).status, 409);
 	assert.equal((await getRefused("error")).status, 500);
-	assert.deepEqual(fixtureGaps(), []);
+	assert.deepEqual(unansweredCalls(), []);
 });
 
-test("the not found state draws that form on purpose and is no gap", async () => {
+test("the not found state draws that form on purpose and is no unanswered call", async () => {
 	holdCalls();
 	assert.equal((await getProject("notFound")).status, 404);
-	assert.deepEqual(fixtureGaps(), []);
+	assert.deepEqual(unansweredCalls(), []);
 });
 
-test("a not found read without a route param's value in its input is no gap", async () => {
+test("a not found read without a route param's value in its input is no unanswered call", async () => {
 	holdCalls();
 	setStory({ channels: undefined, params: { id: "p1" }, state: "data" });
 	assert.equal((await getProject("data")).status, 404);
-	assert.deepEqual(fixtureGaps(), []);
+	assert.deepEqual(unansweredCalls(), []);
 });

@@ -183,7 +183,7 @@ A heading's level comes from where it stands, never from its siblings.
   at. HTML stops at `h6`.
 - React Native exposes no heading level, so on the phone a Section's title is a header at any depth.
 - A heading with no words, and no name of its own, gives a screen reader a stop that reads nothing,
-  so a name that lands empty draws no heading; the showcase's Pane frame logs an error where a
+  so a name that lands empty draws no heading; the showcase's Pane scene logs an error where a
   heading stands empty.
 
 ## Pane
@@ -494,7 +494,7 @@ whole never shrinks.
 - A form's controls show their placeholder or value whole: a long label makes the label column wide,
   and the Pane stands the value under its label where it cannot hold both, so no input and no pick
   cuts what it shows. A toggle has no value to stand under its name, so it keeps its name's line at
-  every width. The showcase's Form frame logs an error where a control is cut or a toggle falls under
+  every width. The showcase's Form scene logs an error where a control is cut or a toggle falls under
   its name or off its name's line.
 
 ### Touch rows
@@ -679,4 +679,4 @@ line's. The web draws that gap on touch alone.
 - `plugins/native-ui/src/ui/lib/container.ts`: the container context on the phone.
 - `plugins/native-ui/src/ui/lib/hosts.tsx`: the keyboard-aware scroll pane.
 - `plugins/native-ui/src/ui/lib/chip-lines.ts`: the gap between a chip run's lines.
-- `apps/showcase/src/roster/frames/`: the frames that judge a heading, a Pane bar, a Form's controls and the toasts' reach (`pane.tsx`, `form.tsx`, `toast.tsx`, `section.tsx`, `section-rows.ts`, `card.tsx`).
+- `apps/showcase/src/roster/scenes/`: the scenes that judge a heading, a Pane bar, a Form's controls and the toasts' reach (`pane.tsx`, `form.tsx`, `toast.tsx`, `section.tsx`, `section-rows.ts`, `card.tsx`).

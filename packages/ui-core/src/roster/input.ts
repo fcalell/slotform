@@ -50,7 +50,7 @@ export const inputEntry: RosterEntry = {
 		"PAINT.kind.control",
 	],
 	states: ["rest", "hover", "focus", "disabled", "error", "empty", "pending"],
-	motion: ["answer", "line", "wait"],
+	motion: ["answer", "flow", "wait"],
 	owns: {
 		roles: ["body", "code", "meta", "caption", "heading"],
 		colors: [

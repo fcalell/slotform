@@ -55,7 +55,7 @@ to fix, and a new term enters this page in the change that introduces it.
   version the consumer installs. [consumer project](architecture/consumer-project.md#the-guide)
 - **guide index**: `.stack/guide.md`, the list of every guide page of the consumer's plugins, each
   with the trigger that says when to open it. [consumer project](architecture/consumer-project.md#the-guide)
-- **gap**: A bug or missing feature a consumer cannot ship without, filed as an issue on stack and
+- **shortfall**: A bug or missing feature a consumer cannot ship without, filed as an issue on stack and
   never worked around in the consumer. [consumer project](architecture/consumer-project.md#designing-screens)
 - **version rule**: Every public stack package carries one version and is released together, and
   stack packages depend on each other by a caret of it. [releasing](architecture/releasing.md#the-version-rule)
@@ -339,11 +339,11 @@ to fix, and a new term enters this page in the change that introduces it.
 - **gate**: `pnpm check`, the repo's per-change check: type-check, tests and Biome, writing nothing.
   A change is complete only once it passes. [conventions](architecture/conventions.md#build-and-exports)
 - **showcase**: The private consumer in `apps/showcase` that shows the web components, holds the roster
-  frames and is the first user of the screens workbench. [showcase](architecture/ui-core/showcase.md#the-app)
-- **roster frame**: The showcase's drawing of one roster component in one cell and state, which
-  Storybook draws as a story. [showcase](architecture/ui-core/showcase.md#roster-frames)
-- **self-judging frame**: A roster frame that checks its own edge and logs an error where it breaks.
-  [showcase](architecture/ui-core/showcase.md#roster-frames)
+  scenes and is the first user of the screens workbench. [showcase](architecture/ui-core/showcase.md#the-app)
+- **roster scene**: The showcase's drawing of one roster component in one class set and state, which
+  Storybook draws as a story. [showcase](architecture/ui-core/showcase.md#roster-scenes)
+- **self-judging scene**: A roster scene that checks its own edge and logs an error where it breaks.
+  [showcase](architecture/ui-core/showcase.md#roster-scenes)
 - **story**: One Storybook entry: a roster component in a state, or a screen in a state.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
 - **screens workbench**: The Storybook host plugin-screens runs that serves every route of an app in
@@ -360,7 +360,7 @@ to fix, and a new term enters this page in the change that introduces it.
 - **test run**: `stack screens test`, which opens each screen in every state and fails it on an axe
   violation, an overflow, a render walk finding or a console error. Avoid: screen run.
   [plugin-screens](architecture/plugins/screens.md#test-run)
-- **floors**: The test run's checks at each width (320, 1280, 1920): overflow and the render walk.
+- **checks**: The test run's checks at each width (320, 1280, 1920): overflow and the render walk.
   [showcase](architecture/ui-core/showcase.md#enforcement)
 - **render walk**: One pass over a drawn page that checks what it draws against the contract's own
   values. [plugin-screens](architecture/plugins/screens.md#render-walk)

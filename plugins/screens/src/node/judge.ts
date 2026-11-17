@@ -85,7 +85,7 @@ export async function judge(
 	width: number,
 	fonts: boolean,
 ): Promise<string[]> {
-	const lines = await call<string[]>(tab, `floorsAt(${width}, ${fonts})`);
+	const lines = await call<string[]>(tab, `checksAt(${width}, ${fonts})`);
 	if ((await tab.evaluate<string>("typeof axe")) === "undefined")
 		await tab.evaluate(axeSource(cwd));
 	const violations = await tab.evaluate<Violation[]>(

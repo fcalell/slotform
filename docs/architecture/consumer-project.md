@@ -160,7 +160,7 @@ my-app/
                              # screens.slots.viteConfig (with screens)
     screens/main.ts          # Storybook's config directory for `stack screens dev`, from
                              # screens.slots.storybookMain (with screens)
-    screens-test/main.ts     # the same with the floors, for `stack screens test`, from
+    screens-test/main.ts     # the same with the checks, for `stack screens test`, from
                              # screens.slots.testMain (with screens)
     screens.vitest.config.ts # `stack screens test`'s Vitest config, from screens.slots.vitestConfig
                              # (with screens)
@@ -431,7 +431,7 @@ reads the pages of the version it installs, never newer ones. A plugin lists its
 `plugin({ guide })`, each with a load trigger: when a step should open the page, never what the
 page holds. `plugin({ guide })` feeds `cliSlots.guide`, with the plugin's name as the domain.
 `stack generate` writes `.stack/guide.md`, an index of every page of every plugin in the config plus
-the CLI's own (what stack provides, config, commands, what a gap is): each line a trigger and the
+the CLI's own (what stack provides, config, commands, what a shortfall is): each line a trigger and the
 page's path from the consumer's root, grouped by domain in the slot's order. `stack init` makes the
 consumer's `CLAUDE.md` import it (`@.stack/guide.md`): a missing `CLAUDE.md` becomes the import
 alone, an existing one gains it at the end unless a line already is it. Every session in the repo
@@ -464,10 +464,10 @@ same", and fcalell signs off on the render. There are no artboards.
 
 A consumer works within stack's constraints: a part stack has no exact shape for takes the nearest
 one it provides, named as a known limit, never a local workaround that rebuilds stack. Only a bug or
-a missing feature the consumer cannot ship without is a gap, so the gap list stays a list of what
+a missing feature the consumer cannot ship without is a shortfall, so the shortfall list stays a list of what
 matters rather than every polish a render could take. When stack's latest release already has it,
 the fix is moving the consumer's version; otherwise the consumer opens an issue on the stack
-repository (the CLI's `gap.md`), and only the work that cannot ship without it waits.
+repository (the CLI's `shortfall.md`), and only the work that cannot ship without it waits.
 
 ## Limits
 

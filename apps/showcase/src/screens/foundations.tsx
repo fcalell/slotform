@@ -30,7 +30,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { orpc } from "../app/lib/api.ts";
-import { hang, Pressed } from "../roster/frames/pending.tsx";
+import { hang, Pressed } from "../roster/scenes/pending.tsx";
 import { useView, type View, ViewBar } from "./view.tsx";
 
 // Every class this page builds from a token's name (`bg-${name}`) is one

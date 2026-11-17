@@ -11,8 +11,8 @@ Find the roster component that owns the shape: the frame (`Shell`, `Pane`, `Gate
 the rhythm (`Section`), the row (a `Section`'s `items`, a `Form`'s fields), the
 control, the text role (`Text`). A host element that rebuilds one of these is drift. A composed
 region is data its molecule renders, never nodes. A shape no component owns takes the nearest one the
-roster draws, the compromise named; only a bug, or a part the screen cannot ship without, is a gap
-(`node_modules/@fcalell/cli/guide/gap.md`).
+roster draws, the compromise named; only a bug, or a part the screen cannot ship without, is a shortfall
+(`node_modules/@fcalell/cli/guide/shortfall.md`).
 
 A Pane stands in a place; the place holds two at most, of two kinds: the place's own, then a record's.
 The `Shell` draws the place that holds them and reads none of them, so a route renders its `Pane`s and
@@ -274,7 +274,7 @@ settings that has no decision to make is `commit: "field"`, which draws no bar. 
 a change is no third form: it is the blocked submit above (`blocked`, a reason the viewer can act on).
 
 What is not a `Form`: a filter is a `Toolbar` pick or search, a local setting is a `Switch` in a row. A
-form over no procedure is a gap to report, not a `Form` with hand-drawn fields.
+form over no procedure is a shortfall to report, not a `Form` with hand-drawn fields.
 
 A form in a `Sheet` is the sheet's `form`, these same props, and a pane's or an act's `sheet` takes it too: its
 bar submits, `onDone` closes the sheet (an act's `sheet` closes itself), the sheet gives no `submit` of its own,
@@ -608,7 +608,7 @@ The order is fixed: confirm, run, toast, go. Every host that draws an act (a `Bu
 form's or sheet's bar, a `Section`'s head, band, rows and empty shape, a `Pane`'s bar, a
 `Banner`, a `Toast`, a menu, an `Input`'s or `Picker`'s act, a `Sheet`'s submit) runs it, so the
 sequence is the same wherever the act stands. An act that needs another order (a toast before a
-confirm, two sheets) has no form: file the gap, hand-wire nothing. A retry after a failure runs the
+confirm, two sheets) has no form: file the shortfall, hand-wire nothing. A retry after a failure runs the
 work again (`onAct`, `done`, `to`), not the confirm.
 
 A sheet that no act opens (a deep link, a row that opens its record's sheet) is addressed by the

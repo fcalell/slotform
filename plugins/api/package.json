@@ -66,9 +66,9 @@
 			"types": "./dist/lib/window.d.ts",
 			"default": "./dist/lib/window.js"
 		},
-		"./lib/selection": {
-			"types": "./dist/lib/selection.d.ts",
-			"default": "./dist/lib/selection.js"
+		"./lib/chosen": {
+			"types": "./dist/lib/chosen.d.ts",
+			"default": "./dist/lib/chosen.js"
 		},
 		"./lib/slugify": {
 			"types": "./dist/lib/slugify.d.ts",
