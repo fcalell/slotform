@@ -7,7 +7,7 @@ import {
 } from "react";
 import type { IconAct } from "./act.ts";
 
-// The Shell's places-layer act, handed to the Pane: docs/architecture/ui-core/layout.md, "Frame context".
+// The Shell's places-layer act, handed to the Pane: docs/architecture/ui-core/layout.md, "Container context".
 export const ShellMenu = createContext<IconAct | undefined>(undefined);
 
 // The route of the Shell's current place, where a read with no Pane's
@@ -35,7 +35,7 @@ export const InPane = createContext(false);
 // a Thread's log and a Table's grid take).
 export const PageTitle = createContext<string | undefined>(undefined);
 
-// What a docked foot's region hands the docked `Sheet`: docs/architecture/ui-core/layout.md, "Frame context".
+// What a docked foot's region hands the docked `Sheet`: docs/architecture/ui-core/layout.md, "Container context".
 export interface FootRegionValue {
 	height: number;
 	chrome: number;

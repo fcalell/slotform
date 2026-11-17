@@ -1,4 +1,4 @@
-// What the frame molecules hand each other on both platforms.
+// What the container molecules hand each other on both platforms.
 import { createContext } from "react";
 import type { LinkAct } from "../descriptors.ts";
 

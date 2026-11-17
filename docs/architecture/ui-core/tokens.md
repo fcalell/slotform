@@ -1,6 +1,6 @@
 # Tokens
 
-The token contract of `@fcalell/ui-core`: the six knobs a theme sets, the sheet of values they move,
+The token contract of `@fcalell/ui-core`: the six knobs a theme sets, the token values they move,
 how the derivation holds every contrast contract at any hue, the density sets and the room, the
 type, spacing, size and width scales, the reset that keeps an off-contract utility from compiling,
 the `cn()` merge config and the token records each plugin renders. The emitted `DESIGN.md` lists
@@ -15,7 +15,7 @@ is its roster entry's ([token ownership](roster.md#token-ownership)).
 
 ## Knobs
 
-A theme sets a knob and never a token. There are six knobs; every other value is the sheet and moves
+A theme sets a knob and never a token. There are six knobs; every other value is a token value and moves
 only with it. A per-scale knob or a per-token override would let a consumer re-tune a system it did
 not design, and every measured pair would need re-checking by hand, so neither exists; a second
 primary fill is a theme decision, never a call-site value.
@@ -31,7 +31,7 @@ primary fill is a theme decision, never a call-site value.
 
 `hue.accent` and `hue.cast` are in `[0, 360)`. An unset cast is the accent's hue, so an accent alone
 tints the chrome toward it. The cast reaches every neutral through the `"cast"` hue marker at the
-chroma the sheet fixes per role and mode, so it tints the chrome and moves no contrast. Chroma is
+chroma the token values fix per role and mode, so it tints the chrome and moves no contrast. Chroma is
 never a knob: it decides whether a cast is a tint or a colour, so only the hue is one. Density is no
 knob either: the pointer and the width decide it ([density and room](#density-and-room)).
 
@@ -63,13 +63,13 @@ declared one (a literal or a `mix`) in 0.005 steps away from each ground until e
 re-clamping the chroma at each step. Each ground is the luminance a contract measures against. A
 green accent's link then stays readable on a group where the blue one is at the declared lightness
 already. `under` names a veil over the ground, composited as a browser draws a translucent fill over
-an opaque one (an alpha blend in gamma sRGB): a label on a pressed part. The sheet carries the held
+an opaque one (an alpha blend in gamma sRGB): a label on a pressed part. The token values carry the held
 value at its own hue.
 
 A declared value keeps its chroma inside sRGB at the same lightness, so a re-hued accent keeps its
 luminance and contrast and loses saturation at a hue the gamut cannot carry, never clipping to
-another colour. The sheet's own values are in gamut, so at the default hue nothing moves. The
-contracts the sheet carries include `accent-ink` on `group` and on `accent-soft` at 4.5:1, the dark
+another colour. The token values are in gamut, so at the default hue nothing moves. The
+contracts the token values carry include `accent-ink` on `group` and on `accent-soft` at 4.5:1, the dark
 `accent` on `group` at 3:1 and `act-accent-pending` at 3:1 under `on-act-accent`; they hold at every
 hue of either knob.
 
@@ -189,7 +189,7 @@ structure.
 
 The three scales density moves are numbers in `scales.ts`: px on the desktop and touch sets, canvas
 units on the room set. Each follows the body size, which the `size` knob sets (`bodyOf`); every
-function takes the knob last and defaults to the sheet's. They depend on nothing else, so native,
+function takes the knob last and defaults to the default knob. They depend on nothing else, so native,
 which scales the room set at runtime, reads them without the theme.
 
 ### The room
@@ -235,7 +235,7 @@ its line box rounded to the even pixel (a tie rounds up). Tracking is in em and 
 Ink is a colour role, family a font role. `tabular` draws the figures at one width: a display and a
 figure are stats. A type-role class set carries its ink, family and figures ([class sets](roster.md#class-sets)).
 
-The body size per density is the knob's on the desktop; touch and the room keep the sheet's ratio
+The body size per density is the knob's on the desktop; touch and the room keep the token values' ratio
 to the desktop, `max(16, round(size × 16 / 13))`, never under 16, the input size below which iOS
 Safari zooms a field on focus (`bodyOf`).
 
@@ -304,7 +304,7 @@ Widths come in two kinds:
   and no density does: a phone keeps the desktop's toast.
 
 The unit widths are the lifted layers, each at its pattern's range (a layer never stretches to its
-container), the regions of a frame (the sidebar, a split's list column, the auth column, an empty
+container), the regions of a container (the sidebar, a split's list column, the auth column, an empty
 state's column) and a canvas node's. A split's list holds the `list` width and its record pane takes
 the rest, never under `region-min` ([Pane](layout.md#pane)). `column` is a board column's width and
 the range of the filters popover. `node`, 60 units, is the width the Canvas's layout reads off the
@@ -440,7 +440,7 @@ text.
 
 ## In the code
 
-- `packages/ui-core/src/tokens.ts`: the sheet as data, the knob defaults, the scales' declared values, the reset namespaces, `fallbackFace`.
+- `packages/ui-core/src/tokens.ts`: the token values as data, the knob defaults, the scales' declared values, the reset namespaces, `fallbackFace`.
 - `packages/ui-core/src/scales.ts`: the type, spacing and size scales as functions of the `size` knob (`bodyOf`, `spacingOf`, `sizePx`, `widthPx`).
 - `packages/ui-core/src/derive.ts`: `deriveTheme`, the contrast holds and the gamut clamp.
 - `packages/ui-core/src/oklch.ts`: the OKLCH, OKLab and sRGB conversions, internal.

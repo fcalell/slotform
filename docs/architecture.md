@@ -4,7 +4,7 @@
 configs), `plugins/` (one self-contained feature unit per domain) and `apps/` (`showcase`, a private
 consumer that renders the roster's Storybook and the foundations and layout pages, and `phone`, a
 private native consumer). The CLI owns orchestration and the slot graph; every feature lives in the
-plugin that owns its domain ([philosophy](./product.md)). The per-change gate is `pnpm check`
+plugin that owns its domain ([philosophy](./product.md)). The per-change check is `pnpm check`
 ([conventions](./architecture/conventions.md#build-and-exports)). This page lists the packages and
 plugins, how they depend on each other, and every architecture page.
 

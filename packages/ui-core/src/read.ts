@@ -406,10 +406,10 @@ export function paints(drawn: Drawn<unknown>): boolean {
 	);
 }
 
-// The placeholder: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
+// The stand-in: docs/architecture/ui-core/reads.md, "Stand-in and selectors".
 const NO_KEYS = new Set(["then", "toJSON", "$$typeof"]);
 
-// The walk limit over a placeholder or a sample: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
+// The walk limit over a stand-in or a sample: docs/architecture/ui-core/reads.md, "Stand-in and selectors".
 const WALK_LIMIT = 10_000;
 let depth = 0;
 let steps = 0;
@@ -461,7 +461,7 @@ export function isStandIn(v: unknown): boolean {
 	);
 }
 
-// Two constant functions, compared by identity: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
+// Two constant functions, compared by identity: docs/architecture/ui-core/reads.md, "Stand-in and selectors".
 export const placeholderData = (): unknown => P;
 export const heldStandIn = (): unknown => P;
 
@@ -546,7 +546,7 @@ export function isSelection(v: unknown): v is Selection<unknown> {
 	return typeof v === "object" && v !== null && SELECTION in v;
 }
 
-// A selector that throws over the placeholder: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
+// A selector that throws over the stand-in: docs/architecture/ui-core/reads.md, "Stand-in and selectors".
 function guarded<T>(data: readonly unknown[], run: () => T): T {
 	try {
 		return bounded(run);
@@ -556,7 +556,7 @@ function guarded<T>(data: readonly unknown[], run: () => T): T {
 	}
 }
 
-// A selection is never a plain object: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
+// A selection is never a plain object: docs/architecture/ui-core/reads.md, "Stand-in and selectors".
 const SELECTION_PROTOTYPE = {};
 
 function selection<T>(

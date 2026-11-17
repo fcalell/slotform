@@ -48,7 +48,7 @@ How a read's query behaves (`ReadKind`):
   waiting tree stands beside the loaded one.
 - An address no route serves is drawn by stack, with the `notFound` word ([words](words.md)).
 - What a leaf draws for one value (`Drawn`) is a constant or real data as given, or a selection with
-  a read still to land, whose `value` is the placeholder's and whose `phase` (`DrawnPhase`) says why:
+  a read still to land, whose `value` is the stand-in's and whose `phase` (`DrawnPhase`) says why:
   `waiting`, asked for with no answer; `still`, not asked for or paused with no data, so nothing is
   coming (it paints still, with no sentence); `failed` and `missing`, the read ended (the failed
   sentence, `words.missing`).
@@ -66,25 +66,25 @@ empty string is no text). Waiting, stopped and failed are the read's states, so 
 only when it holds the read; under a frame that holds it, that frame says them once and the turn draws
 its value alone.
 
-### Placeholder and selectors
+### Stand-in and selectors
 
-- The **placeholder** is the stand-in for data not yet there, shaped by nothing. It is every key of
+- The **stand-in** is the value standing for data not yet there, shaped by nothing. It is every key of
   itself and callable, so a selector walks it to a value and takes its default branch: comparisons
   are false, lookups miss, `new Date` is the epoch, a number formats as 0, `map` and `filter` give it
   back. Nothing is frozen on the target, since a frozen function would pin `name` and `length` against
   the proxy's traps; the traps refuse every write instead.
-- A selector or `combine` function runs over the placeholder (a waiting region picks over it, an idle or
+- A selector or `combine` function runs over the stand-in (a waiting region picks over it, an idle or
   failed read's missing data included), so one that throws there is no bug in the data: its region is
-  the placeholder, silently. Over real data the throw is the app's.
-- A selector run over the placeholder or the sample follows keys that are always there, so a walk
+  the stand-in, silently. Over real data the throw is the app's.
+- A selector run over the stand-in or the sample follows keys that are always there, so a walk
   that goes on while it finds one (`while (n.parent) n = n.parent`) never reaches an end. A run over
   either is given `WALK_LIMIT` (10,000) reads of them, far above what a selector reads for a record's
-  shape: past it the run throws, which a guarded selector turns into the placeholder and a sample into
-  none, as any other throw over a placeholder.
+  shape: past it the run throws, which a guarded selector turns into the stand-in and a sample into
+  none, as any other throw over a stand-in.
 - A selection is never a plain object. TanStack's structural sharing (`replaceEqualDeep`, run over
   every `combine` result) rebuilds a changed plain object from its string keys, which drops
   `SELECTION`; an object on a prototype of its own passes through whole.
-- `placeholderData` and `heldStandIn` are two constant functions, both returning the placeholder.
+- `placeholderData` and `heldStandIn` are two constant functions, both returning the stand-in.
   TanStack compares a function `placeholderData` by identity between option sets, and the dev check
   reads them back off a query's observers: `placeholderData` marks an observer as a **painter** (a leaf
   that draws the read), `heldStandIn` as a **holder** (a frame, or a leaf that draws the failure
@@ -98,7 +98,7 @@ to their reads with, over the binding's port ([The port](#the-port)); the model 
 
 - A leaf makes one subscription (`useSelections`): each value that is a selection is read, the rest
   are constants. One observation covers any count of values, so the hook count is fixed. A read still
-  to land draws from the placeholder and says so (`painted`). The plan is memoized by `values`'
+  to land draws from the stand-in and says so (`painted`). The plan is memoized by `values`'
   identity, which keeps `combine` stable (the binding re-runs it when its identity changes); the React
   Compiler gives a literal list that identity.
 
@@ -139,7 +139,7 @@ collection or leaf draws, painted or real; `more` says the drawn value is one pa
   them to take it in mount order (document order for siblings), passing to the next when that one
   leaves (`createFlags`: `take` returns the release, `flags` says whether a frame draws the mark of a
   read).
-- A frame makes one subscription (`useFrameRead`), the same observation a leaf makes, placeholder on,
+- A frame makes one subscription (`useFrameRead`), the same observation a leaf makes, stand-in on,
   with `derive` run in `combine`, so the frame renders when its derived state changes (shape, count,
   flags) and never on a value change. `derive` must be stable (a module function), since its identity
   is the combine's. Its observers carry `heldStandIn`, which the dev check reads. It returns
@@ -169,7 +169,7 @@ frames over one read only the first draws it, so one refetch stands as one mark.
 - While a collection's `items` read waits it paints its loaded shape, inert: `PAINT_ROWS` rows (a
   Section's sheet as title-and-facts rows with no link, a tree drawn flat; a table's rows in the
   columns it declares, the header constant over them, each cell painted by its column's kind and the
-  regions run over the placeholder; below `tablet` the list painting the same records), `PAINT_TURNS`
+  regions run over the stand-in; below `tablet` the list painting the same records), `PAINT_TURNS`
   in a thread (an ask of yours and the other author's reply), and for a bar chart a figure's filler as
   the total, the legend standing with its figures painted, one painted plot box at its loaded height
   with the axis's lane kept, and two fillers for the time line.
@@ -343,7 +343,7 @@ production build drops them.
 
 ## In the code
 
-- `packages/ui-core/src/read.ts`: the read model, phases, frame state, turns, the placeholder, `planFrame`, holds, marks and dev checks.
+- `packages/ui-core/src/read.ts`: the read model, phases, frame state, turns, the stand-in, `planFrame`, holds, marks and dev checks.
 - `packages/ui-core/src/react/read.ts`: the leaf, frame, collection, row and options hooks, `FrameHolds`.
 - `packages/ui-core/src/react/port.ts`: `ReadPort`, `PortProvider` and the default port.
 - `packages/ui-core/src/paint.ts`: fillers, `PAINT_ROWS`, `PAINT_TURNS`, the waits, `paintWait`, `loading` and `scrambled`.

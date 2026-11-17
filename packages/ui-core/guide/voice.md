@@ -19,7 +19,7 @@ how much a row carries and where things stand, never for colour, type, corners o
 
 ## The face: a drafting table
 
-1. **Frame.** The sidebar is a slate column (the dark calibration of the same tokens, pinned
+1. **Container.** The sidebar is a slate column (the dark calibration of the same tokens, pinned
    dark in both modes) beside the canvas, the table; on the phone the same column is a layer
    over the whole screen, opened by the menu glyph that leads the bar. A page is its bar across the top, on the
    surface over a hairline, and its sections under it on the table at the page inset, a sections
@@ -85,7 +85,7 @@ how much a row carries and where things stand, never for colour, type, corners o
    A fact and a thing are one row: a row with a label puts it in a column ahead of the text, in the
    body role in the meta ink, as wide as the widest label of the Pane up to one short measure, a longer one wrapping at its words; its title truncates,
    its meta stands after it or under it, and its end group stands, as any row's, on the row's centre. A row that
-   opens draws no chevron. A tree's children indent behind a 1 px rail (on touch no wider than the row inset), the hairline above a child, its wash and its current bar starting at its rail, so the indent before it stays the parent's; no row reserves room for
+   opens draws no chevron. A tree's children indent behind a 1 px rail (on touch no wider than the row inset), the hairline above a child, its wash and its current bar starting at its rail, so the indent before it stays the parent's; no row reserves space for
    a part it does not have.
 10. **Bands.** A list's group is a band at the row height: the name at 500, the count in the
     meta ink, the add act at the end, on the hairline at the top of the sheet. A Section's
@@ -128,7 +128,7 @@ how much a row carries and where things stand, never for colour, type, corners o
     empty read). Absent facts say nothing. A first run is a Gate.
 16. **Motion.** None on a navigation, a read landing or a list changing. Hover and press ease on
     `instant`. A layer enters and leaves on its rung. A wait is the spinner or the pulse.
-17. **Widths.** A Panes stands two Panes at most: the place's own, then a record's. Alone, the place's Pane takes the Panes; beside a record's it holds `list` (130 units of the space base), giving way to `region-min` (85 units), and the record's takes the rest, from `tablet` (768 px). A place's Pane that fills with a Canvas takes the spare room instead, the record holding `list`. The record's Expand act folds the place's Pane away so the record takes the Panes, and Collapse brings it back; below `tablet` only the record's Pane stands. A record linked from a record opens in its own place, never as a third Pane. Width follows content: a Table, a Diff, a code block, a Canvas, a chart, Columns and a Gallery span the Pane's body, and definition rows, forms and prose stand within `reading` (180 units) at its start, so no Pane or Section is told its width. Every width but `measure-short` is a count of the space base, so no font moves it; `measure-short` and running text (58 characters) count characters.
+17. **Widths.** A Panes stands two Panes at most: the place's own, then a record's. Alone, the place's Pane takes the Panes; beside a record's it holds `list` (130 units of the space base), giving way to `region-min` (85 units), and the record's takes the rest, from `tablet` (768 px). A place's Pane that fills with a Canvas takes the spare space instead, the record holding `list`. The record's Expand act folds the place's Pane away so the record takes the Panes, and Collapse brings it back; below `tablet` only the record's Pane stands. A record linked from a record opens in its own place, never as a third Pane. Width follows content: a Table, a Diff, a code block, a Canvas, a chart, Columns and a Gallery span the Pane's body, and definition rows, forms and prose stand within `reading` (180 units) at its start, so no Pane or Section is told its width. Every width but `measure-short` is a count of the space base, so no font moves it; `measure-short` and running text (58 characters) count characters.
 18. **Accent.** One blue (hue 264), on the primary act, the current bar, the focus ring, links and
     checked controls. Status hues are fixed: `ok` green, `warn` amber, `danger` red.
 
@@ -178,7 +178,7 @@ returns focus; no console error.
 ## How the face is held
 
 The face lives on the specimen (the showcase's `Specimen` story): every control, pill, tab,
-field, row, band, the frame and the player's dock, light and dark, on one page. A change to a class set or a
+field, row, band, the container and the player's dock, light and dark, on one page. A change to a class set or a
 token is judged on the specimen first, as one family, and reaches a screen only after. A screen
 is then shown beside the anchor's screen of its pattern with one question, which looks better;
 "theirs" is answered with the three largest differences, each a composition finding (the app's)

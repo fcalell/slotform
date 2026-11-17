@@ -11,7 +11,7 @@ const FILL = "flex-1";
 // The page's measured box gives the layer's `top` and `height`.
 const TOAST_LAYER = "absolute inset-x-0 items-center justify-end";
 
-// What a root frame (the Shell, the Gate) mounts around itself: docs/architecture/plugins/native-ui.md, "Frame host".
+// What a root container (the Shell, the Gate) mounts around itself: docs/architecture/plugins/native-ui.md, "Container host".
 // Outside the package's exports.
 export function ContainerHost({ children }: { children: ReactNode }) {
 	const root = useRef<View>(null);

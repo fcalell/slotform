@@ -1,6 +1,6 @@
 # Layout
 
-How the frame components lay out a page on both platforms: the `Shell` and its places, the `Gate`,
+How the layout components lay out a page on both platforms: the `Shell` and its places, the `Gate`,
 the `Panes` and its Panes, the `Pane`'s bar, body and foot, the `Sheet`, the `Section` and its rows,
 the heading levels, the cards, the rows grid that aligns every label of a Pane, and the overflow rules
 that decide a row's or a head's form. The contracts live in `@fcalell/ui-core`'s roster
@@ -11,7 +11,7 @@ densities are in [tokens](tokens.md).
 
 ## Shell
 
-The **Shell** is the root frame of an app's signed-in pages: the sidebar on the desktop, the tab
+The **Shell** is the root container of an app's signed-in pages: the sidebar on the desktop, the tab
 bar on touch, and a column that holds the current place.
 
 ### Sidebar and groups
@@ -57,7 +57,7 @@ bar on touch, and a column that holds the current place.
   holds, and a folder is a place that only opens and folds (its route is a spot).
 - The phone's tab bar and More page draw the top level only: they ignore `group`, `end` and
   `children`, except that a route under a branch selects its tab.
-- A place with a `drop` takes what is dragged from a row; the frame draws the label that follows
+- A place with a `drop` takes what is dragged from a row; the container draws the label that follows
   the pointer and the line a reordered row lands at ([drag](drag.md)).
 - The routes a descriptor carries read `RouteRegistry`, an interface a platform fills by
   declaration merging into `@fcalell/ui-core/descriptors` (`interface RouteRegistry { route: ... }`):
@@ -85,15 +85,15 @@ found. The sheets' provider, the toasts and the `confirm()` host are `ContainerH
 
 ### Toasts
 
-The app has one toast queue, and every root frame on the page (a Shell, a Gate) stands it in its
-layer. A frame hears the queue only from the moment it mounts and listens, so a toast raised before
-a root frame mounts never reaches it; one frame of the page raises the queue. Each toast leaves
-after its time. A page's body makes room for the toasts' layer ([Pane foot](#foot)).
+The app has one toast queue, and every root container on the page (a Shell, a Gate) stands it in its
+layer. A container hears the queue only from the moment it mounts and listens, so a toast raised before
+a root container mounts never reaches it; one container of the page raises the queue. Each toast leaves
+after its time. A page's body makes space for the toasts' layer ([Pane foot](#foot)).
 
 ## Gate
 
-The **Gate** is the layout frame of a page outside the shell (sign-in, a consent step), a root
-frame as the Shell is:
+The **Gate** is the layout container of a page outside the shell (sign-in, a consent step), a root
+container as the Shell is:
 one centred column at the `auth` width holding the step, a fields gap between every part:
 
 1. the app's lockup, its logo and name, which the app gives the UI plugin once (a drawn lockup
@@ -118,7 +118,7 @@ controls in its children. A first run is a titled Gate whose body is its `Button
 The **Panes** is what the Shell's column holds: a row of two Panes at most, the place's own and a
 record's after it, and the size container they read to know whether they stand side by side
 (`place-max-tablet:`). The Shell draws it around the route's Panes, so a page places none: a page
-is the Panes in the place, and the frame reads nothing of what stands in them. The Panes is a flex
+is the Panes in the place, and the container reads nothing of what stands in them. The Panes is a flex
 row that draws no bar, and each Pane a flex column.
 
 - **Why a flex row.** A grid cannot size its last track without counting Panes, and `auto` tracks
@@ -138,14 +138,14 @@ row that draws no bar, and each Pane a flex column.
   the Panes leaves its focus guards (spans) after it. Each Pane marks itself `data-page`, which the
   Panes and the focus order name it by.
 - **Widths.** The Pane before the last holds the `list` width and gives way to its floor
-  (`region-min`); the last takes the rest, never under `list` where the Panes has room for both,
+  (`region-min`); the last takes the rest, never under `list` where the Panes has space for both,
   yielding to the one before's floor where it has not. A hairline parts them. Both widths count
   characters of the body font (`ch`), so they follow the `size` knob. A Pane drawn alone is the
   last and takes the whole row. Below `tablet` of the Panes's width only the last stands: the
   place's Pane beside a record's is `display: none`. Narrow widths and Expand are this one CSS
   mechanism, the Panes's. Each Pane is the `page` size container and keeps its own scroll.
 - **A main object.** A place's Pane that fills with wide content (a Canvas: `data-fill` holding
-  `data-wide`) is the place's main object, so it takes the spare room and the record beside it holds
+  `data-wide`) is the place's main object, so it takes the spare space and the record beside it holds
   `list` from `tablet`. Content decides it, as it decides a body's width ([Rows grid](#rows-grid)).
 - **Expand.** An expanded record's Pane (`data-expanded`, set by its Expand act) hides the Pane
   before it, the one `:has()` the structure rules name, and takes the whole Panes. Both stay
@@ -254,7 +254,7 @@ what stands in it decides its form by (a Table its grid).
 - A `read` that answers not found fills the page with the missing shape: no mark, the sentence in the
   meta ink (worded by `noun`, "Couldn't find this." without one) and the way back to the place's Pane
   as the hairline act with no plus, on the `error` state's class sets. The way back is the route a Pane's
-  back act returns to, handed down by the frame; with none it leads to `PlaceRoute`, and `false`
+  back act returns to, handed down by the container; with none it leads to `PlaceRoute`, and `false`
   says there is no way back at all. How the missing and failed shapes are worded and headed is in
   [reads](reads.md#missing-and-failed-shapes).
 - On the phone every Pane scrolls in a keyboard-aware scroll pane. The bar in flow at a Form's end is
@@ -274,19 +274,19 @@ what stands in it decides its form by (a Table its grid).
   messages stand a sections gap apart, one rung above Prose's block gap, with the input under them;
   on the desktop its composer stands in a measure-wide **column class set**, so a docked foot spans the
   body and the field keeps the column. A column class set is a width and nothing else: the region that
-  owns its frame's width centres it (a docked foot), and among sections it keeps the region's start,
+  owns its container's width centres it (a docked foot), and among sections it keeps the region's start,
   as a paragraph's measure does.
 - A `sheet` docks in the foot's place while it is open ([Sheet](#sheet)), the Pane measuring the
   foot's region for it.
 - A body with no foot ends where the toasts' layer stands over it, so while a toast stands
-  (`[data-toast]` in the web frame's `main`; a queued toast on the phone) the body's end takes the
+  (`[data-toast]` in the web container's `main`; a queued toast on the phone) the body's end takes the
   toasts' reach as well (`PAGE_BODY_UNDER_TOAST`): two lines of a toast and its gaps, the layer's
   inset above and below, so the page's last line, and the act that raised the toast, scroll clear
   of it.
 
-### Frame context
+### Container context
 
-The frame molecules hand each other a few values through context:
+The container molecules hand each other a few values through context:
 
 - the Panes's name and the Pane counts ([Panes](#panes));
 - the route a Pane's back act returns to ([Body](#body));
@@ -322,14 +322,14 @@ never in a sheet.
 - A docked sheet's body height is capped (`tokens.ts`), in px, from `region` (the foot's region: the
   log and the foot), `pinned` (what the foot pins besides the body: the dock's chrome, the sheet's
   head, foot line, submit and reason), `floor` (the body's floor) and `logFloor` (the log's, zero in a
-  region with no log). With room the cap is the body's share of the region, or the floor if larger;
-  short of room the body gives to the log's floor first, then to its own floor, then below it. The
+  region with no log). With space the cap is the body's share of the region, or the floor if larger;
+  short of space the body gives to the log's floor first, then to its own floor, then below it. The
   pinned parts never give.
 
 ## Section
 
 The **Section** is a titled part of a Pane's body: a heading row over a body that is either its
-`children` (parts) or its `items` (a sheet of rows). The title is the heading size, folded or not,
+`children` (parts) or its `items` (a row list). The title is the heading size, folded or not,
 and no Section stands in a Section.
 
 ### Head
@@ -357,9 +357,9 @@ Stats, a BarChart, or a `Card` around anything else; [Cards](#cards)). The Secti
 reads nothing of its children. The `empty` of its `read` stands in the body's place on a card of its
 own; a Section with no `read` takes no `empty`.
 
-### Sheet of rows
+### Row list
 
-- With `items` (constants or a selection) the body is the sheet of its rows on the card (`GROUP`),
+- With `items` (constants or a selection) the body is the row list on the card (`GROUP`),
   the card's hairline once between them. A row is a row item or a file ([Rows](#rows)).
 - The Section is a frame of its items: it paints while the read waits, and its failed, missing and
   empty shapes stand in the sheet's place ([reads](reads.md#frames)). The showcase's deploy changes
@@ -398,15 +398,15 @@ checked, never washed.
 
 - The **text group** (`ROW_TEXT`) is the title or label over its description or facts line, a
   column that grows and may be cut (`min-w-0`), giving way to the end group below its own content,
-  so its text wraps or truncates inside the room the end group leaves. Its title line and the meta
+  so its text wraps or truncates inside the space the end group leaves. Its title line and the meta
   line under it stand a `badge` apart. On the web it is one class list per form, `textGroup`, and no
   list holds a class another class in it overrides.
 - The **end group** (`ROW_END`) is what stands at the row's end, a line centred on the row, its parts
-  an inside apart, in one order: the trailing value (cut to the room the rest leave), a `switch`, a
+  an inside apart, in one order: the trailing value (cut to the space the rest leave), a `switch`, a
   `pick`, the `act` (an icon act, its label the accessible name and the tooltip; the row's other
   acts are its `more`), the copy act, the `more` act and a tree's fold. An age, a count and a control
   stand whole, a control taking the text group's floor. A row with nothing at its end draws no end
-  group, so nothing reserves room for one; the room that holds an alignment is a group's gap or
+  group, so nothing reserves space for one; the space that holds an alignment is a group's gap or
   padding, never an empty element ([roster](roster.md)).
 - The text group keeps at least two fifths of the row's content width, the Pane head's floor (a
   fraction, never a width), whatever else stands in the row (a leading, a more act). The end group
@@ -414,13 +414,13 @@ checked, never washed.
 
 ### Who gives way first
 
-Who gives way first when a line is out of room is a flex shrink weight, and the weights stand in one
+Who gives way first when a line is out of space is a flex shrink weight, and the weights stand in one
 order, first to last: the text that may be cut (`YIELDS_FIRST`, 10^7); the named local weights (a
 file row's count lanes 10^5 and its directory 10^4, a row end's state 100 before its age, a form
 label's 3); the default 1 (a name, a chip, a control's text); then what gives only when nothing else
 can (`YIELDS_LAST`, 0.0001, a non-wrapping badge line's badges before its last one). A weight is read
 off this scale, never a number written beside a class. A text group with no floor to keep gives way
-first, so the end group keeps its room; a group with a floor (`ROW_TEXT_FLOOR`) stands at it and gives
+first, so the end group keeps its space; a group with a floor (`ROW_TEXT_FLOOR`) stands at it and gives
 way at the default weight, since its end group is the one that truncates; a group whose words stay
 whole never shrinks.
 
@@ -445,22 +445,22 @@ whole never shrinks.
 - In the two-line form a title wraps before it is cut, to `ROW_TITLE_LINES` lines
   ([Overflow rules](#overflow-rules)). A title that wraps keeps its longest word whole in every form: its text
   group is as wide as its minimum content (`break-words` makes the word, not a letter, the minimum),
-  held to the row by `max-w-full`, and never shrinks; it grows into spare room. So the end group,
+  held to the row by `max-w-full`, and never shrinks; it grows into spare space. So the end group,
   which truncates, gives way first, and a word wider than the row breaks at the row's edge, never
   past it.
 - `wrap` reads a title whole: words wrap, a `{ code }` run in them wraps inside its box, and a
   `{ code, copy: true }` stands whole on as many lines as it needs, breaking anywhere (a fingerprint
   has no spaces). Without `wrap`, a one-word `{ code }` of more than eight characters too long for its
-  room cuts in its middle (`valueCut`).
+  space cuts in its middle (`valueCut`).
 - A definition value too long for its row is cut by `valueCut` in `list-state.ts`: the stem gives way
   from its end (an ellipsis after it) and the tail, its last `VALUE_TAIL` characters, never does, so
   the start and the end of a long identifier stay (`SHA256:uNiV…k3Qz`). Only a value of one word
   longer than twice the tail is cut: a value with a space is words (`No history yet`), which read from
   their start, and a shorter one has no middle to give. Both stay one stem, so no space ends a node
   and no word is split in two. Each platform draws the stem truncating to its own box, so the row
-  measures the room it gives; the two parts together are the whole value, which stays the accessible
+  measures the space it gives; the two parts together are the whole value, which stays the accessible
   text and the copy payload. Both platforms read the same cut.
-- A file row is one line: the path cut as text by the component to the room its chip leaves, each
+- A file row is one line: the path cut as text by the component to the space its chip leaves, each
   count in its own lane, the change mark in a lane before the glyph, at most one Chip between the path
   and the counts.
 - `title`, `facts`, `line`, a `switch`'s `checked` and a `pick`'s `options` and `value` are data: a
@@ -472,7 +472,7 @@ whole never shrinks.
 - A row's leading is a glyph, a status's mark (`{ tone }`: its dot, or the spinner while `running`;
   its `label`, when given, names the dot and is not drawn), a person's avatar, a tick that chooses the
   row, or a type's mark. An avatar, a glyph, a mark or a tick stands in one region at the avatar's size;
-  a status takes its own mark's room.
+  a status takes its own mark's space.
 - A `leading` of `check` is the row's tick, a checkbox named by the title; its `blocked` reason, the
   reason the row cannot be ticked, draws it disabled and leads the facts' words.
 - A `leading` of `mark` is a type's mark (`ROW_MARK`, one or two characters in the family's hue); its
@@ -514,7 +514,7 @@ whole never shrinks.
 ### States and other forms
 
 - A `selected` row is the open record, washed as a row at its `href` is. The open row carries the
-  current bar (`ROW_CURRENT_BAR`), drawn over its start with no room (a tree's child's at its rail,
+  current bar (`ROW_CURRENT_BAR`), drawn over its start with no space (a tree's child's at its rail,
   its washes with it), so every row's text and hairline stand at the sheet's inset as a band's do.
 - A row that opens (`href` or `onOpen`) draws no chevron: the wash and the pointer say it.
 - An `entry` (an Input at the bar fit and its labelled Button) stands under the title in the facts
@@ -608,7 +608,7 @@ A **card** is the surface inside a hairline edge at the card radius.
 
 - **Acts.** One overflow rule, on both platforms and in every place acts stand side by side (a Pane head,
   a list row, an action bar's count): the first act stands, at its icon where it is a head's or a
-  row's, and the rest fold into the more menu, in their order. What stands never depends on the room,
+  row's, and the rest fold into the more menu, in their order. What stands never depends on the space,
   so a head or a row reads the same at every width.
 - **A row's one-line form.** The narrowest a row can be for its one-line form (the web's
   `row-two-line:` container variant) is a rule of the row's width: the name and one meta at the

@@ -4,7 +4,7 @@ import { TOAST_MS, type Tone } from "@fcalell/ui-core/tokens";
 import { createContext, useSyncExternalStore } from "react";
 import type { Act } from "./act";
 
-// The toast queue: docs/architecture/plugins/native-ui.md, "Frame host".
+// The toast queue: docs/architecture/plugins/native-ui.md, "Container host".
 export interface ToastOptions {
 	tone?: Tone;
 	act?: Act | LinkAct;

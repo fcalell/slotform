@@ -39,7 +39,7 @@ reads its descriptors (a server) installs neither React nor Lucide.
 
 All of it is under `packages/ui-core/src/`.
 
-- `tokens.ts`: the sheet as data, `MOTION_KNOBS`, `MOVES` and the English `words`.
+- `tokens.ts`: the token values as data, `MOTION_KNOBS`, `MOVES` and the English `words`.
 - `derive.ts`: `deriveTheme`.
 - `variants.ts` and `variant-tables.ts`: the matrices and `MATRIX_GROUPS`.
 - `roster.ts`: `ROSTER`.
@@ -64,7 +64,7 @@ Each part's page covers its subpaths, the package README lists every subpath wit
 - `acts.ts` also holds `moreMenu` and `endedItems`: what a more menu holds, and the one blocked item it
   stands as once its read ended.
 - `list-state.ts` also holds `optionReads`, the reads a Section's pick rows draw their options from,
-  which its sheet says once.
+  which its row list says once.
 - `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's
   `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it
   once.
@@ -95,7 +95,7 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
   by `aria-labelledby`, a `Field` label or a native button, and the look grows with the document.
   react-ui's Switch and its checkbox tick render a native `<button>` (`nativeButton`), and a disabled
   one carries `disabled` and `data-disabled`, never `aria-disabled`.
-- The native toasts' layer stands over a box measured against the frame's root (`ToastSpace`,
+- The native toasts' layer stands over a box measured against the container's root (`ToastSpace`,
   `ToastContainer`) and follows a growing input a layout late.
 - An `Image`'s full view takes no pinch-zoom or pan.
 - A product cannot draw in the platform font: `fonts.sans` unset is IBM Plex Sans.

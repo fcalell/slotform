@@ -79,7 +79,7 @@ to fix, and a new term enters this page in the change that introduces it.
   invalidation. [plugin-api](architecture/plugins/api.md#entities)
 - **cache invalidation**: A read's answer refreshing on its own when a mutation that writes one of its
   entities succeeds. [plugin-api](architecture/plugins/api.md#cache-invalidation)
-- **scope**: A tenancy level a procedure runs inside, such as an organization or a project, whose id
+- **scope**: A tenancy tier a procedure runs inside, such as an organization or a project, whose id
   the procedure takes in its input. [plugin-api](architecture/plugins/api.md#scope)
 - **scope boundary**: The point in a route's layout that resolves the URL's slug to scope ids and
   registers them, so every call beneath carries them with no code on the screen.
@@ -106,8 +106,8 @@ to fix, and a new term enters this page in the change that introduces it.
   consumer. [runtime](architecture/runtime.md#background-handlers)
 - **push**: How local dev applies the schema: written straight into the local database, with no
   migration. [plugin-db](architecture/plugins/db.md#local-dev-push)
-- **deploy gate**: A check a deploy runs before it builds or migrates, which stops it on a placeholder
-  database id, an unmarked destructive migration or schema drift. [plugin-db](architecture/plugins/db.md#deploy-gates)
+- **deploy check**: A check a deploy runs before it builds or migrates, which stops it on a placeholder
+  database id, an unmarked destructive migration or schema drift. [plugin-db](architecture/plugins/db.md#deploy-checks)
 - **seed**: The data a consumer declares for its database, written idempotently.
   [plugin-db](architecture/plugins/db.md#seed)
 - **main listener**: The node server's listener for the app's own origins: it admits the Host of one
@@ -124,7 +124,7 @@ to fix, and a new term enters this page in the change that introduces it.
   [ui-core](architecture/ui-core.md#what-it-is)
 - **sharing line**: The rule that decides what ui-core holds and what each plugin holds: what both
   platforms can take is ui-core's. [ui-core](architecture/ui-core.md#the-sharing-line)
-- **overlay**: Classes a plugin composes over a shared cell for what differs by platform or by
+- **overlay**: Classes a plugin composes over a shared class set for what differs by platform or by
   interaction state: display, alignment, position, hover and focus.
   [ui-core](architecture/ui-core.md#the-sharing-line)
 - **token**: One named value of the contract (a colour, a size, a space, a radius) that a part draws by
@@ -156,23 +156,23 @@ to fix, and a new term enters this page in the change that introduces it.
   descriptors, no style props, icons by name. [roster](architecture/ui-core/roster.md#the-canon-and-the-closed-props)
 - **descriptor**: A composed region given as typed data (an act, a row, a status, a fact), which the
   component that owns it draws. [roster](architecture/ui-core/roster.md#descriptors)
-- **roster**: The list, as data, of every component both UI plugins ship, with the props, cells,
+- **roster**: The list, as data, of every component both UI plugins ship, with the props, class sets,
   tokens, moves and states of each. [roster](architecture/ui-core/roster.md#the-roster)
 - **roster entry**: One component's line in the roster. [roster](architecture/ui-core/roster.md#roster-entries)
-- **component**: A piece of the roster a consumer writes into a screen tree: a frame, a Section, a
+- **component**: A piece of the roster a consumer writes into a screen tree: a container, a Section, a
   Table, a Form, a control, a figure, a picture or a text. [a component is public when a consumer places it](decisions/public-roster.md)
 - **atom**: A component of the roster's `atom` layer, which other components draw by composing it.
   [roster](architecture/ui-core/roster.md#the-roster)
-- **molecule**: A component composed of atoms and descriptors that draws its own cells.
+- **molecule**: A component composed of atoms and descriptors that draws its own class sets.
   [roster](architecture/ui-core/roster.md#matrices)
 - **part**: A piece a component draws from its data (a row, a mark, an act, a field), with no roster
   entry and no public export of its own. [a component is public when a consumer places it](decisions/public-roster.md)
-- **matrix**: A component's table of cells by axis, held as data both platforms read.
+- **matrix**: A component's table of class sets by axis, held as data both platforms read.
   [roster](architecture/ui-core/roster.md#matrices)
 - **axis**: One dimension of a matrix, what a component is given (act, family, checked, error).
   [roster](architecture/ui-core/roster.md#matrices)
-- **cell**: One entry of a matrix, or a single named constant: the platform-invariant classes a part
-  draws. [roster](architecture/ui-core/roster.md#class-sets)
+- **class set**: One entry of a matrix, or a single named constant: the platform-invariant classes a part
+  draws. Avoid: cell, which is a Table's field. [roster](architecture/ui-core/roster.md#class-sets)
 - **variant**: A component's pick of one value per axis of its matrix.
   [roster](architecture/ui-core/roster.md#variants)
 - **tone**: The one vocabulary of state a status, a banner and a toast name.
@@ -199,7 +199,7 @@ to fix, and a new term enters this page in the change that introduces it.
   head's overline, a message's provenance. [plugin-react-ui](architecture/plugins/react-ui.md#text)
 - **move**: One motion a component may make, named in its roster entry.
   [motion](architecture/ui-core/motion.md#moves-and-move-class-sets)
-- **line**: A line of text that appears in flow (a blocked act's reason, a field's error, a notice): it
+- **flow line**: A line of text that appears in flow (a blocked act's reason, a field's error, a notice): it
   fades in and pushes what follows at once, and leaves at once.
   [motion](architecture/ui-core/motion.md#flow-lines-and-blocks)
 - **block**: A box a change adds to or removes from the flow (a fold, a chip, a sheet, a row): it lands
@@ -209,15 +209,15 @@ to fix, and a new term enters this page in the change that introduces it.
 
 ### Layout
 
-- **root frame**: The frame a page stands in whole: the `Shell` or the `Gate`. It hosts toasts and
-  confirmations. [layout](architecture/ui-core/layout.md#gate)
-- **Shell**: The root frame of an app's signed-in pages: the sidebar on the desktop, the tab bar on
+- **root container**: The layout container a page stands in whole: the `Shell` or the `Gate`. It hosts toasts and
+  confirmations. Avoid: frame, which is the part that draws a read. [layout](architecture/ui-core/layout.md#gate)
+- **Shell**: The root container of an app's signed-in pages: the sidebar on the desktop, the tab bar on
   touch, and a column that holds the current place. [layout](architecture/ui-core/layout.md#shell)
 - **place**: A destination the Shell lists: a route with its name, icon and group, on the sidebar and
-  the tab bar. [layout](architecture/ui-core/layout.md#paness)
+  the tab bar. [layout](architecture/ui-core/layout.md#places)
 - **branch**: A place with places under it, which opens and folds in the sidebar.
-  [layout](architecture/ui-core/layout.md#paness)
-- **Gate**: The root frame of a page outside the Shell (a sign-in, a consent step): one centred column
+  [layout](architecture/ui-core/layout.md#places)
+- **Gate**: The root container of a page outside the Shell (a sign-in, a consent step): one centred column
   holding the step. [layout](architecture/ui-core/layout.md#gate)
 - **Panes**: What the Shell's column holds: a row of at most two Panes, the place's own and a record's.
   [layout](architecture/ui-core/layout.md#panes)
@@ -232,11 +232,11 @@ to fix, and a new term enters this page in the change that introduces it.
   Shell's dock. [layout](architecture/ui-core/layout.md#foot)
 - **Sheet**: A layer that holds a task (a form, a decision, an acknowledgement); a record is read in
   its Pane, never in a Sheet. Avoid: modal, dialog. [layout](architecture/ui-core/layout.md#sheet)
-- **Section**: A titled part of a Pane's body: a heading over either its parts or a sheet of rows.
+- **Section**: A titled part of a Pane's body: a heading over either its parts or a row list.
   [layout](architecture/ui-core/layout.md#section)
-- **sheet of rows**: A Section's body when it is given rows: the rows on one card, a hairline between
-  them. [layout](architecture/ui-core/layout.md#sheet-of-rows)
-- **collection**: A component that takes rows as data and draws them: a Section's sheet, a `Table`, a
+- **row list**: A Section's body when it is given rows: the rows on one card, a hairline between
+  them. [layout](architecture/ui-core/layout.md#row-list)
+- **collection**: A component that takes rows as data and draws them: a Section's row list, a `Table`, a
   `Picker` as a list. [components](architecture/ui-core/components.md#collections-and-lists)
 - **comparison**: A `Table` whose cells hold a value per column: the leading column names the fact
   and a column follows for each compared thing. [components](architecture/ui-core/components.md#cells-and-columns)
@@ -275,13 +275,13 @@ to fix, and a new term enters this page in the change that introduces it.
   or `missing`. [reads](architecture/ui-core/reads.md#phases)
 - **hold**: A frame's claim on one read, the one whose busy mark and stale and paused line it draws;
   holds change no frame's shape. [reads](architecture/ui-core/reads.md#holding-a-read)
-- **painter**: A leaf that draws a read. [reads](architecture/ui-core/reads.md#placeholder-and-selectors)
+- **painter**: A leaf that draws a read. [reads](architecture/ui-core/reads.md#stand-in-and-selectors)
 - **holder**: A frame, or a leaf that draws a read's failure itself.
-  [reads](architecture/ui-core/reads.md#placeholder-and-selectors)
+  [reads](architecture/ui-core/reads.md#stand-in-and-selectors)
 - **ambient read**: A read no frame holds by design (the org rules), whose failure leaves what it gates
   painted and inert. [plugin-query](architecture/plugins/query.md#reads)
-- **placeholder**: The stand-in for data not yet there, shaped by nothing, that a selector runs over
-  while its read waits. [reads](architecture/ui-core/reads.md#placeholder-and-selectors)
+- **stand-in**: The value standing for data not yet there, shaped by nothing, that a selector runs over
+  while its read waits. Avoid: placeholder, which is an input's hint prop. [reads](architecture/ui-core/reads.md#stand-in-and-selectors)
 - **paint**: What a part draws while its data is not here; a part so drawn is painted.
   [reads](architecture/ui-core/reads.md#paint)
 - **paint shape**: One of the three ways a part paints: `glyphs`, `box` or `control`.
@@ -311,9 +311,9 @@ to fix, and a new term enters this page in the change that introduces it.
   its own. [acts](architecture/ui-core/acts.md#blocked-reasons)
 - **touched**: A Form or Sheet once a field inside it has taken input.
   [acts](architecture/ui-core/acts.md#touched)
-- **rejection**: A run that failed, drawn by the host that ran it unless its sentences already stand
+- **rejection**: An attempt that failed, drawn by the host that ran it unless its sentences already stand
   where they belong. [acts](architecture/ui-core/acts.md#rejections)
-- **decision queue**: The queue of confirmations a root frame draws one at a time as a Sheet.
+- **decision queue**: The queue of confirmations a root container draws one at a time as a Sheet.
   [acts](architecture/ui-core/acts.md#confirm)
 - **save**: A control keeping its new value through a promise until the value's reads refresh, and
   falling back to the datum when it fails. [acts](architecture/ui-core/acts.md#control-saves)
@@ -336,8 +336,8 @@ to fix, and a new term enters this page in the change that introduces it.
 
 ## Screens and checks
 
-- **gate**: `pnpm check`, the repo's per-change check: type-check, tests and Biome, writing nothing.
-  A change is complete only once it passes. [conventions](architecture/conventions.md#build-and-exports)
+- **check**: `pnpm check`, the repo's per-change check: type-check, tests and Biome, writing nothing.
+  A change is complete only once it passes. Avoid: gate. [conventions](architecture/conventions.md#build-and-exports)
 - **showcase**: The private consumer in `apps/showcase` that shows the web components, holds the roster
   scenes and is the first user of the screens workbench. [showcase](architecture/ui-core/showcase.md#the-app)
 - **roster scene**: The showcase's drawing of one roster component in one class set and state, which
@@ -352,7 +352,7 @@ to fix, and a new term enters this page in the change that introduces it.
   search a screen is drawn at. [plugin-screens](architecture/plugins/screens.md#how-a-screen-is-served)
 - **state**: One of the forms the workbench forces a screen's reads into: data, loading, error, not
   found or empty. [plugin-screens](architecture/plugins/screens.md#states)
-- **frame route**: A route the api and auth plugins serve for the app's frame (the scope lookup, the
+- **container route**: A route the api and auth plugins serve for the app's container (the scope lookup, the
   caller's rules), which answers from its fixture in every state.
   [plugin-screens](architecture/plugins/screens.md#what-a-state-applies-to)
 - **session read**: The read of the signed-in session, which answers data in every state, since the
@@ -360,7 +360,7 @@ to fix, and a new term enters this page in the change that introduces it.
 - **test run**: `stack screens test`, which opens each screen in every state and fails it on an axe
   violation, an overflow, a render walk finding or a console error. Avoid: screen run.
   [plugin-screens](architecture/plugins/screens.md#test-run)
-- **checks**: The test run's checks at each width (320, 1280, 1920): overflow and the render walk.
+- **screen checks**: The test run's checks at each width (320, 1280, 1920): overflow and the render walk.
   [showcase](architecture/ui-core/showcase.md#enforcement)
 - **render walk**: One pass over a drawn page that checks what it draws against the contract's own
   values. [plugin-screens](architecture/plugins/screens.md#render-walk)

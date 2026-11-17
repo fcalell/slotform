@@ -71,7 +71,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
 - [plugin-api](architecture/plugins/api.md): the worker, procedures, wire contract, CORS, env.
 - [plugin-auth](architecture/plugins/auth.md): Better Auth options, runtime, clients, sessions, access.
 - [plugin-query](architecture/plugins/query.md): the TanStack Query binding, abilities, acts, reads.
-- [plugin-db](architecture/plugins/db.md): Drizzle over D1 or SQLite, push, gates, seed, full-text indexes.
+- [plugin-db](architecture/plugins/db.md): Drizzle over D1 or SQLite, push, deploy checks, seed, full-text indexes.
 - [plugin-cloudflare](architecture/plugins/cloudflare.md): the Workers target and its wrangler config.
 - [plugin-node](architecture/plugins/node.md): the Node server target, services, WebSockets, the bundle.
 - [plugin-vite](architecture/plugins/vite.md): the Vite lifecycle, dev server, CSP.

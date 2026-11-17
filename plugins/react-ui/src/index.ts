@@ -167,7 +167,7 @@ export const reactUi = plugin("react-ui", {
 				"Importing a web component, or setting the theme, words or fonts, or reasoning about density, dark mode or the page container",
 		},
 		{
-			page: "frames",
+			page: "containers",
 			trigger:
 				"Giving a `Shell`, `Pane`, `Gate`, `Sheet`, `Columns` or `Card` a prop",
 		},

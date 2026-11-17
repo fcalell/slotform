@@ -134,8 +134,8 @@ CASL `MongoAbility`. The org rules arrive as CASL's packed-rules arrays, opaque 
   and a fresh `MongoAbility` class instance never `===` the last one, which would defeat structural
   sharing; identical array references always produce the identical ability.
 - **Cache.** Only the plain packed-rules array is cached. The composed ability is a class instance,
-  so it is never selected out of a query cache. Over the placeholder the composed ability stays the
-  placeholder, so an act gated on it (`ability.at(a => a.can(...) ? act : { ...act, blocked })`)
+  so it is never selected out of a query cache. Over the stand-in the composed ability stays the
+  stand-in, so an act gated on it (`ability.at(a => a.can(...) ? act : { ...act, blocked })`)
   paints inert while the rules load and is never blocked.
 
 ## In the code

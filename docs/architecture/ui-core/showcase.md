@@ -112,7 +112,7 @@ component's drawer and written only when its text changes, so an unchanged modul
 re-indexed nor re-run. The roster is read in a child process (`roster-list.ts`), since Node caches ES
 modules, and `rosterPlugin` rewrites the generated modules when the roster, its class sets or a drawer
 change, so a roster edit reaches the sidebar without a restart. `pnpm generate` runs `roster.ts`, so
-the gate type-checks the stories the roster names.
+the check type-checks the stories the roster names.
 
 ### Storybook config
 

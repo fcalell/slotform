@@ -182,10 +182,10 @@ A path change lands at once: the router runs no transition, and a Pane that open
 its place from the first frame. On the phone a change of place fades the place's root in on `fast`:
 places are peers, so nothing slides; a pushed screen is the stack's own animation.
 
-As the viewer docks or folds the sidebar, the page takes its room at once and slides from where
-it stood (`data-slide` on the frame: `dock` from the strip's end, `fold` from the body's), its end
+As the viewer docks or folds the sidebar, the page takes its space at once and slides from where
+it stood (`data-slide` on the container: `dock` from the strip's end, `fold` from the body's), its end
 moving with the body's end, on the body's `base` `out` (`page-slide`). Each part of the page carries
-it (the banner, the place, the foot), since the frame, the column and `main` hold no transform.
+it (the banner, the place, the foot), since the container, the column and `main` hold no transform.
 
 A message that arrives at the end of a log after the first draw (the viewer's own or another's)
 rises a `pair` as it fades in on `base` `out`, and pushes nothing but the end of the log, which

@@ -3,7 +3,7 @@
 A collection takes its rows as data: `items` is a `Datum<readonly Row[]>`, each `Row` the
 descriptor its drawer takes (`RowItem`, `FileItem`), built by the consumer from its records
 (`read.at((rows) => rows.map(toRow))`). `Section` is the one collection: with `items` it draws the
-sheet of rows (titled when it has a `title`, bare when not), with `children` it frames parts. The
+row list (titled when it has a `title`, bare when not), with `children` it frames parts. The
 row types live once, in ui-core, and both platforms draw them; a row is never a public component.
 
 A fact and a thing are one `RowItem`: a row draws whichever slots it fills on one box. A `label`

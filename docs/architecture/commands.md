@@ -19,9 +19,9 @@ for an app, and its flags, is the consumer guide page
 | `stack <plugin> <command>` | Plugin subcommand (`stack db push`) |
 | `stack plugin init <name>` | Scaffold a third-party plugin skeleton |
 
-## Command procedures
+## Command steps
 
-| Command | Roots resolved, in procedure order |
+| Command | Roots resolved, in step order |
 |---------|------------------------------------|
 | `stack init`, `stack add` | write the plugins' packages and `pnpm-workspace.yaml` → `pnpm install` (again until every `requires` is installed) → `cliSlots.initPrompts` → render `stack.config.ts` → `cliSlots.initScaffolds`, `initDeps`, `initDevDeps`, `gitignore` → `pnpm install` → `generate` |
 | `stack generate` | `cliSlots.artifactFiles` → write each `{ path, content }` → resolve `cliSlots.postWrite` → await each |

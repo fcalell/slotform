@@ -12,7 +12,7 @@ import { PortalContainer } from "../../lib/portal.ts";
 const GHOST = "absolute top-0 left-0 pointer-events-none";
 const LINE = "absolute -translate-y-1/2 pointer-events-none";
 
-/** The label that follows a drag's pointer and the line a reordered row lands at. Mounted by the frame host; draws nothing while no drag stands. Outside the package's exports. */
+/** The label that follows a drag's pointer and the line a reordered row lands at. Mounted by the container host; draws nothing while no drag stands. Outside the package's exports. */
 export function DragLayer() {
 	const drag = useDrag();
 	const container = use(PortalContainer);

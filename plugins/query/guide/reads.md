@@ -6,9 +6,9 @@ the output typed, and how its failure reads as not found. For a query of your ow
 `missing` tells the error that reads as not found (default `isNotFound`) and `kind` is `"query"`,
 `"pages"` or `"stream"` ([pages and streams](./pages-and-streams.md)). A read is its own selection;
 `read.at(fn)` selects from it, and `combine([a, b], fn)` (`@fcalell/ui-core/read`) selects from several. A selector runs
-over a placeholder while its reads wait, are idle or have failed with no data, so write it plainly
+over a stand-in while its reads wait, are idle or have failed with no data, so write it plainly
 (`d.steps.length`, `d.name`); one that throws there paints its slot, silently, and one that
-throws over real data is yours. Every key of the placeholder is the placeholder, so a walk that
+throws over real data is yours. Every key of the stand-in is the stand-in, so a walk that
 follows a key while there is one (`while (n.parent) n = n.parent`) has no end over it: a run is
 given 10,000 reads of it and throws past that, which paints the slot as any throw does. Bound a
 walk by the data (a visited set, a depth), or stop it on `isStandIn(n)`
@@ -27,7 +27,7 @@ const summary = combine([deploy, orpc.usage.read()], (d, u) => `${d.commit}: ${u
 A component takes a `Datum<T>`, a constant or a selection, and draws a selection it cannot answer
 yet as its painted shape, and only while the read waits: a text or mark leaf whose read ended draws its
 loaded-empty shape (no line, nothing), and the frame that holds the read says why. Your own code never
-sees the placeholder:
+sees the stand-in:
 
 - `useRead(selection)` (`@fcalell/plugin-query/tanstack-query`) is the value, or `undefined` while the read waits, is idle or failed.
 - `lift(value, keys)` (`@fcalell/ui-core/read`) makes a constant whose `keys` props hold selections one selection of the
@@ -38,7 +38,7 @@ sees the placeholder:
   identity. `Fielded<T, K>` types such a prop: `T`, a selection of it, or `T` with `K` props that
   may be selections.
 - `useSelections([a, "fixed"] as const)` (`@fcalell/ui-core/react/read`, like `useFrameRead`) is
-  what a component builds on: one subscription for any count of values, each a `Drawn` (`{ painted, value }`; a painted `value` is the placeholder, so it
+  what a component builds on: one subscription for any count of values, each a `Drawn` (`{ painted, value }`; a painted `value` is the stand-in, so it
   is `unknown`). In dev it registers its reads as painted.
 - `useFrameRead(read, derive)` is what a frame (Pane, Section, Sheet, Form) builds on: one
   subscription whose `derive(held)` runs in `combine`, so the frame renders when its derived state
@@ -50,7 +50,7 @@ sees the placeholder:
 - `useDraft(datum, failed?)` is a field's value: it follows its selection until the viewer edits it,
   then holds the edit; a selection over another read drops the edit. A constant passes through
   unchanged: the app owns it, and a value it changes shows. `ended` is `"failed"` or `"missing"` while the value's own read has ended (`painted` is then still
-  true, its value the placeholder): a control stands with no value and refuses its changes. Saving a change is on
+  true, its value the stand-in): a control stands with no value and refuses its changes. Saving a change is on
   [acts and saves](./acts.md).
 
 ## What a frame draws

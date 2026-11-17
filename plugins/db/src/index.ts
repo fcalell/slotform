@@ -305,7 +305,7 @@ export const db = plugin("db", {
 			handler: async (ctx) => {
 				const problems: string[] = [];
 
-				// Drift gate — schema edited without `stack db generate`.
+				// Drift check — schema edited without `stack db generate`.
 				if (detectSchemaDrift(ctx.cwd, ctx.options)) {
 					ctx.log.error(
 						"Schema drift: `src/schema` has changes with no migration. Run `stack db generate`.",
@@ -315,7 +315,7 @@ export const db = plugin("db", {
 					ctx.log.success("No schema drift.");
 				}
 
-				// Destructive gate — newest migration drops a table/column/view.
+				// Destructive check — newest migration drops a table/column/view.
 				const drops = detectLatestDrops(ctx.cwd, ctx.options);
 				if (drops && hasDrops(drops.report) && !drops.acknowledged) {
 					ctx.log.error(formatDropReport(drops.migration, drops.report));
@@ -632,14 +632,14 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// The database ID guard: docs/architecture/plugins/db.md, "Deploy gates".
+			// The database ID guard: docs/architecture/plugins/db.md, "Deploy checks".
 			cliSlots.deployChecks.contribute(() => {
 				if (self.options.dialect !== "d1") return undefined;
 				assertDeployableDatabaseId(self.options.databaseId);
 				return undefined;
 			}),
 
-			// The destructive-migration gate: docs/architecture/plugins/db.md, "Deploy gates".
+			// The destructive-migration check: docs/architecture/plugins/db.md, "Deploy checks".
 			cliSlots.deployChecks.contribute((ctx) => {
 				if (self.options.dialect !== "d1") return undefined;
 				assertNoUnacknowledgedDrops(ctx.cwd, self.options);
@@ -664,7 +664,7 @@ export const db = plugin("db", {
 				return undefined;
 			}),
 
-			// The drift gate: docs/architecture/plugins/db.md, "Deploy gates".
+			// The drift check: docs/architecture/plugins/db.md, "Deploy checks".
 			cliSlots.deployChecks.contribute((ctx) => {
 				if (self.options.dialect !== "d1") return undefined;
 				if (detectSchemaDrift(ctx.cwd, self.options)) {

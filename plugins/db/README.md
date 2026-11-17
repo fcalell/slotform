@@ -2,7 +2,7 @@
 
 Database plugin for the `@fcalell/stack` framework. Wraps Drizzle ORM over Cloudflare D1 or a
 SQLite file: the worker's `db` client, the `stack db` commands, the local dev push, the deploy's
-migration gates and steps.
+migration checks and steps.
 
 How it is built: [docs/architecture/plugins/db.md](../../docs/architecture/plugins/db.md).
 

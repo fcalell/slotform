@@ -35,7 +35,7 @@ export default defineConfig({
 How to build on the plugin lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
 [`rules.md`](./guide/rules.md), what every web `.tsx` follows;
 [`reference.md`](./guide/reference.md), the components' subpaths, the options, density, the page
-container and the modes; [`frames.md`](./guide/frames.md), [`controls.md`](./guide/controls.md),
+container and the modes; [`containers.md`](./guide/containers.md), [`controls.md`](./guide/controls.md),
 [`content.md`](./guide/content.md) and [`blocks.md`](./guide/blocks.md), what each component takes;
 [`canvas.md`](./guide/canvas.md), a graph of nodes and edges; and [`audio.md`](./guide/audio.md),
 the player. The screen recipe and the design standard are ui-core's pages.

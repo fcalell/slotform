@@ -76,7 +76,7 @@ rows and the drops that take part read it through `useSyncExternalStore`. A drag
    holds it.
 4. Held over a folded branch for `DROP_HOLD` it opens the branch (`data-hold`).
 
-The Shell's frame host draws the label that follows the pointer and the line (`DragLayer`); a drop
+The Shell's container host draws the label that follows the pointer and the line (`DragLayer`); a drop
 under the drag takes `DROP_ON`.
 
 The pure parts are `@fcalell/ui-core/drag`, free of any framework and tested without a DOM: when a

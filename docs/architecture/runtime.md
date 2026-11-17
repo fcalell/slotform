@@ -121,7 +121,7 @@ type-only; `envChecks` stays the runtime guard.
 
 Plugin-db adds `db`; plugin-auth's runtime adds `auth`, `tenancy` and `_rateLimiter` (and `oauth`
 with `mcp`), and its auth middleware `user` and `session`; the MCP endpoint adds `_caller`. A scoped
-procedure then writes each resolved level's row under its scope's name, `organization` and `member`
+procedure then writes each resolved tier's row under its scope's name, `organization` and `member`
 at the root. The raw request is `httpRequest`, not `request`, because a consumer's scope takes its
 table's name and `request` is a common one. `defineScope` refuses every one of these keys as a scope
 name, since the row would overwrite it; its list checks plugin-api's `BaseContext` keys by type, so

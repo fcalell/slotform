@@ -87,7 +87,7 @@ auth and worker CORS allow-list picks up the dev server without consumer config
 The generated `.stack/vite.config.ts` is the one source of the dev port: a `--port` on the dev
 process would let the CLI flag shadow the codegen value. The dev process passes `defaultPort` for the
 supervisor to introspect (logging, the `EADDRINUSE` classification fallback) and an `onExit` hook
-that prints a next step on a port collision ([Command procedures](../commands.md#command-procedures)).
+that prints a next step on a port collision ([Command steps](../commands.md#command-steps)).
 
 ## Dev server proxy, file access and watching
 

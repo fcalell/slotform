@@ -15,7 +15,7 @@ git switch master && git pull --ff-only          # a clean tree on master: publi
 pnpm install --frozen-lockfile
 pnpm version-packages                            # only after a first release; commit the bump
 pnpm turbo run build                             # JavaScript and .d.ts into every dist/: the one build
-pnpm check                                       # the gate
+pnpm check                                       # the check
 pnpm release:check                               # tarballs, three consumers, the dry run
 pnpm -r publish --dry-run                        # the dry run alone, with the git checks on
 pnpm release                                     # the build again (cached), then pnpm -r publish --access public

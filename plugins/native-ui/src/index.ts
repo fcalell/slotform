@@ -293,7 +293,7 @@ export const nativeUi = plugin("native-ui", {
 				"Importing a phone component, or setting the theme, words or fonts, or the scaffolded query client, or what a client of another app's server needs (`api({ server })`)",
 		},
 		{
-			page: "frames",
+			page: "containers",
 			trigger:
 				"Giving a `Shell`, `Pane`, `Gate`, `Sheet`, `Columns` or `Card` a prop",
 		},

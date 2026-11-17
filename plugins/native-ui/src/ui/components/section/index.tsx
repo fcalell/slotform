@@ -127,7 +127,7 @@ type Sheet<V extends string | null> = SectionHeadProps & {
 	empty?: Empty;
 };
 
-/** A titled stretch of a page over its rows, or its parts. With `items` it draws the sheet of rows (a row item or a file row each); with `children` it frames parts, and `empty` belongs to the `read` it answers for, so one given without the other does not type-check; a parts Section with a `description` takes an `empty` of its `act` alone, since its frame never draws a sentence, and a described sheet draws the sentence it is given, never the generic one. */
+/** A titled stretch of a page over its rows, or its parts. With `items` it draws the row list (a row item or a file row each); with `children` it frames parts, and `empty` belongs to the `read` it answers for, so one given without the other does not type-check; a parts Section with a `description` takes an `empty` of its `act` alone, since its frame never draws a sentence, and a described sheet draws the sentence it is given, never the generic one. */
 export type SectionProps<V extends string | null = string> = Parts | Sheet<V>;
 
 // A heading with its count, description and act over its body: docs/architecture/ui-core/layout.md, "Section".

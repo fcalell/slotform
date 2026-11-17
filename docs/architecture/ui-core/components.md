@@ -136,7 +136,7 @@ The parts the phone's Table leaves out are in [ui-core's limits](../ui-core.md#l
 array `value`, with two overloads typing each handler by its value. Outside a form it applies at
 once. Its fits:
 
-- **`field`**, the default, a field box, or **`bar`**, where the box fills its column: opens a popover of rows (a sheet of rows
+- **`field`**, the default, a field box, or **`bar`**, where the box fills its column: opens a popover of rows (a row list
   on touch), with a search field when there are more than `SEARCH_PAST` (6) options. An option may
   lead with its avatar, and one act (the act that creates an option) ends the list under a hairline.
 - **`row`**, a row's trailing: its value and a chevron in a `WORD_ACT`. A value that carries a state

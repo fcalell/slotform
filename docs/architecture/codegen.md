@@ -4,7 +4,7 @@ How the CLI and the plugins turn resolved slots into files: the AST and its prin
 boundaries every interpolated value crosses (HTML and CSS), the import merge, path containment, and
 the rules `stack generate` applies when it writes an artifact. Which slot renders which file is in
 [consumer project](./consumer-project.md#project-structure); the order `generate` runs in is in
-[commands](./commands.md#command-procedures).
+[commands](./commands.md#command-steps).
 
 ## The AST and its printers
 

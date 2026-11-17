@@ -337,7 +337,7 @@ dependency runs from auth to api.
 
 ## Scope
 
-A tenancy level, as the procedure factory sees it, is a structural descriptor: plugin-auth's scope
+A tenancy tier, as the procedure factory sees it, is a structural descriptor: plugin-auth's scope
 descriptors (`defineScope`, the root `organization`) satisfy it, and plugin-api never imports
 plugin-auth, so the descriptor and its resolver (`TenancyContext`) are both structural. The factory
 reads only the scope's `name`: the input key is `${name}Id`, and the phantom `__context` is what

@@ -48,7 +48,7 @@ export function asORPCError(error: unknown): ORPCError<string, unknown> | null {
 	});
 }
 
-// Frame routes: docs/architecture/plugins/screens.md, "What a state applies to".
+// Container routes: docs/architecture/plugins/screens.md, "What a state applies to".
 function isContainerRoute(path: readonly string[]): boolean {
 	const under = (route: readonly string[]) =>
 		route.every((key, at) => path[at] === key);

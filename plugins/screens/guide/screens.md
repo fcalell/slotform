@@ -46,7 +46,7 @@ Draw each state in the screen itself (the screen recipe,
 A forced state applies to every query the route makes, a direct client call in a custom `read`
 (`api.usage.plan(input)`) included: a query is told from a mutation by the procedure's kind in the
 generated schema, not by the HTTP method. The exceptions are the session read (`auth.session`: the
-frame's precondition, not the screen's read) and the frame's scope and org-rules reads, which
+container's precondition, not the screen's read) and the container's scope and org-rules reads, which
 answer data in every state whoever supplies the fixture, the app's own session answer included. A
 mutation and a plugin-owned procedure always answer from their fixture, whatever the state; the
 app's own fixture for any other procedure a plugin owns overrides the plugin's and follows the
@@ -147,7 +147,7 @@ export default defineFixtures<
 ## Routes
 
 A route renders as it does in the app, so a parent route (a layout, `route.tsx`) draws its
-children through `<Outlet />`; without it a screen under the parent shows an empty frame.
+children through `<Outlet />`; without it a screen under the parent shows an empty container.
 
 ## The test run
 
@@ -173,7 +173,7 @@ A part that lays itself out after its first paint (the Canvas measures, runs its
 
 A Section stands whatever its data holds, so the page must not jump when the data arrives. In a
 Loading story the run measures each Section at each width while the calls are held (and the reads
-it does not hold, a mutation or a frame route, have landed and drawn: no query fetching beyond the
+it does not hold, a mutation or a container route, have landed and drawn: no query fetching beyond the
 held ones, for a few frames running, then the size settled), answers them,
 waits until no query is fetching and nothing is `aria-busy` (a button's own busy excepted) and the page has settled, and
 measures again. Per Pane, each Section is judged against the Sections above it in its column (those whose horizontal extent overlaps its own and whose top is above its top), never against a Section beside it, so a two-column layout's columns are judged apart. It reports:
@@ -287,7 +287,7 @@ and width. Flags narrow it on each axis and combine freely; the run prints what 
 A change under the `src/` of a workspace package the app links, outside the directories its source
 exports serve, reruns every screen: it reaches no screen's module graph.
 
-**The narrowed run is the gate.** Choose the narrowest run the diff allows:
+**The narrowed run is the check.** Choose the narrowest run the diff allows:
 
 | The diff | Run |
 | --- | --- |
@@ -298,7 +298,7 @@ exports serve, reruns every screen: it reaches no screen's module graph.
 | A colour, an ink or a surface; no token, theme or layout change | `--mode light` (or the app's default mode) |
 | Something behind one width variant (`touch:`, `page-tablet:`, a breakpoint) | that width: `--width 320` for `touch:`, `--width 1280,1920` for a `desktop:` or `wide:` |
 | A new screen | all its states, the default look: `--screen <it> --mode dark --width 320,1920` |
-| ui-core's tokens or theme, the app's CSS, a frame component (Shell, Panes, Pane, Section) or a dependency bump | the screens you are working on, `--screen a,b`; never every screen as a gate |
+| ui-core's tokens or theme, the app's CSS, a layout component (Shell, Panes, Pane, Section) or a dependency bump | the screens you are working on, `--screen a,b`; never every screen as a gate |
 
 Combine the rows: a loading change on one screen's touch tree is
 `stack screens test --screen deploys --state loading --width 320 --mode light`.
@@ -385,7 +385,7 @@ source: the app's real server, on a scratch database, with data a seed made thro
 
 | Source | Use it for |
 | --- | --- |
-| Fixtures (`src/app/fixtures.ts`: `dev`, `test`) | The gate and the five states: every route in loading, error, empty, not found and data, each judged with nothing running |
+| Fixtures (`src/app/fixtures.ts`: `dev`, `test`) | The check and the five states: every route in loading, error, empty, not found and data, each judged with nothing running |
 | The seeded server (`serve`, then `shoot --url`, `drive --url`) | What the server makes of a state (a list the real query sorted, a count it computed, a row it refused) and acts (a mutation that writes and the screen that reads it back) |
 
 ```bash

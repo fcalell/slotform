@@ -137,7 +137,7 @@ type Sheet<V extends string | null, Q> = SectionHeadProps & {
 	empty?: Empty;
 };
 
-/** A titled stretch of a page over its rows, or its parts. With `items` it draws the sheet of rows (a list row, a definition or a file row each); with `children` it frames parts, and `empty` belongs to the `read` it answers for, so one given without the other does not type-check; a parts Section with a `description` takes an `empty` of its `act` alone, since its frame never draws a sentence, and a described sheet draws the sentence it is given, never the generic one. */
+/** A titled stretch of a page over its rows, or its parts. With `items` it draws the row list (a list row, a definition or a file row each); with `children` it frames parts, and `empty` belongs to the `read` it answers for, so one given without the other does not type-check; a parts Section with a `description` takes an `empty` of its `act` alone, since its frame never draws a sentence, and a described sheet draws the sentence it is given, never the generic one. */
 export type SectionProps<V extends string | null = string, Q = unknown> =
 	| Parts
 	| Sheet<V, Q>;

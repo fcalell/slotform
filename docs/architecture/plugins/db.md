@@ -2,7 +2,7 @@
 
 `@fcalell/plugin-db` wraps Drizzle ORM over Cloudflare D1 or a SQLite file. This page holds what the
 plugin owns and contributes, its two runtimes, how its declarations keep one copy of drizzle, the
-local dev push, the `drizzle-kit` driver and its traps, the migration lock, the deploy gates, the
+local dev push, the `drizzle-kit` driver and its traps, the migration lock, the deploy checks, the
 full-text indexes and the seed. How a consumer writes a schema, a seed or a migration is the
 plugin's guide (`plugins/db/guide/`).
 
@@ -26,11 +26,11 @@ Built with `plugin` from `@fcalell/cli`; `requires: ["api"]`. It owns one slot, 
 
 | `cliSlots` slot | Behaviour |
 | --- | --- |
-| `initPrompts` | Asks for the dialect, then the D1 database ID (default the placeholder, [Deploy gates](#deploy-gates)) or the SQLite path (default `./data/app.sqlite`) |
+| `initPrompts` | Asks for the dialect, then the D1 database ID (default the placeholder, [Deploy checks](#deploy-checks)) or the SQLite path (default `./data/app.sqlite`) |
 | `initScaffolds` | Writes `src/schema/index.ts` from `templates/schema.ts`, with an `export *` of each `schemaModules` entry |
 | `devReadySetup` | Pushes the schema into the local database ([Local dev push](#local-dev-push)), then seeds |
 | `devWatchers` | Re-push on `src/schema/**` (both dialects); re-seed on `src/schema/seed.ts` (300 ms debounce) |
-| `deployChecks` | d1: a real `databaseId`, the destructive-migration gate, the full-text trigger check, a migration that fails on an empty database, the drift gate, the committed-migrations confirm, and, when `seed.ts` exists, the seeded tables with what the remote seed does to rows outside them |
+| `deployChecks` | d1: a real `databaseId`, the destructive-migration check, the full-text trigger check, a migration that fails on an empty database, the drift check, the committed-migrations confirm, and, when `seed.ts` exists, the seeded tables with what the remote seed does to rows outside them |
 | `deploySteps` | d1: `applyMigrationsRemote`, then the seed when `seed.ts` exists, both phase `pre` |
 | `removeFiles` | `src/schema/`, `src/migrations/` |
 | `lintIgnore` | The migrations `drizzle-kit` writes (snapshots, journal), so Biome skips them |
@@ -200,7 +200,7 @@ The lock file is deleted on release, and an exit handler (also on `SIGINT` and `
 the ones this PID holds. The lock lives in `plugins/db/src/node/` because it is plugin-internal:
 `@fcalell/cli` stays domain-agnostic.
 
-## Deploy gates
+## Deploy checks
 
 The d1 dialect's `deployChecks` run during deploy planning, before the build or any migration
 touches the cloud. The consumer's view of them is the guide's
@@ -211,16 +211,16 @@ touches the cloud. The consumer's view of them is the guide's
   consumer has no D1 database yet; one constant serves the prompt and the guard. A deploy whose
   `databaseId` is that placeholder, or is not a UUID, would push migrations against a database that
   does not exist and fail opaquely inside wrangler, so the guard throws an actionable error first.
-- **Destructive migration.** The gate diffs the newest migration's drizzle meta snapshot against its
+- **Destructive migration.** The check diffs the newest migration's drizzle meta snapshot against its
   predecessor; older migrations are shipped history and never flagged again. A newest migration that
   drops a table, column or view without the marker aborts the deploy before any remote migration
   runs, because a drop breaks the live worker mid-rollout (old code still reads the dropped shape).
-  `stack db check` and the deploy run the same gate, which throws the expand/contract explainer.
-- **Drift.** The gate copies the committed migrations into a throwaway, gitignored directory under
+  `stack db check` and the deploy run the same check, which throws the expand/contract explainer.
+- **Drift.** The check copies the committed migrations into a throwaway, gitignored directory under
   `.db-kit` and runs `drizzle-kit generate` with `--out` there against the live schema. A newly
   emitted `.sql` means the schema changed without `stack db generate`, and the deploy aborts before
   any step. The real migrations directory is never touched. Deploy never generates migrations: only
-  committed SQL applies, so the destructive gate evaluates only committed files.
+  committed SQL applies, so the destructive check evaluates only committed files.
 
 ### The marker
 
@@ -275,7 +275,7 @@ The consumer's half (what a seed holds, `prune`) is the guide's
   `wrangler dev` reads, remotely into the deployed database. sqlite executes against the file. A
   local seed always prunes; a remote one prunes only when the seed file exports `prune = true`.
 - **Dev.** The seed runs at Ready, after the schema push (`readySetup` tasks run in contribution
-  order, [command procedures](../commands.md#command-procedures)), and again on each save of
+  order, [command steps](../commands.md#command-steps)), and again on each save of
   `src/schema/seed.ts`. Without that file it does nothing.
 - **Deploy.** The seed step runs after the migrations, in the same `pre` phase and later in
   contribution order, and only when the consumer authored a seed. It is idempotent, so running it on
@@ -300,7 +300,7 @@ The consumer's half (what a seed holds, `prune`) is the guide's
 - `plugins/db/src/node/fts.ts`: reading, pushing and checking full-text indexes.
 - `plugins/db/src/node/entities.ts`: the entity vocabulary extraction.
 - `plugins/db/src/node/lock.ts`: the migration lock.
-- `plugins/db/src/node/migration-safety.ts`: the destructive gate, the drift gate, the marker.
+- `plugins/db/src/node/migration-safety.ts`: the destructive check, the drift check, the marker.
 - `plugins/db/src/node/d1.ts`: the placeholder database ID and its deploy guard.
 - `plugins/db/src/node/seed.ts`: the seed SQL and where it applies.
 - `plugins/auth/src/schema/devices.ts`: a plugin schema naming drizzle types through plugin-db.

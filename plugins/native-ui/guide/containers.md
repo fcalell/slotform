@@ -1,10 +1,10 @@
-# Frames
+# Containers
 
-A frame holds the rest of a screen: the `Shell` around the app, the `Pane` that is a screen of the router's stack, the `Gate` outside the shell, the `Sheet` over a page, the `Columns` and `Card` that arrange its sections. This page is what each takes; which frame a screen needs is `rules.md`.
+A container holds the rest of a screen: the `Shell` around the app, the `Pane` that is a screen of the router's stack, the `Gate` outside the shell, the `Sheet` over a page, the `Columns` and `Card` that arrange its sections. This page is what each takes; which container a screen needs is `rules.md`.
 
 ## Shell
 
-The frame of the app: the tab bar over the home indicator, the app's `foot`, the toasts and the `confirm()` sheets.
+The container of the app: the tab bar over the home indicator, the app's `foot`, the toasts and the `confirm()` sheets.
 
 - `places`: the tab bar's places, in order. Past five, four stand and a More tab opens a page of the rest.
 - `groups`: `{ label, switcher? }`, named by a place's `group`; the More page draws a group's switcher over its places.
@@ -22,7 +22,7 @@ One screen of a place, of two kinds: the place's own, titled by the place's name
 - `noun`: "project", for "Couldn't find this project."
 - `acts`: icon acts after the title, the primary first. It stands at its icon; the rest lead the `more` menu. While the Pane's own `read` failed or is missing the bar draws none of them.
 - `more`: the acts past them, in a menu named "More".
-- `foot`: what docks under the body over the keyboard: a `Thread`'s `Composer`, a `Table`'s chosen bar (an `ActionBar` with `chosen`, which the route gives as the foot only while a row is ticked: the Pane reserves the foot's room, border and inset included, for whatever it is given; the web foot hides itself by CSS `empty:hidden`). `sheet` docks in its place while open.
+- `foot`: what docks under the body over the keyboard: a `Thread`'s `Composer`, a `Table`'s chosen bar (an `ActionBar` with `chosen`, which the route gives as the foot only while a row is ticked: the Pane reserves the foot's space, border and inset included, for whatever it is given; the web foot hides itself by CSS `empty:hidden`). `sheet` docks in its place while open.
 - `read`, `empty`: the screen's read and its empty sentence (`rules.md`).
 
 ## Gate

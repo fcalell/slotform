@@ -46,7 +46,7 @@ online and visibility events.
 
 A collection windows by itself: from `VIRTUAL_FROM` loaded rows (`@fcalell/ui-core/window`) under
 a scroller, only the rows near the view and `OVERSCAN` past each edge are drawn, spacers holding
-the room of the rest. No prop turns it on or off. The scrollers are a `Pane`'s body, a `Sheet`'s
+the space of the rest. No prop turns it on or off. The scrollers are a `Pane`'s body, a `Sheet`'s
 body (docked or not), a `Gate`'s page and a `Thread`'s log, the nearest one winning, so a `Section`'s
 sheet in a `Sheet` windows against the `Sheet`. A `Section`'s sheet (rows, labelled or not, flat
 or a tree), a `Table` at both widths, a `Thread`, trees, a `Picker`'s options (its `list` fit included),
@@ -68,7 +68,7 @@ rules page has the whole list. A `Dock` leaves these keys to the grid; Space in 
 ## Drag and drop
 
 `drag`, `drop` and `reorder` are data on a `Table`, a `Section`'s rows and a `PlaceSpec` (rules page, "Drag, drop and
-reorder"); the Shell's frame draws the label that follows the pointer and the reorder's line. A drag starts on a
+reorder"); the Shell's container draws the label that follows the pointer and the reorder's line. A drag starts on a
 mouse's move or a finger's hold and goes on while the dragged row leaves the window of a long collection, which scrolls
 near its edges. A drop's `label` is required: it
 is the menu entry that does the same by keyboard, and a reorder's moves are in each row's menu too (Alt with the
@@ -131,7 +131,7 @@ the Gate fills it at the room set and stands its step in the middle of the scree
 `/tv-offline`). Inside a room place the board takes the room's own forms: a `Pane`'s head stands a
 `pad` off the top, on the table, over a bar of its own; a row whose only mark is a status fact draws
 one line, the status after the facts at the end group's start, whole whatever its word, the facts taking
-the room it leaves; a `Stats` strip is the rows' width, its cells sharing it in proportion, so it
+the space it leaves; a `Stats` strip is the rows' width, its cells sharing it in proportion, so it
 reads as one column with the rows under it. The showcase's `/tv` draws the strips and `/tv-board`
 thirty rows at 960 × 540.
 
@@ -139,7 +139,7 @@ thirty rows at 960 × 540.
 
 The place the `Shell` draws is the `place` size container and each `Pane` the `page` one. The place
 decides which `Pane`s stand by its own width, never the viewport's: only the last below `tablet`,
-both from it (the place's, then a record's), so a record keeps its room beside the sidebar at any window width. What stands
+both from it (the place's, then a record's), so a record keeps its space beside the sidebar at any window width. What stands
 in a `Pane` reads the `Pane`'s width. On the desktop the place is a raised panel an `gap` gap from the canvas
 at its top, end and bottom and against the 220 px sidebar (a dark slate column, pinned dark in both modes); on touch it fills the column.
 

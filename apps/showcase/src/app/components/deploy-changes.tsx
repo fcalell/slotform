@@ -39,7 +39,7 @@ function lines(from: string, other: string): number {
 export const filesRead = (id: string) => orpc.deploys.files.read({ id });
 export const logRead = (id: string) => orpc.deploys.log.read({ id });
 
-// The files a deploy changed, as the Section's items: docs/architecture/ui-core/layout.md, "Sheet of rows".
+// The files a deploy changed, as the Section's items: docs/architecture/ui-core/layout.md, "Row list".
 // The open file is `?file=` (the first without it), its row marked and the files before it seen; the app's own view of the read is its files once they land, for the open file's place.
 function useChangedFiles(id: string, named: string | undefined) {
 	const route = useRoute();

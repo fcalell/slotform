@@ -17,7 +17,7 @@ import {
 	pendingFtsMigrations,
 } from "./fts.ts";
 
-// The destructive marker: docs/architecture/plugins/db.md, "Deploy gates".
+// The destructive marker: docs/architecture/plugins/db.md, "Deploy checks".
 const ALLOW_DESTRUCTIVE_MARKER = "stack:allow-destructive";
 
 // Drift paths stay relative to cwd: docs/architecture/plugins/db.md, "drizzle-kit".
@@ -108,7 +108,7 @@ export function hasDrops(report: DropReport): boolean {
 	);
 }
 
-// The destructive-migration gate: docs/architecture/plugins/db.md, "Deploy gates".
+// The destructive-migration check: docs/architecture/plugins/db.md, "Deploy checks".
 export function detectLatestDrops(
 	cwd: string,
 	options: DbOptions,
@@ -162,7 +162,7 @@ export function formatDropReport(
 	].join("\n");
 }
 
-// The destructive-migration gate: docs/architecture/plugins/db.md, "Deploy gates".
+// The destructive-migration check: docs/architecture/plugins/db.md, "Deploy checks".
 export function assertNoUnacknowledgedDrops(
 	cwd: string,
 	options: DbOptions,
@@ -177,7 +177,7 @@ function countSqlFiles(dir: string): number {
 	return readdirSync(dir).filter((f) => f.endsWith(".sql")).length;
 }
 
-// The drift gate: docs/architecture/plugins/db.md, "Deploy gates".
+// The drift check: docs/architecture/plugins/db.md, "Deploy checks".
 export function detectSchemaDrift(cwd: string, options: DbOptions): boolean {
 	const migrationsDir = migrationsDirOf(cwd, options);
 	const driftAbs = join(cwd, DRIFT_DIR);

@@ -104,9 +104,9 @@ density. The token sets themselves are [density and room](../ui-core/tokens.md#d
 | `rules` (a rules list) | `rules-stacked:` | below `rulesOneRow` of the list, where each rule stacks its terms |
 | `page` | `definitions-stacked:` | below `definitionsOneRow` of a Pane, where a definition row stands its value under its label |
 | `acts` (an action bar) | `acts-stacked:` | up to `actsStackedMax` of the bar, where its acts stack one per row |
-| `time` (a bar chart's time between its ends) | `time-fits:` | where the room holds the times |
+| `time` (a bar chart's time between its ends) | `time-fits:` | where the space holds the times |
 
-The `time` container is a box as wide as its room in the plot over `TIME_SPACE` times its longest
+The `time` container is a box as wide as its space in the plot over `TIME_SPACE` times its longest
 time's characters, in the time's own font, so one `ch` of that box is the whole test.
 
 ## Fonts
@@ -190,14 +190,14 @@ interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classL
 - **Composition.** A component that draws another's place takes its pattern, never a copy. A
   field's `Picker` trigger is `Input`'s box (`BOX`, `BOX_HOVER`, `BOX_DISABLED`, exported from
   `components/input`) and its open list a popover (`POPOVER`) of rows (`ROW`, `highlighted` under
-  Base UI's highlight). A popup mounts in its root frame's portal ([Popups](#popups)).
+  Base UI's highlight). A popup mounts in its root container's portal ([Popups](#popups)).
 - **Words.** A word the component draws on its own comes from `useWords()`; a sentence is a prop.
 
 `Text` is the worked example: a `<p>` in `text({ role })` with the `max-w-measure` overlay.
 
 ### Gate
 
-`Gate` is the layout frame of a page outside the shell, a sign-in or a consent step
+`Gate` is the layout container of a page outside the shell, a sign-in or a consent step
 ([Gate](../ui-core/layout.md#gate)): one column at the `auth` width on the surface, centred across and
 down the viewport, holding a `banner`, the `mark` (`{ name, src? }`), an optional `step` (its step
 count), the `title` (the page's one `h1`), a `description` (`Runs`: words, `{ strong }`, `{ code }`
@@ -213,8 +213,8 @@ drawn in the column by the Gate (`components/gate/index.tsx`, a `FormShell` from
 
 The generated providers mount the app's lockup once, from the react plugin's icon
 (`react({ icon })`, [HTML shell](./react.md#html-shell)), its drawn lockup (`react({ logo })`) and
-the app's name. An app with no icon mounts none, and the `Shell` and the `Gate` draw no mark. A
-subtree is scoped to none with `mark={null}` (a frame under an app that has an icon, drawing the bare
+the app's name. An app with no icon mounts none, and the `Shell` and the `Gate` draw no lockup. A
+subtree is scoped to none with `lockup={null}` (a container under an app that has an icon, drawing the bare
 form).
 
 ## Field box and focus rings
@@ -300,9 +300,9 @@ empty element.
 
 ## Popups
 
-A root frame (the `Shell`, the `Gate`) names an element inside its `main` as the popups' mount
+A root container (the `Shell`, the `Gate`) names an element inside its `main` as the popups' mount
 (`lib/portal`), so an open popup stands inside a landmark, never in the body beside them, and draws
-the mode of the box the frame stands in. Base UI's portal waits on a `null` container, so a provider
+the mode of the box the container stands in. Base UI's portal waits on a `null` container, so a provider
 names `null` until its element mounts; with no provider the container is `undefined` and the popup
 mounts in the body.
 
@@ -314,10 +314,10 @@ layers it holds: over the page and the tab bar, under the toasts.
 ## Toast anchor and stacking
 
 The toasts stand on their layer over an open sheet's portal, so nothing between them and the root
-makes a stacking context: no `isolate`, `z-*` or transform on the frame, the column or `main`. The
+makes a stacking context: no `isolate`, `z-*` or transform on the container, the column or `main`. The
 `b-layers` walk rule holds it.
 
-Their foot is the top of what docks at the frame's foot, which names itself the `--docked-foot`
+Their foot is the top of what docks at the container's foot, which names itself the `--docked-foot`
 anchor: a place's `foot` (a Pane's docked foot, which spans the body that scrolls past it, centres a field's own
 measure column at every density, and draws nothing, border and inset included, while it holds nothing, such as a chosen bar with no row
 ticked), a filling `Thread`'s input, and on touch an open bottom sheet. The layer stands above the
@@ -327,7 +327,7 @@ nothing docks.
 
 The layer is fixed, as the sheet is: an anchor resolves only for a layer whose containing block is
 the anchor's own, and an absolute layer in `main` (relative) cannot reach a fixed sheet in the
-portal, so it falls back to the page inset and stands over the sheet's act. `main` is the frame's
+portal, so it falls back to the page inset and stands over the sheet's act. `main` is the container's
 last column and reaches the viewport's end and its foot, which is where the layer stands its toasts.
 
 A bottom sheet stops at the viewport's top and its body scrolls; its bottom inset clears a phone's
@@ -367,7 +367,7 @@ server or not at all, since the rows loaded are not the rows there are. The read
 ## Picker segments
 
 The segments keep their natural width and a label is never cut. Where they do not fit the track's
-room the track scrolls sideways with no scrollbar drawn, as a phone's tab row does, the chosen
+space the track scrolls sideways with no scrollbar drawn, as a phone's tab row does, the chosen
 segment is scrolled into view, and the track fades at the edge that has more (`scroll-fade-x`), so a
 tab at the edge never stands cut with nothing to say so. It hugs its segments in a column too (a
 `FormField`), never stretching to the field.
@@ -413,7 +413,7 @@ A canvas has no class to restyle, so it reads the colour roles' resolved values 
 (`lib/ink`), once per mode: the version moves when the mode or the density pin changes on the root,
 and a reader draws again.
 
-- **Layout.** A layer gap holds the router's own room (`canvas/elk.ts`): a forward edge bends a
+- **Layout.** A layer gap holds the router's own space (`canvas/elk.ts`): a forward edge bends a
   `pair` under its source, and under the bend a label chip hangs a `pair` below it with a `pair` of
   air and an arrowhead beneath it before the next node. With no chip the gap is the bend's `pair`, a
   `pair` and the arrowhead, never under `floor`.

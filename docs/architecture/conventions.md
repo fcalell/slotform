@@ -71,8 +71,8 @@ dependencies' `dist`: turbo runs `^build` before `check-types`, and the package'
 its `check-types` (a source entry's self-name import). Root `pnpm check` is `turbo run check-types`,
 `turbo run test`, then `biome check`; it is read-only, and `pnpm lint` writes the fixes. A package
 has no `check` or `lint` script of its own: the root runs both. An app's `check-types` depends on
-its `generate` (the `.stack/` files), not its `build`, so the gate never runs a production bundle;
-`pnpm build` does. The showcase's `generate` also writes the roster's stories, so the gate
+its `generate` (the `.stack/` files), not its `build`, so the check never runs a production bundle;
+`pnpm build` does. The showcase's `generate` also writes the roster's stories, so the check
 type-checks the stories the roster names.
 
 Each turbo task declares only what it writes. An app's `tsc -b` emits the worker's declarations into
@@ -214,7 +214,7 @@ line and a type role) each have their own word. A text role keeps `meta` (the ty
 | `missing` | The sentence a Pane says when its read answers not found | `string` |
 | `selected` | What is open beside it: a row's (the open record), a chart bar's | `boolean`; on a bar, `(item) => boolean` |
 | `partial` | A chart bar whose period is not over | `(item) => boolean` |
-| `leading`, `trailing` | The start and the end slot of a row. A picker option has the start slot too | `RowLeading`, `RowTrailing`; `OptionLeading` (the kinds a picker draws) on an option |
+| `leading`, `trailing` | The start and the end region of a row. A picker option has the start region too | `RowLeading`, `RowTrailing`; `OptionLeading` (the kinds a picker draws) on an option |
 | `status` | A work state: its tone's mark and its word, [one shape everywhere](ui-core/roster.md#status-and-chips) | `StatusMark`, `{ tone, label? }` |
 | `chip` | A data value's tag, [one shape everywhere](ui-core/roster.md#status-and-chips) | `ChipMark`, `{ family, label }` |
 | `acts` | A list of acts: an action bar's, a form's, a gate's, a pane's bar's (its first stands, the rest fold into `more`) | `Act[]`; `readonly Datum<IconAct \| IconLinkAct>[]` on a pane |
@@ -225,7 +225,7 @@ A list of facts holds the base `Fact`, whose kinds and their one reading are in
 [facts](ui-core/roster.md#facts) (its boolean mark is `RowMark`); a record head's `RecordFact` is the
 base plus what only a head acts on (words that open or go, a pick, a count beside its word). A string is one fact whatever it holds: a middle dot inside it is text, so a list that
 wants two facts gives two elements. A fact is a badge cut with an ellipsis where its line is out of
-room, which touch cannot read, so it is short; a sentence is the row's `line`. Whatever changes what
+space, which touch cannot read, so it is short; a sentence is the row's `line`. Whatever changes what
 a row does (`lock`, `href`, `act`) is a prop, not a fact.
 
 ## In the code

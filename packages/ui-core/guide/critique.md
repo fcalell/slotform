@@ -32,7 +32,7 @@ The rules are `voice.md` (V#), `structure.md` (S#) and `../../../plugins/screens
   mark on two parts of one row)? Name each pair.
 - 2c. Does every count on the screen match what can be counted (a band's count against its rows,
   a footer's total against the list)?
-- 2d. Does any row reserve room for a part it does not have (an empty end group, an empty cell,
+- 2d. Does any row reserve space for a part it does not have (an empty end group, an empty cell,
   a blank indent)? (V9)
 
 ## 3. Truncation is the exception, never the layout

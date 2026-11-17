@@ -30,7 +30,7 @@ const PAGE_SPACE = "justify-center";
 // The toasts stand at the page's foot, above the home indicator.
 const TOAST_BOX = "absolute inset-x-0 top-0";
 
-// A page outside the shell, a root frame as the Shell is: docs/architecture/ui-core/layout.md, "Gate".
+// A page outside the shell, a root container as the Shell is: docs/architecture/ui-core/layout.md, "Gate".
 // Its body claims focus through `FieldClaim`: docs/architecture/plugins/native-ui.md, "Gate".
 // biome-ignore lint/suspicious/noExplicitAny: any procedure
 type AnyCall = any;

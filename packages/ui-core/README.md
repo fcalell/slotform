@@ -109,7 +109,7 @@ The subpaths:
   its axis step, band count and top over a floor of zero (four even bands, or a step of 1 over the
   peak rounded up for a small whole-number chart), `levelScale(figures)`, a level's axis around its
   readings (four bands, the floor a step under the lowest and the top over the highest), and
-  `chartShare(value, scale)` where a value stands on it, `timeSpace(index, count)`, the room in regions
+  `chartShare(value, scale)` where a value stands on it, `timeSpace(index, count)`, the space in regions
   a time between the ends stands in (it draws where that holds `TIME_SPACE` times the longest time),
   `chartHead(series, keys, level)`, the figures its head draws (the sum, or with `level` the bars'
   span, lowest to highest), `spanText` and `spanUnit`, a head figure's text and the unit's word

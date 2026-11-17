@@ -149,7 +149,7 @@ async function loaded(): Promise<string | undefined> {
 }
 
 // Whether a read is still on its way that the run does not hold: a mutation, a
-// frame route and a plugin's fixture answer at once, and what they bring draws
+// container route and a plugin's fixture answer at once, and what they bring draws
 // a frame or several later. A query fetching is held on the story's state or
 // it is on its way, so a count above the held calls is a read not yet landed.
 const answering = (): boolean => fetchingReads(storyClient()) > heldReads();

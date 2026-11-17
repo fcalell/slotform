@@ -7,7 +7,7 @@ and never restyles them.
 
 ## Pick the component first
 
-Find the roster component that owns the shape: the frame (`Shell`, `Pane`, `Gate`),
+Find the roster component that owns the shape: the container (`Shell`, `Pane`, `Gate`),
 the rhythm (`Section`), the row (a `Section`'s `items`, a `Form`'s fields), the
 control, the text role (`Text`). A host element that rebuilds one of these is drift. A composed
 region is data its molecule renders, never nodes. A shape no component owns takes the nearest one the
@@ -17,7 +17,7 @@ roster draws, the compromise named; only a bug, or a part the screen cannot ship
 A Pane stands in a place; the place holds two at most, of two kinds: the place's own, then a record's.
 The `Shell` draws the place that holds them and reads none of them, so a route renders its `Pane`s and
 no place of its own; each `Pane` draws its own bar and body. The place's Pane alone fills the place; with a
-record open it holds `list` (520 px at the default `size`) and the record takes the rest. A place's `Pane` that fills with a `Canvas` is the place's main object: it takes the spare room and the record holds `list`. A record the open
+record open it holds `list` (520 px at the default `size`) and the record takes the rest. A place's `Pane` that fills with a `Canvas` is the place's main object: it takes the spare space and the record holds `list`. A record the open
 record links to opens in its own place (its own list and record), never as a third Pane; the Panes throws on a
 second Pane of a kind. A record always opens beside its list: the record's route is a child of the list's, and
 the list's route renders `<ListPane /><Outlet />`, so nothing replaces a list. A record's tabs stay in its Pane:
@@ -100,7 +100,7 @@ measure at least, and stands the control under it at the line's end where both d
 `Pane` whose body is one filler, a `Thread` or a `Canvas`, takes `fill`: its body is then a flex
 column that gives the filler the free height, and its Sections keep their own label columns. The
 `Pane`'s own failed, missing and empty shapes fill the body without it.
-Widths are voice decision 17 (`node_modules/@fcalell/ui-core/guide/voice.md`); a `Pane`'s props are in `frames.md`.
+Widths are voice decision 17 (`node_modules/@fcalell/ui-core/guide/voice.md`); a `Pane`'s props are in `containers.md`.
 
 ## One `Button`, one `Input`, one `Switch`
 
@@ -163,7 +163,7 @@ drawn as an `<a href>` in the look of the act it stands for (the hairline Button
 `Banner`, whose soft ground re-points `edge` to the strong edge so an act's outline is one there; the outlined button under its sentence in an `empty`), so a new tab, a copied link and a middle
 click work, a plain click opens the route through the router, and a rest on it preloads the route
 like any anchor. It runs nothing: it never pends and has no `destructive` or
-`quiet`; a `LinkAct` given a `blocked` reason draws inert and gives the reason, as a blocked act does (a link whose page is missing), while the `Button` link form takes none; in a `more` menu it is a link entry. An act beside a heading or a title, or at a row's end, is an icon act (`IconAct`, or `IconLinkAct` for a route): a `Section`'s and a row's `act` take nothing else, its words standing in its tooltip and accessible name. Acts that stand side by side fold by one rule, never by the room: the first stands and the rest stand in the more menu, in their order, at every width. A `Pane`'s first `acts` entry stands at its icon and the rest lead its `more`, the act named More and its sheet on touch titled by the Pane's title (a record's name); a row's `act` is its one act and its others are its `more`, its sheet titled by the row; a chosen bar stands the first of choose-all and clear that applies. Put the act used most first. A
+`quiet`; a `LinkAct` given a `blocked` reason draws inert and gives the reason, as a blocked act does (a link whose page is missing), while the `Button` link form takes none; in a `more` menu it is a link entry. An act beside a heading or a title, or at a row's end, is an icon act (`IconAct`, or `IconLinkAct` for a route): a `Section`'s and a row's `act` take nothing else, its words standing in its tooltip and accessible name. Acts that stand side by side fold by one rule, never by the space: the first stands and the rest stand in the more menu, in their order, at every width. A `Pane`'s first `acts` entry stands at its icon and the rest lead its `more`, the act named More and its sheet on touch titled by the Pane's title (a record's name); a row's `act` is its one act and its others are its `more`, its sheet titled by the row; a chosen bar stands the first of choose-all and clear that applies. Put the act used most first. A
 A `Sheet`'s submit, an `ActionBar`'s and a `Form`'s bar act, a `Rules` add, a chosen bar's acts, an `Input`'s act and a
 `RowEntry`'s act stay function acts: each runs something over the surface it stands on (the task, the
 selection, the typed value) or must pend it, which a way to a route does not.
@@ -309,7 +309,7 @@ as the widest of the Pane, the title its value, its `facts` the words under it; 
 labelled rows; `lock` names why a row cannot change. What a row says of itself is one list, `facts`, in the order given, each element one fact: words (a string or a run, a dot inside it no more than its text), a status (`{ tone, label? }`; the first leads the badges and the row's `lock` follows it, a further one is a badge of its own with its tone mark, in the order given), what is wrong (`{ warning }`), a chip (`{ family, label }`) and a boolean mark (`{ ring, label }`, `{ flag, label }`). **A fact is a badge, a sentence is text.** Each fact is one badge, a box that never breaks inside, `badge` apart from the next across and down with no separator between them, whole badges wrapping to the next line: the status its tone's mark (the dot, the running dots, the waiting ring) and its word; `{ warning }` the warn glyph and its phrase; a chip its family's dot (none for neutral) and its value; a ring the outlined circle with a filled centre (never a chip's solid dot) and its label, a flag its icon and its label; words and a `{ code }` run (the mono, in a list of several) their text, a fact that is one `{ code }` run among others cut in its middle with its tail whole, as a value is; the row's `lock` a badge right after the status, its glyph and its reason, a link with an `href` and inert without one. Only a glyph carries colour, the badge's words stay in the meta ink. A badge too long for its line is cut with an ellipsis inside it, the full text its accessible name and, on a pointer, the cut-text tooltip. Give the status first, then a warning, then the rest, and do not give a fact that only restates the row's glyph (a status of the same tone as its `leading`, a flag of what the row's icon already says); a sentence (a provenance, a caption, a node's line) is not a fact, and it is no badge. **A sentence goes in the row's `line`, never in `facts`**: a remedy, a schedule, an error, what a setting does. `line` is one text (`Run | Runs`, so it holds a `{ code }` or a `{ strong }` run) under the title, after the badges, in the meta ink at the meta role, wrapping whole at every width; a row with a `line` is at least two lines, the line standing under the title where the facts follow it on its line, and an empty `line` draws nothing. A fact cut with an ellipsis cannot be read on touch, where no tooltip reveals the rest, so anything a viewer must read to its end is a `line` (or a `wrap` title), and a fact is a word, a count, an age or a short phrase. Painted, a `line` is one sentence's filler. Badges stand under the title where the row is two lines (on touch, wherever the row has a status, a warning, a lock, a chip or a mark with words, a row with only words below the row's one-line width) and follow the title on its line where it is one, which they do without wrapping, the last one that does not fit cut with an ellipsis; under a `wrap` title they wrap freely. A lone `{ code }` fact is no badge: it is the row's value, bare in the mono, cut in its middle. In a room place, a row whose only mark is a status keeps it in the end group's start after the words, as before. A mark with `words: false` is no badge: its glyph stands alone in the end group, ahead of the trailing value, its `label` the accessible name and, on a pointer, the tooltip, so a row whose only marks are such draws no line for them, and a
 quiet fact (where the content came from, a kind) carries its meaning without taking a line at any
 width; its glyph is no target, a press reaches the row. A blocked tick's reason is the first badge, plain. A row's `title` that is a status is its tone's mark and word, plain, never a pill (colour stays on the glyph). `title: { code, copy: true }` is a copyable
-identifier (cut in its middle where it is too long for its room; with `wrap`, and in a fact whose `label` stands before it, whole on as many lines as it
+identifier (cut in its middle where it is too long for its space; with `wrap`, and in a fact whose `label` stands before it, whole on as many lines as it
 takes, at a path's or URL's separators first, then anywhere, as a fingerprint must; a lone `{ code }` fact is bare in the mono and,
 where the facts stand under the title, wraps whole as on touch, at a path's slashes first,
 so a long path keeps its file's extension, never cut at its end), and a part that is no row (a `Slider`) stands in
@@ -323,7 +323,7 @@ A definition row and a form field stand label over value in a Pane narrower than
 A row that shows a running task gives its `progress`, `{ value, max }`: the meter's bar as the last line of the row's text column (it starts at the text, never under the leading mark, a badge gap under the facts), filling in the meta ink and turning the good tone once `value` reaches `max` (never amber); the bar takes no press, so the row's hit stays whole. Give it from the item's selector, so each refetch moves the bar; a `max` of 0 or under draws none.
 
 The rows of one sheet share one `leading` kind or none, so their titles share one start: an avatar, a
-glyph, a type's mark and a tick stand in one region at the avatar's size, a status in its dot's room, and
+glyph, a type's mark and a tick stand in one region at the avatar's size, a status in its dot's space, and
 a row with no `leading` reserves none (voice 9), so its title stands where the others' marks do. A
 `leading: { tone }` draws the dot alone, its `label` its accessible name; a list whose rows say the state nowhere else gives it as a status fact. It is for a list whose every row has a state; where only some do (a read-only value among
 switches), the state is a status fact of the row, leading its facts line, and the leading is a kind every row
@@ -564,7 +564,7 @@ comes from its route and its data fills it. A `Section` with `items` paints as m
 Banner) stands where it reads best, and what is under it moves once when it arrives:
 place it always and give its `sentence` a selection that answers `undefined` when there is nothing to say: it draws nothing while the read waits and nothing then, and the page moves once, by its height, when the banner arrives with its data; the shift check reports that move and fails any other. A waiting `Canvas` is its loaded ground painted: the dotted ground, its zoom stack and, in the middle, three
 painted node cards at a step node's measure (the node width and its card's height, a layer gap apart), laid by flex.
-A graph's own nodes have no geometry before its data, so the placeholders stand for the nodes' measure and
+A graph's own nodes have no geometry before its data, so the painted cards stand for the nodes' measure and
 not their places; nothing reads a box.
 
 ## An act holds its attempt
@@ -579,7 +579,7 @@ its `label` and `onAct`:
 - `confirm: { title, sentence }` is asked first, as a decision over the page whose act wears the act's
   own `label` and `destructive`; declined, nothing runs. The app calls no `confirm()` or `ask()` for an
   act it draws (`confirm()` stays for a decision no act starts).
-- A toast stands over the foot of the frame, above whatever docks there: a `Pane`'s `foot` or open
+- A toast stands over the foot of the container, above whatever docks there: a `Pane`'s `foot` or open
   docked `sheet`, and on touch an open bottom `Sheet`, so it never covers a foot, a sheet's sentence
   or an act. Where nothing docks it stands over the page's end for its few seconds, and the `Pane`'s
   body takes the toast's reach under its last line while one stands, so scrolling to the end brings
@@ -628,7 +628,7 @@ sizes are fixed:
 | Size | Is | Past it |
 | --- | --- | --- |
 | a word | one word: a state, a unit, a figure's noun | a region that bounds it (a chip, a row pick's value) holds the short measure, 20 characters, and truncates |
-| a short phrase | a few words on one line: a title, a label, a name | takes the room its line leaves, then truncates with an ellipsis, or wraps where its doc says it wraps |
+| a short phrase | a few words on one line: a title, a label, a name | takes the space its line leaves, then truncates with an ellipsis, or wraps where its doc says it wraps |
 | a sentence | one sentence, in a region built to wrap: a description, a banner, an empty state, an error | wraps |
 | text | running content of any length: markdown, a message body, code | wraps whole |
 

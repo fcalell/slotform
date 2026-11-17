@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 
-// The placeholder database ID: docs/architecture/plugins/db.md, "Deploy gates".
+// The placeholder database ID: docs/architecture/plugins/db.md, "Deploy checks".
 export const D1_PLACEHOLDER_ID = "YOUR_D1_DATABASE_ID";
 
 const UUID_RE =
@@ -58,7 +58,7 @@ export function createD1Database(name: string): D1CreateResult {
 	};
 }
 
-// The database ID guard: docs/architecture/plugins/db.md, "Deploy gates".
+// The database ID guard: docs/architecture/plugins/db.md, "Deploy checks".
 export function assertDeployableDatabaseId(
 	databaseId: string | undefined,
 ): void {

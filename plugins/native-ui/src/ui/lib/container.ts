@@ -13,7 +13,7 @@ import type { LayoutChangeEvent, View } from "react-native";
 import type { Route } from "./route";
 import { useCSSVariable } from "./theme";
 
-// What the frame molecules hand each other: docs/architecture/ui-core/layout.md, "On the phone".
+// What the container molecules hand each other: docs/architecture/ui-core/layout.md, "On the phone".
 export const ShellSwitcher = createContext<OptionPick | undefined>(undefined);
 
 // The Shell hands its tab bar to each Panes, which draws it under its Pane.
@@ -25,14 +25,14 @@ export interface ToastBox {
 	height: number;
 }
 
-// The Shell's root and its way to place the toasts' layer: docs/architecture/plugins/native-ui.md, "Frame host".
+// The Shell's root and its way to place the toasts' layer: docs/architecture/plugins/native-ui.md, "Container host".
 export interface ToastContainer {
 	root: RefObject<View | null>;
 	place: (box: ToastBox) => void;
 }
 export const ToastContainer = createContext<ToastContainer | null>(null);
 
-// The ref and `onLayout` of the box a page draws for the toasts: docs/architecture/plugins/native-ui.md, "Frame host".
+// The ref and `onLayout` of the box a page draws for the toasts: docs/architecture/plugins/native-ui.md, "Container host".
 // TODO: the layer follows the box one layout late (a growing foot, the
 // keyboard); place it by layout once React Native can stand a layer after the
 // sheets' host from the page's tree, or once the sheets host the toasts.

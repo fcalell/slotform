@@ -2,7 +2,7 @@
 
 A graph the viewer reads or walks, a workflow or a journey, is a `Canvas`, never a hand-built
 diagram of `div`s and lines. It takes data and draws the nodes, the arrows between them, the
-frames around groups and the zoom stack.
+boxes around groups and the zoom stack.
 
 ```tsx
 import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
@@ -22,7 +22,7 @@ earlier node is drawn up the side, an edge that skips a layer runs down a column
 it passes, never behind one, and an edge with `handoff: true` is dashed, with the handoff
 glyph beside its label: dashed means a handoff and nothing else. A label stands beside its edge's
 own stretch, near its source; a label never prints over another, under a node or over a loop's
-border or head: one that would meet another label, a node's box or a frame's border moves down its
+border or head: one that would meet another label, a node's box or a group box's border moves down its
 stretch past it, or beside it where the stretch cannot hold both.
 
 ```tsx
@@ -88,36 +88,36 @@ under the text floor where it must (the overview and the glyphs, below), down to
 the graph allows.
 
 A graph opens at its words (scale 1, the text floor; `FIT_FLOOR`) where that shows every node whole
-across the pane and clear of the zoom stack: centred in the room the stack and the `act` leave where
+across the pane and clear of the zoom stack: centred in the space the stack and the `act` leave where
 its drawing (its cards, its routes, a loop's arrow up the side and its edge chips) fits there, and
 centred across the pane (the same margin on both sides) where no node of it stands in the stack's rows,
 since the stack takes nothing from a graph that ends above it, else
 framed at its anchor, with the reader panning down. The anchor is the first node in path order, or,
 where a node is `running` or has `failed` (its `status` tone), the first of those, so a run opens where
-it is: the anchor stands whole, the graph's top at the room's top unless the anchor needs the view
-moved up to stand in the room. A drawing that holds in the pane only without its edge chips is framed
+it is: the anchor stands whole, the graph's top at the space's top unless the anchor needs the view
+moved up to stand in the space. A drawing that holds in the pane only without its edge chips is framed
 without them, and an edge chip that then stands past the pane's side is the one thing the opening
-may cut; its cards and its frames (the loops' bands) must each stand whole across the pane, a pair
+may cut; its cards and its boxes (the loops' bands) must each stand whole across the pane, a pair
 from either side, and none may stand under the zoom stack, else the graph opens as its overview.
 
-A graph that cannot open at its words opens as the overview instead: its glyphs, its frames (the loops'
-bands, their heads and the corridors up their sides) and the last glyph's name, fitted across the room
+A graph that cannot open at its words opens as the overview instead: its glyphs, its boxes (the loops'
+bands, their heads and the corridors up their sides) and the last glyph's name, fitted across the space
 the stack leaves at the highest scale that holds them (just under the text floor where they fit at
 that), down to the overview's floor (half the node's size). Where it is also taller than the pane, it
 opens lower, down to where its names still clear each other (or, with no named overview, to the lowest
 the graph allows), so the graph stands whole in the pane and not only its top. A graph that holds in
 the room only below the overview's floor opens at that floor, never at its own size cut: its start
-against the room's start (past the stack), so the leftmost node is whole, its top at the room's top,
+against the space's start (past the stack), so the leftmost node is whole, its top at the space's top,
 and the anchor kept whole in the pane (moved clear of the stack's corner); the reader pans for the
 rest, and the last name in view may run past the pane's side. A node never opens smaller than the
 overview's floor. Arrange lands on the same view, and so does a change of the canvas's size (a `Pane`
-beside it opening or closing, the window resizing): the graph opens again in the new room, unless a
+beside it opening or closing, the window resizing): the graph opens again in the new space, unless a
 node is `selected`, when the view keeps its scale and pans only as far as that node needs to stand in
-the new room, so a step's sheet docked beside the canvas leaves its step in sight.
+the new space, so a step's sheet docked beside the canvas leaves its step in sight.
 A node `selected` as the canvas mounts is where the opening view stands: it opens as above and,
 where that leaves the node out, is set at once to stand the node in view. A node brought into view
-(that opening, a resize, a change from outside) is centred in the room the zoom stack and the `act`
-leave, and where the room is too narrow for it, moved past the stack or above it: it never stands
+(that opening, a resize, a change from outside) is centred in the space the zoom stack and the `act`
+leave, and where the space is too narrow for it, moved past the stack or above it: it never stands
 under the controls.
 
 A change of the node set (an id added or removed, so the layout runs again) opens the view again on
@@ -128,25 +128,25 @@ view stays where the viewer left it. A graph whose nodes carry positions is not 
 opens again; a node added to it lands where the viewer looks (Editing). A consumer needs no `key` on
 the canvas for a new set of nodes.
 
-A group head whose frame runs under the zoom stack or off the pane's start or end keeps its words in
+A group head whose box runs under the zoom stack or off the pane's start or end keeps its words in
 view: they stand past the stack's column where the head stands in the stack's rows (else at the pane's
-start, so a head above the stack has its frame's whole width) and stop at the pane's end (truncating
-there) while the band stays across the frame. The stack and the `act` stay at the region's foot: a focus on a node out of
+start, so a head above the stack has its box's whole width) and stop at the pane's end (truncating
+there) while the band stays across the box. The stack and the `act` stay at the region's foot: a focus on a node out of
 view pans the view to it and scrolls nothing. Zooming out by hand still goes under the floor, to the
 overview and the glyph alone, below.
 
 ## Where the nodes stand
 
 Give no node a `position` and the canvas places them top to bottom in path order, loops inside
-their group, the layers a bend, a chip's room and an arrowhead apart (about a node's height, so a
+their group, the layers a bend, a chip's space and an arrowhead apart (about a node's height, so a
 typical graph holds at a larger scale) and the nodes of a layer a card step apart. The parts of
 a graph that no edge links (a group, or a loose node, with all an edge joins to it) stand side by
-side; where that row is wider than the room the opening view has at the text floor, they wrap in
-their order, each beside the last while the row holds it, else under it, so a narrow room holds
+side; where that row is wider than the space the opening view has at the text floor, they wrap in
+their order, each beside the last while the row holds it, else under it, so a narrow space holds
 them in a column and no part opens wholly out of sight across. They wrap again as the canvas's
 size changes, and the graph opens again on them. The places follow the nodes' measured heights: a
 node that grows (a line that gains a second line after an edit) places the graph again, so each
-layer keeps the room its chips need. With `onMove` it tells you each node's absolute position once, after it has placed
+layer keeps the space its chips need. With `onMove` it tells you each node's absolute position once, after it has placed
 them: store those and pass them back as `position`. Give some nodes a position and you place
 all of them; a node without one among placed ones lands at the centre of the view (see Editing).
 
@@ -159,7 +159,7 @@ that is what makes a drag, Arrange and a landing stick, and a position you do no
 forgotten on release.
 
 - **Move.** With `onMove` a node follows a drag at once, with no long press and no handle, and
-  the edges and group frames follow it, and it stands over the nodes it crosses. A drag never
+  the edges and group boxes follow it, and it stands over the nodes it crosses. A drag never
   selects. Arrange joins the zoom stack, the
   way to lay the graph out again without dragging: it ignores every position, reports each
   node's, and fits the view.
@@ -198,14 +198,14 @@ corner, each seated on the rounded corner (half of it over the box) so neither c
 carries the node's `title` beside it, on one line at the meta size (12 px or more), in body ink at 500, cut at the
 short measure, on the canvas's own ground so an edge never strikes through it; the name is
 drawn at the same size at any zoom, so the overview never shows text under the 12 px floor.
-Under half the glyph stands alone, with the `title` as its tooltip (the native `title`, so the cut-text tooltip leaves it its own). A name cut at the short measure, and a group head cut to the frame's width, show whole in the cut-text tooltip when the pointer rests on them. A graph whose nodes stand too
+Under half the glyph stands alone, with the `title` as its tooltip (the native `title`, so the cut-text tooltip leaves it its own). A name cut at the short measure, and a group head cut to the box's width, show whole in the cut-text tooltip when the pointer rests on them. A graph whose nodes stand too
 close for their names to clear each other at half raises that zoom to the lowest at which they
 clear, and one that cannot clear them under zoom 1 has no named overview: the glyph alone. Group
 heads stay under zoom 1, drawn at their own size on screen (a button a target tall, the meta role's size, cut to
-the frame's width), and the nodes below a head move down by what it grew, so no head or frame covers a
+the box's width), and the nodes below a head move down by what it grew, so no head or box covers a
 node outside its group; edge labels draw nothing. A click, a tap or Enter on a glyph or its name
 zooms to that node at its own size about its centre, which stays where it stood (under the finger) unless the node would then pass the canvas's edge, when the view shifts just far enough (a page inset in) to hold the whole node, and chooses nothing. The zoom buttons zoom about the node last focused, with the same shift. A zoom step is a fifth of the scale.
-Edges and group frames follow the glyphs, so an edge ends on its glyph, and zooming out stops
+Edges and group boxes follow the glyphs, so an edge ends on its glyph, and zooming out stops
 where two glyphs would stand closer than two `gap`, so the edges between them still draw.
 Give each node its own `title`: beside the icon it is the overview's only mark of one node of a
 kind from another. Keep `warning` and `status` words short and put the detail in your
@@ -260,17 +260,17 @@ const [selected, setSelected] = useState<string>();
 <Canvas label="Journey" nodes={numbered} edges={edges} selected={selected} onSelect={(id) => setSelected(id ?? undefined)} />
 ```
 
-A group's `head` is one line, cut at its end with an ellipsis: put what decides first (a round count before its qualifier), and keep it short enough for a phone's frame. A group is a frame; with `onSelect` its head is a selectable control. The head is a button named
+A group's `head` is one line, cut at its end with an ellipsis: put what decides first (a round count before its qualifier), and keep it short enough for a phone's frame. A group is a box; with `onSelect` its head is a selectable control. The head is a button named
 by its text (at least a target tall) that calls `onSelect(group.id)`, and `selected` may name a
-group, which draws its frame in the selection's outline (a heavier dashed line). The head
+group, which draws its box in the selection's outline (a heavier dashed line). The head
 shows hover as a node does. Node ids and group ids share one
-namespace. The head's band stands over the edges that cross it into the frame, so no edge
-strikes through its words. The frame's body takes no pointer, so a drag from it pans, and a group does not move:
-its frame follows its holds. The heads take their Tab stops first, outer before inner, then the
+namespace. The head's band stands over the edges that cross it into the box, so no edge
+strikes through its words. The box's body takes no pointer, so a drag from it pans, and a group does not move:
+its box follows its holds. The heads take their Tab stops first, outer before inner, then the
 nodes in path order. Under the text floor a head draws at its own size on screen and stays a stop.
 
 A group holding no present node (an empty loop) is a leaf of the graph: the layout stands it in
-its place in the path, as a frame of its head and padding at a node's width, and an edge may name
+its place in the path, as a box of its head and padding at a node's width, and an edge may name
 its id as `from` or `to`, so its edges meet it. Its head is a button as any group's. It is no
 node: it takes no port, no drag and no connection, and `onMove` never hears it. The layout
 places it. When every node has a `position` no layout runs, and the empty groups stand in one row

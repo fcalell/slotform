@@ -61,7 +61,7 @@ An entry holds:
 - the component's prop names;
 - the class sets it draws: a `MATRIX_GROUPS` name for every class set of that group, `GROUP.axis.value` for one of
   its class sets, or a single-class-set constant of `./variants`;
-- `holds`, the matrix groups and constants of its own box ([matrices](#matrices));
+- `draws`, the matrix groups and constants of its own box ([matrices](#matrices));
 - `motion`, the moves it makes ([moves and move class sets](motion.md#moves-and-move-class-sets));
 - the states it has a form for: the eight interaction states, plus `empty` for a component with an
   empty shape, and the states a read puts a frame or collection in (`busy`, `stale`, `paused`, `more`,
@@ -102,7 +102,7 @@ list.
 - A part with an axis is a matrix; a part with one shape is a named constant (`POPOVER`, `PAGE_HEAD`).
 - A molecule draws an atom by composing it, never by spelling its class sets; a composed molecule draws its
   own class sets and the composer owns none of them. A class set no entry holds is shared and spelled by each
-  component that draws it; an entry's `holds` lists the matrix groups and constants of its own box.
+  component that draws it; an entry's `draws` lists the matrix groups and constants of its own box.
 - No class set holds an arbitrary value.
 - Heights are floors, never fixed: a minimum height is the floor of something pressed (control, field,
   target, chip, row). An element a pointer lands on is the target (28 px on the desktop, 44 on touch,
@@ -136,7 +136,7 @@ store.
   in a consumer build.
 - The tint a plugin hands to its own glyph or spinner is read back off a class set's colour, since the
   matrices already carry it; it is never written a second time.
-- Room is a margin on a box that draws, never an empty element: a picker's grouped children stand in
+- Space is a margin on a box that draws, never an empty element: a picker's grouped children stand in
   past the box by the box's width (the group's margin) and the gap after it (the body's).
 
 ## Controls
@@ -223,7 +223,7 @@ A glyph means one thing, so no mark's glyph is an act's or a state's:
 
 - A popup trigger renders the icon act's base (`IconButtonBase` in react-ui's `atoms/button/glyph.tsx`);
   the icon act's base names the act with a Tooltip, none on touch.
-- Text the frame cuts names itself through one shared tooltip the frame host mounts
+- Text a part cuts names itself through one shared tooltip the container host mounts
   (`shell/cut.tsx`), shown only when it measures cut.
 - No popup of the roster locks the page scroll (`Picker` passes `modal={false}`); a sheet is modal by
   design.

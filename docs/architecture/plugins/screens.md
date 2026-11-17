@@ -182,17 +182,17 @@ request outside the answered prefixes that reaches for another origin or a worke
 ### What a state applies to
 
 A state applies to a query, told by the procedure's kind (a direct client call to a query is a POST,
-since the wire is untouched) or by a GET where the schema lacks the path. A mutation, a frame route
+since the wire is untouched) or by a GET where the schema lacks the path. A mutation, a container route
 (`isContainerRoute`), the session read (`isSessionRead`) and a procedure a plugin's fixture module answers
 always answer from their fixture, as the story records; the app's own fixture for a plugin's procedure
 overrides it and follows the state.
 
-- **Frame routes** are the routes the api and auth plugins serve for the frame: the scope lookup of the
+- **Container routes** are the routes the api and auth plugins serve for the container: the scope lookup of the
   organization or project the URL names, and the caller's rules in it. A story forces the state of the
   screen's reads; the scope is always found (a missing one is the `$org` route's own story), whoever
   supplies the fixture.
 - **The session read** (plugin-auth's `auth.session`, the path mirroring plugin-auth's router) is the
-  frame's precondition: the auth guard and the active organization hang on it, so a forced error or
+  container's precondition: the auth guard and the active organization hang on it, so a forced error or
   loading would fail the guard in every such story rather than draw the screen in that state. It
   answers data whoever supplies the fixture, so an app that answers it with its own session (an
   `activeOrganizationId`, a role) is exempt like the plugin's.
@@ -385,7 +385,7 @@ document. The rules as a consumer meets them are in the guide's [render walk](..
   the viewer pans for the rest; a node wholly outside the pane is the viewer's to pan to.
 - **Alignment (`align-*`).** These report what a layout draws off the group structure and fail a run
   with the walk's other rules: a row is a text group and an end group centred on the row, a line of
-  mixed sizes has one baseline, nothing takes room and draws nothing, and the layout is flex alone.
+  mixed sizes has one baseline, nothing takes space and draws nothing, and the layout is flex alone.
   The rows on the page are flex rows with a row's role, or ones whose floor is a row token's (a control
   with that floor is no row); a flex column that is one stands its end items on its label line, which
   is then the row measured, centre and all. Its label is its first text, and its end items are what
@@ -395,7 +395,7 @@ document. The rules as a consumer meets them are in the guide's [render walk](..
   texts of one flex row's items; two share a line when they overlap by most of the smaller one's height
   (a value centred over a title and its meta shares neither), and are compared when their sizes differ.
 - **Dead box.** A box in the flow, wider and taller than half a pixel, that draws nothing and holds
-  nothing that does (the empty end square, a spacer) fails. Room that holds an alignment is a group's
+  nothing that does (the empty end square, a spacer) fails. Space that holds an alignment is a group's
   gap or padding, never an element.
 - **Covered text.** A text is covered when a box that is no relative of it and draws at a point of one
   of its lines stands above it there. A layer, a sticky box, a transparent box and a hit area that draws

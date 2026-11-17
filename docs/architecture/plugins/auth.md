@@ -521,19 +521,19 @@ renamed project, a changed role) invalidates the scope it resolved.
 procedure options call ([scope](./api.md#scope)). Resolution is stateless: the chain comes from the
 rows, the access from the caller's membership of the organization at its root, never from the
 session. It answers the rows of a scope's chain for an id as context entries, plus the caller's
-`member` row, typed by the scope (`ScopeContext<S>`). It answers `null` when any level is absent, the
+`member` row, typed by the scope (`ScopeContext<S>`). It answers `null` when any tier is absent, the
 caller is no member, or a consumer predicate fails (the membership one at the root, a scope's
-visibility one at its level); plugin-api answers that `null` as `NOT_FOUND`, the same as a missing
+visibility one at its tier); plugin-api answers that `null` as `NOT_FOUND`, the same as a missing
 row, so a guessed id never confirms that a row exists.
 
 The membership predicate decides which `member` rows count as a membership at all: a fragment over
 the `member` table, which the root lookup already has in its `FROM`, correlated to any consumer table
-it needs. The scopes module exports at most one. A resolved level's row lands in the procedure
+it needs. The scopes module exports at most one. A resolved tier's row lands in the procedure
 context under its scope's name, so a scope named after a key the context already carries would
 overwrite it; `scope.ts` refuses such a name. The refused keys are plugin-api's base context, checked
 against its type so a key it gains is refused too, and what the runtimes and middlewares add before a
 scope resolves: plugin-api's dev flag, plugin-db's client, this plugin's runtime and auth middleware,
-the MCP endpoint's caller, and the organization level.
+the MCP endpoint's caller, and the organization tier.
 
 ### MCP OAuth
 
