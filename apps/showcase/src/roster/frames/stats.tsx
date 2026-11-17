@@ -133,7 +133,7 @@ const painted = (items: readonly StatSpec[]): readonly StatsItem[] =>
 	items.map((item) => ({ ...item, value: waitingFigure }));
 
 // The shares over a read that failed, no frame above holding it: each is the
-// failed form itself, one with a line under its bar and one with counts.
+// failed shape itself, one with a line under its bar and one with counts.
 function Failed(props: { id: string }) {
 	const used = readsAt(props.id).failing.at((rows) => rows.length);
 	const cells: readonly StatsItem[] = [

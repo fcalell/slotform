@@ -98,7 +98,7 @@ function GroupBox(props: { group: FormGroup; arrived: boolean; at: number }) {
 			role="group"
 			accessibilityLabel={group.title}
 			accessibilityState={{
-				busy: frame.holds && frame.form === "waiting",
+				busy: frame.holds && frame.shape === "waiting",
 			}}
 			className={cn(ROWS, between(props.at))}
 		>
@@ -142,7 +142,7 @@ export function FormRows({
 }: FormFrameProps & { frame: Frame }) {
 	const arrived = useArrivals(
 		groups?.map((group, index) => group.title ?? String(index)) ?? [],
-		frame.form === "ready",
+		frame.shape === "ready",
 	);
 	return (
 		<>
@@ -182,7 +182,7 @@ export function useFormBar(
 	acting?: Acting<number>,
 ): ReactNode {
 	const words = useWords();
-	const { waiting, ended } = submitOf(words, frame.form);
+	const { waiting, ended } = submitOf(words, frame.shape);
 	const outerWaits = usePainted(outer);
 	return bar ? (
 		<View className={FORM_FOOT}>
@@ -215,7 +215,7 @@ export function FormShell({
 	return (
 		<TouchedContext.Provider value={touch}>
 			<View
-				accessibilityState={{ busy: frame.holds && frame.form === "waiting" }}
+				accessibilityState={{ busy: frame.holds && frame.shape === "waiting" }}
 				className={cn(card && CARD, ROWS)}
 			>
 				{children}

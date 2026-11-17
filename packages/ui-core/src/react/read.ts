@@ -14,7 +14,7 @@ import {
 } from "react";
 import {
 	combine,
-	createMarks,
+	createFlags,
 	type Datum,
 	type Drawn,
 	endedReason,
@@ -22,7 +22,7 @@ import {
 	frameOf,
 	type Held,
 	type Holds,
-	heldPlaceholder,
+	heldStandIn,
 	holdReads,
 	holdsOf,
 	isEnded,
@@ -61,7 +61,7 @@ export function useSelections<const V extends readonly unknown[]>(
 
 // A leaf that stands its act blocked with the failed sentence of the
 // selection it reads (`phase` "failed") draws that failure itself, so it is an
-// observer carrying `heldPlaceholder`, the read's holder for the dev check: no
+// observer carrying `heldStandIn`, the read's holder for the dev check: no
 // frame is needed to draw it. It notifies on nothing and draws no busy or stale
 // flag; a read an enclosing frame holds counts once more, which changes
 // nothing a frame draws.
@@ -71,7 +71,7 @@ export function useDrawsFailure(values: readonly unknown[]): void {
 	port.useReads(
 		plan.painted.map((read) => ({
 			read,
-			placeholder: heldPlaceholder,
+			placeholder: heldStandIn,
 			silent: true,
 		})),
 	);
@@ -99,7 +99,7 @@ export function FrameHolds(props: { holds: Holds; children?: ReactNode }) {
 	return createElement(HoldsContext, { value: props.holds }, props.children);
 }
 
-const MARKS = createMarks();
+const FLAGS = createFlags();
 
 // A frame's one subscription: docs/architecture/ui-core/reads.md, "Holding a read".
 export function useFrameRead<S>(
@@ -109,7 +109,7 @@ export function useFrameRead<S>(
 	state: S;
 	retry: () => Promise<unknown>;
 	holding: boolean;
-	marks: boolean;
+	flags: boolean;
 	holds: Holds;
 } {
 	const port = usePort();
@@ -128,11 +128,11 @@ export function useFrameRead<S>(
 	const id = useId();
 	const hash = plan.held?.key;
 	useEffect(
-		() => (hash === undefined ? undefined : MARKS.take(hash, id)),
+		() => (hash === undefined ? undefined : FLAGS.take(hash, id)),
 		[hash, id],
 	);
-	const mark = () => hash !== undefined && MARKS.marks(hash, id);
-	const marks = useSyncExternalStore(MARKS.subscribe, mark, mark);
+	const flagged = () => hash !== undefined && FLAGS.flags(hash, id);
+	const flags = useSyncExternalStore(FLAGS.subscribe, flagged, flagged);
 	useEffect(
 		() => holdReads(plan.held ? [plan.held, ...plan.extra] : []),
 		[plan],
@@ -140,22 +140,22 @@ export function useFrameRead<S>(
 	const state = port.useReads(plan.queries, plan.combine);
 	// The refetch itself, so a Retry draws its own pending until it settles.
 	const retry = () => (plan.held ? port.retry(plan.held) : Promise.resolve());
-	return { state, retry, holding: plan.held !== undefined, marks, holds };
+	return { state, retry, holding: plan.held !== undefined, flags, holds };
 }
 
-/** A frame's one subscription to its read (a read or a selection): the form it draws (from its own selection's reads), its count, whether it refetches, whether it holds its read (it draws that read's busy, stale and paused flags), whether it `marks` it (of sibling frames over one read, the first draws the busy mark), the hashes it and its ancestors hold (`held`, for its body to publish) and the retry. */
+/** A frame's one subscription to its read (a read or a selection): the shape it draws (from its own selection's reads), its count, whether it refetches, whether it holds its read (it draws that read's busy, stale and paused flags), whether it `flags` it (of sibling frames over one read, the first draws the busy mark), the hashes it and its ancestors hold (`held`, for its body to publish) and the retry. */
 export function useFrame(read?: Selection<unknown>) {
 	const {
 		state,
 		retry,
 		holding,
-		marks,
+		flags,
 		holds: held,
 	} = useFrameRead(read, frameOf);
 	return {
 		...state,
 		holds: holding,
-		marks,
+		flags,
 		held,
 		retry,
 	};
@@ -163,7 +163,7 @@ export function useFrame(read?: Selection<unknown>) {
 
 export type Frame = ReturnType<typeof useFrame>;
 
-/** A collection's subscription to its items: what it draws (the placeholder while its read waits) and its own frame, from its own selection alone, so its failed, missing and empty forms never depend on what stands above it. A constant has no frame to speak of: it draws as given. */
+/** A collection's subscription to its items: what it draws (the placeholder while its read waits) and its own frame, from its own selection alone, so its failed, missing and empty shapes never depend on what stands above it. A constant has no frame to speak of: it draws as given. */
 export function useCollection<T>(items: Datum<readonly T[]>) {
 	const [drawn] = useSelections([items] as const);
 	const frame = useFrame(isSelection(items) ? items : undefined);
@@ -171,7 +171,7 @@ export function useCollection<T>(items: Datum<readonly T[]>) {
 	return { drawn: drawn as Drawn<readonly T[]>, frame };
 }
 
-/** A row's subscription to the selections it draws (a definition's value and description, a meter's label, value and max): the row is their frame, as a collection is its items'. It holds the one read no enclosing frame holds, so a row outside every frame draws its own failure (`ended`: its read failed or is missing) and its retry, and a row whose read an enclosing frame holds draws nothing of its own: that frame's failed form stands once, in its place. `busy` is the retry running. */
+/** A row's subscription to the selections it draws (a definition's value and description, a meter's label, value and max): the row is their frame, as a collection is its items'. It holds the one read no enclosing frame holds, so a row outside every frame draws its own failure (`ended`: its read failed or is missing) and its retry, and a row whose read an enclosing frame holds draws nothing of its own: that frame's failed shape stands once, in its place. `busy` is the retry running. */
 export function useRow(data: readonly unknown[]) {
 	// The selection is memoized by the list's identity, as `useSelections`' plan
 	// is (the React Compiler gives a literal list that identity).
@@ -180,7 +180,7 @@ export function useRow(data: readonly unknown[]) {
 		return drawn.length > 0 ? combine(drawn, () => null) : undefined;
 	}, [data]);
 	const frame = useFrame(selection);
-	const ended = frame.holds && isEnded(frame.form) ? frame.form : undefined;
+	const ended = frame.holds && isEnded(frame.shape) ? frame.shape : undefined;
 	return { ended, busy: frame.busy, retry: frame.retry };
 }
 
@@ -201,18 +201,18 @@ export function useOptions<O>(given: Fielded<O, OptionText>) {
 }
 
 /** What the bar that submits a frame's data takes from the frame's own read: whether its filled act paints (the read waits or stands still, so the bar keeps its loaded box) and the reason it stands blocked under (the read failed or is missing). A group's read is not the form's, so it never reaches the bar. */
-export function submitOf(words: Words, form: Frame["form"]) {
+export function submitOf(words: Words, shape: Frame["shape"]) {
 	return {
-		waiting: form === "waiting" || form === "still",
-		ended: endedReason(words, form),
+		waiting: shape === "waiting" || shape === "still",
+		ended: endedReason(words, shape),
 	};
 }
 
-/** Whether a frame has a body to draw: its failed, missing or empty form, or children that draw. A frame with neither draws no body box, since an empty one only takes its padding. */
+/** Whether a frame has a body to draw: its failed, missing or empty shape, or children that draw. A frame with neither draws no body box, since an empty one only takes its padding. */
 export function hasBody(frame: Frame, children: ReactNode): boolean {
 	return (
-		isEnded(frame.form) ||
-		frame.form === "empty" ||
+		isEnded(frame.shape) ||
+		frame.shape === "empty" ||
 		(children !== undefined && children !== null && children !== false)
 	);
 }

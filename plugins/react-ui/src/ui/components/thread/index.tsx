@@ -112,7 +112,7 @@ export type ThreadProps<
 	T = unknown,
 	P extends ProcedureCall = ProcedureCall,
 > = Closed & {
-	/** The items the messages draw, oldest first: constants, or a selection, which paints two turns until its read lands, an ask of yours over the other author's reply (`PAINT_TURNS`). A selection stands in a frame (a Pane, Section, Sheet or Form given the read), which draws the thread's failed, missing and empty forms. */
+	/** The items the messages draw, oldest first: constants, or a selection, which paints two turns until its read lands, an ask of yours over the other author's reply (`PAINT_TURNS`). A selection stands in a frame (a Pane, Section, Sheet or Form given the read), which draws the thread's failed, missing and empty shapes. */
 	items: Datum<readonly T[]>;
 	/** The `Message` slots. */
 	message: MessageSlots<T>;
@@ -297,7 +297,7 @@ function messageAt<T>(
 
 // What follows the window: the waiting message and the turn being written,
 // which grow outside it, so a chunk never reaches the rows. They stand through
-// the items' failed form, which says nothing of a turn being written, and
+// the items' failed shape, which says nothing of a turn being written, and
 // hold back while the items are painted.
 function tailOf<T>(
 	props: Omit<ThreadProps<T>, "sheet">,
@@ -325,7 +325,7 @@ function tailOf<T>(
 	);
 }
 
-/** The messages, a log region so an arriving one is announced, a sections gap apart, one rung above a reply's block gap, and the input a sections gap under them. It fills what it stands in by plain flex: in a Pane's body it takes the free height and the log scrolls, opening at the newest message and following each that arrives while the reader is at the end, the input under it, which a docked `sheet` takes the place of, its body scrolling past two fifths of the region and keeping three rows, the log keeping two rows of its own while the body can give and the foot's head and submit never giving; while the reader is scrolled up, a Latest act floats centred above the input and returns to the newest message. Among sections it stands at its content's height, its input under its log; to keep the field in reach however long the page (on touch, above the tab bar) the route gives the Pane's `foot` a `Composer` and its `sheet`, and the Thread no `composer`, so the log stays among the sections. It draws one Message per item, and with `replying` set one waiting Message of the other author after them, followed and pinned to as any message is, replaced in place when the reply's item arrives and `replying` clears; the `reply` read draws its turn after them the same way, from its own subscription. While the `items` selection's read waits, an ask of yours and the other author's reply stand in the log (`PAINT_TURNS`), painted and inert. The thread is a frame of its items: the failed form with Retry and the missing form stand in the log's place, in its box with the generic sentence, and the empty form is one sentence in the meta ink (`empty`, else the generic one) centred in the log over its act, if any; the foot and the reply stand through each of them, so a thread whose items failed still sends. The stale and paused line stands over the log while it holds its read. */
+/** The messages, a log region so an arriving one is announced, a sections gap apart, one rung above a reply's block gap, and the input a sections gap under them. It fills what it stands in by plain flex: in a Pane's body it takes the free height and the log scrolls, opening at the newest message and following each that arrives while the reader is at the end, the input under it, which a docked `sheet` takes the place of, its body scrolling past two fifths of the region and keeping three rows, the log keeping two rows of its own while the body can give and the foot's head and submit never giving; while the reader is scrolled up, a Latest act floats centred above the input and returns to the newest message. Among sections it stands at its content's height, its input under its log; to keep the field in reach however long the page (on touch, above the tab bar) the route gives the Pane's `foot` a `Composer` and its `sheet`, and the Thread no `composer`, so the log stays among the sections. It draws one Message per item, and with `replying` set one waiting Message of the other author after them, followed and pinned to as any message is, replaced in place when the reply's item arrives and `replying` clears; the `reply` read draws its turn after them the same way, from its own subscription. While the `items` selection's read waits, an ask of yours and the other author's reply stand in the log (`PAINT_TURNS`), painted and inert. The thread is a frame of its items: the failed shape with Retry and the missing shape stand in the log's place, in its box with the generic sentence, and the empty shape is one sentence in the meta ink (`empty`, else the generic one) centred in the log over its act, if any; the foot and the reply stand through each of them, so a thread whose items failed still sends. The stale and paused line stands over the log while it holds its read. */
 export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 	props: ThreadProps<T, P>,
 ) {
@@ -365,7 +365,7 @@ export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 }
 
 // The log and the Latest act floating at its foot. The items' failed and
-// missing forms stand in the messages' place, the reply and the waiting
+// missing shapes stand in the messages' place, the reply and the waiting
 // message after them as after any messages.
 function Log<T>(props: {
 	thread: Omit<ThreadProps<T>, "sheet">;
@@ -374,12 +374,12 @@ function Log<T>(props: {
 	slots: RefObject<MessageSlots<T>>;
 }) {
 	const { thread, drawn, frame, slots } = props;
-	const ended = isEnded(frame.form);
-	// The empty form stands in the messages' place as the ended ones do, but says
+	const ended = isEnded(frame.shape);
+	// The empty shape stands in the messages' place as the ended ones do, but says
 	// its own sentence, centred in the log.
-	const empty = frame.form === "empty";
+	const empty = frame.shape === "empty";
 	// On the desktop the log keeps the composer's measure column, so a message,
-	// your message's end and the failed or empty form stand on the field's edges.
+	// your message's end and the failed or empty shape stand on the field's edges.
 	const column = !useTouch() && THREAD_COLUMN;
 	const count = ended
 		? 0

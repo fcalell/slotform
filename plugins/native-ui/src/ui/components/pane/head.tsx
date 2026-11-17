@@ -65,10 +65,10 @@ export function PaneHead(props: {
 	const { title, heading, back, acts, more, frame } = props;
 	const words = useWords();
 	// A Pane whose own read failed or answered not found draws none of its acts:
-	// the page below the bar is the failed or missing form, whose Retry (or way
+	// the page below the bar is the failed or missing shape, whose Retry (or way
 	// back) is the one act, and an act of the read that ended would only stand
 	// blocked beside it.
-	const gone = isEnded(frame.form);
+	const gone = isEnded(frame.shape);
 	const moreOf = offered<readonly MenuEntry[]>(more);
 	const actsOf = (acts ?? []).map((one) => offered<IconAct | IconLinkAct>(one));
 	const [name, overflowAt, ...actionAt] = useSelections([

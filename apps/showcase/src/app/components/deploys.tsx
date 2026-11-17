@@ -224,7 +224,7 @@ function Record(props: {
 }
 
 // A step the deploy opened, a section in the deploy's own Pane: docs/architecture/ui-core/layout.md, "Record head".
-// The step is a selection of the deploy's read, so a step that is gone draws the empty form.
+// The step is a selection of the deploy's read, so a step that is gone draws the empty shape.
 export function DeployStep(props: { deployId: string; stepId: string }) {
 	const deploy = deployRead(props.deployId);
 	const step = deploy.at((each) =>
@@ -429,7 +429,7 @@ export function DeployRecord(props: {
 					"$0.86",
 				],
 				// The preview of what the deploy built: a failed deploy built none, so its
-				// address is empty and the tile draws its empty form.
+				// address is empty and the tile draws its empty shape.
 				image: {
 					src: deploy.at((each) =>
 						each.state === "failed" ? "" : "/mark.svg",

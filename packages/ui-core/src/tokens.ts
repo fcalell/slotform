@@ -172,8 +172,8 @@ export type ColorName = (typeof COLOR_GROUPS)[ColorGroup][number];
 
 export type Hue = number | "accent" | "cast";
 
-// A contrast hold: docs/architecture/ui-core/tokens.md, "Derivation".
-export interface Holds {
+// A contrast ground: docs/architecture/ui-core/tokens.md, "Derivation".
+export interface ContrastGrounds {
 	on: ColorName;
 	under?: ColorName;
 	ratio: number;
@@ -184,7 +184,7 @@ export interface ColorValue {
 	c: number;
 	hue: Hue;
 	alpha?: number;
-	holds?: readonly Holds[];
+	holds?: readonly ContrastGrounds[];
 }
 
 // Grounds that re-point the hairline: docs/architecture/ui-core/tokens.md, "Edges".
@@ -213,7 +213,7 @@ export type ColorDeclaration =
 			mix: ColorName;
 			toward: MixTarget | Record<Mode, MixTarget>;
 			amount: number;
-			holds?: Record<Mode, readonly Holds[]>;
+			holds?: Record<Mode, readonly ContrastGrounds[]>;
 	  };
 
 // A neutral's chroma: docs/architecture/ui-core/tokens.md, "Colour tokens".
@@ -379,7 +379,7 @@ const DANGER_LIGHT: ColorValue = {
 };
 
 // The faintest text ink's floor: docs/architecture/ui-core/tokens.md, "Contrast floors".
-const META_HOLDS: readonly Holds[] = [
+const META_HOLDS: readonly ContrastGrounds[] = [
 	{ on: "neutral-soft", ratio: 4.5 },
 	{ on: "canvas", ratio: 4.5 },
 	{ on: "surface", ratio: 4.5 },
@@ -387,7 +387,7 @@ const META_HOLDS: readonly Holds[] = [
 	{ on: "surface", under: "wash-selected", ratio: 4.5 },
 ];
 
-const MARK_HOLDS: readonly Holds[] = [
+const MARK_HOLDS: readonly ContrastGrounds[] = [
 	{ on: "canvas", ratio: 3 },
 	{ on: "surface", ratio: 3 },
 	{ on: "group", ratio: 3 },
@@ -396,7 +396,7 @@ const MARK_HOLDS: readonly Holds[] = [
 
 // The neutral soft ground is a veil, so it holds on each ground it can lie over;
 // the tinted ones are opaque.
-const EDGE_STRONG_HOLDS: readonly Holds[] = [
+const EDGE_STRONG_HOLDS: readonly ContrastGrounds[] = [
 	{ on: "surface", under: "wash-press", ratio: 3 },
 	{ on: "surface", under: "wash-selected", ratio: 3 },
 	{ on: "accent-soft", ratio: 3 },

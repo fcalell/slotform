@@ -357,7 +357,7 @@ export interface TableRecord {
 	cells: Readonly<Record<string, TableCell>>;
 }
 
-// The Table's rows over painted items: docs/architecture/ui-core/reads.md, "Paint forms".
+// The Table's rows over painted items: docs/architecture/ui-core/reads.md, "Paint shapes".
 export function tableRecords<T>(
 	items: readonly T[],
 	columns: readonly TableColumn<T>[],

@@ -13,7 +13,7 @@ without either.
 
 | Slot | Contribution |
 |------|--------------|
-| `react.slots.providers` | `<QueryProvider hold={holdFor}>` (`holdFor` from `@fcalell/ui-core/paint`) around the web app (`order: 2`) |
+| `react.slots.providers` | `<QueryProvider hold={paintWait}>` (`paintWait` from `@fcalell/ui-core/paint`) around the web app (`order: 2`) |
 | `vite.slots.optimizeExclude` | `@fcalell/plugin-query/tanstack-query`, which imports `virtual:stack-schema` |
 | `cliSlots.initDeps` | `@orpc/tanstack-query` |
 

@@ -206,7 +206,7 @@ export function MenuBase({
 						role="menu"
 						aria-label={label}
 						onKeyDown={moveFocus}
-						className={cn(menu({ form: "sheet" }), POPUP)}
+						className={cn(menu({ lines: "sheet" }), POPUP)}
 					>
 						<Groups
 							items={items}
@@ -272,7 +272,7 @@ export function MenuBase({
 					<Control.Popup
 						className={cn(
 							POPOVER,
-							menu({ form: "popover" }),
+							menu({ lines: "popover" }),
 							POPUP,
 							LAYER_POPOVER,
 						)}

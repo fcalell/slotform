@@ -66,7 +66,7 @@ function componentCells(entry: RosterEntry): ShowcaseCell[] {
 
 const FIRST = new Map<string, string>();
 
-/** Whether the frame's cell is the first its component draws: the one a state whose form no cell changes (a collection's failed form, a control's options failing) draws on, once. */
+/** Whether the frame's cell is the first its component draws: the one a state whose form no cell changes (a collection's failed shape, a control's options failing) draws on, once. */
 export function isFirstCell(frame: ShowcaseFrame): boolean {
 	if (FIRST.size === 0)
 		for (const [, component, entry] of rosterEntries())

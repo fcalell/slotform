@@ -69,7 +69,7 @@ interface DiffBase extends Closed {
 // line or by word.
 export type DiffProps =
 	| (DiffBase & {
-			/** The hunks, each its lines (a `header`'s ranges are never drawn: an elided mark parts two hunks, and stands before a first that starts past line 1, with the function git names after the ranges). A selection paints `PAINT_ROWS` lines until its read lands, and is the diff's own frame: it holds its read and draws the failed, missing and empty forms in its own box whatever stands above it. */
+			/** The hunks, each its lines (a `header`'s ranges are never drawn: an elided mark parts two hunks, and stands before a first that starts past line 1, with the function git names after the ranges). A selection paints `PAINT_ROWS` lines until its read lands, and is the diff's own frame: it holds its read and draws the failed, missing and empty shapes in its own box whatever stands above it. */
 			hunks: Datum<readonly Hunk[]>;
 			before?: never;
 			after?: never;
@@ -176,7 +176,7 @@ function ElidedBefore(props: {
 	);
 }
 
-// A unified diff at the code role in the frame Code shares: docs/architecture/plugins/native-ui.md, "Diff". Its frame forms: docs/architecture/ui-core/reads.md, "What a frame draws".
+// A unified diff at the code role in the frame Code shares: docs/architecture/plugins/native-ui.md, "Diff". Its frame shapes: docs/architecture/ui-core/reads.md, "What a frame draws".
 function LineDiff({ label, hunks, before, after }: DiffProps) {
 	const [h, b, a] = useSelections([hunks, before, after] as const);
 	// The hunks are the diff's frame: two texts are given plain or by a

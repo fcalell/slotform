@@ -56,7 +56,7 @@ Columns over time.
 A picture that opens full size on a press.
 
 - `src`: the address; a selection paints the tile until its read lands.
-- `alt`: what it shows; the failed form's words and the full view's name.
+- `alt`: what it shows; the failed shape's words and the full view's name.
 - `fit`: `content` (the default; the container's width at `aspect`, capped in height) or `thumb`, a square tile.
 - `aspect`: the width over the height (`16 / 9`), which the screen gives as it knows it before the bytes land. A `content` Image requires it; a `thumb` takes none.
 

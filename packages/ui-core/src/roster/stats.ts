@@ -12,7 +12,7 @@ import { ANSWER } from "./shared.ts";
 // tone once reached); under it one line, its `line` or its sub-counts. Its `value` and `bound` are data: a selection paints
 // in their place, the cell inert, until the read lands. The meter is the frame
 // of the selections it draws: one that failed, with no frame above holding it,
-// makes the failed form in the same box (the label stays; the figure's place shows
+// makes the failed shape in the same box (the label stays; the figure's place shows
 // the alert and the retry icon; the line under the bar reads `readFailed`;
 // pressing the cell retries); a read a frame above holds is that frame's to
 // say, and the cell stands empty (no share, no fill). Cells stand in a row, two

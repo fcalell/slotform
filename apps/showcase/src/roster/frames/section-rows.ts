@@ -510,7 +510,7 @@ export const LINES: Row[] = [
 ];
 
 // The records `MARKS`' first row stands on, as a feed of items gives them: the
-// waiting form takes its shape from the one row such a mapping gives a sample
+// waiting shape takes its shape from the one row such a mapping gives a sample
 // record, whose status is a slot with nothing in it.
 export interface Item {
 	id: string;

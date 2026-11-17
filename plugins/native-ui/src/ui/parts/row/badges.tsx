@@ -161,7 +161,7 @@ function Mark({ spec }: { spec: BadgeSpec }) {
 
 // A painted badge is the loaded badge's box in the paint's fill, its glyph and
 // its words as unseen boxes at the loaded size (a word's length), so the
-// waiting form takes the room the loaded one will.
+// waiting shape takes the room the loaded one will.
 function PaintedBadge({ spec, at }: { spec: BadgeSpec; at: number }) {
 	const mark =
 		spec.kind === "status" ? (

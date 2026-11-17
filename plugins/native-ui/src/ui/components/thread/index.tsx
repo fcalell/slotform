@@ -115,7 +115,7 @@ export type ThreadProps<
 	T = unknown,
 	P extends ProcedureCall = ProcedureCall,
 > = Closed & {
-	/** The items the messages draw, oldest first: constants, or a selection, which paints two turns until its read lands, an ask of yours over the other author's reply (`PAINT_TURNS`). A selection stands in a frame (a Pane, Section, Sheet or Form given the read), which draws the thread's failed, missing and empty forms. */
+	/** The items the messages draw, oldest first: constants, or a selection, which paints two turns until its read lands, an ask of yours over the other author's reply (`PAINT_TURNS`). A selection stands in a frame (a Pane, Section, Sheet or Form given the read), which draws the thread's failed, missing and empty shapes. */
 	items: Datum<readonly T[]>;
 	message: MessageSlots<T>;
 	/** The input under the messages, where a message is written and sent: what is written, its attachments, the notice under it, and the sending and stopping of an answer. */
@@ -287,7 +287,7 @@ function logOf<T>(
 		: messages;
 }
 
-// The phone's thread: docs/architecture/plugins/native-ui.md, "Thread". Its frame forms and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
+// The phone's thread: docs/architecture/plugins/native-ui.md, "Thread". Its frame shapes and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 	props: ThreadProps<T, P>,
 ) {
@@ -330,7 +330,7 @@ export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 }
 
 // The log and the Latest act floating at its foot. The items' failed and
-// missing forms stand in the messages' place, the reply and the waiting
+// missing shapes stand in the messages' place, the reply and the waiting
 // message after them as after any messages.
 function Log<T>(props: {
 	thread: Omit<ThreadProps<T>, "sheet">;
@@ -339,7 +339,7 @@ function Log<T>(props: {
 	slots: RefObject<MessageSlots<T>>;
 }) {
 	const { thread, drawn, frame, slots } = props;
-	const ended = isEnded(frame.form);
+	const ended = isEnded(frame.shape);
 	const children = ended ? [] : logOf(thread, drawn, slots);
 	// The messages that came to the end of the log on their own once it was
 	// drawn rise in as they mount; what it held when first drawn does not. The
@@ -415,7 +415,7 @@ function Log<T>(props: {
 				contentContainerClassName={cn(THREAD, UPSIDE_DOWN)}
 			>
 				{reply}
-				{ended || frame.form === "empty" ? (
+				{ended || frame.shape === "empty" ? (
 					<View style={INVERTED}>
 						<FrameBody frame={frame} fit="frame" empty={thread.empty} />
 					</View>

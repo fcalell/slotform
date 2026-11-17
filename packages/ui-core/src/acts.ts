@@ -106,7 +106,7 @@ export function startRun<K>(
 }
 
 // A control save settling: docs/architecture/ui-core/acts.md, "Control saves".
-export function holdSave(
+export function keepSave(
 	save: PromiseLike<unknown>,
 	reads: readonly Read<unknown>[],
 	settled: (reads: readonly Read<unknown>[]) => Promise<void>,

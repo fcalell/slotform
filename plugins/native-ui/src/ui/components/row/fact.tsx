@@ -15,7 +15,7 @@ const TAIL = "shrink-0";
 // takes, as a fingerprint must.
 const WHOLE = "shrink min-w-0";
 
-/** A copyable id bare in the mono, cut as the row cuts it: its stem is one slot across the waiting form and the loaded one, so it decodes if it waited. The two parts read as the one value. `whole`, the stem is the whole value and wraps, breaking anywhere. */
+/** A copyable id bare in the mono, cut as the row cuts it: its stem is one slot across the waiting shape and the loaded one, so it decodes if it waited. The two parts read as the one value. `whole`, the stem is the whole value and wraps, breaking anywhere. */
 export function IdValue(props: {
 	painted?: boolean;
 	at?: number;

@@ -1,5 +1,5 @@
 import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
-import { DRAG_HOLD, HOLD_SLOP } from "@fcalell/ui-core/drag";
+import { DRAG_DELAY, DRAG_DELAY_SLOP } from "@fcalell/ui-core/drag";
 import {
 	type MouseEvent,
 	type PointerEvent,
@@ -11,8 +11,8 @@ import {
 import type { Viewport } from "./viewport.ts";
 
 // A node lifts after the drag long press: docs/architecture/plugins/react-ui.md, "Canvas".
-export const LIFT_MS = DRAG_HOLD;
-export const SLOP = HOLD_SLOP;
+export const LIFT_MS = DRAG_DELAY;
+export const SLOP = DRAG_DELAY_SLOP;
 
 // Where a node stands after the pointer moved from `from` to `to` (client
 // pixels) since it stood at `start` (flow coordinates), at zoom `zoom`.

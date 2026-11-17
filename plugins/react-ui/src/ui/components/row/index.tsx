@@ -49,7 +49,7 @@ import {
 	row,
 	rowStep,
 	rowTitle,
-	rowTitleForm,
+	rowTitleLines,
 	STATUS,
 	text,
 	YIELDS_FIRST,
@@ -412,7 +412,7 @@ function trailingWord(trailing: RowTrailing): ReactNode {
 	return trailing.value;
 }
 
-/** The one row of a Section's sheet, whatever it holds. Its box is a line of three groups: a leading slot (the change mark, then the leading mark: a glyph, a status dot, an avatar, a type's mark or a tick; a tree's rails), a text group (the title over the facts line) and an end group, in one order: the marks whose words are not drawn (`words: false`: a glyph named by its label, with a tooltip), the trailing value, a switch, a pick, the act (an icon act), the copy act, the more act, a tree's fold. The facts line is a line of badges (`BadgesLine`), each fact one badge in the order given, none breaking inside, none separated from the next by a dot, whole badges wrapping to the next line: the status its tone's mark and word, the row's lock (the lock glyph and its reason, a link to what holds the fact with an `href`, inert without one) right after it, a warning the warn glyph and phrase, a chip its family's dot and value, a ring (outlined, its centre filled) or a flag its glyph and label, words and a code in the mono their text; a blocked tick's reason is the first badge, plain. A badge too long for the line is cut inside its box with an ellipsis. A sentence is not a fact: the row's `line` is text under the title and the badges, in the meta ink at the meta role, wrapping whole at every width (runs, a code run moving whole to the next line), a badge's gap below the badges above it, so a row with a line is at least two lines (the line under the title where the badges follow it on its line); empty it draws nothing, painted it is one sentence's filler. A row with a mark is two lines at every width; a row with fact words alone is one line where it is wide enough and two below (the `row` container, `rowOneLine`: a rule of the row's width, never a measure of its content), and on touch two at every width. In a one-line row the badges follow the title on its line on one line, the last one cut where the line is out of room; under the title, and under a wrapped title (`wrap`), they wrap whole. A lone `{ code }` fact is no badge: it is the row's value, the mono cut in its middle and, in the two-line form, whole. A room place's row whose only mark is a status keeps it in the end group's start after the facts, a dot and its word, one line. A row with a `label` stands in the sheet's two columns, the label in the first at the body role in the meta ink (a `code` label in the code role) in a column as wide as the widest label of the Pane, and the line in the second; on touch the line stands under the label. A row without one spans the sheet from its start. A row that opens (`href` or `onOpen`) draws no chevron: it is one hit, washing under the pointer, current (the bar) when `selected`, or at its `href` unless `selected` is `false`; a linked badge (the lock) stands above the hit and takes the pointer, the rest of the line none. A title truncates on one line unless `wrap`, whether the row has a label or not; the end group is centred on the row; an absent word is in the meta ink, a status title is its tone's mark and word at the title's start, plain (no pill: colour stays on the glyph), a copyable code is the mono and, too long for its room, cut in its middle. The painted form is the loaded one with every part in its filler, a badge's filler at the loaded badge's size, inert. The row is the frame of the selections it draws (`title`, `facts`, `line`): one that failed, with no frame above holding it, makes the failed form (the label stays, the end shows the failure mark and the retry icon, the facts line reads "This didn't load." as text, and pressing the row retries). Outside the package's exports. */
+/** The one row of a Section's sheet, whatever it holds. Its box is a line of three groups: a leading slot (the change mark, then the leading mark: a glyph, a status dot, an avatar, a type's mark or a tick; a tree's rails), a text group (the title over the facts line) and an end group, in one order: the marks whose words are not drawn (`words: false`: a glyph named by its label, with a tooltip), the trailing value, a switch, a pick, the act (an icon act), the copy act, the more act, a tree's fold. The facts line is a line of badges (`BadgesLine`), each fact one badge in the order given, none breaking inside, none separated from the next by a dot, whole badges wrapping to the next line: the status its tone's mark and word, the row's lock (the lock glyph and its reason, a link to what holds the fact with an `href`, inert without one) right after it, a warning the warn glyph and phrase, a chip its family's dot and value, a ring (outlined, its centre filled) or a flag its glyph and label, words and a code in the mono their text; a blocked tick's reason is the first badge, plain. A badge too long for the line is cut inside its box with an ellipsis. A sentence is not a fact: the row's `line` is text under the title and the badges, in the meta ink at the meta role, wrapping whole at every width (runs, a code run moving whole to the next line), a badge's gap below the badges above it, so a row with a line is at least two lines (the line under the title where the badges follow it on its line); empty it draws nothing, painted it is one sentence's filler. A row with a mark is two lines at every width; a row with fact words alone is one line where it is wide enough and two below (the `row` container, `rowOneLine`: a rule of the row's width, never a measure of its content), and on touch two at every width. In a one-line row the badges follow the title on its line on one line, the last one cut where the line is out of room; under the title, and under a wrapped title (`wrap`), they wrap whole. A lone `{ code }` fact is no badge: it is the row's value, the mono cut in its middle and, in the two-line form, whole. A room place's row whose only mark is a status keeps it in the end group's start after the facts, a dot and its word, one line. A row with a `label` stands in the sheet's two columns, the label in the first at the body role in the meta ink (a `code` label in the code role) in a column as wide as the widest label of the Pane, and the line in the second; on touch the line stands under the label. A row without one spans the sheet from its start. A row that opens (`href` or `onOpen`) draws no chevron: it is one hit, washing under the pointer, current (the bar) when `selected`, or at its `href` unless `selected` is `false`; a linked badge (the lock) stands above the hit and takes the pointer, the rest of the line none. A title truncates on one line unless `wrap`, whether the row has a label or not; the end group is centred on the row; an absent word is in the meta ink, a status title is its tone's mark and word at the title's start, plain (no pill: colour stays on the glyph), a copyable code is the mono and, too long for its room, cut in its middle. The painted shape is the loaded one with every part in its filler, a badge's filler at the loaded badge's size, inert. The row is the frame of the selections it draws (`title`, `facts`, `line`): one that failed, with no frame above holding it, makes the failed shape (the label stays, the end shows the failure mark and the retry icon, the facts line reads "This didn't load." as text, and pressing the row retries). Outside the package's exports. */
 export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	const {
 		change: kind,
@@ -472,7 +472,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	// fade is not cut short by a later one).
 	const [fades] = useState(arrived);
 	// The row is the frame of the reads it draws that no frame above holds: one
-	// that ended is the row's failed form, in place of its title, facts and end;
+	// that ended is the row's failed shape, in place of its title, facts and end;
 	// a read an enclosing frame holds is that frame's to say.
 	// The facts are a list, a read of its own or of each fact: one that waits
 	// paints a filler in its place.
@@ -549,7 +549,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 				.map((fact) => fact.value);
 	const split = splitFacts(drawn);
 	const { status, warnings } = split;
-	// A chip and the boolean marks are the item's data, which the painted form
+	// A chip and the boolean marks are the item's data, which the painted shape
 	// cannot know: never painted (the loaded rows that have none would land
 	// narrower).
 	const chips = painted ? [] : split.chips;
@@ -745,7 +745,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	if (hasTitle) {
 		const whole = wrap || quotedWraps;
 		const box = cn(
-			rowTitle({ form: rowTitleForm(dim) }),
+			rowTitle({ lines: rowTitleLines(dim) }),
 			whole
 				? TITLE_WHOLE
 				: cn(
@@ -791,7 +791,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		} else if (plain !== undefined && isCode(plain)) {
 			titleLine = whole ? (
 				<span
-					className={cn(rowTitle({ form: rowTitleForm(dim) }), TITLE_WHOLE)}
+					className={cn(rowTitle({ lines: rowTitleLines(dim) }), TITLE_WHOLE)}
 				>
 					<code className={cn(CODE_NAME, CODE_WHOLE)}>
 						<CodeWhole code={plain.code} />
@@ -800,7 +800,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			) : (
 				<span
 					className={cn(
-						rowTitle({ form: rowTitleForm(dim) }),
+						rowTitle({ lines: rowTitleLines(dim) }),
 						TITLE_CODE,
 						oneLine && hasMeta && INLINE_TITLE,
 					)}
@@ -893,7 +893,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			</span>
 		) : null;
 	// The control of a fact: its switch, in the end group, or the failure mark
-	// and the retry in the failed form.
+	// and the retry in the failed shape.
 	const control = ended ? (
 		<span className={cn("flex items-center", ROW_END, POINTED)}>
 			<FailedMark />

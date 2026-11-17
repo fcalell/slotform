@@ -5,7 +5,7 @@ import { text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import type { ShowcaseFrame } from "../cells.ts";
 
-/** Whether the frame draws a `PAINT` cell: an atom's painted form beside its loaded one. */
+/** Whether the frame draws a `PAINT` cell: an atom's painted shape beside its loaded one. */
 export const isPaint = (frame: ShowcaseFrame) =>
 	frame.cell.name.startsWith("PAINT.");
 
@@ -26,10 +26,10 @@ export function beside(
 	);
 }
 
-// A control under its label, as a FormField gives it one: the painted form of
+// A control under its label, as a FormField gives it one: the painted shape of
 // a control keeps the label it will have, and a loaded one is named for the
 // accessibility run. The wrapper takes no more than its row has, so the
-// control truncates as it does beside its painted form.
+// control truncates as it does beside its painted shape.
 export function labelled(control: ReactNode) {
 	return (
 		<FieldOwned value>

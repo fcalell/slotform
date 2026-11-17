@@ -76,7 +76,7 @@ function useChangedFiles(id: string, named: string | undefined) {
 // A deploy's changes: the description's edit and the release notes it was
 // opened with, as selections of the deploy the Pane holds, then the files and
 // the build log from their own reads. A deploy that edited no description draws
-// the Section's empty form.
+// the Section's empty shape.
 export function DeployChanges(props: {
 	deploy: Selection<OpenDeploy>;
 	deployId: string;

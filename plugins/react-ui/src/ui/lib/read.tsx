@@ -18,9 +18,9 @@ import type { Act } from "./act.ts";
 import { wiringOf } from "./act.ts";
 import { type Empty, EmptyBase, type EmptyFit } from "./empty.tsx";
 
-/** The `data-still` a frame's own box carries while its held read has no data and nothing is coming (not asked for, or paused): its painted form stands, and nothing breathes or scrambles in it. */
+/** The `data-still` a frame's own box carries while its held read has no data and nothing is coming (not asked for, or paused): its painted shape stands, and nothing breathes or scrambles in it. */
 export const stillOf = (frame: Frame): "" | undefined =>
-	frame.holds && frame.form === "still" ? "" : undefined;
+	frame.holds && frame.shape === "still" ? "" : undefined;
 
 // A compact control's failed marks stand whole beside it.
 const ENDED_MARKS = "flex shrink-0 items-center";
@@ -66,12 +66,12 @@ export function RetryMark({ busy }: { busy: boolean }) {
 	);
 }
 
-// The empty form. Its sentence may be a read of its own (a selection of what
+// The empty shape. Its sentence may be a read of its own (a selection of what
 // the frame holds), subscribed here and only here: a frame whose read failed has
 // no such observer, which would mount on the failed read again each time the
-// body changes shape and retry it, so the failed form would never settle. The
+// body changes shape and retry it, so the failed shape would never settle. The
 // generic sentence stands until the selection lands.
-function EmptyForm(props: {
+function EmptyShape(props: {
 	empty?: { sentence?: Datum<string>; act?: Empty["act"] };
 	fit: EmptyFit;
 	fill?: boolean;
@@ -97,21 +97,21 @@ function EmptyForm(props: {
 	);
 }
 
-/** What a frame draws in place of its body, or its body: the failed, missing and empty forms; ready, waiting and idle are the loaded tree, its leaves painting. */
+/** What a frame draws in place of its body, or its body: the failed, missing and empty shapes; ready, waiting and idle are the loaded tree, its leaves painting. */
 export function FrameBody(props: {
 	frame: Frame;
 	// What the frame says when its read is empty: the default sentence, none (`sentence: undefined` with an act), or its own.
 	empty?: { sentence?: Datum<string>; act?: Empty["act"] };
-	// Where the forms stand: inside the card the frame draws (`part`), or on a
+	// Where the shapes stand: inside the card the frame draws (`part`), or on a
 	// card of their own, the frame drawing none.
 	fit?: EmptyFit;
-	// The forms fill the box they stand in (a canvas's ground).
+	// The shapes fill the box they stand in (a canvas's ground).
 	fill?: boolean;
 	// The kind of record a missing read answers for, wording its sentence (a Pane's).
 	noun?: string;
 	// The sentence a missing read says, in place of the noun's (a Pane's).
 	missing?: string;
-	// The failed form where the title never lands: docs/architecture/ui-core/reads.md, "Missing and failed forms".
+	// The failed shape where the title never lands: docs/architecture/ui-core/reads.md, "Missing and failed shapes".
 	headed?: boolean;
 	children?: ReactNode;
 }) {
@@ -126,7 +126,7 @@ export function FrameBody(props: {
 		children,
 	} = props;
 	const words = useWords();
-	if (frame.form === "failed") {
+	if (frame.shape === "failed") {
 		return (
 			<EmptyBase
 				fit={fit}
@@ -138,7 +138,7 @@ export function FrameBody(props: {
 			/>
 		);
 	}
-	if (frame.form === "missing")
+	if (frame.shape === "missing")
 		return (
 			<MissingBase
 				fit={fit}
@@ -148,8 +148,8 @@ export function FrameBody(props: {
 				headed={headed}
 			/>
 		);
-	if (frame.form === "empty") {
-		return <EmptyForm empty={empty} fit={fit} fill={fill} />;
+	if (frame.shape === "empty") {
+		return <EmptyShape empty={empty} fit={fit} fill={fill} />;
 	}
 	// The reads this frame holds are not drawn again by a frame in its body.
 	return <FrameHolds holds={frame.held}>{children}</FrameHolds>;
@@ -170,7 +170,7 @@ const LINE_IN_VALUE = "flex flex-wrap items-center gap-gap min-h-control";
 
 /** A frame's busy mark, after its heading: a spinner while a read it holds refetches or retries, faded in after `WAIT_DELAY`. A frame that holds no read and a frame with no heading draw none, and of sibling frames over one read only the first draws it, so one refetch stands as one mark. */
 export function BusyMark({ frame }: { frame: Frame }) {
-	if (!(frame.holds && frame.marks && frame.busy)) return null;
+	if (!(frame.holds && frame.flags && frame.busy)) return null;
 	return (
 		<span data-busy="" className={BUSY}>
 			<Spinner />

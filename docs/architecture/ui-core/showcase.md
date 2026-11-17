@@ -86,7 +86,7 @@ page draws. An edge no public composition reaches has no frame.
 
 - **Reads.** `waiting.ts` gives a frame's drawer the reads that show each of its forms: one that
   never answers, so the frame stays painted; one that always rejects, so it draws its failure; one
-  that rejects as not found, so it draws the missing form; one that answers nothing; one that
+  that rejects as not found, so it draws the missing shape; one that answers nothing; one that
   answers rows; and three that hold rows and are busy, stale or paused. None retries, so a failure
   shows at once. A drawer that draws several frames, or a page of frames, takes each its own set
   with `readsAt`, so the states of one do not leak into the next.
@@ -128,7 +128,7 @@ The preview (`.storybook/preview.tsx`):
   ([dev checks](reads.md#dev-checks)).
 - **The breath is still.** The painted fills' breath repaints every one of them each frame. The test
   browser paints in software, so a story that draws dozens of fills (a roster's loading states, a
-  screen's waiting form) spends its frames there and every wait on one runs several times slower. A
+  screen's waiting shape) spends its frames there and every wait on one runs several times slower. A
   story judges a frame, not the loop, so the preview sets `--pulse-name: none`, what reduced motion
   sets ([fills](motion.md#value-and-fills)).
 

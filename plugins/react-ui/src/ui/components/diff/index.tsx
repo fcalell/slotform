@@ -70,7 +70,7 @@ interface DiffBase extends Closed {
 /** A unified diff, as hunks, or as the two texts it compares, diffed here by line or by word. */
 export type DiffProps =
 	| (DiffBase & {
-			/** The hunks, each its lines (a `header`'s ranges are never drawn: an elided mark parts two hunks, and stands before a first that starts past line 1, with the function git names after the ranges). A selection paints `PAINT_ROWS` lines until its read lands, and is the diff's own frame: it holds its read and draws the failed, missing and empty forms in its own box whatever stands above it. */
+			/** The hunks, each its lines (a `header`'s ranges are never drawn: an elided mark parts two hunks, and stands before a first that starts past line 1, with the function git names after the ranges). A selection paints `PAINT_ROWS` lines until its read lands, and is the diff's own frame: it holds its read and draws the failed, missing and empty shapes in its own box whatever stands above it. */
 			hunks: Datum<readonly Hunk[]>;
 			before?: never;
 			after?: never;
@@ -172,7 +172,7 @@ function ElidedBefore(props: {
 	);
 }
 
-/** A unified diff at the code role in the frame Code shares: its lines, added on ok-soft and removed on danger-soft, the whole row, each with its line numbers (the old and the new, or the one side a diff that only adds or only removes has; on touch one column, the new side or the only one) and its `+` or `−` marker. No hunk header's ranges are drawn: where lines go unshown (before a first hunk that starts past line 1, between two hunks) an elided band stands on the group ground, its mark (`┆`) in the marker's column and in the code's the words that say so ("12 lines not shown" where the numbers count them, else "Lines not shown": `words.unshownLines`, `words.linesUnshown`), then the function git names after the ranges, a middle dot apart. A long line wraps under itself at every width, at its spaces and between tokens, hung one inset past its own indent, its numbers on its first line. Given hunks by a selection it is a frame of them: the failed form with Retry, the missing form and the empty form stand in its box with the generic sentence, and the stale and paused line over it while it holds its read. */
+/** A unified diff at the code role in the frame Code shares: its lines, added on ok-soft and removed on danger-soft, the whole row, each with its line numbers (the old and the new, or the one side a diff that only adds or only removes has; on touch one column, the new side or the only one) and its `+` or `−` marker. No hunk header's ranges are drawn: where lines go unshown (before a first hunk that starts past line 1, between two hunks) an elided band stands on the group ground, its mark (`┆`) in the marker's column and in the code's the words that say so ("12 lines not shown" where the numbers count them, else "Lines not shown": `words.unshownLines`, `words.linesUnshown`), then the function git names after the ranges, a middle dot apart. A long line wraps under itself at every width, at its spaces and between tokens, hung one inset past its own indent, its numbers on its first line. Given hunks by a selection it is a frame of them: the failed shape with Retry, the missing shape and the empty shape stand in its box with the generic sentence, and the stale and paused line over it while it holds its read. */
 function LineDiff({ label, hunks, before, after }: DiffProps) {
 	const [h, b, a] = useSelections([hunks, before, after] as const);
 	// The hunks are the diff's frame: two texts are given plain or by a

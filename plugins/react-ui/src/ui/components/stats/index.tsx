@@ -71,7 +71,7 @@ const RETRY = "flex min-w-0 items-center text-start min-h-target";
 
 // A cell without a bound: its label over its figure. The cell is the frame of
 // the selection it draws, as a meter is: its read failed with no enclosing frame
-// holding it, it draws the failed form itself (the label stays, the figure slot
+// holding it, it draws the failed shape itself (the label stays, the figure slot
 // shows the failure mark and the retry icon, the line under reads "This didn't
 // load."); a read an enclosing frame holds draws nothing of its own.
 function Cell({
@@ -167,7 +167,7 @@ function Cell({
 
 const number = formatterFor("number");
 
-/** One hairline card of counts split by hairlines, each cell its label in meta over its figure in tabular figures (its unit muted beside it), then a `line` or sub-counts as links, or the whole cell a link to its list, a chevron at its label's end. Zeros are drawn. Two cells to a row below `tablet` of the page. Each cell is the frame of the selection it draws: held by no enclosing frame (a `Pane` given its `read`), a failed cell draws its own failed form with a retry. */
+/** One hairline card of counts split by hairlines, each cell its label in meta over its figure in tabular figures (its unit muted beside it), then a `line` or sub-counts as links, or the whole cell a link to its list, a chevron at its label's end. Zeros are drawn. Two cells to a row below `tablet` of the page. Each cell is the frame of the selection it draws: held by no enclosing frame (a `Pane` given its `read`), a failed cell draws its own failed shape with a retry. */
 export function Stats({ items }: StatsProps) {
 	return (
 		<div className={cn(STATS, CLIP)}>

@@ -26,6 +26,7 @@ import {
 	COLORS,
 	type ColorName,
 	type ColorValue,
+	type ContrastGrounds,
 	DURATIONS,
 	type Duration,
 	EASING,
@@ -33,7 +34,6 @@ import {
 	FONT_FALLBACKS,
 	type FontRole,
 	fallbackFace,
-	type Holds,
 	type Hue,
 	KNOB_DEFAULTS,
 	type Knobs,
@@ -73,7 +73,7 @@ export interface ResolvedTheme {
 	// The mode a viewer with no stored choice starts in; absent, the system
 	// preference decides.
 	defaultMode: Mode | undefined;
-	// The paint of each glyph slot's waiting form, every slot named.
+	// The paint of each glyph slot's waiting shape, every slot named.
 	loading: Record<LoadingSlot, LoadingPaint>;
 	knobs: Knobs;
 	colors: Record<Mode, Record<ColorName, string>>;
@@ -165,7 +165,7 @@ const HOLD_STEP = 0.005;
 // Contrast hold: docs/architecture/ui-core/tokens.md, "Derivation".
 function holding(
 	color: Resolved,
-	contracts: readonly Holds[],
+	contracts: readonly ContrastGrounds[],
 	grounds: readonly number[],
 ): Resolved {
 	let current = color;
@@ -197,7 +197,7 @@ function resolveMode(mode: Mode, knobs: Knobs): Record<ColorName, string> {
 	const memo = new Map<ColorName, Resolved>();
 	const visiting = new Set<ColorName>();
 	// A contract's ground, its veil composited over it when it names one.
-	const ground = (contract: Holds): number => {
+	const ground = (contract: ContrastGrounds): number => {
 		const on = resolve(contract.on);
 		if (contract.under === undefined) return luminance(on.l, on.c, on.h);
 		const veil = resolve(contract.under);

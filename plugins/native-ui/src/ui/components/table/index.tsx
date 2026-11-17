@@ -138,7 +138,7 @@ const SORT_BAR = "flex-row items-center justify-end";
 // The columns each read their cell from the item, and `row` the row's own
 // slots.
 interface TableBase<T> extends Closed {
-	/** The items the rows draw: constants, or a selection, which paints `PAINT_ROWS` rows until its read lands. A selection is the table's own frame: it holds its read and draws the failed, missing and empty forms in its own box whatever stands above it. */
+	/** The items the rows draw: constants, or a selection, which paints `PAINT_ROWS` rows until its read lands. A selection is the table's own frame: it holds its read and draws the failed, missing and empty shapes in its own box whatever stands above it. */
 	items: Datum<readonly T[]>;
 	/** The columns in order, the first the row's name, each reading its cell from the item. */
 	columns: readonly TableColumn<T>[];
@@ -184,7 +184,7 @@ function shown(column: TableColumn, cell: TableCell | undefined): string {
 	return shownWith(column, cell, age);
 }
 
-// The phone's table: docs/architecture/plugins/native-ui.md, "Table". Its frame forms and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
+// The phone's table: docs/architecture/plugins/native-ui.md, "Table". Its frame shapes and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
 // It sorts in its own state: newest or largest first, then turned over, then off.
 export function Table<T>(props: TableProps<T>) {
 	const { selected, current, onOpen, onEdit } = props;

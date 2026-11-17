@@ -82,8 +82,8 @@ export interface Held {
 	}[];
 }
 
-// A frame's form: docs/architecture/ui-core/reads.md, "Phases".
-export type FrameForm =
+// A frame's shape: docs/architecture/ui-core/reads.md, "Phases".
+export type FrameShape =
 	| "ready"
 	| "waiting"
 	| "still"
@@ -92,7 +92,7 @@ export type FrameForm =
 	| "missing";
 
 export interface FrameState {
-	form: FrameForm;
+	shape: FrameShape;
 	// The length of a drawn list; undefined where none is drawn, while it waits
 	// or stands still, and while more pages remain.
 	count: number | undefined;
@@ -104,7 +104,7 @@ export interface FrameState {
 	paused: boolean;
 }
 
-// The frame's form from its reads: docs/architecture/ui-core/reads.md, "Form and flags".
+// The frame's shape from its reads: docs/architecture/ui-core/reads.md, "Shape and flags".
 export function frameOf(held: Held): FrameState {
 	const reads = held.reads ?? [];
 	const all = reads.map((r) => readState(r.result, r.missing));
@@ -115,7 +115,7 @@ export function frameOf(held: Held): FrameState {
 	const ended = all.map((s) => s.phase).find(isEnded);
 	if (ended) {
 		return {
-			form: ended,
+			shape: ended,
 			count: undefined,
 			busy,
 			stale,
@@ -123,11 +123,11 @@ export function frameOf(held: Held): FrameState {
 		};
 	}
 	if (!held.drawn) {
-		return { form: "ready", count: undefined, busy, stale, paused };
+		return { shape: "ready", count: undefined, busy, stale, paused };
 	}
 	if (held.drawn.painted) {
 		return {
-			form: all.some((s) => s.phase === "idle" || s.paused)
+			shape: all.some((s) => s.phase === "idle" || s.paused)
 				? "still"
 				: "waiting",
 			count: undefined,
@@ -140,7 +140,7 @@ export function frameOf(held: Held): FrameState {
 	const more = held.drawn.more === true;
 	const length = Array.isArray(v) ? v.length : undefined;
 	return {
-		form: (v == null || length === 0) && !more ? "empty" : "ready",
+		shape: (v == null || length === 0) && !more ? "empty" : "ready",
 		count: more ? undefined : length,
 		busy,
 		stale,
@@ -189,11 +189,11 @@ export function endedReason(words: Words, phase?: string): string | undefined {
 	return isEnded(phase) ? endedSentence(words, phase) : undefined;
 }
 
-/** Whether a frame's `form` or a selection's `phase` says its read ended: failed, or missing. */
+/** Whether a frame's `shape` or a selection's `phase` says its read ended: failed, or missing. */
 export function isEnded<F extends string | undefined>(
-	form: F,
-): form is F & ("failed" | "missing") {
-	return form === "failed" || form === "missing";
+	shape: F,
+): shape is F & ("failed" | "missing") {
+	return shape === "failed" || shape === "missing";
 }
 
 /** The sentence a failed or missing row says under its label. */
@@ -207,7 +207,7 @@ const SELECTION = Symbol.for("@fcalell/ui-core/selection");
 const PLACEHOLDER = Symbol.for("@fcalell/ui-core/placeholder");
 
 // One private-use character: a placeholder run through a template literal
-// keeps a mark that `isPlaceholder` finds, where a bare string would be lost.
+// keeps a mark that `isStandIn` finds, where a bare string would be lost.
 const WAITING_CHAR = "\uE000";
 
 export interface Selection<T> {
@@ -455,7 +455,7 @@ const P: any = new Proxy(() => P, {
 
 // The placeholder, the sample (a list's one record, which stands only inside
 // `sampleOf`) or a string a template made of either.
-export function isPlaceholder(v: unknown): boolean {
+export function isStandIn(v: unknown): boolean {
 	return (
 		v === P || v === S || (typeof v === "string" && v.includes(WAITING_CHAR))
 	);
@@ -463,7 +463,7 @@ export function isPlaceholder(v: unknown): boolean {
 
 // Two constant functions, compared by identity: docs/architecture/ui-core/reads.md, "Placeholder and selectors".
 export const placeholderData = (): unknown => P;
-export const heldPlaceholder = (): unknown => P;
+export const heldStandIn = (): unknown => P;
 
 // The sample: the placeholder, except that a list's search finds its one
 // record (`find`, `filter`, a copy or a sort gives the sample back), mapping
@@ -503,7 +503,7 @@ const S: any = new Proxy(() => S, {
 	deleteProperty: () => false,
 });
 
-// One item as a list selection draws it, for the waiting form's shape: the
+// One item as a list selection draws it, for the waiting shape: the
 // selection's pick run over the sample, a record whose lists hold one record,
 // so a selector that maps each record (`list.map(toRow)`, a group's rows found
 // first or not) gives the slots a loaded item fills (a leading mark, a
@@ -519,8 +519,7 @@ export function sampleOf<T>(
 		const value: unknown = bounded(() => pick([S], [false]));
 		if (!Array.isArray(value) || value.length !== 1) return undefined;
 		const [one] = value;
-		if (one === undefined || one === null || isPlaceholder(one))
-			return undefined;
+		if (one === undefined || one === null || isStandIn(one)) return undefined;
 		return slotted(one) as Exclude<T, undefined>;
 	} catch {
 		return undefined;
@@ -530,7 +529,7 @@ export function sampleOf<T>(
 // A sample's placeholder values as the empty string, through its plain objects
 // and arrays: a slot that is there, with nothing in it.
 function slotted(v: unknown): unknown {
-	if (isPlaceholder(v)) return "";
+	if (isStandIn(v)) return "";
 	if (Array.isArray(v)) return v.map(slotted);
 	if (
 		typeof v === "object" &&
@@ -552,7 +551,7 @@ function guarded<T>(data: readonly unknown[], run: () => T): T {
 	try {
 		return bounded(run);
 	} catch (error) {
-		if (!data.some(isPlaceholder)) throw error;
+		if (!data.some(isStandIn)) throw error;
 		return P;
 	}
 }
@@ -599,7 +598,7 @@ function reached(state: WindowState): number {
 // loaded from the start fall short of the total). False over the placeholder
 // and over no data.
 export function moreOf(data: unknown): boolean {
-	if (data === undefined || isPlaceholder(data)) return false;
+	if (data === undefined || isStandIn(data)) return false;
 	if (isWindowState(data)) return reached(data) * data.size < data.total;
 	const last = (data as Pages).pages.at(-1);
 	return last !== undefined && last.nextCursor != null;
@@ -609,7 +608,7 @@ export function moreOf(data: unknown): boolean {
 // `Section items={deploys}` is the same idiom as a plain read. A window's is
 // the rows loaded from the start. The placeholder stays itself, painted.
 function flatten(data: unknown): unknown {
-	if (data === undefined || isPlaceholder(data)) return data;
+	if (data === undefined || isStandIn(data)) return data;
 	if (isWindowState(data)) {
 		return Array.from({ length: reached(data) }, (_, page) => [
 			...(data.pages[page] ?? []),
@@ -675,7 +674,7 @@ export type SortSchema = Readonly<
 
 // One read a hook observes through the binding. A painted one carries the
 // `placeholder` that marks its observer (`placeholderData` for a leaf that
-// draws it, `heldPlaceholder` for a holder); a quiet one carries none, so the
+// draws it, `heldStandIn` for a holder); a quiet one carries none, so the
 // dev check never counts it. A `silent` observer re-renders on nothing.
 export interface Observed {
 	read: Read<unknown>;
@@ -784,7 +783,7 @@ export function planFrame<S>(
 	enclosing: Holds,
 ): {
 	reads: readonly Read<unknown>[];
-	// The observed reads: every painted read carries `heldPlaceholder`, so the
+	// The observed reads: every painted read carries `heldStandIn`, so the
 	// frame is a holder of each in the dev check, not a painter.
 	queries: Observed[];
 	held: Read<unknown> | undefined;
@@ -795,7 +794,7 @@ export function planFrame<S>(
 	const [held, ...extra] = plan.painted.filter((r) => !enclosing.has(r.key));
 	return {
 		reads: plan.reads,
-		queries: plan.queries(heldPlaceholder),
+		queries: plan.queries(heldStandIn),
 		held,
 		extra,
 		combine: (results) => {
@@ -914,13 +913,13 @@ export function holdsOf(
 }
 
 // Frames that hold one read share its busy mark: docs/architecture/ui-core/reads.md, "Holding a read".
-export interface Marks {
+export interface Flags {
 	take: (hash: string, id: string) => () => void;
-	marks: (hash: string, id: string) => boolean;
+	flags: (hash: string, id: string) => boolean;
 	subscribe: (listener: () => void) => () => void;
 }
 
-export function createMarks(): Marks {
+export function createFlags(): Flags {
 	const held = new Map<string, string[]>();
 	const takers = createStore(held);
 	return {
@@ -936,7 +935,7 @@ export function createMarks(): Marks {
 				takers.emit();
 			};
 		},
-		marks: (hash, id) => held.get(hash)?.[0] === id,
+		flags: (hash, id) => held.get(hash)?.[0] === id,
 		subscribe: takers.subscribe,
 	};
 }

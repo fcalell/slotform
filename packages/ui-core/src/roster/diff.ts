@@ -16,7 +16,7 @@ import { build, matrix } from "./shared.ts";
 // first line and between two hunks. By word (`by: "word"`, two texts only), body text at the measure
 // with its edit marked in place, a removed run struck through and an added run
 // underlined dotted in the `ok` ink, no link's line. Its `hunks`, given as
-// a selection, are its own frame: its failed, missing and empty forms stand in
+// a selection, are its own frame: its failed, missing and empty shapes stand in
 // its box with the generic sentences, and its stale and paused line over it.
 export const diffEntry: RosterEntry = {
 	props: ["label", "hunks", "before", "after", "by"],

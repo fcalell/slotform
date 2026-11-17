@@ -44,7 +44,7 @@ export const themeSchema = z.strictObject({
 	// The mode a viewer with no stored choice starts in, ahead of the system
 	// preference. Omitted, the system preference decides.
 	defaultMode: z.enum(MODES).optional(),
-	// The paint of each glyph slot's waiting form: the skeleton's pulse or the
+	// The paint of each glyph slot's waiting shape: the skeleton's pulse or the
 	// scramble. Omitted, every slot pulses; a shape always does.
 	loading: z
 		.strictObject({

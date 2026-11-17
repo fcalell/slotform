@@ -16,7 +16,7 @@ import { build, CARD_PART, matrix } from "./shared.ts";
 // between at evenly spaced strides as the plot's width holds them
 // (`timeRoom`). While its read waits the total and the legend's figures are
 // painted, the plot one painted box at its loaded height. It is a frame of
-// its items: its failed, missing and empty forms stand in its box with the
+// its items: its failed, missing and empty shapes stand in its box with the
 // generic sentences, whatever stands above it. A bar `partial` (its period
 // not over) is hatched; a bar `selected` (its record open beside the
 // chart) stands in the selection wash.

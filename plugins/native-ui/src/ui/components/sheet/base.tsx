@@ -188,7 +188,7 @@ export function SheetBase({
 	const words = useWords();
 	// The submit waits only on the sheet's own read: painted while it waits or
 	// stands still, blocked with the sentence once it ended.
-	const { waiting, ended } = submitOf(words, frame.form);
+	const { waiting, ended } = submitOf(words, frame.shape);
 	const submit = offered && submitAct(offered, onClose);
 	const own = useAct<number>("line");
 	const acting = given ?? own;
@@ -196,7 +196,7 @@ export function SheetBase({
 	if (children || after || fields || read !== undefined)
 		body = (
 			<View
-				accessibilityState={{ busy: frame.holds && frame.form === "waiting" }}
+				accessibilityState={{ busy: frame.holds && frame.shape === "waiting" }}
 				className={BODY}
 			>
 				<FrameBody frame={frame} fit="part" empty={empty}>

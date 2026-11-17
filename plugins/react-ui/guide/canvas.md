@@ -286,10 +286,10 @@ selection's read waits the canvas stands its bare surface: the dotted ground and
 (with arrange where you gave `onMove`), inert, and no node. It is the region the graph arrives in,
 so the page below the head does not move when the nodes appear. The handlers and the `act` are
 ignored meanwhile, and the surface draws no act, no node button and no drag. Give the canvas its
-selection, not `nodes={[]}` for a wait: it reads as an empty graph. Its failed and empty read forms
+selection, not `nodes={[]}` for a wait: it reads as an empty graph. Its failed and empty read shapes
 are the frame's, as for any collection.
 
-A read that answers no node is the frame's empty form, with the generic sentence. The canvas draws
+A read that answers no node is the frame's empty shape, with the generic sentence. The canvas draws
 no sentence of its own under a graph; a hint such as "Add a node" belongs in your page's head or its act.
 
 ## Where it stands

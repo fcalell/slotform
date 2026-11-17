@@ -16,7 +16,7 @@ settles; a rejection draws the server's refusal when the server words one, else 
 `acts.ts` holds what an act is made of apart from how it is drawn and what runs it: whether an
 `onAct` hands back its promise so the act can hold it (`isThenable`), an act as a slot takes it
 (`Offered`, made whole by `offered`), the run and save logic the hooks wrap (`startRun`,
-`holdSave`), the marks a host leaves on a rejection it drew (`drew`, `wasDrawn`, `placed`,
+`keepSave`), the marks a host leaves on a rejection it drew (`drew`, `wasDrawn`, `placed`,
 `isPlaced`), and what a more menu holds (`moreMenu`, `endedItems`). It is pure, so the hooks and the
 binding share one core.
 
@@ -51,7 +51,7 @@ all four, and every host that draws an act hands them on.
 A `LinkAct` goes to a route: on the web an anchor to `href` that the router follows in place, on the
 phone a press that navigates. Every host that takes an `Act` for a labelled act (a Section's, a
 Banner's, a row's, a toast's, a pending bar's, a canvas's, an empty state's) takes a `LinkAct` too,
-and a menu takes one as an entry. A `Pane`'s missing form's way back is one; it is no create act. A
+and a menu takes one as an entry. A `Pane`'s missing shape's way back is one; it is no create act. A
 `LinkAct` has no run, so it never pends.
 
 On the phone, `Link` takes either kind of href and decides by its shape: an href from the app's root
@@ -166,7 +166,7 @@ Gate) nothing can ask, so the answer is `true`.
 
 A control that saves its value holds it through `useDraft`'s `change`. A plain edit is kept over a
 selection until its read's key changes. A `save` that returns a promise holds the next value (a
-constant's too) instead, and only the latest save's outcome counts (`holdSave`):
+constant's too) instead, and only the latest save's outcome counts (`keepSave`):
 
 - **Resolved**, the hold waits for the refetch its invalidation started on this value's reads,
   then the value follows its datum unless edited since.

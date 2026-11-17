@@ -118,7 +118,7 @@ export function SheetBase({
 	const own = useAct<number>("line");
 	// The submit waits only on the sheet's own read: painted while it waits or
 	// stands still, blocked with the sentence once it ended.
-	const { waiting, ended } = submitOf(words, frame.form);
+	const { waiting, ended } = submitOf(words, frame.shape);
 	// A submit that acknowledges closes the sheet, and stands alone: there is
 	// nothing to cancel.
 	const acknowledging = given !== undefined && acknowledges(given);
@@ -221,8 +221,8 @@ export function SheetBase({
 			{body ? (
 				<div
 					ref={scroll.ref}
-					aria-busy={(frame.holds && frame.form === "waiting") || undefined}
-					data-still={(frame.holds && frame.form === "still") || undefined}
+					aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
+					data-still={(frame.holds && frame.shape === "still") || undefined}
 					className={cn(BODY, DIVIDER)}
 				>
 					<Scroller value={scroll}>{body}</Scroller>

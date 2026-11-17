@@ -188,7 +188,7 @@ const NAMED: BarSlots<Day> = { ...BAR, label: (day) => day.day };
 // since midnight, its humidity, its first hour alone, the open flags and two
 // charts of named buckets;
 // every other cell draws the one series. Each chart reads in a Section in the
-// frame's state: its painted form, its loaded one; a `PAINT` cell draws the
+// frame's state: its painted shape, its loaded one; a `PAINT` cell draws the
 // chart loaded beside the same chart painted. The `quiet` block's last charts
 // draw a year of months with the running month hatched and the open one in the
 // selection wash, stacked and once unstacked.

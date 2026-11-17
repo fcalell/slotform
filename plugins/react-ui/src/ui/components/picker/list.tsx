@@ -323,7 +323,7 @@ function OptionGroupBox<V extends string>(props: {
 	);
 }
 
-/** The option rows every Picker in `fit: list` renders, on the `draft` its host holds: a field hosts the draft of its options and draws a rejection in its own line. Static `options` never paint; `items` paint `PAINT_ROWS` rows in the slots `option` declares while their read waits, and the draft paints the marks, inert. The frame that holds the read draws its failed, missing and empty forms. From `VIRTUAL_FROM` options in a group, under a scroller, it draws only the rows near the scroller's view. Outside the package's exports. */
+/** The option rows every Picker in `fit: list` renders, on the `draft` its host holds: a field hosts the draft of its options and draws a rejection in its own line. Static `options` never paint; `items` paint `PAINT_ROWS` rows in the slots `option` declares while their read waits, and the draft paints the marks, inert. The frame that holds the read draws its failed, missing and empty shapes. From `VIRTUAL_FROM` options in a group, under a scroller, it draws only the rows near the scroller's view. Outside the package's exports. */
 export function PickerListBase<V extends string = string, T = unknown>(
 	props: PickerListBody<V, T> & {
 		/** Names the group where no `FormField` does. */

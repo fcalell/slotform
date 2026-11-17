@@ -1007,7 +1007,7 @@ export const METER_TRACK = "h-gap rounded-chip bg-fill-neutral";
 // A standalone link's box at the target height: the web's anchor carries it,
 // the phone's pressable (a text's own box takes no touch past its words'
 // centre). Unheld, drawn by each that has one: the Link and a count line's
-// waiting form.
+// waiting shape.
 export const LINK_TARGET = "min-h-target";
 
 export const THREAD_COLUMN = "w-full max-w-measure";
@@ -1088,9 +1088,9 @@ export type ImageFit = keyof (typeof IMAGE)["variants"]["fit"];
 export type ImageState = keyof (typeof IMAGE)["variants"]["state"];
 export type AvatarStep = keyof (typeof AVATAR)["variants"]["step"];
 
-export function rowTitleForm(
+export function rowTitleLines(
 	dim: boolean,
-): keyof (typeof ROW_TITLE)["variants"]["form"] {
+): keyof (typeof ROW_TITLE)["variants"]["lines"] {
 	return dim ? "dim" : "name";
 }
 

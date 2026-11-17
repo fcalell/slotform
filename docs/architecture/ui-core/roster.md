@@ -64,7 +64,7 @@ An entry holds:
 - `holds`, the families and constants of its own box ([matrices](#matrices));
 - `motion`, the moves it makes ([moves and move cells](motion.md#moves-and-move-cells));
 - the states it has a form for: the eight interaction states, plus `empty` for a component with an
-  empty form, and the states a read puts a frame or collection in (`busy`, `stale`, `paused`, `more`,
+  empty shape, and the states a read puts a frame or collection in (`busy`, `stale`, `paused`, `more`,
   `streaming`);
 - the tokens it owns ([token ownership](#token-ownership)).
 

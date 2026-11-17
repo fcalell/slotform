@@ -154,7 +154,7 @@ function drawLine(frame: ShowcaseFrame) {
 // the page's height and scrolls its long value inside: locked when disabled,
 // and in error refused by the server, its submit pressed once mounted;
 // `search` has no form.
-// `PAINT.kind.control` draws the box beside its painted form, a value that
+// `PAINT.kind.control` draws the box beside its painted shape, a value that
 // never arrives.
 function drawProse(frame: ShowcaseFrame) {
 	if (!states(frame, "rest", "disabled", "error")) return undefined;

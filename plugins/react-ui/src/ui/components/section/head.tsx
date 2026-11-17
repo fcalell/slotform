@@ -182,7 +182,7 @@ export function SectionHead(props: {
 	// carry an unseen "0" for a number nobody knows yet, and the count arrives at
 	// the title's end, where it moves nothing. A read of an array gives its length.
 	// A count is a list's: over parts (cards, controls) or facts the head draws none.
-	const answered = list && (frame.form === "ready" || frame.form === "empty");
+	const answered = list && (frame.shape === "ready" || frame.shape === "empty");
 	const total = answered ? (count ?? frame.count) : undefined;
 	const tally =
 		total !== undefined && total !== 0 ? <Count value={total} /> : null;
@@ -237,7 +237,7 @@ export function SectionHead(props: {
 		</>
 	);
 	// A title whose read ended (failed or missing) draws no head: the Section's
-	// failed or missing form stands alone in its place.
+	// failed or missing shape stands alone in its place.
 	if (named.painted && !paints(named)) return null;
 	return (
 		<div className={cn(SECTION_HEAD, HEAD)}>

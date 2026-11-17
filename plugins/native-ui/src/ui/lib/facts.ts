@@ -72,7 +72,7 @@ interface BadgeInput {
 	blocked?: string;
 	/** The words are fillers (a fact waits): one painted badge per words fact, loaded or not. */
 	fillers?: boolean;
-	/** The whole row is painted: its status, warning and lock are boxes with fillers, and its chips and boolean marks, which the painted form cannot know, are not drawn. */
+	/** The whole row is painted: its status, warning and lock are boxes with fillers, and its chips and boolean marks, which the painted shape cannot know, are not drawn. */
 	painted?: boolean;
 }
 

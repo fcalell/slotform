@@ -1,7 +1,7 @@
 import { isNotFound } from "@fcalell/plugin-api/client";
 import {
 	dev,
-	heldPlaceholder,
+	heldStandIn,
 	type Page,
 	placeholderData,
 	type Read,
@@ -487,7 +487,7 @@ function windowRead(target: any, input: unknown, how: ReadHow): Read<unknown> {
 }
 
 // `createQueryClient`'s default `retry`: one retry of a failure that may pass,
-// none of a not-found, which is an answer and only delays the missing form.
+// none of a not-found, which is an answer and only delays the missing shape.
 export function retryOnce(failures: number, error: unknown): boolean {
 	return !isNotFound(error) && failures < 1;
 }
@@ -505,7 +505,7 @@ export function watchUnheld(cache: QueryCache): () => void {
 			query.meta?.ambient === true ||
 			query.state.data !== undefined ||
 			!tagged(query, placeholderData) ||
-			tagged(query, heldPlaceholder) ||
+			tagged(query, heldStandIn) ||
 			named.get(key) === query.state.errorUpdatedAt
 		) {
 			return;

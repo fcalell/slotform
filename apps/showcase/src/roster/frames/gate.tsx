@@ -57,7 +57,7 @@ const disconnect = () =>
 // and a comparison whose label wraps, once with their options loaded, once
 // painted while the options wait and once failed. In the gate's column the
 // rows stand at the narrowest width a page gives them, so each pick keeps its
-// label and its value on the row's one line, its failed form the failed row's
+// label and its value on the row's one line, its failed shape the failed row's
 // mark and retry icon at the row's end, never past the card.
 const PICK_ORGS = ["Northwind Outfitters", "Contoso Trading"] as const;
 const PICK_AGAINST = ["Production", "Release 14 preview"] as const;

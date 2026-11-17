@@ -343,12 +343,12 @@ export const ROW = matrix({
 export const ROW_TITLE = matrix({
 	base: "text-body leading-body font-normal",
 	variants: {
-		form: {
+		lines: {
 			name: "text-ink-body",
 			dim: "text-ink-meta",
 		},
 	},
-	defaultVariants: { form: "name" },
+	defaultVariants: { lines: "name" },
 });
 
 // A row's type mark: one or two characters (`T`, `#`, `[ ]`, `{ }`) in the code
@@ -404,18 +404,18 @@ export const LINE_BOX = matrix({
 
 // ── Menu ────────────────────────────────────────────────────────────
 
-// A menu's acts by its form: a popover at the popover's width (its ground
+// A menu's acts by its `lines`: a popover at the popover's width (its ground
 // and inset are `POPOVER`'s), or the rows inside a touch sheet at the
 // popover's rhythm and inset.
 export const MENU = matrix({
 	base: "",
 	variants: {
-		form: {
+		lines: {
 			popover: "w-popover",
 			sheet: "gap-gap p-gap",
 		},
 	},
-	defaultVariants: { form: "popover" },
+	defaultVariants: { lines: "popover" },
 });
 
 // A menu's group of rows (its acts, or the destructive acts last): the first
@@ -513,7 +513,7 @@ export const IMAGE_PICTURE = matrix({
 
 // ── Paint ───────────────────────────────────────────────────────────
 
-// What a part draws while its data is not here: docs/architecture/ui-core/reads.md, "Paint forms".
+// What a part draws while its data is not here: docs/architecture/ui-core/reads.md, "Paint shapes".
 export const PAINT = matrix({
 	base: "bg-skeleton",
 	variants: {

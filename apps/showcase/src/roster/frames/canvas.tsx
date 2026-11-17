@@ -43,7 +43,7 @@ import { Stage } from "./overlay-stage.tsx";
 export const STAGE =
 	"flex flex-col h-[40rem] w-[56rem] max-w-full bg-surface p-page";
 // A pane narrower than the journey and shorter than it: a phone's, where the
-// zoom stack keeps the corner of the waiting form.
+// zoom stack keeps the corner of the waiting shape.
 export const NARROW_STAGE =
 	"flex flex-col h-[24rem] w-[28rem] max-w-full bg-surface p-page";
 
@@ -124,7 +124,7 @@ function Selectable({
 
 // Whether a canvas shows its graph: its layout is set (the region is no longer
 // `aria-busy`, which holds while the graph is measured and laid out, and the
-// zoom stack is the waiting form's inert copy) and the layer has faded in. The
+// zoom stack is the waiting shape's inert copy) and the layer has faded in. The
 // region itself is never transparent, so its own opacity says nothing: a frame
 // that acts on it then acts on a canvas that has not opened yet, and the opening
 // view lands over what it did.
@@ -647,7 +647,7 @@ export function drawCanvas(frame: ShowcaseFrame) {
 		frame.state === "error"
 	) {
 		if (name !== "CANVAS_NODE.state.rest") return undefined;
-		// The waiting form is the ground painted with three node cards at a node's
+		// The waiting shape is the ground painted with three node cards at a node's
 		// measure, in the middle of the pane: whole in a pane as tall as the drawing
 		// and in the narrow one (a phone's), where the stack keeps the corner.
 		if (frame.state === "loading")

@@ -34,7 +34,7 @@ device's own buttons set the volume, so the store keeps none, and the clock foll
 `foot={<Dock />}`. It draws what the player holds and makes no sound. While a track is loaded it
 stands under the place at the column's width, a hairline over the surface, and holds:
 
-- the picture (a track with none, or one that did not load, stands as the tile's failed form, so the
+- the picture (a track with none, or one that did not load, stands as the tile's failed shape, so the
   name keeps its place);
 - the name over its line;
 - previous, play or pause (the primary glyph) and next;

@@ -122,7 +122,7 @@ how much a row carries and where things stand, never for colour, type, corners o
     at the row's width, its acts on the value's line, and a label with no value (a switch's, an
     act's) stands on one line with its end group, as a name does. The sheets stand at the `page` inset (16 px on touch, at the default `size`), a `section` apart (24 px at the default `size`); the toolbar is
     one row, the search leading and the filters a glyph.
-15. **Empty.** One form everywhere: one sentence in the meta ink, centred, over its act as an
+15. **Empty.** One shape everywhere: one sentence in the meta ink, centred, over its act as an
     outlined button across a column at the empty width (an act bar at or under the auth width), at a sheet's inset where the rows would stand (inside the list's or
     form's own sheet, or on a sheet of its own where no part draws one: a section's or a pane's
     empty read). Absent facts say nothing. A first run is a Gate.

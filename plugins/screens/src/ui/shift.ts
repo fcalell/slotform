@@ -203,7 +203,7 @@ function sharesColumn(a: SectionBox, b: SectionBox): boolean {
 }
 
 // A Section's slot: its Pane, its column and its position among the Sections
-// of that column from the top. The waiting form's Section and the loaded
+// of that column from the top. The waiting shape's Section and the loaded
 // form's at one slot are the same Section, whatever each is titled (a Section
 // titled by its record paints a filler waiting and the record's title loaded).
 function slotsOf(boxes: readonly SectionBox[]): Map<SectionBox, string> {

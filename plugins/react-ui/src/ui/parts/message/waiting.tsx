@@ -4,7 +4,7 @@ import { Painted } from "../../lib/paint.tsx";
 
 const STACK = "flex flex-col";
 
-/** The waiting form of a reply that is on its way: the unbubbled reply it becomes, with no author line, one line of paint at the body line height. `arrives` is one that came on its own, which rises in. Outside the package's exports: a Thread draws it for `replying`. */
+/** The waiting shape of a reply that is on its way: the unbubbled reply it becomes, with no author line, one line of paint at the body line height. `arrives` is one that came on its own, which rises in. Outside the package's exports: a Thread draws it for `replying`. */
 export function WaitingReply({ arrives }: { arrives?: boolean }) {
 	return (
 		<article

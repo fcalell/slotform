@@ -1,7 +1,7 @@
 import type { Dragged, Drop, Moved } from "@fcalell/ui-core/descriptors";
 import {
 	accepts,
-	DRAG_HOLD,
+	DRAG_DELAY,
 	DROP_HOLD,
 	edgeSpeed,
 	moveOf,
@@ -341,7 +341,7 @@ export function press(
 		timer = setTimeout(() => {
 			held = true;
 			begin();
-		}, DRAG_HOLD);
+		}, DRAG_DELAY);
 	}
 }
 

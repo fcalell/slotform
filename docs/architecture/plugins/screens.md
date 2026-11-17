@@ -166,7 +166,7 @@ request outside the answered prefixes that reaches for another origin or a worke
 
 - **Data** is the fixture.
 - **Loading** holds its calls on a promise until `release()`. Nothing releases it in the workbench, so
-  a Loading story stays waiting; the test run releases it to measure the loaded form of the same
+  a Loading story stays waiting; the test run releases it to measure the loaded shape of the same
   screen, then answers the held calls as data, and holds again before the next story. A release stays
   open, so the reads that follow the first ones (a query that waits on another's answer) are answered
   too.
@@ -293,7 +293,7 @@ Each story runs:
    overflow check, then the render walk once the width has settled. A loading story also has each
    width's Sections measured, its held calls answered and the Sections measured again
    ([Loading shift comparison](#loading-shift-comparison)). The screenshot at a width is taken once the
-   floors there ran, so a loading story's shows its waiting form.
+   floors there ran, so a loading story's shows its waiting shape.
 3. The console check: `console.error`, `console.warn` and the window's `error` event.
 
 A data story's screen also runs with one of its reads failed at a time. The reads are the procedures
@@ -316,12 +316,12 @@ phone's value (the touch density), and puts it back after.
 
 ### Loading shift comparison
 
-A Section stands whatever its data holds, so the page must not move between its waiting form and its
+A Section stands whatever its data holds, so the page must not move between its waiting shape and its
 loaded one. `measure` reads every Section's heading in the drawn page (in a Pane with no Section, its
 body's direct blocks); `compare` judges the two reads, a pure function tested in node. The floors run
 both around `release()`.
 
-Sections pair by slot (`slotsOf`), every other block by name. The loaded form may draw more Sections
+Sections pair by slot (`slotsOf`), every other block by name. The loaded shape may draw more Sections
 than the waiting one in a column (one per record), and those below the paired ones are not findings.
 Per Pane, each Section is judged against the Sections above it in its column (those whose horizontal
 extent overlaps its own and whose top is above its top), never against a Section beside it:

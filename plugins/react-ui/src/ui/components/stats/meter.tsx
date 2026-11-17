@@ -87,7 +87,7 @@ export function Meter({
 	const { ended: held, busy, retry } = useRow([label, value, max]);
 	// A read that ended leaves the meter empty, unpainted: no share, no track
 	// fill, the label standing if its own read answered. Held by the meter, its
-	// failed form stands in the same box.
+	// failed shape stands in the same box.
 	const ended = [l, v, m].some((one) => one.painted && isEnded(one.phase));
 	const absent = l.painted || v.painted || m.painted;
 	const painted = absent && !ended;

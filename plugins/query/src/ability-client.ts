@@ -10,7 +10,7 @@ import { getRegisteredApiClient, isNotFound } from "@fcalell/plugin-api/client";
 import { ORG_RULES_PATH } from "@fcalell/plugin-api/wire";
 import {
 	combine,
-	isPlaceholder,
+	isStandIn,
 	placeholderData,
 	type Read,
 	type Selection,
@@ -130,7 +130,7 @@ const composed = (
 	rules: PackedRulesLike,
 	record?: PackedRulesLike,
 ): MongoAbility =>
-	isPlaceholder(rules)
+	isStandIn(rules)
 		? (placeholderData() as MongoAbility)
 		: composeAbility(rules, record);
 

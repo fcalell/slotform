@@ -52,14 +52,14 @@ export const query = plugin("query", {
 					},
 					{
 						source: "@fcalell/ui-core/paint",
-						named: ["holdFor"],
+						named: ["paintWait"],
 					},
 				],
 				// A read's first write lands no earlier than the minimum hold.
 				wrap: {
 					identifier: "QueryProvider",
 					props: [
-						{ name: "hold", value: { kind: "identifier", name: "holdFor" } },
+						{ name: "hold", value: { kind: "identifier", name: "paintWait" } },
 					],
 				},
 				order: 2,

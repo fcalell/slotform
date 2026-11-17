@@ -138,10 +138,10 @@ const SHARED =
 // them with its notice, the answer still working. No frame holds the thread's
 // read: the thread is a frame of its items, so each frame draws its state in
 // the log's place with the composer kept: the painted messages, the empty sentence,
-// the failed and missing forms, the conversation. The error state also draws a
+// the failed and missing shapes, the conversation. The error state also draws a
 // stream that stopped. The first cell draws these states and the
 // disabled composer once; every cell draws the messages and composer frames
-// its part names, the paint cell a reply beside its painted form.
+// its part names, the paint cell a reply beside its painted shape.
 export function drawThread(frame: ShowcaseFrame) {
 	const { id, state } = frame;
 	const cell = frame.cell.name;

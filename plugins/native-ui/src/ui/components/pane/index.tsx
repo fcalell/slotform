@@ -98,7 +98,7 @@ export type PaneProps<P extends ProcedureCall = ProcedureCall> = PaneBase<P> &
 		  }
 	);
 
-/** A page of a Place, on the phone one screen, of two kinds: the place's own, titled by the place's name, and a record's, pushed after it and titled by the record's name. A bar (on a record's Pane a Back act to the page above and the place's name, on the place's the shell's switcher and its title; one line, truncating, never under two fifths of the bar; then the first action at its icon and the more menu, which holds the other acts before its own items, at every width), a body that scrolls, its children a sections gap apart, and a `foot` that docks under the body over the keyboard, a `sheet` in its place while it is open, and the `empty` of its `read` standing in place of the children. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping as the screen's header, between the overline and the facts of a head at the body's top, and a `read` that answers not found fills the page with the missing form in place of the head, its sentence worded by `noun` and its way back the page above, while an empty one keeps the head over its empty form. The toasts stand over the body, above the foot. */
+/** A page of a Place, on the phone one screen, of two kinds: the place's own, titled by the place's name, and a record's, pushed after it and titled by the record's name. A bar (on a record's Pane a Back act to the page above and the place's name, on the place's the shell's switcher and its title; one line, truncating, never under two fifths of the bar; then the first action at its icon and the more menu, which holds the other acts before its own items, at every width), a body that scrolls, its children a sections gap apart, and a `foot` that docks under the body over the keyboard, a `sheet` in its place while it is open, and the `empty` of its `read` standing in place of the children. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping as the screen's header, between the overline and the facts of a head at the body's top, and a `read` that answers not found fills the page with the missing shape in place of the head, its sentence worded by `noun` and its way back the page above, while an empty one keeps the head over its empty shape. The toasts stand over the body, above the foot. */
 export function Pane<P extends ProcedureCall = ProcedureCall>({
 	title: name,
 	record,
@@ -116,8 +116,8 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 	// A Pane that declares no `empty` leaves an empty read to its Sections, which
 	// draw their own; only a Pane's own `empty` replaces its body.
 	const frame =
-		held.form === "empty" && empty === undefined
-			? { ...held, form: "ready" as const }
+		held.shape === "empty" && empty === undefined
+			? { ...held, shape: "ready" as const }
 			: held;
 	// A Pane in a room Place stands its head off the top on the table.
 	const far = useContext(DistanceContext);
@@ -145,7 +145,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 	const toasted = useToasts().length > 0;
 	// A record's head opens the body, in the frame's body: a failed or missing
 	// read draws its form and not the head. An empty read is a record with
-	// nothing in it: its head stands, and the empty form under it.
+	// nothing in it: its head stands, and the empty shape under it.
 	const head = record ? (
 		<ItemHeaderBase
 			name={title}
@@ -165,7 +165,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 	return (
 		<BackRoute.Provider value={toward}>
 			<View
-				accessibilityState={{ busy: frame.holds && frame.form === "waiting" }}
+				accessibilityState={{ busy: frame.holds && frame.shape === "waiting" }}
 				className={cn(PANE, far && PAGE_HEAD_ROOM)}
 			>
 				<PaneHead
@@ -194,7 +194,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 									BODY_CONTENT,
 								)}
 							>
-								{frame.form === "empty" ? head : null}
+								{frame.shape === "empty" ? head : null}
 								<FrameBody
 									frame={frame}
 									fit="page"

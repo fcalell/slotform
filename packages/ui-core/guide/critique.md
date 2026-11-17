@@ -96,14 +96,14 @@ The rules are `voice.md` (V#), `structure.md` (S#) and `../../../plugins/screens
 
 ## 8. States and edges
 
-- 8a. Does the waiting shot keep the loaded form's shape: the same sections, headings in the same
+- 8a. Does the waiting shot keep the loaded shape's shape: the same sections, headings in the same
   place, a pulse where values will land, no second layout? (S15) Text above the first Section
   that wraps to more lines once it lands (a record head's name, facts or description, or prose)
   moves what stands under it by what it grew: the loading-shift floor accepts that move
   (`plugins/screens/guide/screens.md`), so it is no finding, at any width.
 - 8b. Does the empty shot read as the data shot with the rows gone, the toolbar and bands still
   standing where they do in data?
-- 8c. Do the not-found shot and the error shot each read as the frame's one form (one sentence
+- 8c. Do the not-found shot and the error shot each read as the frame's one shape (one sentence
   and one act, no half-drawn record)?
 - 8d. At 320, does the screen read as its own design: one-row toolbar, search leading, filters as
   a glyph, the sidebar behind the menu glyph, a definition's value under its label, nothing from

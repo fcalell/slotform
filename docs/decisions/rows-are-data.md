@@ -23,6 +23,6 @@ function does not. Two row descriptors that differ by a dozen fields cost the sa
 renderers drifting in height, ink and lock, and a dispatch on `"label" in row`.
 
 **Trade-off.** A waiting collection paints one form (a title line over a facts line, `PAINT_ROWS`
-tall), not the shape of the rows to come; a collection whose painted form must differ is the
+tall), not the shape of the rows to come; a collection whose painted shape must differ is the
 trigger for a `paint` hint, not built ahead. A row's parts that are their own reads stay `Datum`
 fields on the row, so the row frame is the same; what is lost is the per-list painted shape.

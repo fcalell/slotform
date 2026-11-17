@@ -32,22 +32,22 @@ export interface Empty {
 	act?: Act | LinkAct;
 }
 
-// The form an empty state draws, by the drawer that stands it: docs/architecture/ui-core/reads.md, "Missing and failed forms".
+// The form an empty state draws, by the drawer that stands it: docs/architecture/ui-core/reads.md, "Missing and failed shapes".
 export type EmptyFit = "page" | "part" | "frame";
 
 // The empty state every empty `Pane`, `Section` and collection, a failed read and a missing one draw:
-// docs/architecture/ui-core/reads.md, "Missing and failed forms". Outside the package's exports.
+// docs/architecture/ui-core/reads.md, "Missing and failed shapes". Outside the package's exports.
 export function EmptyBase(props: {
 	fit: EmptyFit;
 	tone: "rest" | "failed" | "missing";
 	// None is the Section's empty that offers an act in place of a sentence.
 	sentence?: string;
-	// A missing form's way back goes to a route, so it presses through
+	// A missing shape's way back goes to a route, so it presses through
 	// `navigate`.
 	act?: Act | LinkAct;
 }) {
 	const framed = props.fit !== "page";
-	// A missing form is the page's header, the title of the record that is not
+	// A missing shape is the page's header, the title of the record that is not
 	// there never landing.
 	const role = props.tone === "missing" ? "header" : undefined;
 	// Only a failed read draws a mark: the alert.
@@ -105,7 +105,7 @@ export function EmptyBase(props: {
 }
 
 // The empty state's act: a Button that runs it, or one that goes to the route
-// a missing form's way back or a create act names.
+// a missing shape's way back or a create act names.
 function ActButton(props: {
 	act: Act | LinkAct;
 	kind: "primary" | "secondary";

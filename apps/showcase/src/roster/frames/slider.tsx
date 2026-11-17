@@ -28,7 +28,7 @@ function at(value: number | typeof never) {
 // room over its label and under its track read alike), and at rest also at
 // the minimum and the maximum, where the thumb meets the track's ends. A
 // disabled slider is drawn inside a disabled field, the way a form disables
-// it. `PAINT.kind.control` draws it beside its painted form, a value that
+// it. `PAINT.kind.control` draws it beside its painted shape, a value that
 // never arrives.
 export function drawSlider(frame: ShowcaseFrame) {
 	const ends = frame.state === "rest";

@@ -13,7 +13,7 @@ for itself eases the same press three ways and leaves nothing to tune in one pla
 - A motion explains one change or is cut.
 - What a finger or pointer carries moves 1:1 and only its release eases ([follow](drag.md#follow)).
 - A touch is answered within `instant`; nothing waits on an animation to take input.
-- An error changes colour and gains its sentence, never shakes. A failed form arrives as a loaded
+- An error changes colour and gains its sentence, never shakes. A failed shape arrives as a loaded
   one does, with no shake.
 - The focus ring snaps.
 - A wide surface does not give under a press.
@@ -139,14 +139,14 @@ tick rides, a changing figure or mark swaps (`Swap`, `Roll`).
 
 ## Wait and settle
 
-A read that lasts shows its waiting form after `WAIT_DELAY` ([timing](reads.md#timing)): the loaded
+A read that lasts shows its waiting shape after `WAIT_DELAY` ([timing](reads.md#timing)): the loaded
 tree painted, each slot breathing in one page-wide phase (`PULSE`), or the spinner where a wait has no
 shape ([waiting paint](reads.md#waiting-paint)). A painted fill's whole animation is the appear fade
 after `--wait-delay` (`paint-in`), then the breath on the fill's alpha (`pulse-fill`), one phase
 across the page. Under reduced motion `--pulse-name` is `none`, so the fade snaps and the fill stands
 still. The phone breathes in `lib/motion`.
 
-The switch to the loaded form lands at once: the painted form is the loaded one's geometry, so
+The switch to the loaded shape lands at once: the painted shape is the loaded one's geometry, so
 nothing moves and no transition runs ([moves land at once](../../decisions/moves-land-at-once.md)).
 
 `theme.loading` is `{ text, figure, id }`, each `pulse` or `scramble` (omitted: all `pulse`; a shape

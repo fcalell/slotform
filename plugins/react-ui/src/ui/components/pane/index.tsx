@@ -100,7 +100,7 @@ interface PaneBase<P extends ProcedureCall> extends Closed {
 	noun?: string;
 	/** The sentence the Pane's page says when its read answers not found, in place of the one `noun` words ("No report for that month."); `noun` still names the kind in the bar. A sentence, ending in a full stop. */
 	missing?: string;
-	/** Icon acts after the title, ordered by weight: the primary act first, so it is the last to fold. Those that do not fit beside the title's floor fold into the bar's more menu, the last first, and return when there is room; a create act is one of them, and on a record's Pane the record's acts. An act is live whatever the `read` does, but on a record's Pane whose `read` failed or answered not found the bar draws none of them: the page below it is the failed or missing form. One given as a selection paints, inert, while its own read waits or stands still, and stands blocked, the failed sentence its name, once that read failed or is missing. An act's `label` and `blocked` may be selections on their own, which paint it the same way. While the Pane's own `read` failed or is missing the bar draws no action and no more menu. */
+	/** Icon acts after the title, ordered by weight: the primary act first, so it is the last to fold. Those that do not fit beside the title's floor fold into the bar's more menu, the last first, and return when there is room; a create act is one of them, and on a record's Pane the record's acts. An act is live whatever the `read` does, but on a record's Pane whose `read` failed or answered not found the bar draws none of them: the page below it is the failed or missing shape. One given as a selection paints, inert, while its own read waits or stands still, and stands blocked, the failed sentence its name, once that read failed or is missing. An act's `label` and `blocked` may be selections on their own, which paint it the same way. While the Pane's own `read` failed or is missing the bar draws no action and no more menu. */
 	acts?: readonly Offered<IconAct | IconLinkAct>[];
 	/** The acts past the acts, in a menu under the more act, named "More", whose touch sheet is titled by the Pane's title (a record's name), "More" while it waits; the more act paints and stands blocked as an action does. A record's Pane whose `read` failed or answered not found draws no more act. */
 	more?: Offered<readonly MenuEntry[]>;
@@ -137,7 +137,7 @@ export type PaneProps<
 		  }
 	);
 
-/** A column of a Place, of two kinds, one of each at most: the place's own Pane, titled by the place's name, and a record's after it, titled by the record's name (the Place throws on a second of a kind, so a record linked from a record opens in its own place). A bar over one hairline (on touch the shell's switcher leading the place's Pane; on a record's Pane the place's name, a slash and the record's, the Expand act and Close, Back at the start instead of Close where it stands alone; the title, the context pick, the acts and more, one line at every width) and a body that scrolls, its children a sections gap apart within the reading width at its start, wide content (a Table, a line Diff, a code block, a Canvas, a chart) at the body's width, the definition lists of its Sections sharing one label column, and a Thread or a Canvas in it filling it when the Pane takes `fill`; a `foot` docks under the body (on touch, a Thread among the sections docks its composer there), a `sheet` in its place while it is open, and the `empty` of its `read` stands in place of the children. Alone, the place's Pane takes the Place; with a record's beside it, it holds the list width, giving way to its floor, and the record's takes the rest, unless the place's Pane fills with a Canvas, which takes the spare room while the record holds the list width. Below `tablet` of its Place only the last stands. The record's Expand act folds the place's Pane away, mounted, the record taking the Place, and turns to Collapse, which brings it back; Close goes back to the place's Pane as it stood. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping, between the overline and the facts of a head at the body's top, and a `read` that fails or answers not found fills the page with the failed or missing form in place of the head (the missing sentence worded by `noun`, its way back the page above, which stands there and not as the bar's Close), and the bar then keeps the place's name and names the record's kind after its slash (its `noun`, else "Not found" or "Failed"), with none of the record's acts. An empty `read` keeps the head, the empty form standing under it. Every Pane's name is an `h2` and its Sections start at `h3`, whatever Panes stand before or after it: the page's one `h1` is the Place's, so a Pane is written the same alone and among others and reads nothing of its siblings. */
+/** A column of a Place, of two kinds, one of each at most: the place's own Pane, titled by the place's name, and a record's after it, titled by the record's name (the Place throws on a second of a kind, so a record linked from a record opens in its own place). A bar over one hairline (on touch the shell's switcher leading the place's Pane; on a record's Pane the place's name, a slash and the record's, the Expand act and Close, Back at the start instead of Close where it stands alone; the title, the context pick, the acts and more, one line at every width) and a body that scrolls, its children a sections gap apart within the reading width at its start, wide content (a Table, a line Diff, a code block, a Canvas, a chart) at the body's width, the definition lists of its Sections sharing one label column, and a Thread or a Canvas in it filling it when the Pane takes `fill`; a `foot` docks under the body (on touch, a Thread among the sections docks its composer there), a `sheet` in its place while it is open, and the `empty` of its `read` stands in place of the children. Alone, the place's Pane takes the Place; with a record's beside it, it holds the list width, giving way to its floor, and the record's takes the rest, unless the place's Pane fills with a Canvas, which takes the spare room while the record holds the list width. Below `tablet` of its Place only the last stands. The record's Expand act folds the place's Pane away, mounted, the record taking the Place, and turns to Collapse, which brings it back; Close goes back to the place's Pane as it stood. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping, between the overline and the facts of a head at the body's top, and a `read` that fails or answers not found fills the page with the failed or missing shape in place of the head (the missing sentence worded by `noun`, its way back the page above, which stands there and not as the bar's Close), and the bar then keeps the place's name and names the record's kind after its slash (its `noun`, else "Not found" or "Failed"), with none of the record's acts. An empty `read` keeps the head, the empty shape standing under it. Every Pane's name is an `h2` and its Sections start at `h3`, whatever Panes stand before or after it: the page's one `h1` is the Place's, so a Pane is written the same alone and among others and reads nothing of its siblings. */
 export function Pane<
 	V extends string | null = string,
 	P extends ProcedureCall = ProcedureCall,
@@ -177,8 +177,8 @@ export function Pane<
 	// A Pane that declares no `empty` leaves an empty read to its Sections, which
 	// draw their own; only a Pane's own `empty` replaces its body.
 	const frame =
-		held.form === "empty" && empty === undefined
-			? { ...held, form: "ready" as const }
+		held.shape === "empty" && empty === undefined
+			? { ...held, shape: "ready" as const }
 			: held;
 	// The bar owns the title's subscription; the Pane asks only whether it is
 	// still filler, which is what names the region.
@@ -200,13 +200,14 @@ export function Pane<
 	const docked = task ? <SheetDocked {...task} region={region.value} /> : foot;
 	const footed = Boolean(docked);
 	// The Pane's own forms and a filler take the body's free height.
-	const flexed = fill === true || isEnded(frame.form) || frame.form === "empty";
+	const flexed =
+		fill === true || isEnded(frame.shape) || frame.shape === "empty";
 	const named = filler ? undefined : titleId;
 	// A record's head opens the body, in the frame's body: a failed or missing
 	// read draws its form and not the head, and the bar's title is then the
 	// Pane's heading. An empty read is a record with nothing in it: its head
-	// stands, whole and wrapping, and the empty form under it.
-	const headless = isEnded(frame.form);
+	// stands, whole and wrapping, and the empty shape under it.
+	const headless = isEnded(frame.shape);
 	const head = record ? (
 		<ItemHeaderBase
 			name={title}
@@ -237,8 +238,10 @@ export function Pane<
 							ref={setPaneNode}
 							// The title names the region; a record's overline is text beside it.
 							aria-labelledby={named}
-							aria-busy={(frame.holds && frame.form === "waiting") || undefined}
-							data-still={(frame.holds && frame.form === "still") || undefined}
+							aria-busy={
+								(frame.holds && frame.shape === "waiting") || undefined
+							}
+							data-still={(frame.holds && frame.shape === "still") || undefined}
 							data-page=""
 							data-expanded={expanded ? "" : undefined}
 							data-fill={fill ? "" : undefined}
@@ -284,7 +287,7 @@ export function Pane<
 											)}
 										>
 											<Scroller value={scroll}>
-												{frame.form === "empty" ? head : null}
+												{frame.shape === "empty" ? head : null}
 												<FrameBody
 													frame={frame}
 													empty={empty}

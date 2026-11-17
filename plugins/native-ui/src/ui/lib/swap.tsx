@@ -27,7 +27,7 @@ interface Leaving {
 	shift: number;
 }
 
-/** A value that changes while shown (a mark, a figure): when `id` changes the new one enters and the old one, held for the rung, leaves over `fast` on `out`. With `of`, its number, the old leaves and the new rises by the sign of the change (a figure rolls, in a clipped box); with `scale`, a mark swaps: the old one leaves over `fast` and the new one then grows from 0.6, so the two are never drawn together; with neither it is a cross-fade. It mounts at rest: a value that arrives (a waiting form's switch to its loaded one) is the settle's, never a swap. */
+/** A value that changes while shown (a mark, a figure): when `id` changes the new one enters and the old one, held for the rung, leaves over `fast` on `out`. With `of`, its number, the old leaves and the new rises by the sign of the change (a figure rolls, in a clipped box); with `scale`, a mark swaps: the old one leaves over `fast` and the new one then grows from 0.6, so the two are never drawn together; with neither it is a cross-fade. It mounts at rest: a value that arrives (a waiting shape's switch to its loaded one) is the settle's, never a swap. */
 export function Swap(props: {
 	id: string;
 	of?: number;

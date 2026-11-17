@@ -97,7 +97,7 @@ interface SectionHeadProps extends Closed {
 }
 
 type Parts = SectionHeadProps & {
-	/** The heading (a short phrase; truncates on the desktop and wraps on touch). A section titled by its record takes a `Datum`: a selection of the read the section holds (its `read`), never a second read of its own; it paints a title-length filler, its heading inert and hidden from assistive tech, until it lands.  A title whose read ended (failed or missing) draws no head at all (no heading, count or acts): the failed or missing form of the Section stands alone in its place. */
+	/** The heading (a short phrase; truncates on the desktop and wraps on touch). A section titled by its record takes a `Datum`: a selection of the read the section holds (its `read`), never a second read of its own; it paints a title-length filler, its heading inert and hidden from assistive tech, until it lands.  A title whose read ended (failed or missing) draws no head at all (no heading, count or acts): the failed or missing shape of the Section stands alone in its place. */
 	title: Datum<Run>;
 	/** The body's parts, each a card of its own: a Form, a Table, a Stats, a BarChart, or a `Card` around anything else; none stand while the `read` is empty. */
 	children?: ReactNode;
@@ -126,9 +126,9 @@ type Parts = SectionHeadProps & {
 type Sheet<V extends string | null, Q> = SectionHeadProps & {
 	/** The heading (a short phrase; truncates); the head over the sheet is drawn with it, and a Section with no title is the sheet alone. */
 	title?: Datum<Run>;
-	/** The sheet's rows: constants (none draw the empty form, as an empty read does), or a selection, which paints as many list rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the slots its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty forms in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
+	/** The sheet's rows: constants (none draw the empty shape, as an empty read does), or a selection, which paints as many list rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the slots its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty shapes in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
 	items: Datum<readonly Row<V, Q>[]> | Row<V, Q>;
-	/** The sheet's bands, in order: a band over the list rows of each (their `group` is its `key`), with its label, the count of its rows (none for a lone band holding every row under a counted head, whose count is the same) and its act. Rows whose `group` names no key, or with none, stand before the first band; the painted (waiting) rows stand with no bands. A selection is the section's own read as `items` is: the rows paint with no bands until it lands, and its failed, missing and empty forms stand in the sheet's place. */
+	/** The sheet's bands, in order: a band over the list rows of each (their `group` is its `key`), with its label, the count of its rows (none for a lone band holding every row under a counted head, whose count is the same) and its act. Rows whose `group` names no key, or with none, stand before the first band; the painted (waiting) rows stand with no bands. A selection is the section's own read as `items` is: the rows paint with no bands until it lands, and its failed, missing and empty shapes stand in the sheet's place. */
 	groups?: Datum<readonly Band[]>;
 	/** The sheet's rows can be moved: a press that moves drags a row to the line between two others (the sheet scrolls near its edges), Alt with Up, Down, Home or End moves the focused row, and every row's more menu holds Move up, down, to top and to bottom. `onMove` hears the id and where it lands (`index`, and the ids it stands `after` and `before`); the rows show the move at once and the order the read answers replaces it. A flat sheet only: a tree or a sheet with `groups` does not reorder. */
 	reorder?: Reorder;
@@ -142,7 +142,7 @@ export type SectionProps<V extends string | null = string, Q = unknown> =
 	| Parts
 	| Sheet<V, Q>;
 
-/** A heading (the heading size at 500) with its count in the meta ink, description, act and more act over its body; the title folds the body when `folded` is set, at the heading size folded or not. With `items` the body is the hairline sheet on the surface, its rows abutting under a hairline once between them: one row per item, `PAINT_ROWS` list rows while the `items` selection's read waits (each painted, inert and with no link; a tree draws flat then), the failed form with Retry, the missing form saying it was not found and the empty form each on a sheet with the generic sentence (the empty form under a `description` its own sentence, else its act alone or the word for none), the stale and paused line above the rows, and the count of the loaded rows after the title (its top-level rows, the items it lists, less any row with `counted: false` (a top-level row that is no item of the list: an add row, a row that only points elsewhere), with any nested row with `counted: true` (a nested row that is an item in its own right): a tree's other nested rows are parts of their row), unless every row has a label (facts, which a count does not number) or `items` is one row given alone (a value, no list). A band with `groups` spans the sheet, a `control` high, closed by a rule in the body ink, its text at the rows' inset; `children` on a list row make the sheet a tree. A definition row draws no hairlines of its own, its rows at the `control` height abutting on the sheet. With `children` the body stands on the canvas, a sections gap from the next: its parts a fields gap apart, each a card of its own (a Form, a Table, a Stats, a BarChart, or a `Card` around anything else), and its empty form on a card of its own; the Section draws no card, no count beside its title (a count is a list's) and reads nothing of its children. A Section with `items` and no `title` draws no head: the sheet alone. A blocked act's reason draws under the head row, which never moves. No Section stands in a Section. It is a `section` with no name, so no landmark of its own (a `section` is a region only when named): the `Pane` is the page's named region, and a Section titled as its Pane is not a second region of that name. */
+/** A heading (the heading size at 500) with its count in the meta ink, description, act and more act over its body; the title folds the body when `folded` is set, at the heading size folded or not. With `items` the body is the hairline sheet on the surface, its rows abutting under a hairline once between them: one row per item, `PAINT_ROWS` list rows while the `items` selection's read waits (each painted, inert and with no link; a tree draws flat then), the failed shape with Retry, the missing shape saying it was not found and the empty shape each on a sheet with the generic sentence (the empty shape under a `description` its own sentence, else its act alone or the word for none), the stale and paused line above the rows, and the count of the loaded rows after the title (its top-level rows, the items it lists, less any row with `counted: false` (a top-level row that is no item of the list: an add row, a row that only points elsewhere), with any nested row with `counted: true` (a nested row that is an item in its own right): a tree's other nested rows are parts of their row), unless every row has a label (facts, which a count does not number) or `items` is one row given alone (a value, no list). A band with `groups` spans the sheet, a `control` high, closed by a rule in the body ink, its text at the rows' inset; `children` on a list row make the sheet a tree. A definition row draws no hairlines of its own, its rows at the `control` height abutting on the sheet. With `children` the body stands on the canvas, a sections gap from the next: its parts a fields gap apart, each a card of its own (a Form, a Table, a Stats, a BarChart, or a `Card` around anything else), and its empty shape on a card of its own; the Section draws no card, no count beside its title (a count is a list's) and reads nothing of its children. A Section with `items` and no `title` draws no head: the sheet alone. A blocked act's reason draws under the head row, which never moves. No Section stands in a Section. It is a `section` with no name, so no landmark of its own (a `section` is a region only when named): the `Pane` is the page's named region, and a Section titled as its Pane is not a second region of that name. */
 export function Section<V extends string | null = string, Q = unknown>(
 	props: SectionProps<V, Q>,
 ) {
@@ -153,7 +153,7 @@ export function Section<V extends string | null = string, Q = unknown>(
 	);
 }
 
-// A described Section's empty form says no generic sentence, its description
+// A described Section's empty shape says no generic sentence, its description
 // saying what it holds: a sheet's own sentence stands, else the act alone, or
 // the word for none.
 // The shape the waiting rows paint in: one record as the items' selector maps
@@ -230,11 +230,11 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 	const { drawn } = collection;
 	const [bands] = useSelections([groups] as const);
 	// A constant with no rows is empty as a read that answered none is: its
-	// empty form stands (`empty`, else the generic sentence), never a sheet
+	// empty shape stands (`empty`, else the generic sentence), never a sheet
 	// with nothing on it.
 	const frame: Frame =
 		!isSelection(items) && !isSelection(groups) && items.length === 0
-			? { ...collection.frame, form: "empty" }
+			? { ...collection.frame, shape: "empty" }
 			: collection.frame;
 	// The sheet is the box the rows stand in, which they window in.
 	const box = useRef<HTMLDivElement>(null);
@@ -284,10 +284,10 @@ function SheetSection<V extends string | null, Q>(props: Sheet<V, Q>) {
 			</SheetCard>
 		</FrameBody>
 	);
-	// The failed, missing and empty forms stand at the sheet's inset inside the
+	// The failed, missing and empty shapes stand at the sheet's inset inside the
 	// sheet's own card, headed or not, where the rows would stand.
 	const body =
-		isEnded(frame.form) || frame.form === "empty" ? (
+		isEnded(frame.shape) || frame.shape === "empty" ? (
 			<SheetCard>{forms}</SheetCard>
 		) : (
 			forms
@@ -374,8 +374,8 @@ function Titled(
 				setOpen(next);
 				onToggle?.(next);
 			}}
-			aria-busy={(frame.holds && frame.form === "waiting") || undefined}
-			data-still={(frame.holds && frame.form === "still") || undefined}
+			aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
+			data-still={(frame.holds && frame.shape === "still") || undefined}
 			className={cn(SECTION, ROWS, BOX)}
 		>
 			<SectionHead

@@ -121,7 +121,7 @@ async function settle(animations: boolean): Promise<void> {
 // Whether a read is still in flight or a region waits for one (a stream, which
 // stays fetching while subscribed, is no wait). A failed read
 // stays fetching through the client's retry and its delay, so a screen whose
-// reads fail draws its failed form only once none is fetching.
+// reads fail draws its failed shape only once none is fetching.
 const waiting = (): boolean =>
 	document.querySelector(READ_BUSY) !== null ||
 	fetchingReads(storyClient()) > 0;
@@ -154,7 +154,7 @@ async function loaded(): Promise<string | undefined> {
 // it is on its way, so a count above the held calls is a read not yet landed.
 const answering = (): boolean => fetchingReads(storyClient()) > heldReads();
 
-// The waiting form of a loading story, once the reads the run does not hold
+// The waiting shape of a loading story, once the reads the run does not hold
 // have landed and drawn: the page the held ones leave waiting, never one
 // caught between its first paint and what answers at once. Holds for a few
 // frames running, since an answer that lands can start a read the frame after.

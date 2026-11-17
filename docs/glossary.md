@@ -264,12 +264,12 @@ to fix, and a new term enters this page in the change that introduces it.
   [rows are data](decisions/rows-are-data.md)
 - **leaf**: A part that subscribes to a selection, paints it while its reads wait and draws it once
   they land. [reads](architecture/ui-core/reads.md#read-handle)
-- **frame**: A part that draws the form of its reads (a Pane, Section, Sheet or Form, and every
+- **frame**: A part that draws the shape of its reads (a Pane, Section, Sheet or Form, and every
   collection that draws its own failure). [reads](architecture/ui-core/reads.md#frames)
-- **frame form**: What a frame's reads are at a moment: `ready`, `waiting`, `still`, `empty`, `failed`
+- **frame shape**: What a frame's reads are at a moment: `ready`, `waiting`, `still`, `empty`, `failed`
   or `missing`. [reads](architecture/ui-core/reads.md#phases)
 - **hold**: A frame's claim on one read, the one whose busy mark and stale and paused line it draws;
-  holds change no frame's form. [reads](architecture/ui-core/reads.md#holding-a-read)
+  holds change no frame's shape. [reads](architecture/ui-core/reads.md#holding-a-read)
 - **painter**: A leaf that draws a read. [reads](architecture/ui-core/reads.md#placeholder-and-selectors)
 - **holder**: A frame, or a leaf that draws a read's failure itself.
   [reads](architecture/ui-core/reads.md#placeholder-and-selectors)
@@ -279,8 +279,8 @@ to fix, and a new term enters this page in the change that introduces it.
   while its read waits. [reads](architecture/ui-core/reads.md#placeholder-and-selectors)
 - **paint**: What a part draws while its data is not here; a part so drawn is painted.
   [reads](architecture/ui-core/reads.md#paint)
-- **paint form**: One of the three ways a part paints: `glyphs`, `box` or `control`.
-  [reads](architecture/ui-core/reads.md#paint-forms)
+- **paint shape**: One of the three ways a part paints: `glyphs`, `box` or `control`.
+  [reads](architecture/ui-core/reads.md#paint-shapes)
 - **more row**: A collection's last row over a read that pages, pressed to load the next page.
   [reads](architecture/ui-core/reads.md#paging)
 - **port**: What the read hooks and the components ask of the binding that runs the reads.
@@ -362,7 +362,7 @@ to fix, and a new term enters this page in the change that introduces it.
   [plugin-screens](architecture/plugins/screens.md#render-walk-rules)
 - **walk exception**: A place the contract itself draws off a walk rule, named with its reason.
   [plugin-screens](architecture/plugins/screens.md#render-walk-exceptions)
-- **shift check**: The test run's check that no Section moves between its waiting and loaded forms
+- **shift check**: The test run's check that no Section moves between its waiting and loaded shapes
   beyond what the Sections above grew by. [plugin-screens](architecture/plugins/screens.md#loading-shift-comparison)
 - **finding**: A failing check, which stays failing until the component is fixed.
   [showcase](architecture/ui-core/showcase.md#enforcement)

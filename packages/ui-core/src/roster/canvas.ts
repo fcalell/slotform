@@ -12,7 +12,7 @@ import { ANSWER, build, matrix } from "./shared.ts";
 // measure in the middle, and the zoom stack), since a layout has no
 // geometry before its data and the placeholders are the nodes' measure
 // alone. Its `nodes`, given as a selection, are its
-// own frame: its failed, missing and empty forms stand in its ground with
+// own frame: its failed, missing and empty shapes stand in its ground with
 // the generic sentences. A node's status is its dot and its label, which
 // truncates before the title.
 export const canvasEntry: RosterEntry = {

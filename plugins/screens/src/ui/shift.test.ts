@@ -179,7 +179,7 @@ test("a painted title pairs with the loaded title at its slot", () => {
 	assert.deepEqual(fails, []);
 });
 
-test("Sections the loaded form draws beyond the waiting ones are not findings", () => {
+test("Sections the loaded shape draws beyond the waiting ones are not findings", () => {
 	const { fails, reports } = compare(
 		[slotted("xqz tuvw nopr", 0, 100, 120)],
 		[

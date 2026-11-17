@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
 	accepts,
+	DRAG_DELAY_SLOP,
 	DRAG_SLOP,
 	edgeSpeed,
-	HOLD_SLOP,
 	movedTo,
 	moveEntry,
 	moveOf,
@@ -22,7 +22,7 @@ test("a mouse press is a drag past the slop, a finger after its hold", () => {
 	assert.equal(pressed("mouse", DRAG_SLOP, false), "drag");
 	assert.equal(pressed("pen", DRAG_SLOP, false), "drag");
 	assert.equal(pressed("touch", 0, false), "wait");
-	assert.equal(pressed("touch", HOLD_SLOP + 1, false), "cancel");
+	assert.equal(pressed("touch", DRAG_DELAY_SLOP + 1, false), "cancel");
 	assert.equal(pressed("touch", 2, true), "drag");
 });
 

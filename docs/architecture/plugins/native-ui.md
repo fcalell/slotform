@@ -37,7 +37,7 @@ plugin's `dependencies`, which the consumer declares ([Native client](./auth.md#
   while the app has no `+not-found` route of its own ([Routes](./expo.md#routes)). It stands where
   expo-router stands a route: inside the root layout's `Shell` when the layout draws one, alone when
   it does not. Under a record's `Pane` it is the missing sentence in that Pane's body; elsewhere
-  under a `Shell` a record's `Pane` titled "Not found" with the missing form; outside one a `Gate`
+  under a `Shell` a record's `Pane` titled "Not found" with the missing shape; outside one a `Gate`
   with Back.
 - `uniwind/types` in the consumer's tsconfig `types` ([Type-checking](#type-checking)).
 
@@ -176,8 +176,8 @@ the `Shell` and hands `FieldClaim` to its body ([Focus claims](#focus-claims)). 
 
 ## Phone components
 
-What each of these draws as a frame of its read (the failed form with Retry, the missing and empty
-forms, the stale and paused line) is [What a frame draws](../ui-core/reads.md#what-a-frame-draws);
+What each of these draws as a frame of its read (the failed shape with Retry, the missing and empty
+shapes, the stale and paused line) is [What a frame draws](../ui-core/reads.md#what-a-frame-draws);
 the shared contract of each is its section of [components](../ui-core/components.md). This holds
 what the phone draws itself.
 

@@ -6,7 +6,7 @@ controls and rows, `Image`, `Diff`, the canvas and the QR code. Each decides wha
 framework-free module of `@fcalell/ui-core` (`list-state.ts`, `chart.ts`, `rules.ts`, `window.ts`
 and the others below) that both platforms run, so one input draws the same rows, figures and cuts on
 the web and on the phone, and each decision is tested without rendering. The frames, paint and
-read forms these components share are in [reads](reads.md); the acts and fields they hold are in
+read shapes these components share are in [reads](reads.md); the acts and fields they hold are in
 [acts](acts.md).
 
 ## Collections and lists
@@ -38,7 +38,7 @@ of list rows with the sort a `Picker` above it. Below `tablet` the rows stand on
 It takes `items`, constants or a selection, each column reading its cell from the item and `row` the
 row's own slots. While the selection's read waits it paints `PAINT_ROWS` rows over the constant
 header, each cell by its column's kind, inert. It is a frame of its items as a Section's sheet is:
-its failed, missing and empty forms and its stale and paused line are its own
+its failed, missing and empty shapes and its stale and paused line are its own
 ([frames](reads.md#frames)). `label` is its accessible name (`aria-label` on the grid or the list,
 `accessibilityLabel` on the phone), in place of the page's title naming it.
 
@@ -178,7 +178,7 @@ its dot. The recommended mark sits on its `line`, and the `children` under a cho
 label's start. A list that is the body of a titled Section is `headed`: the Section's title names it
 and it draws no field. Static `options` never paint. `items`, constants or a selection, paint
 `PAINT_ROWS` rows while the read waits, in the slots `option` declares (a `line` under each label, a
-label over the group), inert, and a `value` selection paints the boxes or rings. The empty form is
+label over the group), inert, and a `value` selection paints the boxes or rings. The empty shape is
 the frame's (the Pane, Section, Sheet or Form that holds the read), and `items` that have failed draw
 the failed sentence with Retry (or `missing`) in a line under the rows, the list holding that read
 where no frame does.
@@ -240,8 +240,8 @@ other author's reply at the start.
 - A reply's body is a `Prose`. `at` is an ISO moment each plugin formats in the document's language:
   the time alone today, "tomorrow" or "yesterday" and the time a day either side, the year only when
   it is not this year's.
-- It is a frame of its items with its composer and reply kept: its failed and missing forms stand in
-  the log's place with the generic sentences, and its empty form is one sentence (`empty`, else the
+- It is a frame of its items with its composer and reply kept: its failed and missing shapes stand in
+  the log's place with the generic sentences, and its empty shape is one sentence (`empty`, else the
   generic one) centred in the log, so a thread whose items failed still sends.
 
 The `composer` is the input under the log, or its `sheet` docked in its place while it is open:

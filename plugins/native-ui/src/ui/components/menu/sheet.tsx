@@ -100,7 +100,7 @@ export function MenuSheet({
 			<View
 				accessibilityRole="menu"
 				accessibilityLabel={label}
-				className={menu({ form: "sheet" })}
+				className={menu({ lines: "sheet" })}
 			>
 				{groupsOf(items).map((group, index) => (
 					<View

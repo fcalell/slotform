@@ -32,7 +32,7 @@ function drawn(fit: ImageFit, state: ShowcaseFrame["state"]) {
 	if (fit === "thumb") return <Image src={shown} alt={ALT} fit="thumb" />;
 	// The mini tile is the dock's: a picture to look at, which presses nothing,
 	// drawn in the dock of a loaded track. A track's picture is an address, never
-	// a read, so the mini tile has no painted form.
+	// a read, so the mini tile has no painted shape.
 	if (fit === "mini")
 		return state === "loading" ? undefined : <Standing image={src} />;
 	const code = state === "rest" ? CODE : shown;
@@ -48,7 +48,7 @@ const pressPicture = (stage: HTMLElement) =>
 	requestAnimationFrame(() => press(stage.querySelector("button")));
 
 // `IMAGE.fit.<fit>` draws the picture at that fit in the frame's state
-// (`loading` the painted tile, `error` the failed form); `IMAGE.state.<state>` both fits in that state and
+// (`loading` the painted tile, `error` the failed shape); `IMAGE.state.<state>` both fits in that state and
 // `IMAGE_PICTURE.fit.<fit>` the picture alone (the mini fit in a dock). The
 // Close act's cell (`ICON_BUTTON.fit.body`) draws the full view opened from a
 // thumbnail in a Gate, contain-fit on the scrim.

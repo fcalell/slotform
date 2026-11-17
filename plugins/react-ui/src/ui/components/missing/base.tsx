@@ -15,7 +15,7 @@ function useBackAct(): LinkAct | undefined {
 	return { label: words.back, href };
 }
 
-/** The missing form every read that answers not found draws, and the page for an address nothing serves. Outside the package's exports: `fit` and `fill` are the reads' alone, where its form stands and whether its line fills the box it stands in; `noun` words the sentence for the kind of record (the Pane's), `sentence` replaces it. The way back is the Pane's: a Pane's own frame (`headed`) offers it, any other frame says the sentence alone. */
+/** The missing shape every read that answers not found draws, and the page for an address nothing serves. Outside the package's exports: `fit` and `fill` are the reads' alone, where its form stands and whether its line fills the box it stands in; `noun` words the sentence for the kind of record (the Pane's), `sentence` replaces it. The way back is the Pane's: a Pane's own frame (`headed`) offers it, any other frame says the sentence alone. */
 export function MissingBase(props: {
 	fit?: EmptyFit;
 	headed?: boolean;

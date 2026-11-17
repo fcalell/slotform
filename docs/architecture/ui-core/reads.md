@@ -6,7 +6,7 @@ which frame holds a read and draws its failure, busy mark and stale line, what a
 its data is not here (`paint.ts`), the port the hooks ask of the binding that runs the reads, and
 the scope ids a route hands every query. `@fcalell/plugin-query` is the binding
 ([query](../plugins/query.md)); `@fcalell/plugin-react-ui` and `@fcalell/plugin-native-ui` draw the
-forms. Where a frame stands on a page is in [layout](layout.md).
+shapes. Where a frame stands on a page is in [layout](layout.md).
 
 ## Read model
 
@@ -38,7 +38,7 @@ How a read's query behaves (`ReadKind`):
 
 ### Phases
 
-- A frame's form (`FrameForm`) is one of: `ready`, the loaded tree with its leaves real; `waiting`,
+- A frame's shape (`FrameShape`) is one of: `ready`, the loaded tree with its leaves real; `waiting`,
   the loaded tree with its leaves painted; `still`, the same, painted while the root is not asked for
   or waits for a connection, so nothing is coming yet; `empty`, the answer holds nothing; `failed` and
   `missing`, the read ended. A read that answers not found is `missing`, beside `failed`.
@@ -53,7 +53,7 @@ How a read's query behaves (`ReadKind`):
   coming (it paints still, with no sentence); `failed` and `missing`, the read ended (the failed
   sentence, `words.missing`).
 - A leaf draws its paint while its read waits or stands still (`paints`). A leaf whose read ended
-  draws its loaded-empty form instead, no line for a text and nothing for a mark; the frame that holds
+  draws its loaded-empty shape instead, no line for a text and nothing for a mark; the frame that holds
   the read says why, once.
 
 ### Conversation turn states
@@ -84,10 +84,10 @@ its value alone.
 - A selection is never a plain object. TanStack's structural sharing (`replaceEqualDeep`, run over
   every `combine` result) rebuilds a changed plain object from its string keys, which drops
   `SELECTION`; an object on a prototype of its own passes through whole.
-- `placeholderData` and `heldPlaceholder` are two constant functions, both returning the placeholder.
+- `placeholderData` and `heldStandIn` are two constant functions, both returning the placeholder.
   TanStack compares a function `placeholderData` by identity between option sets, and the dev check
   reads them back off a query's observers: `placeholderData` marks an observer as a **painter** (a leaf
-  that draws the read), `heldPlaceholder` as a **holder** (a frame, or a leaf that draws the failure
+  that draws the read), `heldStandIn` as a **holder** (a frame, or a leaf that draws the failure
   itself).
 
 ### Read hooks
@@ -105,19 +105,19 @@ to their reads with, over the binding's port ([The port](#the-port)); the model 
 ## Frames
 
 A **frame** (a Pane, Section, Sheet or Form, and every collection that draws its own failure) is a
-part that draws the form of its reads. It draws from its non-quiet reads and from the value its
+part that draws the shape of its reads. It draws from its non-quiet reads and from the value its
 collection or leaf draws, painted or real; `more` says the drawn value is one page of several.
 
-### Form and flags
+### Shape and flags
 
-- The frame's form comes from every non-quiet read of its own selection, held or not; a frame never
-  reads its form off a context. Busy, stale and paused come only from the read it holds, which draws
+- The frame's shape comes from every non-quiet read of its own selection, held or not; a frame never
+  reads its shape off a context. Busy, stale and paused come only from the read it holds, which draws
   them; a read an enclosing frame holds is drawn there.
-- Only the form, the count and the flags move the frame, never a value's change: a frame that holds
+- Only the shape, the count and the flags move the frame, never a value's change: a frame that holds
   the root renders on `busy`, `stale`, `paused` and `still`. The first read that failed
   with no data ends the frame (`failed`, or `missing` by its own `missing`), held or not. The frame
   stands still when any read is idle or paused with no data.
-- `FrameState` carries the form, the count (the length of a drawn list; undefined where none is drawn,
+- `FrameState` carries the shape, the count (the length of a drawn list; undefined where none is drawn,
   while it waits or stands still, and while more pages remain), `busy` (a refetch or a retry runs), and
   `stale` and `paused` (the held read's last refetch failed, or it waits for a connection; false for a
   frame that holds none).
@@ -129,21 +129,21 @@ collection or leaf draws, painted or real; `more` says the drawn value is one pa
   nested frame draws those only for what its ancestors do not hold. A `combine` under a read-less Pane
   holds its read; an `x.at()` under a holder of `x` holds none.
 - A frame's further unheld reads are a mistake that `holdReads` names in dev by both keys: their
-  failure still draws, since the form comes from every read, but their flags do not.
+  failure still draws, since the shape comes from every read, but their flags do not.
 - **Holds** are the query hashes the frames above hold, identity only. A frame publishes to its body
   the hashes it and the frames around it hold (`FrameHolds`). Holds place flags (which frame draws a
-  read's busy mark and its stale and paused line) and change no frame's form. A frame that holds
+  read's busy mark and its stale and paused line) and change no frame's shape. A frame that holds
   nothing passes its parent's holds on, and frames over the same keys share one identity (`holdsOf`).
 - Sibling frames over one read, with none enclosing another (two Sections over one read), are no
-  mistake: each holds it and each draws its failed form, but its busy mark stands once, at the first of
+  mistake: each holds it and each draws its failed shape, but its busy mark stands once, at the first of
   them to take it in mount order (document order for siblings), passing to the next when that one
-  leaves (`createMarks`: `take` returns the release, `marks` says whether a frame draws the mark of a
+  leaves (`createFlags`: `take` returns the release, `flags` says whether a frame draws the mark of a
   read).
 - A frame makes one subscription (`useFrameRead`), the same observation a leaf makes, placeholder on,
-  with `derive` run in `combine`, so the frame renders when its derived state changes (form, count,
+  with `derive` run in `combine`, so the frame renders when its derived state changes (shape, count,
   flags) and never on a value change. `derive` must be stable (a module function), since its identity
-  is the combine's. Its observers carry `heldPlaceholder`, which the dev check reads. It returns
-  `holds` for its body to publish, `holding` (it holds a read), `marks` (it draws that read's busy
+  is the combine's. Its observers carry `heldStandIn`, which the dev check reads. It returns
+  `holds` for its body to publish, `holding` (it holds a read), `flags` (it draws that read's busy
   mark) and `retry` (refetch the read it holds).
 - The pure core is `planFrame`: the frame's selection planned like a leaf's, and `combine` deriving
   the frame's state. Its `query` looks up a read's query in the cache, because a plain observer's
@@ -158,11 +158,11 @@ frames over one read only the first draws it, so one refetch stands as one mark.
 
 ### What a frame draws
 
-- In place of its body a frame draws the failed, missing and empty forms in the frame's `fit`; ready,
+- In place of its body a frame draws the failed, missing and empty shapes in the frame's `fit`; ready,
   waiting and still are the loaded tree, its leaves painting.
 - A collection that draws its items is a frame of them, whatever stands above it: the bar chart, the
-  diff, the table, the thread and the Section's sheet each draw the failed form with Retry, the missing
-  form and the empty form in their own box with the generic sentence (a table's or thread's `empty`
+  diff, the table, the thread and the Section's sheet each draw the failed shape with Retry, the missing
+  shape and the empty shape in their own box with the generic sentence (a table's or thread's `empty`
   where given), and the stale and paused line above themselves while they hold their read. A frame
   above that holds the same read unmounts the Section's sheet when the read fails and alone draws the
   failure.
@@ -173,12 +173,12 @@ frames over one read only the first draws it, so one refetch stands as one mark.
   in a thread (an ask of yours and the other author's reply), and for a bar chart a figure's filler as
   the total, the legend standing with its figures painted, one painted plot box at its loaded height
   with the axis's lane kept, and two fillers for the time line.
-- A thread's foot and its reply stand through its failed, missing and empty forms, so a thread whose
-  items failed still sends. Its failed and missing forms stand in the log's place; its empty form is
+- A thread's foot and its reply stand through its failed, missing and empty shapes, so a thread whose
+  items failed still sends. Its failed and missing shapes stand in the log's place; its empty shape is
   one sentence in the meta ink over its act. With `replying` set it draws one waiting Message of the
   other author after the messages, replaced in place when the reply's item arrives and `replying`
   clears; the `reply` read draws its turn after them the same way, from its own subscription.
-- A Section's empty form under a `description` is its act alone, or the word for none.
+- A Section's empty shape under a `description` is its act alone, or the word for none.
 - A row, a Stats cell and a meter are the frame of the selections they draw. When one failed and no
   enclosing frame holds that read, the label stays, the value slot shows the failure mark and the
   retry icon, the line under reads `readFailed` ("This didn't load.") and a press retries. A read an
@@ -187,20 +187,20 @@ frames over one read only the first draws it, so one refetch stands as one mark.
   answers at once never flashes one. A meter whose `value` or `bound` read ended stands empty (no
   share, no fill) in the same box.
 
-## Missing and failed forms
+## Missing and failed shapes
 
 - Every empty `Pane`, `Section` and collection, a failed read and a missing one draw the same empty
-  state: the sentence and the act. Its form depends on the drawer that stands it (`fit`): a Pane's
+  state: the sentence and the act. Its shape depends on the drawer that stands it (`fit`): a Pane's
   `page`, centred in what the body leaves, or a Section's or a collection's `frame`, a hairline frame
   (a collection's is one quiet sentence when only that is given). `fit` and `tone` are the drawers'
-  alone and stay outside the plugins' exports. A Pane's missing form is in
+  alone and stay outside the plugins' exports. A Pane's missing shape is in
   [layout](layout.md#body).
-- On the web, the failed form and the missing form of a Pane with no title are the heading that names
+- On the web, the failed shape and the missing shape of a Pane with no title are the heading that names
   the Pane, as the Pane's `h2`: the title of a record that is not there never lands, and a Pane's
-  failed read fails its title's read with it. The missing form offers the Pane's way back.
-- The empty form's sentence may be a read of its own (a selection of what the frame holds), subscribed
-  in the empty form and only there. A frame whose read failed has no such observer: one would mount on
-  the failed read again each time the body changes shape and retry it, so the failed form would never
+  failed read fails its title's read with it. The missing shape offers the Pane's way back.
+- The empty shape's sentence may be a read of its own (a selection of what the frame holds), subscribed
+  in the empty shape and only there. A frame whose read failed has no such observer: one would mount on
+  the failed read again each time the body changes shape and retry it, so the failed shape would never
   settle. The generic sentence stands until the selection lands.
 
 ## Failed, stale and paused lines
@@ -225,19 +225,19 @@ remains.
 
 **Paint** is what a part draws while its data is not here. `paint.ts` holds it free of any framework
 (the filler text a slot paints, how many rows a collection paints, how long a read runs before the
-paint shows), and both platforms run it, so a painted form measures the same everywhere and the same
+paint shows), and both platforms run it, so a painted shape measures the same everywhere and the same
 filler comes back for the same slot.
 
-### Paint forms
+### Paint shapes
 
-A part paints in one of three forms (`variant-tables.ts`):
+A part paints in one of three shapes (`variant-tables.ts`):
 
 - `glyphs`: the filler the part would hold, filled: a text, figure or id slot's own line boxes, the
   ink transparent;
 - `box`: the part's own box with its content not drawn (a mark or a block);
 - `control`: a control's own box with its content invisible and the control inert.
 
-Each component paints its own box, so the painted form measures as the loaded one. A row slot run over
+Each component paints its own box, so the painted shape measures as the loaded one. A row slot run over
 a painted item that throws on the filler (it reads a field the filler does not have) paints as the
 item itself and never throws the page; the Table's rows go through it (`painting`).
 
@@ -249,7 +249,7 @@ item itself and never throws the page; the Table's rows go through it (`painting
   consumer option, so an app has one rhythm for every paint; each is a motion knob
   ([motion](motion.md)) whose default `tokens.ts` holds and the tuning bench moves live (`timings`
   reads them).
-- A first load's data waits a little longer (`holdFor`) when it comes `elapsed` ms after the fetch
+- A first load's data waits a little longer (`paintWait`) when it comes `elapsed` ms after the fetch
   began: nothing while the paint has not shown, else until the paint has stood for `waitMin`.
   `QueryProvider`'s `hold` takes it.
 - On the web a paint fades in after `--wait-delay` and then breathes on its fill's alpha. On the phone
@@ -284,7 +284,7 @@ parts out of step.
   and its slot is one line (a wrapping one always pulses). A part that is scrambled does not breathe,
   since its glyphs would dim; it only fades in. The platforms still their scramble under reduced
   motion.
-- Which paint each glyph slot's waiting form takes is module state (`loading`), set from
+- Which paint each glyph slot's waiting shape takes is module state (`loading`), set from
   `theme.loading` as the app starts (omitted, all pulse) and live by the bench, and read by every
   painted slot through `scrambled`.
 - A figure or id of a read is one slot instance across the switch from its filler to its `text`, so it
@@ -338,7 +338,7 @@ takes.
 
 Dev checks read the query cache's own observers: a leaf that draws a read is an observer whose
 `placeholderData` is `placeholderData`, and a frame (or a leaf that draws the failure itself) one whose
-is `heldPlaceholder`. The checks run behind `dev()`; the bundler inlines `process.env.NODE_ENV`, so a
+is `heldStandIn`. The checks run behind `dev()`; the bundler inlines `process.env.NODE_ENV`, so a
 production build drops them.
 
 ## In the code
@@ -346,8 +346,8 @@ production build drops them.
 - `packages/ui-core/src/read.ts`: the read model, phases, frame state, turns, the placeholder, `planFrame`, holds, marks and dev checks.
 - `packages/ui-core/src/react/read.ts`: the leaf, frame, collection, row and options hooks, `FrameHolds`.
 - `packages/ui-core/src/react/port.ts`: `ReadPort`, `PortProvider` and the default port.
-- `packages/ui-core/src/paint.ts`: fillers, `PAINT_ROWS`, `PAINT_TURNS`, the waits, `holdFor`, `loading` and `scrambled`.
-- `packages/ui-core/src/variant-tables.ts`: the three paint forms.
+- `packages/ui-core/src/paint.ts`: fillers, `PAINT_ROWS`, `PAINT_TURNS`, the waits, `paintWait`, `loading` and `scrambled`.
+- `packages/ui-core/src/variant-tables.ts`: the three paint shapes.
 - `packages/ui-core/src/tokens.ts`: the defaults of the three waits.
 - `packages/ui-core/src/list-state.ts`: the Table's rows over painted items.
 - `packages/ui-core/src/clock.ts`: clock-read answers and `createClock`.
@@ -356,9 +356,9 @@ production build drops them.
 - `packages/ui-core/src/listen.ts`: `QueryListeners`.
 - `plugins/query/src/listen.ts`: the binding's use of `QueryListeners`.
 - `plugins/react-ui/src/ui/lib/paint.tsx`: the web paint and its one phase.
-- `plugins/react-ui/src/ui/lib/read.tsx`: the web failed form as a Pane's heading.
-- `plugins/react-ui/src/ui/lib/empty.tsx`: the web missing form as a Pane's heading.
-- `plugins/native-ui/src/ui/lib/read.tsx`: the phone frame body, failed row end, empty form, busy mark and the failed, stale and paused lines.
+- `plugins/react-ui/src/ui/lib/read.tsx`: the web failed shape as a Pane's heading.
+- `plugins/react-ui/src/ui/lib/empty.tsx`: the web missing shape as a Pane's heading.
+- `plugins/native-ui/src/ui/lib/read.tsx`: the phone frame body, failed row end, empty shape, busy mark and the failed, stale and paused lines.
 - `plugins/native-ui/src/ui/lib/empty.tsx`: the phone empty state and its `fit`.
 - `plugins/native-ui/src/ui/lib/more.tsx`: the more row.
 - `plugins/native-ui/src/ui/lib/paint.tsx`: painted hosts, the paint delay, painted text roots.

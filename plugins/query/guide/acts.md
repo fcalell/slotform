@@ -40,7 +40,7 @@ const add = {
 - An act given as a selection (`rules.at((a) => …)`) is the viewer's to press only when its read
   answered: it paints while the read waits and stands blocked once the read has failed or is
   missing, with the failed sentence (`words.missing` when missing). A constant act is live in every
-  frame form.
+  frame shape.
 - Invalidation is not awaited, so what the act changed shows through the reads it refetches (their
   busy mark); there is no done mark.
 

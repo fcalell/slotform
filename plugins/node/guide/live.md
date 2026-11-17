@@ -43,7 +43,7 @@ const critical = alerts.at((a) => a.items.filter((alert) => alert.level === "cri
 ```
 
 A channel read's first snapshot is held like a query's first answer: when the paint has shown, the
-snapshot is written once it has stood for the minimum (`holdFor`, `QueryProvider hold`), so a
+snapshot is written once it has stood for the minimum (`paintWait`, `QueryProvider hold`), so a
 snapshot that lands just after the paint appears does not flash it. Later messages write at once.
 
 The read stays fetching for as long as it is subscribed, and does not count as busy for that:

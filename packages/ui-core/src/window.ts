@@ -1,7 +1,7 @@
 // How a long collection windows: docs/architecture/ui-core/components.md, "Collections and lists".
 
 // Loaded rows from which a collection windows, under a scroller. Fewer
-// always draw whole, so a painted form (PAINT_ROWS) never windows. Fifty is
+// always draw whole, so a painted shape (PAINT_ROWS) never windows. Fifty is
 // about two screens of rows, one frame's mount work on a normal machine, so a
 // shorter collection keeps find in page and a longer one pays only for its view.
 export const VIRTUAL_FROM = 50;
@@ -19,7 +19,7 @@ export interface Placed {
 
 // One child of the box: a row, or the space of the unmounted rows before row
 // `before` (the count, at the end).
-export type Slot = { row: number } | { space: number; before: number };
+export type WindowEntry = { row: number } | { space: number; before: number };
 
 // The box's children in order: each mounted row, and a spacer for each run of
 // unmounted ones. The box's own gap stands between neighbours, a spacer
@@ -30,8 +30,8 @@ export function slotsOf(
 	count: number,
 	total: number,
 	gap: number,
-): Slot[] {
-	const slots: Slot[] = [];
+): WindowEntry[] {
+	const slots: WindowEntry[] = [];
 	const space = (height: number, before: number) => {
 		if (height > 0) slots.push({ space: height, before });
 	};

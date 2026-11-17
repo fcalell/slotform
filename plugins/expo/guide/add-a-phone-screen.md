@@ -41,7 +41,7 @@ or simulator.
 ## 5. Draw every state
 
 Draw loading, empty, error and not found for each region as the screen recipe's "Draw every state" step says: a
-frame's `read` draws the last three, and the loaded form painted is the first.
+frame's `read` draws the last three, and the loaded shape painted is the first.
 
 **Check:** each state is reachable by a route, a fixture or a control, written down beside it.
 

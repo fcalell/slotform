@@ -43,7 +43,7 @@ const requests = orpc.requests.list.window({ q });
 
 Under a scroller the `Table` is as long as `total`, mounts the rows in view and fetches the pages
 the viewport and its overscan cover wherever the scrollbar lands (page-aligned, each page once),
-draws a row not loaded yet as its painted form, and keeps pages in a bounded cache. A changed
+draws a row not loaded yet as its painted shape, and keeps pages in a bounded cache. A changed
 input is a new key: the previous rows stay drawn until the new query's first page lands. A
 procedure that declares `sort: [...columns]` takes `sort?: { column, direction }` in its input and
 the `Table`'s header sort goes into the read's input, so the server orders the whole query; a

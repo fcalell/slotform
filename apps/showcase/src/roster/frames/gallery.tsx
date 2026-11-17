@@ -46,7 +46,7 @@ const ITEMS = [
 function drawn(state: ShowcaseFrame["state"]) {
 	const items: GalleryItem[] = ITEMS.map((item, at) => ({
 		...item,
-		// The waiting form paints every tile; the failed form fails the second,
+		// The waiting shape paints every tile; the failed shape fails the second,
 		// beside two that load.
 		src:
 			state === "loading"

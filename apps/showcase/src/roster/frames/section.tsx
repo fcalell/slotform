@@ -158,7 +158,7 @@ function Held({ reads, state }: { reads: Reads; state: HeldState }) {
 }
 
 // A read that fails stands in the body's place with its sentence and Retry,
-// and one that answers not found with the missing form; the head stays, its
+// and one that answers not found with the missing shape; the head stays, its
 // description over the ended read drawing nothing.
 function Failed(props: { first: Reads; second: Reads }) {
 	const { missing, failing } = props.first;
@@ -365,7 +365,7 @@ function Members(props: { blocked?: boolean }) {
 
 // ── The Section over rows (`items`) ─────────────────────────────────────
 
-// The sheet's forms by state, each over a read of its own that answers, never
+// The sheet's shapes by state, each over a read of its own that answers, never
 // answers, fails, answers not found or answers none; nothing above holds it,
 // so the sheet draws its own form.
 function Ended(props: { id: string; state: "empty" | "error" }) {
@@ -375,7 +375,7 @@ function Ended(props: { id: string; state: "empty" | "error" }) {
 }
 
 // The facts of a card whose read failed, no frame above holding it: each row
-// is the failed form itself, one that opens and one that does not, a counted
+// is the failed shape itself, one that opens and one that does not, a counted
 // one beside them.
 function FailedFacts(props: { id: string }) {
 	const failing = readsAt(props.id).failing;
@@ -571,10 +571,10 @@ type PartName = keyof typeof PARTS;
 // The parts a cell names, by the cell's name or its family's: the first match
 // wins, a cell naming none draws a list Pane's rows (the first row current).
 const CELL_PARTS: ReadonlyArray<readonly [string, readonly PartName[]]> = [
-	["ROW_TITLE.form.dim", ["hops"]],
+	["ROW_TITLE.lines.dim", ["hops"]],
 	// A tree's rails (`TREE_RAIL`, `TREE_BLEED`, single cells) stand beside the
 	// name form.
-	["ROW_TITLE.form.name", ["deploys", "legs"]],
+	["ROW_TITLE.lines.name", ["deploys", "legs"]],
 	["ROW_TITLE", ["deploys"]],
 	["ROW_STEP", ["imports"]],
 	["CHANGE_MARK", ["changes", "factChanges"]],
@@ -679,7 +679,7 @@ function Shapes(props: { id: string }) {
 	);
 }
 
-// By cell. The heading cell draws the Section's own forms in every state; the
+// By cell. The heading cell draws the Section's own shapes in every state; the
 // body cell draws a page of sheets in the states a read puts them in; every
 // other cell draws the rows it names, loaded, painted and current.
 export function drawSection(frame: ShowcaseFrame) {

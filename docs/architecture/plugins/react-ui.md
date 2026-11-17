@@ -41,7 +41,7 @@ the deepest matched route that has children: an address under one of the app's r
 (`/members/zzz`) stands in that route's layout, a `Shell`, and any other miss stands at the root,
 outside it. So the page draws in three forms: under a record's `Pane` (its tabs' outlet) the
 missing sentence in that Pane's body; elsewhere under a `Shell`, where a record would stand beside
-the place's `Pane`, a record's `Pane` titled "Not found" with the missing form; at the root a
+the place's `Pane`, a record's `Pane` titled "Not found" with the missing shape; at the root a
 `Gate` with Back to `/`.
 
 ## Stylesheet assembly
@@ -440,7 +440,7 @@ and a reader draws again.
   canvas can move nodes. A press there starts no pan. A zoom is unavailable at its end of the scale
   (`atMax`, `atMin`), and the button keeps focus, as a disabled icon act does. A waiting canvas draws
   them with no act, inside its inert region.
-- **Lift.** A node lifts after the long press a dragged row takes: `DRAG_HOLD` and `HOLD_SLOP` from
+- **Lift.** A node lifts after the long press a dragged row takes: `DRAG_DELAY` and `DRAG_DELAY_SLOP` from
   `@fcalell/ui-core/drag`, one definition for both ([Web drag](../ui-core/drag.md#web-drag)).
 
 ## Canvas serving

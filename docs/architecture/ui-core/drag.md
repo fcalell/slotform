@@ -67,7 +67,7 @@ long collection, reach a finger and carry the scroller under the pointer.
 `lib/drag` of react-ui holds the one drag that stands at a time in a module store, outside React; the
 rows and the drops that take part read it through `useSyncExternalStore`. A drag runs this way:
 
-1. A press on a row becomes a drag past `DRAG_SLOP`; a finger's becomes one after `DRAG_HOLD`, and a
+1. A press on a row becomes a drag past `DRAG_SLOP`; a finger's becomes one after `DRAG_DELAY`, and a
    finger that moves sooner is a scroll.
 2. The drag listens on the window and hit-tests `elementsFromPoint` for a drop (`data-drop`) or,
    within the dragging collection, the row under the pointer (`data-row`). The line lands on the half

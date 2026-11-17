@@ -66,7 +66,7 @@ export function Standing(props: { image?: string; failing?: boolean }) {
 }
 
 // The dock under a place's column with a track loaded: `rest` paused with no
-// picture (the tile's failed form holds the name's place), `error` told to play
+// picture (the tile's failed shape holds the name's place), `error` told to play
 // and failed. The picture's cell (`IMAGE.fit.mini`) draws it with a picture, and
 // in `error` with an address that is no picture. The other cells are drawn
 // inside these.

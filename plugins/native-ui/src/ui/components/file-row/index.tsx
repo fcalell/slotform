@@ -120,7 +120,7 @@ function FileRowBase({
 	at = 0,
 }: Omit<FileItem, "key"> & FileRowInternal) {
 	// A chip says why a file is listed: whether a row has one is the item's own
-	// data, which the painted form cannot know, so it is never painted.
+	// data, which the painted shape cannot know, so it is never painted.
 	const chip = painted ? undefined : given;
 	// Nor is its change mark painted: whether a file has one is the item's data.
 	const change = painted ? undefined : kind;

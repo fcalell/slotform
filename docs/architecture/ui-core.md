@@ -26,7 +26,7 @@ reads its descriptors (a server) installs neither React nor Lucide.
   shapes of statuses, chips, facts and marks, and `DESIGN.md`.
 - [Layout](ui-core/layout.md): Shell, Place, Pane, Section, rows, the fold rules, headings, cards and
   the rows grid.
-- [Reads](ui-core/reads.md): the read model, frames, holds, paint and waiting forms, and the port.
+- [Reads](ui-core/reads.md): the read model, frames, holds, paint and waiting shapes, and the port.
 - [Acts](ui-core/acts.md): acts, saves, forms, confirm, leave, reasons, fields and commit.
 - [Components](ui-core/components.md): each content molecule (Table, Picker, Thread, charts, files,
   images, code and the rest).

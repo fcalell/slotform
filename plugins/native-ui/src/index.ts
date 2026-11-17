@@ -162,7 +162,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 			},
 			{
 				source: "@fcalell/ui-core/paint",
-				named: ["holdFor"],
+				named: ["paintWait"],
 			},
 			{
 				source: "@fcalell/plugin-query/net",
@@ -176,7 +176,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 				{ name: "client", value: { kind: "identifier", name: mod.export } },
 				// A read's first write lands no earlier than the minimum hold
 				// (`timings.waitMin`).
-				{ name: "hold", value: { kind: "identifier", name: "holdFor" } },
+				{ name: "hold", value: { kind: "identifier", name: "paintWait" } },
 				// The phone has no window events: the managers listen to the
 				// network and the app's foreground (`@fcalell/plugin-query/net`).
 				{ name: "listen", value: { kind: "identifier", name: "listen" } },

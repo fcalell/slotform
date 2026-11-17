@@ -75,7 +75,7 @@ export const tableEntry: RosterEntry = {
 		"PAINT.kind.control",
 		"CHEVRON",
 		"ICON_BUTTON.fit.body",
-		"MENU.form.popover",
+		"MENU.lines.popover",
 		"MENU_GROUP.place.first",
 		"MENU_LABEL.kind.act",
 		"POPOVER",

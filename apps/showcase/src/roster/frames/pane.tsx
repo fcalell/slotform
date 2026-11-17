@@ -297,9 +297,9 @@ function Held({ reads, state }: { reads: Reads; state: HeldState }) {
 }
 
 // A read that fails fills the page with its sentence and Retry, and one that
-// answers not found with the missing form and a way back: the generic sentence,
+// answers not found with the missing shape and a way back: the generic sentence,
 // and the one a `noun` words or a `missing` says. A record titled by its failed read keeps its
-// place in the bar, and its failed form is the page's heading.
+// place in the bar, and its failed shape is the page's heading.
 function Failed({ reads }: { reads: Reads }) {
 	const { failing, missing } = reads;
 	return (
@@ -341,7 +341,7 @@ function Failed({ reads }: { reads: Reads }) {
 					<Pane title={failing.at(() => NAME)} read={failing} record={{}} />
 				</Short>
 			</Column>
-			{/* A record that answers not found beside its list: its bar names the kind, the missing form's Back its one way out. */}
+			{/* A record that answers not found beside its list: its bar names the kind, the missing shape's Back its one way out. */}
 			<Column>
 				<Short place="Deploys">
 					<Place title="Deploys">
@@ -367,7 +367,7 @@ function Failed({ reads }: { reads: Reads }) {
 	);
 }
 
-// The cells a record's head draws, and the cells the missing form draws beyond
+// The cells a record's head draws, and the cells the missing shape draws beyond
 // the Pane's own.
 const HEAD_CELLS =
 	/^(BLOCK_IN|ITEM_|WORD_ACT|STATUS|SPINNER|COUNT|ICON\.fit\.(meta|body)|IMAGE|PAINT\.)/;
@@ -461,7 +461,7 @@ function HeadWaiting() {
 // The head a record draws while it waits and loaded, the body under it the
 // same: three facts painted (the pick, the status, the age), and loaded two,
 // the pick a wide one and the status none, beside the outside-content mark,
-// which is the record's own and stands in both forms. The mark stands at the
+// which is the record's own and stands in both shapes. The mark stands at the
 // end of the name's line and takes no row of the facts, so a head whose loaded
 // facts are fewer or narrower than painted gains none from it: the third head
 // is the loaded one without the mark, and the frame reads the Section heading
@@ -956,8 +956,8 @@ function NoEmptyHeading(props: { children: ReactNode }) {
 // A read that answers nothing: the page says so with the Pane's own sentence
 // and act, or with the generic sentence. A record's Pane over a read that
 // answers nothing keeps its head, the name whole and wrapping at 320 (a long
-// hyphenated one), the empty form under it; a name that landed empty draws no
-// heading, the bar keeping the place and the empty form saying what the page is.
+// hyphenated one), the empty shape under it; a name that landed empty draws no
+// heading, the bar keeping the place and the empty shape saying what the page is.
 function Emptied(props: {
 	first: Reads;
 	second: Reads;
@@ -1026,7 +1026,7 @@ function Tasked() {
 // nothing, with its own sentence and act and with the generic one. The busy,
 // stale and paused states draw a Pane over a read that holds rows, on the title
 // cell. A head cell draws a record's Pane and a missing-form cell the page of
-// a read that answers not found. The title cell draws the Pane's forms in a Place:
+// a read that answers not found. The title cell draws the Pane's shapes in a Place:
 // one, two (the place's Pane, then a record's), one holding a Canvas and one
 // holding a Thread. The bar icon act draws one Pane
 // with its more menu open; the body icon act (the touch top bar's) an

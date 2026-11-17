@@ -95,8 +95,8 @@ function GroupBox(props: { group: FormGroup; arrived: boolean }) {
 		<div
 			role="group"
 			aria-labelledby={group.title ? id : undefined}
-			aria-busy={(frame.holds && frame.form === "waiting") || undefined}
-			data-still={(frame.holds && frame.form === "still") || undefined}
+			aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
+			data-still={(frame.holds && frame.shape === "still") || undefined}
 			className={cn(FORM_GROUP, DIVIDER, fades && BLOCK_IN)}
 		>
 			{group.title || group.description ? (
@@ -136,7 +136,7 @@ export function FormRows({
 }) {
 	const arrived = useArrivals(
 		groups?.map((group, index) => group.title ?? String(index)) ?? [],
-		frame.form === "ready",
+		frame.shape === "ready",
 	);
 	return (
 		<>
@@ -172,7 +172,7 @@ export function useFormBar(
 ): ReactNode {
 	// A group's read is the group's, not the bar's.
 	const words = useWords();
-	const { waiting, ended } = submitOf(words, frame.form);
+	const { waiting, ended } = submitOf(words, frame.shape);
 	const outerWaits = usePainted(outer);
 	return bar ? (
 		<ActionBarBase
@@ -203,8 +203,8 @@ export function FormShell(props: {
 			<form
 				onSubmit={(event) => event.preventDefault()}
 				onChange={touch.touch}
-				aria-busy={(frame.holds && frame.form === "waiting") || undefined}
-				data-still={(frame.holds && frame.form === "still") || undefined}
+				aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
+				data-still={(frame.holds && frame.shape === "still") || undefined}
 				className={props.className}
 			>
 				{props.children}

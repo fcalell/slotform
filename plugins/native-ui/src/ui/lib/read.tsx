@@ -66,8 +66,8 @@ export function useSubmitOf(read?: Selection<unknown>) {
 	return { waiting: ended === undefined, ended };
 }
 
-// The empty form: docs/architecture/ui-core/reads.md, "Missing and failed forms". Its sentence's read is subscribed here and only here.
-function EmptyForm(props: {
+// The empty shape: docs/architecture/ui-core/reads.md, "Missing and failed shapes". Its sentence's read is subscribed here and only here.
+function EmptyShape(props: {
 	empty?: { sentence?: Datum<string>; act?: Empty["act"] };
 	fit: EmptyFit;
 }) {
@@ -98,13 +98,13 @@ export function FrameBody(props: {
 	noun?: string;
 	// The sentence a missing read says, in place of the noun's (a Pane's).
 	missing?: string;
-	// The empty form stands in a hairline frame even for a sentence alone (a
+	// The empty shape stands in a hairline frame even for a sentence alone (a
 	// Section's).
 	children?: ReactNode;
 }) {
 	const { frame, fit, empty, noun, missing, children } = props;
 	const words = useWords();
-	if (frame.form === "failed") {
+	if (frame.shape === "failed") {
 		return (
 			<EmptyBase
 				fit={fit}
@@ -114,10 +114,10 @@ export function FrameBody(props: {
 			/>
 		);
 	}
-	if (frame.form === "missing")
+	if (frame.shape === "missing")
 		return <MissingBase fit={fit} noun={noun} sentence={missing} />;
-	if (frame.form === "empty") {
-		return <EmptyForm empty={empty} fit={fit} />;
+	if (frame.shape === "empty") {
+		return <EmptyShape empty={empty} fit={fit} />;
 	}
 	// The reads this frame holds are not drawn again by a frame in its body.
 	return <FrameHolds holds={frame.held}>{children}</FrameHolds>;
@@ -130,7 +130,7 @@ const LINE_IN_FLOW = "flex-row flex-wrap items-center gap-gap";
 
 // A frame's busy mark, after its heading: docs/architecture/ui-core/reads.md, "Busy mark".
 export function BusyMark({ frame }: { frame: Frame }) {
-	const busy = frame.holds && frame.marks && frame.busy;
+	const busy = frame.holds && frame.flags && frame.busy;
 	const shown = useShown(busy);
 	return shown ? <Spinner /> : null;
 }

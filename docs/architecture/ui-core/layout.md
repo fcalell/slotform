@@ -237,7 +237,7 @@ what stands in it decides its form by (a Table its grid).
   browser without scroll-driven animations keeps the bar's name standing.
 - A record's Pane holds its record's parts in its body, since a Place holds no third Pane: the
   showcase's deploy draws each step it opened as sections after its steps. The deploy's Pane holds
-  its read by id, so an address after the deploy's removal draws the missing form, and the route
+  its read by id, so an address after the deploy's removal draws the missing shape, and the route
   keys the Pane by the deploy, so state picked in it is the open deploy's.
 
 ### Body
@@ -247,16 +247,16 @@ what stands in it decides its form by (a Table its grid).
   a label stays near its value and a Save near the fields it saves. Wide content (a Table, a line
   Diff, a code block, a Canvas, a chart) stands at the body's width ([Rows grid](#rows-grid)).
 - A Thread or a Canvas that fills the body (`fill`), and the Pane's own failed, missing and empty
-  forms, take the free height by plain flex.
+  shapes, take the free height by plain flex.
 - The `empty` of the Pane's `read` stands in place of the children, centred in what the body leaves
   (the sentence at meta, the act the filled one with the plus). It answers for the Pane's own read,
   so a Pane with no `read` takes no `empty`.
-- A `read` that answers not found fills the page with the missing form: no mark, the sentence in the
+- A `read` that answers not found fills the page with the missing shape: no mark, the sentence in the
   meta ink (worded by `noun`, "Couldn't find this." without one) and the way back to the place's Pane
   as the hairline act with no plus, on the `error` state's cells. The way back is the route a Pane's
   back act returns to, handed down by the frame; with none it leads to `PlaceRoute`, and `false`
-  says there is no way back at all. How the missing and failed forms are worded and headed is in
-  [reads](reads.md#missing-and-failed-forms).
+  says there is no way back at all. How the missing and failed shapes are worded and headed is in
+  [reads](reads.md#missing-and-failed-shapes).
 - On the phone every Pane scrolls in a keyboard-aware scroll pane. The bar in flow at a Form's end is
   what the keyboard must never cover. A tap on an act in it reaches the act and leaves the keyboard
   up (a docked Thread's composer's Send keeps typing); a tap on nothing still dismisses it.
@@ -362,9 +362,9 @@ own; a Section with no `read` takes no `empty`.
 - With `items` (constants or a selection) the body is the sheet of its rows on the card (`GROUP`),
   the card's hairline once between them. A row is a row item or a file ([Rows](#rows)).
 - The Section is a frame of its items: it paints while the read waits, and its failed, missing and
-  empty forms stand in the sheet's place ([reads](reads.md#frames)). The showcase's deploy changes
+  empty shapes stand in the sheet's place ([reads](reads.md#frames)). The showcase's deploy changes
   hold their files' read as the Section's items, so the list paints while it waits and the Section
-  draws the failed and empty forms; the diff reads the open file as a selection.
+  draws the failed and empty shapes; the diff reads the open file as a selection.
 - A row with `children` makes the sheet a tree: the rows abut, each level one step in, and the
   Section owns which branches are folded (open by default), handing every row its depth and fold.
 - `groups` draws a band (`LIST_BAND`, a `band` tall) over the rows of each group, in the groups'
@@ -380,7 +380,7 @@ own; a Section with no `read` takes no `empty`.
 - Every act a Section draws (its head act and more, a band's act, a row's act and more, an empty
   form's act) carries its `confirm`, `done`, `to` and `sheet` as a Button's act does; a row's act
   that opens a `sheet` draws the sheet beside the row.
-- A row with a `drag` is dragged by a press that moves (a finger after a hold of `DRAG_HOLD`), and
+- A row with a `drag` is dragged by a press that moves (a finger after a hold of `DRAG_DELAY`), and
   one with a `drop` takes what is released on it (`DROP_ON`). `reorder` makes the sheet's rows
   movable: a drag lands the row at the line (`DROP_LINE`) between two rows and the sheet scrolls near
   its edges; Alt with Up or Down moves the focused row, and its more menu holds Move up, down, to top
@@ -568,7 +568,7 @@ Every definition list in a Pane reads as one grid, so its labels share one colum
   both columns. A field that fills a line takes the label column of the run it stands in; a toggle, a
   slider and a group of controls keep their name over them.
 - A Pane body that fills (a Thread or a Canvas with `fill`, or the Pane's failed, missing and empty
-  forms) takes the free height by plain flex, the body's height being definite. Grid rows cannot hand
+  shapes) takes the free height by plain flex, the body's height being definite. Grid rows cannot hand
   one child the free height, so that body is a flex column and carries no `ROWS`.
 - The label column is as wide as the widest label, no wider than one short measure: a longer label
   wraps at its words. A row needs two short measures, so the value column keeps one at least and a

@@ -2,15 +2,15 @@ import { read } from "@fcalell/plugin-query/read";
 import type { Datum, Read, Selection } from "@fcalell/ui-core/read";
 import type { ShowcaseFrame } from "./cells.ts";
 
-// The reads a frame's showcase drawer hands a frame to show each of its forms: docs/architecture/ui-core/showcase.md, "Roster frames".
+// The reads a frame's showcase drawer hands a frame to show each of its shapes: docs/architecture/ui-core/showcase.md, "Roster frames".
 export interface Reads {
-	/** A read whose query never resolves: its frame holds the painted form. */
+	/** A read whose query never resolves: its frame holds the painted shape. */
 	waiting: Read<readonly string[]>;
-	/** A read whose query rejects: its frame draws the failed form. */
+	/** A read whose query rejects: its frame draws the failed shape. */
 	failing: Read<readonly string[]>;
-	/** A read that answers not found: its frame draws the missing form. */
+	/** A read that answers not found: its frame draws the missing shape. */
 	missing: Read<readonly string[]>;
-	/** A read that answers no rows: its frame draws its empty form. */
+	/** A read that answers no rows: its frame draws its empty shape. */
 	empty: Read<readonly string[]>;
 	/** A read that answers rows and refetches without end: its frame draws the loaded tree and its busy mark. */
 	busy: Read<readonly string[]>;

@@ -25,12 +25,7 @@ import {
 	toInput,
 	toShown,
 } from "../form.ts";
-import {
-	type Datum,
-	isPlaceholder,
-	isSelection,
-	type Selection,
-} from "../read.ts";
+import { type Datum, isSelection, isStandIn, type Selection } from "../read.ts";
 import { registeredScope } from "../scope.ts";
 import type { ActPlatform } from "./acts.ts";
 import { usePort } from "./port.ts";
@@ -157,7 +152,7 @@ function optionsOf(
 	if (derived.required || derived.control === "several") return listed;
 	const empty: Option<string | null> = { value: null, label: none };
 	return isSelection(listed)
-		? listed.at((all) => (isPlaceholder(all) ? all : [empty, ...all]))
+		? listed.at((all) => (isStandIn(all) ? all : [empty, ...all]))
 		: [empty, ...listed];
 }
 
@@ -498,7 +493,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 	const initial = (key: string, derived: Derived): Datum<Held | undefined> =>
 		isSelection(values)
 			? (values as Selection<Values | undefined>).at((all) =>
-					isPlaceholder(all)
+					isStandIn(all)
 						? (all as never)
 						: derived.control === "secret"
 							? undefined

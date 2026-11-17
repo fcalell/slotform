@@ -109,7 +109,7 @@ const CLOSE = "ms-auto";
 export interface ShellGroup extends Omit<GroupSpec, "switcher"> {
 	/** The scope the group's places follow: it leads the group's column level with the app's switcher, and on the touch layer it stands under the heading. */
 	switcher?: Switcher;
-	/** The group's places, constants or a selection: the group stands where it stands in `groups`, whose order is the rail's: before the first plain run whose group `groups` lists after it, else after the plain runs. While the selection waits the heading draws over `PAINT_ROWS` painted place rows, inert; once it failed or is missing the group is the read's frame and draws the compact failed or missing form with Retry in the rows' place (so the read counts as held and its failure is drawn once), and when it is loaded and empty the group draws no places, its `switcher` standing alone so its act can make the first. The group's `switcher` selections of the same read need no frame of their own. */
+	/** The group's places, constants or a selection: the group stands where it stands in `groups`, whose order is the rail's: before the first plain run whose group `groups` lists after it, else after the plain runs. While the selection waits the heading draws over `PAINT_ROWS` painted place rows, inert; once it failed or is missing the group is the read's frame and draws the compact failed or missing shape with Retry in the rows' place (so the read counts as held and its failure is drawn once), and when it is loaded and empty the group draws no places, its `switcher` standing alone so its act can make the first. The group's `switcher` selections of the same read need no frame of their own. */
 	places?: Datum<readonly PlaceSpec[]>;
 }
 
@@ -685,11 +685,11 @@ function GroupRun(props: {
 	const words = useWords();
 	const [drawn] = useSelections([props.places] as const);
 	// The group is the frame of its places' read: it holds it, so the read's
-	// failure is drawn once, here, in the compact failed and missing forms.
+	// failure is drawn once, here, in the compact failed and missing shapes.
 	const frame = useFrame(isSelection(props.places) ? props.places : undefined);
 	const waits = paints(drawn);
 	const specs = drawn.painted ? [] : drawn.value;
-	const ended = isEnded(frame.form);
+	const ended = isEnded(frame.shape);
 	// A group loaded and empty draws no places.
 	if (!(waits || ended) && specs.length === 0) return null;
 	return (

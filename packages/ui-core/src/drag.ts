@@ -6,11 +6,11 @@ import type { Moved } from "./descriptors.ts";
 // is a drag; below it the press is a click.
 export const DRAG_SLOP = 4;
 
-// A finger holds this long (ms) on a row, without moving past `HOLD_SLOP`
+// A finger holds this long (ms) on a row, without moving past `DRAG_DELAY_SLOP`
 // (px), before the press is a drag: a finger that moves sooner is scrolling
 // the page.
-export const DRAG_HOLD = 400;
-export const HOLD_SLOP = 8;
+export const DRAG_DELAY = 400;
+export const DRAG_DELAY_SLOP = 8;
 
 // The band (px) inside a scroller's edge where a drag carries it, and the most
 // (px a frame) it carries it at, at the edge itself and beyond.
@@ -30,7 +30,7 @@ export function pressed(
 ): "wait" | "drag" | "cancel" {
 	if (pointer === "touch") {
 		if (held) return "drag";
-		return distance > HOLD_SLOP ? "cancel" : "wait";
+		return distance > DRAG_DELAY_SLOP ? "cancel" : "wait";
 	}
 	return distance >= DRAG_SLOP ? "drag" : "wait";
 }

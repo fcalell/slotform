@@ -54,7 +54,7 @@ const SPINNER_LAYER =
 	"absolute inset-0 flex items-center justify-center animate-act-in";
 // Painted, the glyph keeps its place and is filled in its own box, the button
 // around it staying as bare as the loaded one: an icon act is a glyph, so its
-// waiting form is a glyph's worth of fill where it will stand, never a filled
+// waiting shape is a glyph's worth of fill where it will stand, never a filled
 // button.
 const PAINT_GLYPH = cn(PAINT_BOX, "rounded-chip *:invisible");
 // The name draws over a sheet's scrim and under the toasts, with the popovers.

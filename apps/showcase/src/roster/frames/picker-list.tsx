@@ -181,7 +181,7 @@ function Headed() {
 }
 
 // The topics a part names, in a Section that holds their read as a page ships
-// it, so the failed and empty forms stand in the Section's body.
+// it, so the failed and empty shapes stand in the Section's body.
 function Topics(props: {
 	id: string;
 	state: ShowcaseFrame["state"];
@@ -252,7 +252,7 @@ export function FailedLists(props: { id: string }) {
 
 // The list fit, Board 41's notifications from a read: topics under group labels, each
 // described, the recommended mark on a line; painted while the
-// read waits, the frame drawing the failed and empty forms. Each cell draws
+// read waits, the frame drawing the failed and empty shapes. Each cell draws
 // only the topics it names (see PARTS), in the frame's state; a `PAINT` cell
 // draws the rows loaded beside the same rows painted, and the radios loaded
 // beside the radios with their value waiting. The error state is `FailedLists`,

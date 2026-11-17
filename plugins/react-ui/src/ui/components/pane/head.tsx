@@ -121,10 +121,10 @@ export function PaneHead(props: {
 		noun,
 	} = props;
 	// A Pane whose own read failed or answered not found draws none of its acts:
-	// the page below the bar is the failed or missing form, whose Retry (or way
+	// the page below the bar is the failed or missing shape, whose Retry (or way
 	// back) is the one act, and an act of the read that ended would only stand
 	// blocked beside it. A record's bar keeps where it lived and the way back.
-	const gone = isEnded(frame.form);
+	const gone = isEnded(frame.shape);
 	const touch = useTouch();
 	const words = useWords();
 	const menu = use(ShellMenu);
@@ -203,7 +203,7 @@ export function PaneHead(props: {
 	// form, Back under its sentence, so the bar draws no Close beside it: one
 	// way out, not two.
 	const close =
-		far || back === undefined || frame.form === "missing" ? null : (
+		far || back === undefined || frame.shape === "missing" ? null : (
 			<span className={BESIDE}>
 				<IconButtonLink icon="X" label={words.close} href={back} />
 			</span>
@@ -233,25 +233,25 @@ export function PaneHead(props: {
 			/>
 		) : null;
 	// A name whose read ended draws nothing of its own.
-	// A name that landed empty is none either: the page's empty form says what it
+	// A name that landed empty is none either: the page's empty shape says what it
 	// is, and an empty heading would only be one for a screen reader to land on.
 	const vacant = !name.painted && partText(name.value) === "";
 	const nameless = (name.painted && !paints(name)) || vacant;
 	// A Pane whose read answered not found has no name to draw, no back act (the
-	// missing form's Back is its one way out) and no acts, and beside another its
+	// missing shape's Back is its one way out) and no acts, and beside another its
 	// bar stands the line its neighbours' bars do: it names what is missing, the
 	// record's kind, else "Not found". A record's bar whose name will not come
 	// (its read failed, or the name landed empty) names its kind too, after the
 	// place's name and its slash, so the record's line (and the region it names)
 	// is never the place's Pane's alone.
 	const kind =
-		nameless && (within !== undefined || frame.form === "missing")
+		nameless && (within !== undefined || frame.shape === "missing")
 			? kindWord(noun, frame, words)
 			: undefined;
 	// The title is the Pane's heading in every form it draws: a waiting title
 	// paints inside it, named by the waiting word since its filler is hidden,
 	// so the page keeps its heading while the title loads. A title whose read
-	// ended draws nothing, the body's failed or missing form standing as the
+	// ended draws nothing, the body's failed or missing shape standing as the
 	// heading, and a record's place is no heading: each stands as a paragraph of
 	// the title's own look.
 	// A record's head holds the heading (and the id), the bar's title a paragraph;
@@ -332,6 +332,6 @@ function kindWord(
 ): string {
 	if (noun !== undefined)
 		return `${noun.charAt(0).toUpperCase()}${noun.slice(1)}`;
-	if (frame.form === "failed") return words.failed;
+	if (frame.shape === "failed") return words.failed;
 	return words.notFound;
 }

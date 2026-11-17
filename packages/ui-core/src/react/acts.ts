@@ -2,9 +2,9 @@
 import { useRef, useState } from "react";
 import {
 	drew,
-	holdSave,
 	isPlaced,
 	isThenable,
+	keepSave,
 	type RunState,
 	startRun,
 } from "../acts.ts";
@@ -62,7 +62,7 @@ export function useDraft<T>(
 		}
 		setKept(null);
 		setHeld({ key, value: next });
-		holdSave(saving, readsOf(value), port.settled, {
+		keepSave(saving, readsOf(value), port.settled, {
 			latest: () => seq === latest.current,
 			release: () => setHeld(null),
 			rollback: (error) => {

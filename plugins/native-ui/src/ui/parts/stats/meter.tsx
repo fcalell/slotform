@@ -114,7 +114,7 @@ interface MeterLine {
 
 type MeterProps = MeterBase & MeterLine;
 
-// The meter form of a bound stat: docs/architecture/plugins/native-ui.md, "Stats meter". Its frame forms: docs/architecture/ui-core/reads.md, "What a frame draws".
+// The meter form of a bound stat: docs/architecture/plugins/native-ui.md, "Stats meter". Its frame shapes: docs/architecture/ui-core/reads.md, "What a frame draws".
 // React Native has no meter role, so it is a progress bar. Outside the package's exports.
 export function Meter({
 	label,

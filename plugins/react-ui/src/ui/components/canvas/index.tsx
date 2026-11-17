@@ -58,7 +58,7 @@ import { ActFoot, ZoomPainted, ZoomStack } from "./zoom.tsx";
 export interface CanvasProps extends Closed {
 	/** What the graph is, read as its region's name (a short phrase; read aloud, never drawn). */
 	label: string;
-	/** The nodes; the canvas places those that carry no position. A selection, here or in `edges` or `groups`, stands the waiting ground (its dots, three painted node cards at a node's measure and its zoom stack) in place of the graph until its read lands, and over it while the landed graph is laid out and measured; every handler and the `act` are then ignored. A selection of nodes is the canvas's own frame: it holds its read and draws the failed, missing and empty forms in the ground whatever stands above it, with the generic sentences, and the stale and paused line over it. */
+	/** The nodes; the canvas places those that carry no position. A selection, here or in `edges` or `groups`, stands the waiting ground (its dots, three painted node cards at a node's measure and its zoom stack) in place of the graph until its read lands, and over it while the landed graph is laid out and measured; every handler and the `act` are then ignored. A selection of nodes is the canvas's own frame: it holds its read and draws the failed, missing and empty shapes in the ground whatever stands above it, with the generic sentences, and the stale and paused line over it. */
 	nodes: Datum<readonly CanvasNode[]>;
 	/** The links between nodes, each drawn as an arrow from `from` to `to`. */
 	edges?: Datum<readonly CanvasEdge[]>;
@@ -91,8 +91,8 @@ const NO_SIZES: ReadonlyMap<string, Size> = new Map();
 const NO_POINTS: ReadonlyMap<string, CanvasPoint> = new Map();
 
 // Between its read landing and its layout the graph is measured but not shown:
-// every part of the region but its ground and the waiting form over it stands
-// transparent and takes no pointer, so the waiting form is what shows until the
+// every part of the region but its ground and the waiting shape over it stands
+// transparent and takes no pointer, so the waiting shape is what shows until the
 // layout lands.
 const MEASURING =
 	"*:not-data-ground:not-data-cover:opacity-0 *:not-data-ground:not-data-cover:pointer-events-none";
@@ -108,7 +108,7 @@ export function Canvas({ nodes, edges, groups, ...graph }: CanvasProps) {
 	const [placed, linked, framed] = useSelections([nodes, edges, groups]);
 	// The nodes are the canvas's frame; its edges and groups wait with it.
 	const frame = useFrame(isSelection(nodes) ? nodes : undefined);
-	if (isEnded(frame.form) || frame.form === "empty")
+	if (isEnded(frame.shape) || frame.shape === "empty")
 		return (
 			<section data-wide="" aria-label={graph.label} className={GROUND}>
 				<FrameBody frame={frame} fill />
@@ -392,7 +392,7 @@ function CanvasGraph({
 		>
 			<Grid />
 			{ready ? null : (
-				// The waiting form stands over the measuring graph, as the loaded one
+				// The waiting shape stands over the measuring graph, as the loaded one
 				// will: the same ground, its nodes' cards and its zoom stack painted.
 				<div data-cover aria-hidden="true" inert className={COVER}>
 					<PaintedNodes />

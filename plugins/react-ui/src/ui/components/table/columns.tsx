@@ -59,7 +59,7 @@ export function ColumnsMenu(props: {
 						aria-label={words.columns}
 						className={cn(
 							POPOVER,
-							menu({ form: "popover" }),
+							menu({ lines: "popover" }),
 							POPUP,
 							LAYER_POPOVER,
 						)}

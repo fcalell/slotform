@@ -39,16 +39,16 @@ export function EmptyBase(props: {
 	tone: "rest" | "failed" | "missing";
 	// None is the Section's empty that offers an act in place of a sentence.
 	sentence?: string;
-	// A missing form's way back goes to a route, so it is a link; so is a create
+	// A missing shape's way back goes to a route, so it is a link; so is a create
 	// act that navigates.
 	act?: Act | LinkAct;
 	// The line fills the box it stands in and stands at its top start (a
 	// chart's loaded height).
 	fill?: boolean;
-	// A failed form that stands for its Pane (a Pane's own frame).
+	// A failed shape that stands for its Pane (a Pane's own frame).
 	headed?: boolean;
 }) {
-	// A missing or failed form without a title is the Pane's `h2`: docs/architecture/ui-core/reads.md, "Missing and failed forms".
+	// A missing or failed shape without a title is the Pane's `h2`: docs/architecture/ui-core/reads.md, "Missing and failed shapes".
 	const headed =
 		(props.tone === "missing" || (props.tone === "failed" && props.headed)) &&
 		use(PageTitle) === undefined;

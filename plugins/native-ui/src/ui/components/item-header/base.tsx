@@ -268,7 +268,7 @@ export function ItemHeaderBase({
 			{placed.length > 0 ? (
 				// The overline is one text, a middle dot between its parts, cut with an
 				// ellipsis at its end: on touch as on the desktop. A part that waits
-				// is its filler, so the waiting form is the loaded one painted.
+				// is its filler, so the waiting shape is the loaded one painted.
 				<PaintText
 					fills="word"
 					painted={placed.some((part) => part.painted)}

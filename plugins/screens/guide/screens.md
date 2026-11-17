@@ -165,7 +165,7 @@ children through `<Outlet />`; without it a screen under the parent shows an emp
 A failure names the screen, the state and the mode. A screen is drawn in five states and two modes
 (light and dark), and the run visits each at the three widths.
 
-A story that holds no calls (data, error, empty, not found) is judged and shot by the same rule, so an error story shows the failed form: a failed query stays fetching through the client's one retry (about a second).
+A story that holds no calls (data, error, empty, not found) is judged and shot by the same rule, so an error story shows the failed shape: a failed query stays fetching through the client's one retry (about a second).
 
 A part that lays itself out after its first paint (the Canvas measures, runs its layout, then fades in) marks itself `aria-busy` until it is drawn, so the run waits for it before it judges and shoots. Storybook's test run pauses the animations once the story's play ends, so the run plays the paused finite ones to their end before each shot: a part that fades in late is shot shown, never hidden.
 
@@ -178,7 +178,7 @@ held ones, for a few frames running, then the size settled), answers them,
 waits until no query is fetching and nothing is `aria-busy` (a button's own busy excepted) and the page has settled, and
 measures again. Per Pane, each Section is judged against the Sections above it in its column (those whose horizontal extent overlaps its own and whose top is above its top), never against a Section beside it, so a two-column layout's columns are judged apart. It reports:
 
-- a Section that stood while waiting and is gone loaded (Sections pair between the two forms by slot, their position among the Sections of their column, never by title: a Section titled by its record paints a filler waiting and the record's title loaded; the loaded form may draw more Sections in a column than the waiting one, and those below the paired ones are not findings);
+- a Section that stood while waiting and is gone loaded (Sections pair between the two forms by slot, their position among the Sections of their column, never by title: a Section titled by its record paints a filler waiting and the record's title loaded; the loaded shape may draw more Sections in a column than the waiting one, and those below the paired ones are not findings);
 - a Section with none above it in its column moving by other than what the text above it grew by (the head's name, facts or description, or prose, wrapping to more lines; in a column the page centres (a Gate's) the Section also moves by half of what the column's height changed by; any other change above it, a toolbar, a bar or a tabs row changing height, fails);
 - a Section with some above it in its column moving by other than what the Sections above it in its column grew by;
 - a Section changing height with no rows, chart or text in it, in either form.
@@ -187,10 +187,10 @@ A Pane with no Section is measured by the tops of its body's direct blocks, judg
 that a block caused, one absent while waiting and present loaded above the moved one (a Banner that
 stands only with its data), by at least its height, is reported and not failed; every other finding
 fails the screen. The fix is in the screen's outline, never in the paint, which is the
-loaded form already at the loaded heights: give every Section a `read`, put a Banner or a PendingBar
+loaded shape already at the loaded heights: give every Section a `read`, put a Banner or a PendingBar
 whose condition lands with the data where it reads best (what is under it moves once, which is
 reported), and keep a text that wraps short enough to wrap the same painted and loaded.
-A screen that draws one Section per record draws one painted Section while the list waits (never `PAINT_ROWS`-many: a waiting Section the loaded form lacks fails, and a Section is a titled stretch, where `PAINT_ROWS` paints the rows of one sheet).
+A screen that draws one Section per record draws one painted Section while the list waits (never `PAINT_ROWS`-many: a waiting Section the loaded shape lacks fails, and a Section is a titled stretch, where `PAINT_ROWS` paints the rows of one sheet).
 A docked Sheet and a modal Sheet's dialog are regions as a Pane is: their Sections are judged
 against each other, and the Sheet's own head (its title and description wrapping or growing) credits the
 first of them. A failure of the first Section says how much of its move the text's growth explains and
@@ -221,9 +221,9 @@ its failure draws nowhere and the leaf stays painted.
 - It covers the sidebar's Data story only (not the hidden variants a `--mode` narrows to), and a
   screen with one procedure is the error story's case.
 - Empty, not found and waiting are not repeated per read: the empty story already empties every
-  collection, a missing form is the failed form with another sentence, and a painted leaf has its
+  collection, a missing shape is the failed shape with another sentence, and a painted leaf has its
   loaded geometry, which the loading shift holds. Axe does not run per read; the roster stories
-  judge the failed forms.
+  judge the failed shapes.
 - A failed read retries once before it fails (about a second), so a screen costs about two
   seconds for each procedure it calls (on the showcase, 4 to 5 procedures take 10 to 15 seconds).
 
@@ -317,7 +317,7 @@ edit, name it and one of each: `stack screens test --screen deploys --state data
 - A shot is the viewport, 800 px tall. `--full` grows it to the whole screen: the viewport grows
   from 800 px until no scroller (the document or a pane that scrolls on its own) hides anything, up
   to 16384 px.
-- A loading story's shot is its waiting form.
+- A loading story's shot is its waiting shape.
 - A run writes over the files it takes and leaves the others; empty the directory first for a set
   from one run alone.
 - The shots are taken whether or not the screen passes its floors.
@@ -333,7 +333,7 @@ edit, name it and one of each: `stack screens test --screen deploys --state data
   focused control is blurred, so the tooltip of the control pressed (or refocused by the close) at one
   width never stands over the layer at the next.
 - `--search <query>` draws every screen at this search in place of the fixtures' example, so a filter-on
-  empty form is drawn: `--screen deploys --state empty --search "?q=x"`. An empty value draws none.
+  empty shape is drawn: `--screen deploys --state empty --search "?q=x"`. An empty value draws none.
 
 ### Driving a live app
 

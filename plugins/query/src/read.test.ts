@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-	createMarks,
-	isPlaceholder,
+	createFlags,
 	isSelection,
+	isStandIn,
 	lift,
 	sampleOf,
 } from "@fcalell/ui-core/read";
@@ -80,7 +80,7 @@ test("a list selection's sample is one record as its selector maps it", () => {
 	const sample = sampleOf(rows);
 	assert.ok(sample);
 	assert.equal(sample.title, "");
-	assert.equal(isPlaceholder(sample.key), false);
+	assert.equal(isStandIn(sample.key), false);
 	assert.deepEqual(Object.keys(sample), ["key", "title", "dot"]);
 	// A group's rows found first map one row too.
 	const groups = read<{ id: string; rows: { at: string }[] }[]>({
@@ -112,20 +112,20 @@ test("a list selection's sample is one record as its selector maps it", () => {
 });
 
 test("of the frames holding one read, the first to take it draws its mark", () => {
-	const marks = createMarks();
+	const flags = createFlags();
 	let heard = 0;
-	marks.subscribe(() => {
+	flags.subscribe(() => {
 		heard++;
 	});
-	const releaseA = marks.take("landing", "a");
-	marks.take("landing", "b");
-	marks.take("other", "c");
-	assert.equal(marks.marks("landing", "a"), true);
-	assert.equal(marks.marks("landing", "b"), false);
-	assert.equal(marks.marks("other", "c"), true);
+	const releaseA = flags.take("landing", "a");
+	flags.take("landing", "b");
+	flags.take("other", "c");
+	assert.equal(flags.flags("landing", "a"), true);
+	assert.equal(flags.flags("landing", "b"), false);
+	assert.equal(flags.flags("other", "c"), true);
 	releaseA();
-	assert.equal(marks.marks("landing", "a"), false);
-	assert.equal(marks.marks("landing", "b"), true);
+	assert.equal(flags.flags("landing", "a"), false);
+	assert.equal(flags.flags("landing", "b"), true);
 	assert.equal(heard, 4);
 });
 
@@ -150,12 +150,12 @@ test("the sample is a placeholder, and a walk over it that never ends is cut off
 		return [{ depth }];
 	};
 	assert.equal(sampleOf(list.at(depthOf)), undefined);
-	// A selector that guards its walk with `isPlaceholder` ends on the sample, which
+	// A selector that guards its walk with `isStandIn` ends on the sample, which
 	// it now finds (it did not, so the walk went on).
 	const walk = list.at((records) => {
 		let node: unknown = records[0];
 		let depth = 0;
-		while (!isPlaceholder(node) && depth < 3) {
+		while (!isStandIn(node) && depth < 3) {
 			node = (node as { parent?: string }).parent;
 			depth++;
 		}

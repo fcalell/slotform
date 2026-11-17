@@ -11,7 +11,7 @@ over a placeholder while its reads wait, are idle or have failed with no data, s
 throws over real data is yours. Every key of the placeholder is the placeholder, so a walk that
 follows a key while there is one (`while (n.parent) n = n.parent`) has no end over it: a run is
 given 10,000 reads of it and throws past that, which paints the slot as any throw does. Bound a
-walk by the data (a visited set, a depth), or stop it on `isPlaceholder(n)`
+walk by the data (a visited set, a depth), or stop it on `isStandIn(n)`
 (`@fcalell/ui-core/read`), which also finds the list sample a waiting row is shaped
 from (one record, its values the empty string).
 
@@ -25,8 +25,8 @@ const summary = combine([deploy, orpc.usage.read()], (d, u) => `${d.commit}: ${u
 ```
 
 A component takes a `Datum<T>`, a constant or a selection, and draws a selection it cannot answer
-yet as its painted form, and only while the read waits: a text or mark leaf whose read ended draws its
-loaded-empty form (no line, nothing), and the frame that holds the read says why. Your own code never
+yet as its painted shape, and only while the read waits: a text or mark leaf whose read ended draws its
+loaded-empty shape (no line, nothing), and the frame that holds the read says why. Your own code never
 sees the placeholder:
 
 - `useRead(selection)` (`@fcalell/plugin-query/tanstack-query`) is the value, or `undefined` while the read waits, is idle or failed.
@@ -67,14 +67,14 @@ a Section inside it given `deploy.at(...)` holds nothing. A second such read in 
 dev `console.error` naming both keys (the frame holds the first); a leaf that needs two reads takes
 `combine`, and a region that draws two reads is two frames. Sibling frames that draw the same read
 each hold it and each fail in place, so a failure repeats in each, while its refetch draws one busy
-mark, beside the first of them (`useFrameRead`'s `marks`); there is no lifting a shared read to an
+mark, beside the first of them (`useFrameRead`'s `flags`); there is no lifting a shared read to an
 outer frame. A row (`Row`, `Stats` meter) is the frame of the selections it draws and takes
-no `read`: given a read no frame above holds, it draws its own failed form (label kept, "This didn't
+no `read`: given a read no frame above holds, it draws its own failed shape (label kept, "This didn't
 load.", a retry icon, a press that retries), and given one a frame above holds, it draws nothing of its
 own. In dev a read that fails with no data while a leaf draws it and no frame holds it
 raises `console.error` (give its Pane, Section, Sheet or Form `read`), judged on the query cache's
 own observers: a leaf is an observer carrying stack's `placeholderData`, a frame one carrying its
-`heldPlaceholder`, so a late leaf or a frame that unmounts is caught too. A read you hold with your own
+`heldStandIn`, so a late leaf or a frame that unmounts is caught too. A read you hold with your own
 `useQuery` is not checked.
 
 A read that only enriches (a name, a badge, a board's column order, a link) is `selection.or(fallback)`: real

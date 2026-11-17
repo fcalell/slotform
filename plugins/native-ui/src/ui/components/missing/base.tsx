@@ -17,7 +17,7 @@ function useBackAct(): LinkAct | undefined {
 	return { label: words.back, href };
 }
 
-// The missing form every read that answers not found draws, and the page for
+// The missing shape every read that answers not found draws, and the page for
 // an address nothing serves. Outside the package's exports: `fit` is the
 // drawer's; `noun` words the sentence for the kind of record (the Pane's), `sentence`
 // replaces it. The way back is the Pane's: its own `page` fit offers it, any

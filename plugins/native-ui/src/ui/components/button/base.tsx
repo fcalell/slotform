@@ -90,7 +90,7 @@ function lookOf(
 }
 
 // The act every Button renders; outside the package's exports.
-// Its run, pending, blocked and painted forms: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
+// Its run, pending, blocked and painted shapes: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 export function ButtonBase({
 	act,
 	fit,

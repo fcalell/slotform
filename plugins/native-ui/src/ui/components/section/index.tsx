@@ -89,7 +89,7 @@ interface SectionHeadProps extends Closed {
 }
 
 type Parts = SectionHeadProps & {
-	/** The heading (a short phrase; wraps). A section titled by its record takes a `Datum`: a selection of the read the section holds (its `read`), never a second read of its own; it paints a title-length filler, its heading inert and hidden from assistive tech, until it lands.  A title whose read ended (failed or missing) draws no head at all (no heading, count or acts): the failed or missing form of the Section stands alone in its place. */
+	/** The heading (a short phrase; wraps). A section titled by its record takes a `Datum`: a selection of the read the section holds (its `read`), never a second read of its own; it paints a title-length filler, its heading inert and hidden from assistive tech, until it lands.  A title whose read ended (failed or missing) draws no head at all (no heading, count or acts): the failed or missing shape of the Section stands alone in its place. */
 	title: Datum<Run>;
 	/** The body's parts: a Form, a Table, a Stats, a BarChart, or a `Card` around anything else; none stand while the `read` is empty. */
 	children?: ReactNode;
@@ -118,9 +118,9 @@ type Parts = SectionHeadProps & {
 type Sheet<V extends string | null> = SectionHeadProps & {
 	/** The heading (a short phrase; truncates); the head over the sheet is drawn with it, and a Section with no title is the sheet alone. */
 	title?: Datum<Run>;
-	/** The sheet's rows: constants (none draw the empty form, as an empty read does), or a selection, which paints as many rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the slots its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty forms in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
+	/** The sheet's rows: constants (none draw the empty shape, as an empty read does), or a selection, which paints as many rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the slots its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty shapes in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
 	items: Datum<readonly Row<V>[]> | Row<V>;
-	/** The sheet's bands, in order: a band over the rows of each (their `group` is its `key`), with its label, the count of its rows (none for a lone band holding every row under a counted head, whose count is the same) and its act. Rows whose `group` names no key, or with none, stand before the first band; the painted (waiting) rows stand with no bands. A selection is the section's own read as `items` is: the rows paint with no bands until it lands, and its failed, missing and empty forms stand in the sheet's place. */
+	/** The sheet's bands, in order: a band over the rows of each (their `group` is its `key`), with its label, the count of its rows (none for a lone band holding every row under a counted head, whose count is the same) and its act. Rows whose `group` names no key, or with none, stand before the first band; the painted (waiting) rows stand with no bands. A selection is the section's own read as `items` is: the rows paint with no bands until it lands, and its failed, missing and empty shapes stand in the sheet's place. */
 	groups?: Datum<readonly Band[]>;
 	children?: never;
 	/** What the sheet says when its `items` are empty (a read that answered none, or no constants): the sentence and the act that makes the first one, in place of the generic sentence; under a `description`, with no sentence given, its act alone or the word for none. */
@@ -131,7 +131,7 @@ type Sheet<V extends string | null> = SectionHeadProps & {
 export type SectionProps<V extends string | null = string> = Parts | Sheet<V>;
 
 // A heading with its count, description and act over its body: docs/architecture/ui-core/layout.md, "Section".
-// Its frame forms and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
+// Its frame shapes and waiting paint: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function Section<V extends string | null = string>(
 	props: SectionProps<V>,
 ) {
@@ -159,7 +159,7 @@ function paintOf<V extends string | null>(
 	return typeof row.facts === "string" ? { ...row, facts: [""] } : row;
 }
 
-// A described Section's empty form says no generic sentence, its description
+// A described Section's empty shape says no generic sentence, its description
 // saying what it holds: a sheet's own sentence stands, else the act alone, or
 // the word for none.
 function emptyOf(
@@ -227,11 +227,11 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 	const [bands] = useSelections([groups] as const);
 	const loaded = drawn.painted ? [] : drawn.value;
 	// A constant with no rows is empty as a read that answered none is: its
-	// empty form stands (`empty`, else the generic sentence), never a sheet
+	// empty shape stands (`empty`, else the generic sentence), never a sheet
 	// with nothing on it.
 	const frame: Frame =
 		!isSelection(items) && items.length === 0
-			? { ...collection.frame, form: "empty" }
+			? { ...collection.frame, shape: "empty" }
 			: collection.frame;
 	// While the rows wait they paint in the shape the items' selector gives one
 	// record (its leading mark, its facts, its trailing value), so the text and
@@ -330,7 +330,7 @@ function Titled(
 	const [open, setOpen] = useState(folded !== true);
 	return (
 		<View
-			accessibilityState={{ busy: frame.holds && frame.form === "waiting" }}
+			accessibilityState={{ busy: frame.holds && frame.shape === "waiting" }}
 			className={cn(SECTION, BOX)}
 		>
 			<SectionHead

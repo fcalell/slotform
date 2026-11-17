@@ -314,7 +314,7 @@ export interface BarSlots<T> {
 // Columns over time: one bar per item, stacked by one dimension when `keys`
 // names its parts.
 export type BarChartProps<T = unknown> = Closed & {
-	/** The items the bars draw, oldest first: constants, or a selection, which paints the chart until its read lands. A selection is the chart's own frame: it holds its read and draws the failed, missing and empty forms in its own box whatever stands above it. */
+	/** The items the bars draw, oldest first: constants, or a selection, which paints the chart until its read lands. A selection is the chart's own frame: it holds its read and draws the failed, missing and empty shapes in its own box whatever stands above it. */
 	items: Datum<readonly T[]>;
 	/** What the chart counts: the web names its plot by it, the phone draws no name for the plot (a short phrase; never drawn on the phone). */
 	label: string;
@@ -341,7 +341,7 @@ export type BarChartProps<T = unknown> = Closed & {
 	level?: boolean;
 };
 
-// A bar chart: docs/architecture/plugins/native-ui.md, "Bar chart". Its frame forms: docs/architecture/ui-core/reads.md, "What a frame draws".
+// A bar chart: docs/architecture/plugins/native-ui.md, "Bar chart". Its frame shapes: docs/architecture/ui-core/reads.md, "What a frame draws".
 export function BarChart<T>(props: BarChartProps<T>) {
 	const { keys, unit, level } = props;
 	const { drawn, frame } = useCollection(props.items);

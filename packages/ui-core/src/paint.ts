@@ -38,7 +38,7 @@ export function tune(name: MotionKnobName, value: number): void {
 
 export const subscribeMotion = motion.subscribe;
 
-// The paint each glyph slot's waiting form takes: docs/architecture/ui-core/reads.md, "Waiting paint".
+// The paint each glyph slot's waiting shape takes: docs/architecture/ui-core/reads.md, "Waiting paint".
 export const loading: Record<LoadingSlot, LoadingPaint> = record(
 	LOADING_SLOTS,
 	(): LoadingPaint => "pulse",
@@ -89,7 +89,7 @@ export const timings = {
 };
 
 // How much longer a first load's data waits: docs/architecture/ui-core/reads.md, "Timing".
-export function holdFor(elapsed: number): number {
+export function paintWait(elapsed: number): number {
 	if (elapsed < timings.waitDelay) return 0;
 	return Math.max(0, timings.waitDelay + timings.waitMin - elapsed);
 }
@@ -162,7 +162,7 @@ export function paintShape(role: PaintRole, at = 0, locale?: string): string {
 	return role === "figure" ? groupZeros(text, locale) : text;
 }
 
-// A row slot run over a painted item: docs/architecture/ui-core/reads.md, "Paint forms".
+// A row slot run over a painted item: docs/architecture/ui-core/reads.md, "Paint shapes".
 export function painting<T, R>(fn: (item: T) => R, item: T): R | T {
 	try {
 		return fn(item);

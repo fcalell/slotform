@@ -7,7 +7,7 @@ import { PictureTile, PictureView } from "./base";
 interface ImageBase extends Closed {
 	/** The picture's address. A selection paints the tile, which takes no touch, until its read lands. */
 	src: Datum<string>;
-	/** What the picture shows: the button's accessible name, the failed form's words and the full view's name (a sentence; wraps in the failed form). */
+	/** What the picture shows: the button's accessible name, the failed shape's words and the full view's name (a sentence; wraps in the failed shape). */
 	alt: string;
 }
 
