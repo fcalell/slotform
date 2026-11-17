@@ -53,7 +53,7 @@ export type Middleware<
 type Rbac<TStatements extends DefaultStatements> = {
 	[R in keyof TStatements & string]: readonly [
 		R,
-		ReadonlyArray<TStatements[R][number]>,
+		readonly [TStatements[R][number], ...TStatements[R][number][]],
 	];
 }[keyof TStatements & string];
 

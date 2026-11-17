@@ -325,7 +325,8 @@ dependency runs from auth to api.
   both middlewares run, checked against the caller's role in the scope's organization. `can` is a
   tuple of exactly two strings, so no third (conditions) element is expressible and the org layer stays
   unconditional by construction: statements have no conditions, which belong to the record-scoped
-  ability layer.
+  ability layer. `rbac` takes a non-empty action list, and the tenancy's `can` refuses a request that
+  names no resource or no action, so an empty list closes the gate and never opens it.
 - **`paginated`**: `true` is a keyset page (`cursor`, `limit`), answering `{ data, nextCursor }`.
   `"window"` is a page at an offset (`offset`, `limit`), answering `{ data, total, offset }`, which a
   collection scrolls through by its total.

@@ -49,7 +49,8 @@ export const projects = {
 - Declare `reads` on every query and `writes` on every mutation that touches an entity. The client
   invalidates caches from them, and a procedure that declares nothing invalidates nothing.
 - Prefer `can: [action, resource]` to `rbac: [resource, actions[]]`; both check the same thing,
-  and both run when both are set.
+  and both run when both are set. `rbac` takes at least one action (`["task", []]` does not
+  type-check), and an empty request is refused.
 - Never read the session's active organization: a scope's id arrives in the input.
 
 ## Options

@@ -21,7 +21,8 @@ export interface Tenancy {
 		parentId: string | undefined,
 		userId: string,
 	): Promise<ScopeContext<S> | null>;
-	// Whether `role` grants every action named in `permissions`.
+	// Whether `role` grants every action named in `permissions`. A request that
+	// names no resource or no action is refused, so an empty list closes the gate.
 	can(role: string, permissions: Record<string, readonly string[]>): boolean;
 }
 
@@ -153,8 +154,14 @@ export function createTenancy(
 		},
 		can(role, permissions) {
 			const grants = resolveGrants(role, roles);
-			return Object.entries(permissions).every(([resource, actions]) =>
-				actions.every((action) => grants[resource]?.includes(action)),
+			const asked = Object.entries(permissions);
+			return (
+				asked.length > 0 &&
+				asked.every(
+					([resource, actions]) =>
+						actions.length > 0 &&
+						actions.every((action) => grants[resource]?.includes(action)),
+				)
 			);
 		},
 	};
