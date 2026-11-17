@@ -1,5 +1,5 @@
 import { View } from "react-native";
-import { useToastBox } from "../../lib/frame";
+import { useToastBox } from "../../lib/container";
 
 const SPACE = "absolute inset-0";
 const BOX = "flex-1";

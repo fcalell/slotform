@@ -60,7 +60,7 @@ export function Sheet<P extends ProcedureCall>({
 	form,
 	children,
 }: SheetProps<P>) {
-	// The form's bar is hoisted into the foot, so the sheet holds its run beside
+	// The form's bar is hoisted into the foot, so the sheet holds its attempt beside
 	// its own submit's: one act pends at a time and the dismissal is held while
 	// it runs.
 	const acting = useAct<number>("line");

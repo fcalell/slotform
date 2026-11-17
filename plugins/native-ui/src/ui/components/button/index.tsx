@@ -2,10 +2,10 @@ import type { Decision, IconName } from "@fcalell/ui-core/descriptors";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph";
+import { ButtonLink } from "../../atoms/button/link";
 import { type ActSheetProps, useAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { IconButtonBase } from "../../parts/button/glyph";
-import { ButtonLink } from "../../parts/button/link";
 import { ActSheet } from "../sheet/act";
 import { ButtonBase } from "./base";
 
@@ -14,7 +14,7 @@ interface Named extends Closed {
 	label: string;
 }
 
-export interface ButtonRunProps extends Named {
+export interface ButtonAttemptProps extends Named {
 	/** The act's kind: the accent fill (`primary`, the default), the danger fill, a hairline, the hairline in danger ink, or quiet words in the meta ink. */
 	act?: ButtonAct;
 	/** What it sits in: a body (the default), or full width under a field. */
@@ -23,7 +23,7 @@ export interface ButtonRunProps extends Named {
 	icon?: IconName;
 	/** A number after the label, in the label's ink. */
 	count?: number;
-	/** A wait, in seconds left: the act is inert while it is above zero, its count drawn, and it draws no reason, so its row never grows. At zero the count's slot stays, hidden, so the act keeps its width. */
+	/** A wait, in seconds left: the act is inert while it is above zero, its count drawn, and it draws no reason, so its row never grows. At zero the count's region stays, hidden, so the act keeps its width. */
 	wait?: number;
 	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `ACT_DELAY`) its glyph and label hidden under a spinner, its name kept. A rejection reads under the act. */
 	onAct?: () => unknown;
@@ -69,10 +69,13 @@ export interface ButtonRouteProps extends Named {
 	glyph?: undefined;
 }
 
-export type ButtonProps = ButtonRunProps | ButtonGlyphProps | ButtonRouteProps;
+export type ButtonProps =
+	| ButtonAttemptProps
+	| ButtonGlyphProps
+	| ButtonRouteProps;
 
 // An act: a labelled one that runs, a link with `href`, a square act with `glyph`.
-// Its run, pending and blocked forms: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
+// Its attempt, pending and blocked forms: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 export function Button(props: ButtonProps) {
 	if (props.href !== undefined)
 		return <ButtonLink fit={props.fit} label={props.label} href={props.href} />;
@@ -112,7 +115,7 @@ function Glyph({
 				icon={icon}
 				fit={fit}
 				label={label}
-				onAct={() => acting.run(true, { onAct, label, ...wiring })}
+				onAct={() => acting.attempt(true, { onAct, label, ...wiring })}
 				pending={acting.pending !== undefined}
 				disabled={disabled}
 				primary={act === "primary"}

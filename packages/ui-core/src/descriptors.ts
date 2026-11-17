@@ -36,14 +36,14 @@ export type { CountLink, MeterMark, StatSpec } from "./roster/stats.ts";
 export type {
 	CellValue,
 	ChangeCell,
-	ChoiceSlots,
+	ChoiceRegions,
 	ColumnWidth,
 	DragSource,
 	TableCell,
 	TableChoice,
 	TableColumn,
 	TablePick,
-	TableRowSlots,
+	TableRowRegions,
 } from "./roster/table.ts";
 export type {
 	Attachment,

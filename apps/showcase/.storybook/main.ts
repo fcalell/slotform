@@ -17,7 +17,7 @@ const config: StorybookConfig = {
 		name: "@storybook/react-vite",
 		options: {
 			// The app's own Vite config for a Storybook that draws components, from
-			// the slots it renders from.
+			// the regions it renders from.
 			builder: {
 				viteConfigPath: await writeStorybookConfig({
 					config: stackConfig,

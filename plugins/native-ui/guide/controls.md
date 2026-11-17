@@ -9,7 +9,7 @@ One act in three forms: labelled, `href` (a link in accent ink) and `glyph` (the
 - `act`: its kind. `primary` (the accent fill, the default), `danger` (the danger fill), `secondary` (a hairline), `destructive` (the hairline in danger ink), `quiet` (words in the meta ink). The `glyph` form takes `quiet` (the default) or `primary` (a glyph on the accent fill, the act its bar is for: a player's Play).
 - `fit`: what it sits in, `body` (the default) or `field`, full width under a field. The link form takes `body` or `inline`, a run of the line it sits in.
 - `icon` leads the label; `count` follows it, in the label's ink.
-- `wait`: the seconds left of a delay (a resend that opens in 30). The act is inert while it is above zero, its count drawn and no reason under it; at zero the count's slot stays hidden so the act keeps its width.
+- `wait`: the seconds left of a delay (a resend that opens in 30). The act is inert while it is above zero, its count drawn and no reason under it; at zero the count's region stays hidden so the act keeps its width.
 - `blocked`: why the act cannot run, a sentence. It is inert and says so under itself once pressed.
 - `onAct`, `confirm`, `done`, `to`, `sheet`: the act's wiring, in that order (`rules.md`).
 
@@ -35,7 +35,7 @@ A pick among options.
 - `fit`: where it stands. `field` (the default), `bar` (filling its column) or `row` (a row's trailing value) open a sheet of rows; `list` stands the options in the page as rows; `segments` as one row.
 - `value` an array picks several.
 - `act`: the icon act that makes a new option, ending the list.
-- At `list`, `items` with `option` (a function per row slot) draw the rows from a read, and `children` stand under the first chosen option.
+- At `list`, `items` with `option` (a function per row region) draw the rows from a read, and `children` stand under the first chosen option.
 - At `segments`, options with an `href` are the tabs of a place and hold no value.
 
 ## Switch

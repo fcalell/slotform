@@ -30,7 +30,7 @@ test("one h1, then a level at a time, finds nothing", () => {
 	);
 });
 
-test("a page whose Panes all draw h2 under the Place's h1 is held", () => {
+test("a page whose Panes all draw h2 under the Panes's h1 is held", () => {
 	assert.deepEqual(
 		checkHeadings([at(1, "Work"), at(2, "List"), at(2, "Item")]),
 		[],
@@ -44,7 +44,7 @@ test("no h1 is found", () => {
 	assert.match(found[0]?.measured ?? "", /no h1/);
 });
 
-test("a second h1 is found (the old last-Pane h1 beside the Place's)", () => {
+test("a second h1 is found (the old last-Pane h1 beside the Panes's)", () => {
 	const found = checkHeadings([at(1), at(2), at(1, "Item")]);
 	assert.equal(found.length, 1);
 	assert.equal(found[0]?.rule, "heading-one");
@@ -66,7 +66,7 @@ test("a heading under aria-hidden or inert is not one, unless a modal Sheet hide
 	const drawn = { drawn: true, hidden: false, modal: false };
 	assert.equal(isHeading(drawn), true);
 	assert.equal(isHeading({ ...drawn, hidden: true }), false);
-	// The Place's h1 behind an open modal is still the page's: the page is judged
+	// The Panes's h1 behind an open modal is still the page's: the page is judged
 	// as it stands once the Sheet closes, so it does not read as "no h1".
 	assert.equal(isHeading({ ...drawn, hidden: true, modal: true }), true);
 	// A heading that does not draw (a Pane folded away) is never one.

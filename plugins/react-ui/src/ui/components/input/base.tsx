@@ -12,14 +12,14 @@ import {
 	fieldValue,
 } from "@fcalell/ui-core/variants";
 import type { KeyboardEvent, MouseEvent } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { useAct, useHeldDraft } from "../../lib/act.ts";
 import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";
 import type { CellFit, InlineFit } from "../../lib/field.ts";
 import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import type { InputKind, TextInputProps } from "./index.tsx";
 
@@ -42,7 +42,7 @@ const VALUE =
 // middle of a control's height, where the input's line stands.
 const WRAPPED =
 	"block min-w-0 grow self-stretch -my-hairline resize-none field-sizing-content py-[calc((var(--spacing-control)-1lh)/2)] wrap-anywhere outline-none placeholder:text-ink-meta disabled:text-ink-disabled";
-// A search box grows to fill the slot a toolbar gives it.
+// A search box grows to fill the region a toolbar gives it.
 const SEARCH_BOX = "grow";
 // A number in a table cell keeps the cell's end-aligned figures.
 const CELL_NUMBER = "text-end";
@@ -140,7 +140,7 @@ export function InputBase({
 		}
 		if (!act || which === "secret") return;
 		event.preventDefault();
-		if (act.blocked === undefined && !acting.holds) acting.run(true, act);
+		if (act.blocked === undefined && !acting.holds) acting.attempt(true, act);
 	};
 	return (
 		<Control
@@ -220,7 +220,7 @@ export function InputBase({
 								destructive={act.destructive}
 								disabled={act.blocked !== undefined}
 								pending={acting.pending !== undefined}
-								onClick={() => acting.run(true, act)}
+								onClick={() => acting.attempt(true, act)}
 							/>
 							<ActSheet acting={acting} of={() => act.sheet} />
 						</FieldDisabled>

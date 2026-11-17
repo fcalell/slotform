@@ -62,6 +62,25 @@ import {
 	use,
 	useState,
 } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import {
+	BadgesLine,
+	FactBadge,
+	LockBadge,
+	PaintedBadge,
+	WordsBadge,
+} from "../../atoms/row/badges.tsx";
+import {
+	First,
+	Leading,
+	type RowTree,
+	TreeLead,
+	treeFold,
+} from "../../atoms/row/leading.tsx";
+import { EndMark, says, wordless } from "../../atoms/row/marks.tsx";
+import { StatusBase } from "../../atoms/status/base.tsx";
+import { ChangeMark } from "../../atoms/status/change.tsx";
+import { StatusDot } from "../../atoms/status/dot.tsx";
 import { ageShort } from "../../lib/age.ts";
 import { CodeCut, CodeWhole, RunText, Soft } from "../../lib/code.tsx";
 import { press, useDrop, useOffers } from "../../lib/drag.ts";
@@ -76,25 +95,6 @@ import {
 	stepKey,
 } from "../../lib/reorder.ts";
 import type { VarStyle } from "../../lib/style.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import {
-	BadgesLine,
-	FactBadge,
-	LockBadge,
-	PaintedBadge,
-	WordsBadge,
-} from "../../parts/row/badges.tsx";
-import {
-	First,
-	Leading,
-	type RowTree,
-	TreeLead,
-	treeFold,
-} from "../../parts/row/leading.tsx";
-import { EndMark, says, wordless } from "../../parts/row/marks.tsx";
-import { StatusBase } from "../../parts/status/base.tsx";
-import { ChangeMark } from "../../parts/status/change.tsx";
-import { StatusDot } from "../../parts/status/dot.tsx";
 import { HeldInput } from "../input/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
@@ -412,7 +412,7 @@ function trailingWord(trailing: RowTrailing): ReactNode {
 	return trailing.value;
 }
 
-/** The one row of a Section's sheet, whatever it holds. Its box is a line of three groups: a leading slot (the change mark, then the leading mark: a glyph, a status dot, an avatar, a type's mark or a tick; a tree's rails), a text group (the title over the facts line) and an end group, in one order: the marks whose words are not drawn (`words: false`: a glyph named by its label, with a tooltip), the trailing value, a switch, a pick, the act (an icon act), the copy act, the more act, a tree's fold. The facts line is a line of badges (`BadgesLine`), each fact one badge in the order given, none breaking inside, none separated from the next by a dot, whole badges wrapping to the next line: the status its tone's mark and word, the row's lock (the lock glyph and its reason, a link to what holds the fact with an `href`, inert without one) right after it, a warning the warn glyph and phrase, a chip its family's dot and value, a ring (outlined, its centre filled) or a flag its glyph and label, words and a code in the mono their text; a blocked tick's reason is the first badge, plain. A badge too long for the line is cut inside its box with an ellipsis. A sentence is not a fact: the row's `line` is text under the title and the badges, in the meta ink at the meta role, wrapping whole at every width (runs, a code run moving whole to the next line), a badge's gap below the badges above it, so a row with a line is at least two lines (the line under the title where the badges follow it on its line); empty it draws nothing, painted it is one sentence's filler. A row with a mark is two lines at every width; a row with fact words alone is one line where it is wide enough and two below (the `row` container, `rowOneLine`: a rule of the row's width, never a measure of its content), and on touch two at every width. In a one-line row the badges follow the title on its line on one line, the last one cut where the line is out of room; under the title, and under a wrapped title (`wrap`), they wrap whole. A lone `{ code }` fact is no badge: it is the row's value, the mono cut in its middle and, in the two-line form, whole. A room place's row whose only mark is a status keeps it in the end group's start after the facts, a dot and its word, one line. A row with a `label` stands in the sheet's two columns, the label in the first at the body role in the meta ink (a `code` label in the code role) in a column as wide as the widest label of the Pane, and the line in the second; on touch the line stands under the label. A row without one spans the sheet from its start. A row that opens (`href` or `onOpen`) draws no chevron: it is one hit, washing under the pointer, current (the bar) when `selected`, or at its `href` unless `selected` is `false`; a linked badge (the lock) stands above the hit and takes the pointer, the rest of the line none. A title truncates on one line unless `wrap`, whether the row has a label or not; the end group is centred on the row; an absent word is in the meta ink, a status title is its tone's mark and word at the title's start, plain (no pill: colour stays on the glyph), a copyable code is the mono and, too long for its room, cut in its middle. The painted shape is the loaded one with every part in its filler, a badge's filler at the loaded badge's size, inert. The row is the frame of the selections it draws (`title`, `facts`, `line`): one that failed, with no frame above holding it, makes the failed shape (the label stays, the end shows the failure mark and the retry icon, the facts line reads "This didn't load." as text, and pressing the row retries). Outside the package's exports. */
+/** The one row of a Section's sheet, whatever it holds. Its box is a line of three groups: a leading region (the change mark, then the leading mark: a glyph, a status dot, an avatar, a type's mark or a tick; a tree's rails), a text group (the title over the facts line) and an end group, in one order: the marks whose words are not drawn (`words: false`: a glyph named by its label, with a tooltip), the trailing value, a switch, a pick, the act (an icon act), the copy act, the more act, a tree's fold. The facts line is a line of badges (`BadgesLine`), each fact one badge in the order given, none breaking inside, none separated from the next by a dot, whole badges wrapping to the next line: the status its tone's mark and word, the row's lock (the lock glyph and its reason, a link to what holds the fact with an `href`, inert without one) right after it, a warning the warn glyph and phrase, a chip its family's dot and value, a ring (outlined, its centre filled) or a flag its glyph and label, words and a code in the mono their text; a blocked tick's reason is the first badge, plain. A badge too long for the line is cut inside its box with an ellipsis. A sentence is not a fact: the row's `line` is text under the title and the badges, in the meta ink at the meta role, wrapping whole at every width (runs, a code run moving whole to the next line), a badge's gap below the badges above it, so a row with a line is at least two lines (the line under the title where the badges follow it on its line); empty it draws nothing, painted it is one sentence's filler. A row with a mark is two lines at every width; a row with fact words alone is one line where it is wide enough and two below (the `row` container, `rowOneLine`: a rule of the row's width, never a measure of its content), and on touch two at every width. In a one-line row the badges follow the title on its line on one line, the last one cut where the line is out of room; under the title, and under a wrapped title (`wrap`), they wrap whole. A lone `{ code }` fact is no badge: it is the row's value, the mono cut in its middle and, in the two-line form, whole. A room place's row whose only mark is a status keeps it in the end group's start after the facts, a dot and its word, one line. A row with a `label` stands in the sheet's two columns, the label in the first at the body role in the meta ink (a `code` label in the code role) in a column as wide as the widest label of the Pane, and the line in the second; on touch the line stands under the label. A row without one spans the sheet from its start. A row that opens (`href` or `onOpen`) draws no chevron: it is one hit, washing under the pointer, current (the bar) when `selected`, or at its `href` unless `selected` is `false`; a linked badge (the lock) stands above the hit and takes the pointer, the rest of the line none. A title truncates on one line unless `wrap`, whether the row has a label or not; the end group is centred on the row; an absent word is in the meta ink, a status title is its tone's mark and word at the title's start, plain (no pill: colour stays on the glyph), a copyable code is the mono and, too long for its room, cut in its middle. The painted shape is the loaded one with every part in its filler, a badge's filler at the loaded badge's size, inert. The row is the frame of the selections it draws (`title`, `facts`, `line`): one that failed, with no frame above holding it, makes the failed shape (the label stays, the end shows the failure mark and the retry icon, the facts line reads "This didn't load." as text, and pressing the row retries). Outside the package's exports. */
 export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	const {
 		change: kind,
@@ -539,7 +539,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	// waits is one filler, a fact whose read ended draws nothing and one that
 	// waits is a filler in its place. A loaded part with no text draws nothing,
 	// so no separator dangles after the part before it; a painted row keeps one
-	// filler per part the slot gave. The failed sentence takes the words' place.
+	// filler per part the region gave. The failed sentence takes the words' place.
 	const drawn = said.painted
 		? paints(said)
 			? [""]
@@ -576,7 +576,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			lock !== undefined ||
 			chips.length > 0 ||
 			metaFacts.length > 0);
-	// A room Place's row whose only mark is a status stands it in the end
+	// A room Panes's row whose only mark is a status stands it in the end
 	// group after the facts, one line (`STATE`): the title's own line is the
 	// row's, wherever the row has the width the desktop's one-line form needs.
 	const far = use(DistanceContext);
@@ -695,7 +695,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	// each fact its kind draws (`FactBadge`). A status that stands in the end
 	// group (a room row's) is no badge. A fact that waits, or a row that is
 	// painted, draws the filler of what the kind keeps painted: every word one
-	// filler badge, whether the slot gave words or the placeholder whole.
+	// filler badge, whether the region gave words or the placeholder whole.
 	const lockBadge =
 		lock === undefined ? null : (
 			<LockBadge key="lock" reason={lock} href={lockHref} painted={painted} />
@@ -763,8 +763,8 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 						<StatusBase painted />
 					</span>
 				);
-			// The id's one position, in this form and the loaded one, so the slot
-			// that waited is the slot that arrived.
+			// The id's one position, in this form and the loaded one, so the region
+			// that waited is the region that arrived.
 			else if (isCopy(shape)) titleLine = <IdValue painted at={at} />;
 			else
 				titleLine = (

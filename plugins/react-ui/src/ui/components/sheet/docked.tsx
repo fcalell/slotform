@@ -27,12 +27,12 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { DIVIDER } from "../../atoms/section/card.tsx";
 import { useAct } from "../../lib/act.ts";
+import type { FootRegionValue } from "../../lib/container.ts";
 import { focusFirst } from "../../lib/focus.ts";
-import type { FootRegionValue } from "../../lib/frame.ts";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
-import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import { Button } from "../button/index.tsx";
 import { type FormProps, useDerivedForm } from "../form/index.tsx";

@@ -76,7 +76,7 @@ arrows moves the focused row).
 
 ## Acts
 
-`refusal(error)` comes from `@fcalell/plugin-query/acts`; `useRun()` and
+`refusal(error)` comes from `@fcalell/plugin-query/acts`; `useAttempt()` and
 `useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `ACT_DELAY` (300 ms,
 `--act-delay`, from `@fcalell/ui-core/paint`).
 
@@ -91,7 +91,7 @@ is a `sheet` search param on its route.
 
 | Option | Default | What it does |
 | --- | --- | --- |
-| `theme` | the calibrated defaults | Six knobs: `hue` (`{ accent?, cast? }`; the accent 264, the cast the neutrals' hue, the accent's unless set), `radius` (the control's corner radius in px, 6; a layer takes a third more), `fonts` (`{ sans?, mono? }` family names; IBM Plex Sans (sans) and IBM Plex Mono (mono) unless set), `size` (the desktop body in px, 13, 12 to 18: every type size, space and size scales with it), `defaultMode` (where a viewer with no stored choice starts, ahead of `prefers-color-scheme`) and `loading` (`{ text?, figure?, id? }`, each `"pulse"` or `"scramble"`: how that kind of waiting slot is painted, the skeleton's breath or generated characters; omitted, all pulse. A technical voice scrambles figures and ids, `{ figure: "scramble", id: "scramble" }`; a shape always pulses). |
+| `theme` | the calibrated defaults | Six knobs: `hue` (`{ accent?, cast? }`; the accent 264, the cast the neutrals' hue, the accent's unless set), `radius` (the control's corner radius in px, 6; a layer takes a third more), `fonts` (`{ sans?, mono? }` family names; IBM Plex Sans (sans) and IBM Plex Mono (mono) unless set), `size` (the desktop body in px, 13, 12 to 18: every type size, space and size scales with it), `defaultMode` (where a viewer with no stored choice starts, ahead of `prefers-color-scheme`) and `loading` (`{ text?, figure?, id? }`, each `"pulse"` or `"scramble"`: how that kind of waiting region is painted, the skeleton's breath or generated characters; omitted, all pulse. A technical voice scrambles figures and ids, `{ figure: "scramble", id: "scramble" }`; a shape always pulses). |
 | `words` | English | Every word a component draws on its own, every key required. Read with `useWords()`. |
 | `fonts` | IBM Plex Sans upright and italic on the `wght` axis, IBM Plex Mono at 400, 500 and 600 | The font files to load, each preloaded with a metric fallback face (a `local()` face over the system font of the same metrics, `Liberation` and `Arimo` standing in for Arial on Linux); `[]` loads none. Which family binds to `sans` or `mono` is `theme.fonts`. `inter` and `interItalic` come from `@fcalell/plugin-react-ui/node/fonts`. |
 
@@ -120,13 +120,13 @@ lint rejects the attribute as JSX, so it is never on an element of the app's own
 does not use the `Shell`, whose desktop form is a 220 px sidebar that a 420 px window cannot hold
 beside a page: a pinned page is a `Gate` alone.
 
-A screen read from across a room is the one set a page states, `distance="room"` on the `Place` it
-draws outside the `Shell` (`import { Place } from "@fcalell/plugin-react-ui/components/shell"`; the
+A screen read from across a room is the one set a page states, `distance="room"` on the `Panes` it
+draws outside the `Shell` (`import { Panes } from "@fcalell/plugin-react-ui/components/shell"`; the
 showcase's `/tv` page; the `Shell` takes none): that place sets `data-density="room"` on
 itself, so the touch set at a 960 × 540 canvas scaled to the window draws inside it (`--room-unit`
 holds the scale), with the touch structure. A layer that portals (a menu, a picker, a sheet) draws
 outside that scope, which is why a room place's `Pane` takes no `more` or `foot`. A room page with
-no data to show (signed out, the server not answering) draws its `Gate` inside the same `Place`, so
+no data to show (signed out, the server not answering) draws its `Gate` inside the same `Panes`, so
 the Gate fills it at the room set and stands its step in the middle of the screen (the showcase's
 `/tv-offline`). Inside a room place the board takes the room's own forms: a `Pane`'s head stands a
 `pad` off the top, on the table, over a bar of its own; a row whose only mark is a status fact draws

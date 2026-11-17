@@ -1188,10 +1188,10 @@ export const MOVES = [
 ] as const;
 export type Move = (typeof MOVES)[number];
 
-// The glyph slots a theme can paint by the scramble instead of the pulse
+// The glyph regions a theme can paint by the scramble instead of the pulse
 // (`theme.loading`); a shape always pulses.
-export const LOADING_SLOTS = ["text", "figure", "id"] as const;
-export type LoadingSlot = (typeof LOADING_SLOTS)[number];
+export const LOADING_REGIONS = ["text", "figure", "id"] as const;
+export type LoadingRegion = (typeof LOADING_REGIONS)[number];
 export const LOADING_PAINTS = ["pulse", "scramble"] as const;
 export type LoadingPaint = (typeof LOADING_PAINTS)[number];
 
@@ -1372,9 +1372,9 @@ export interface CountedWord {
 	other: string;
 }
 
-// A word drawn with values: each spells its slots as `{name}` where the
+// A word drawn with values: each spells its blanks as `{name}` where the
 // value stands, drawn through `filled()`.
-export const SLOT_WORDS = {
+export const BLANK_WORDS = {
 	wrongType: ["name", "types"],
 	stepOf: ["at", "of"],
 	chosenOf: ["count", "of"],
@@ -1387,13 +1387,13 @@ export const SLOT_WORDS = {
 	checkField: ["label"],
 	savedEndsIn: ["tail"],
 } as const satisfies Record<string, readonly string[]>;
-export type SlotWordKey = keyof typeof SLOT_WORDS;
+export type BlankWordKey = keyof typeof BLANK_WORDS;
 // `Object.keys` widens to `string`; the keys are the record's own.
-export const SLOT_WORD_KEYS = Object.keys(SLOT_WORDS) as SlotWordKey[];
+export const BLANK_WORD_KEYS = Object.keys(BLANK_WORDS) as BlankWordKey[];
 
 export type Words = Record<WordKey, string> &
 	Record<CountedWordKey, CountedWord> &
-	Record<SlotWordKey, string>;
+	Record<BlankWordKey, string>;
 
 export const ENGLISH: Words = {
 	active: "Active",
@@ -1524,15 +1524,15 @@ export const ENGLISH: Words = {
 	savedEndsIn: "Saved, ends in {tail}",
 };
 
-// A slot word with its values: `filled(words.stepOf, { at, of })`.
+// A blank word with its values: `filled(words.stepOf, { at, of })`.
 export function filled(word: string, values: Record<string, string>): string {
 	return word.replace(
 		/\{(\w+)\}/g,
-		(slot, name: string) => values[name] ?? slot,
+		(blank, name: string) => values[name] ?? blank,
 	);
 }
 
-// The most a tab's count draws; a count past it reads as the slot word
+// The most a tab's count draws; a count past it reads as the blank word
 // `countOver` ("99+"), so the count stays inside the bar at the narrowest width.
 export const TAB_COUNT_MAX = 99;
 

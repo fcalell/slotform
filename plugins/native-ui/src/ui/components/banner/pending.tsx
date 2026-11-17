@@ -1,5 +1,5 @@
 import {
-	type PendingRun,
+	type PendingAttempt,
 	pendingShare,
 	timeLeft,
 } from "@fcalell/ui-core/clock";
@@ -27,13 +27,12 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
+import { Spinner } from "../../atoms/spinner";
 import type { Act } from "../../lib/act";
 import { asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-
-import { Spinner } from "../../parts/spinner";
 import { ButtonBase } from "../button/base";
 
 const TRACK = "relative flex-row items-center min-w-0 overflow-hidden";
@@ -45,29 +44,29 @@ const LEFT = "relative shrink-0";
 
 const Filled = withUniwind(Animated.View);
 
-// The elapsed share, moving on its own from where the run stands to full at
+// The elapsed share, moving on its own from where the attempt stands to full at
 // its end; the clock's tick redraws only the time left. With the system's
 // reduced motion on (as Reanimated read it at launch) it steps with the
 // clock instead, the share set once a tick.
-export function Fill(props: { run: PendingRun; now: number }) {
-	const { run, now } = props;
+export function Fill(props: { attempt: PendingAttempt; now: number }) {
+	const { attempt, now } = props;
 	const reduced = useReducedMotion();
-	const share = useSharedValue(pendingShare(run, Date.now()));
+	const share = useSharedValue(pendingShare(attempt, Date.now()));
 	useEffect(() => {
 		if (reduced) return;
 		const at = Date.now();
-		share.value = pendingShare(run, at);
-		if (at < run.end)
+		share.value = pendingShare(attempt, at);
+		if (at < attempt.end)
 			share.value = withTiming(1, {
-				duration: run.end - at,
+				duration: attempt.end - at,
 				easing: Easing.linear,
 				reduceMotion: ReduceMotion.Never,
 			});
 		return () => cancelAnimation(share);
-	}, [run, share, reduced]);
+	}, [attempt, share, reduced]);
 	useEffect(() => {
-		if (reduced) share.value = pendingShare(run, now);
-	}, [reduced, run, now, share]);
+		if (reduced) share.value = pendingShare(attempt, now);
+	}, [reduced, attempt, now, share]);
 	const scaled = useAnimatedStyle(() => ({
 		transform: [{ scaleX: share.value }],
 	}));
@@ -97,7 +96,7 @@ export interface PendingBarProps extends Closed {
 // draws a `Banner` with `until`.
 export function PendingBar({ sentence, until, act: given }: PendingBarProps) {
 	const act = given && asAct(given);
-	const { end, run, now } = usePending(until);
+	const { end, attempt, now } = usePending(until);
 	const { touched } = useTouched();
 
 	const blocked = act?.blocked;
@@ -107,12 +106,12 @@ export function PendingBar({ sentence, until, act: given }: PendingBarProps) {
 		<View className={PENDING_BAR}>
 			<View className={PENDING_ROW}>
 				<View className={cn(PENDING_TRACK, TRACK)}>
-					{end === undefined || run === undefined ? (
+					{end === undefined || attempt === undefined ? (
 						<Ink.Provider value="ink-meta">
 							<Spinner />
 						</Ink.Provider>
 					) : (
-						<Fill run={run} now={now} />
+						<Fill attempt={attempt} now={now} />
 					)}
 					<RNText
 						numberOfLines={1}

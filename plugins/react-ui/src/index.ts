@@ -13,7 +13,7 @@ import { type PreviewGlobal, screens } from "@fcalell/plugin-screens";
 import { vite } from "@fcalell/plugin-vite";
 import { deriveTheme } from "@fcalell/ui-core/derive";
 import { uiCoreGuide } from "@fcalell/ui-core/manifest";
-import { LOADING_SLOTS } from "@fcalell/ui-core/tokens";
+import { LOADING_REGIONS } from "@fcalell/ui-core/tokens";
 import { aggregateAppCss } from "./node/codegen.ts";
 import { defaultFonts, type FontEntry } from "./node/fonts.ts";
 import { lintPlugins } from "./node/lint.ts";
@@ -241,7 +241,7 @@ export const reactUi = plugin("react-ui", {
 				self.slots.resolvedTheme,
 			);
 			// The slots the theme scrambles, as `data-loading-*` on the root.
-			const scrambled = LOADING_SLOTS.filter(
+			const scrambled = LOADING_REGIONS.filter(
 				(slot) => loading[slot] === "scramble",
 			);
 			const args: TsExpression[] = [
@@ -352,12 +352,12 @@ export const reactUi = plugin("react-ui", {
 			};
 		}),
 
-		// The app's mark: docs/architecture/plugins/react-ui.md, "App mark".
+		// The app's lockup: docs/architecture/plugins/react-ui.md, "App lockup".
 		react.slots.providers.contribute(
 			async (ctx): Promise<ProviderSpec | undefined> => {
 				const icon = await ctx.resolve(react.slots.icon);
 				if (icon === null) return undefined;
-				const mark = {
+				const lockup = {
 					src: icon.light,
 					...(icon.dark === undefined ? {} : { dark: icon.dark }),
 					...(icon.logo === undefined
@@ -373,13 +373,13 @@ export const reactUi = plugin("react-ui", {
 				return {
 					imports: [
 						{
-							source: "@fcalell/plugin-react-ui/lib/mark",
-							named: ["MarkProvider"],
+							source: "@fcalell/plugin-react-ui/lib/lockup",
+							named: ["LockupProvider"],
 						},
 					],
 					wrap: {
-						identifier: "MarkProvider",
-						props: Object.entries(literalToProps({ mark })).map(
+						identifier: "LockupProvider",
+						props: Object.entries(literalToProps({ lockup })).map(
 							([name, value]) => ({ name, value }),
 						),
 					},

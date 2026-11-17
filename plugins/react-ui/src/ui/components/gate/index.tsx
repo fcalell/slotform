@@ -18,10 +18,10 @@ import { Children, type ReactNode, use, useId, useState } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
+import { PageTitle } from "../../lib/container.ts";
 import { focusFirst } from "../../lib/focus.ts";
-import { PageTitle } from "../../lib/frame.ts";
 import { HeadingContext } from "../../lib/heading.ts";
-import { Lockup, useMark } from "../../lib/mark.tsx";
+import { Lockup, useLockup } from "../../lib/lockup.tsx";
 import { DistanceContext } from "../../lib/media.ts";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { GATE_CENTRED } from "../../lib/walk-classes.ts";
@@ -29,19 +29,19 @@ import { Scroller, useScroller } from "../../lib/window.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import { FormRows, FormShell, useFormBar } from "../form/base.tsx";
 import { type FormProps, useDerivedForm } from "../form/index.tsx";
-import { FrameHost, FrameMain } from "../shell/host.tsx";
+import { ContainerHost, ContainerMain } from "../shell/host.tsx";
 import { StepCount } from "../step-count/index.tsx";
 
 // The frame fills the viewport and the page inside scrolls itself, as the
-// Shell's does, so the toasts stand at the viewport's foot. Inside a `Place`
+// Shell's does, so the toasts stand at the viewport's foot. Inside a `Panes`
 // (a room's, whose set it then draws at) it grows across the place's row,
 // which would otherwise hold it at its content's width.
-const FRAME = "flex flex-col grow min-w-0 h-dvh overflow-hidden";
+const BOX = "flex flex-col grow min-w-0 h-dvh overflow-hidden";
 // The column stands in the page's middle while it fits: an auto margin, never
 // `justify-center`, which clips the top of a column taller than the page, so
 // it scrolls from its top instead, with a tab stop of its own while it scrolls
 // and holds nothing a keyboard reaches (`useScrolls`). On touch the step
-// stands at the top, for the keyboard; in a room Place there is no keyboard,
+// stands at the top, for the keyboard; in a room Panes there is no keyboard,
 // and the step stands in the middle of the screen, as a lock screen's does.
 const PAGE =
 	"flex flex-col items-center grow min-h-0 overflow-y-auto focus-visible:-outline-offset-2";
@@ -128,7 +128,7 @@ function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
 	);
 }
 
-/** A root frame for a page outside the shell (sign-in, a consent step): one centred column at the `auth` width on the surface. The step is one stack, one fields gap between each part: the app's mark when the app has an icon (its icon at the avatar's size beside its name; a drawn `react({ logo })` lockup stands 40 px tall at every density), the `StepCount`, the title, the description, the `banner` (a verdict stands with the content it is about, so an act's result lands beside the act, not above the page), the body, the `form` (its fields a card, its bar after it) and the `acts`, each bar laid out by the column's width as every `ActionBar` is, so at the auth width its acts stand across the column, the filled act on top. On touch it spans the viewport inside the page inset and the step stands at the top. The first field of a step takes focus as the page opens and as `title` changes. A step that submits something is a derived `form` over the step's procedure; a step with local state only draws its controls in its body. It hosts `toast()` and `confirm()` as the `Shell` does, and its body's `Section`s title a level under the `h1`. Inside a room `Place` (`<Place distance="room"><Gate … /></Place>`, a TV's signed-out or failed page) it fills the place and draws at the room set. A first run is a titled Gate whose `acts` are its acts. It draws no word of its own. */
+/** A root frame for a page outside the shell (sign-in, a consent step): one centred column at the `auth` width on the surface. The step is one stack, one fields gap between each part: the app's lockup when the app has an icon (its icon at the avatar's size beside its name; a drawn `react({ logo })` lockup stands 40 px tall at every density), the `StepCount`, the title, the description, the `banner` (a verdict stands with the content it is about, so an act's result lands beside the act, not above the page), the body, the `form` (its fields a card, its bar after it) and the `acts`, each bar laid out by the column's width as every `ActionBar` is, so at the auth width its acts stand across the column, the filled act on top. On touch it spans the viewport inside the page inset and the step stands at the top. The first field of a step takes focus as the page opens and as `title` changes. A step that submits something is a derived `form` over the step's procedure; a step with local state only draws its controls in its body. It hosts `toast()` and `confirm()` as the `Shell` does, and its body's `Section`s title a level under the `h1`. Inside a room `Panes` (`<Panes distance="room"><Gate … /></Panes>`, a TV's signed-out or failed page) it fills the place and draws at the room set. A first run is a titled Gate whose `acts` are its acts. It draws no word of its own. */
 export function Gate<P extends ProcedureCall = AnyCall>({
 	title,
 	description,
@@ -138,7 +138,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 	form,
 	children,
 }: GateProps<P>) {
-	const mark = useMark();
+	const lockup = useLockup();
 	const far = use(DistanceContext);
 	const titleId = useId();
 	// The step the page opened with arrives with the page.
@@ -146,19 +146,19 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 	const scroll = useScroller();
 	useScrolls(scroll.node);
 	return (
-		<FrameHost>
+		<ContainerHost>
 			<PageTitle value={titleId}>
 				<HeadingContext value={2}>
-					<div className={FRAME}>
-						<FrameMain>
+					<div className={BOX}>
+						<ContainerMain>
 							<div ref={scroll.ref} className={cn(GATE, PAGE)}>
 								<Scroller value={scroll}>
 									<div
 										className={cn(GATE_COLUMN, COLUMN, !far && COLUMN_TOUCH)}
 									>
 										<GateStep key={title} fresh={title !== opened}>
-											{mark ? (
-												<Lockup mark={mark} className={GATE_MARK_ROW} />
+											{lockup ? (
+												<Lockup lockup={lockup} className={GATE_MARK_ROW} />
 											) : null}
 											{step ? <StepCount at={step.at} of={step.of} /> : null}
 											<h1 id={titleId} className={text({ role: "title" })}>
@@ -177,10 +177,10 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 									</div>
 								</Scroller>
 							</div>
-						</FrameMain>
+						</ContainerMain>
 					</div>
 				</HeadingContext>
 			</PageTitle>
-		</FrameHost>
+		</ContainerHost>
 	);
 }

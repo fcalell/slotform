@@ -234,7 +234,7 @@ its failure draws nowhere and the leaf stays painted.
 
 One walk of the page's elements at each width, after the resize settles, reads what is drawn against
 the contract's values: the page's own computed `--spacing-*`, `--text-*` and `--radius-*` at the
-density it is in (inside a `Place` that declares a `room` distance, the room's own values). It reports
+density it is in (inside a `Panes` that declares a `room` distance, the room's own values). It reports
 a finding as `rule: element measured X, expected Y; fix: how`.
 
 | Rule | A finding is |
@@ -298,7 +298,7 @@ exports serve, reruns every screen: it reaches no screen's module graph.
 | A colour, an ink or a surface; no token, theme or layout change | `--mode light` (or the app's default mode) |
 | Something behind one width variant (`touch:`, `page-tablet:`, a breakpoint) | that width: `--width 320` for `touch:`, `--width 1280,1920` for a `desktop:` or `wide:` |
 | A new screen | all its states, the default look: `--screen <it> --mode dark --width 320,1920` |
-| ui-core's tokens or theme, the app's CSS, a frame component (Shell, Place, Pane, Section) or a dependency bump | the screens you are working on, `--screen a,b`; never every screen as a gate |
+| ui-core's tokens or theme, the app's CSS, a frame component (Shell, Panes, Pane, Section) or a dependency bump | the screens you are working on, `--screen a,b`; never every screen as a gate |
 
 Combine the rows: a loading change on one screen's touch tree is
 `stack screens test --screen deploys --state loading --width 320 --mode light`.

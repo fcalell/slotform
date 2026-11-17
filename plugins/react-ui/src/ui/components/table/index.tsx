@@ -3,7 +3,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import type {
 	CellValue,
 	ChangeKind,
-	ChoiceSlots,
+	ChoiceRegions,
 	Dragged,
 	DragSource,
 	Fact,
@@ -14,7 +14,7 @@ import type {
 	TableChoice,
 	TableColumn,
 	TablePick,
-	TableRowSlots,
+	TableRowRegions,
 } from "@fcalell/ui-core/descriptors";
 import { stepOf } from "@fcalell/ui-core/drag";
 import { formatterFor } from "@fcalell/ui-core/format";
@@ -103,14 +103,23 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { ChipBase } from "../../atoms/chip/base.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
+import { LockMark } from "../../atoms/row/lock.tsx";
+import { WarningMark } from "../../atoms/row/marks.tsx";
+import { SheetCard } from "../../atoms/section/card.tsx";
+import { StatusBase } from "../../atoms/status/base.tsx";
+import { ChangeMark } from "../../atoms/status/change.tsx";
+import { HeldCheckbox } from "../../atoms/switch/checkbox.tsx";
+import { Turn } from "../../atoms/turn.tsx";
 import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import { age, ageWidest } from "../../lib/age.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useColumns } from "../../lib/columns.ts";
+import { PageTitle } from "../../lib/container.ts";
 import { draggedLabel, press, useDrop, useOffers } from "../../lib/drag.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import type { CellFit } from "../../lib/field.ts";
-import { PageTitle } from "../../lib/frame.ts";
 import { useTouch } from "../../lib/media.ts";
 import { MoreRow } from "../../lib/more.tsx";
 import { follow, navigate } from "../../lib/navigate.ts";
@@ -126,15 +135,6 @@ import {
 } from "../../lib/reorder.ts";
 import type { VarStyle } from "../../lib/style.ts";
 import { Scroller, Window } from "../../lib/window.tsx";
-import { ChipBase } from "../../parts/chip/base.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
-import { LockMark } from "../../parts/row/lock.tsx";
-import { WarningMark } from "../../parts/row/marks.tsx";
-import { SheetCard } from "../../parts/section/card.tsx";
-import { StatusBase } from "../../parts/status/base.tsx";
-import { ChangeMark } from "../../parts/status/change.tsx";
-import { HeldCheckbox } from "../../parts/switch/checkbox.tsx";
-import { Turn } from "../../parts/turn.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { HeldInput } from "../input/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
@@ -150,7 +150,7 @@ const ROOT = "flex flex-col grow";
 const FORM = "flex flex-col grow";
 // The grid is its own stacking context, so its frozen column stands over its
 // cells alone, never over a sheet.
-const FRAME = "flex flex-col isolate";
+const BOX = "flex flex-col isolate";
 // The card's edge closes the last row: it draws no hairline of its own.
 const BODY_ROWS = "[&>tr:last-child]:border-b-0";
 // On every pointer the grid stands at least as wide as its columns' floors
@@ -179,7 +179,7 @@ const SCROLLS_END = "scroll-pe-[calc(var(--spacing-target)*var(--acts))]";
 // that have one and rows that have none stand in the same places. Its icon
 // rises from the meta ink to the body ink while its row is hovered or holds
 // focus.
-const ACT_SLOT =
+const ACT_REGION =
 	"flex shrink-0 items-center justify-center w-target group-hover/row:*:text-ink-body group-focus-within/row:*:text-ink-body";
 // The icons overflow the line's box centred, so a row with acts keeps the
 // height of one without.
@@ -267,8 +267,8 @@ interface TableBase<T, Q> extends Closed {
 	items: Datum<readonly T[]> | Read<readonly T[], Q>;
 	/** The columns in order, the first the row's name, each reading its cell from the item. A header is never cut while it can wrap: it wraps between its words to a second line, and a column takes the room of its header's longest word where the short measure cannot hold it. A `chip` column with no `width` takes the room of its widest chip where the short measure cannot hold it, so a chip is never cut while a free text column has room. */
 	columns: readonly TableColumn<T>[];
-	/** The row's own slots, each read from the item: `editable` (false: its cells draw the plain value, no mark, no act, for a row that is simply not editable in place) and `locked` (the columns held read only, each drawing the lock, the hold of an open change set); `act` (the row's one icon act at its end, with its wiring) and `more` (its other acts), which draw an acts column at the grid's end and the keys on the active row (Shift+Enter runs the act, Enter too where the row opens nothing, the Context Menu key opens the menu); and `drop` (the row takes a drag, like a Shell place). */
-	row: RowSlots<T, Q>;
+	/** The row's own regions, each read from the item: `editable` (false: its cells draw the plain value, no mark, no act, for a row that is simply not editable in place) and `locked` (the columns held read only, each drawing the lock, the hold of an open change set); `act` (the row's one icon act at its end, with its wiring) and `more` (its other acts), which draw an acts column at the grid's end and the keys on the active row (Shift+Enter runs the act, Enter too where the row opens nothing, the Context Menu key opens the menu); and `drop` (the row takes a drag, like a Shell place). */
+	row: RowRegions<T, Q>;
 	/** The rows can be dragged (a press that moves; a finger after a hold) onto a `drop`: a Shell place with one, or a row of another collection. A ticked row drags every row ticked, over a pick of the query too, an unticked one itself; what it carries is `{ kind, picked }`. Each drop that accepts the kind is also an entry in the rows' more menu, so a drag is never the pointer's alone. */
 	drag?: DragSource;
 	/** What the table says in its own box when its `items` selection answers none: the `sentence` and the act that makes the first row (an act that runs, or a `{ label, href }` that goes to a route), the form a `Section`'s `empty` draws. A constant from the parent: a screen with a filter on gives the sentence for it, so the table knows nothing of filters. Without it the generic sentence stands, with no act. */
@@ -304,9 +304,9 @@ interface Edits {
 	onEdit?: (id: string, key: string, value: CellValue) => unknown;
 }
 
-/** The Table's row slots: ui-core's, whose `act` and `more` the platform widens with the `sheet` an act may open. */
-export type RowSlots<T, Q = unknown> = Omit<
-	TableRowSlots<T, Q>,
+/** The Table's row regions: ui-core's, whose `act` and `more` the platform widens with the `sheet` an act may open. */
+export type RowRegions<T, Q = unknown> = Omit<
+	TableRowRegions<T, Q>,
 	"act" | "more"
 > & {
 	act?: (item: T) => IconAct | IconLinkAct | undefined;
@@ -336,7 +336,7 @@ function editOf(
 	return column ? cellEdit(column, at === 0, edits, row) : undefined;
 }
 
-/** Where the density is desktop a grid: a header of sortable acts (the table sorts in its own state: newest or largest first, then turned over, then off) over one row per record, its leading cell the record's name (its row's change mark, when it has one, ahead of it and its warning after it); a `chip` column draws each cell on the column's `family`, or on its own where the cell returns `{ label, family }`; its columns never squeeze below the short measure (the grid stands at least `gridFloor` wide) and, when its column is narrower, the grid scrolls sideways on every pointer under its frozen leading column. Its keyboard is a cell cursor (one Tab stop, the arrows, Home and End; Enter opens the row from its leading cell or edits an editable cell, Escape leaves an edit); a press on a row opens it, a press on an editable value edits it in place, typed in an `Input`. On touch one `Row` per record (its leading cell the title, its change the row's mark, its first age trailing and a further one a fact that says its column, "Seen: 1 day ago", each status column a status badge with its tone mark, the first leading, a table with several saying their column, "Staging: Passing", as does any words value of a kind that stands in more than one column, "Observed: usd"; warning and chip the marks, the other values its facts, a value longer than a fact holds (the short measure, its label with it) said whole in the row's line instead) under the sort's pick. Over a paginated read whose procedure declares `sort` the header sorts through the read's input (the server orders the whole query, and a column the procedure does not name does not sort); over a window read under a scroller the grid is as long as the read's total, mounts the rows in view and loads the pages they stand in wherever the scrollbar lands (rows not loaded yet stand painted), and a changed query keeps the previous rows drawn until its first page lands; over a cursor read that scrolls (`VIRTUAL_FROM` rows) the next page loads as the end nears. While the `items` selection's read waits, `PAINT_ROWS` rows stand in the columns the table declares (the slots are run over the placeholder), the header constant over them, each cell painted by its column's kind and the rows inert, busy only while the read waits (a read not asked for yet stands painted and still); the touch list paints the same records as its rows. The table is a frame of its items: it draws the failed shape with Retry, the missing shape and the empty shape (its `empty`, else the generic sentence) in its own box, and the stale and paused line above its rows while it holds its read, whatever stands above it. With `choose` it ticks rows; the acts that apply to them are the Pane's `foot`, a selection bar the consumer gives (an `ActionBar` with `chosen`). On touch the rows stand on a hairline sheet like any list's, the sort's pick bare above it. */
+/** Where the density is desktop a grid: a header of sortable acts (the table sorts in its own state: newest or largest first, then turned over, then off) over one row per record, its leading cell the record's name (its row's change mark, when it has one, ahead of it and its warning after it); a `chip` column draws each cell on the column's `family`, or on its own where the cell returns `{ label, family }`; its columns never squeeze below the short measure (the grid stands at least `gridFloor` wide) and, when its column is narrower, the grid scrolls sideways on every pointer under its frozen leading column. Its keyboard is a cell cursor (one Tab stop, the arrows, Home and End; Enter opens the row from its leading cell or edits an editable cell, Escape leaves an edit); a press on a row opens it, a press on an editable value edits it in place, typed in an `Input`. On touch one `Row` per record (its leading cell the title, its change the row's mark, its first age trailing and a further one a fact that says its column, "Seen: 1 day ago", each status column a status badge with its tone mark, the first leading, a table with several saying their column, "Staging: Passing", as does any words value of a kind that stands in more than one column, "Observed: usd"; warning and chip the marks, the other values its facts, a value longer than a fact holds (the short measure, its label with it) said whole in the row's line instead) under the sort's pick. Over a paginated read whose procedure declares `sort` the header sorts through the read's input (the server orders the whole query, and a column the procedure does not name does not sort); over a window read under a scroller the grid is as long as the read's total, mounts the rows in view and loads the pages they stand in wherever the scrollbar lands (rows not loaded yet stand painted), and a changed query keeps the previous rows drawn until its first page lands; over a cursor read that scrolls (`VIRTUAL_FROM` rows) the next page loads as the end nears. While the `items` selection's read waits, `PAINT_ROWS` rows stand in the columns the table declares (the regions are run over the placeholder), the header constant over them, each cell painted by its column's kind and the rows inert, busy only while the read waits (a read not asked for yet stands painted and still); the touch list paints the same records as its rows. The table is a frame of its items: it draws the failed shape with Retry, the missing shape and the empty shape (its `empty`, else the generic sentence) in its own box, and the stale and paused line above its rows while it holds its read, whatever stands above it. With `choose` it ticks rows; the acts that apply to them are the Pane's `foot`, a chosen bar the consumer gives (an `ActionBar` with `chosen`). On touch the rows stand on a hairline sheet like any list's, the sort's pick bare above it. */
 export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 	const { selected, current, onOpen, onEdit, choose } = props;
 	const rootBox = useRef<HTMLDivElement | null>(null);
@@ -381,7 +381,7 @@ export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 	}, [visible, sorting, windowRead]);
 	// The widening of `act` and `more` by the sheet an act may open is the
 	// platform's; the records are ui-core's.
-	const slots = props.row as unknown as TableRowSlots<T, Q>;
+	const regions = props.row as unknown as TableRowRegions<T, Q>;
 	const { drawn, frame } = useCollection(items$);
 	// A window read under a scroller, in the grid: the rows stand at their
 	// places in a scroller sized to the total, and the pages the view covers load.
@@ -397,17 +397,17 @@ export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 			// waiting, so it does not narrow `drawn`.
 			(drawn.value as readonly T[]);
 	const made = painted
-		? tableRecords(loaded, columns, slots, props.choose, true)
+		? tableRecords(loaded, columns, regions, props.choose, true)
 		: virtual && view
 			? placed(
 					// A window page holds the read's rows, untyped by the port.
 					view.rows as readonly T[],
 					view.total,
 					columns,
-					slots,
+					regions,
 					props.choose,
 				)
-			: tableRecords(loaded, columns, slots, props.choose);
+			: tableRecords(loaded, columns, regions, props.choose);
 	const arranged: readonly (TableRecord | undefined)[] =
 		painted || virtual || sorting
 			? made
@@ -467,10 +467,10 @@ export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 	);
 	const blank = more
 		? tableRecords(
-				// The placeholder stands for an item; the slots are painted over it.
+				// The placeholder stands for an item; the regions are painted over it.
 				[placeholderData() as T],
 				columns,
-				slots,
+				regions,
 				props.choose,
 				true,
 			)[0]
@@ -576,8 +576,8 @@ function placed<T>(
 	rows: readonly T[],
 	total: number,
 	columns: readonly TableColumn<T>[],
-	row: TableRowSlots<T>,
-	choose: ChoiceSlots<T> | undefined,
+	row: TableRowRegions<T>,
+	choose: ChoiceRegions<T> | undefined,
 ): (TableRecord | undefined)[] {
 	const at: number[] = [];
 	const items: T[] = [];
@@ -807,10 +807,10 @@ function ActsCell(props: {
 			<div className={box}>
 				<span className={cn(ACTS_LINE, ROW_ACTS)}>
 					{props.hasAct ? (
-						<span data-act="" className={ACT_SLOT}>
+						<span data-act="" className={ACT_REGION}>
 							{row.act ? (
 								<IconActFace
-									// The record holds the act the row slot gave, the platform's.
+									// The record holds the act the row region gave, the platform's.
 									act={row.act as IconAct | IconLinkAct}
 									tabIndex={-1}
 								/>
@@ -818,7 +818,7 @@ function ActsCell(props: {
 						</span>
 					) : null}
 					{props.menu ? (
-						<span data-more="" className={ACT_SLOT}>
+						<span data-more="" className={ACT_REGION}>
 							{items.length ? (
 								<MenuBase
 									label={`${words.more} ${props.name}`}
@@ -1334,7 +1334,7 @@ function Grid(props: {
 				ref={frame}
 				className={cn(
 					CARD,
-					FRAME,
+					BOX,
 					chooser ? SCROLLS_TICKED : SCROLLS,
 					acting && SCROLLS_END,
 				)}
@@ -1505,7 +1505,7 @@ function MorePage(props: {
 	return (
 		<div
 			aria-hidden
-			className={cn(CARD, FRAME, props.choosing ? SCROLLS_TICKED : SCROLLS)}
+			className={cn(CARD, BOX, props.choosing ? SCROLLS_TICKED : SCROLLS)}
 		>
 			<table
 				style={{
@@ -1996,15 +1996,15 @@ function Phone(props: {
 	// in the shape the loaded ones draw; a mark whose cell the placeholder does
 	// not shape (a status, a chip, an age) is given by its column instead.
 	const rowOf = (record: TableRecord, painted: boolean): RowItem => {
-		// A slot that throws on the painted record answers the record, which a
+		// A region that throws on the painted record answers the record, which a
 		// painted row reads as filler whatever `R` is.
-		const slot = <R,>(fn: (one: TableRecord) => R): R =>
+		const region = <R,>(fn: (one: TableRecord) => R): R =>
 			painted ? (painting(fn, record) as R) : fn(record);
 		// The facts in the order the row leads with them: the statuses, what is
 		// wrong, the chip, then the other values.
 		const facts: Fact[] = [];
 		for (const status of statuses) {
-			const state = slot((one) => {
+			const state = region((one) => {
 				if (painted) return { tone: "done" as const, label: "" };
 				const cellOf = cell(one, status);
 				if (!isStatusCell(cellOf)) return undefined;
@@ -2019,7 +2019,7 @@ function Phone(props: {
 		if (props.warns && record.warning !== undefined)
 			facts.push({ warning: record.warning });
 		if (chip?.kind === "chip") {
-			const kind = slot((one) => {
+			const kind = region((one) => {
 				if (painted) return { family: chip.family, label: "" };
 				return chipOf(chip, cell(one, chip));
 			});
@@ -2029,7 +2029,7 @@ function Phone(props: {
 		// row's line.
 		const long: string[] = [];
 		if (stated.length || chooser) {
-			const split = slot((one) => {
+			const split = region((one) => {
 				const parts = stated
 					.filter((column) => !isChangeCell(cell(one, column)))
 					.map((column) => {
@@ -2050,7 +2050,7 @@ function Phone(props: {
 				const split = touchFacts(parts, moved);
 				return split.facts.length || split.said.length ? split : undefined;
 			});
-			// A slot that threw over the filler is one filler fact.
+			// A region that threw over the filler is one filler fact.
 			if (isTouchSplit(split)) {
 				facts.push(...split.facts);
 				long.push(...split.said);
@@ -2080,7 +2080,7 @@ function Phone(props: {
 				: undefined;
 		return {
 			key: record.id,
-			title: slot((one) =>
+			title: region((one) =>
 				leading ? shown(leading, cell(one, leading)) : one.id,
 			),
 			// A tick draws a blocked reason itself (`Row`'s `check.blocked`);
@@ -2098,7 +2098,7 @@ function Phone(props: {
 			line: said === "" && !painted ? undefined : said,
 			// The row words its age moment and keeps it current itself.
 			trailing: ageColumn
-				? slot((one) => {
+				? region((one) => {
 						if (painted) return { age: "" };
 						const when = cell(one, ageColumn);
 						return typeof when === "string" ? { age: when } : undefined;
@@ -2109,7 +2109,7 @@ function Phone(props: {
 			// The row's act and menu, and the drag it carries and the drop it is.
 			act: painted
 				? undefined
-				: // The record holds the act the row slot gave, the platform's.
+				: // The record holds the act the row region gave, the platform's.
 					(record.act as IconAct | IconLinkAct | undefined),
 			more: painted ? undefined : record.more,
 			drag: painted

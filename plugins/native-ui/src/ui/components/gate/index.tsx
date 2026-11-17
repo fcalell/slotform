@@ -7,24 +7,24 @@ import { GATE, GATE_COLUMN, GATE_STEP, text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef, useState } from "react";
 import { Text as RNText, type TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ToastSpace } from "../../atoms/toast/space";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
+import { DistanceContext } from "../../lib/container";
 import { FieldClaim } from "../../lib/field";
-import { DistanceContext } from "../../lib/frame";
 import { Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
-import { ToastSpace } from "../../parts/toast/space";
 import { type FormProps, useDerivedForm } from "../form";
 import { FormRows, FormShell, useFormBar } from "../form/base";
-import { FrameHost } from "../shell/host";
+import { ContainerHost } from "../shell/host";
 import { StepCount } from "../step-count";
 
 // The scroll's content fills it, so the column stands in the page's top and
 // grows past the viewport when it does not fit.
 const FILL = "flex-1";
 const PAGE = "grow items-center";
-// In a room Place there is no keyboard: the step stands in the middle of the
+// In a room Panes there is no keyboard: the step stands in the middle of the
 // screen, as a lock screen's does.
 const PAGE_SPACE = "justify-center";
 // The toasts stand at the page's foot, above the home indicator.
@@ -89,7 +89,7 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 	// `title`) is a block of its own that fades in on `base`.
 	const [opened] = useState(title);
 	return (
-		<FrameHost>
+		<ContainerHost>
 			<FieldClaim.Provider value={held}>
 				<View className={FILL}>
 					<Scroll
@@ -135,6 +135,6 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 					</View>
 				</View>
 			</FieldClaim.Provider>
-		</FrameHost>
+		</ContainerHost>
 	);
 }

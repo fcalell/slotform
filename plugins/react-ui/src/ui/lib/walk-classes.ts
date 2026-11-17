@@ -1,7 +1,7 @@
 // The class lists the walk's exceptions name: docs/architecture/plugins/screens.md, "Render walk exceptions".
 
 /** An image that opens: a button sized by its picture. */
-export const IMAGE_FRAME = "block relative shrink-0 overflow-hidden";
+export const IMAGE_BOX = "block relative shrink-0 overflow-hidden";
 
 /** A modal Sheet's overlay: the viewport, over the scrim. */
 export const SHEET_BACKDROP = "fixed inset-0 z-(--layer-sheet)";

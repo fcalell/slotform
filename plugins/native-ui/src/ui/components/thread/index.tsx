@@ -33,14 +33,14 @@ import {
 	useState,
 } from "react";
 import { Platform, ScrollView, View } from "react-native";
+import { WaitingReply } from "../../atoms/message/waiting";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
+import { FootReturn, useFootRegion } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
-import { FootReturn, useFootRegion } from "../../lib/frame";
 import { Lifted } from "../../lib/hosts";
 import { FadingView, streamIn } from "../../lib/motion";
 import { FrameBody, FrameLine, StateLine } from "../../lib/read";
-import { WaitingReply } from "../../parts/message/waiting";
 import { MessageBase } from "../message/base";
 import { MessageInput, type MessageInputProps } from "../message-input";
 import type { SheetProps } from "../sheet";
@@ -73,9 +73,9 @@ const INVERTED =
 		? { transform: [{ scale: -1 }] }
 		: { transform: [{ scaleY: -1 }] };
 
-// One function per `Message` slot, each called with a loaded item and reading
+// One function per `Message` region, each called with a loaded item and reading
 // only it: a message draws again only when its item changes.
-export interface MessageSlots<T> {
+export interface MessageRegions<T> {
 	// The item's React key, unique in the thread.
 	key: (item: T) => string;
 	author: (item: T) => "you" | "other" | "system";
@@ -117,7 +117,7 @@ export type ThreadProps<
 > = Closed & {
 	/** The items the messages draw, oldest first: constants, or a selection, which paints two turns until its read lands, an ask of yours over the other author's reply (`PAINT_TURNS`). A selection stands in a frame (a Pane, Section, Sheet or Form given the read), which draws the thread's failed, missing and empty shapes. */
 	items: Datum<readonly T[]>;
-	message: MessageSlots<T>;
+	message: MessageRegions<T>;
 	/** The input under the messages, where a message is written and sent: what is written, its attachments, the notice under it, and the sending and stopping of an answer. */
 	composer?: ComposerProps;
 	/** A task over the input: while it is `open` it docks in the foot in the input's place, the log keeping two rows above it, and closing hands focus back to the input. */
@@ -132,24 +132,24 @@ export type ThreadProps<
 
 // One message from its item, its Message by its author: a system line takes
 // `onOpen` and `detail`, a turn takes `name`. It renders again only when its
-// item does: every slot reads the item, and a system line's acts call the
-// thread's latest slots when pressed, so a thread's re-render (a keystroke in
+// item does: every region reads the item, and a system line's acts call the
+// thread's latest regions when pressed, so a thread's re-render (a keystroke in
 // its input, a message arriving) skips every message already drawn.
 function ThreadItemBase<T>({
 	item,
-	slots,
+	regions,
 	streaming,
 	unstamped,
 }: {
 	item: T;
-	slots: RefObject<MessageSlots<T>>;
-	// The reply turn's own, which overrides the slot.
+	regions: RefObject<MessageRegions<T>>;
+	// The reply turn's own, which overrides the region.
 	streaming?: boolean;
 	// The turn before it is its author's in the same minute: its time is not
 	// stamped again (`stampsTime`).
 	unstamped?: boolean;
 }) {
-	const read = slots.current;
+	const read = regions.current;
 	const author = read.author(item);
 	const body = read.body(item);
 	const at = unstamped ? undefined : read.at?.(item);
@@ -174,7 +174,7 @@ function ThreadItemBase<T>({
 		detail = {
 			row: {
 				...row,
-				onOpen: () => slots.current.detail?.(item)?.row?.onOpen?.(),
+				onOpen: () => regions.current.detail?.(item)?.row?.onOpen?.(),
 			},
 		};
 	return (
@@ -182,7 +182,7 @@ function ThreadItemBase<T>({
 			author="system"
 			body={body}
 			at={at}
-			onOpen={opens ? () => slots.current.onOpen?.(item)?.() : undefined}
+			onOpen={opens ? () => regions.current.onOpen?.(item)?.() : undefined}
 			detail={detail}
 		/>
 	);
@@ -204,12 +204,12 @@ const ThreadItem = memo(
 // would otherwise refetch on each mount and loop.
 function ReplyTurn<T>(props: {
 	reply: Selection<T | null | undefined>;
-	slots: RefObject<MessageSlots<T>>;
+	regions: RefObject<MessageRegions<T>>;
 	after: string | undefined;
 	// The items are painted, not here: no turn stands among painted messages.
 	painted: boolean;
 }) {
-	const { reply, slots, after, painted } = props;
+	const { reply, regions, after, painted } = props;
 	const words = useWords();
 	const {
 		state: { form, value },
@@ -224,7 +224,7 @@ function ReplyTurn<T>(props: {
 	// comes back untyped: it is the `reply`'s `T`.
 	const item = value as T | null | undefined;
 	// History holds the turn already: it draws it, so this one steps aside.
-	if (item != null && slots.current.key(item) === after) return null;
+	if (item != null && regions.current.key(item) === after) return null;
 	// Its own cell in the log, upside down like the others and drawn only when
 	// there is a turn, so a thread with none leaves no gap at its end; the
 	// message and its line keep the thread's gap inside it.
@@ -236,7 +236,11 @@ function ReplyTurn<T>(props: {
 				</FadingView>
 			) : null}
 			{item == null ? null : (
-				<ThreadItem item={item} slots={slots} streaming={form === "writing"} />
+				<ThreadItem
+					item={item}
+					regions={regions}
+					streaming={form === "writing"}
+				/>
 			)}
 			{form === "stopped" || form === "failed" ? (
 				<StateLine
@@ -254,7 +258,7 @@ function ReplyTurn<T>(props: {
 function logOf<T>(
 	props: Omit<ThreadProps<T>, "sheet">,
 	drawn: Drawn<readonly T[]>,
-	slots: RefObject<MessageSlots<T>>,
+	regions: RefObject<MessageRegions<T>>,
 ): ReactElement[] {
 	if (drawn.painted)
 		return PAINT_TURNS.map((author, at) => (
@@ -277,7 +281,7 @@ function logOf<T>(
 			<ThreadItem
 				key={props.message.key(item)}
 				item={item}
-				slots={slots}
+				regions={regions}
 				unstamped={!stampsTime(turn(item), before && turn(before))}
 			/>
 		);
@@ -293,10 +297,10 @@ export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 ) {
 	const { sheet } = props;
 	const { drawn, frame } = useCollection(props.items);
-	// The latest slots, which each drawn message reads when its item changes
+	// The latest regions, which each drawn message reads when its item changes
 	// and its acts call when pressed.
-	const slots = useRef(props.message);
-	slots.current = props.message;
+	const regions = useRef(props.message);
+	regions.current = props.message;
 	// The claim a docked sheet leaves the foot for the input that returns.
 	const claim = useRef(false);
 	const region = useFootRegion(true);
@@ -315,7 +319,7 @@ export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 			<View className={REGION}>
 				<FrameHolds holds={frame.held}>
 					<FrameLine frame={frame} />
-					<Log thread={props} drawn={drawn} frame={frame} slots={slots} />
+					<Log thread={props} drawn={drawn} frame={frame} regions={regions} />
 				</FrameHolds>
 			</View>
 			{foot ? (
@@ -336,11 +340,11 @@ function Log<T>(props: {
 	thread: Omit<ThreadProps<T>, "sheet">;
 	drawn: Drawn<readonly T[]>;
 	frame: Frame;
-	slots: RefObject<MessageSlots<T>>;
+	regions: RefObject<MessageRegions<T>>;
 }) {
-	const { thread, drawn, frame, slots } = props;
+	const { thread, drawn, frame, regions } = props;
 	const ended = isEnded(frame.shape);
-	const children = ended ? [] : logOf(thread, drawn, slots);
+	const children = ended ? [] : logOf(thread, drawn, regions);
 	// The messages that came to the end of the log on their own once it was
 	// drawn rise in as they mount; what it held when first drawn does not. The
 	// waiting message is one of them, and the other author's
@@ -373,7 +377,7 @@ function Log<T>(props: {
 	const reply = thread.reply ? (
 		<ReplyTurn
 			reply={thread.reply}
-			slots={slots}
+			regions={regions}
 			painted={drawn.painted && !ended}
 			after={last === undefined ? undefined : thread.message.key(last)}
 		/>

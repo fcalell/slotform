@@ -8,12 +8,12 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, type Drawn, isEnded, lift } from "@fcalell/ui-core/read";
 import { ROW_RETRY, row } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
+import { IconButtonBase } from "../atoms/button/glyph.tsx";
+import { Icon } from "../atoms/icon/index.tsx";
+import { Spinner } from "../atoms/spinner/index.tsx";
 import { ButtonBase } from "../components/button/base.tsx";
 import { MissingBase } from "../components/missing/base.tsx";
 import { Text } from "../components/text/index.tsx";
-import { IconButtonBase } from "../parts/button/glyph.tsx";
-import { Icon } from "../parts/icon/index.tsx";
-import { Spinner } from "../parts/spinner/index.tsx";
 import type { Act } from "./act.ts";
 import { wiringOf } from "./act.ts";
 import { type Empty, EmptyBase, type EmptyFit } from "./empty.tsx";
@@ -34,7 +34,7 @@ const RETRY_GLYPH = "opacity-0 animate-act-out";
 const RETRY_SPIN =
 	"absolute inset-0 flex items-center justify-center animate-act-in";
 
-/** What a failed row draws in its value slot: the alert, in the danger ink. With a `label` it is named by it (a mark that stands where a sentence would). */
+/** What a failed row draws in its value region: the alert, in the danger ink. With a `label` it is named by it (a mark that stands where a sentence would). */
 export function FailedMark({ label }: { label?: string }) {
 	const mark = <Icon name="CircleAlert" />;
 	return label === undefined ? (

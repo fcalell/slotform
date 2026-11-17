@@ -15,6 +15,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
@@ -29,8 +30,6 @@ import {
 } from "../../lib/paint";
 import { Strut } from "../../lib/strut";
 import { Swap } from "../../lib/swap";
-
-import { Icon } from "../../parts/icon";
 
 const LIST = "min-w-0";
 const ROW = "flex-row min-w-0";

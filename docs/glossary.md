@@ -191,7 +191,7 @@ to fix, and a new term enters this page in the change that introduces it.
   a consumer translates whole. [words](architecture/ui-core/words.md#words)
 - **counted word**: A word drawn with a number, in a form for one and a form for any other count.
   [words](architecture/ui-core/words.md#words)
-- **slot word**: A whole phrase with named places where values stand.
+- **blank word**: A whole phrase with named places where values stand.
   [words](architecture/ui-core/words.md#words)
 - **text run**: A piece of a part's text: plain words, a quoted name, a span of code or strong words.
   Avoid: run, on its own. [words](architecture/ui-core/words.md#text-runs)
@@ -214,16 +214,21 @@ to fix, and a new term enters this page in the change that introduces it.
 - **Shell**: The root frame of an app's signed-in pages: the sidebar on the desktop, the tab bar on
   touch, and a column that holds the current place. [layout](architecture/ui-core/layout.md#shell)
 - **place**: A destination the Shell lists: a route with its name, icon and group, on the sidebar and
-  the tab bar. [layout](architecture/ui-core/layout.md#places)
+  the tab bar. [layout](architecture/ui-core/layout.md#paness)
 - **branch**: A place with places under it, which opens and folds in the sidebar.
-  [layout](architecture/ui-core/layout.md#places)
+  [layout](architecture/ui-core/layout.md#paness)
 - **Gate**: The root frame of a page outside the Shell (a sign-in, a consent step): one centred column
   holding the step. [layout](architecture/ui-core/layout.md#gate)
-- **Place**: What the Shell's column holds: a row of at most two Panes, the place's own and a record's.
-  [layout](architecture/ui-core/layout.md#place)
-- **Pane**: A column of the Place, the place's own or a record's: a bar, a body that scrolls and an
+- **Panes**: What the Shell's column holds: a row of at most two Panes, the place's own and a record's.
+  [layout](architecture/ui-core/layout.md#panes)
+- **region**: A part of a component that a prop fills, such as a table row's `id`, `href` and `change`
+  or a glyph region the theme paints. Avoid: slot, which is a plugin graph term.
+  [roster](architecture/ui-core/roster.md)
+- **lockup**: The app's icon, name and drawn logo, which the Shell and the Gate draw from one
+  provider. [react-ui](architecture/plugins/react-ui.md#app-lockup)
+- **Pane**: A column of the Panes, the place's own or a record's: a bar, a body that scrolls and an
   optional foot. [layout](architecture/ui-core/layout.md#pane)
-- **foot**: The region docked under a body: a Pane's field, selection bar or docked sheet, or the
+- **foot**: The region docked under a body: a Pane's field, chosen bar or docked sheet, or the
   Shell's dock. [layout](architecture/ui-core/layout.md#foot)
 - **Sheet**: A layer that holds a task (a form, a decision, an acknowledgement); a record is read in
   its Pane, never in a Sheet. Avoid: modal, dialog. [layout](architecture/ui-core/layout.md#sheet)
@@ -237,7 +242,7 @@ to fix, and a new term enters this page in the change that introduces it.
   and a column follows for each compared thing. [components](architecture/ui-core/components.md#cells-and-columns)
 - **level**: A chart figure that swings around a value (a reading each hour, a share), drawn on an
   axis around its readings, never from zero. [components](architecture/ui-core/components.md#axis)
-- **row**: One box on a sheet, whatever it holds, with one form everywhere: a leading slot, a text
+- **row**: One box on a sheet, whatever it holds, with one form everywhere: a leading region, a text
   group and an end group. A row is a descriptor, never a component. [layout](architecture/ui-core/layout.md#rows)
 - **text group**: The title or label of a row over its description or facts line.
   [layout](architecture/ui-core/layout.md#text-group-and-end-group)
@@ -288,9 +293,10 @@ to fix, and a new term enters this page in the change that introduces it.
 
 ### Acts
 
-- **act**: A press that starts a run: a labelled act, an icon act or a link act, given as data with
+- **act**: A press that starts an attempt: a labelled act, an icon act or a link act, given as data with
   what happens around it. [acts](architecture/ui-core/acts.md#act-model)
-- **run**: The work an act starts, from its press until what it returned settles.
+- **attempt**: The work an act starts, from its press until what it returned settles. Avoid: run, which
+  is a piece of text.
   [acts](architecture/ui-core/acts.md#act-model)
 - **link act**: An act that goes to a route and runs nothing, so it never pends.
   [acts](architecture/ui-core/acts.md#link-acts)
@@ -298,7 +304,7 @@ to fix, and a new term enters this page in the change that introduces it.
   [acts](architecture/ui-core/acts.md#act-press)
 - **inert**: Drawn in its disabled form and ignoring the press, while still focusable.
   [acts](architecture/ui-core/acts.md#act-model)
-- **pending**: An act whose run has not settled. [acts](architecture/ui-core/acts.md#blocked-and-pending-acts)
+- **pending**: An act whose attempt has not settled. [acts](architecture/ui-core/acts.md#blocked-and-pending-acts)
 - **blocked**: An act that cannot run, with a reason it shows once pressed or once its form is touched.
   [acts](architecture/ui-core/acts.md#blocked-and-pending-acts)
 - **reason host**: A component that keeps its row still and draws a blocked act's reason on a line of

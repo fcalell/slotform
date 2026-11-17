@@ -12,8 +12,8 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode, RefObject } from "react";
 import { useRef } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { CHIP_LINES } from "../../lib/chip-lines.ts";
-import { Icon } from "../../parts/icon/index.tsx";
 import { Chip } from "../chip/index.tsx";
 import { Image } from "../image/index.tsx";
 

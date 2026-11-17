@@ -7,8 +7,8 @@ import {
 	LINK_TARGET,
 	text,
 } from "@fcalell/ui-core/variants";
+import { ButtonLink } from "../../atoms/button/link.tsx";
 import { Painted } from "../../lib/paint.tsx";
-import { ButtonLink } from "../../parts/button/link.tsx";
 
 const COUNTS = "flex flex-wrap";
 const PAINTED = "flex items-center";

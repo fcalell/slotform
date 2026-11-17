@@ -73,7 +73,7 @@ function PressableBreathing({
 }
 
 /**
- * The root `Text` of a slot that holds `Painted` fillers: docs/architecture/ui-core/reads.md, "One breath".
+ * The root `Text` of a region that holds `Painted` fillers: docs/architecture/ui-core/reads.md, "One breath".
  */
 export function PaintText({
 	painted,
@@ -96,7 +96,7 @@ function TextBreathing({
 	return <BreathingText {...props} style={[style, breath]} />;
 }
 
-/** A text slot's paint, set inside the slot's own `PaintText`: each line a bar, or, where the theme scrambles the slot's kind (`theme.loading`) and the slot is one line, the scramble in the text's own ink. */
+/** A text region's paint, set inside the region's own `PaintText`: each line a bar, or, where the theme scrambles the region's kind (`theme.loading`) and the region is one line, the scramble in the text's own ink. */
 export function Painted({ role, at = 0 }: { role: PaintRole; at?: number }) {
 	if (scramblesNow(role)) return <ScrambledText role={role} at={at} />;
 	return (

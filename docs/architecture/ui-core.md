@@ -24,7 +24,7 @@ reads its descriptors (a server) installs neither React nor Lucide.
 - [Words](ui-core/words.md): the words, counted and slotted words, the formatters and the text runs.
 - [Roster](ui-core/roster.md): the canon, the roster, the matrices, class sets and variants, the shared
   shapes of statuses, chips, facts and marks, and `DESIGN.md`.
-- [Layout](ui-core/layout.md): Shell, Place, Pane, Section, rows, the overflow rules, headings, cards and
+- [Layout](ui-core/layout.md): Shell, Panes, Pane, Section, rows, the overflow rules, headings, cards and
   the rows grid.
 - [Reads](ui-core/reads.md): the read model, frames, holds, paint and waiting shapes, and the port.
 - [Acts](ui-core/acts.md): acts, saves, forms, confirm, leave, reasons, fields and commit.
@@ -96,7 +96,7 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
   react-ui's Switch and its checkbox tick render a native `<button>` (`nativeButton`), and a disabled
   one carries `disabled` and `data-disabled`, never `aria-disabled`.
 - The native toasts' layer stands over a box measured against the frame's root (`ToastSpace`,
-  `ToastFrame`) and follows a growing input a layout late.
+  `ToastContainer`) and follows a growing input a layout late.
 - An `Image`'s full view takes no pinch-zoom or pan.
 - A product cannot draw in the platform font: `fonts.sans` unset is IBM Plex Sans.
 - Table's `hyphens-auto` is unverified: the headless Chrome `stack screens` drives ships no

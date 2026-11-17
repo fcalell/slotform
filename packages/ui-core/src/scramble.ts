@@ -1,11 +1,11 @@
 // The scramble, free of any framework: docs/architecture/ui-core/motion.md, "Scramble and decode".
 
 import { createStore } from "./store.ts";
-import type { LoadingSlot } from "./tokens.ts";
+import type { LoadingRegion } from "./tokens.ts";
 
 // The characters each kind cycles through, Latin whatever the data's script:
 // the scramble never meets the loaded string.
-const CLASSES: Record<LoadingSlot, string> = {
+const CLASSES: Record<LoadingRegion, string> = {
 	text: "abcdefghijklmnopqrstuvwxyz",
 	figure: "0123456789",
 	id: "0123456789abcdef",
@@ -15,7 +15,7 @@ const DIGIT = /\p{Nd}/u;
 const LETTER = /\p{L}/u;
 
 // A small integer hash of three numbers (an xorshift-multiply mix), so a
-// place's cadence and its characters are the same for the same slot.
+// place's cadence and its characters are the same for the same region.
 function mix(a: number, b: number, c: number): number {
 	let h = Math.imul(a | 0, 0x9e3779b1) ^ Math.imul(b | 0, 0x85ebca6b);
 	h ^= Math.imul(c | 0, 0xc2b2ae35);
@@ -27,7 +27,7 @@ function mix(a: number, b: number, c: number): number {
 	return h >>> 0;
 }
 
-// A seed from a slot's identity (a React id, a key), so two slots of one role
+// A seed from a region's identity (a React id, a key), so two regions of one role
 // do not shimmer in step.
 export function seedOf(id: string): number {
 	let seed = 0;
@@ -39,7 +39,7 @@ export function seedOf(id: string): number {
 // The shortest and longest a place holds a character, in ticks.
 const CADENCE = { min: 1, max: 2.5 } as const;
 
-// How many ticks place `at` of the slot `seed` holds each of its characters:
+// How many ticks place `at` of the region `seed` holds each of its characters:
 // from `CADENCE.min` to `CADENCE.max`.
 function cadence(seed: number, at: number): number {
 	return (
@@ -50,7 +50,7 @@ function cadence(seed: number, at: number): number {
 // The character of a place at a tick: its own epoch (a tick shifted by the
 // place's phase, over its cadence) picks it from the class.
 function pick(
-	kind: LoadingSlot,
+	kind: LoadingRegion,
 	seed: number,
 	at: number,
 	tick: number,
@@ -70,7 +70,7 @@ function pick(
 // unit, a prefix) stand still. It is `shape` long, so the box it fills is the
 // filler's.
 export function frame(
-	kind: LoadingSlot,
+	kind: LoadingRegion,
 	shape: string,
 	tick: number,
 	seed = 0,
@@ -96,7 +96,7 @@ export function lockedAt(
 // characters from the reading start (the end of a right-to-left run), the rest
 // a scramble of the same kind continuing beyond them. It is `value` long and a
 // tabular or mono face gives every glyph one advance, so nothing after the
-// slot moves while it plays; a character that is no letter or digit is the
+// region moves while it plays; a character that is no letter or digit is the
 // value's own.
 export function decode(
 	value: string,
@@ -150,7 +150,7 @@ export interface Ticker {
 }
 
 // A ticker over `interval()` ms, read at every step so a tuned `tick` reaches
-// the next one. One timer runs however many slots listen: twenty scrambles
+// the next one. One timer runs however many regions listen: twenty scrambles
 // cost one.
 export function createTicker(interval: () => number): Ticker {
 	let handle: ReturnType<typeof setTimeout> | undefined;

@@ -13,7 +13,7 @@ import { diffWords } from "diff";
 import { Fragment, type ReactNode, useMemo } from "react";
 import { Painted } from "../../lib/paint.tsx";
 
-const FRAME = "flex flex-col shrink-0 min-w-0 overflow-hidden";
+const BOX = "flex flex-col shrink-0 min-w-0 overflow-hidden";
 // The text keeps its line breaks, so a text of lines (a prompt, a list of
 // steps) compares line by line; runs of spaces still collapse. A native text
 // keeps them on its own.
@@ -77,7 +77,7 @@ export function WordDiff(props: {
 	}, [from.painted, to.painted, from.value, to.value]);
 	if (painted)
 		return (
-			<div inert className={cn(CARD, FRAME)}>
+			<div inert className={cn(CARD, BOX)}>
 				<div className={PROSE_DIFF_BODY}>
 					<p className={cn(text({ role: "body" }), PROSE_DIFF_TEXT)}>
 						{Array.from({ length: PAINT_ROWS }, (_, at) => (
@@ -94,7 +94,7 @@ export function WordDiff(props: {
 	if (ended) return null;
 	return (
 		// biome-ignore lint/a11y/useSemanticElements: a card holding one paragraph, no form group
-		<div role="group" aria-label={label} className={cn(CARD, FRAME)}>
+		<div role="group" aria-label={label} className={cn(CARD, BOX)}>
 			<div className={PROSE_DIFF_BODY}>
 				<p className={cn(text({ role: "body" }), PROSE_DIFF_TEXT, LINES)}>
 					{runs}

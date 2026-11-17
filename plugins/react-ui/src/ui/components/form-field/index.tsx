@@ -47,14 +47,14 @@ import {
 	textStrong,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useEffect, useId, useMemo, useRef } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
+import { ChangeMark } from "../../atoms/status/change.tsx";
+import type { CheckboxProps } from "../../atoms/switch/checkbox.tsx";
+import { CheckboxBase } from "../../atoms/switch/checkbox.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
 import { type FieldedKey, GroupName } from "../../lib/field.ts";
 import { focusFirst } from "../../lib/focus.ts";
-import { Icon } from "../../parts/icon/index.tsx";
-import { ChangeMark } from "../../parts/status/change.tsx";
-import type { CheckboxProps } from "../../parts/switch/checkbox.tsx";
-import { CheckboxBase } from "../../parts/switch/checkbox.tsx";
 import { Button } from "../button/index.tsx";
 import { InputBase } from "../input/base.tsx";
 import type { ProseProps, TextInputProps } from "../input/index.tsx";

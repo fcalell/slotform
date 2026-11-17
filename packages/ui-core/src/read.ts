@@ -506,7 +506,7 @@ const S: any = new Proxy(() => S, {
 // One item as a list selection draws it, for the waiting shape: the
 // selection's pick run over the sample, a record whose lists hold one record,
 // so a selector that maps each record (`list.map(toRow)`, a group's rows found
-// first or not) gives the slots a loaded item fills (a leading mark, a
+// first or not) gives the regions a loaded item fills (a leading mark, a
 // trailing value), each value it took from the record the empty string.
 // Undefined where the selection reads more than one read, its selector throws
 // over the sample, or it gives no list of one item.
@@ -527,7 +527,7 @@ export function sampleOf<T>(
 }
 
 // A sample's placeholder values as the empty string, through its plain objects
-// and arrays: a slot that is there, with nothing in it.
+// and arrays: a region that is there, with nothing in it.
 function slotted(v: unknown): unknown {
 	if (isStandIn(v)) return "";
 	if (Array.isArray(v)) return v.map(slotted);
@@ -755,7 +755,7 @@ export function planSelections(values: readonly unknown[]): {
 					phaseOf(inputs[k] as ReadAnswer, p.reads[k] as Read<unknown>),
 				);
 				const ended = phases.find(isEnded);
-				// A waiting slot picks over the placeholder where a read has no data,
+				// A waiting region picks over the placeholder where a read has no data,
 				// so a selector walks P and never meets `undefined`; a combine keeps
 				// the real data of its other reads.
 				return {

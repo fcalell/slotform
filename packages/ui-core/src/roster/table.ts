@@ -15,7 +15,7 @@ import { ANSWER, build, matrix, PRESS } from "./shared.ts";
 
 // The table: docs/architecture/ui-core/components.md, "Table".
 export const tableEntry: RosterEntry = {
-	// Web-only props and slots: docs/architecture/ui-core.md, "Limits".
+	// Web-only props and regions: docs/architecture/ui-core.md, "Limits".
 	props: [
 		"columns",
 		"items",
@@ -202,8 +202,8 @@ export type TableCell =
 // What a table says of a row beside its tick: `blocked` the reason a row
 // cannot be ticked and `moved` the reason a rule moved its tick; each reason is
 // a short phrase under the row's leading cell, truncating. What the rows are
-// called in the count is the selection bar's (`ChosenCount`'s `noun`).
-export interface ChoiceSlots<T> {
+// called in the count is the chosen bar's (`ChosenCount`'s `noun`).
+export interface ChoiceRegions<T> {
 	blocked?: (item: T) => string | undefined;
 	moved?: (item: T) => string | undefined;
 }
@@ -211,7 +211,7 @@ export interface ChoiceSlots<T> {
 // The rows a table chooses, controlled: `chosen` the ids ticked and
 // `onChange` hearing the set the viewer's tick or the head tick makes, which
 // the consumer applies its rule to and hands back through `chosen`.
-export interface TableChoice<T> extends ChoiceSlots<T> {
+export interface TableChoice<T> extends ChoiceRegions<T> {
 	chosen: readonly string[];
 	onChange: (ids: string[]) => void;
 }
@@ -221,7 +221,7 @@ export interface TableChoice<T> extends ChoiceSlots<T> {
 // A tick on a row changes the ids (or, once the head tick chose the query, the
 // ids unticked); the head tick over a read that pages chooses the query, every
 // row it matches, loaded or not. A changed query ends a pick of the old one.
-export interface TablePick<T, Q = unknown> extends ChoiceSlots<T> {
+export interface TablePick<T, Q = unknown> extends ChoiceRegions<T> {
 	picked: Picked<Q>;
 	onPick: (picked: Picked<Q>) => void;
 }
@@ -230,7 +230,7 @@ export interface TablePick<T, Q = unknown> extends ChoiceSlots<T> {
 // number cleared.
 export type CellValue = string | number | null;
 
-// A table row's own slots, each read from the item: its id, unique in the
+// A table row's own regions, each read from the item: its id, unique in the
 // table; `href`, its leading cell's link, so it opens in a new tab; `editable`,
 // whether its cells edit in place (false: they draw the plain value, no mark
 // and no act, a row that is simply not editable); `locked`, the columns whose
@@ -240,7 +240,7 @@ export type CellValue = string | number | null;
 // sentence; the phone's row carries it as a `ListRow` warning); and `change`,
 // where the row stands in a change set, its mark ahead of the leading cell's
 // name (the phone's row carries it as a `ListRow` change).
-export interface TableRowSlots<T, Q = unknown> {
+export interface TableRowRegions<T, Q = unknown> {
 	id: (item: T) => string;
 	href?: (item: T) => Route | undefined;
 	editable?: (item: T) => boolean;

@@ -17,9 +17,9 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { type ChangeEvent, type DragEvent, useId, useState } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { pickedFrom } from "../../lib/picked.ts";
-import { Icon } from "../../parts/icon/index.tsx";
 import { Button } from "../button/index.tsx";
 import { BOX, BOX_DISABLED, BOX_HOVER_VALUE } from "./base.tsx";
 import type { FilePickProps } from "./index.tsx";

@@ -21,6 +21,7 @@ import {
 import { type ReactNode, useMemo, useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Icon } from "../../atoms/icon";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import {
@@ -28,19 +29,18 @@ import {
 	PlaceRoute,
 	ShellSwitcher,
 	ShellTabs,
-} from "../../lib/frame";
+} from "../../lib/container";
 import { Ink } from "../../lib/ink";
 import { isRoute, navigate, usePathname } from "../../lib/navigate";
 import { Press } from "../../lib/press";
-import { Icon } from "../../parts/icon";
 import { Count } from "../count";
 import { Pane } from "../pane";
 import { Section } from "../section";
-import { FrameHost } from "./host";
-import { Place } from "./place";
+import { ContainerHost } from "./host";
+import { Panes } from "./panes";
 import { SwitcherPick } from "./switcher";
 
-const FRAME = "flex-1 overflow-hidden";
+const BOX = "flex-1 overflow-hidden";
 const CONTENT = "flex-1";
 
 const TABS = "flex-row";
@@ -97,8 +97,8 @@ export function Shell({
 	// address nothing serves, so home is the first place that is a route.
 	const first = places.find((spec) => isRoute(spec.route));
 	const home = first && { label: first.label, href: first.route };
-	// The tab bar each Place draws changes only with the places, the route and
-	// the More page, so a Shell state change re-renders no Place.
+	// The tab bar each Panes draws changes only with the places, the route and
+	// the More page, so a Shell state change re-renders no Panes.
 	const tabs = useMemo(
 		() => (
 			<>
@@ -115,10 +115,10 @@ export function Shell({
 		[places, route, pathname, more, foot],
 	);
 	return (
-		<FrameHost>
+		<ContainerHost>
 			<View
 				style={{ paddingTop: insets.top }}
-				className={cn(SHELL_COLUMN_PHONE, FRAME)}
+				className={cn(SHELL_COLUMN_PHONE, BOX)}
 			>
 				{banner ? <View className={SHELL_BANNER}>{banner}</View> : null}
 				<View className={CONTENT}>
@@ -127,13 +127,13 @@ export function Shell({
 							<ShellTabs.Provider value={tabs}>
 								<PlaceRoute.Provider value={route}>
 									<PlaceName.Provider value={name}>
-										<Place>
+										<Panes>
 											{more ? (
 												<MorePage places={rest} groups={groups} />
 											) : (
 												children
 											)}
-										</Place>
+										</Panes>
 									</PlaceName.Provider>
 								</PlaceRoute.Provider>
 							</ShellTabs.Provider>
@@ -141,7 +141,7 @@ export function Shell({
 					</ShellHome.Provider>
 				</View>
 			</View>
-		</FrameHost>
+		</ContainerHost>
 	);
 }
 

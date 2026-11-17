@@ -3,8 +3,8 @@ import type { Plugin } from "vite";
 
 type Mode = "light" | "dark";
 
-// The glyph slots a theme paints by the scramble, by slot (`theme.loading`;
-// a slot left out pulses).
+// The glyph regions a theme paints by the scramble, by region (`theme.loading`;
+// a region left out pulses).
 type Loading = Partial<Record<"text" | "figure" | "id", "pulse" | "scramble">>;
 
 // The mode before first paint: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
@@ -21,13 +21,13 @@ export function modeScript(
 	return `(function(){${loadingScript(loading)}try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=${fallback};if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}${follow}})();`;
 }
 
-// The paint each glyph slot waits in: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
+// The paint each glyph region waits in: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 function loadingScript(loading: Loading): string {
 	return (["text", "figure", "id"] as const)
-		.filter((slot) => loading[slot] === "scramble")
+		.filter((region) => loading[region] === "scramble")
 		.map(
-			(slot) =>
-				`document.documentElement.dataset.loading${slot[0]?.toUpperCase()}${slot.slice(1)}='scramble';`,
+			(region) =>
+				`document.documentElement.dataset.loading${region[0]?.toUpperCase()}${region.slice(1)}='scramble';`,
 		)
 		.join("");
 }

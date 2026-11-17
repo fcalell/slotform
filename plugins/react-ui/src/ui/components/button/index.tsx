@@ -7,10 +7,10 @@ import {
 	link,
 } from "@fcalell/ui-core/variants";
 import { use } from "react";
+import { IconButtonBase, IconButtonLink } from "../../atoms/button/glyph.tsx";
+import { ButtonLink, TEXT_PRESS } from "../../atoms/button/link.tsx";
 import { type ActSheetProps, useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { IconButtonBase, IconButtonLink } from "../../parts/button/glyph.tsx";
-import { ButtonLink, TEXT_PRESS } from "../../parts/button/link.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import { ButtonBase } from "./base.tsx";
 
@@ -20,7 +20,7 @@ interface Named extends Closed {
 }
 
 /** A labelled act that runs. */
-export interface ButtonRunProps extends Named {
+export interface ButtonAttemptProps extends Named {
 	/** The act's kind: the accent fill (`primary`, the default), the danger fill, a hairline, the hairline in danger ink, or quiet words in the meta ink. */
 	act?: ButtonAct;
 	/** What it sits in: a body (the default), full width under a field, or `inline`, inside a sentence after its caption ("Didn't get the code? Resend"): its words in the accent ink, underlined, in the sentence's type; a rejection raises a failed toast, and blocked it stands inert in the meta ink, the sentence saying why. */
@@ -29,7 +29,7 @@ export interface ButtonRunProps extends Named {
 	icon?: IconName;
 	/** A number after the label, in the label's ink. */
 	count?: number;
-	/** A wait, in seconds left: the act is inert while it is above zero, its count drawn, and it draws no reason, so its row never grows. At zero the count's slot stays, hidden, so the act keeps its width. */
+	/** A wait, in seconds left: the act is inert while it is above zero, its count drawn, and it draws no reason, so its row never grows. At zero the count's region stays, hidden, so the act keeps its width. */
 	wait?: number;
 	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `ACT_DELAY`) its glyph and label hidden under a spinner, its name kept. A rejection reads under the act. */
 	onAct?: () => unknown;
@@ -94,12 +94,12 @@ export interface ButtonRouteGlyphProps extends Named {
 }
 
 export type ButtonProps =
-	| ButtonRunProps
+	| ButtonAttemptProps
 	| ButtonGlyphProps
 	| ButtonRouteProps
 	| ButtonRouteGlyphProps;
 
-/** An act: a labelled one that runs (it holds its own run, and draws a rejection in a line under itself), the same with an `href` as a link, or with `glyph` as an icon alone. Pending and blocked acts keep focus and ignore the press. */
+/** An act: a labelled one that runs (it holds its own attempt, and draws a rejection in a line under itself), the same with an `href` as a link, or with `glyph` as an icon alone. Pending and blocked acts keep focus and ignore the press. */
 export function Button(props: ButtonProps) {
 	if (props.href !== undefined)
 		return props.glyph ? (
@@ -118,8 +118,8 @@ export function Button(props: ButtonProps) {
 				href={props.href}
 			/>
 		);
-	if (props.glyph) return <RunGlyph {...props} />;
-	if (props.fit === "inline") return <RunInline {...props} />;
+	if (props.glyph) return <AttemptGlyph {...props} />;
+	if (props.fit === "inline") return <AttemptInline {...props} />;
 	return (
 		<ButtonBase
 			act={props.act}
@@ -143,15 +143,15 @@ export function Button(props: ButtonProps) {
 const INLINE_INERT =
 	"aria-disabled:text-ink-meta aria-disabled:decoration-transparent";
 
-// The inline form that runs, holding its own run: inert and `aria-busy` while
+// The inline form that runs, holding its own attempt: inert and `aria-busy` while
 // it pends, a rejection raised as a failed toast.
-function RunInline(props: ButtonRunProps) {
+function AttemptInline(props: ButtonAttemptProps) {
 	const { label, blocked, onAct, confirm, done, to, sheet } = props;
 	const acting = useAct("toast");
 	const pending = acting.pending !== undefined;
 	const inert = blocked !== undefined || pending;
 	const run = () =>
-		acting.run(true, { onAct, label, confirm, done, to, sheet });
+		acting.attempt(true, { onAct, label, confirm, done, to, sheet });
 	return (
 		<>
 			<button
@@ -168,8 +168,8 @@ function RunInline(props: ButtonRunProps) {
 	);
 }
 
-/** The icon form that runs, holding its own run: a rejection raises a failed toast. A host whose rows stand in one Tab stop (a grid) hands it `tabIndex={-1}`. Outside the package's exports. */
-export function RunGlyph({
+/** The icon form that runs, holding its own attempt: a rejection raises a failed toast. A host whose rows stand in one Tab stop (a grid) hands it `tabIndex={-1}`. Outside the package's exports. */
+export function AttemptGlyph({
 	act,
 	fit,
 	icon,
@@ -199,7 +199,7 @@ export function RunGlyph({
 				onClick={() =>
 					held
 						? host()
-						: acting.run(true, {
+						: acting.attempt(true, {
 								onAct,
 								label,
 								destructive: act === "destructive",

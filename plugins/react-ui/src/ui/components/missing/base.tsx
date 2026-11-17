@@ -2,10 +2,10 @@ import type { LinkAct } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import { use } from "react";
+import { BackRoute, PlaceRoute } from "../../lib/container.ts";
 import { EmptyBase, type EmptyFit } from "../../lib/empty.tsx";
-import { BackRoute, PlaceRoute } from "../../lib/frame.ts";
 
-/** The Back link of a Pane's read that answers not found: to the Pane's `back`, else the Place's route; none with neither, and none where the Pane's `back` is `false`. */
+/** The Back link of a Pane's read that answers not found: to the Pane's `back`, else the Panes's route; none with neither, and none where the Pane's `back` is `false`. */
 function useBackAct(): LinkAct | undefined {
 	const words = useWords();
 	const screen = use(BackRoute);

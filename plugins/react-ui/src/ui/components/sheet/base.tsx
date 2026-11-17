@@ -16,6 +16,7 @@ import {
 	SHEET_PARTS_END,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
+import { DIVIDER } from "../../atoms/section/card.tsx";
 import type { Act } from "../../lib/act.ts";
 import { useAct } from "../../lib/act.ts";
 import type { Empty } from "../../lib/empty.tsx";
@@ -24,7 +25,6 @@ import { useTouch } from "../../lib/media.ts";
 import { FrameBody } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
-import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import { SheetHead } from "./head.tsx";
 import { SheetLayer } from "./layer.tsx";
@@ -81,7 +81,7 @@ interface SheetBaseProps {
 	read?: Selection<unknown>;
 	/** The body's sentence when the `read` is empty. */
 	empty?: Empty;
-	/** The holder of the sheet's acts' run, when a form in its body has a bar of its own (the one holder keeps the dismissal held while either runs). Absent, the sheet hosts its own. */
+	/** The holder of the sheet's acts' attempt, when a form in its body has a bar of its own (the one holder keeps the dismissal held while either runs). Absent, the sheet hosts its own. */
 	acting?: Acting<number>;
 	/** What the sheet opens focused on: its first field (a confirm's typed name); a decision without it opens on its first act, the way out, and a task's body on its first field, else its first control, else the close act. */
 	focus?: "field";
@@ -123,7 +123,7 @@ export function SheetBase({
 	// nothing to cancel.
 	const acknowledging = given !== undefined && acknowledges(given);
 	const offered = given && submitAct(given, onClose);
-	// The sheet hosts its acts' run: its foot bar and its form's bar share one,
+	// The sheet hosts its acts' attempt: its foot bar and its form's bar share one,
 	// so one act pends at a time and the dismissal is held while it runs.
 	const acting = holder ?? own;
 	// A sheet with no foot (no submit, no bar of acts) ends on its last part, which

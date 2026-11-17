@@ -18,7 +18,7 @@ A titled stretch of a page, over its rows (`items`) or its parts (`children`).
 
 Records as rows and columns: a grid where the density is desktop, a list on touch. A narrow container (a list beside an open record) keeps the grid and scrolls it sideways under its frozen leading column.
 
-- `items`, `columns`, `row`: the records, the columns in order (the first is the row's name) and the row's slots, each read from the item (`rules.md`, collections take data).
+- `items`, `columns`, `row`: the records, the columns in order (the first is the row's name) and the row's regions, each read from the item (`rules.md`, collections take data).
 - `label`: its accessible name, for a page that holds more than one table.
 - `empty`: what the table says in its own box when its `items` selection answers none, `{ sentence, act? }` as a `Section`'s `empty` (`act` an act that runs, or a `{ label, href }` that goes to a route): a constant from the parent, so a screen with a filter on gives the sentence for it from its own state. The `Toolbar` and the `Pane` above stand through it. Without it the generic sentence stands, with no act.
 - `selected`: the open record's id, washed as selected.
@@ -46,7 +46,7 @@ Rows of inline terms. `rules` is a list of `{ id, terms, onRemove? }` with `term
 
 A conversation: `items` drawn through `message`, over a `composer`.
 
-- `message`: slots each reading only its item: `key`, `author`, `name`, `body`, `at`, `attachments`, `from`, `streaming`, `onOpen`, `detail`.
+- `message`: regions each reading only its item: `key`, `author`, `name`, `body`, `at`, `attachments`, `from`, `streaming`, `onOpen`, `detail`.
 - `composer`: `value`, `onChange`, `attachments`, `onAttach`, `onDetach`, `placeholder`, `notice`, `working`, `onSend`, `onStop`, `disabled`.
 - `sheet`: docks in the input's place.
 - `replying`: a reply from the other author is on its way; the loaded log ends on a waiting message of theirs until it is cleared.

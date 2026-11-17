@@ -5,7 +5,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { TOASTS } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useState } from "react";
 import { useModality } from "../../lib/modality.ts";
-import { PortalContainer, PortalSlot } from "../../lib/portal.ts";
+import { PortalContainer, PortalRegion } from "../../lib/portal.ts";
 import { RECENT } from "../../lib/rest.ts";
 import { toasts } from "../../lib/toast.ts";
 import { Confirmations } from "../sheet/confirm.tsx";
@@ -26,7 +26,7 @@ export const TOASTS_LAYER =
 	"fixed inset-0 bottom-[anchor(--docked-foot_top,0px)] min-h-[calc(var(--toast-frontmost-height,0px)+2*var(--spacing-page))] z-(--layer-toasts) flex flex-col items-end justify-end pointer-events-none touch:items-center";
 
 /** What a root frame (the Shell, the Gate) mounts around itself: the `toast()` queue, the `confirm()` decisions, the tooltips' shared window, the one tooltip for cut text, the layer a drag draws on and the modality its rings read. Outside the package's exports. */
-export function FrameHost({ children }: { children: ReactNode }) {
+export function ContainerHost({ children }: { children: ReactNode }) {
 	useModality();
 	// The popups' container is an element of `main`, so it is state until the
 	// frame's `main` mounts it.
@@ -35,26 +35,29 @@ export function FrameHost({ children }: { children: ReactNode }) {
 		<ToastControl.Provider toastManager={toasts}>
 			<Tooltip.Provider timeout={RECENT}>
 				<PortalContainer value={portal}>
-					<PortalSlot value={setPortal}>
+					<PortalRegion value={setPortal}>
 						{children}
 						<Confirmations />
 						<CutText />
 						<DragLayer />
-					</PortalSlot>
+					</PortalRegion>
 				</PortalContainer>
 			</Tooltip.Provider>
 		</ToastControl.Provider>
 	);
 }
 
-/** The frame's `main`: its page and the toasts' layer over it. It stands inside a `FrameHost`, whose popups' container it mounts. */
-export function FrameMain(props: { children: ReactNode; className?: string }) {
+/** The frame's `main`: its page and the toasts' layer over it. It stands inside a `ContainerHost`, whose popups' container it mounts. */
+export function ContainerMain(props: {
+	children: ReactNode;
+	className?: string;
+}) {
 	const words = useWords();
-	const slot = use(PortalSlot);
+	const region = use(PortalRegion);
 	return (
 		<main className={cn(MAIN, props.className)}>
 			{props.children}
-			<div ref={slot} className={PORTAL} />
+			<div ref={region} className={PORTAL} />
 			<ToastControl.Viewport
 				aria-label={words.notifications}
 				className={cn(TOASTS, TOASTS_LAYER)}

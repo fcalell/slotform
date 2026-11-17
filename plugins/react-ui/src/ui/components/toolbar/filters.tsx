@@ -14,12 +14,12 @@ import {
 	TOOLBAR_FILTERS_POPOVER,
 } from "@fcalell/ui-core/variants";
 import { use, useRef, useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { ChipBase } from "../../atoms/chip/base.tsx";
 import { useAct } from "../../lib/act.ts";
 import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing, useTouch } from "../../lib/media.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { ChipBase } from "../../parts/chip/base.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { FormField } from "../form-field/index.tsx";
 import { SheetBase } from "../sheet/base.tsx";
@@ -58,7 +58,7 @@ export function FilterChip({ filter }: { filter: FilterProp }) {
 		<ChipBase
 			family="neutral"
 			label={filterChip(filter, drawn.painted ? [] : drawn.value)}
-			onRemove={() => acting.run(true, { onAct: () => clear(filter) })}
+			onRemove={() => acting.attempt(true, { onAct: () => clear(filter) })}
 		/>
 	);
 }

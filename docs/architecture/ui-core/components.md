@@ -25,7 +25,7 @@ sizes a `Table`'s scroller to the total ([paging](reads.md#paging)).
 `window.ts` holds how a long collection windows: from how many loaded rows it draws only those near
 the scroller's view (`VIRTUAL_FROM`), how far past each edge of the view it keeps rows
 (`OVERSCAN`), and the arithmetic that turns the rows a virtualizer placed into the children of the
-box, rows and the spacers that stand in for the rest (`slotsOf`, `ranged`, `pagesCovering`). The web
+box, rows and the spacers that stand in for the rest (`windowEntries`, `ranged`, `pagesCovering`). The web
 runs it over TanStack Virtual; the arithmetic is in ui-core so it is tested without a DOM.
 
 ## Table
@@ -36,7 +36,7 @@ of list rows with the sort a `Picker` above it. Below `tablet` the rows stand on
 ### Items and forms
 
 It takes `items`, constants or a selection, each column reading its cell from the item and `row` the
-row's own slots. While the selection's read waits it paints `PAINT_ROWS` rows over the constant
+row's own regions. While the selection's read waits it paints `PAINT_ROWS` rows over the constant
 header, each cell by its column's kind, inert. It is a frame of its items as a Section's sheet is:
 its failed, missing and empty shapes and its stale and paused line are its own
 ([frames](reads.md#frames)). `label` is its accessible name (`aria-label` on the grid or the list,
@@ -62,9 +62,9 @@ lists the states, not their weight, so the weight is its own table (`STATUS_SEVE
 
 - `onEdit` requires `onOpen`, and with `onOpen` the leading column never edits. A cell's edit is a
   control at the field's bar fit ([fields](acts.md#fields)).
-- A row's `change` slot draws the change mark ahead of the leading cell's name (a list row's change
+- A row's `change` region draws the change mark ahead of the leading cell's name (a list row's change
   on touch), the kind's word its name.
-- A row's `editable` slot, false, draws its cells plain (no mark, no act); `locked` is the hold, its
+- A row's `editable` region, false, draws its cells plain (no mark, no act); `locked` is the hold, its
   columns drawn with the lock.
 - A `chip` cell is a label, on the column's `family`, or `{ label, family }` on its own.
 - A column's `wrap` lets its text and `source` cells wrap and hyphenate, the row growing to the
@@ -95,11 +95,11 @@ an `ActionBar` with `chosen` ([ActionBar](acts.md#actionbar)): "N of M chosen" a
 formatted (M the rows that can be ticked, which the route counts; named by `chosen.noun` where the
 rows are not "chosen" bare), then select-all while a row is unticked and a clear icon while one is
 ticked. The bar draws nothing while no row is ticked, gives way to a docked sheet, and stands at the
-body's column and start. The grid draws no count: the selection bar's is the count.
+body's column and start. The grid draws no count: the chosen bar's is the count.
 
 ### Row acts, drag and reorder
 
-A row's `act` and `more` slots draw an acts column at the grid's end, frozen there like the leading
+A row's `act` and `more` regions draw an acts column at the grid's end, frozen there like the leading
 column: the icon act, then the more act, each a cell cursor stop of its own column. Shift+Enter on
 the active row runs its act from any cell (Enter does where the row opens nothing) and the Context
 Menu key opens its more menu.
@@ -177,7 +177,7 @@ takes no wash); radio rows when `value` is one value or null, a radiogroup whose
 its dot. The recommended mark sits on its `line`, and the `children` under a chosen option at its
 label's start. A list that is the body of a titled Section is `headed`: the Section's title names it
 and it draws no field. Static `options` never paint. `items`, constants or a selection, paint
-`PAINT_ROWS` rows while the read waits, in the slots `option` declares (a `line` under each label, a
+`PAINT_ROWS` rows while the read waits, in the regions `option` declares (a `line` under each label, a
 label over the group), inert, and a `value` selection paints the boxes or rings. The empty shape is
 the frame's (the Pane, Section, Sheet or Form that holds the read), and `items` that have failed draw
 the failed sentence with Retry (or `missing`) in a line under the rows, the list holding that read
@@ -273,12 +273,12 @@ from its first character, and the closing marker, when it comes, changes nothing
 
 `chart.ts` holds what a `BarChart` decides before it draws.
 
-### Slots
+### Regions
 
-The fewest slots a plot is parted into is a week's days (`CHART_SLOTS`, 7). A series shorter than
+The fewest regions a plot is parted into is a week's days (`CHART_REGIONS`, 7). A series shorter than
 that (a day's first hours near midnight, a run's first rounds) stands in the first of them, each bar
-in a slot as wide as it would have among seven, the rest of the plot its gridlines alone, so a lone
-bar is never a slab across the plot. A series of more fills the plot, one slot a bar.
+in a region as wide as it would have among seven, the rest of the plot its gridlines alone, so a lone
+bar is never a slab across the plot. A series of more fills the plot, one region a bar.
 
 ### Axis
 
@@ -417,7 +417,7 @@ dependencies of its own, pinned to an exact version in ui-core's manifest); the 
 - `packages/ui-core/src/rules.ts`: the `Rules` editor's and the Picker's decisions
 - `packages/ui-core/src/roster/thread.ts`: the `Thread` contract
 - `packages/ui-core/src/streaming.ts`: `closeOpenRuns`
-- `packages/ui-core/src/chart.ts`: a `BarChart`'s slots, axes, time labels and head
+- `packages/ui-core/src/chart.ts`: a `BarChart`'s regions, axes, time labels and head
 - `packages/ui-core/src/roster/descriptors.ts`: `PickedFile`
 - `packages/ui-core/src/file.ts`: `accepts`, `pickerTypes`
 - `packages/ui-core/src/roster/image.ts`: the `Image` contract

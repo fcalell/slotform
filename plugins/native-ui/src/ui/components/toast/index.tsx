@@ -13,6 +13,8 @@ import Animated, {
 	ReduceMotion,
 } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
+import { IconButtonBase } from "../../atoms/button/glyph";
+import { Icon } from "../../atoms/icon";
 import type { Act } from "../../lib/act";
 import { asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
@@ -22,8 +24,6 @@ import { Ink } from "../../lib/ink";
 import { curve } from "../../lib/motion";
 import { RaisedGround } from "../../lib/raised";
 import { dismissToast, ToastEntry } from "../../lib/toast";
-import { IconButtonBase } from "../../parts/button/glyph";
-import { Icon } from "../../parts/icon";
 import { ButtonBase } from "../button/base";
 
 // The phone is touch: the toast is as wide as its words (a short report is a

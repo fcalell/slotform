@@ -5,7 +5,7 @@ import type {
 	Option,
 	OptionGroup,
 } from "@fcalell/ui-core/descriptors";
-import type { OptionSlots } from "@fcalell/ui-core/list-state";
+import type { OptionRegions } from "@fcalell/ui-core/list-state";
 import { linked } from "@fcalell/ui-core/pick";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
 import type { Datum, Fielded as WithText } from "@fcalell/ui-core/read";
@@ -80,12 +80,12 @@ type OptionSource<T, V extends string> =
 	  }
 	| {
 			// The items the check rows draw, constants or a selection. While its
-			// read waits, `PAINT_ROWS` rows paint in the slots `option` declares,
+			// read waits, `PAINT_ROWS` rows paint in the regions `option` declares,
 			// inert.
 			items: Datum<readonly T[]>;
-			// One function per check row slot, each called with an item; the slots
+			// One function per check row region, each called with an item; the regions
 			// given are the shape the painted rows draw.
-			option: OptionSlots<T, V>;
+			option: OptionRegions<T, V>;
 			options?: never;
 	  };
 
@@ -209,7 +209,7 @@ export type PickerProps<V extends string | null = string, T = unknown> =
 // stand under the first chosen option. Placed alone it draws its field;
 // `headed`, the body of a titled `Section`, it draws none, the title naming
 // it. Static `options` never paint; `items`
-// paint `PAINT_ROWS` rows in the slots `option` declares while their read
+// paint `PAINT_ROWS` rows in the regions `option` declares while their read
 // waits, and a `value` selection paints the marks, inert. A failed or missing
 // `items` read says so in a line under the list. As `segments`
 // (`fit="segments"`), a view switch over a few options, one chosen: a radio

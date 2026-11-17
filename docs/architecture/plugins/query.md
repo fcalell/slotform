@@ -3,7 +3,7 @@
 `@fcalell/plugin-query` is the TanStack Query binding of the api's procedures: the query client and
 its provider, the read builder over oRPC's query utils, the binding half of acts, the scope merge,
 cache invalidation and the org-rules ability. The model it binds (`Read`, `Selection`, the hooks,
-the run and save logic) is `@fcalell/ui-core`'s ([reads](../ui-core/reads.md),
+the attempt and save logic) is `@fcalell/ui-core`'s ([reads](../ui-core/reads.md),
 [acts](../ui-core/acts.md)). How an app uses it is the plugin's guide (`plugins/query/guide/`).
 
 ## Contributions
@@ -84,7 +84,7 @@ mutation that declares `writes` on its entities succeeds: the mutations own the 
 ## Acts
 
 `acts.ts` is the binding's half of an act: the sentence an oRPC refusal reads as, whether a failure
-is worth running again, and the dev checks and the reach guard over TanStack's caches. The run and
+is worth running again, and the dev checks and the reach guard over TanStack's caches. The attempt and
 save logic the hooks wrap is `@fcalell/ui-core/acts`.
 
 - **`guardReach`** is the mutation cache's `onMutate`: nothing queues for a connection that is not

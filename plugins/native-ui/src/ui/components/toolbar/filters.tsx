@@ -7,8 +7,8 @@ import type { OptionText } from "@fcalell/ui-core/reason";
 import { TOOLBAR_FILTERS } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import { View } from "react-native";
+import { ChipBase } from "../../atoms/chip/base";
 import { useAct } from "../../lib/act";
-import { ChipBase } from "../../parts/chip/base";
 import { ButtonBase } from "../button/base";
 import { FormField } from "../form-field";
 import { Sheet } from "../sheet";
@@ -45,7 +45,7 @@ export function FilterChip({ filter }: { filter: FilterProp }) {
 		<ChipBase
 			family="neutral"
 			label={filterChip(filter, drawn.painted ? [] : drawn.value)}
-			onRemove={() => acting.run(true, { onAct: () => clear(filter) })}
+			onRemove={() => acting.attempt(true, { onAct: () => clear(filter) })}
 		/>
 	);
 }

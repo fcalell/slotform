@@ -37,7 +37,7 @@ export interface NodeLook {
 	// The `CANVAS_NODE` tone: the role's ground and edge at rest, and the quiet
 	// an off node and a node off the path draw over any role.
 	surface: Surface;
-	// What the line slot shows.
+	// What the line region shows.
 	shows: "line" | "off" | "warning";
 	// Whether the line under the title is led by the node's `status`.
 	status: boolean;

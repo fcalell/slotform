@@ -200,7 +200,7 @@ test("a tick's blocked reason is the first badge, plain", () => {
 	assert.equal(badges[1]?.kind, "status");
 });
 
-test("a painted row keeps one filler per fact the slot gave, no chip and no boolean mark", () => {
+test("a painted row keeps one filler per fact the region gave, no chip and no boolean mark", () => {
 	const { badges, quiet } = badgesOf({
 		facts: [
 			{ tone: "done", label: "" },

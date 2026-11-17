@@ -14,7 +14,7 @@ import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
 
-const FRAME = "min-w-0 overflow-hidden";
+const BOX = "min-w-0 overflow-hidden";
 
 // Body text at the measure in the frame Code and Diff share, its edit marked
 // in place: a removed run struck through on danger-soft, an added run on
@@ -74,7 +74,7 @@ export function WordDiff(props: {
 	}, [ended, from.value, to.value]);
 	if (painted)
 		return (
-			<View {...inertProps(true)} className={cn(CARD, FRAME)}>
+			<View {...inertProps(true)} className={cn(CARD, BOX)}>
 				<View className={PROSE_DIFF_BODY}>
 					<PaintText
 						painted
@@ -93,7 +93,7 @@ export function WordDiff(props: {
 		);
 	if (ended) return null;
 	return (
-		<View accessibilityLabel={label} className={cn(CARD, FRAME)}>
+		<View accessibilityLabel={label} className={cn(CARD, BOX)}>
 			<View className={PROSE_DIFF_BODY}>
 				<RNText className={cn(text({ role: "body" }), PROSE_DIFF_TEXT)}>
 					{runs}

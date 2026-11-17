@@ -1,6 +1,6 @@
 import {
 	Button,
-	type ButtonRunProps,
+	type ButtonAttemptProps,
 } from "@fcalell/plugin-react-ui/components/button";
 import { Form } from "@fcalell/plugin-react-ui/components/form";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
@@ -27,7 +27,7 @@ const REASON = "Name the project first.";
 // A touched form, so a blocked act shows its reason.
 const TOUCHED = { touched: true, touch: act, leave: createLeave() };
 // The count cell: a secondary act in a bar with its count after the label.
-const COUNTED: ButtonRunProps = {
+const COUNTED: ButtonAttemptProps = {
 	act: "secondary",
 	icon: "ListFilter",
 	label: "Filter",
@@ -88,7 +88,7 @@ export function drawButton(frame: ShowcaseFrame) {
 	if (cell !== "BUTTON" && !glyph) return undefined;
 	const kind = axis === "act" ? (value as ButtonAct) : "primary";
 	const fit = !glyph && axis === "fit" ? (value as ButtonFit) : "body";
-	const own: ButtonRunProps = {
+	const own: ButtonAttemptProps = {
 		act: kind,
 		fit,
 		icon: glyph ? "Plus" : undefined,

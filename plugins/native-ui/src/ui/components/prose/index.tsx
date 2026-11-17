@@ -20,10 +20,10 @@ import {
 import { lexer, type Token, type Tokens } from "marked";
 import { type ReactNode, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
+import { ButtonLink } from "../../atoms/button/link";
+import { PaintedProse } from "../../atoms/prose/painted";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { ButtonLink } from "../../parts/button/link";
-import { PaintedProse } from "../../parts/prose/painted";
 import { Code } from "../code";
 
 const COLUMN = "min-w-0";
@@ -222,7 +222,7 @@ function Headed({ part }: { part: Part }) {
 // Markdown at the body role, its column at the measure: `#` and `##` head
 // its parts a sections gap apart at the heading role, `###` and deeper head a
 // part inside them at body 500; paragraphs, lists (the marker in its own
-// slot), quotes and rules a fields gap apart; inline code on the neutral
+// region), quotes and rules a fields gap apart; inline code on the neutral
 // fill; a fenced block is a `Code` with its copy act. Raw HTML reads as its
 // own text; tables, task lists and images draw as text. A heading is a
 // header, which has no levels on the phone. While the `markdown` selection's

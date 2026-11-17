@@ -29,7 +29,7 @@ export const toolbarEntry: RosterEntry = {
 };
 
 // A toolbar's search: the `search` `Input`'s value and the keystrokes it
-// hears, with the hint it draws while empty (the field's name is the slot word
+// hears, with the hint it draws while empty (the field's name is the blank word
 // `search`).
 export interface ToolbarSearch {
 	value: string;

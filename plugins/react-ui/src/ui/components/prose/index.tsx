@@ -20,10 +20,10 @@ import {
 } from "@fcalell/ui-core/variants";
 import { lexer, type Token, type Tokens } from "marked";
 import { type ReactNode, use, useMemo } from "react";
+import { ButtonLink } from "../../atoms/button/link.tsx";
+import { PaintedProse } from "../../atoms/prose/painted.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { HeadingContext } from "../../lib/heading.ts";
-import { ButtonLink } from "../../parts/button/link.tsx";
-import { PaintedProse } from "../../parts/prose/painted.tsx";
 import { Code } from "../code/index.tsx";
 
 // An unbroken token too long for the column (a URL) wraps anywhere; every
@@ -228,7 +228,7 @@ function Headed(props: { part: Part; level: number }) {
 	);
 }
 
-/** Markdown at the body role, its column at the measure: `#` and `##` head its parts a sections gap apart at the heading role, `###` and deeper head a part inside them at body 500; paragraphs, lists (the marker hung in its own slot), quotes and rules a fields gap apart; inline code on the neutral fill; a fenced block is a `Code` with its copy act. Raw HTML reads as its own text; tables, task lists and images draw as text. While the `markdown` selection's read waits, one paragraph of `PAINT_ROWS` clipped lines of filler stands in its column, inert. */
+/** Markdown at the body role, its column at the measure: `#` and `##` head its parts a sections gap apart at the heading role, `###` and deeper head a part inside them at body 500; paragraphs, lists (the marker hung in its own region), quotes and rules a fields gap apart; inline code on the neutral fill; a fenced block is a `Code` with its copy act. Raw HTML reads as its own text; tables, task lists and images draw as text. While the `markdown` selection's read waits, one paragraph of `PAINT_ROWS` clipped lines of filler stands in its column, inert. */
 export function Prose({ markdown }: ProseProps) {
 	const level = use(HeadingContext);
 	const [drawn] = useSelections([markdown] as const);

@@ -70,7 +70,7 @@ function Requests() {
 	const [picked, setPicked] = useState<Picked<Query>>({ ids: [] });
 	const remove = useMutation(orpc.requests.remove.mutationOptions());
 	const requests = orpc.requests.list.window(q ? { q } : {});
-	// The count the foot's selection bar says: the ids ticked, or the query's
+	// The count the foot's chosen bar says: the ids ticked, or the query's
 	// rows less those unticked, out of every row the filter matches.
 	const total = useWindow(requests)?.total ?? 0;
 	const count =

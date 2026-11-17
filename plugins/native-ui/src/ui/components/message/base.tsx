@@ -17,14 +17,14 @@ import {
 } from "@fcalell/ui-core/variants";
 import { memo, type ReactNode, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { PaintedProse } from "../../atoms/prose/painted";
+import { Turn } from "../../atoms/turn";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { Ink } from "../../lib/ink";
 import { moment } from "../../lib/moment";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
-import { Icon } from "../../parts/icon";
-import { PaintedProse } from "../../parts/prose/painted";
-import { Turn } from "../../parts/turn";
 import { Prose } from "../prose";
 import { RowBase } from "../row";
 import { Attachments } from "./attachments";

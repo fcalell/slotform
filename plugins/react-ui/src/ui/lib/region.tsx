@@ -8,7 +8,7 @@ import { Roll } from "./swap.tsx";
 
 /**
  * A figure or id of a read, in both its forms: `Painted` while `painted`, then
- * its `text`. The slot is one instance across the switch, so it knows whether
+ * its `text`. The region is one instance across the switch, so it knows whether
  * it waited: when the paint stood for `waitDelay` and the theme scrambles its
  * kind, the text decodes as it arrives (otherwise it lands at
  * once), and it rolls when `of`, its number, changes while shown. The layout

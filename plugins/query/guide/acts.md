@@ -1,7 +1,7 @@
 # Acts and saves
 
 An act's `onAct` returns the promise of the work it starts, and the host that draws the act holds
-the run (pending, failure); the app passes no `loading`:
+the attempt (pending, failure); the app passes no `loading`:
 
 ```tsx
 const create = useMutation(orpc.projects.create.mutationOptions());
@@ -50,9 +50,9 @@ failed with nothing drawing it within a tick. A mutation with an `onError` of it
 a handler that catches a failure itself (`.catch(setError)` on the call, or the option) draws it
 and the check stays quiet.
 
-A host or control of your own holds a run with `useRun<K>()` (`@fcalell/ui-core/react/acts`): `run(key, onAct)` calls `onAct`, and
-`pending` (the key) and `failure` (`{ key, error }`, kept until the next run) follow its
-promise, the newest run counting alone.
+A host or control of your own holds an attempt with `useAttempt<K>()` (`@fcalell/ui-core/react/acts`): `attempt(key, onAct)` calls `onAct`, and
+`pending` (the key) and `failure` (`{ key, error }`, kept until the next attempt) follow its
+promise, the newest attempt counting alone.
 
 ## A value that saves as it changes
 
@@ -75,7 +75,7 @@ one before and only the latest's outcome counts: resolved, the hold waits for th
 write's invalidation started on the draft's reads, then follows its datum unless it was edited
 since; rejected, it falls back to the datum and `failed` hears the error with `again`, a way to save
 the same value. `change` returns the save's promise (never rejecting, since `failed` draws the
-rejection), so an act that saves again holds the run. react-ui and native-ui's controls do all of
+rejection), so an act that saves again holds the attempt. react-ui and native-ui's controls do all of
 this: hand one the promise from `onChange`, or from `onCommit` for an `Input` or
 `Slider`. A form field hosts its control's save: the field holds the draft and a refusal draws in
 the field's own line. A control standing alone holds its own draft and a rejection is a toast with

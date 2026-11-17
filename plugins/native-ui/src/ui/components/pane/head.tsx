@@ -25,15 +25,15 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { View } from "react-native";
+import { IconButtonBase } from "../../atoms/button/glyph";
 import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
-import { ShellSwitcher } from "../../lib/frame";
+import { ShellSwitcher } from "../../lib/container";
 import { navigate } from "../../lib/navigate";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { BusyMark, FrameLine } from "../../lib/read";
 import type { Route } from "../../lib/route";
-import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 import { MenuBase } from "../menu/base";
 import { SwitcherPick } from "../shell/switcher";

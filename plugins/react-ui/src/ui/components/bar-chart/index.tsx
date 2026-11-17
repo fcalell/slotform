@@ -5,9 +5,9 @@ import {
 	type ChartUnit,
 	categoryGroups,
 	chartHead,
+	chartRegions,
 	chartScale,
 	chartShare,
-	chartSlots,
 	currencyOf,
 	levelScale,
 	levelUnit,
@@ -60,7 +60,7 @@ import {
 import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
-import { Decoded } from "../../lib/slot.tsx";
+import { Decoded } from "../../lib/region.tsx";
 import type { VarStyle } from "../../lib/style.ts";
 import { Swap } from "../../lib/swap.tsx";
 import { BAR_CHART_BODY } from "../../lib/walk-classes.ts";
@@ -100,50 +100,51 @@ const PLOT = "relative";
 const GRID = "absolute inset-x-0 top-0 flex flex-col";
 const GRID_BAND = "flex-1";
 const BARS = "relative flex";
-// A bar's slot is its region: the plot's height, the bar standing on its
+// A bar's region is its region: the plot's height, the bar standing on its
 // floor.
 const REGION = "flex flex-col justify-end items-center";
-// A slot is the plot's width over its slots (`chartSlots`, `--slots` on the
+// A region is the plot's width over its regions (`chartRegions`, `--regions` on the
 // plot): a short series stands in the first of them.
-const BAR_FIT = "shrink-0 min-w-0 basis-[calc(100%/var(--slots))]";
+const BAR_FIT = "shrink-0 min-w-0 basis-[calc(100%/var(--regions))]";
 // The bar's column: the region's full height, its parts laid over it, each the
 // whole column scaled (`CHART_BAR`), or a level's dots travelled down it
 // (`CHART_LEVEL`), so a value moves by transform.
 const COLUMN = "relative h-full w-2/3";
 // The time line under the plot, parted as the plot is: the first bar's time
 // under the first bar and the last bar's under the last, each centred on its
-// bar and whole. A time wider than its bar's slot keeps the plot's edge: the
+// bar and whole. A time wider than its bar's region keeps the plot's edge: the
 // first runs on toward the end and the last back toward the start. Each is a
-// box a slot wide at its bar's place, as the times between stand at theirs
+// box a region wide at its bar's place, as the times between stand at theirs
 // (`TIME_SPACE_BOX`), and the time is centred in it by auto margins, which a
-// time wider than the slot loses, standing flush at the slot's start (the
+// time wider than the region loses, standing flush at the region's start (the
 // last's line reversed, at its end). The line is a meta line high whichever
 // times it holds.
 const TIMES = "relative flex min-h-lh";
 const TIME =
-	"absolute top-0 flex min-w-0 w-[calc(100%/var(--slots))] whitespace-nowrap";
+	"absolute top-0 flex min-w-0 w-[calc(100%/var(--regions))] whitespace-nowrap";
 const TIME_FIRST = "start-0";
 const TIME_LAST = "flex-row-reverse";
 const TIME_TEXT = "mx-auto";
 // A time between the ends stands at its bar's centre in a box as wide as its
-// room (`timeSpace`, in slots) over `TIME_SPACE` times the longest time's
+// room (`timeSpace`, in regions) over `TIME_SPACE` times the longest time's
 // characters (`--time`): the `time` container, whose one `ch` is the test
 // `time-fits:` draws it by, so a stride's times appear together as the plot
 // widens and none ever touches another. No measure: the container decides.
 const TIME_SPACE_BOX =
-	"absolute top-0 @container/time w-[calc(100%*var(--space)/var(--slots)/var(--time))]";
+	"absolute top-0 @container/time w-[calc(100%*var(--space)/var(--regions)/var(--time))]";
 const TIME_MID =
 	"absolute top-0 start-0 -translate-x-1/2 whitespace-nowrap hidden time-fits:block";
 // A categorical axis: the names stand in groups of a stride's bars, each group
-// as wide as the slots it spans (`--span` of the plot's `--slots`) and holding
-// one name, centred in its first bar's slot (the group's width over its span)
-// and overflowing it to both sides, so a name wider than the slot (the stride
+// as wide as the regions it spans (`--span` of the plot's `--regions`) and holding
+// one name, centred in its first bar's region (the group's width over its span)
+// and overflowing it to both sides, so a name wider than the region (the stride
 // leaves room) is never cut and no bar without a name has an empty box under
 // it.
 const CATEGORIES = "flex";
 const CATEGORY =
-	"flex shrink-0 min-w-0 basis-[calc(100%*var(--span)/var(--slots))]";
-const CATEGORY_SLOT = "flex justify-center min-w-0 w-[calc(100%/var(--span))]";
+	"flex shrink-0 min-w-0 basis-[calc(100%*var(--span)/var(--regions))]";
+const CATEGORY_REGION =
+	"flex justify-center min-w-0 w-[calc(100%/var(--span))]";
 const CATEGORY_NAME = "whitespace-nowrap";
 
 // The plot's width as it resizes, and the meta size it is drawn at (read off
@@ -231,8 +232,8 @@ function formatters(
 	};
 }
 
-/** One function per bar slot, each called with a loaded item. */
-export interface BarSlots<T> {
+/** One function per bar region, each called with a loaded item. */
+export interface BarRegions<T> {
 	/** The item's React key, unique in the chart. */
 	key: (item: T) => string;
 	/** The bar's total. */
@@ -245,7 +246,7 @@ export interface BarSlots<T> {
 	label?: (item: T) => string | undefined;
 	/** The bar's period is not over (this month so far): it is drawn hatched, so a short last bar does not read as a fall. A flow's bar; a level's reading is drawn as any other. */
 	partial?: (item: T) => boolean;
-	/** The bar of the record open beside the chart (the month whose report stands in the next Pane): its slot carries the selection wash, as a selected row does. */
+	/** The bar of the record open beside the chart (the month whose report stands in the next Pane): its region carries the selection wash, as a selected row does. */
 	selected?: (item: T) => boolean;
 }
 
@@ -257,8 +258,8 @@ export type BarChartProps<T = unknown> = Closed & {
 	label: string;
 	/** The names a bar's parts stack by, bottom first (each a word; the legend wraps between names): present, the chart is stacked and draws them as its legend in every form, each name holding its series mark. */
 	keys?: readonly string[];
-	/** The bar slots, read from each item. */
-	bar: BarSlots<T>;
+	/** The bar regions, read from each item. */
+	bar: BarRegions<T>;
 	/** What the values count (`requests`, `minutes`), drawn after the total; a unit that takes a plural is `{ one, other }` (`{ one: "flag", other: "flags" }`), the form chosen by the figure it follows; money is `{ currency: "USD" }`, its figures written in the currency with no word after them. */
 	unit?: ChartUnit;
 	/** The bars are a level, not a flow (a reading each hour, open flags per round, not requests per day): the head draws their span, the lowest bar to the highest ("18.2–21°C", "1–3 flags"), and each key its part's span, never their sum and never the last bar, which is the thing's own reading its record says. A span whose ends are one reading (one bar, a flat day) is that reading, so it draws no figure: no total line, and a key its name and mark alone. The plot draws each reading as a dot (each key's its own, in its mark) against an axis around the readings, its floor a step under the lowest and its top over the highest, so the swing reads; a flow's bars stand on zero, a bar's length its value. A unit that never sums (a share, `%`, or a temperature, `°C`) is a level unless this is `false`. */
@@ -270,9 +271,9 @@ const NONE: readonly never[] = [];
 // A bar's part by key; a key it lacks is 0.
 const part = (bar: Bar, key: string) => bar.parts?.[key] ?? 0;
 
-// One bar's slot in the plot: the bar, or its parts stacked, standing on the
+// One bar's region in the plot: the bar, or its parts stacked, standing on the
 // plot's floor; a level's reading, or each key's, a dot at its place.
-const BarSlot = memo(function BarSlot(props: {
+const BarRegion = memo(function BarRegion(props: {
 	bar: Bar;
 	keys: readonly string[] | undefined;
 	top: number;
@@ -344,14 +345,14 @@ const BarSlot = memo(function BarSlot(props: {
 	);
 });
 
-/** The total (the bars' span with `level`, none where that span is one reading) at body 500 with its unit, the parts' keys under it, then the axis beside the plot, its four gridlines a hairline each with its tick centred on it and the baseline with its 0, the columns in the chip marks by part, each bar in its slot of the plot (at least `CHART_SLOTS`, seven: a shorter series, a day's first hours, stands in the first of them, the rest of the plot its gridlines); with `level`, each reading a dot in its mark against an axis around the readings (`levelScale`: its floor a step under the lowest, its top over the highest), the baseline's tick that floor. The first bar's time stands centred under the first bar and the last bar's under the last, each kept whole inside the plot, and the times between at evenly spaced strides (`timeSpace`: every 12th bar, every 6th, every 2nd, then each), each stride's drawn where its room holds twice the longest time, a container query of the time line, never a measure. A chart given `bar.label` (under `VIRTUAL_FROM` bars) names its bars on that line in the times' place: every bar where the names fit under their bars, else every `n`th (`axisStride`, from the plot's width), each name centred under its bar in a group as wide as its stride's bars, so no bar without a name has a box of its own. From `VIRTUAL_FROM` bars the plot keeps a bar's width and scrolls sideways, the axis staying, and only the bars near the view are drawn, the time line spanning the scrolled width so the last time stands whole at the end. While the `items` selection's read waits, the total is a figure's filler, the legend stands (its names and marks declared, its figures painted), the plot is one painted box at its loaded height with the axis's lane kept and the time line is two fillers at its place, the chart inert. A bar given `bar.partial` (its period not over) is drawn hatched and one given `bar.selected` (its record open beside the chart) stands in the selection wash. The chart is a frame of its items: it draws the failed shape with Retry, the missing shape and the empty shape in its own box with the generic sentence, and the stale and paused line above itself while it holds its read, whatever stands above it. */
+/** The total (the bars' span with `level`, none where that span is one reading) at body 500 with its unit, the parts' keys under it, then the axis beside the plot, its four gridlines a hairline each with its tick centred on it and the baseline with its 0, the columns in the chip marks by part, each bar in its region of the plot (at least `CHART_REGIONS`, seven: a shorter series, a day's first hours, stands in the first of them, the rest of the plot its gridlines); with `level`, each reading a dot in its mark against an axis around the readings (`levelScale`: its floor a step under the lowest, its top over the highest), the baseline's tick that floor. The first bar's time stands centred under the first bar and the last bar's under the last, each kept whole inside the plot, and the times between at evenly spaced strides (`timeSpace`: every 12th bar, every 6th, every 2nd, then each), each stride's drawn where its room holds twice the longest time, a container query of the time line, never a measure. A chart given `bar.label` (under `VIRTUAL_FROM` bars) names its bars on that line in the times' place: every bar where the names fit under their bars, else every `n`th (`axisStride`, from the plot's width), each name centred under its bar in a group as wide as its stride's bars, so no bar without a name has a box of its own. From `VIRTUAL_FROM` bars the plot keeps a bar's width and scrolls sideways, the axis staying, and only the bars near the view are drawn, the time line spanning the scrolled width so the last time stands whole at the end. While the `items` selection's read waits, the total is a figure's filler, the legend stands (its names and marks declared, its figures painted), the plot is one painted box at its loaded height with the axis's lane kept and the time line is two fillers at its place, the chart inert. A bar given `bar.partial` (its period not over) is drawn hatched and one given `bar.selected` (its record open beside the chart) stands in the selection wash. The chart is a frame of its items: it draws the failed shape with Retry, the missing shape and the empty shape in its own box with the generic sentence, and the stale and paused line above itself while it holds its read, whatever stands above it. */
 export function BarChart<T>(props: BarChartProps<T>) {
 	const { label, keys, unit, level } = props;
 	const { drawn, frame } = useCollection(props.items);
 	const { painted } = drawn;
 	const { bar } = props;
 	const items = painted ? NONE : drawn.value;
-	// The bars are read from their items once per answer, so a bar's slot
+	// The bars are read from their items once per answer, so a bar's region
 	// renders only when its own bar changed.
 	const series = useMemo<Bar[]>(
 		() =>
@@ -417,14 +418,14 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	// A level's figure that is one reading draws none: the record says it.
 	const said = (span: { low: number; high: number }) =>
 		painted || !leveled || !spanFlat(span, (value) => figure.format(value));
-	// The plot's slots: a short series stands in the first of them.
-	const slotCount = chartSlots(series.length);
-	const slots: VarStyle = { "--slots": slotCount };
+	// The plot's regions: a short series stands in the first of them.
+	const regionCount = chartRegions(series.length);
+	const regions: VarStyle = { "--regions": regionCount };
 	const spanned = (span: number): VarStyle => ({ "--span": span });
 	const timed: VarStyle = { "--time": TIME_SPACE * longest };
 	const spaceAt = (index: number, space: number | undefined): VarStyle => ({
 		"--space": space,
-		insetInlineStart: `${((index + 0.5) / slotCount) * 100}%`,
+		insetInlineStart: `${((index + 0.5) / regionCount) * 100}%`,
 	});
 	const word = unit ? spanUnit(unit, total) : undefined;
 	const keyTotals = labels.map((label, at) => ({
@@ -464,7 +465,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	const plot = useRef<HTMLDivElement>(null);
 	const measured = usePlotWidth(plot, categories.length > 0);
 	const stride = axisStride(
-		slotCount,
+		regionCount,
 		measured.width,
 		Math.max(0, ...categories.map((name) => name.length)),
 		measured.meta,
@@ -549,7 +550,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 						<Scroller value={scroll}>
 							<div
 								ref={plot}
-								style={slots}
+								style={regions}
 								className={cn(CHART_MAIN, PLOT_MAIN, windowed && WIDE)}
 							>
 								{painted ? (
@@ -578,7 +579,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 												count={series.length}
 												keyOf={(index) => (series[index] as Bar).key}
 												row={(index) => (
-													<BarSlot
+													<BarRegion
 														key={(series[index] as Bar).key}
 														bar={series[index] as Bar}
 														keys={keys}
@@ -609,7 +610,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 														)}
 													>
 														{name ? (
-															<span className={CATEGORY_SLOT}>
+															<span className={CATEGORY_REGION}>
 																<span className={CATEGORY_NAME}>{name}</span>
 															</span>
 														) : null}
@@ -650,7 +651,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 										{end ? (
 											<span
 												style={{
-													insetInlineStart: `${((series.length - 1) / slotCount) * 100}%`,
+													insetInlineStart: `${((series.length - 1) / regionCount) * 100}%`,
 												}}
 												className={cn(
 													text({ role: "meta" }),

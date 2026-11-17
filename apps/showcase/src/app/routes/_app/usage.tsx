@@ -2,7 +2,7 @@ import { preload } from "@fcalell/plugin-query/preload";
 import { useMutation, useRead } from "@fcalell/plugin-query/tanstack-query";
 import {
 	BarChart,
-	type BarSlots,
+	type BarRegions,
 } from "@fcalell/plugin-react-ui/components/bar-chart";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_app/usage")({
 
 type Day = AppRouter["usage"]["requests"]["__output"][number];
 
-const BAR: BarSlots<Day> = {
+const BAR: BarRegions<Day> = {
 	key: (day) => day.day,
 	value: (day) => day.value,
 	parts: (day) => day.parts,

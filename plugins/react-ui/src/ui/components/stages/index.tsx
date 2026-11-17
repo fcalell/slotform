@@ -19,11 +19,11 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { moment } from "../../lib/moment.ts";
 import { PAINT_CONTROL, Painted } from "../../lib/paint.tsx";
 import { Swap } from "../../lib/swap.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 
 const LIST = "flex flex-col min-w-0";
 const ROW = "flex min-w-0";

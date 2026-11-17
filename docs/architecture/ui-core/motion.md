@@ -59,7 +59,7 @@ On the phone reduced motion follows the system, which zeroes the Reanimated timi
 a number the web reads from a CSS variable, applied on the next read as the variables are. A writer
 goes through `tune` so readers are told; a reader that must follow a change reads `tuned[name]` as a
 `useSyncExternalStore` snapshot over `subscribeMotion`. `loading` and `setLoading` hold the theme's
-paint per glyph slot the same way.
+paint per glyph region the same way.
 
 The phone app's `/motion` route (development only) generates one slider per knob, written to
 `tuned` so the next animation played takes it, and a "Copy values" text dump of the changed knobs. `pnpm --filter @fcalell/ui-core motion:apply <file>` validates the keys and ranges,
@@ -140,7 +140,7 @@ tick rides, a changing figure or mark swaps (`Swap`, `Roll`).
 ## Wait and settle
 
 A read that lasts shows its waiting shape after `WAIT_DELAY` ([timing](reads.md#timing)): the loaded
-tree painted, each slot breathing in one page-wide phase (`PULSE`), or the spinner where a wait has no
+tree painted, each region breathing in one page-wide phase (`PULSE`), or the spinner where a wait has no
 shape ([waiting paint](reads.md#waiting-paint)). A painted fill's whole animation is the appear fade
 after `--wait-delay` (`paint-in`), then the breath on the fill's alpha (`pulse-fill`), one phase
 across the page. Under reduced motion `--pulse-name` is `none`, so the fade snaps and the fill stands
@@ -156,12 +156,12 @@ the root, set by `themeModePlugin` before first paint; on the phone through the 
 
 ## Scramble and decode
 
-When the theme scrambles a slot's kind, the slot paints generated characters in the filler's length
+When the theme scrambles a region's kind, the region paints generated characters in the filler's length
 instead of the pulse (`@fcalell/ui-core/scramble`: `frame`, `decode`, `createTicker`, over the kind
 `kindOf` of `@fcalell/ui-core/paint` gives a role). Every function is pure over the tick it is given,
-so both platforms draw the same frame for the same slot, and one ticker serves every slot of a page.
+so both platforms draw the same frame for the same region, and one ticker serves every region of a page.
 A figure or id that waited then decodes by locking its characters across `slow`. `Decoded`
-(`lib/slot`) draws both forms as one instance. A wrapping slot always pulses.
+(`lib/region`) draws both forms as one instance. A wrapping region always pulses.
 
 ## Spinner
 
@@ -228,5 +228,5 @@ design critique's motion pass is the run with motion on.
 - `packages/ui-core/src/scramble.ts`: the scramble and decode.
 - `plugins/react-ui/src/node/theme.ts`: the web's keyframe animation tokens.
 - `plugins/native-ui/src/ui/lib/motion.ts`: the contract in Reanimated (`usePress`, `flowIn`, `streamIn`, the fills).
-- `plugins/native-ui/src/ui/parts/spinner/index.tsx`: the phone's spinner and busy glyph.
+- `plugins/native-ui/src/ui/atoms/spinner/index.tsx`: the phone's spinner and busy glyph.
 - `apps/phone/src/app/motion.tsx`: the phone's tuning page.

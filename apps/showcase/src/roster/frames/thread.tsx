@@ -1,7 +1,7 @@
 import { read } from "@fcalell/plugin-query/read";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import type { Datum } from "@fcalell/ui-core/read";
 import { useMemo, useState } from "react";
@@ -234,7 +234,7 @@ function Conversation(props: {
 	);
 	return (
 		<Column>
-			<Place title="Assistant">
+			<Panes title="Assistant">
 				<Pane fill>
 					{/* A Section over the Thread: on the desktop the messages start where its rows start and end at the measure. */}
 					<Section title="Deploys">
@@ -262,7 +262,7 @@ function Conversation(props: {
 						}}
 					/>
 				</Pane>
-			</Place>
+			</Panes>
 		</Column>
 	);
 }

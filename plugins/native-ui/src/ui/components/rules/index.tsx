@@ -9,12 +9,12 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { SheetEntries } from "../../atoms/section/card";
 import { type Act, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { Icon } from "../../parts/icon";
-import { SheetEntries } from "../../parts/section/card";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
 import { HeldInput } from "../input/base";
@@ -22,7 +22,7 @@ import { Picker } from "../picker";
 import { Text } from "../text";
 
 const STACK = "items-start gap-gap";
-const GROUP_SLOT = "self-stretch";
+const GROUP_REGION = "self-stretch";
 const MARK = "items-start";
 const LAST = "flex-row items-center";
 const LAST_TERM = "flex-1 min-w-0";
@@ -134,7 +134,7 @@ export function Rules<V extends string | null = string>({
 	return (
 		<View className={STACK}>
 			{rules.length > 0 ? (
-				<View role="list" className={GROUP_SLOT}>
+				<View role="list" className={GROUP_REGION}>
 					<SheetEntries
 						entries={rules.map((rule) => ({
 							key: rule.id,

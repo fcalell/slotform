@@ -74,7 +74,7 @@ startup:
 
 - `Uniwind.setTheme(defaultMode)`: the mode a viewer starts in until the app sets another, ahead of
   the system's.
-- `setLoading`: the glyph slots the app waits in the scramble; a slot left out pulses.
+- `setLoading`: the glyph regions the app waits in the scramble; a region left out pulses.
 - `setRoomKnobs`: the room's knobs, when `radius` or `size` is not the default. The density sets
   carry theirs in the stylesheet.
 
@@ -169,7 +169,7 @@ It stands under the toasts like every sheet, and it draws the picture contain-fi
 `Gate` is the frame of a page outside the shell, a sign-in or a consent step
 ([Gate](../ui-core/layout.md#gate)): the banner, the product's mark, an optional step count, the
 title, the description and the body in one column at the `auth` width inside the page inset,
-scrolling over the keyboard (`Scroll`) and keeping the safe area. It mounts the same `FrameHost` as
+scrolling over the keyboard (`Scroll`) and keeping the safe area. It mounts the same `ContainerHost` as
 the `Shell` and hands `FieldClaim` to its body ([Focus claims](#focus-claims)). Its `form` (a
 `Form`'s props, over the step's procedure) is drawn in the column by the Gate
 (`components/form/base`, `in` the auth column), its bar set `full`.
@@ -185,8 +185,8 @@ what the phone draws itself.
 
 The total (the bars' span with `level`) stands at body 500 with its unit, the parts' keys under it,
 then the axis beside the plot: four gridlines a hairline each, its tick centred on each, and the
-baseline with its 0. The columns in the chip marks by part, each bar in its slot of the plot
-([Slots](../ui-core/components.md#slots)). The first bar's time is centred under the first bar and
+baseline with its 0. The columns in the chip marks by part, each bar in its region of the plot
+([Regions](../ui-core/components.md#regions)). The first bar's time is centred under the first bar and
 the last bar's under the last, each kept whole inside the plot; the times between stand at evenly
 spaced strides (`timeSpace`), each drawn where its room holds `TIME_SPACE` times the longest time
 ([Time labels](../ui-core/components.md#time-labels)). A chart given `bar.label` names its bars there
@@ -233,13 +233,13 @@ message is and replaced in place when the reply's item arrives. The rest is
 
 ### Stats meter
 
-The meter form of a bound stat (`parts/stats/meter.tsx`, outside the package's exports) is a cell
+The meter form of a bound stat (`atoms/stats/meter.tsx`, outside the package's exports) is a cell
 like the plain one: the label in meta, wrapping at its words, the share in percent as its figure
 under it, and the bar under them filling by the share in the meta ink, amber once near full and
 `danger` once over; a `goal` draws the meta ink short of it and the good tone once reached
 ([Stats meter](../ui-core/components.md#stats-meter)). The line under the bar is the `line`, or the
 counts as links. Once its read ended the meter stands empty (no share, no fill) in the same box; a
-failed read keeps the label, shows the failure mark and the retry icon in the share slot, reads
+failed read keeps the label, shows the failure mark and the retry icon in the share region, reads
 "This didn't load." under the bar, and a press retries. React Native has no meter role, so it is a
 progress bar.
 
@@ -265,14 +265,14 @@ resize rescales it ([density and room](../ui-core/tokens.md#density-and-room)).
 `Ink` (`lib/ink`) is the ink of the place a glyph or a spinner sits in: the native form of the web's
 `currentColor`, which a React Native view never inherits. The place that draws an ink (a labelled
 act, an icon act) provides it; elsewhere it is unset and each atom keeps its own. The number every
-`Count` and every `Button`'s count renders (`parts/count/base`, outside the package's exports) takes
+`Count` and every `Button`'s count renders (`atoms/count/base`, outside the package's exports) takes
 `inAct` to draw in the act's ink, never the muted one: a text takes no `currentColor`, so the ink the
 button provides is resolved and set. `painted` is the number while its data is not here, a figure's
 filler.
 
 ## Frame host
 
-A root frame (the `Shell`, the `Gate`) mounts `FrameHost` (`components/shell/host.tsx`, outside the
+A root frame (the `Shell`, the `Gate`) mounts `ContainerHost` (`components/shell/host.tsx`, outside the
 package's exports) around itself:
 
 - the sheets' provider, the nearest one every sheet inside resolves, which draws the sheets after the
@@ -295,7 +295,7 @@ value a sheet's layer reads reaches it only when the modal itself re-renders, wh
 pushes the layer.
 
 gorhom renders the head, the foot and the scrim each as an element type, so a new component identity
-remounts its tree (a typing field in the head loses focus): the slots are module components reading
+remounts its tree (a typing field in the head loses focus): the regions are module components reading
 a context, never closures.
 
 ### Docked sheet
@@ -371,11 +371,11 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 - `plugins/native-ui/src/ui/lib/raised.tsx`: `RaisedGround` and `SoftGround`.
 - `plugins/native-ui/src/ui/lib/room.tsx`: the room scope.
 - `plugins/native-ui/src/ui/lib/ink.ts`: `Ink`.
-- `plugins/native-ui/src/ui/parts/count/base.tsx`: the count number.
-- `plugins/native-ui/src/ui/components/shell/host.tsx`: `FrameHost`.
-- `plugins/native-ui/src/ui/lib/frame.ts`: the toasts' placement and the docked foot region.
+- `plugins/native-ui/src/ui/atoms/count/base.tsx`: the count number.
+- `plugins/native-ui/src/ui/components/shell/host.tsx`: `ContainerHost`.
+- `plugins/native-ui/src/ui/lib/container.ts`: the toasts' placement and the docked foot region.
 - `plugins/native-ui/src/ui/lib/toast.ts`: the toast queue.
-- `plugins/native-ui/src/ui/components/sheet/layer.tsx`: the sheet layer and its slots.
+- `plugins/native-ui/src/ui/components/sheet/layer.tsx`: the sheet layer and its regions.
 - `plugins/native-ui/src/ui/components/sheet/index.tsx`: the sheet and its body's claim region.
 - `plugins/native-ui/src/ui/lib/field.ts`: `FieldClaim` and a typing control's claim.
 - `plugins/native-ui/src/ui/lib/route.ts`: the phone's route type.
@@ -386,5 +386,5 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 - `plugins/native-ui/src/ui/lib/facts.ts`: a line of facts, free of any view.
 - `plugins/native-ui/src/ui/lib/not-found.tsx`: the not-found page.
 - `plugins/native-ui/src/ui/components/bar-chart/index.tsx`, `diff/index.tsx`, `table/index.tsx`, `thread/index.tsx`: the phone's charts, diffs, tables and threads.
-- `plugins/native-ui/src/ui/parts/stats/meter.tsx`: the meter form of a stat.
+- `plugins/native-ui/src/ui/atoms/stats/meter.tsx`: the meter form of a stat.
 - `apps/phone/src/lib/auth.ts`, `apps/phone/src/lib/api.ts`: the phone app's clients.

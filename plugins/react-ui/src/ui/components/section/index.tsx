@@ -35,13 +35,13 @@ import {
 } from "@fcalell/ui-core/read";
 import { ROWS, SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
 import { type ReactNode, use, useId, useMemo, useRef, useState } from "react";
+import { SheetCard } from "../../atoms/section/card.tsx";
 import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { DEEPER, HeadingContext } from "../../lib/heading.ts";
 import { FrameBody, FrameLine, StateLine } from "../../lib/read.tsx";
 import { useMovable } from "../../lib/reorder.ts";
-import { SheetCard } from "../../parts/section/card.tsx";
 import { SectionHead } from "./head.tsx";
 import { keyOf, Rows } from "./rows.tsx";
 
@@ -126,7 +126,7 @@ type Parts = SectionHeadProps & {
 type Sheet<V extends string | null, Q> = SectionHeadProps & {
 	/** The heading (a short phrase; truncates); the head over the sheet is drawn with it, and a Section with no title is the sheet alone. */
 	title?: Datum<Run>;
-	/** The sheet's rows: constants (none draw the empty shape, as an empty read does), or a selection, which paints as many list rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the slots its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty shapes in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
+	/** The sheet's rows: constants (none draw the empty shape, as an empty read does), or a selection, which paints as many list rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the regions its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty shapes in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
 	items: Datum<readonly Row<V, Q>[]> | Row<V, Q>;
 	/** The sheet's bands, in order: a band over the list rows of each (their `group` is its `key`), with its label, the count of its rows (none for a lone band holding every row under a counted head, whose count is the same) and its act. Rows whose `group` names no key, or with none, stand before the first band; the painted (waiting) rows stand with no bands. A selection is the section's own read as `items` is: the rows paint with no bands until it lands, and its failed, missing and empty shapes stand in the sheet's place. */
 	groups?: Datum<readonly Band[]>;

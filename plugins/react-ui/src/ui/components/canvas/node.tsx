@@ -25,10 +25,10 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { IconButtonLink } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
-import { StatusBadge } from "../../parts/row/badges.tsx";
-import { StatusDot } from "../../parts/status/dot.tsx";
+import { IconButtonLink } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
+import { StatusBadge } from "../../atoms/row/badges.tsx";
+import { StatusDot } from "../../atoms/status/dot.tsx";
 import { Count } from "../count/index.tsx";
 import { UNZOOM } from "./floor.ts";
 import type { Size } from "./geometry.ts";

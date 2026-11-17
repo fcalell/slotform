@@ -40,12 +40,7 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
-import { RunText } from "../../lib/code.tsx";
-import { useTouch } from "../../lib/media.ts";
-import { follow } from "../../lib/navigate.ts";
-import { Painted } from "../../lib/paint.tsx";
-import { PartsLine } from "../../lib/parts-line.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import {
 	Badge,
 	ChipBadge,
@@ -53,8 +48,13 @@ import {
 	StatusBadge,
 	WarningBadge,
 	WordsBadge,
-} from "../../parts/row/badges.tsx";
-import { EndMark, says, wordless } from "../../parts/row/marks.tsx";
+} from "../../atoms/row/badges.tsx";
+import { EndMark, says, wordless } from "../../atoms/row/marks.tsx";
+import { RunText } from "../../lib/code.tsx";
+import { useTouch } from "../../lib/media.ts";
+import { follow } from "../../lib/navigate.ts";
+import { Painted } from "../../lib/paint.tsx";
+import { PartsLine } from "../../lib/parts-line.tsx";
 import { Count } from "../count/index.tsx";
 import { PictureTile } from "../image/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";

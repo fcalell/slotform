@@ -8,11 +8,11 @@ const configs = [
 	["a default mode", "dark", {}],
 	["a scrambled loading text", "light", { text: "scramble" }],
 	[
-		"every slot scrambled",
+		"every region scrambled",
 		undefined,
 		{ text: "scramble", figure: "scramble", id: "scramble" },
 	],
-	["pulsed slots", "dark", { text: "pulse" }],
+	["pulsed regions", "dark", { text: "pulse" }],
 ] as const;
 
 for (const [name, mode, loading] of configs) {

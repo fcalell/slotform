@@ -28,20 +28,20 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { use } from "react";
+import { IconButtonBase, IconButtonLink } from "../../atoms/button/glyph.tsx";
 import { type IconAct, type MenuEntry, wiringOf } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
-import { ShellMenu } from "../../lib/frame.ts";
+import { ShellMenu } from "../../lib/container.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { BusyMark, FrameLine } from "../../lib/read.tsx";
-import { IconButtonBase, IconButtonLink } from "../../parts/button/glyph.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Button } from "../button/index.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
 import type { PickOneProps } from "../picker/index.tsx";
 
-// A record's Back, Close and Expand: docs/architecture/ui-core/layout.md, "Place".
+// A record's Back, Close and Expand: docs/architecture/ui-core/layout.md, "Panes".
 const ALONE = "[display:var(--pane-back,flex)]";
 const SPACE_BACK = "flex";
 const BESIDE = "[display:var(--pane-close,none)]";
@@ -90,7 +90,7 @@ export function PaneHead(props: {
 	back?: Route;
 	/** A record's Expand act, which folds the place's Pane away and, `expanded`, stands as Collapse. */
 	expand?: { expanded: boolean; onAct: () => void };
-	/** The Pane stands in a room Place, alone. */
+	/** The Pane stands in a room Panes, alone. */
 	far?: boolean;
 	acts?: readonly Offered<IconAct | IconLinkAct>[];
 	more?: Offered<readonly MenuEntry[]>;

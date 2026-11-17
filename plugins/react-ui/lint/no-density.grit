@@ -1,6 +1,6 @@
 language js(typescript, jsx)
 
-// An element of your own takes no `data-density`: a screen read from across a room declares `distance` on its `Place`.
+// An element of your own takes no `data-density`: a screen read from across a room declares `distance` on its `Panes`.
 
 jsx_attribute(name=$n) as $a where {
 	$n <: r"data-density",

@@ -1,12 +1,12 @@
-// The hooks a host holds its acts' runs and a control its saves with, and `createActs`: docs/architecture/ui-core/acts.md, "Act model".
+// The hooks a host holds its acts' attempts and a control its saves with, and `createActs`: docs/architecture/ui-core/acts.md, "Act model".
 import { useRef, useState } from "react";
 import {
+	type AttemptState,
 	drew,
 	isPlaced,
 	isThenable,
 	keepSave,
-	type RunState,
-	startRun,
+	startAttempt,
 } from "../acts.ts";
 import type { Act, ActBase, Decision } from "../descriptors.ts";
 import {
@@ -133,26 +133,26 @@ export function useFieldDraft<T>(value: Datum<T>): {
 	};
 }
 
-export interface Run<K> {
+export interface Attempt<K> {
 	pending: K | undefined;
-	// The newest run's rejection, until the next run.
+	// The newest attempt's rejection, until the next attempt.
 	failure: { key: K; error: unknown } | undefined;
-	run: (key: K, onAct: () => unknown) => void;
+	attempt: (key: K, onAct: () => unknown) => void;
 }
 
-// A host's hold on its acts' runs (`../acts.ts`): `key` names which act runs,
-// for a host with several. The newest run wins. A run needs no read, so the
+// A host's hold on its acts' attempts (`../acts.ts`): `key` names which act is attempted,
+// for a host with several. The newest attempt wins. An attempt needs no read, so the
 // port with no binding calls the act as it is.
-export function useRun<K = true>(): Run<K> {
+export function useAttempt<K = true>(): Attempt<K> {
 	const port = usePort();
-	const [state, setState] = useState<RunState<K>>({});
+	const [state, setState] = useState<AttemptState<K>>({});
 	const latest = useRef(0);
 	return {
 		pending: state.pending,
 		failure: state.failure,
-		run: (key, onAct) => {
+		attempt: (key, onAct) => {
 			const seq = ++latest.current;
-			startRun(
+			startAttempt(
 				key,
 				() => port.act(onAct),
 				() => seq === latest.current,
@@ -175,8 +175,8 @@ export interface ActPlatform {
 	open(href: string): unknown;
 }
 
-/** What `run` takes: the `onAct`, its wiring (`confirm`, `done`, `to`, and the `sheet` it opens instead of running), and the label and `destructive` a `confirm`'s decision draws its act with. */
-export type Runnable = Partial<ActBase> & {
+/** What `attempt` takes: the `onAct`, its wiring (`confirm`, `done`, `to`, and the `sheet` it opens instead of running), and the label and `destructive` a `confirm`'s decision draws its act with. */
+export type Attemptable = Partial<ActBase> & {
 	confirm?: Decision;
 	done?: string;
 	to?: string;
@@ -187,34 +187,34 @@ export type Runnable = Partial<ActBase> & {
 
 // What an act's holder reads: which act pends (inert at once; the pending look
 // comes after `ACT_DELAY`), whether it holds its siblings (while one pends),
-// the line its failure is drawn in, the call that runs an act, and which act's
+// the line its failure is drawn in, the call that attempts an act, and which act's
 // sheet is open (drawn by the holder through `ActSheet`, from that act's current
 // `sheet`: the open state is all the holder keeps).
 export interface Acting<K> {
 	pending: K | undefined;
 	holds: boolean;
 	line: string | undefined;
-	run(key: K, act: Runnable): void;
+	attempt(key: K, act: Attemptable): void;
 	sheet: { key: K; open: boolean; close: () => void } | undefined;
 }
 
-/** The act hooks over a platform's toast and route opening: `useAct`, a holder's run of its acts, and `useHeldDraft`, a bare control's draft. */
+/** The act hooks over a platform's toast and route opening: `useAct`, a holder's attempt of its acts, and `useHeldDraft`, a bare control's draft. */
 export function createActs(platform: ActPlatform): {
 	useAct: <K = true>(where: "line" | "toast") => Acting<K>;
 	useHeldDraft: <T>(value: Datum<T>) => Draft<T>;
 } {
-	/** A holder's run of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one; a refusal the server answered (a 4xx) has no Retry, as it would answer the same again; an act refused for the connection draws the generic one, with no Retry either, and the connection's own sentence is the offline banner's alone. */
+	/** A holder's attempt of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one; a refusal the server answered (a 4xx) has no Retry, as it would answer the same again; an act refused for the connection draws the generic one, with no Retry either, and the connection's own sentence is the offline banner's alone. */
 	function useAct<K = true>(where: "line" | "toast"): Acting<K> {
 		const port = usePort();
 		const words = useWords();
-		const run = useRun<K>();
+		const attempt = useAttempt<K>();
 		const [opened, setOpened] = useState<{ key: K; open: boolean }>();
 		const sentenceOf = (error: unknown) =>
 			port.refusal(error) ?? words.actFailed;
-		const { pending, failure } = run;
+		const { pending, failure } = attempt;
 		// The act's work: `onAct`, then `done`, then `to`, each once the one before
 		// resolved (at once for an `onAct` that returns nothing).
-		const work = (act: Runnable): unknown => {
+		const work = (act: Attemptable): unknown => {
 			const result = act.onAct?.();
 			const finish = () => {
 				if (act.done) platform.toast(act.done);
@@ -229,12 +229,12 @@ export function createActs(platform: ActPlatform): {
 				return value;
 			});
 		};
-		const go = (key: K, act: Runnable) => {
+		const go = (key: K, act: Attemptable) => {
 			if (act.sheet) {
 				setOpened({ key, open: true });
 				return;
 			}
-			run.run(key, () => {
+			attempt.attempt(key, () => {
 				const result = work(act);
 				if (where === "line" || !isThenable(result)) return result;
 				return Promise.resolve(result).catch((error: unknown) => {
@@ -256,7 +256,7 @@ export function createActs(platform: ActPlatform): {
 				failure && !isPlaced(failure.error)
 					? sentenceOf(failure.error)
 					: undefined,
-			run: (key, act) => {
+			attempt: (key, act) => {
 				if (!act.confirm) return go(key, act);
 				ask({
 					...act.confirm,

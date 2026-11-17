@@ -7,7 +7,7 @@ import {
 	choose,
 	chosenOf,
 	type OptionChoice,
-	type OptionSlots,
+	type OptionRegions,
 	optionBlocked,
 	optionsOf,
 } from "@fcalell/ui-core/list-state";
@@ -43,14 +43,14 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { MarkBadge } from "../../atoms/row/badges.tsx";
+import { Leading } from "../../atoms/row/leading.tsx";
+import { HeldCheckbox } from "../../atoms/switch/checkbox.tsx";
 import { useHeldDraft } from "../../lib/act.ts";
 import { GroupName } from "../../lib/field.ts";
 import { PAINT_CONTROL, Painted } from "../../lib/paint.tsx";
 import { OptionsLine } from "../../lib/read.tsx";
 import { Window } from "../../lib/window.tsx";
-import { MarkBadge } from "../../parts/row/badges.tsx";
-import { Leading } from "../../parts/row/leading.tsx";
-import { HeldCheckbox } from "../../parts/switch/checkbox.tsx";
 import type { PickerListBody, PickerListProps } from "./index.tsx";
 
 const LIST = "flex flex-col";
@@ -323,7 +323,7 @@ function OptionGroupBox<V extends string>(props: {
 	);
 }
 
-/** The option rows every Picker in `fit: list` renders, on the `draft` its host holds: a field hosts the draft of its options and draws a rejection in its own line. Static `options` never paint; `items` paint `PAINT_ROWS` rows in the slots `option` declares while their read waits, and the draft paints the marks, inert. The frame that holds the read draws its failed, missing and empty shapes. From `VIRTUAL_FROM` options in a group, under a scroller, it draws only the rows near the scroller's view. Outside the package's exports. */
+/** The option rows every Picker in `fit: list` renders, on the `draft` its host holds: a field hosts the draft of its options and draws a rejection in its own line. Static `options` never paint; `items` paint `PAINT_ROWS` rows in the regions `option` declares while their read waits, and the draft paints the marks, inert. The frame that holds the read draws its failed, missing and empty shapes. From `VIRTUAL_FROM` options in a group, under a scroller, it draws only the rows near the scroller's view. Outside the package's exports. */
 export function PickerListBase<V extends string = string, T = unknown>(
 	props: PickerListBody<V, T> & {
 		/** Names the group where no `FormField` does. */
@@ -363,7 +363,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 				: // A source without `options` holds `items` and `option`; `??`
 					// does not narrow the union to that form.
 					(props.options ??
-					optionsOf(items as readonly T[], option as OptionSlots<T, V>)),
+					optionsOf(items as readonly T[], option as OptionRegions<T, V>)),
 		[rowsPaint, option, props.options, items],
 	);
 	// A row hears its press through one function, which reads the choice the

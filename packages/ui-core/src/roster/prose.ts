@@ -48,7 +48,7 @@ export const proseEntry: RosterEntry = {
 	},
 };
 
-// A list item's marker in a slot the icon's width, in the meta ink: a
+// A list item's marker in a region the icon's width, in the meta ink: a
 // bullet, or an ordered item's figures at one width.
 export const PROSE_MARKER = matrix({
 	base: "min-w-icon text-body leading-body font-normal text-ink-meta",

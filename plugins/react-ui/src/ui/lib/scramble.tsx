@@ -16,13 +16,13 @@ import {
 	lockedAt,
 	seedOf,
 } from "@fcalell/ui-core/scramble";
-import type { LoadingSlot } from "@fcalell/ui-core/tokens";
+import type { LoadingRegion } from "@fcalell/ui-core/tokens";
 import { paint, SCRAMBLE } from "@fcalell/ui-core/variants";
 import { useId, useLayoutEffect, useRef } from "react";
 import { reducedNow } from "./media.ts";
 
 // The `loading` record read from the root: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
-const ATTRIBUTES: Record<LoadingSlot, string> = {
+const ATTRIBUTES: Record<LoadingRegion, string> = {
 	text: "loadingText",
 	figure: "loadingFigure",
 	id: "loadingId",
@@ -31,11 +31,11 @@ const ATTRIBUTES: Record<LoadingSlot, string> = {
 if (typeof document !== "undefined") {
 	const set = document.documentElement.dataset;
 	setLoading(
-		// `Object.keys` widens to `string[]`; `ATTRIBUTES` is keyed by every slot.
+		// `Object.keys` widens to `string[]`; `ATTRIBUTES` is keyed by every region.
 		Object.fromEntries(
-			(Object.keys(ATTRIBUTES) as LoadingSlot[])
-				.filter((slot) => set[ATTRIBUTES[slot]] === "scramble")
-				.map((slot) => [slot, "scramble"]),
+			(Object.keys(ATTRIBUTES) as LoadingRegion[])
+				.filter((region) => set[ATTRIBUTES[region]] === "scramble")
+				.map((region) => [region, "scramble"]),
 		),
 	);
 }
@@ -46,14 +46,14 @@ if (typeof document !== "undefined") {
 const stilled = (node: Element): boolean =>
 	reducedNow() || node.closest("[data-still]") !== null;
 
-// The glyphs the ticker writes, in the slot's own face and ink. They are laid
-// over the filler (`Painted` sizes the slot with it), clipped to its box, one
-// line, so a letter's width never moves what stands after the slot.
+// The glyphs the ticker writes, in the region's own face and ink. They are laid
+// over the filler (`Painted` sizes the region with it), clipped to its box, one
+// line, so a letter's width never moves what stands after the region.
 const GLYPHS =
 	"absolute inset-0 overflow-hidden whitespace-nowrap motion-reduce:hidden";
 
-/** The text a scrambled slot draws: the page's ticker writes the node directly, so a tick renders nothing. */
-function Scramble(props: { kind: LoadingSlot; shape: string }) {
+/** The text a scrambled region draws: the page's ticker writes the node directly, so a tick renders nothing. */
+function Scramble(props: { kind: LoadingRegion; shape: string }) {
 	const { kind, shape } = props;
 	const node = useRef<HTMLSpanElement>(null);
 	const seed = seedOf(useId());
@@ -69,7 +69,7 @@ function Scramble(props: { kind: LoadingSlot; shape: string }) {
 	return <span ref={node} aria-hidden data-scrambling="" className={GLYPHS} />;
 }
 
-/** A glyph slot painted by the scramble: the filler sizes the box (transparent), the generated characters stand over it in the slot's own ink, and the fill returns under reduced motion and in a still frame (`globals.css`). */
+/** A glyph region painted by the scramble: the filler sizes the box (transparent), the generated characters stand over it in the region's own ink, and the fill returns under reduced motion and in a still frame (`globals.css`). */
 export function ScrambledGlyphs(props: { role: PaintRole; at: number }) {
 	const { role, at } = props;
 	const kind = kindOf(role);

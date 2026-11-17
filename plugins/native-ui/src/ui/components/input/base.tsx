@@ -16,6 +16,8 @@ import {
 	Text as RNText,
 	TextInput,
 } from "react-native";
+import { IconButtonBase } from "../../atoms/button/glyph";
+import { Icon } from "../../atoms/icon";
 import { useAct, useHeldDraft } from "../../lib/act";
 import { useCaretAtEnd } from "../../lib/caret";
 import { cn } from "../../lib/cn";
@@ -30,8 +32,6 @@ import {
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, PaintPressable } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
-import { IconButtonBase } from "../../parts/button/glyph";
-import { Icon } from "../../parts/icon";
 import { ActSheet } from "../sheet/act";
 import type { InputKind, TextInputProps } from "./index";
 
@@ -214,7 +214,7 @@ export function InputBase({
 						act.blocked === undefined &&
 						!acting.holds
 					)
-						acting.run(true, act);
+						acting.attempt(true, act);
 				}}
 				onKeyPress={(event) => {
 					if (!onCommit || event.nativeEvent.key !== "Escape") return;
@@ -237,7 +237,7 @@ export function InputBase({
 					label={act.label}
 					disabled={disabled || act.blocked !== undefined}
 					pending={acting.pending !== undefined}
-					onAct={() => acting.run(true, act)}
+					onAct={() => acting.attempt(true, act)}
 				/>
 			) : null}
 			{act && !painted ? (

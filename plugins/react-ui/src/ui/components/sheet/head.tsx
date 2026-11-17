@@ -5,10 +5,10 @@ import type { Frame } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { SHEET_HEAD, SHEET_HEAD_ROW, text } from "@fcalell/ui-core/variants";
 import { use } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { useFollow } from "../../lib/follow.ts";
 import { useTouch } from "../../lib/media.ts";
 import { BusyMark, FrameLine } from "../../lib/read.tsx";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
 import { Button } from "../button/index.tsx";
 import { SheetLayerContext } from "./layer.tsx";
 
@@ -19,7 +19,7 @@ const HEAD_ROW = "flex items-center";
 // The head is one line: the title truncates at its floor and the close act
 // stands beside it, before it on touch.
 const TITLE_BLOCK = "flex flex-col grow basis-0 min-w-0";
-const TITLE_SLOT = "flex items-center gap-gap min-w-0";
+const TITLE_REGION = "flex items-center gap-gap min-w-0";
 const TITLE = "min-w-0 truncate";
 // The desktop head is a two-line row tall (the title over its description)
 // whether or not the description stands; on touch the row is the acts'.
@@ -78,7 +78,7 @@ export function SheetHead({
 	const start = touch ? (lead ?? closer) : lead;
 	const end = touch ? null : closer;
 	const titled = (
-		<h2 id={titleId} className={TITLE_SLOT}>
+		<h2 id={titleId} className={TITLE_REGION}>
 			<span className={cn(text({ role: "heading" }), TITLE)}>{title}</span>
 			{frame ? <BusyMark frame={frame} /> : null}
 		</h2>

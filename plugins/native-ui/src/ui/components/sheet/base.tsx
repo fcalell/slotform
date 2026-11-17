@@ -26,7 +26,7 @@ interface FootProps {
 	acts?: Act[];
 	// The form's bar.
 	bar?: ActionBarProps;
-	// The holder of the sheet's acts' run: its submit, its foot's acts and its
+	// The holder of the sheet's acts' attempt: its submit, its foot's acts and its
 	// form's bar share it, and it holds the dismissal while one runs.
 	acting: Acting<number>;
 	// The body's read waits or stands still: the submit paints, inert.
@@ -149,7 +149,7 @@ interface SheetBaseProps {
 	// The reads the form's bar paints under besides the form's and the body's
 	// (the ability the form is gated on).
 	barOuter?: readonly unknown[];
-	// The holder of the sheet's acts' run, when a holder above it hosts more
+	// The holder of the sheet's acts' attempt, when a holder above it hosts more
 	// (a `Sheet` holds its form's bar too). Absent, the sheet hosts its own.
 	acting?: Acting<number>;
 	// The body's parts, at the card inset.

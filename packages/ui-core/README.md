@@ -47,21 +47,21 @@ The subpaths:
   `TextRole`, the `body` and `meta` roles `Text` draws).
 - `@fcalell/ui-core/descriptors`: `IconName`, `Act`, `LinkAct`, `IconAct`, `Run`, `Runs`, `StatusMark`, `ChipMark`, `RowMark`, `Fact`, `RecordFact`,
   `Option`, `OptionLeading`, `OptionGroup`, `OptionPick`, `MultiPick`, `Row` (`RowItem`, `FileItem`), `Band`, `PlaceSpec`, `Hunk`, `FieldBinding`, `Confirmation`, `Decision`,
-  `RowEntry`, `Lock`, `Answered`, `TableColumn`, `TableRowSlots`, `Stage`,
+  `RowEntry`, `Lock`, `Answered`, `TableColumn`, `TableRowRegions`, `Stage`,
   `StageEnd` and the other framework-free types a prop carries.
 - `@fcalell/ui-core/rules`: what the Rules editor and the Picker decide before they draw, free of
   any framework: `termSet`, `pairSet`, `termLabel`, `isTyped` and `marked` (with `PICKED_GLYPH`).
 - `@fcalell/ui-core/streaming`: `closeOpenRuns`, a still-arriving reply's Markdown with the runs open at its end closed, free of any framework.
 - `@fcalell/ui-core/read`: the read model, free of any framework and of TanStack: `readState`, a read's phase (idle, waiting, ready, failed, missing) and flags (busy, stale, more, streaming, paused) from the few fields of a query's result it names; `frameOf` and `turnOf`; `isEnded`, whether a frame's shape or a selection's phase says its read ended (failed or missing); the `Read` handle (`key`, `kind`, `missing`), `Selection`, `Datum`, `combine`, `lift`, `Drawn` and `paints`, the placeholder and the sample, the frame's holds and flags, and `planSelections`/`planFrame`, the pure core of the hooks. The binding that runs the reads builds a `Read` with `readOf`. `endedSentence` is the sentence a failed or missing row says.
-- `@fcalell/ui-core/acts`: what an act is made of apart from what runs it: `isThenable`, `drew`/`wasDrawn`, `placed`/`isPlaced` (a rejection whose sentences its own host draws in place), `Offered` and `offered` (an act as a slot takes it, and that made whole), `startRun`, `keepSave`, `Issue`, `Unreached`, and a more menu's items (`moreMenu`, `endedItems`).
+- `@fcalell/ui-core/acts`: what an act is made of apart from what runs it: `isThenable`, `drew`/`wasDrawn`, `placed`/`isPlaced` (a rejection whose sentences its own host draws in place), `Offered` and `offered` (an act as a region takes it, and that made whole), `startAttempt`, `keepSave`, `Issue`, `Unreached`, and a more menu's items (`moreMenu`, `endedItems`).
 - `@fcalell/ui-core/scope`: the route's registered scope (`registerScope`, `releaseScope`, `registeredScope`, `ScopeIds`) and `mergeScope`.
 - `@fcalell/ui-core/listen`: `QueryListeners`, the shape of the query provider's `listen`.
-- `@fcalell/ui-core/react/port`, `/react/read`, `/react/acts`, `/react/form`, `/react/scope` (React, an optional peer): the read hooks (`useSelections`, `useFrameRead`, `useMore`, `useWindow`, `useDraft`, `useRun`, ...), `createActs` (a platform's `useAct` and `useHeldDraft` over its `ActPlatform`, with `Acting` and `Runnable`), `useFormModel` (a form's model over its procedure, `FormModel` with each field's `FieldModel`, read from `FormModelProps`), `FrameHolds`, `ScopeBoundary`, and `ReadPort`, the port a binding (`@fcalell/plugin-query`) provides them and the components through. A component asks the port to observe reads, to say whether a fetch is the next page's, to retry a read, to load a window's pages or wait for fetches to settle, to run an act and carry the binding's context into a portal, to word a failed act (its refusal sentence, whether it retries, its schema issues), to submit a procedure, to give a procedure's schema, to answer whether the caller may do an action, and to warm a route's reads. With no binding above, plain values draw, an act runs as it is, and a read or a procedure throws naming `QueryProvider`.
+- `@fcalell/ui-core/react/port`, `/react/read`, `/react/acts`, `/react/form`, `/react/scope` (React, an optional peer): the read hooks (`useSelections`, `useFrameRead`, `useMore`, `useWindow`, `useDraft`, `useAttempt`, ...), `createActs` (a platform's `useAct` and `useHeldDraft` over its `ActPlatform`, with `Acting` and `Attemptable`), `useFormModel` (a form's model over its procedure, `FormModel` with each field's `FieldModel`, read from `FormModelProps`), `FrameHolds`, `ScopeBoundary`, and `ReadPort`, the port a binding (`@fcalell/plugin-query`) provides them and the components through. A component asks the port to observe reads, to say whether a fetch is the next page's, to retry a read, to load a window's pages or wait for fetches to settle, to run an act and carry the binding's context into a portal, to word a failed act (its refusal sentence, whether it retries, its schema issues), to submit a procedure, to give a procedure's schema, to answer whether the caller may do an action, and to warm a route's reads. With no binding above, plain values draw, an act runs as it is, and a read or a procedure throws naming `QueryProvider`.
 - `@fcalell/ui-core/react/words`, `/react/clock`, `/react/arrive`, `/react/reason`, `/react/touched`, `/react/confirm`, `/react/frame`, `/react/field` (React, an optional peer): what both UI plugins' components share over React alone: the words (`WordsProvider`, `useWords`), the one coarse clock (`useClock`, `usePending`), a list's arrivals (`useArrivals`, `useDrawn`, `useStreamed`), a blocked act's reason host and press (`ReasonHostContext`, `usePressed`), a form's or sheet's touched state (`TouchedContext`, `useTouched`, `useTouchState`, `usePageTurn`), the decision queue (`confirm`, `ask`, `askDiscard`, `dismissConfirmation`, `useConfirmations`), `ShellHome`, and the field contexts `FieldDisabled` and `FieldOwned`.
 - `@fcalell/ui-core/same-by`: `sameBy`, a collection row's `memo` comparison (its item by value, the other props by identity), free of any framework.
 - `@fcalell/ui-core/paint`: what a part draws while its data is not here, free of any framework:
-  `paintText` (deterministic filler of a role's length), `painting` (a slot over a painted item, a
-  throw painting the slot), `WAIT_DELAY`, `PAINT_ROWS` and `PAINT_TURNS`, and `timings` (the live `waitDelay`,
+  `paintText` (deterministic filler of a role's length), `painting` (a region over a painted item, a
+  throw painting the region), `WAIT_DELAY`, `PAINT_ROWS` and `PAINT_TURNS`, and `timings` (the live `waitDelay`,
   `actDelay` and `waitMin` a bench tunes, with `paintWait`, the minimum hold on a first load).
 - `@fcalell/ui-core/arrive`: `arrivals`, the keys a collection did not hold when it first drew,
   which fade in on their own (`BLOCK_IN`, `blockIn`).
@@ -109,14 +109,14 @@ The subpaths:
   its axis step, band count and top over a floor of zero (four even bands, or a step of 1 over the
   peak rounded up for a small whole-number chart), `levelScale(figures)`, a level's axis around its
   readings (four bands, the floor a step under the lowest and the top over the highest), and
-  `chartShare(value, scale)` where a value stands on it, `timeSpace(index, count)`, the room in slots
+  `chartShare(value, scale)` where a value stands on it, `timeSpace(index, count)`, the room in regions
   a time between the ends stands in (it draws where that holds `TIME_SPACE` times the longest time),
   `chartHead(series, keys, level)`, the figures its head draws (the sum, or with `level` the bars'
   span, lowest to highest), `spanText` and `spanUnit`, a head figure's text and the unit's word
   after it, `levelUnit(unit)`, whether a unit never sums (`%`, `°C`) so its chart is a level, and
   `unitOf(unit, count)`, a unit's word at the figure it follows (a word, or `{ one, other }`).
 - `@fcalell/ui-core/clock`: what a clock-read part draws, as functions of its times and now:
-  `timeLeft`, a `PendingRun` with `pendingRun` and `pendingShare` (a `Banner` with `until`'s clock
+  `timeLeft`, a `PendingAttempt` with `pendingAttempt` and `pendingShare` (a `Banner` with `until`'s clock
   and fill), and an ISO moment's age: `ageOf` (its value and unit), `ageWords` (long) and `ageShort`
   (a row's "2 min"). Both plugins tick `now` from one shared clock.
 - `@fcalell/ui-core/roster`: the component roster as data (`ROSTER`, `STATES`,
@@ -138,8 +138,8 @@ The subpaths:
 - `@fcalell/ui-core/overflow`: the one overflow rule for acts that stand side by side: `actsSplit`, `rowOneLine`, `rulesOneRow`, `definitionsOneRow`, `actsStackedMax` and `ROW_TITLE_LINES`.
 - `@fcalell/ui-core/follow`: what a finger or pointer carries moves 1:1 with it and only its release eases: `position`, `velocity`, `release`, `eased` and `mix`.
 - `@fcalell/ui-core/roll`: how a figure that changes while shown moves: `rollOf` and `rollShift`.
-- `@fcalell/ui-core/scramble`: the glyph slot's scramble, pure over the tick it is given: `frame`, `decode`, `lockedAt`, `seedOf`, `busy` and `createTicker`, the one ticker every slot of a page shares.
-- `@fcalell/ui-core/window`: how a long collection windows: `slotsOf`, `ranged`, `pagesCovering`, `VIRTUAL_FROM` and `OVERSCAN`.
+- `@fcalell/ui-core/scramble`: the glyph region's scramble, pure over the tick it is given: `frame`, `decode`, `lockedAt`, `seedOf`, `busy` and `createTicker`, the one ticker every region of a page shares.
+- `@fcalell/ui-core/window`: how a long collection windows: `windowEntries`, `ranged`, `pagesCovering`, `VIRTUAL_FROM` and `OVERSCAN`.
 - `@fcalell/ui-core/drag`: drag and drop, free of any framework: when a press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands (`movedTo`, `moveOf`, `stepOf`, `moveEntry`), the scroller's speed near an edge (`edgeSpeed`) and the drop a drag is accepted by (`accepts`).
 - `@fcalell/ui-core/waveform`: a waveform's arithmetic: the peaks reduced to columns (`columns`), the moment a pointer or key names (`momentAt`, `seekKey`, `shareOf`) and the keyboard's steps (`SEEK`).
 - `@fcalell/ui-core/player`: the audio player's rules, free of the sound: `createPlayer` over an `Output` an app passes, `windowQueue`, `trackTime`, `keyOf`, `neighbour` and `shortcut`, with `QueueProvider` and the player's types.

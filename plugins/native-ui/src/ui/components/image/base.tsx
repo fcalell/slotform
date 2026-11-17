@@ -17,17 +17,17 @@ import {
 	Text as RNText,
 	View,
 } from "react-native";
+import { Icon } from "../../atoms/icon";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
-import { Icon } from "../../parts/icon";
 import { Button } from "../button";
 import { SheetLayer } from "../sheet/layer";
 
 // The picture and its full view, which an Image draws once and a Gallery once
 // per tile, with one full view that steps through its pictures.
 
-const FRAME = "overflow-hidden";
+const BOX = "overflow-hidden";
 const PRESS = "active:border-ink-body";
 // A waiting picture is mounted to fetch, and drawn when its bytes are here.
 const FETCHING = "absolute inset-0 opacity-0";
@@ -96,7 +96,7 @@ export function PictureTile({
 				painted
 				{...inertProps(true)}
 				style={box}
-				className={cn(image({ fit }), FRAME, PAINT_BOX)}
+				className={cn(image({ fit }), BOX, PAINT_BOX)}
 			/>
 		);
 	if (src === "" || current?.status === "failed")
@@ -116,7 +116,7 @@ export function PictureTile({
 				)}
 			</View>
 		);
-	const framed = cn(image({ fit, state: pending ? "loading" : "rest" }), FRAME);
+	const framed = cn(image({ fit, state: pending ? "loading" : "rest" }), BOX);
 	const picture = (
 		<RNImage
 			source={{ uri: src }}

@@ -9,7 +9,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
-import { useTokenPx } from "../../lib/frame";
+import { useTokenPx } from "../../lib/container";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";

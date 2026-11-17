@@ -5,7 +5,7 @@ import type {
 	TableCell,
 	TableChoice,
 	TableColumn,
-	TableRowSlots,
+	TableRowRegions,
 } from "@fcalell/ui-core/descriptors";
 import {
 	cellEdit,
@@ -74,6 +74,13 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import { ChipBase } from "../../atoms/chip/base";
+import { Icon } from "../../atoms/icon";
+import { LockMark } from "../../atoms/row/lock";
+import { StatusBase } from "../../atoms/status/base";
+import { ChangeMark } from "../../atoms/status/change";
+import { HeldCheckbox } from "../../atoms/switch/checkbox";
+import { Turn } from "../../atoms/turn";
 import { age } from "../../lib/age";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
@@ -84,13 +91,6 @@ import { MoreRow } from "../../lib/more";
 import { navigate, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { FrameBody, FrameLine } from "../../lib/read";
-import { ChipBase } from "../../parts/chip/base";
-import { Icon } from "../../parts/icon";
-import { LockMark } from "../../parts/row/lock";
-import { StatusBase } from "../../parts/status/base";
-import { ChangeMark } from "../../parts/status/change";
-import { HeldCheckbox } from "../../parts/switch/checkbox";
-import { Turn } from "../../parts/turn";
 import { Chip } from "../chip";
 import { HeldInput } from "../input/base";
 import { HeldPicker } from "../picker/base";
@@ -105,7 +105,7 @@ const MORE_PAGE = "pt-gap";
 // surface, so the cells scroll beneath its hairline: React Native has no
 // sticky cell, and the two halves of a row share its height because every
 // cell holds one line at the row's height.
-const FRAME = "flex-row";
+const BOX = "flex-row";
 // It is as wide as its tick column (when the table chooses rows) and the
 // leading column's width.
 const FROZEN_COLUMN = "shrink-0";
@@ -129,14 +129,14 @@ const CELL = "flex-row items-center gap-gap min-w-0";
 const CELL_END = "justify-end";
 const VALUE = "shrink";
 const NOOP = () => {};
-// A Chip hugs its top edge in a row, so it stands centred in a slot of its own.
+// A Chip hugs its top edge in a row, so it stands centred in a region of its own.
 const CHIP = "shrink min-w-0";
 // An edit fills the cell it stands in.
 const EDIT = "grow min-w-0";
 const SORT_BAR = "flex-row items-center justify-end";
 
 // The columns each read their cell from the item, and `row` the row's own
-// slots.
+// regions.
 interface TableBase<T> extends Closed {
 	/** The items the rows draw: constants, or a selection, which paints `PAINT_ROWS` rows until its read lands. A selection is the table's own frame: it holds its read and draws the failed, missing and empty shapes in its own box whatever stands above it. */
 	items: Datum<readonly T[]>;
@@ -144,8 +144,8 @@ interface TableBase<T> extends Closed {
 	columns: readonly TableColumn<T>[];
 	/** What the table says in its own box when its `items` selection answers none: the `sentence` and the act that makes the first row (an act that runs, or a `{ label, href }` that goes to a route), the form a `Section`'s `empty` draws. A constant from the parent: a screen with a filter on gives the sentence for it, so the table knows nothing of filters. Without it the generic sentence stands, with no act. */
 	empty?: Empty;
-	/** The row's own slots, each read from the item: its `id` (required), `href`, `warning`, `change`, `editable` and `locked`; the web's `act`, `more` and `drop` draw nothing on the phone. */
-	row: TableRowSlots<T>;
+	/** The row's own regions, each read from the item: its `id` (required), `href`, `warning`, `change`, `editable` and `locked`; the web's `act`, `more` and `drop` draw nothing on the phone. */
+	row: TableRowRegions<T>;
 	/** The table's accessible name (a short phrase), for a page that holds more than one table. */
 	label?: string;
 	/** The open record's id, washed as selected. */
@@ -567,7 +567,7 @@ function Grid(props: {
 		<>
 			<View
 				accessibilityState={{ busy: props.painted }}
-				className={cn(CARD, FRAME)}
+				className={cn(CARD, BOX)}
 			>
 				{lead ? (
 					<View className={FROZEN_COLUMN}>
@@ -759,7 +759,7 @@ function MorePage(props: {
 		<View
 			accessibilityElementsHidden
 			importantForAccessibility="no-hide-descendants"
-			className={cn(CARD, FRAME)}
+			className={cn(CARD, BOX)}
 		>
 			{lead ? (
 				<View className={FROZEN_COLUMN}>
@@ -1133,15 +1133,15 @@ function Phone(props: {
 	// in the shape the loaded ones draw; a mark whose cell the placeholder does
 	// not shape (a status, a chip, an age) is given by its column instead.
 	const rowOf = (record: TableRecord, painted: boolean): RowItem => {
-		// A slot that throws on a painted record gives the record back, which a
+		// A region that throws on a painted record gives the record back, which a
 		// painted row draws only as its filler.
-		const slot = <R,>(fn: (one: TableRecord) => R): R =>
+		const region = <R,>(fn: (one: TableRecord) => R): R =>
 			painted ? (painting(fn, record) as R) : fn(record);
 		// The facts in the order the row leads with them: the statuses, what is
 		// wrong, the chip, then the other values.
 		const facts: Fact[] = [];
 		for (const status of statuses) {
-			const state = slot((one) => {
+			const state = region((one) => {
 				if (painted) return { tone: "done" as const, label: "" };
 				const cellOf = cell(one, status);
 				if (!isStatusCell(cellOf)) return undefined;
@@ -1156,7 +1156,7 @@ function Phone(props: {
 		if (props.warns && record.warning !== undefined)
 			facts.push({ warning: record.warning });
 		if (chip?.kind === "chip") {
-			const kind = slot((one) => {
+			const kind = region((one) => {
 				if (painted) return { family: chip.family, label: "" };
 				return chipOf(chip, cell(one, chip));
 			});
@@ -1166,7 +1166,7 @@ function Phone(props: {
 		// row's line.
 		const long: string[] = [];
 		if (stated.length || choose) {
-			const split = slot((one) => {
+			const split = region((one) => {
 				const parts = stated
 					.filter((column) => !isChangeCell(cell(one, column)))
 					.map((column) => {
@@ -1187,7 +1187,7 @@ function Phone(props: {
 				const split = touchFacts(parts, moved);
 				return split.facts.length || split.said.length ? split : undefined;
 			});
-			// A slot that threw over the filler is one filler fact.
+			// A region that threw over the filler is one filler fact.
 			if (isTouchSplit(split)) {
 				facts.push(...split.facts);
 				long.push(...split.said);
@@ -1217,7 +1217,7 @@ function Phone(props: {
 				: undefined;
 		return {
 			key: record.id,
-			title: slot((one) =>
+			title: region((one) =>
 				leading ? shown(leading, cell(one, leading)) : one.id,
 			),
 			// A tick draws a blocked reason itself (the row's `check.blocked`);
@@ -1236,7 +1236,7 @@ function Phone(props: {
 			line: said === "" && !painted ? undefined : said,
 			// The row words its age moment and keeps it current itself.
 			trailing: ageColumn
-				? slot((one) => {
+				? region((one) => {
 						if (painted) return { age: "" };
 						const when = cell(one, ageColumn);
 						return typeof when === "string" ? { age: when } : undefined;

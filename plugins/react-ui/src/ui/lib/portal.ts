@@ -7,6 +7,6 @@ export const PortalContainer = createContext<HTMLElement | null | undefined>(
 
 // How the frame's `main` hands its portal element to the frame host, which
 // names it for every popup under it.
-export const PortalSlot = createContext<(node: HTMLElement | null) => void>(
+export const PortalRegion = createContext<(node: HTMLElement | null) => void>(
 	() => {},
 );

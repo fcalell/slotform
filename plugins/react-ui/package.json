@@ -76,7 +76,7 @@
 		"./lib/act": "./src/ui/lib/act.ts",
 		"./lib/age": "./src/ui/lib/age.ts",
 		"./lib/canvas-layout": "./src/ui/lib/canvas-layout.ts",
-		"./lib/mark": "./src/ui/lib/mark.tsx",
+		"./lib/lockup": "./src/ui/lib/lockup.tsx",
 		"./lib/media": "./src/ui/lib/media.ts",
 		"./lib/moment": "./src/ui/lib/moment.ts",
 		"./lib/navigate": "./src/ui/lib/navigate.ts",

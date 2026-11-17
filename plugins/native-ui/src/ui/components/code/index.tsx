@@ -18,6 +18,8 @@ import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Fragment, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { IconButtonBase } from "../../atoms/button/glyph";
+import { Icon } from "../../atoms/icon";
 import { codeWhole } from "../../lib/bind";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
@@ -26,10 +28,8 @@ import { useCopy } from "../../lib/copy";
 import { Ink } from "../../lib/ink";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { toast } from "../../lib/toast";
-import { IconButtonBase } from "../../parts/button/glyph";
-import { Icon } from "../../parts/icon";
 
-const FRAME = "min-w-0 overflow-hidden";
+const BOX = "min-w-0 overflow-hidden";
 const HEAD = "flex-row items-center";
 const TITLE = "grow shrink min-w-0";
 const BODY = "flex-row min-w-0";
@@ -183,7 +183,7 @@ export function Code({
 	// An ended read draws no text; the frame that holds it says why.
 	if (drawn.painted && !painted) return null;
 	return (
-		<View {...inertProps(painted)} className={cn(CARD, FRAME)}>
+		<View {...inertProps(painted)} className={cn(CARD, BOX)}>
 			{head}
 			{fold}
 			{beside ? (

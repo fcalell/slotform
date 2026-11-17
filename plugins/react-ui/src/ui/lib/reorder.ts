@@ -65,7 +65,7 @@ export function useMovable<T>(args: {
 				{ id, index: to.index },
 			],
 		}));
-		now.acting.run(true, {
+		now.acting.attempt(true, {
 			done: spec.done,
 			onAct: () => {
 				const undo = () => hold(undefined);

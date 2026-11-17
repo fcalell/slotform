@@ -19,11 +19,11 @@ import {
 	STATS_OPENS,
 	text,
 } from "@fcalell/ui-core/variants";
+import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { follow } from "../../lib/navigate.ts";
 import { FailedMark, RetryMark } from "../../lib/read.tsx";
-import { Decoded } from "../../lib/slot.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
+import { Decoded } from "../../lib/region.tsx";
 import { CountLinks } from "./count-links.tsx";
 import { Meter } from "./meter.tsx";
 import { FIGURE, FIGURE_DIGITS, LABEL } from "./parts.ts";
@@ -71,7 +71,7 @@ const RETRY = "flex min-w-0 items-center text-start min-h-target";
 
 // A cell without a bound: its label over its figure. The cell is the frame of
 // the selection it draws, as a meter is: its read failed with no enclosing frame
-// holding it, it draws the failed shape itself (the label stays, the figure slot
+// holding it, it draws the failed shape itself (the label stays, the figure region
 // shows the failure mark and the retry icon, the line under reads "This didn't
 // load."); a read an enclosing frame holds draws nothing of its own.
 function Cell({

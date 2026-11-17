@@ -18,14 +18,14 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { Fragment, useId, useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { CodeWhole, RunText } from "../../lib/code.tsx";
 import { useCopy } from "../../lib/copy.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 
-const FRAME = "flex flex-col shrink-0 min-w-0 overflow-hidden";
+const BOX = "flex flex-col shrink-0 min-w-0 overflow-hidden";
 const HEAD = "flex items-center";
 const TITLE = "grow min-w-0 truncate";
 const BODY = "flex min-w-0";
@@ -207,7 +207,7 @@ export function Code({
 	// An ended read draws no text; the frame that holds it says why.
 	if (drawn.painted && !painted) return null;
 	return (
-		<div data-wide="" inert={painted || undefined} className={cn(CARD, FRAME)}>
+		<div data-wide="" inert={painted || undefined} className={cn(CARD, BOX)}>
 			{head}
 			{fold}
 			{beside ? (

@@ -33,15 +33,15 @@ import {
 } from "react";
 import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import type { Empty } from "../../lib/empty.tsx";
-import { useFootFocus, usePaneFocus } from "../../lib/focus.ts";
 import {
 	BackRoute,
 	InPane,
 	PageTitle,
-	PlaceFrame,
+	PanesContainer,
 	useFootRegion,
-} from "../../lib/frame.ts";
+} from "../../lib/container.ts";
+import type { Empty } from "../../lib/empty.tsx";
+import { useFootFocus, usePaneFocus } from "../../lib/focus.ts";
 import { HeadingContext } from "../../lib/heading.ts";
 import { DistanceContext } from "../../lib/media.ts";
 import { useParentRoute, useReturnRoute } from "../../lib/navigate.ts";
@@ -54,7 +54,7 @@ import { SheetDocked } from "../sheet/docked.tsx";
 import type { SheetProps } from "../sheet/index.tsx";
 import { PaneHead } from "./head.tsx";
 
-// A Pane is a column of its place's row: docs/architecture/ui-core/layout.md, "Place".
+// A Pane is a column of its place's row: docs/architecture/ui-core/layout.md, "Panes".
 const PANE =
 	"@container/page group/pane flex flex-col min-h-0 grow basis-0 min-w-0";
 // A record's head names a view timeline: docs/architecture/ui-core/layout.md, "Record head".
@@ -73,7 +73,7 @@ const REGION = "flex flex-col grow min-h-0";
 // The docked foot is the toasts' anchor: docs/architecture/plugins/react-ui.md, "Toast anchor and stacking".
 const DOCKED =
 	"flex flex-col items-center shrink-0 empty:hidden [anchor-name:--docked-foot]";
-// A selection bar stands at the body's column: docs/architecture/ui-core/layout.md, "Foot".
+// A chosen bar stands at the body's column: docs/architecture/ui-core/layout.md, "Foot".
 const FOOT_WIDE = "has-[[data-wide]]:[--foot-column:100%]";
 
 export type { RecordFact } from "@fcalell/ui-core/descriptors";
@@ -81,7 +81,7 @@ export type { RecordFact } from "@fcalell/ui-core/descriptors";
 /** A record's head in its Pane: the parts of the head under the bar (the overline, the facts, the description, the image). Where the record lives is the place's name, which the Pane draws before the record's in the bar on the desktop and at the start of the overline on touch, so `overline` never repeats it. */
 export type RecordHead<V extends string | null = string> = ItemHeaderParts<V>;
 
-/** What kind of Pane it is, which its props say: the place's own, titled by the place's name, or a record's, titled by the record's name and standing after the place's. A Place holds one of each at most. */
+/** What kind of Pane it is, which its props say: the place's own, titled by the place's name, or a record's, titled by the record's name and standing after the place's. A Panes holds one of each at most. */
 type PaneKindProps<V extends string | null> =
 	| {
 			/** The place's Pane takes the place's name (the sidebar's label) as its title, so it gives none. */
@@ -89,9 +89,9 @@ type PaneKindProps<V extends string | null> =
 			record?: undefined;
 	  }
 	| {
-			/** The record's name (a short phrase; a name whose read failed with no fallback, or that landed empty, draws nothing, no empty heading, the bar keeping its height and its way back, and the body says why), given as a selection of the record's read: it paints while the record loads, and the Pane carries no name until it lands. In the bar, after the place's name and a slash, it is one line at every width, truncating, never under two fifths of the bar; it stands whole, wrapping, in the head at the body's top, as the Pane's `h2` (its Sections start at `h3`; the page's one `h1` is the Place's, the name of the place you are in). */
+			/** The record's name (a short phrase; a name whose read failed with no fallback, or that landed empty, draws nothing, no empty heading, the bar keeping its height and its way back, and the body says why), given as a selection of the record's read: it paints while the record loads, and the Pane carries no name until it lands. In the bar, after the place's name and a slash, it is one line at every width, truncating, never under two fifths of the bar; it stands whole, wrapping, in the head at the body's top, as the Pane's `h2` (its Sections start at `h3`; the page's one `h1` is the Panes's, the name of the place you are in). */
 			title: Datum<Run>;
-			/** The record's head: the body opens with the title, at the Pane's heading level, between the overline and the facts, with the `description` as body text under the facts (a string, or runs whose `{ code }` stands boxed in the mono). Its bar holds the place's name, the record's, the Expand act (which folds the place's Pane away and turns to Collapse) and Close, which goes back to the place's Pane as it stood (its tab and filters, which the address's query holds); where the record's Pane stands alone (below `tablet` of its Place) Back stands at the bar's start instead of Close. */
+			/** The record's head: the body opens with the title, at the Pane's heading level, between the overline and the facts, with the `description` as body text under the facts (a string, or runs whose `{ code }` stands boxed in the mono). Its bar holds the place's name, the record's, the Expand act (which folds the place's Pane away and turns to Collapse) and Close, which goes back to the place's Pane as it stood (its tab and filters, which the address's query holds); where the record's Pane stands alone (below `tablet` of its Panes) Back stands at the bar's start instead of Close. */
 			record: RecordHead<V>;
 	  };
 
@@ -108,7 +108,7 @@ interface PaneBase<P extends ProcedureCall> extends Closed {
 	context?: Omit<PickOneProps<string | null>, "fit">;
 	/** The tone of the scope the page reads in: a dot in the state's colour before the context pick's label; the app chooses the tone. */
 	state?: Tone;
-	/** What docks at the Pane's foot, the body scrolling under it: the route gives it, so the Pane decides it from its props. A `Table`'s selection bar is an `ActionBar` with `chosen` (its acts and its count of the rows the `Table`'s `choose` ticks), standing at the body's column (the reading width, the body's width where the body holds wide content) and start; a `Thread` standing among the Pane's sections docks its composer here as a `Composer` (the Thread then draws none of its own), with its `sheet` given as this Pane's. */
+	/** What docks at the Pane's foot, the body scrolling under it: the route gives it, so the Pane decides it from its props. A `Table`'s chosen bar is an `ActionBar` with `chosen` (its acts and its count of the rows the `Table`'s `choose` ticks), standing at the body's column (the reading width, the body's width where the body holds wide content) and start; a `Thread` standing among the Pane's sections docks its composer here as a `Composer` (the Thread then draws none of its own), with its `sheet` given as this Pane's. */
 	foot?: ReactNode;
 	/** A task over the foot: while it is `open` the sheet docks there in the foot's place (the foot gives way to it), the body scrolling above it, and closing hands focus back to the foot's input. */
 	sheet?: SheetProps<P>;
@@ -118,7 +118,7 @@ interface PaneBase<P extends ProcedureCall> extends Closed {
 	children?: ReactNode;
 }
 
-/** A column of a `Place`: the place's own, or a record's (`title` and `record` given together). `empty` belongs to the `read` it answers for, so a Pane given one without the other does not type-check. */
+/** A column of a `Panes`: the place's own, or a record's (`title` and `record` given together). `empty` belongs to the `read` it answers for, so a Pane given one without the other does not type-check. */
 export type PaneProps<
 	V extends string | null = string,
 	P extends ProcedureCall = ProcedureCall,
@@ -137,7 +137,7 @@ export type PaneProps<
 		  }
 	);
 
-/** A column of a Place, of two kinds, one of each at most: the place's own Pane, titled by the place's name, and a record's after it, titled by the record's name (the Place throws on a second of a kind, so a record linked from a record opens in its own place). A bar over one hairline (on touch the shell's switcher leading the place's Pane; on a record's Pane the place's name, a slash and the record's, the Expand act and Close, Back at the start instead of Close where it stands alone; the title, the context pick, the acts and more, one line at every width) and a body that scrolls, its children a sections gap apart within the reading width at its start, wide content (a Table, a line Diff, a code block, a Canvas, a chart) at the body's width, the definition lists of its Sections sharing one label column, and a Thread or a Canvas in it filling it when the Pane takes `fill`; a `foot` docks under the body (on touch, a Thread among the sections docks its composer there), a `sheet` in its place while it is open, and the `empty` of its `read` stands in place of the children. Alone, the place's Pane takes the Place; with a record's beside it, it holds the list width, giving way to its floor, and the record's takes the rest, unless the place's Pane fills with a Canvas, which takes the spare room while the record holds the list width. Below `tablet` of its Place only the last stands. The record's Expand act folds the place's Pane away, mounted, the record taking the Place, and turns to Collapse, which brings it back; Close goes back to the place's Pane as it stood. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping, between the overline and the facts of a head at the body's top, and a `read` that fails or answers not found fills the page with the failed or missing shape in place of the head (the missing sentence worded by `noun`, its way back the page above, which stands there and not as the bar's Close), and the bar then keeps the place's name and names the record's kind after its slash (its `noun`, else "Not found" or "Failed"), with none of the record's acts. An empty `read` keeps the head, the empty shape standing under it. Every Pane's name is an `h2` and its Sections start at `h3`, whatever Panes stand before or after it: the page's one `h1` is the Place's, so a Pane is written the same alone and among others and reads nothing of its siblings. */
+/** A column of a Panes, of two kinds, one of each at most: the place's own Pane, titled by the place's name, and a record's after it, titled by the record's name (the Panes throws on a second of a kind, so a record linked from a record opens in its own place). A bar over one hairline (on touch the shell's switcher leading the place's Pane; on a record's Pane the place's name, a slash and the record's, the Expand act and Close, Back at the start instead of Close where it stands alone; the title, the context pick, the acts and more, one line at every width) and a body that scrolls, its children a sections gap apart within the reading width at its start, wide content (a Table, a line Diff, a code block, a Canvas, a chart) at the body's width, the definition lists of its Sections sharing one label column, and a Thread or a Canvas in it filling it when the Pane takes `fill`; a `foot` docks under the body (on touch, a Thread among the sections docks its composer there), a `sheet` in its place while it is open, and the `empty` of its `read` stands in place of the children. Alone, the place's Pane takes the Panes; with a record's beside it, it holds the list width, giving way to its floor, and the record's takes the rest, unless the place's Pane fills with a Canvas, which takes the spare room while the record holds the list width. Below `tablet` of its Panes only the last stands. The record's Expand act folds the place's Pane away, mounted, the record taking the Panes, and turns to Collapse, which brings it back; Close goes back to the place's Pane as it stood. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping, between the overline and the facts of a head at the body's top, and a `read` that fails or answers not found fills the page with the failed or missing shape in place of the head (the missing sentence worded by `noun`, its way back the page above, which stands there and not as the bar's Close), and the bar then keeps the place's name and names the record's kind after its slash (its `noun`, else "Not found" or "Failed"), with none of the record's acts. An empty `read` keeps the head, the empty shape standing under it. Every Pane's name is an `h2` and its Sections start at `h3`, whatever Panes stand before or after it: the page's one `h1` is the Panes's, so a Pane is written the same alone and among others and reads nothing of its siblings. */
 export function Pane<
 	V extends string | null = string,
 	P extends ProcedureCall = ProcedureCall,
@@ -158,9 +158,9 @@ export function Pane<
 	children,
 }: PaneProps<V, P>) {
 	const titleId = useId();
-	// A Pane in a room Place stands its head off the top on the table.
+	// A Pane in a room Panes stands its head off the top on the table.
 	const far = use(DistanceContext);
-	const place = use(PlaceFrame);
+	const place = use(PanesContainer);
 	const kind = record === undefined ? "place" : "record";
 	useLayoutEffect(() => place?.stand(kind), [place?.stand, kind]);
 	// The place's Pane is titled by the place's name; a record's draws it

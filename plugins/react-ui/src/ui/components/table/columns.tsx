@@ -18,11 +18,11 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { use } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing } from "../../lib/media.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 
 const POPUP = "flex flex-col max-h-(--available-height) overflow-y-auto";
 const POSITIONER = "z-(--layer-popover)";

@@ -18,7 +18,7 @@ A Pane stands in a place; the place holds two at most, of two kinds: the place's
 The `Shell` draws the place that holds them and reads none of them, so a route renders its `Pane`s and
 no place of its own; each `Pane` draws its own bar and body. The place's Pane alone fills the place; with a
 record open it holds `list` (520 px at the default `size`) and the record takes the rest. A place's `Pane` that fills with a `Canvas` is the place's main object: it takes the spare room and the record holds `list`. A record the open
-record links to opens in its own place (its own list and record), never as a third Pane; the Place throws on a
+record links to opens in its own place (its own list and record), never as a third Pane; the Panes throws on a
 second Pane of a kind. A record always opens beside its list: the record's route is a child of the list's, and
 the list's route renders `<ListPane /><Outlet />`, so nothing replaces a list. A record's tabs stay in its Pane:
 the record's route renders its Pane with the tab routes' `<Outlet />` inside the Pane's body, and no tab covers
@@ -33,7 +33,7 @@ the place.
 </Pane>
 ```
 
-The place's Pane takes no `title`: the place's name, the sidebar's label, which the `Shell` gives the `Place`,
+The place's Pane takes no `title`: the place's name, the sidebar's label, which the `Shell` gives the `Panes`,
 titles it. A record's Pane takes `title`, the record's name, and `record`, its head parts. A place whose body is
 one record (a project's overview, a settings record) is the place's Pane, titled by the place; the record's name
 shows in the sidebar's switcher. Only a record's Pane has a breadcrumb, and it is always the place's name, which
@@ -53,12 +53,12 @@ follows content: a `Table`, a line `Diff`, code block, `Canvas`, `BarChart`, `Co
 Section is told. The page for an unknown address is a record's Pane titled "Not found", and under a record's Pane
 it is that Pane's body, the missing sentence.
 
-A page's headings need nothing from the route: the page's one `h1` is the Place's, the label of the
+A page's headings need nothing from the route: the page's one `h1` is the Panes's, the label of the
 place the sidebar marks current (the app's name where none is), which the `Shell` draws apart from
 sight; every `Pane`'s title is an `h2` and its `Section`s start at `h3`, whether the `Pane` stands alone
 or beside others and as `Pane`s open and close, so a route writes the same `<Pane title=…>` for a
 list, a view and a record and passes no level. A room page with no `Shell` states its `h1` once on its
-`Place` (`<Place distance="room" title="Deploys">`); a `Gate` in a room `Place` is its own `h1`.
+`Panes` (`<Panes distance="room" title="Deploys">`); a `Gate` in a room `Panes` is its own `h1`.
 
 The `Shell` takes its data as the rest of the roster does: a switcher's `options` and `value`, and a group's `places`, are constants or selections. While a selection waits the switcher paints its avatar and name and keeps its chevron, a group draws its heading over painted place rows, all inert; a value no option matches, or a read that ended, draws the switcher with no name, never its own label as one. A `Gate` takes its `acts` as an act list (`Act`s and `LinkAct`s, the filled act last), drawn as an `ActionBar` under the body; with a `form`, the alternatives (a Back) are the form's `acts`, so a step holds one bar; the body stays for prose and controls.
 
@@ -163,8 +163,8 @@ drawn as an `<a href>` in the look of the act it stands for (the hairline Button
 `Banner`, whose soft ground re-points `edge` to the strong edge so an act's outline is one there; the outlined button under its sentence in an `empty`), so a new tab, a copied link and a middle
 click work, a plain click opens the route through the router, and a rest on it preloads the route
 like any anchor. It runs nothing: it never pends and has no `destructive` or
-`quiet`; a `LinkAct` given a `blocked` reason draws inert and gives the reason, as a blocked act does (a link whose page is missing), while the `Button` link form takes none; in a `more` menu it is a link entry. An act beside a heading or a title, or at a row's end, is an icon act (`IconAct`, or `IconLinkAct` for a route): a `Section`'s and a row's `act` take nothing else, its words standing in its tooltip and accessible name. Acts that stand side by side fold by one rule, never by the room: the first stands and the rest stand in the more menu, in their order, at every width. A `Pane`'s first `acts` entry stands at its icon and the rest lead its `more`, the act named More and its sheet on touch titled by the Pane's title (a record's name); a row's `act` is its one act and its others are its `more`, its sheet titled by the row; a selection bar stands the first of choose-all and clear that applies. Put the act used most first. A
-A `Sheet`'s submit, an `ActionBar`'s and a `Form`'s bar act, a `Rules` add, a selection bar's acts, an `Input`'s act and a
+`quiet`; a `LinkAct` given a `blocked` reason draws inert and gives the reason, as a blocked act does (a link whose page is missing), while the `Button` link form takes none; in a `more` menu it is a link entry. An act beside a heading or a title, or at a row's end, is an icon act (`IconAct`, or `IconLinkAct` for a route): a `Section`'s and a row's `act` take nothing else, its words standing in its tooltip and accessible name. Acts that stand side by side fold by one rule, never by the room: the first stands and the rest stand in the more menu, in their order, at every width. A `Pane`'s first `acts` entry stands at its icon and the rest lead its `more`, the act named More and its sheet on touch titled by the Pane's title (a record's name); a row's `act` is its one act and its others are its `more`, its sheet titled by the row; a chosen bar stands the first of choose-all and clear that applies. Put the act used most first. A
+A `Sheet`'s submit, an `ActionBar`'s and a `Form`'s bar act, a `Rules` add, a chosen bar's acts, an `Input`'s act and a
 `RowEntry`'s act stay function acts: each runs something over the surface it stands on (the task, the
 selection, the typed value) or must pend it, which a way to a route does not.
 
@@ -188,7 +188,7 @@ One rule lays out every bar, by the width of the block it closes and never the v
 container): up to the auth column's width (a `Gate` step, a sheet on a phone) the acts stack across the
 block, one a row and the filled act on top; wider (a desktop sheet, a page's form) they stand at their
 own width at the block's end, the filled act last, wrapping to a further row only when the line cannot
-hold them. An empty state's act stands across a column at the empty width the same way. A `LinkAct`in `acts` (a Back, a way home) is an anchor, quiet unless it is the filled act. The bar holds its acts' run: while one act's `onAct` pends the others are inert,
+hold them. An empty state's act stands across a column at the empty width the same way. A `LinkAct`in `acts` (a Back, a way home) is an anchor, quiet unless it is the filled act. The bar holds its acts' attempt: while one act's `onAct` pends the others are inert,
 a rejection stands in the bar's line under the acts with the act ready again, and a blocked act waits for
 a touch: inert and silent until it is pressed, or until its form or sheet has taken input, then its reason
 stands in the line under the acts, at the filled act's edge. The line stands only while it says
@@ -323,7 +323,7 @@ A definition row and a form field stand label over value in a Pane narrower than
 A row that shows a running task gives its `progress`, `{ value, max }`: the meter's bar as the last line of the row's text column (it starts at the text, never under the leading mark, a badge gap under the facts), filling in the meta ink and turning the good tone once `value` reaches `max` (never amber); the bar takes no press, so the row's hit stays whole. Give it from the item's selector, so each refetch moves the bar; a `max` of 0 or under draws none.
 
 The rows of one sheet share one `leading` kind or none, so their titles share one start: an avatar, a
-glyph, a type's mark and a tick stand in one slot at the avatar's size, a status in its dot's room, and
+glyph, a type's mark and a tick stand in one region at the avatar's size, a status in its dot's room, and
 a row with no `leading` reserves none (voice 9), so its title stands where the others' marks do. A
 `leading: { tone }` draws the dot alone, its `label` its accessible name; a list whose rows say the state nowhere else gives it as a status fact. It is for a list whose every row has a state; where only some do (a read-only value among
 switches), the state is a status fact of the row, leading its facts line, and the leading is a kind every row
@@ -477,7 +477,7 @@ const places: PlaceSpec[] = boards.map((p) => ({
   over a paginated read the query), the row alone when not. A `Section` row carries its own `drag: { kind, picked }`.
   A drop hears `onDrop(drag)` and runs as an act does: its `confirm` asked, `done` toasted, `to` gone to, a rejection
   toasted with Retry. A drop with `blocked` takes nothing and its menu entry is blocked.
-  `PlaceSpec<Q>`, `Row<V, Q>` and `RowSlots<T, Q>` take the read's query as `Q`, so `drag.picked` is the `Picked<Q>` a
+  `PlaceSpec<Q>`, `Row<V, Q>` and `RowRegions<T, Q>` take the read's query as `Q`, so `drag.picked` is the `Picked<Q>` a
   `selector()` mutation takes whole, with no cast.
 - **Reorder.** `reorder: { onMove(id, { index, after, before }), done? }` on a flat `Section` and on a `Table` while it is
   unsorted. `after` and `before` are the ids the row lands between (null at an end): a fractional position is
@@ -567,10 +567,10 @@ painted node cards at a step node's measure (the node width and its card's heigh
 A graph's own nodes have no geometry before its data, so the placeholders stand for the nodes' measure and
 not their places; nothing reads a box.
 
-## An act holds its run
+## An act holds its attempt
 
 Every act's `onAct` returns the promise of the work it starts: `onAct: () => save.mutateAsync(v)`,
-never `mutate()`. The act renderer holds the run, so the app passes no `loading` and reads no
+never `mutate()`. The act renderer holds the attempt, so the app passes no `loading` and reads no
 `isPending`.
 
 What happens around the work is the act's data, never code beside it. An `Act` carries, beside
@@ -599,7 +599,7 @@ its `label` and `onAct`:
   current `sheet` on every render, the host re-rendering with its act, so props that change while it is open
   (a read landing, a field of a record) reach it; only the open state is held. Give the sheet through
   `sheetOf({ … })`, which reads the procedure off the form's `act` so `onDone` hears that procedure's
-  typed output and the fields are checked against its input; an act's slot holds acts of different
+  typed output and the fields are checked against its input; an act's region holds acts of different
   procedures, which no type follows, so `sheetOf` is where the procedure is typed and `sheet` is
   procedure-less after it. A `Pane`'s and a `Thread`'s `sheet` is typed by its own form's procedure
   directly.
@@ -627,9 +627,9 @@ sizes are fixed:
 
 | Size | Is | Past it |
 | --- | --- | --- |
-| a word | one word: a state, a unit, a figure's noun | a slot that bounds it (a chip, a row pick's value) holds the short measure, 20 characters, and truncates |
+| a word | one word: a state, a unit, a figure's noun | a region that bounds it (a chip, a row pick's value) holds the short measure, 20 characters, and truncates |
 | a short phrase | a few words on one line: a title, a label, a name | takes the room its line leaves, then truncates with an ellipsis, or wraps where its doc says it wraps |
-| a sentence | one sentence, in a slot built to wrap: a description, a banner, an empty state, an error | wraps |
+| a sentence | one sentence, in a region built to wrap: a description, a banner, an empty state, an error | wraps |
 | text | running content of any length: markdown, a message body, code | wraps whole |
 
 ## The app's `ui/`

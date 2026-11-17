@@ -12,12 +12,12 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { use, useRef } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useFollow } from "../../lib/follow.ts";
 import { ToastEntry } from "../../lib/toast.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 import { ActFace } from "../button/face.tsx";
 
 // A swipe along the line is the toast's; the page keeps the vertical pan.

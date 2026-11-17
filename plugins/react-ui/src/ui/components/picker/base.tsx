@@ -70,6 +70,11 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { Named } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
+import { StatusBase } from "../../atoms/status/base.tsx";
+import { StatusDot } from "../../atoms/status/dot.tsx";
+import { Turn } from "../../atoms/turn.tsx";
 import type { IconAct } from "../../lib/act.ts";
 import { useAct, useHeldDraft } from "../../lib/act.ts";
 import { CHIP_LINES } from "../../lib/chip-lines.ts";
@@ -81,11 +86,6 @@ import { PAINT_CONTROL } from "../../lib/paint.tsx";
 import { PortalContainer } from "../../lib/portal.ts";
 import { OptionsLine } from "../../lib/read.tsx";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
-import { Named } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
-import { StatusBase } from "../../parts/status/base.tsx";
-import { StatusDot } from "../../parts/status/dot.tsx";
-import { Turn } from "../../parts/turn.tsx";
 import { Avatar } from "../avatar/index.tsx";
 import { Chip } from "../chip/index.tsx";
 import { BOX_DISABLED, BOX_HOVER } from "../input/base.tsx";
@@ -177,7 +177,7 @@ const LINE = "truncate";
 // A blocked option's label and reason; it takes no press wash.
 const BLOCKED_INK = "text-ink-disabled";
 const TICK = "flex shrink-0 text-ink-body";
-// A glyph leads an option in the row's leading slot.
+// A glyph leads an option in the row's leading region.
 const LEADING = "flex shrink-0 items-center justify-center";
 // An option's own chip stands after its text and keeps its word whole: the text
 // truncates before it does, and only a chip past the short measure is cut.
@@ -188,14 +188,14 @@ const CHIP_AFTER = "flex shrink-0 max-w-measure-short";
 const SEARCH = "flex grow items-center";
 const SEARCH_VALUE =
 	"min-w-0 grow truncate outline-none placeholder:text-ink-meta";
-const SEARCH_SLOT = "flex px-pad";
+const SEARCH_REGION = "flex px-pad";
 // The sheet's rows stand a pair under its head and the search, clear of a
 // phone's home indicator; a long list scrolls.
 const SHEET_ROWS = "flex flex-col gap-gap pt-gap pb-pad min-h-0";
 const LISTBOX = "flex flex-col min-h-0 overflow-y-auto overscroll-contain";
 // The act that ends the list stands under a hairline across it, a float
 // inset below the line.
-const ACT_SLOT = "flex flex-col border-t pt-gap";
+const ACT_REGION = "flex flex-col border-t pt-gap";
 const ACT_ROW =
 	"flex items-center text-start hover:bg-wash-hover active:bg-wash-press focus-visible:-outline-offset-2";
 const ACT_GLYPH = "flex shrink-0 text-ink-meta";
@@ -286,7 +286,7 @@ function OptionText(props: { option: Option<string | null>; chosen: boolean }) {
 
 // The act that ends the list under a hairline: its glyph and label on a row,
 // washed under the pointer and the press; it closes the list as it runs.
-// The picker holds its act's run past the list's close (the list unmounts
+// The picker holds its act's attempt past the list's close (the list unmounts
 // with it): a rejection toasts with Retry, and a sheet it opens stands beside
 // the picker.
 const PickActing = createContext<Acting<true> | undefined>(undefined);
@@ -312,7 +312,7 @@ function PickAct(props: {
 		</>
 	);
 	return (
-		<div className={cn(HAIRLINE, ACT_SLOT)}>
+		<div className={cn(HAIRLINE, ACT_REGION)}>
 			{"href" in act && act.blocked === undefined ? (
 				<a
 					href={act.href}
@@ -335,7 +335,7 @@ function PickAct(props: {
 						if (act.blocked !== undefined) return;
 						rememberOpener(expandedTrigger());
 						props.done();
-						acting.run(true, act);
+						acting.attempt(true, act);
 					}}
 					className={look}
 				>
@@ -394,7 +394,7 @@ interface Composed {
 
 // Base UI's list sets a value of its own when its items change without the
 // held one (null, or the first value it was given), and its registry keeps
-// the slots of unmounted items, so it does so too when they all unmount as
+// the regions of unmounted items, so it does so too when they all unmount as
 // the options wait. The viewer only ever picks an option the list holds, or
 // toggles one in or out of a set, so any other change is the list's and never
 // reaches the app.
@@ -1486,7 +1486,7 @@ function PickRows<V extends string | null>(
 	return (
 		<div className={SHEET_ROWS}>
 			{props.searching ? (
-				<div className={SEARCH_SLOT}>
+				<div className={SEARCH_REGION}>
 					<Input
 						label={words.search}
 						kind="search"

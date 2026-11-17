@@ -7,11 +7,11 @@ import { CHART_SERIES, SANS_ADVANCE } from "./tokens.ts";
 // Four bands, the last one's bottom the baseline.
 export const BANDS = 4;
 
-// The fewest slots a plot is parted into: docs/architecture/ui-core/components.md, "Slots".
-export const CHART_SLOTS = 7;
+// The fewest regions a plot is parted into: docs/architecture/ui-core/components.md, "Regions".
+export const CHART_REGIONS = 7;
 
-export function chartSlots(bars: number): number {
-	return Math.max(bars, CHART_SLOTS);
+export function chartRegions(bars: number): number {
+	return Math.max(bars, CHART_REGIONS);
 }
 
 // How far the top tick reaches above the plot: docs/architecture/ui-core/components.md, "Axis".
@@ -117,7 +117,7 @@ const TIME_STRIDE_LAST = 12;
 // the first or the last (which stand whole at the plot's edge) clears it.
 export const TIME_SPACE = 2;
 
-// The room a bar's time between the first and the last stands in, in slots:
+// The room a bar's time between the first and the last stands in, in regions:
 // the widest stride it falls on (its index a multiple of it), short of the
 // last bar where that stands nearer. The time draws when that room holds
 // `TIME_SPACE` times the longest time, so each stride's times appear together
@@ -276,16 +276,16 @@ export interface Bar {
 	parts?: Readonly<Record<string, number>>;
 	// The bar's period is not over: it is drawn hatched.
 	partial?: boolean;
-	// The bar's record is open beside the chart: its slot carries the selection wash.
+	// The bar's record is open beside the chart: its region carries the selection wash.
 	selected?: boolean;
 }
 
 // A categorical axis names every bar when the names fit under their bars, and
-// every `n`th otherwise. `stride` is that `n`: the bars' slots are `width / count`
+// every `n`th otherwise. `stride` is that `n`: the bars' regions are `width / count`
 // wide, a name takes its `longest` characters and one more between names, each
 // at the sans figure advance of the meta size (`metaSize`, in px where the chart
 // stands: the desktop's unless the platform says), and the stride is the whole
-// number of slots a name needs. 1 before the plot is measured.
+// number of regions a name needs. 1 before the plot is measured.
 export function axisStride(
 	count: number,
 	width: number | undefined,
@@ -293,16 +293,16 @@ export function axisStride(
 	metaSize = sizeOf("desktop", "meta"),
 ): number {
 	if (!width || count <= 1 || longest <= 0) return 1;
-	const slot = width / count;
+	const region = width / count;
 	return Math.max(
 		1,
-		Math.ceil(((longest + 1) * SANS_ADVANCE * metaSize) / slot),
+		Math.ceil(((longest + 1) * SANS_ADVANCE * metaSize) / region),
 	);
 }
 
 // The names of a categorical axis stand in groups of a stride's bars: a group
 // spans `span` bars from the bar at `from` and holds that bar's name, centred in
-// its first bar's slot, so no bar without a name has a box of its own.
+// its first bar's region, so no bar without a name has a box of its own.
 export function categoryGroups(
 	count: number,
 	stride: number,

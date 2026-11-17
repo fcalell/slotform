@@ -9,17 +9,17 @@ import {
 	buttonLabel,
 } from "@fcalell/ui-core/variants";
 import { type ComponentProps, use } from "react";
+import { BOX, LABEL, PRESS } from "../../atoms/button/link.tsx";
+import { Reason } from "../../atoms/button/reason.tsx";
+import { CountBase } from "../../atoms/count/base.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
+import { Spinner } from "../../atoms/spinner/index.tsx";
 import { useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { ActInert, endSubmit, SubmitContext } from "../../lib/form.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
-import { BOX, LABEL, PRESS } from "../../parts/button/link.tsx";
-import { Reason } from "../../parts/button/reason.tsx";
-import { CountBase } from "../../parts/count/base.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
-import { Spinner } from "../../parts/spinner/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
-import type { ButtonRunProps } from "./index.tsx";
+import type { ButtonAttemptProps } from "./index.tsx";
 
 const STACK =
 	"flex flex-col items-start gap-gap min-w-0 max-w-full *:max-w-full";
@@ -72,7 +72,7 @@ function lookOf(kind: ButtonAct, pending: boolean, muted: boolean): string {
 	return PRESS[kind];
 }
 
-/** The act every Button renders; it holds its own run: inert and `aria-busy` at the press, the pending look after `ACT_DELAY`, a rejection drawn in a failed toast with Retry. `painted` is the act while its data is not here: its box filled, its content not drawn, inert. `pending` is a host's state handed down: the host holds the run, so a press calls the handler as it is and the act holds none of its own. `line` draws a rejection in a reason line under the act instead (the public Button standing alone). The props a Base UI trigger hands through its `render` (a popup's trigger) reach the button, its own press after them. Outside the package's exports. */
+/** The act every Button renders; it holds its own attempt: inert and `aria-busy` at the press, the pending look after `ACT_DELAY`, a rejection drawn in a failed toast with Retry. `painted` is the act while its data is not here: its box filled, its content not drawn, inert. `pending` is a host's state handed down: the host holds the run, so a press calls the handler as it is and the act holds none of its own. `line` draws a rejection in a reason line under the act instead (the public Button standing alone). The props a Base UI trigger hands through its `render` (a popup's trigger) reach the button, its own press after them. Outside the package's exports. */
 export function ButtonBase({
 	act,
 	fit,
@@ -92,7 +92,7 @@ export function ButtonBase({
 	tabIndex,
 	onClick,
 	...handed
-}: Omit<ButtonRunProps, "href" | "glyph" | "fit"> &
+}: Omit<ButtonAttemptProps, "href" | "glyph" | "fit"> &
 	Handed & {
 		fit?: ButtonFit;
 		painted?: boolean;
@@ -125,7 +125,7 @@ export function ButtonBase({
 			if (host) host();
 			else keep();
 		} else if (given === undefined)
-			acting.run(true, {
+			acting.attempt(true, {
 				onAct: () => onAct?.(),
 				label,
 				destructive: kind === "destructive" || kind === "danger",

@@ -6,7 +6,7 @@ import { Button } from "../components/button/index.tsx";
 import { Gate } from "../components/gate/index.tsx";
 import { MissingBase } from "../components/missing/base.tsx";
 import { Pane } from "../components/pane/index.tsx";
-import { InPane } from "./frame.ts";
+import { InPane } from "./container.ts";
 
 // The slice of the router the not-found page needs: docs/architecture/plugins/react-ui.md, "Router bindings".
 interface NotFoundRouter {

@@ -1,7 +1,7 @@
 # Layout
 
 How the frame components lay out a page on both platforms: the `Shell` and its places, the `Gate`,
-the `Place` and its Panes, the `Pane`'s bar, body and foot, the `Sheet`, the `Section` and its rows,
+the `Panes` and its Panes, the `Pane`'s bar, body and foot, the `Sheet`, the `Section` and its rows,
 the heading levels, the cards, the rows grid that aligns every label of a Pane, and the overflow rules
 that decide a row's or a head's form. The contracts live in `@fcalell/ui-core`'s roster
 (`roster/<component>.ts`), `overflow.ts`, `list-state.ts` and `variants.ts`; `@fcalell/plugin-react-ui`
@@ -27,7 +27,7 @@ bar on touch, and a column that holds the current place.
   instead. It goes back once the pointer and the focus leave, on Escape or when the route changes;
   a menu or sheet the column opened holds it open, and a pointer heading for the column keeps the
   group shown.
-- The sidebar draws the consecutive places of one group as a run under the group's heading. A
+- The sidebar draws the consecutive places of one group as a group under the group's heading. A
   group that owns its places (a `places` of its own) stands where it stands in `groups`: before the
   first plain run whose group `groups` lists after it, else after the plain runs. The footer group
   is drawn apart.
@@ -67,7 +67,7 @@ bar on touch, and a column that holds the current place.
 
 - The column holds the place: the route's Panes in a row, each but the last at the list width
   giving way to its floor, the last taking the rest, and below `tablet` of the column only the last
-  standing ([Place](#place)). A route draws no place of its own.
+  standing ([Panes](#panes)). A route draws no place of its own.
 - A Shell's `foot` stands under the place across the column (on the phone, above the tab bar),
   whatever the route: the app's own, or a `Dock` for a player ([sound](sound.md)). The Shell draws
   nothing there without one and owns no sound.
@@ -79,9 +79,9 @@ the app's `foot` above the tab bar, the toast queue over the page's box (the Pan
 docked foot and the tab bar), the `confirm()` decisions as a sheet, and the tab bar over the home
 indicator. Past five places the tab bar holds four and a More tab that opens a page of the rest in
 the content's place. The Shell hands its switcher to each Pane, which draws the switcher's trigger
-at the start of its bar when it has no back act. The tab bar stands under the `Place` the Shell
+at the start of its bar when it has no back act. The tab bar stands under the `Panes` the Shell
 draws around the screen, and the current place's route is handed down for a read that answers not
-found. The sheets' provider, the toasts and the `confirm()` host are `FrameHost`'s.
+found. The sheets' provider, the toasts and the `confirm()` host are `ContainerHost`'s.
 
 ### Toasts
 
@@ -96,7 +96,7 @@ The **Gate** is the layout frame of a page outside the shell (sign-in, a consent
 frame as the Shell is:
 one centred column at the `auth` width holding the step, a fields gap between every part:
 
-1. the app's mark, a lockup of its logo and name the app gives the UI plugin once (a drawn lockup
+1. the app's lockup, its logo and name, which the app gives the UI plugin once (a drawn lockup
    40 tall);
 2. an optional `StepCount`;
 3. the title, required, the page's one `h1`;
@@ -113,69 +113,69 @@ Form's props over the step's procedure, drawn after the children: a card of its 
 after the card on the web, its bar drawn `full` on the phone. A step with local state only draws its
 controls in its children. A first run is a titled Gate whose body is its `Button`s.
 
-## Place
+## Panes
 
-The **Place** is what the Shell's column holds: a row of two Panes at most, the place's own and a
+The **Panes** is what the Shell's column holds: a row of two Panes at most, the place's own and a
 record's after it, and the size container they read to know whether they stand side by side
 (`place-max-tablet:`). The Shell draws it around the route's Panes, so a page places none: a page
-is the Panes in the place, and the frame reads nothing of what stands in them. The Place is a flex
+is the Panes in the place, and the frame reads nothing of what stands in them. The Panes is a flex
 row that draws no bar, and each Pane a flex column.
 
 - **Why a flex row.** A grid cannot size its last track without counting Panes, and `auto` tracks
   collapse under size containment. A Pane cannot choose its form by a sibling selector
-  (`:has(~ [data-page])`) or by a context the Place counts, since no component reads its children
-  ([structure](../../../packages/ui-core/guide/structure.md#reading)). So the Place's own CSS says
+  (`:has(~ [data-page])`) or by a context the Panes counts, since no component reads its children
+  ([structure](../../../packages/ui-core/guide/structure.md#reading)). So the Panes's own CSS says
   which Panes stand, by structural selectors (`:last-of-type`, `:nth-last-of-type`).
 
-- **One Pane of each kind.** A Place holds the place's Pane and one record's Pane at most. A record
+- **One Pane of each kind.** A Panes holds the place's Pane and one record's Pane at most. A record
   linked from a record opens in its own place, never as a third Pane, and a place's tabs are one
-  Pane's, never a second. The Place counts the Panes of each kind and hands each Pane its count,
+  Pane's, never a second. The Panes counts the Panes of each kind and hands each Pane its count,
   which throws on a second Pane of a kind.
-- **Sharing the row.** The Place decides how its Panes share the row from each Pane's place among
+- **Sharing the row.** The Panes decides how its Panes share the row from each Pane's place among
   its siblings (`:first-of-type`, `:last-of-type`, the structure the route gave by the order it
-  rendered them), so a Pane reads none of its siblings. A Pane is a `section`, the only one a Place
+  rendered them), so a Pane reads none of its siblings. A Pane is a `section`, the only one a Panes
   holds, so "of-type" counts Panes; "last" is the last Pane, never the last child, since a Sheet in
-  the Place leaves its focus guards (spans) after it. Each Pane marks itself `data-page`, which the
-  Place and the focus order name it by.
+  the Panes leaves its focus guards (spans) after it. Each Pane marks itself `data-page`, which the
+  Panes and the focus order name it by.
 - **Widths.** The Pane before the last holds the `list` width and gives way to its floor
-  (`region-min`); the last takes the rest, never under `list` where the Place has room for both,
+  (`region-min`); the last takes the rest, never under `list` where the Panes has room for both,
   yielding to the one before's floor where it has not. A hairline parts them. Both widths count
   characters of the body font (`ch`), so they follow the `size` knob. A Pane drawn alone is the
-  last and takes the whole row. Below `tablet` of the Place's width only the last stands: the
+  last and takes the whole row. Below `tablet` of the Panes's width only the last stands: the
   place's Pane beside a record's is `display: none`. Narrow widths and Expand are this one CSS
-  mechanism, the Place's. Each Pane is the `page` size container and keeps its own scroll.
+  mechanism, the Panes's. Each Pane is the `page` size container and keeps its own scroll.
 - **A main object.** A place's Pane that fills with wide content (a Canvas: `data-fill` holding
   `data-wide`) is the place's main object, so it takes the spare room and the record beside it holds
   `list` from `tablet`. Content decides it, as it decides a body's width ([Rows grid](#rows-grid)).
 - **Expand.** An expanded record's Pane (`data-expanded`, set by its Expand act) hides the Pane
-  before it, the one `:has()` the structure rules name, and takes the whole Place. Both stay
+  before it, the one `:has()` the structure rules name, and takes the whole Panes. Both stay
   mounted, so the list's scroll and typed text survive, and the hidden Pane leaves the tab order.
   A Pane opened from another takes the keyboard on its first control (`usePaneFocus`).
 - **A record's acts.** Only a record's head draws Back, Close and Expand; the place's Pane has none,
   since the sidebar moves between places. Close stands at the bar's end after Expand where the
   place's Pane can stand beside the record; Back stands alone at the bar's start below `tablet` of
-  the Place; Expand is dropped where nothing stands before the record to fold. Close and Back are
-  routes that carry the address's query, so the place's Pane returns as it stood. The Place says which
+  the Panes; Expand is dropped where nothing stands before the record to fold. Close and Back are
+  routes that carry the address's query, so the place's Pane returns as it stood. The Panes says which
   stand through custom properties on the Pane (`--pane-back`, `--pane-close`, `--pane-expand`, a
-  `display` each), so the head reads no sibling. A Pane drawn outside a Place is alone, so its Back
+  `display` each), so the head reads no sibling. A Pane drawn outside a Panes is alone, so its Back
   stands.
 - **Distance.** The room set is the one density no query detects, so a room page states it
-  (`Place distance="room"`): the Place draws the room set and the touch structure, its last Pane
+  (`Panes distance="room"`): the Panes draws the room set and the touch structure, its last Pane
   alone (so the head draws Back and neither of the others) and no menu act. The Shell draws the
   place at its own distance. The room set itself is in [tokens](tokens.md).
-- **The name.** The Place hands its Panes its name (the place's, the sidebar's label), which titles
-  the place's Pane and stands before a record's name in a record's bar; outside a Place there is
+- **The name.** The Panes hands its Panes its name (the place's, the sidebar's label), which titles
+  the place's Pane and stands before a record's name in a record's bar; outside a Panes there is
   none.
 - **On the phone** a route draws one Pane, a deeper one pushed in expo-router's stack with the tab
-  bar under it, so the Place
+  bar under it, so the Panes
   reads no child and draws no bar of its own: the Pane carries it.
 
 ## Headings
 
 A heading's level comes from where it stands, never from its siblings.
 
-- A page has one `h1`, the Place's: the name of where you are, drawn apart from sight. The Shell
-  gives it the current place's name; a Place standing without a Shell (a room page) is given one by
+- A page has one `h1`, the Panes's: the name of where you are, drawn apart from sight. The Shell
+  gives it the current place's name; a Panes standing without a Shell (a room page) is given one by
   `title`, or draws none when a Gate in it is the page's `h1`.
 - Every Pane's title is an `h2`, whether it stands alone or beside the other Pane, and hands 3 to
   its body, so a Pane reads nothing of the Panes around it.
@@ -235,7 +235,7 @@ what stands in it decides its form by (a Table its grid).
   body that scrolls it, the Pane lifts the timeline over its bar (`record-scope` in `globals.css`),
   and the bar's name runs a scroll-driven animation on it (`record-name`, `record-name-waits`). A
   browser without scroll-driven animations keeps the bar's name standing.
-- A record's Pane holds its record's parts in its body, since a Place holds no third Pane: the
+- A record's Pane holds its record's parts in its body, since a Panes holds no third Pane: the
   showcase's deploy draws each step it opened as sections after its steps. The deploy's Pane holds
   its read by id, so an address after the deploy's removal draws the missing shape, and the route
   keys the Pane by the deploy, so state picked in it is the open deploy's.
@@ -267,9 +267,9 @@ what stands in it decides its form by (a Table its grid).
   from its props and nothing in the body hands anything up. The showcase's assistant home docks its
   ask field (a `Composer`) there on touch, its sections scrolling under it; on the desktop the field
   stands under the exchange.
-- A `Table`'s selection bar is an `ActionBar` with `chosen` in the foot, standing at the body's
+- A `Table`'s chosen bar is an `ActionBar` with `chosen` in the foot, standing at the body's
   column and start: the reading width, or the body's width where the body holds wide content, whose
-  rows the bar acts on (`ACTION_BAR_SELECTION` reads the property).
+  rows the bar acts on (`ACTION_BAR_CHOSEN_COLUMN` reads the property).
 - A `Thread` among the sections keeps its input in reach as a `Composer` in the foot. A Thread's
   messages stand a sections gap apart, one rung above Prose's block gap, with the input under them;
   on the desktop its composer stands in a measure-wide **column class set**, so a docked foot spans the
@@ -288,7 +288,7 @@ what stands in it decides its form by (a Table its grid).
 
 The frame molecules hand each other a few values through context:
 
-- the Place's name and the Pane counts ([Place](#place));
+- the Panes's name and the Pane counts ([Panes](#panes));
 - the route a Pane's back act returns to ([Body](#body));
 - the Shell's switcher on the phone, and on touch on the web the act that opens the Shell's places
   layer, which the Pane draws at the start of a bar with no way back (on the desktop there is none);
@@ -317,7 +317,7 @@ never in a sheet.
   states are its submit's: pending, blocked (`disabled`) and failed (`error`: the act ready again,
   the rejection's sentence under it in the line a blocked reason keeps, in the field error's class set and
   ink).
-- The sheet hosts its acts' run, its foot bar and its form's bar alike: its dismissal is held while
+- The sheet hosts its acts' attempt, its foot bar and its form's bar alike: its dismissal is held while
   one pends, unless it waits for a connection.
 - A docked sheet's body height is capped (`tokens.ts`), in px, from `region` (the foot's region: the
   log and the foot), `pinned` (what the foot pins besides the body: the dock's chrome, the sheet's
@@ -390,7 +390,7 @@ own; a Section with no `read` takes no `empty`.
 ## Rows
 
 A row is one box on the sheet whatever it holds, with one form everywhere (`ROW`, `ROW_TEXT`,
-`ROW_END`, flex groups): a flex group of a leading slot, a text group and an end group. Each
+`ROW_END`, flex groups): a flex group of a leading region, a text group and an end group. Each
 platform sets the direction and the centring, which are overlays. A chosen option is ticked or
 checked, never washed.
 
@@ -471,7 +471,7 @@ whole never shrinks.
 
 - A row's leading is a glyph, a status's mark (`{ tone }`: its dot, or the spinner while `running`;
   its `label`, when given, names the dot and is not drawn), a person's avatar, a tick that chooses the
-  row, or a type's mark. An avatar, a glyph, a mark or a tick stands in one slot at the avatar's size;
+  row, or a type's mark. An avatar, a glyph, a mark or a tick stands in one region at the avatar's size;
   a status takes its own mark's room.
 - A `leading` of `check` is the row's tick, a checkbox named by the title; its `blocked` reason, the
   reason the row cannot be ticked, draws it disabled and leads the facts' words.
@@ -660,23 +660,23 @@ line's. The web draws that gap on touch alone.
 - `packages/ui-core/src/tokens.ts`: the docked sheet's body height cap.
 - `packages/ui-core/src/chart.ts`: `factReach`, the reach of a record head's acting fact.
 - `plugins/react-ui/src/ui/components/shell/index.tsx`: the web Shell, the sidebar's runs.
-- `plugins/react-ui/src/ui/components/shell/place.tsx`: the web Place, its widths, counts, the page's `h1`.
+- `plugins/react-ui/src/ui/components/shell/panes.tsx`: the web Panes, its widths, counts, the page's `h1`.
 - `plugins/react-ui/src/ui/components/pane/index.tsx`: the web Pane, its body, foot and record timeline.
 - `plugins/react-ui/src/ui/components/pane/head.tsx`: a record's way back, the bar name's wait.
 - `plugins/react-ui/src/ui/components/item-header/base.tsx`: the record name's view timeline.
 - `plugins/react-ui/src/ui/components/section/index.tsx`: the web Section's subgrid.
-- `plugins/react-ui/src/ui/parts/section/card.tsx`: a tree's hairline.
+- `plugins/react-ui/src/ui/atoms/section/card.tsx`: a tree's hairline.
 - `plugins/react-ui/src/ui/components/row/index.tsx`: the web row, its text group, wrapping and tree focus.
 - `plugins/react-ui/src/ui/components/form/base.tsx`: the web Form's run of rows.
 - `plugins/react-ui/src/ui/components/form-field/index.tsx`: a field's place in the label column.
 - `plugins/react-ui/src/ui/components/card/index.tsx`: the web `Card` as a run of rows.
-- `plugins/react-ui/src/ui/lib/frame.ts`: the frame context on the web.
+- `plugins/react-ui/src/ui/lib/container.ts`: the container context on the web.
 - `plugins/react-ui/src/ui/lib/heading.ts`: the heading level a Section reads.
 - `plugins/native-ui/src/ui/components/shell/index.tsx`: the phone Shell.
-- `plugins/native-ui/src/ui/components/shell/place.tsx`: the phone Place.
+- `plugins/native-ui/src/ui/components/shell/panes.tsx`: the phone Panes.
 - `plugins/native-ui/src/ui/components/gate/index.tsx`: the phone Gate.
 - `plugins/native-ui/src/ui/components/form/base.tsx`: the phone Form's rows.
-- `plugins/native-ui/src/ui/lib/frame.ts`: the frame context on the phone.
+- `plugins/native-ui/src/ui/lib/container.ts`: the container context on the phone.
 - `plugins/native-ui/src/ui/lib/hosts.tsx`: the keyboard-aware scroll pane.
 - `plugins/native-ui/src/ui/lib/chip-lines.ts`: the gap between a chip run's lines.
 - `apps/showcase/src/roster/frames/`: the frames that judge a heading, a Pane bar, a Form's controls and the toasts' reach (`pane.tsx`, `form.tsx`, `toast.tsx`, `section.tsx`, `section-rows.ts`, `card.tsx`).

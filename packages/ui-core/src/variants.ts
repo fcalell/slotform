@@ -144,7 +144,7 @@ import {
 export {
 	ACTION_BAR_ALL,
 	ACTION_BAR_CHOSEN,
-	ACTION_BAR_SELECTION,
+	ACTION_BAR_CHOSEN_COLUMN,
 	type ActionBarFit,
 } from "./roster/action-bar.ts";
 export {
@@ -411,12 +411,12 @@ export {
 	SHELL_RAIL_GLYPH,
 	SHELL_RAIL_MOTION,
 	SHELL_RAIL_PANEL,
-	SHELL_RAIL_SLOT,
+	SHELL_RAIL_REGION,
 	SHELL_SIDEBAR,
-	SHELL_SIDEBAR_SLOT,
+	SHELL_SIDEBAR_REGION,
 	SHELL_TAB_BAR,
 	SWITCHER,
-	SWITCHER_SLOT,
+	SWITCHER_REGION,
 	TOASTS,
 } from "./roster/shell.ts";
 export {
@@ -464,7 +464,7 @@ export type { TextRole } from "./roster/text.ts";
 export {
 	IMAGE_REMOVE,
 	IMAGE_REMOVE_DISC,
-	MESSAGE_ATTACH_SLOT,
+	MESSAGE_ATTACH_REGION,
 	MESSAGE_ATTACHMENTS,
 	MESSAGE_BUBBLE,
 	MESSAGE_CODE,
@@ -697,7 +697,7 @@ export const BUSY_GLYPHS =
 // A status: its dot (`statusDot`) beside its word, the word truncating only
 // when the line it stands on is out of room.
 export const STATUS = "gap-gap";
-// A running status's mark: the spinner in the dot's place, its slot carrying
+// A running status's mark: the spinner in the dot's place, its region carrying
 // the accent ink the spinner draws in (a native place sets the same tone as
 // the spinner's ink, read through `statusContentTone`).
 export const STATUS_SPINNER = "text-accent-ink";
@@ -785,7 +785,7 @@ export const DROP_ON =
 export const HAIRLINE = "border-edge";
 export const CHECKBOX_MARK = `size-icon-meta text-on-accent ${CHECK_MARK}`;
 // A row's leading (an avatar, a glyph, a tick's box, a status mark) sizes to
-// what it holds and stands in the row's gap rhythm: no slot reserves room for
+// what it holds and stands in the row's gap rhythm: no region reserves room for
 // a part a row does not have. A list leads every row with one kind of mark,
 // so its titles share one x. It stands a `pad` from the text after it (the
 // row's gap and the rest of a `pad`), so a name reads apart from its mark.
@@ -1035,7 +1035,7 @@ export const PAGE_TITLE_FLOOR = "min-w-2/5 basis-0";
 // A docked foot (a Pane's `foot`) is one class set: a
 // region of its own under what scrolls past it, a raised surface (the raised
 // step under a hairline), at the page inset at the
-// sides and an acts gap above and below what it holds (a selection bar stands
+// sides and an acts gap above and below what it holds (a chosen bar stands
 // in its height range, a field at its own), fitting what it holds up to the
 // region it shares with what stands over it (the log and the foot, never the
 // head), so the log gives way to it: a docked `Sheet` fills it and bounds its
@@ -1135,7 +1135,7 @@ export function avatarStep(name: string): AvatarStep {
 export const PULSE =
 	"animate-[paint-in_var(--transition-duration-base)_var(--ease-out)_var(--wait-delay)_both,var(--pulse-name,pulse-fill)_var(--pulse)_var(--ease-in-out)_infinite]";
 
-// A glyph slot the theme paints by the scramble (`theme.loading`): the slot's
+// A glyph region the theme paints by the scramble (`theme.loading`): the region's
 // own ink over no fill, appearing after the delay by the fade alone, over a
 // box the filler sizes. Under reduced motion the fill stands in its place (the
 // glyphs are hidden) and the fade snaps with the delay held. Composed with

@@ -1,5 +1,5 @@
 import {
-	type MessageSlots,
+	type MessageRegions,
 	Thread,
 } from "@fcalell/plugin-react-ui/components/thread";
 import type {
@@ -49,8 +49,8 @@ export interface Turn {
 
 const NAME = { you: "You", other: "Assistant" } as const;
 
-// The Message slots every turn fills.
-export const TURN: MessageSlots<Turn> = {
+// The Message regions every turn fills.
+export const TURN: MessageRegions<Turn> = {
 	key: (turn) => turn.id,
 	author: (turn) => turn.author,
 	name: (turn) => (turn.author === "system" ? undefined : NAME[turn.author]),

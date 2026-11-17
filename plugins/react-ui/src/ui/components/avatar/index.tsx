@@ -1,7 +1,7 @@
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
+import { AvatarBase } from "../../atoms/avatar/base.tsx";
 import type { Closed } from "../../lib/closed.ts";
-import { AvatarBase } from "../../parts/avatar/base.tsx";
 
 /** A person's circle. */
 interface AvatarProps extends Closed {

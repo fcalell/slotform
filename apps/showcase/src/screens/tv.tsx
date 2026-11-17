@@ -1,7 +1,7 @@
 import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Stats } from "@fcalell/plugin-react-ui/components/stats";
 import type { RowMark, StatSpec } from "@fcalell/ui-core/descriptors";
 import { useLayoutEffect } from "react";
@@ -34,13 +34,13 @@ export function Tv() {
 	useDarkUnlessAsked();
 	return (
 		<main className="flex flex-col h-screen">
-			<Place distance="room" title="Deploys">
+			<Panes distance="room" title="Deploys">
 				<Pane>
 					<Stats items={TODAY} />
 					<Stats items={NEEDS} />
 					<Stats items={URGENT} />
 				</Pane>
-			</Place>
+			</Panes>
 		</main>
 	);
 }
@@ -112,27 +112,27 @@ export function TvBoard() {
 	useDarkUnlessAsked();
 	return (
 		<main className="flex flex-col h-screen">
-			<Place distance="room" title="Now">
+			<Panes distance="room" title="Now">
 				<Pane>
 					<Stats items={NEEDS} />
 					<Section items={BOARD} />
 				</Pane>
-			</Place>
+			</Panes>
 		</main>
 	);
 }
 
 // The same screen with nothing to show, its server not answering: a Gate in
-// the room Place, filling it at the room set, as a TV's signed-out and failed
+// the room Panes, filling it at the room set, as a TV's signed-out and failed
 // pages draw.
 export function TvOffline() {
 	useDarkUnlessAsked();
 	return (
-		<Place distance="room">
+		<Panes distance="room">
 			<Gate
 				title="Acme is not answering"
 				description={["This screen reconnects by itself."]}
 			/>
-		</Place>
+		</Panes>
 	);
 }

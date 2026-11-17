@@ -8,7 +8,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	field,
 	fieldValue,
-	MESSAGE_ATTACH_SLOT,
+	MESSAGE_ATTACH_REGION,
 	MESSAGE_INPUT,
 	MESSAGE_INPUT_FIELD_CHIPS,
 	MESSAGE_INPUT_FIELD_VALUE,
@@ -21,14 +21,14 @@ import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Pressable, Text as RNText, TextInput, View } from "react-native";
+import { IconButtonBase } from "../../atoms/button/glyph";
 import { asAct, useAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import { FootReturn } from "../../lib/frame";
+import { FootReturn } from "../../lib/container";
 import { FadingView, flowIn } from "../../lib/motion";
 import { pickedFromDocument, pickedFromImage } from "../../lib/picked";
 import { useTokenColor } from "../../lib/theme";
-import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
 import { MenuSheet } from "../menu/sheet";
@@ -43,7 +43,7 @@ const VALUE = "grow";
 const VALUE_DISABLED = "text-ink-disabled";
 const NOTICE = "flex-row items-center";
 const NOTICE_TEXT = "flex-1 min-w-0";
-const ATTACH_SLOT = "shrink-0";
+const ATTACH_REGION = "shrink-0";
 
 export interface MessageInputProps extends Closed {
 	/** The text being written (text; wraps). */
@@ -176,7 +176,7 @@ export function MessageInput({
 					<IconButtonBase
 						icon="CircleStop"
 						label={words.stop}
-						onAct={() => acting.run("stop", { onAct: () => onStop?.() })}
+						onAct={() => acting.attempt("stop", { onAct: () => onStop?.() })}
 						pending={acting.pending === "stop"}
 						disabled={!onStop}
 					/>
@@ -184,7 +184,7 @@ export function MessageInput({
 				<IconButtonBase
 					icon="Send"
 					label={words.send}
-					onAct={() => acting.run("send", { onAct: onSend })}
+					onAct={() => acting.attempt("send", { onAct: onSend })}
 					pending={acting.pending === "send"}
 					disabled={!sendable}
 				/>
@@ -195,7 +195,7 @@ export function MessageInput({
 					className={cn(MESSAGE_INPUT_ROW, NOTICE)}
 				>
 					{onAttach ? (
-						<View className={cn(MESSAGE_ATTACH_SLOT, ATTACH_SLOT)} />
+						<View className={cn(MESSAGE_ATTACH_REGION, ATTACH_REGION)} />
 					) : null}
 					<RNText
 						className={cn(

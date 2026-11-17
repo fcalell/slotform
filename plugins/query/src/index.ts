@@ -28,7 +28,7 @@ export const query = plugin("query", {
 		{
 			page: "acts",
 			trigger:
-				"Running a mutation from an act's `onAct`, drawing its failure with `refusal`, or saving a field as it changes (`useDraft`, `useRun`)",
+				"Running a mutation from an act's `onAct`, drawing its failure with `refusal`, or saving a field as it changes (`useDraft`, `useAttempt`)",
 		},
 		{
 			page: "abilities",

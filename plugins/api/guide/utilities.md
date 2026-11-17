@@ -102,7 +102,7 @@ these". The mutation takes that as a field, `selector(query)` from `@fcalell/plu
 (`{ ids } | { query, except }`, the query typed as the list's filter), and resolves it:
 
 ```ts
-import { selectionWhere } from "@fcalell/plugin-api/lib/selection";
+import { chosenWhere } from "@fcalell/plugin-api/lib/selection";
 
 const query = z.object({ q: z.string().optional() });
 const where = ({ q }: z.infer<typeof query>) => (q ? like(tasks.title, `%${q}%`) : undefined);
@@ -110,12 +110,12 @@ const where = ({ q }: z.infer<typeof query>) => (q ? like(tasks.title, `%${q}%`)
 remove: procedure({ auth: true, writes: ["tasks"] })
   .input(z.object({ tasks: selector(query) }))
   .mutation(({ input, context }) =>
-    context.db.delete(tasks).where(selectionWhere(input.tasks, { id: tasks.id, where })),
+    context.db.delete(tasks).where(chosenWhere(input.tasks, { id: tasks.id, where })),
   ),
 ```
 
 Build the list's `where` from the same `query` function, so the selection and the table mean the
-same rows. `selectedIds(db, selection, options)` returns the ids instead, for work that is not one
+same rows. `chosenIds(db, selection, options)` returns the ids instead, for work that is not one
 statement. The client passes the table's `picked` whole: `mutateAsync({ tasks: picked })`.
 
 ## Slugs

@@ -2,7 +2,7 @@ import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
 import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import { Composer, Thread } from "@fcalell/plugin-react-ui/components/thread";
 import type { Option, RecordFact, Run } from "@fcalell/ui-core/descriptors";
@@ -30,7 +30,7 @@ import { TURNS } from "./thread.tsx";
 const act = () => {};
 const _SEARCH = [{ icon: "Search" as const, label: "Search", onAct: act }];
 
-// A Pane that fills (a Canvas, a Thread) needs a Place with a height of its
+// A Pane that fills (a Canvas, a Thread) needs a Panes with a height of its
 // own: the page's, in the shell, is the viewport's.
 function Tall(props: { children: ReactNode }) {
 	return <div className="flex flex-col h-[40rem]">{props.children}</div>;
@@ -62,15 +62,15 @@ function Record() {
 	);
 }
 
-// Each frame's Place names the page with its one `h1`; a Pane is the same `h2` alone or beside the other: docs/architecture/ui-core/layout.md, "Headings".
+// Each frame's Panes names the page with its one `h1`; a Pane is the same `h2` alone or beside the other: docs/architecture/ui-core/layout.md, "Headings".
 // One Pane: the page, its acts and more on the bar.
 function One() {
 	return (
-		<Place title="Deploys">
+		<Panes title="Deploys">
 			<Pane acts={ACTIONS} more={MORE}>
 				<StandInList />
 			</Pane>
-		</Place>
+		</Panes>
 	);
 }
 
@@ -192,7 +192,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 	}, [form, props.long]);
 	return (
 		<div ref={box}>
-			<Place title="Core data layer">
+			<Panes title="Core data layer">
 				<Pane
 					acts={ACTIONS}
 					more={MORE}
@@ -213,20 +213,20 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 				>
 					<StandInList />
 				</Pane>
-			</Place>
+			</Panes>
 		</div>
 	);
 }
 
 // Two: the place's Pane and the record it opened, whose bar act is Close beside
 // the place's Pane and Back where the record stands alone (below `tablet` of the
-// Place).
+// Panes).
 function Two() {
 	return (
-		<Place title="Issues">
+		<Panes title="Issues">
 			<Issues />
 			<Record />
-		</Place>
+		</Panes>
 	);
 }
 
@@ -235,12 +235,12 @@ function Two() {
 // stands whole on the lines it takes, at its separators, up to the copy act.
 function Facted() {
 	return (
-		<Place title="Issues">
+		<Panes title="Issues">
 			<Issues />
 			<Pane title="Ledger server" record={{}}>
 				<Section title="Server" items={SERVER} />
 			</Pane>
-		</Place>
+		</Panes>
 	);
 }
 
@@ -249,7 +249,7 @@ function Facted() {
 function Short(props: { place: string; children: ReactNode }) {
 	return (
 		<div className="flex flex-col h-[24rem]">
-			<Place title={props.place}>{props.children}</Place>
+			<Panes title={props.place}>{props.children}</Panes>
 		</div>
 	);
 }
@@ -344,7 +344,7 @@ function Failed({ reads }: { reads: Reads }) {
 			{/* A record that answers not found beside its list: its bar names the kind, the missing shape's Back its one way out. */}
 			<Column>
 				<Short place="Deploys">
-					<Place title="Deploys">
+					<Panes title="Deploys">
 						<Issues />
 						<Pane
 							title={missing.at(() => NAME)}
@@ -352,15 +352,15 @@ function Failed({ reads }: { reads: Reads }) {
 							noun="deploy"
 							read={missing}
 						/>
-					</Place>
+					</Panes>
 				</Short>
 			</Column>
 			<Column>
 				<Short place="Deploys">
-					<Place title="Deploys">
+					<Panes title="Deploys">
 						<Issues />
 						<Pane title={missing.at(() => NAME)} record={{}} read={missing} />
-					</Place>
+					</Panes>
 				</Short>
 			</Column>
 		</>
@@ -871,7 +871,7 @@ function Ready({ reads }: { reads: Reads }) {
 function Wide() {
 	return (
 		<Tall>
-			<Place title="Workflow">
+			<Panes title="Workflow">
 				<Pane fill>
 					<Canvas
 						label="Steps"
@@ -880,7 +880,7 @@ function Wide() {
 						groups={WORKFLOW.groups}
 					/>
 				</Pane>
-			</Place>
+			</Panes>
 		</Tall>
 	);
 }
@@ -891,7 +891,7 @@ function Conversation() {
 	const [value, setValue] = useState("");
 	return (
 		<Tall>
-			<Place title="Chats">
+			<Panes title="Chats">
 				<Pane>
 					<StandInList />
 				</Pane>
@@ -907,7 +907,7 @@ function Conversation() {
 						}}
 					/>
 				</Pane>
-			</Place>
+			</Panes>
 		</Tall>
 	);
 }
@@ -920,12 +920,12 @@ const PROJECTS = "A project holds the deploys, domains and logs of one app.";
 function Empty(props: { read: Reads["empty"] }) {
 	return (
 		<div className="flex flex-col h-dvh">
-			<Place title="Projects">
+			<Panes title="Projects">
 				<Pane
 					read={props.read}
 					empty={{ sentence: PROJECTS, act: NEW_PROJECT }}
 				/>
-			</Place>
+			</Panes>
 		</div>
 	);
 }
@@ -1005,7 +1005,7 @@ function Emptied(props: {
 function Tasked() {
 	const [value, setValue] = useState("");
 	return (
-		<Place title="Assistant">
+		<Panes title="Assistant">
 			<Pane
 				foot={<Composer value={value} onChange={setValue} onSend={act} />}
 				sheet={{
@@ -1016,7 +1016,7 @@ function Tasked() {
 					children: <Text>Who hears about it?</Text>,
 				}}
 			/>
-		</Place>
+		</Panes>
 	);
 }
 
@@ -1026,7 +1026,7 @@ function Tasked() {
 // nothing, with its own sentence and act and with the generic one. The busy,
 // stale and paused states draw a Pane over a read that holds rows, on the title
 // cell. A head cell draws a record's Pane and a missing-form cell the page of
-// a read that answers not found. The title cell draws the Pane's shapes in a Place:
+// a read that answers not found. The title cell draws the Pane's shapes in a Panes:
 // one, two (the place's Pane, then a record's), one holding a Canvas and one
 // holding a Thread. The bar icon act draws one Pane
 // with its more menu open; the body icon act (the touch top bar's) an

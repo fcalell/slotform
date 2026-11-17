@@ -5,7 +5,7 @@ import {
 	type InputKind,
 } from "@fcalell/plugin-react-ui/components/input";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
 import { text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -197,7 +197,7 @@ function drawProse(frame: ShowcaseFrame) {
 		const page = (
 			<Column>
 				<div className="flex flex-col h-dvh">
-					<Place title="Page source">
+					<Panes title="Page source">
 						<Pane>
 							<Form
 								act={frame.state === "error" ? REFUSED_SOURCE : SAVED}
@@ -217,7 +217,7 @@ function drawProse(frame: ShowcaseFrame) {
 								submit={{ label: "Save" }}
 							/>
 						</Pane>
-					</Place>
+					</Panes>
 				</div>
 			</Column>
 		);

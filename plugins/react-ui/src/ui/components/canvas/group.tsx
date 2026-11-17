@@ -7,7 +7,7 @@ import type { Box } from "./geometry.ts";
 import type { Transform } from "./view.ts";
 import { useViewportValue, type Viewport } from "./viewport.ts";
 
-const FRAME = "absolute flex flex-col pointer-events-none";
+const BOX = "absolute flex flex-col pointer-events-none";
 // The head band stands over the edges that cross it into the frame, so no
 // edge strikes through its words: the band's ground covers them.
 const HEAD = "relative z-1 flex items-center";
@@ -84,7 +84,7 @@ const FOCUSED =
 // id. Under the text floor the head stays, at its own size on screen. Its
 // words stay in view, past the zoom stack, while the frame runs under the stack
 // or off the pane's start (`headShift`).
-export function GroupFrame({
+export function GroupBox({
 	id,
 	head,
 	box,
@@ -136,7 +136,7 @@ export function GroupFrame({
 			data-group={id}
 			className={cn(
 				canvasGroup({ state: selected ? "selected" : "rest" }),
-				FRAME,
+				BOX,
 			)}
 			style={{
 				left: box.x,

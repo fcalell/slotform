@@ -19,7 +19,7 @@ export const reactOptionsSchema = z.object({
 		.optional(),
 	title: z.string().optional(),
 	description: z.string().optional(),
-	// The page's icon and the app's mark: one file, or one per colour scheme.
+	// The page's icon and the app's lockup: one file, or one per colour scheme.
 	icon: z
 		.union([z.string(), z.object({ light: z.string(), dark: z.string() })])
 		.optional(),

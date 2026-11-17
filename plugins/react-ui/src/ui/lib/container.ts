@@ -17,12 +17,12 @@ export const PlaceRoute = createContext<string | undefined>(undefined);
 // The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
 export const BackRoute = createContext<string | false | undefined>(undefined);
 
-// The two kinds of Pane a Place holds, one of each at most: the place's own,
+// The two kinds of Pane a Panes holds, one of each at most: the place's own,
 // and a record's after it.
 export type PaneKind = "place" | "record";
 
-// What a Place hands its Panes: docs/architecture/ui-core/layout.md, "Place".
-export const PlaceFrame = createContext<
+// What a Panes hands its Panes: docs/architecture/ui-core/layout.md, "Panes".
+export const PanesContainer = createContext<
 	| { name: string | undefined; stand: (kind: PaneKind) => () => void }
 	| undefined
 >(undefined);

@@ -1,6 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { COUNT, COUNT_LABEL } from "@fcalell/ui-core/variants";
-import { Decoded } from "../../lib/slot.tsx";
+import { Decoded } from "../../lib/region.tsx";
 
 // The page breaks a word anywhere; a badge keeps its figures whole.
 const HOLD = "wrap-normal";

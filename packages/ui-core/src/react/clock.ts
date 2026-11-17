@@ -1,6 +1,6 @@
 // The hooks a part draws the shared clock with (the clock is `../clock.ts`).
 import { useCallback, useState, useSyncExternalStore } from "react";
-import { createClock, pendingRun } from "../clock.ts";
+import { createClock, pendingAttempt } from "../clock.ts";
 
 const clock = createClock();
 
@@ -18,15 +18,16 @@ export function useClock<T extends string | number>(
 	return useSyncExternalStore(subscribe, () => read(clock.now()));
 }
 
-// The run toward `until` and the clock's now. The shared clock ticks until the
-// end, never past it; a moved `until` carries the run on from the share it
-// reached. Unset, there is no run.
+// The attempt toward `until` and the clock's now. The shared clock ticks until the
+// end, never past it; a moved `until` carries the attempt on from the share it
+// reached. Unset, there is no attempt.
 export function usePending(until: Date | undefined) {
 	const end = until?.getTime();
 	const now = useClock((at) => at, end ?? 0);
-	const [run, setRun] = useState(() =>
-		end === undefined ? undefined : pendingRun(end, now),
+	const [attempt, setAttempt] = useState(() =>
+		end === undefined ? undefined : pendingAttempt(end, now),
 	);
-	if (end !== undefined && run?.end !== end) setRun(pendingRun(end, now, run));
-	return { end, run, now };
+	if (end !== undefined && attempt?.end !== end)
+		setAttempt(pendingAttempt(end, now, attempt));
+	return { end, attempt, now };
 }

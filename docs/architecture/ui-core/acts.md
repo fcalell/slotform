@@ -1,6 +1,6 @@
 # Acts, forms and fields
 
-An **act** is a press that starts a run: a labelled act, an icon act or a link act, alone or in an
+An **act** is a press that starts an attempt: a labelled act, an icon act or a link act, alone or in an
 `ActionBar`. This page holds how an act runs, holds its pending state and draws its refusal, how a
 blocked act gives its reason, how a control saves its value, and how a `Form` is built from a
 procedure's input schema: its fields, its commit moments and the question it asks when it is left.
@@ -9,18 +9,18 @@ plugins draw from the same core, so the web and the phone hold, block and ask un
 
 ## Act model
 
-Every act is the run it starts. A thenable that `onAct` returns holds the act pending until it
+Every act is the attempt it starts. A thenable that `onAct` returns holds the act pending until it
 settles; a rejection draws the server's refusal when the server words one, else the generic
 `actFailed` word.
 
 `acts.ts` holds what an act is made of apart from how it is drawn and what runs it: whether an
-`onAct` hands back its promise so the act can hold it (`isThenable`), an act as a slot takes it
-(`Offered`, made whole by `offered`), the run and save logic the hooks wrap (`startRun`,
+`onAct` hands back its promise so the act can hold it (`isThenable`), an act as a region takes it
+(`Offered`, made whole by `offered`), the attempt and save logic the hooks wrap (`startAttempt`,
 `keepSave`), the marks a host leaves on a rejection it drew (`drew`, `wasDrawn`, `placed`,
 `isPlaced`), and what a more menu holds (`moreMenu`, `endedItems`). It is pure, so the hooks and the
 binding share one core.
 
-`react/acts.ts` holds the hooks a host holds its acts' runs with and a control its saves with, over
+`react/acts.ts` holds the hooks a host holds its acts' attempts with and a control its saves with, over
 the binding's port ([the port](reads.md#the-port)), and `createActs`, which binds the act sequence
 to a platform's toast and its way of opening a route.
 
@@ -68,7 +68,7 @@ and current hrefs have nothing to load, and a navigation never waits on a preloa
 chosen in a list: a record's decision bar (Approve, Decline), a Gate's acts, a pane's own close.
 `acts` are in reading order with the one filled act last (`danger` when it is destructive, a
 hairline `destructive` otherwise); a `LinkAct` is an anchor, quiet unless it is the filled act. A
-`Form`'s bar, a `Sheet`'s foot and the selection bar the route gives a Pane's `foot` for a `Table`'s
+`Form`'s bar, a `Sheet`'s foot and the chosen bar the route gives a Pane's `foot` for a `Table`'s
 ticked rows are all this bar.
 
 Layout:
@@ -88,17 +88,17 @@ pressed or its form or sheet has taken input; then its reason (the pressed act's
 blocked act's) stands in the line under the acts, at the filled act's edge on the web. The bar
 draws that line then and keeps it, so the act keeps its row and stretches as a live one does.
 
-`chosen` makes it a selection bar of one row: the count at its start, then the select-all act and
+`chosen` makes it a chosen bar of one row: the count at its start, then the select-all act and
 the clear icon, and at its end the more menu holding every act but the last, then the filled act. It
 draws nothing while no row is ticked. On the phone the count stands over the acts at the bar's
 start. `pending` stands a pending bar in its place at its own height.
 
 ## Blocked and pending acts
 
-An act holds its own run. At the press it is inert; after `ACT_DELAY` ([paint](reads.md#paint))
+An act holds its own attempt. At the press it is inert; after `ACT_DELAY` ([paint](reads.md#paint))
 its glyph and label hide under the spinner and its name is kept; a rejection is a failed toast with
 Retry. A pending act keeps its rest look until the delay has run. `pending` is a host's state handed
-down: the host holds the run, so a press calls the handler as it is. `line` draws a rejection under
+down: the host holds the attempt, so a press calls the handler as it is. `line` draws a rejection under
 the act instead (the public phone `Button` standing alone).
 
 Pending and blocked acts stay focusable and ignore the press. Both are inert, so one look is
@@ -149,7 +149,7 @@ of its own for it, so the sentence stands once.
 
 An act refused before it was sent because the server is out of reach rejects with `Unreached`. The
 host draws it as any failed press, the generic sentence with no Retry; the connection's own sentence
-is the app's offline banner. The binding's side of an act's run is [plugin-query's acts](../plugins/query.md#acts).
+is the app's offline banner. The binding's side of an act's attempt is [plugin-query's acts](../plugins/query.md#acts).
 
 ## Confirm
 
@@ -174,7 +174,7 @@ constant's too) instead, and only the latest save's outcome counts (`keepSave`):
   the same value again.
 
 `change` returns that save's promise, which never rejects (the rejection is `failed`'s to draw), so
-an act that saves again holds the run.
+an act that saves again holds the attempt.
 
 ## Field values
 
@@ -364,7 +364,7 @@ stands flush on the sheet and asks nothing when it closes.
 ## In the code
 
 - `packages/ui-core/src/acts.ts`: what an act is made of, run and save logic, rejection marks, `Unreached`, the more menu
-- `packages/ui-core/src/react/acts.ts`: `createActs`, `useDraft` and the run and save hooks
+- `packages/ui-core/src/react/acts.ts`: `createActs`, `useDraft` and the attempt and save hooks
 - `packages/ui-core/src/roster/descriptors.ts`: `Act`, `LinkAct` and the typing control's field binding
 - `packages/ui-core/src/roster/button.ts`: the act's three forms and its press order
 - `packages/ui-core/src/roster/action-bar.ts`: the `ActionBar` contract
@@ -387,7 +387,7 @@ stands flush on the sheet and asks nothing when it closes.
 - `plugins/react-ui/src/ui/lib/leave.ts`: the web's leave guard
 - `plugins/react-ui/src/ui/lib/navigate.ts`: the router's held navigation
 - `plugins/react-ui/src/ui/components/form/index.tsx`: the web field descriptor and held values
-- `plugins/native-ui/src/ui/components/button/base.tsx`: the phone act's run, pending and blocked looks
+- `plugins/native-ui/src/ui/components/button/base.tsx`: the phone act's attempt, pending and blocked looks
 - `plugins/native-ui/src/ui/components/action-bar/base.tsx`: the phone bar's blocked reasons
 - `plugins/native-ui/src/ui/components/pane/head.tsx`: a pane head's painted and blocked acts
 - `plugins/native-ui/src/ui/components/form/base.tsx`: the phone form base

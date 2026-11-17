@@ -4,15 +4,15 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { SHEET_HEAD, SHEET_HEAD_ROW, text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
+import { IconButtonBase } from "../../atoms/button/glyph";
 import { cn } from "../../lib/cn";
 import { RaisedGround } from "../../lib/raised";
 import { BusyMark, FrameLine } from "../../lib/read";
-import { IconButtonBase } from "../../parts/button/glyph";
 import { Button } from "../button";
 
 const HEAD_ROW = "flex-row items-center";
 const TITLE_BLOCK = "grow basis-0 min-w-0";
-const TITLE_SLOT = "flex-row items-center min-w-0";
+const TITLE_REGION = "flex-row items-center min-w-0";
 const TITLE = "shrink";
 
 /** A sheet's head, the `SheetLayer`'s `head`. Outside the package's exports. */
@@ -45,7 +45,7 @@ export function SheetHead({
 }: SheetHeadProps) {
 	const words = useWords();
 	const heading = (
-		<View accessibilityRole="header" className={TITLE_SLOT}>
+		<View accessibilityRole="header" className={TITLE_REGION}>
 			<RNText
 				numberOfLines={1}
 				className={cn(text({ role: "heading" }), TITLE)}

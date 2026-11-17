@@ -10,7 +10,7 @@ export const fail = () => Promise.reject(new Error("The server refused."));
 export function Pressed(props: { label?: string; children: ReactNode }) {
 	const root = useRef<HTMLDivElement>(null);
 	const { label } = props;
-	// A frame later, so a bar a part hands up to its host (a `Table`'s selection bar) is drawn.
+	// A frame later, so a bar a part hands up to its host (a `Table`'s chosen bar) is drawn.
 	useEffect(() => {
 		const frame = requestAnimationFrame(() => {
 			for (const button of root.current?.querySelectorAll("button") ?? []) {

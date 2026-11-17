@@ -18,8 +18,8 @@ export const shellEntry: RosterEntry = {
 		"SHELL_SIDEBAR",
 		"SHELL_RAIL",
 		"SHELL_CONTAINER",
-		"SHELL_RAIL_SLOT",
-		"SHELL_SIDEBAR_SLOT",
+		"SHELL_RAIL_REGION",
+		"SHELL_SIDEBAR_REGION",
 		"SHELL_RAIL_PANEL",
 		"SHELL_COLUMN_AT",
 		"SHELL_RAIL_ENTRY",
@@ -33,7 +33,7 @@ export const shellEntry: RosterEntry = {
 		"SHELL_MARK",
 		"SHELL_COLUMN",
 		"SHELL_BANNER",
-		"SWITCHER_SLOT",
+		"SWITCHER_REGION",
 		"SWITCHER",
 		"SHELL_PLACES",
 		"PLACE_ROW",
@@ -200,7 +200,7 @@ export const DRAG_GHOST = `${NAME_GROUND} max-w-measure-short truncate`;
 // The shell on the desktop: the sidebar a slate column (the dark calibration of
 // the tokens, pinned in both modes by the `dark` scope, on the surface ground
 // of that scope) beside the column on the canvas. The sidebar insets its rows
-// by an acts gap at the sides and the foot; its first row is the switcher slot,
+// by an acts gap at the sides and the foot; its first row is the switcher region,
 // a bar as the page's (the strip height, its row centred), so the switcher and
 // the page title share one line with no number set for it.
 export const SHELL_SIDEBAR = "dark w-sidebar bg-surface";
@@ -210,18 +210,18 @@ export const SHELL_INSET = "px-gap pb-gap";
 export const SHELL_COLUMN = "bg-canvas";
 // The phone's column is the canvas too: the sheets stand on it at the page inset.
 export const SHELL_COLUMN_PHONE = "bg-canvas";
-// The column's banner slot: a `Banner` at the page inset all round, so its
+// The column's banner region: a `Banner` at the page inset all round, so its
 // edge meets the Pane title's and the page gap stands under it, above the
 // header.
 export const SHELL_BANNER = "p-page";
-// The switcher slot: the strip height as a Pane's bar (a control's row, an
+// The switcher region: the strip height as a Pane's bar (a control's row, an
 // acts gap over and under it), empty or not, the places starting at its foot.
-// It holds the app's mark in the row's glyph slot and the switcher's trigger
+// It holds the app's lockup in the row's glyph region and the switcher's trigger
 // after it; the rail and its column each lead with one, so the column's
 // switcher stands level with the app's and its first place with the rail's
 // first entry.
-export const SWITCHER_SLOT = "box-content min-h-control py-gap";
-// The app's mark in a place row's glyph slot: the icon size, its image fit
+export const SWITCHER_REGION = "box-content min-h-control py-gap";
+// The app's lockup in a place row's glyph region: the icon size, its image fit
 // inside.
 export const SHELL_MARK = "size-icon object-contain";
 // The places scroll between the switcher bar and the footer group, which stay
@@ -236,21 +236,21 @@ export const SHELL_FOOT = "shrink-0 pt-stack";
 // sidebar's inset (`SHELL_INSET`), a hairline at its end, and a group's column (`SHELL_SIDEBAR`) at the open rail's end
 // (`SHELL_COLUMN_AT`). Open (`data-expanded`) the rail is as wide as its
 // labels, a short label's measure (`--rail-open`), with the column beside it;
-// shut, it is its icon strip, an entry's control square wide (`--rail-slot`),
+// shut, it is its icon strip, an entry's control square wide (`--rail-region`),
 // and the column is gone. Docked, the body stands open in the room the frame
-// keeps for all of it (`SHELL_SIDEBAR_SLOT`); folded, the frame keeps the
-// strip's room (`SHELL_RAIL_SLOT`) and the body opens over the page. The frame
+// keeps for all of it (`SHELL_SIDEBAR_REGION`); folded, the frame keeps the
+// strip's room (`SHELL_RAIL_REGION`) and the body opens over the page. The frame
 // names the widths, the body's travel (how far its end moves between shut and
 // open) and the inline direction's sign (`SHELL_CONTAINER`).
 // An entry is a place row whose glyph keeps the control square at its start, its
 // label after it.
 export const SHELL_CONTAINER =
-	"[--dir:1] rtl:[--dir:-1] [--rail-slot:calc(var(--spacing-control)+2*var(--spacing-gap)+var(--spacing-hairline))] [--rail-open:calc(var(--container-measure-short)+2*var(--spacing-gap))] [--sidebar-travel:calc(var(--rail-open)+var(--container-sidebar)-var(--rail-slot))]";
-export const SHELL_RAIL_SLOT = "w-(--rail-slot)";
-export const SHELL_SIDEBAR_SLOT =
+	"[--dir:1] rtl:[--dir:-1] [--rail-region:calc(var(--spacing-control)+2*var(--spacing-gap)+var(--spacing-hairline))] [--rail-open:calc(var(--container-measure-short)+2*var(--spacing-gap))] [--sidebar-travel:calc(var(--rail-open)+var(--container-sidebar)-var(--rail-region))]";
+export const SHELL_RAIL_REGION = "w-(--rail-region)";
+export const SHELL_SIDEBAR_REGION =
 	"w-[calc(var(--rail-open)+var(--container-sidebar))]";
 export const SHELL_RAIL =
-	"dark bg-surface border-e border-edge w-(--rail-slot) data-expanded:w-(--rail-open)";
+	"dark bg-surface border-e border-edge w-(--rail-region) data-expanded:w-(--rail-open)";
 export const SHELL_RAIL_PANEL =
 	"absolute inset-y-0 start-0 z-(--layer-sidebar) flex pointer-events-none";
 export const SHELL_COLUMN_AT = "absolute inset-y-0 start-(--rail-open)";
@@ -270,7 +270,7 @@ export const SHELL_RAIL_GLYPH =
 // snaps in once shut. Where the column stands over the page it draws a
 // hairline at its end (`SHELL_COLUMN_FLOAT`). Reduced motion snaps them.
 export const SHELL_RAIL_MOTION =
-	"[clip-path:inset(0_calc(max(0,var(--dir))*(100%-var(--rail-slot)))_0_calc(max(0,-1*var(--dir))*(100%-var(--rail-slot))))] data-expanded:[clip-path:inset(0)] data-expanded:border-e-transparent [transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s_var(--transition-duration-base),border-color_0s_var(--transition-duration-base)] data-expanded:[transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s,border-color_0s] motion-reduce:transition-none";
+	"[clip-path:inset(0_calc(max(0,var(--dir))*(100%-var(--rail-region)))_0_calc(max(0,-1*var(--dir))*(100%-var(--rail-region))))] data-expanded:[clip-path:inset(0)] data-expanded:border-e-transparent [transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s_var(--transition-duration-base),border-color_0s_var(--transition-duration-base)] data-expanded:[transition:clip-path_var(--transition-duration-base)_var(--ease-out),width_0s,border-color_0s] motion-reduce:transition-none";
 export const SHELL_COLUMN_MOTION =
 	"invisible translate-x-[calc(var(--dir)*-1*var(--sidebar-travel))] [clip-path:inset(0_calc(max(0,-1*var(--dir))*(100%-var(--spacing-hairline)))_0_calc(max(0,var(--dir))*(100%-var(--spacing-hairline))))] transition-[translate,clip-path,visibility] duration-base ease-out data-expanded:visible data-expanded:translate-x-0 data-expanded:[clip-path:inset(0_calc(max(0,-1*var(--dir))*-1*var(--spacing-hairline))_0_calc(max(0,var(--dir))*-1*var(--spacing-hairline)))] data-expanded:pointer-events-auto before:absolute before:inset-y-0 before:start-0 before:w-hairline before:bg-edge before:translate-x-[calc(var(--dir)*var(--container-sidebar))] data-expanded:before:translate-x-0 before:transition-[translate] before:duration-base before:ease-out motion-reduce:transition-none motion-reduce:before:transition-none";
 export const SHELL_COLUMN_FLOAT = "border-e border-edge";

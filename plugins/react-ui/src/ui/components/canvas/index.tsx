@@ -44,7 +44,7 @@ import {
 } from "./floor.ts";
 import { emptyGroups, type Size } from "./geometry.ts";
 import { GROUND, Grid, PaintedNodes } from "./ground.tsx";
-import { GroupFrame } from "./group.tsx";
+import { GroupBox } from "./group.tsx";
 import { isGround } from "./hit.ts";
 import { EdgeLabel } from "./label.tsx";
 import { useLayout } from "./layout.ts";
@@ -403,7 +403,7 @@ function CanvasGraph({
 				{groups.map((group) => {
 					const frame = routed.frames.get(group.id);
 					return frame ? (
-						<GroupFrame
+						<GroupBox
 							key={group.id}
 							id={group.id}
 							head={group.head}

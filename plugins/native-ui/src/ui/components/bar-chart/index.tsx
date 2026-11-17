@@ -6,9 +6,9 @@ import {
 	type ChartUnit,
 	categoryGroups,
 	chartHead,
+	chartRegions,
 	chartScale,
 	chartShare,
-	chartSlots,
 	currencyOf,
 	levelScale,
 	levelUnit,
@@ -56,7 +56,7 @@ import { withUniwind } from "uniwind";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { compact } from "../../lib/compact";
-import { useTokenPx } from "../../lib/frame";
+import { useTokenPx } from "../../lib/container";
 import { useValue } from "../../lib/motion";
 import {
 	inertProps,
@@ -66,7 +66,7 @@ import {
 	PaintView,
 } from "../../lib/paint";
 import { FrameBody, FrameLine } from "../../lib/read";
-import { Decoded } from "../../lib/slot";
+import { Decoded } from "../../lib/region";
 import { Strut } from "../../lib/strut";
 import { Swap } from "../../lib/swap";
 import { useTokenColor } from "../../lib/theme";
@@ -97,8 +97,8 @@ const GRID_BAND = "flex-1";
 // The gridlines stand behind the bars' regions, at the same height.
 const GRID = "absolute inset-x-0 top-0";
 const BARS = "relative flex-row";
-// A bar's slot is its region: the plot's height, the bar standing on its
-// floor, as wide as the plot over its slots (`chartSlots`): a short series
+// A bar's region is its region: the plot's height, the bar standing on its
+// floor, as wide as the plot over its regions (`chartRegions`): a short series
 // stands in the first of them.
 const REGION = "justify-end items-center min-w-0";
 // The bar's column: the region's full height, its parts laid over it, each
@@ -118,13 +118,13 @@ const PAINTED_TIME_END = "ms-auto";
 const TIMES = "relative flex-row";
 const TIME = "absolute top-0";
 // The names stand in groups of a stride's bars (`categoryGroups`): a group is as wide as
-// the slots it spans and holds one name, centred in its first bar's slot (the group's
-// width over its span) and overflowing it to both sides, so a name wider than the slot
+// the regions it spans and holds one name, centred in its first bar's region (the group's
+// width over its span) and overflowing it to both sides, so a name wider than the region
 // (the stride leaves room) is never cut and no bar without a name has an empty box
 // under it.
 const CATEGORIES = "flex-row";
 const CATEGORY = "flex-row min-w-0";
-const CATEGORY_SLOT = "flex-row justify-center min-w-0";
+const CATEGORY_REGION = "flex-row justify-center min-w-0";
 const CATEGORY_NAME = "shrink-0";
 
 interface Figures {
@@ -242,9 +242,9 @@ function Reading(props: {
 // An svg pattern of the same geometry as `CHART_PARTIAL`: stripes two hairlines
 // wide and two apart at 45° (`rotate(-45)` leans them as the web's gradient
 // does), unscaled, so the hatch keeps its angle at any share; their ink is the
-// slot's ground, which the web's mask shows: the surface, and in a selected
-// slot the same pattern drawn again in the selection wash over it (the wash
-// is translucent, so surface under wash is the slot's own ground, and the
+// region's ground, which the web's mask shows: the surface, and in a selected
+// region the same pattern drawn again in the selection wash over it (the wash
+// is translucent, so surface under wash is the region's own ground, and the
 // stripes do not read as notches). The view rises with the bar's grow
 // (`useValue`).
 function Hatch(props: {
@@ -295,8 +295,8 @@ function Hatch(props: {
 	);
 }
 
-// One function per bar slot, each called with a loaded item.
-export interface BarSlots<T> {
+// One function per bar region, each called with a loaded item.
+export interface BarRegions<T> {
 	key: (item: T) => string;
 	value: (item: T) => number;
 	// The bar's parts' values by the chart's `keys`; a key it lacks is 0.
@@ -307,7 +307,7 @@ export interface BarSlots<T> {
 	label?: (item: T) => string | undefined;
 	/** The bar's period is not over (this month so far): it is drawn hatched, so a short last bar does not read as a fall. A flow's bar; a level's reading is drawn as any other. */
 	partial?: (item: T) => boolean;
-	/** The bar of the record open beside the chart (the month whose report stands in the next Pane): its slot carries the selection wash, as a selected row does. */
+	/** The bar of the record open beside the chart (the month whose report stands in the next Pane): its region carries the selection wash, as a selected row does. */
 	selected?: (item: T) => boolean;
 }
 
@@ -320,7 +320,7 @@ export type BarChartProps<T = unknown> = Closed & {
 	label: string;
 	/** The names a bar's parts stack by, bottom first (each a word; the legend wraps between names): present, the chart is stacked and draws them as its legend in every form, each name holding its series mark. */
 	keys?: readonly string[];
-	bar: BarSlots<T>;
+	bar: BarRegions<T>;
 	// What the values count (`requests`, `minutes`), drawn after the total; a
 	// unit that takes a plural is `{ one, other }`, read at the figure it
 	// follows; money is `{ currency: "USD" }`, its figures written in the
@@ -401,14 +401,14 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	// A level's figure that is one reading draws none: the record says it.
 	const said = (span: { low: number; high: number }) =>
 		painted || !leveled || !spanFlat(span, figure);
-	// The plot's slots: a short series stands in the first of them.
-	const slots = chartSlots(series.length);
-	const slot = { width: `${100 / slots}%` } as const;
-	// The names' stride: how many slots a name needs, a slot the plot's width
-	// over its slots, which a short series does not fill.
+	// The plot's regions: a short series stands in the first of them.
+	const regions = chartRegions(series.length);
+	const region = { width: `${100 / regions}%` } as const;
+	// The names' stride: how many regions a name needs, a region the plot's width
+	// over its regions, which a short series does not fill.
 	const stride = axisStride(
 		categories.length,
-		width === undefined ? undefined : (width * categories.length) / slots,
+		width === undefined ? undefined : (width * categories.length) / regions,
 		Math.max(0, ...categories.map((name) => name.length)),
 		metaSize,
 	);
@@ -528,7 +528,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 										return (
 											<View
 												key={bar.key}
-												style={slot}
+												style={region}
 												className={cn(
 													CHART_GRID,
 													REGION,
@@ -607,13 +607,13 @@ export function BarChart<T>(props: BarChartProps<T>) {
 										return (
 											<View
 												key={series[from]?.key}
-												style={{ width: `${(100 * span) / slots}%` }}
+												style={{ width: `${(100 * span) / regions}%` }}
 												className={CATEGORY}
 											>
 												{name ? (
 													<View
 														style={{ width: `${100 / span}%` }}
-														className={CATEGORY_SLOT}
+														className={CATEGORY_REGION}
 													>
 														<RNText
 															className={cn(
@@ -649,7 +649,7 @@ export function BarChart<T>(props: BarChartProps<T>) {
 								))}
 							</View>
 						) : times.some(([time]) => time) ? (
-							<Times times={times} slots={slots} />
+							<Times times={times} regions={regions} />
 						) : null}
 					</View>
 				</View>
@@ -658,19 +658,19 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	);
 }
 
-// The time line: each time centred under its bar's slot, kept whole inside the
+// The time line: each time centred under its bar's region, kept whole inside the
 // line's edges. The line and each time measure themselves, so a time stands
 // unseen until both have, then where it belongs; a time between the ends
 // (one with a room) stands where its room holds `TIME_SPACE` times the longest
 // time, so a stride's times appear together as the line widens.
 function Times(props: {
 	times: readonly (readonly [string | undefined, number, number | undefined])[];
-	slots: number;
+	regions: number;
 }) {
 	const [line, setLine] = useState(0);
 	const [widths, setWidths] = useState<Readonly<Record<number, number>>>({});
 	const longest = Math.max(0, ...Object.values(widths));
-	const slot = line / props.slots;
+	const region = line / props.regions;
 	return (
 		<View
 			className={TIMES}
@@ -682,9 +682,9 @@ function Times(props: {
 					<Time
 						key={at}
 						time={time}
-						centre={((at + 0.5) / props.slots) * line}
+						centre={((at + 0.5) / props.regions) * line}
 						line={line}
-						fits={space === undefined || space * slot >= TIME_SPACE * longest}
+						fits={space === undefined || space * region >= TIME_SPACE * longest}
 						onWidth={(width) =>
 							setWidths((all) =>
 								all[at] === width ? all : { ...all, [at]: width },

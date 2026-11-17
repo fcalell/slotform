@@ -1,7 +1,7 @@
 import { Input as Control } from "@base-ui/react/input";
 import { drew, isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
-import { useRun } from "@fcalell/ui-core/react/acts";
+import { useAttempt } from "@fcalell/ui-core/react/acts";
 import { usePort } from "@fcalell/ui-core/react/port";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
@@ -13,8 +13,8 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { useId, useState } from "react";
+import { Spinner } from "../../atoms/spinner/index.tsx";
 import { useModality } from "../../lib/modality.ts";
-import { Spinner } from "../../parts/spinner/index.tsx";
 import type { CodeInputProps } from "./index.tsx";
 
 // The checking line stands one `pair` under the row.
@@ -39,12 +39,12 @@ export function CodeField({
 }: CodeInputProps) {
 	useModality();
 	const words = useWords();
-	const run = useRun();
+	const acting = useAttempt();
 	const port = usePort();
 	// The check's refusal stands in the control's own line until the next digit.
 	const [refused, refuse] = useState<string>();
 	const line = useId();
-	const checking = run.pending !== undefined;
+	const checking = acting.pending !== undefined;
 	const active = Math.min(value.length, length - 1);
 	// The attempt a Retry runs again: its promise, so the toast's act holds it.
 	const attempt = (code: string): unknown => {
@@ -55,7 +55,7 @@ export function CodeField({
 			refuse(port.refusal(error) ?? words.actFailed);
 		});
 	};
-	const complete = (code: string) => run.run(true, () => attempt(code));
+	const complete = (code: string) => acting.attempt(true, () => attempt(code));
 	return (
 		<Control
 			value={value}

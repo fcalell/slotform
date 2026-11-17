@@ -9,10 +9,10 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { use } from "react";
+import { Icon } from "../atoms/icon/index.tsx";
 import { ActFace } from "../components/button/face.tsx";
-import { Icon } from "../parts/icon/index.tsx";
 import type { Act } from "./act.ts";
-import { PageTitle } from "./frame.ts";
+import { PageTitle } from "./container.ts";
 
 /** Where an empty state stands: `part` inside the card whose rows it stands for (a Section's sheet, a Form's, a Sheet's body), at the card's inset; `frame` on a card of its own (a Section's or a Pane's body). The drawer that owns the card says which. */
 export type EmptyFit = "part" | "frame";

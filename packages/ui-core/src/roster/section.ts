@@ -253,7 +253,7 @@ export type Row<V extends string | null = string, Q = unknown> =
 	| RowItem<V, Q>
 	| FileItem;
 
-/** One row of a Section's sheet, a fact or a thing alike: it draws whichever slots it fills, on one box. A row with a `label` stands in the sheet's two columns (the label in the first, as wide as the widest of the Pane); a row without one starts its text group at the row's start. */
+/** One row of a Section's sheet, a fact or a thing alike: it draws whichever regions it fills, on one box. A row with a `label` stands in the sheet's two columns (the label in the first, as wide as the widest of the Pane); a row without one starts its text group at the row's start. */
 export interface RowItem<V extends string | null = string, Q = unknown> {
 	/** The row's React key, unique across the whole sheet, a tree's children included; the label's text, then the title's, when none is given. */
 	key?: string;

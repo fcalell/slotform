@@ -178,7 +178,7 @@ const SPECS: Spec[] = [
 		rule: "control-height",
 		tag: "button",
 		classes: "block relative shrink-0 overflow-hidden",
-		owner: "image FRAME",
+		owner: "image BOX",
 		reason:
 			"an image that opens is a button sized by its picture, up to the image cap, not as a control",
 	},
@@ -329,7 +329,7 @@ function resolveTokens(scope: Element): Tokens {
 }
 
 // The properties that tell one token scope from another: a box that holds its
-// own values (the room's `Place` draws every length from its own unit) differs
+// own values (the room's `Panes` draws every length from its own unit) differs
 // from the root in these.
 const SENTINELS = [
 	`--spacing-${SIZES[0]}`,

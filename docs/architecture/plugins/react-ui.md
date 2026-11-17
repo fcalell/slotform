@@ -2,7 +2,7 @@
 
 `@fcalell/plugin-react-ui` is the web half of the design system: it renders `@fcalell/ui-core`'s
 contract into `.stack/app.css` on Tailwind v4, loads the fonts, sets the mode before first paint,
-mounts the words and the app's mark, and ships the web roster on `@base-ui/react`. This page holds
+mounts the words and the app's lockup, and ships the web roster on `@base-ui/react`. This page holds
 how the plugin and its components are built: the stylesheet, density, the mode script, the lint
 rules, the component shape, focus, popups, navigation and the canvas. How a consumer builds a screen
 with it is the guide (`plugins/react-ui/guide/`); the slots it owns are in the
@@ -99,7 +99,7 @@ density. The token sets themselves are [density and room](../ui-core/tokens.md#d
 | Container | Variant | Draws |
 |-----------|---------|-------|
 | `page` (a `Pane`, `@container/page`) | `page-<breakpoint>:`, `page-max-<breakpoint>:` | from or below a breakpoint's width of the Pane, emitted from the contract's breakpoint values, so a molecule decides its form by the room its Pane has, never the viewport's |
-| `place` (a `Place`) | `place-…:` | by the place's width, which is how a Pane knows whether its Place stands it alone |
+| `place` (a `Panes`) | `place-…:` | by the place's width, which is how a Pane knows whether its Panes stands it alone |
 | `row` (a list row that may stand one line) | `row-two-line:` | below `rowOneLine` of the row, where its meta stands under the title |
 | `rules` (a rules list) | `rules-stacked:` | below `rulesOneRow` of the list, where each rule stacks its terms |
 | `page` | `definitions-stacked:` | below `definitionsOneRow` of a Pane, where a definition row stands its value under its label |
@@ -140,9 +140,9 @@ class while the page is open, unless the viewer has stored a choice by then. A s
 The consumer's half (the order and the API) is the guide's
 [Modes](../../../plugins/react-ui/guide/reference.md#modes).
 
-The script also writes the paint each glyph slot waits in as `data-loading-<slot>` on the root. The
+The script also writes the paint each glyph region waits in as `data-loading-<region>` on the root. The
 stylesheet and `lib/scramble` read it (the shared `loading` record reads it once, so any module that
-can paint knows it), so the first frame of a page that waits is already in the theme's voice. A slot
+can paint knows it), so the first frame of a page that waits is already in the theme's voice. A region
 that pulses carries none. Paint itself is [reads](../ui-core/reads.md#paint).
 
 A built page carries one inline script, the mode script (the dev server adds React Refresh's
@@ -203,15 +203,15 @@ down the viewport, holding a `banner`, the `mark` (`{ name, src? }`), an optiona
 count), the `title` (the page's one `h1`), a `description` (`Runs`: words, `{ strong }`, `{ code }`
 and `{ quoted }` runs), the body and the `acts` (`Button`s on one wrapping line under the body,
 start-aligned with the description, the primary first; a first run's body is its `acts`). It mounts
-the same `FrameHost` as the `Shell` (`components/shell/host.tsx`: the `toast()` queue, the
+the same `ContainerHost` as the `Shell` (`components/shell/host.tsx`: the `toast()` queue, the
 `confirm()` decisions). The first field of a step takes focus as the page opens and as `title`
 changes (`focusFirst` in `./lib/focus`). Its `form` (a `Form`'s props, over the step's procedure) is
 drawn in the column by the Gate (`components/gate/index.tsx`, a `FormShell` from
 `components/form/base.tsx` in the auth column), its bar set `full`.
 
-## App mark
+## App lockup
 
-The generated providers mount the app's mark once, from the react plugin's icon
+The generated providers mount the app's lockup once, from the react plugin's icon
 (`react({ icon })`, [HTML shell](./react.md#html-shell)), its drawn lockup (`react({ logo })`) and
 the app's name. An app with no icon mounts none, and the `Shell` and the `Gate` draw no mark. A
 subtree is scoped to none with `mark={null}` (a frame under an app that has an icon, drawing the bare
@@ -271,7 +271,7 @@ a render: the React compiler memoizes a render-time ref read, so the answer woul
 
 - **Pane.** A `Pane` opened from a press in another `Pane` takes the keyboard on its head's first
   control, so the Tab after a row's open is not the list's next row, and a `Pane` hidden by the
-  opening (below `tablet` of the Place) keeps no focus. A `Pane` drawn with the page, focus on the
+  opening (below `tablet` of the Panes) keeps no focus. A `Pane` drawn with the page, focus on the
   body, takes nothing.
 - **Foot region.** A foot region hands focus to its first field when what held it leaves with its own
   page (a docked `Sheet` closing for the `Thread`'s composer that returns); the document takes focus
@@ -319,7 +319,7 @@ makes a stacking context: no `isolate`, `z-*` or transform on the frame, the col
 
 Their foot is the top of what docks at the frame's foot, which names itself the `--docked-foot`
 anchor: a place's `foot` (a Pane's docked foot, which spans the body that scrolls past it, centres a field's own
-measure column at every density, and draws nothing, border and inset included, while it holds nothing, such as a selection bar with no row
+measure column at every density, and draws nothing, border and inset included, while it holds nothing, such as a chosen bar with no row
 ticked), a filling `Thread`'s input, and on touch an open bottom sheet. The layer stands above the
 anchor by layout as it grows, and at `main`'s foot without one. A toast covers the page behind a
 sheet and never the sheet's sentence, field or act, and covers the page's last line only where
@@ -479,19 +479,19 @@ do.
 - `plugins/react-ui/src/ui/lib/portal.ts`: the popups' mount.
 - `plugins/react-ui/src/ui/lib/navigate.ts`: `bindRouter`, the delegated anchor listener, preload.
 - `plugins/react-ui/src/ui/lib/not-found.tsx`: `bindNotFound` and the not-found page.
-- `plugins/react-ui/src/ui/lib/mark.tsx`: the app's mark context.
+- `plugins/react-ui/src/ui/lib/lockup.tsx`: the app's lockup context.
 - `plugins/react-ui/src/ui/lib/scramble.tsx`: the `loading` record read from the root.
 - `plugins/react-ui/src/ui/lib/ink.ts`: the canvas's colour tokens.
 - `plugins/react-ui/src/ui/lib/parts-line.tsx`: the parts line.
 - `plugins/react-ui/src/ui/lib/code.tsx`: code runs in a line of text.
 - `plugins/react-ui/src/ui/lib/picked.ts`: a file attached to a message.
-- `plugins/react-ui/src/ui/components/shell/host.tsx`: `FrameHost`, the toasts' layer and the popups' mount.
+- `plugins/react-ui/src/ui/components/shell/host.tsx`: `ContainerHost`, the toasts' layer and the popups' mount.
 - `plugins/react-ui/src/ui/components/pane/index.tsx`: the Pane and its docked foot.
 - `plugins/react-ui/src/ui/components/sheet/layer.tsx`: the sheet layer and the bottom sheet's anchor.
 - `plugins/react-ui/src/ui/components/input/base.tsx`: the field box (`file.tsx`, `prose.tsx` beside it).
 - `plugins/react-ui/src/ui/components/switch/base.tsx`: the switch hit box.
-- `plugins/react-ui/src/ui/parts/switch/checkbox.tsx`: the checkbox hit box.
-- `plugins/react-ui/src/ui/parts/button/glyph.tsx`: icon acts and their tooltip.
+- `plugins/react-ui/src/ui/atoms/switch/checkbox.tsx`: the checkbox hit box.
+- `plugins/react-ui/src/ui/atoms/button/glyph.tsx`: icon acts and their tooltip.
 - `plugins/react-ui/src/ui/components/picker/segments.tsx`: the segmented picker's track.
 - `plugins/react-ui/src/ui/components/table/index.tsx`: the Table and its server sort.
 - `plugins/react-ui/src/ui/components/canvas/`: `elk.ts`, `floor.ts`, `view.ts`, `viewport.ts`, `hit.ts`, `lift.ts`, `zoom.tsx`, `geometry.ts`.

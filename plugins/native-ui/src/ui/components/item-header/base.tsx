@@ -28,18 +28,18 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Fragment } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { Badge, BadgeWords, FactBadge } from "../../atoms/row/badges";
+import { EndMark } from "../../atoms/row/marks";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
+import { useTokenPx } from "../../lib/container";
 import { badgesOf, says, wordless } from "../../lib/facts";
-import { useTokenPx } from "../../lib/frame";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
 import { navigate, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { Strut } from "../../lib/strut";
-import { Icon } from "../../parts/icon";
-import { Badge, BadgeWords, FactBadge } from "../../parts/row/badges";
-import { EndMark } from "../../parts/row/marks";
 import { PictureTile } from "../image/base";
 import { HeldPicker } from "../picker/base";
 

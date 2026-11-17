@@ -38,9 +38,9 @@ import {
 	KNOB_DEFAULTS,
 	type Knobs,
 	LABEL,
-	LOADING_SLOTS,
+	LOADING_REGIONS,
 	type LoadingPaint,
-	type LoadingSlot,
+	type LoadingRegion,
 	MEASURE_CHARACTERS,
 	MEASURES,
 	type Measure,
@@ -73,8 +73,8 @@ export interface ResolvedTheme {
 	// The mode a viewer with no stored choice starts in; absent, the system
 	// preference decides.
 	defaultMode: Mode | undefined;
-	// The paint of each glyph slot's waiting shape, every slot named.
-	loading: Record<LoadingSlot, LoadingPaint>;
+	// The paint of each glyph region's waiting shape, every region named.
+	loading: Record<LoadingRegion, LoadingPaint>;
 	knobs: Knobs;
 	colors: Record<Mode, Record<ColorName, string>>;
 	// Each elevation as a `box-shadow` list in sRGB, since React Native's
@@ -295,7 +295,10 @@ export function deriveTheme(theme: Theme = {}): ResolvedTheme {
 	const shadows = record(MODES, (mode) => shadowsFor(mode, knobs));
 	return {
 		defaultMode: parsed.defaultMode,
-		loading: record(LOADING_SLOTS, (slot) => parsed.loading?.[slot] ?? "pulse"),
+		loading: record(
+			LOADING_REGIONS,
+			(region) => parsed.loading?.[region] ?? "pulse",
+		),
 		knobs,
 		colors,
 		shadows,

@@ -132,7 +132,7 @@ export type CanvasRole =
 	| "call"
 	| "end";
 
-// One node: its glyph, its words and the one figure in its trailing slot,
+// One node: its glyph, its words and the one figure in its trailing region,
 // `number` (a place in a sequence) over `count`. A `warning` is drawn in
 // place of `line`; an `off` node is drawn quiet over its role. Without a
 // `position` the canvas places it.

@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph";
 import type { MenuEntry } from "../../lib/act";
 import { asItem, useAct } from "../../lib/act";
-import { IconButtonBase } from "../../parts/button/glyph";
 import { ActSheet } from "../sheet/act";
 import { MenuSheet } from "./sheet";
 
@@ -42,7 +42,7 @@ export function MenuBase({
 				title={title}
 				items={items.map(asItem).map((item) => ({
 					...item,
-					onAct: () => acting.run(item.label, item),
+					onAct: () => acting.attempt(item.label, item),
 				}))}
 				open={open}
 				onClose={() => setOpen(false)}

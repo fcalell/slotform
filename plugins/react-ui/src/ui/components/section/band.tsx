@@ -1,8 +1,8 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { LIST_BAND, text, textStrong } from "@fcalell/ui-core/variants";
+import { CountBase } from "../../atoms/count/base.tsx";
 import type { IconAct } from "../../lib/act.ts";
-import { CountBase } from "../../parts/count/base.tsx";
 import { IconActFace } from "../button/face.tsx";
 
 // The row hairline the sheet draws under its children (`DIVIDER`) is not the

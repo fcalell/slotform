@@ -10,7 +10,7 @@ export interface ActionBarProps extends Closed {
 	// Where the bar stands: at its container's end (the default), or across it
 	// (a `Gate`'s form draws its bar so).
 	fit?: ActionBarFit;
-	// A selection bar: "N of M chosen" at meta, its numbers formatted (a
+	// A chosen bar: "N of M chosen" at meta, its numbers formatted (a
 	// `Table`'s `choose` set against its rows), with `onAll` a select-all and a
 	// deselect-all act beside it (the first that applies stands, the other is in
 	// a more menu), then in one row the more menu holding every act but the last

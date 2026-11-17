@@ -36,15 +36,15 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { WaitingReply } from "../../atoms/message/waiting.tsx";
 import type { Closed } from "../../lib/closed.ts";
+import { PageTitle, useFootRegion } from "../../lib/container.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useFootFocus } from "../../lib/focus.ts";
-import { PageTitle, useFootRegion } from "../../lib/frame.ts";
 import { useTouch } from "../../lib/media.ts";
 import { FrameBody, FrameLine, StateLine, stillOf } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
-import { WaitingReply } from "../../parts/message/waiting.tsx";
 import { MessageBase } from "../message/base.tsx";
 import {
 	MessageInput,
@@ -83,8 +83,8 @@ const AT_END = 1;
 // The empty log's sentence stands centred in the room the messages would fill.
 const EMPTY = "grow justify-center";
 
-/** One function per `Message` slot, each called with a loaded item and reading only it: a message draws again only when its item changes. */
-export interface MessageSlots<T> {
+/** One function per `Message` region, each called with a loaded item and reading only it: a message draws again only when its item changes. */
+export interface MessageRegions<T> {
 	/** The item's React key, unique in the thread. */
 	key: (item: T) => string;
 	/** Who said it: `you`, `other` or `system`. */
@@ -114,8 +114,8 @@ export type ThreadProps<
 > = Closed & {
 	/** The items the messages draw, oldest first: constants, or a selection, which paints two turns until its read lands, an ask of yours over the other author's reply (`PAINT_TURNS`). A selection stands in a frame (a Pane, Section, Sheet or Form given the read), which draws the thread's failed, missing and empty shapes. */
 	items: Datum<readonly T[]>;
-	/** The `Message` slots. */
-	message: MessageSlots<T>;
+	/** The `Message` regions. */
+	message: MessageRegions<T>;
 	/** The input under the messages, where a message is written and sent: what is written, its attachments, the notice under it, and the sending and stopping of an answer. A thread among a Pane's sections that should keep its field in reach gives none and the Pane's `foot` a `Composer`. */
 	composer?: ComposerProps;
 	/** A task over the input: while it is `open` it docks in the foot in the input's place, the log keeping two rows above it, and closing hands focus back to the input. Where the input is the Pane's foot, the sheet is the Pane's too. */
@@ -130,19 +130,19 @@ export type ThreadProps<
 
 // One message from its item, its Message by its author: a system line takes
 // `onOpen` and `detail`, a turn takes `name`. It renders again only when its
-// item does: every slot reads the item, and a system line's acts call the
-// thread's latest slots when pressed, so a thread's re-render (a keystroke in
+// item does: every region reads the item, and a system line's acts call the
+// thread's latest regions when pressed, so a thread's re-render (a keystroke in
 // its input, a message arriving) skips every message already drawn.
 function ThreadItemBase<T>({
 	item,
-	slots,
+	regions,
 	streaming,
 	arrives,
 	unstamped,
 }: {
 	item: T;
-	slots: RefObject<MessageSlots<T>>;
-	// The reply turn's own, which overrides the slot.
+	regions: RefObject<MessageRegions<T>>;
+	// The reply turn's own, which overrides the region.
 	streaming?: boolean;
 	// It came to the end of the log on its own: it rises in as it mounts.
 	arrives?: boolean;
@@ -152,7 +152,7 @@ function ThreadItemBase<T>({
 }) {
 	// Held from the first render, so a later commit does not cut the rise short.
 	const [rises] = useState(arrives);
-	const read = slots.current;
+	const read = regions.current;
 	const author = read.author(item);
 	const body = read.body(item);
 	const at = unstamped ? undefined : read.at?.(item);
@@ -178,7 +178,7 @@ function ThreadItemBase<T>({
 		detail = {
 			row: {
 				...row,
-				onOpen: () => slots.current.detail?.(item)?.row?.onOpen?.(),
+				onOpen: () => regions.current.detail?.(item)?.row?.onOpen?.(),
 			},
 		};
 	return (
@@ -187,7 +187,7 @@ function ThreadItemBase<T>({
 			arrives={rises}
 			body={body}
 			at={at}
-			onOpen={opens ? () => slots.current.onOpen?.(item)?.() : undefined}
+			onOpen={opens ? () => regions.current.onOpen?.(item)?.() : undefined}
 			detail={detail}
 		/>
 	);
@@ -212,12 +212,12 @@ const WAITING = "replying";
 // would otherwise refetch on each mount and loop.
 function ReplyTurn<T>(props: {
 	reply: Selection<T | null | undefined>;
-	slots: RefObject<MessageSlots<T>>;
+	regions: RefObject<MessageRegions<T>>;
 	after: string | undefined;
 	// The items are painted, not here: no turn stands among painted messages.
 	painted: boolean;
 }) {
-	const { reply, slots, after, painted } = props;
+	const { reply, regions, after, painted } = props;
 	const words = useWords();
 	const {
 		state: { form, value },
@@ -233,11 +233,15 @@ function ReplyTurn<T>(props: {
 	// value is the `reply`'s.
 	const item = value as T | null | undefined;
 	// History holds the turn already: it draws it, so this one steps aside.
-	if (item != null && slots.current.key(item) === after) return null;
+	if (item != null && regions.current.key(item) === after) return null;
 	return (
 		<>
 			{item == null ? null : (
-				<ThreadItem item={item} slots={slots} streaming={form === "writing"} />
+				<ThreadItem
+					item={item}
+					regions={regions}
+					streaming={form === "writing"}
+				/>
 			)}
 			{form === "stopped" || form === "failed" ? (
 				<StateLine
@@ -255,7 +259,7 @@ function ReplyTurn<T>(props: {
 function messageAt<T>(
 	props: Omit<ThreadProps<T>, "sheet">,
 	drawn: Drawn<readonly T[]>,
-	slots: RefObject<MessageSlots<T>>,
+	regions: RefObject<MessageRegions<T>>,
 	arrived: ReadonlySet<string>,
 	awaits: boolean,
 	index: number,
@@ -288,7 +292,7 @@ function messageAt<T>(
 		<ThreadItem
 			key={key}
 			item={item}
-			slots={slots}
+			regions={regions}
 			arrives={arrived.has(key) && !reply}
 			unstamped={!stampsTime(turn(item), before && turn(before))}
 		/>
@@ -302,7 +306,7 @@ function messageAt<T>(
 function tailOf<T>(
 	props: Omit<ThreadProps<T>, "sheet">,
 	drawn: Drawn<readonly T[]>,
-	slots: RefObject<MessageSlots<T>>,
+	regions: RefObject<MessageRegions<T>>,
 	ended: boolean,
 	arrived: ReadonlySet<string>,
 ): ReactNode {
@@ -316,7 +320,7 @@ function tailOf<T>(
 			{props.reply ? (
 				<ReplyTurn
 					reply={props.reply}
-					slots={slots}
+					regions={regions}
 					painted={painted}
 					after={last === undefined ? undefined : props.message.key(last)}
 				/>
@@ -331,10 +335,10 @@ export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 ) {
 	const { sheet } = props;
 	const { drawn, frame } = useCollection(props.items);
-	// The latest slots, which each drawn message reads when its item changes
+	// The latest regions, which each drawn message reads when its item changes
 	// and its acts call when pressed.
-	const slots = useRef(props.message);
-	slots.current = props.message;
+	const regions = useRef(props.message);
+	regions.current = props.message;
 	const dock = useRef<HTMLDivElement>(null);
 	useFootFocus(dock);
 	const region = useFootRegion(sheet?.open === true, dock);
@@ -352,7 +356,7 @@ export function Thread<T, P extends ProcedureCall = ProcedureCall>(
 			<div className={REGION}>
 				<FrameHolds holds={frame.held}>
 					<FrameLine frame={frame} />
-					<Log thread={props} drawn={drawn} frame={frame} slots={slots} />
+					<Log thread={props} drawn={drawn} frame={frame} regions={regions} />
 				</FrameHolds>
 			</div>
 			{foot ? (
@@ -371,9 +375,9 @@ function Log<T>(props: {
 	thread: Omit<ThreadProps<T>, "sheet">;
 	drawn: Drawn<readonly T[]>;
 	frame: Frame;
-	slots: RefObject<MessageSlots<T>>;
+	regions: RefObject<MessageRegions<T>>;
 }) {
-	const { thread, drawn, frame, slots } = props;
+	const { thread, drawn, frame, regions } = props;
 	const ended = isEnded(frame.shape);
 	// The empty shape stands in the messages' place as the ended ones do, but says
 	// its own sentence, centred in the log.
@@ -406,7 +410,7 @@ function Log<T>(props: {
 				],
 		!drawn.painted && !ended,
 	);
-	const tail = tailOf(thread, drawn, slots, ended, arrived);
+	const tail = tailOf(thread, drawn, regions, ended, arrived);
 	const title = use(PageTitle);
 	const log = useRef<HTMLDivElement>(null);
 	const scroll = useScroller(log);
@@ -483,7 +487,7 @@ function Log<T>(props: {
 											thread.message.key(drawn.value[index] as T)
 								}
 								row={(index) =>
-									messageAt(thread, drawn, slots, arrived, awaits, index)
+									messageAt(thread, drawn, regions, arrived, awaits, index)
 								}
 								box={content}
 								end

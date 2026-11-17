@@ -12,6 +12,8 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { type KeyboardEvent, type ReactNode, use, useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import type { MenuEntry } from "../../lib/act.ts";
 import { useAct } from "../../lib/act.ts";
 import { expandedTrigger, rememberOpener } from "../../lib/focus.ts";
@@ -19,8 +21,6 @@ import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing, useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import { SheetHead } from "../sheet/head.tsx";
 import { SheetLayer } from "../sheet/layer.tsx";
@@ -235,7 +235,7 @@ export function MenuBase({
 											if (item.blocked !== undefined) return;
 											rememberOpener(expandedTrigger());
 											setOpen(false);
-											acting.run(item.label, item);
+											acting.attempt(item.label, item);
 										}}
 										className={cn(rowOf(item, false), BUTTON)}
 									>
@@ -302,7 +302,7 @@ export function MenuBase({
 										label={item.label}
 										onClick={() => {
 											rememberOpener(expandedTrigger());
-											acting.run(item.label, item);
+											acting.attempt(item.label, item);
 										}}
 										disabled={item.blocked !== undefined}
 										className={(state) => rowOf(item, state.highlighted)}

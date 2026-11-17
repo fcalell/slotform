@@ -1,7 +1,7 @@
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
+import { CountBase } from "../../atoms/count/base.tsx";
 import type { Closed } from "../../lib/closed.ts";
-import { CountBase } from "../../parts/count/base.tsx";
 
 /** A number in the meta ink at the caption size. */
 interface CountProps extends Closed {

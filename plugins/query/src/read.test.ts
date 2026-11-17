@@ -136,7 +136,7 @@ test("the sample is a placeholder, and a walk over it that never ends is cut off
 	});
 	// A selector that follows `parent` while there is one reads a key that is always
 	// there over the placeholder and the sample: it throws, never loops. The
-	// sample takes none and the selection's slot stands as the placeholder.
+	// sample takes none and the selection's region stands as the placeholder.
 	const depthOf = (records: { id: string; parent?: string }[]) => {
 		const byId = new Map(records.map((r) => [r.id, r]));
 		let node: { id: string; parent?: string } | undefined = records[0];

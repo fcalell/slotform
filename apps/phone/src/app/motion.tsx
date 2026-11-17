@@ -22,9 +22,9 @@ import {
 } from "@fcalell/ui-core/paint";
 import {
 	LOADING_PAINTS,
-	LOADING_SLOTS,
+	LOADING_REGIONS,
 	type LoadingPaint,
-	type LoadingSlot,
+	type LoadingRegion,
 	MOTION_KNOBS,
 	type MotionKnob,
 } from "@fcalell/ui-core/tokens";
@@ -165,11 +165,11 @@ function LinesAndBlocks() {
 	);
 }
 
-// The loader per kind of glyph slot (`theme.loading`): each kind pulses or
+// The loader per kind of glyph region (`theme.loading`): each kind pulses or
 // scrambles, a shape always pulses. A kind changed mounts the sample again;
 // Land answers the read, so a scrambled figure or id decodes as it arrives.
 function Loader() {
-	const [paint, setPaint] = useState<Record<LoadingSlot, LoadingPaint>>({
+	const [paint, setPaint] = useState<Record<LoadingRegion, LoadingPaint>>({
 		...loading,
 	});
 	const [run, setRun] = useState(0);
@@ -188,15 +188,15 @@ function Loader() {
 	}, [run]);
 	return (
 		<>
-			{LOADING_SLOTS.map((slot) => (
+			{LOADING_REGIONS.map((region) => (
 				<Picker
 					fit="segments"
-					key={slot}
-					label={slot}
+					key={region}
+					label={region}
 					options={LOADING_PAINTS.map((one) => ({ value: one, label: one }))}
-					value={paint[slot]}
+					value={paint[region]}
 					onChange={(value) => {
-						setLoading({ [slot]: value });
+						setLoading({ [region]: value });
 						setPaint({ ...loading });
 						setRun(run + 1);
 					}}

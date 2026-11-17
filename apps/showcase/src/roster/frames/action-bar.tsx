@@ -72,7 +72,7 @@ const LOGIN: Drawn = {
 
 // A sheet's footer by default; the danger cell a confirm's, the destructive
 // cell a destructive secondary beside the filled act, the full fit and the
-// field fit a login column's two ways in, the meta cell a selection bar's count over a
+// field fit a login column's two ways in, the meta cell a chosen bar's count over a
 // list. `pending` presses the filled act into one that never settles, `error`
 // into one the server refuses (its sentence in the bar's kept line, the act
 // ready again), `disabled` it blocked with its reason at rest under the acts. A bar whose data is not here paints in a

@@ -1,7 +1,7 @@
 import { COUNT, COUNT_LABEL } from "@fcalell/ui-core/variants";
 import { cn } from "../../lib/cn";
 import { useInk } from "../../lib/ink";
-import { Decoded } from "../../lib/slot";
+import { Decoded } from "../../lib/region";
 import { useTokenColor } from "../../lib/theme";
 
 // The number every Count and every Button's count renders: docs/architecture/plugins/native-ui.md, "Ink". Outside the package's exports.

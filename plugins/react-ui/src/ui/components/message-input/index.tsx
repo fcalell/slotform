@@ -10,7 +10,7 @@ import {
 	FLOW_IN,
 	field,
 	fieldValue,
-	MESSAGE_ATTACH_SLOT,
+	MESSAGE_ATTACH_REGION,
 	MESSAGE_INPUT,
 	MESSAGE_INPUT_BOX,
 	MESSAGE_INPUT_CHIPS,
@@ -36,14 +36,14 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { ButtonLink } from "../../atoms/button/link.tsx";
 import { useAct, wiringOf } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { ActInert } from "../../lib/form.ts";
 import { useTouch } from "../../lib/media.ts";
 import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
 import { attachedFrom } from "../../lib/picked.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { ButtonLink } from "../../parts/button/link.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { Button } from "../button/index.tsx";
 import { Attachments } from "../message/attachments.tsx";
@@ -69,7 +69,7 @@ const ACTS = "flex items-center min-w-0 max-w-full";
 const ACTS_ICON = "flex items-center shrink-0";
 const NOTICE = "flex items-center";
 const NOTICE_TEXT = `grow ${YIELDS_FIRST} min-w-0`;
-const ATTACH_SLOT = "shrink-0";
+const ATTACH_REGION = "shrink-0";
 
 /** Where a message is written and sent. */
 export interface MessageInputProps extends Closed {
@@ -130,11 +130,11 @@ export function MessageInput({
 	const sending = acting.pending === "send";
 	const stopping = acting.pending === "stop";
 	const send = () => {
-		acting.run("send", { onAct: onSend });
+		acting.attempt("send", { onAct: onSend });
 		textField.current?.focus();
 	};
 	const stop = () => {
-		acting.run("stop", { onAct: () => onStop?.() });
+		acting.attempt("stop", { onAct: () => onStop?.() });
 		textField.current?.focus();
 	};
 	// Every way a file arrives (the dialog, a paste, a drop) ends here.
@@ -341,7 +341,7 @@ export function MessageInput({
 					{attach ? (
 						<span
 							aria-hidden
-							className={cn(MESSAGE_ATTACH_SLOT, ATTACH_SLOT)}
+							className={cn(MESSAGE_ATTACH_REGION, ATTACH_REGION)}
 						/>
 					) : null}
 					<p

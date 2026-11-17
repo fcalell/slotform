@@ -18,19 +18,19 @@ import {
 	textStrong,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
+import { AvatarBase } from "../../atoms/avatar/base.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import type { IconAct } from "../../lib/act.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { AvatarBase } from "../../parts/avatar/base.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 import { Avatar } from "../avatar/index.tsx";
 import { HeldPicker } from "../picker/base.tsx";
 
 const ROW_PRESS = "hover:bg-wash-hover active:bg-wash-press";
-// The leading slot takes a place row glyph's ink: a button resets its colour.
+// The leading region takes a place row glyph's ink: a button resets its colour.
 const GLYPH = "flex shrink-0";
 const END = "flex shrink-0 text-ink-mark";
-// The trigger is a place row: its leading slot holds the glyph the caller
-// gives (the app's mark), else the current option's icon at the row glyph's
+// The trigger is a place row: its leading region holds the glyph the caller
+// gives (the app's lockup), else the current option's icon at the row glyph's
 // size, else its avatar.
 const TRIGGER = "flex items-center w-full focus-visible:-outline-offset-2";
 const NAME = "truncate grow text-left";
@@ -72,7 +72,7 @@ export function SwitcherPick(props: {
 		switcher.value,
 	] as const);
 	// Pending: a read still to land. Absent: it ended, or no option matches the
-	// value; the name slot then draws nothing, never the switcher's own label.
+	// value; the name region then draws nothing, never the switcher's own label.
 	// Empty: the options landed and there are none, so the placeholder stands.
 	const pending = paints(options) || paints(value);
 	const listed = options.painted ? undefined : flatten(options.value);

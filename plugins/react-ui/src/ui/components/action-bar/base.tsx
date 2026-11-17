@@ -15,16 +15,16 @@ import {
 	ACTION_BAR_ACTS,
 	ACTION_BAR_ALL,
 	ACTION_BAR_CHOSEN,
-	ACTION_BAR_SELECTION,
+	ACTION_BAR_CHOSEN_COLUMN,
 	text,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { ButtonLink } from "../../atoms/button/link.tsx";
+import { Reason } from "../../atoms/button/reason.tsx";
 import type { Act } from "../../lib/act.ts";
 import { useAct } from "../../lib/act.ts";
 import { ActInert, SubmitContext } from "../../lib/form.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { ButtonLink } from "../../parts/button/link.tsx";
-import { Reason } from "../../parts/button/reason.tsx";
 import { PendingBar } from "../banner/pending.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
@@ -51,7 +51,7 @@ const HOLD = "relative self-stretch";
 const OVER = "absolute inset-0";
 const GHOST = "invisible";
 
-// A selection bar is one row that wraps only when it must: the count, then the
+// A chosen bar is one row that wraps only when it must: the count, then the
 // act that chooses every row while some stand unchosen and the icon that
 // clears the choice, at its start, and the acts at its end (the more menu, then
 // the filled act). The count sets tabular digits, so it moves only when its
@@ -68,7 +68,7 @@ const NUMBER = formatterFor("number");
 interface ActionBarInternal {
 	/** The bar keeps the reason's line before a reason shows, so showing it never moves the act it describes. */
 	kept?: boolean;
-	/** The holder that hosts this bar's acts' run, when the bar is not the only host (a sheet holds its dismissal while its bar's act pends). Absent, the bar hosts its own. */
+	/** The holder that hosts this bar's acts' attempt, when the bar is not the only host (a sheet holds its dismissal while its bar's act pends). Absent, the bar hosts its own. */
 	acting?: Acting<number>;
 	/** The read the filled act submits waits or stands still: the act paints, inert, in its loaded box. */
 	painted?: boolean;
@@ -88,7 +88,7 @@ function AllAct(props: { label: string; onAct: () => void }) {
 	);
 }
 
-/** A selection bar's count, then the act that chooses every row while some stand unchosen and the one that clears the choice. */
+/** A chosen bar's count, then the act that chooses every row while some stand unchosen and the one that clears the choice. */
 function Count({ chosen }: { chosen: ChosenCount }) {
 	const words = useWords();
 	const { onAll } = chosen;
@@ -196,7 +196,7 @@ export function ActionBarBase({
 		);
 	};
 	const press = (act: Act, at: number) =>
-		acting.run(at, {
+		acting.attempt(at, {
 			...act,
 			onAct: at === lastAt && act.onAct ? ending(act.onAct) : act.onAct,
 		});
@@ -250,7 +250,7 @@ export function ActionBarBase({
 			{ghost ? null : <ActSheet acting={acting} of={sheetOf} />}
 		</div>
 	);
-	// A selection bar's acts: the filled act stands and the others fold into the
+	// A chosen bar's acts: the filled act stands and the others fold into the
 	// more menu, by rule and not by room, so the row is the same at every width.
 	const primary = ordered.at(-1);
 	const folded = ordered.slice(0, -1).map(([act]) => act);
@@ -267,7 +267,7 @@ export function ActionBarBase({
 	// some stand unchosen; the table's head tick is the second where it stands, and the
 	// bar cannot tell which form the table drew in its own column, so both stand.
 	const bar = (ghost: boolean) => (
-		<div className={cn(ACTION_BAR, BAR, chosen && ACTION_BAR_SELECTION)}>
+		<div className={cn(ACTION_BAR, BAR, chosen && ACTION_BAR_CHOSEN_COLUMN)}>
 			{chosen ? (
 				<div className={cn(ACTION_BAR_CHOSEN, SELECTION)}>
 					<Count chosen={chosen} />

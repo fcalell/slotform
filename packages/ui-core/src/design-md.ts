@@ -10,6 +10,7 @@ import {
 import { rosterEntries } from "./roster.ts";
 import { leadingOf, sizeOf, sizePx, spacingOf } from "./scales.ts";
 import {
+	BLANK_WORD_KEYS,
 	BODY_SIZE,
 	BREAKPOINTS,
 	CHART_SERIES,
@@ -36,7 +37,6 @@ import {
 	SHADOW_ELEVATIONS,
 	SHEET_DOCKED_BODY_SHARE,
 	SIZES,
-	SLOT_WORD_KEYS,
 	SPACING_ROLES,
 	STACK_ORDER,
 	STRONG_WEIGHT,
@@ -631,7 +631,7 @@ function body(resolved: ResolvedTheme): string[] {
 		"- Do draw one `title` per screen, no `heading` inside a row, no `caption` sentence; emphasis is weight, never size.",
 		"- Do keep text at 4.5:1 or more on its fill; the contract measures every pair it draws.",
 		"- Do time motion with a duration rung and a contract curve; don't write a literal duration.",
-		`- Do take every word a component draws from \`words\`; a sentence is a prop. A counted word (${COUNTED_WORD_KEYS.map(code).join(", ")}) is \`{ one, other }\`, each form spelling \`{count}\` where the number stands, drawn through \`counted(word, count)\`. A slot word (${SLOT_WORD_KEYS.map(code).join(", ")}) spells its named slots as \`{name}\` where each value stands, drawn through \`filled(word, values)\`.`,
+		`- Do take every word a component draws from \`words\`; a sentence is a prop. A counted word (${COUNTED_WORD_KEYS.map(code).join(", ")}) is \`{ one, other }\`, each form spelling \`{count}\` where the number stands, drawn through \`counted(word, count)\`. A blank word (${BLANK_WORD_KEYS.map(code).join(", ")}) spells its named blanks as \`{name}\` where each value stands, drawn through \`filled(word, values)\`.`,
 		"",
 	];
 }

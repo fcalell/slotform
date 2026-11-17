@@ -17,6 +17,8 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
+import { Icon, IconBase } from "../../atoms/icon";
+import { Spinner } from "../../atoms/spinner";
 import { type Act, asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
@@ -26,8 +28,6 @@ import { blockIn, FadingView } from "../../lib/motion";
 import { inertProps } from "../../lib/paint";
 import { SoftGround } from "../../lib/raised";
 import { Strut } from "../../lib/strut";
-import { Icon, IconBase } from "../../parts/icon";
-import { Spinner } from "../../parts/spinner";
 import { ButtonBase } from "../button/base";
 import { Fill } from "./pending";
 
@@ -43,7 +43,7 @@ const GLYPH_BOX = "flex-row items-center shrink-0";
 const SENTENCE = "min-w-0 flex-1";
 // The act stands under the sentence, at the sentence's inset (the glyph and the
 // line's gap in).
-const ACT_SLOT = "flex-row shrink-0 items-center gap-gap ps-icon ms-gap";
+const ACT_REGION = "flex-row shrink-0 items-center gap-gap ps-icon ms-gap";
 // The time left beside the sentence, or before the act under it, outside the
 // live region: a tick a second would be announced.
 const TIME = "shrink-0";
@@ -75,7 +75,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 	const [picked, said, offer] = useSelections([tone, sentence, lifted]);
 	useDrawsFailure([lifted]);
 	const drawn = (picked.painted ? undefined : picked.value) ?? "active";
-	const { end, run, now } = usePending(until);
+	const { end, attempt, now } = usePending(until);
 	const words = useWords();
 	// An act whose own read ended stands blocked with its sentence, never a
 	// false yes; one still to land paints the banner inert.
@@ -109,7 +109,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 			{...inertProps(waits)}
 			className={cn(banner({ tone: drawn }), BOX, end !== undefined && PENDING)}
 		>
-			{run === undefined ? null : <Fill run={run} now={now} />}
+			{attempt === undefined ? null : <Fill attempt={attempt} now={now} />}
 			<SoftGround>
 				<View className={cn(BANNER_MAIN, MAIN)}>
 					<View className={cn(BANNER_ROW, LINE)}>
@@ -138,7 +138,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 						{end === undefined || acted ? null : left}
 					</View>
 					{offer.painted ? (
-						<View className={ACT_SLOT}>
+						<View className={ACT_REGION}>
 							{left}
 							{ended === undefined ? (
 								<ButtonBase act="secondary" label="" painted />
@@ -147,7 +147,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 							)}
 						</View>
 					) : given ? (
-						<View className={ACT_SLOT}>
+						<View className={ACT_REGION}>
 							{left}
 							<ButtonBase
 								act="secondary"

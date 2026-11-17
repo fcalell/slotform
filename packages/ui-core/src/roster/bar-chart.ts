@@ -10,8 +10,8 @@ import { build, CARD_PART, matrix } from "./shared.ts";
 // `°C`, is a level unless `level` is `false`), and none where that span is
 // one reading, and its plot draws each reading as a dot (`CHART_LEVEL`,
 // `CHART_DOT`) against an axis around the readings (`levelScale`), never a
-// bar from zero. Each bar stands in its slot of the plot, at least seven
-// (`CHART_SLOTS`), so a short series stands in the first of them; the
+// bar from zero. Each bar stands in its region of the plot, at least seven
+// (`CHART_REGIONS`), so a short series stands in the first of them; the
 // first and last bars' times stand under their bars, and the times
 // between at evenly spaced strides as the plot's width holds them
 // (`timeSpace`). While its read waits the total and the legend's figures are
@@ -148,11 +148,11 @@ export const CHART_DOT =
 // A bar whose period is not over (this month so far): its column hatched at
 // 45°, stripes two hairlines wide and two apart, by a mask on the unscaled
 // column, so the hatch keeps its angle at any share and the ground (a selected
-// slot's wash too) shows between the stripes; each stripe is the series fill,
+// region's wash too) shows between the stripes; each stripe is the series fill,
 // which holds the 3:1 mark floor.
 export const CHART_PARTIAL =
 	"[mask-image:repeating-linear-gradient(45deg,black_0,black_calc(2*var(--spacing-hairline)),transparent_calc(2*var(--spacing-hairline)),transparent_calc(4*var(--spacing-hairline)))]";
-// The slot of the bar whose record is open beside the chart: the selection
+// The region of the bar whose record is open beside the chart: the selection
 // wash over the plot's height, as a selected row or table row carries it (no
 // radius: it is a band of the plot, as a table row is).
 export const CHART_SELECTED = "bg-wash-selected";

@@ -11,6 +11,9 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { Text as RNText, View } from "react-native";
+import { CountBase } from "../../atoms/count/base";
+import { Icon } from "../../atoms/icon";
+import { Spinner } from "../../atoms/spinner";
 import { useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { ActInert } from "../../lib/form";
@@ -18,12 +21,8 @@ import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
-
-import { CountBase } from "../../parts/count/base";
-import { Icon } from "../../parts/icon";
-import { Spinner } from "../../parts/spinner";
 import { ActSheet } from "../sheet/act";
-import type { ButtonRunProps } from "./index";
+import type { ButtonAttemptProps } from "./index";
 
 const STACK = "items-start gap-gap";
 const BOX = "flex-row items-center justify-center";
@@ -90,7 +89,7 @@ function lookOf(
 }
 
 // The act every Button renders; outside the package's exports.
-// Its run, pending, blocked and painted shapes: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
+// Its attempt, pending, blocked and painted shapes: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 export function ButtonBase({
 	act,
 	fit,
@@ -107,7 +106,7 @@ export function ButtonBase({
 	painted,
 	pending: given,
 	line,
-}: Omit<ButtonRunProps, "href" | "glyph"> & {
+}: Omit<ButtonAttemptProps, "href" | "glyph"> & {
 	painted?: boolean;
 	pending?: boolean;
 	line?: boolean;
@@ -117,7 +116,7 @@ export function ButtonBase({
 	const { touched } = useTouched();
 	const host = useContext(ReasonHostContext);
 	// A host with a line of its own draws a rejection there; the public Button
-	// alone draws it under itself. The base makes the run whose mode `line` picks.
+	// alone draws it under itself. The base makes the attempt whose mode `line` picks.
 	const acting = useAct(line && !host ? "line" : "toast");
 	const pending = given === true || acting.pending !== undefined;
 	const drawn = useShown(pending, timings.actDelay);
@@ -138,7 +137,7 @@ export function ButtonBase({
 			if (host) host();
 			else keep();
 		} else if (given === undefined)
-			acting.run(true, {
+			acting.attempt(true, {
 				onAct: () => onAct?.(),
 				label,
 				destructive: kind === "destructive" || kind === "danger",

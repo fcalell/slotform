@@ -12,7 +12,7 @@ import { auth } from "@fcalell/plugin-auth";
 import { expo } from "@fcalell/plugin-expo";
 import { deriveTheme } from "@fcalell/ui-core/derive";
 import { uiCoreGuide } from "@fcalell/ui-core/manifest";
-import { KNOB_DEFAULTS, LOADING_SLOTS } from "@fcalell/ui-core/tokens";
+import { KNOB_DEFAULTS, LOADING_REGIONS } from "@fcalell/ui-core/tokens";
 import { aggregateGlobalCss } from "./node/codegen.ts";
 import {
 	type NativeFontEntry,
@@ -226,7 +226,7 @@ const nativeThemeSource = slot.derived({
 	name: "nativeThemeSource",
 	inputs: { resolved: resolvedTheme },
 	compute: (inp): string | null => {
-		const scrambled = LOADING_SLOTS.filter(
+		const scrambled = LOADING_REGIONS.filter(
 			(slot) => inp.resolved.loading[slot] === "scramble",
 		);
 		const { radius, size } = inp.resolved.knobs;

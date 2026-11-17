@@ -5,5 +5,5 @@ export const DESKTOP_MEDIA = `(pointer: fine) and (width >= ${BREAKPOINT_PX.tabl
 export const TOUCH_MEDIA = `not (${DESKTOP_MEDIA})`;
 
 // The room set draws under the attribute, on the root as a pin or on the
-// `Place` that declares its `distance`: no query detects the viewing distance.
+// `Panes` that declares its `distance`: no query detects the viewing distance.
 export const ROOM_SCOPE = '[data-density="room"]';

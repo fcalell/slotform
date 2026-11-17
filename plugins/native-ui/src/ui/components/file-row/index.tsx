@@ -18,16 +18,15 @@ import {
 } from "@fcalell/ui-core/variants";
 import { memo } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { ChipBase } from "../../atoms/chip/base";
+import { IconBase } from "../../atoms/icon";
+import { ChangeMark } from "../../atoms/status/change";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { Roll, Swap } from "../../lib/swap";
 import { useCSSVariable } from "../../lib/theme";
-
-import { ChipBase } from "../../parts/chip/base";
-import { IconBase } from "../../parts/icon";
-import { ChangeMark } from "../../parts/status/change";
 
 // A row's floor, as a list row's: on touch it stands at the target.
 const ROW = "relative flex-row items-center min-h-row";

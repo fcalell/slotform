@@ -2,7 +2,7 @@ import type { IconName } from "@fcalell/ui-core/descriptors";
 import { ICON_STROKE, type IconStroke } from "@fcalell/ui-core/tokens";
 import type { ContentTone } from "@fcalell/ui-core/variants";
 import * as lucide from "lucide-react-native";
-import { useTokenPx } from "./frame";
+import { useTokenPx } from "./container";
 import { useTokenColor } from "./theme";
 
 // Every Lucide name to its glyph; the annotation fails the build when the

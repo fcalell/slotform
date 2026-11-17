@@ -10,7 +10,7 @@ export const FIT: Record<ActionBarFit, ButtonFit> = {
 /** A kept failure line's text while nothing failed: a no-break space holds the line's height. */
 export const NO_FAILURE = " ";
 
-/** A selection bar draws nothing while no row is ticked or none can be. */
+/** A chosen bar draws nothing while no row is ticked or none can be. */
 export const chosenAbsent = (chosen: ChosenCount) =>
 	chosen.count === 0 || chosen.of === 0;
 

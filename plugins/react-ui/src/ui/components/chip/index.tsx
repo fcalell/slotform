@@ -1,8 +1,8 @@
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
+import { ChipBase } from "../../atoms/chip/base.tsx";
 import type { Closed } from "../../lib/closed.ts";
-import { ChipBase } from "../../parts/chip/base.tsx";
 
 /** A data value's tag: an outlined pill with a dot in its family's hue; a neutral one is its word on a soft ground, no edge and no dot. */
 interface ChipProps extends Closed {

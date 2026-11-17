@@ -21,12 +21,12 @@ import {
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
+import { Reason } from "../../atoms/button/reason.tsx";
+import { Icon, IconBase } from "../../atoms/icon/index.tsx";
+import { Spinner } from "../../atoms/spinner/index.tsx";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
-import { Reason } from "../../parts/button/reason.tsx";
-import { Icon, IconBase } from "../../parts/icon/index.tsx";
-import { Spinner } from "../../parts/spinner/index.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { ActFace } from "../button/face.tsx";
 import { Fill } from "./pending.tsx";
@@ -73,7 +73,7 @@ const GLYPH_ACTED = "h-control touch:h-lh";
 // The end gives way only once the sentence has (its shrink weight is 10^7
 // against the end's 1), so a long label cuts and an ordinary one never narrows.
 const END = "flex items-center gap-gap min-w-0 max-w-full";
-const ACT_SLOT = "flex min-w-0 max-w-full";
+const ACT_REGION = "flex min-w-0 max-w-full";
 
 /** A sentence about the state of the page, the app or a Section, in the flow. */
 export interface BannerProps extends Closed {
@@ -93,7 +93,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 	const [picked, said, offer] = useSelections([tone, sentence, lifted]);
 	useDrawsFailure([lifted]);
 	const drawn = (picked.painted ? undefined : picked.value) ?? "active";
-	const { end, run, now } = usePending(until);
+	const { end, attempt, now } = usePending(until);
 	const words = useWords();
 	// An act whose own read ended stands blocked with its sentence, never a
 	// false yes; one still to land paints the banner inert.
@@ -140,7 +140,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 					</span>
 				)}
 				{offer.painted ? (
-					<span className={ACT_SLOT}>
+					<span className={ACT_REGION}>
 						{ended === undefined ? (
 							<ButtonBase act="secondary" label="" painted />
 						) : (
@@ -150,7 +150,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 						)}
 					</span>
 				) : given ? (
-					<span className={ACT_SLOT}>
+					<span className={ACT_REGION}>
 						<ReasonHostContext value={host}>
 							<ActFace act={given} kind="secondary" blocked={blocked} />
 						</ReasonHostContext>
@@ -169,8 +169,12 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 				end !== undefined && PENDING,
 			)}
 		>
-			{run === undefined ? null : (
-				<Fill key={`${run.start}-${run.end}`} run={run} now={now} />
+			{attempt === undefined ? null : (
+				<Fill
+					key={`${attempt.start}-${attempt.end}`}
+					attempt={attempt}
+					now={now}
+				/>
 			)}
 			<div className={cn(BANNER_MAIN, MAIN, running && MAIN_RUN)}>
 				<div className={cn(BANNER_ROW, LINE, running && LINE_RUN)}>

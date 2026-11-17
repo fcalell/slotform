@@ -13,10 +13,10 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { type CSSProperties, useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { PAINT_BOX } from "../../lib/paint.tsx";
-import { IMAGE_FRAME } from "../../lib/walk-classes.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
+import { IMAGE_BOX } from "../../lib/walk-classes.ts";
 import { SheetLayer } from "../sheet/layer.tsx";
 
 // The picture and its full view, which an Image draws once and a Gallery once
@@ -93,7 +93,7 @@ export function PictureTile({
 				aria-hidden
 				inert
 				style={box}
-				className={cn(image({ fit }), IMAGE_FRAME, PAINT_BOX)}
+				className={cn(image({ fit }), IMAGE_BOX, PAINT_BOX)}
 			/>
 		);
 	if (status === "failed")
@@ -112,7 +112,7 @@ export function PictureTile({
 		);
 	const framed = cn(
 		image({ fit, state: status === "pending" ? "loading" : "rest" }),
-		IMAGE_FRAME,
+		IMAGE_BOX,
 	);
 	const picture = (
 		<img

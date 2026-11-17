@@ -73,8 +73,8 @@ its value alone.
   are false, lookups miss, `new Date` is the epoch, a number formats as 0, `map` and `filter` give it
   back. Nothing is frozen on the target, since a frozen function would pin `name` and `length` against
   the proxy's traps; the traps refuse every write instead.
-- A selector or `combine` function runs over the placeholder (a waiting slot picks over it, an idle or
-  failed read's missing data included), so one that throws there is no bug in the data: its slot is
+- A selector or `combine` function runs over the placeholder (a waiting region picks over it, an idle or
+  failed read's missing data included), so one that throws there is no bug in the data: its region is
   the placeholder, silently. Over real data the throw is the app's.
 - A selector run over the placeholder or the sample follows keys that are always there, so a walk
   that goes on while it finds one (`while (n.parent) n = n.parent`) never reaches an end. A run over
@@ -169,7 +169,7 @@ frames over one read only the first draws it, so one refetch stands as one mark.
 - While a collection's `items` read waits it paints its loaded shape, inert: `PAINT_ROWS` rows (a
   Section's sheet as title-and-facts rows with no link, a tree drawn flat; a table's rows in the
   columns it declares, the header constant over them, each cell painted by its column's kind and the
-  slots run over the placeholder; below `tablet` the list painting the same records), `PAINT_TURNS`
+  regions run over the placeholder; below `tablet` the list painting the same records), `PAINT_TURNS`
   in a thread (an ask of yours and the other author's reply), and for a bar chart a figure's filler as
   the total, the legend standing with its figures painted, one painted plot box at its loaded height
   with the axis's lane kept, and two fillers for the time line.
@@ -180,7 +180,7 @@ frames over one read only the first draws it, so one refetch stands as one mark.
   clears; the `reply` read draws its turn after them the same way, from its own subscription.
 - A Section's empty shape under a `description` is its act alone, or the word for none.
 - A row, a Stats cell and a meter are the frame of the selections they draw. When one failed and no
-  enclosing frame holds that read, the label stays, the value slot shows the failure mark and the
+  enclosing frame holds that read, the label stays, the value region shows the failure mark and the
   retry icon, the line under reads `readFailed` ("This didn't load.") and a press retries. A read an
   enclosing frame holds draws nothing of its own there. A failed row's end draws the retry icon in its
   own square, a spinner in its place once the retry has run `timings.actDelay`, so a retry the server
@@ -224,20 +224,20 @@ remains.
 ## Paint
 
 **Paint** is what a part draws while its data is not here. `paint.ts` holds it free of any framework
-(the filler text a slot paints, how many rows a collection paints, how long a read runs before the
+(the filler text a region paints, how many rows a collection paints, how long a read runs before the
 paint shows), and both platforms run it, so a painted shape measures the same everywhere and the same
-filler comes back for the same slot.
+filler comes back for the same region.
 
 ### Paint shapes
 
 A part paints in one of three shapes (`variant-tables.ts`):
 
-- `glyphs`: the filler the part would hold, filled: a text, figure or id slot's own line boxes, the
+- `glyphs`: the filler the part would hold, filled: a text, figure or id region's own line boxes, the
   ink transparent;
 - `box`: the part's own box with its content not drawn (a mark or a block);
 - `control`: a control's own box with its content invisible and the control inert.
 
-Each component paints its own box, so the painted shape measures as the loaded one. A row slot run over
+Each component paints its own box, so the painted shape measures as the loaded one. A row region run over
 a painted item that throws on the filler (it reads a field the filler does not have) paints as the
 item itself and never throws the page; the Table's rows go through it (`painting`).
 
@@ -274,20 +274,20 @@ parts out of step.
   changes; it stands at full under reduced motion.
 - A phone painted part is its host with the fill and the breath on its opacity: the part draws nothing
   but the fill while painted, so the box's opacity is the fill's alpha. The host that is not painted is
-  the plain one, so a loaded list pays for no animated view. The root `Text` of a slot that holds
+  the plain one, so a loaded list pays for no animated view. The root `Text` of a region that holds
   `Painted` fillers fades in and breathes so the fillers inside breathe with it (nested text takes no
   opacity of its own).
 
 ### Waiting paint
 
-- A role's waiting slot either pulses or is scrambled (`scrambled`): its kind's paint is the scramble
-  and its slot is one line (a wrapping one always pulses). A part that is scrambled does not breathe,
+- A role's waiting region either pulses or is scrambled (`scrambled`): its kind's paint is the scramble
+  and its region is one line (a wrapping one always pulses). A part that is scrambled does not breathe,
   since its glyphs would dim; it only fades in. The platforms still their scramble under reduced
   motion.
-- Which paint each glyph slot's waiting shape takes is module state (`loading`), set from
+- Which paint each glyph region's waiting shape takes is module state (`loading`), set from
   `theme.loading` as the app starts (omitted, all pulse) and live by the bench, and read by every
-  painted slot through `scrambled`.
-- A figure or id of a read is one slot instance across the switch from its filler to its `text`, so it
+  painted region through `scrambled`.
+- A figure or id of a read is one region instance across the switch from its filler to its `text`, so it
   knows whether it waited: when the paint stood for `waitDelay` and the theme scrambles its kind, the
   text decodes as it arrives (otherwise it lands at once), and it rolls when `of`, its number, changes
   while shown. The layout is the loaded one from the first frame: the decode is paint alone.
@@ -363,5 +363,5 @@ production build drops them.
 - `plugins/native-ui/src/ui/lib/more.tsx`: the more row.
 - `plugins/native-ui/src/ui/lib/paint.tsx`: painted hosts, the paint delay, painted text roots.
 - `plugins/native-ui/src/ui/lib/motion.ts`: the page's breath and a painted part's style.
-- `plugins/native-ui/src/ui/lib/slot.tsx`: a figure or id slot across paint and text.
-- `plugins/native-ui/src/ui/components/`: the frames of their items (`bar-chart`, `diff`, `table`, `thread`, `section`, `stats`, and `parts/stats/meter.tsx`).
+- `plugins/native-ui/src/ui/lib/region.tsx`: a figure or id region across paint and text.
+- `plugins/native-ui/src/ui/components/`: the frames of their items (`bar-chart`, `diff`, `table`, `thread`, `section`, `stats`, and `atoms/stats/meter.tsx`).

@@ -54,7 +54,7 @@ export function isPlaced(error: unknown): boolean {
 	return typeof error === "object" && error !== null && placedErrors.has(error);
 }
 
-/** An act, a link or a list of them as a slot takes it: a constant, a selection of the whole, or a constant whose `label` or `blocked` is a selection (a reason from a read, a label that counts). */
+/** An act, a link or a list of them as a region takes it: a constant, a selection of the whole, or a constant whose `label` or `blocked` is a selection (a reason from a read, a label that counts). */
 export type Offered<T> = Fielded<T, ActText>;
 
 /** An `Offered` made whole (a selection of the act with each text prop's value in its place), which the host draws as any act given as a datum. */
@@ -66,20 +66,20 @@ export function offered<T>(
 	return lift<T, ActText>(given, ACT_TEXT);
 }
 
-export interface RunState<K> {
+export interface AttemptState<K> {
 	pending?: K;
 	failure?: { key: K; error: unknown };
 }
 
-// One act's run: pending from the press until its promise settles, its
-// rejection kept as the failure until the next run. `latest` says whether this
-// run is still the newest, and only the newest's outcome counts. A sync throw
+// One act's attempt: pending from the press until its promise settles, its
+// rejection kept as the failure until the next attempt. `latest` says whether this
+// attempt is still the newest, and only the newest's outcome counts. A sync throw
 // clears the state and rethrows; a result that is no promise is done at once.
-export function startRun<K>(
+export function startAttempt<K>(
 	key: K,
 	onAct: () => unknown,
 	latest: () => boolean,
-	set: (state: RunState<K>) => void,
+	set: (state: AttemptState<K>) => void,
 ): void {
 	let result: unknown;
 	try {
@@ -147,7 +147,7 @@ export function moreMenu<E>(
 	return { painted: false, items: endedItems(words, ended) };
 }
 
-// A blocked act is never pressed; its type still asks for the run.
+// A blocked act is never pressed; its type still asks for the attempt.
 const NEVER_PRESSED = (): void => undefined;
 
 /** The one blocked item a menu stands as while its read has ended: nothing can be taken from it, and its reason says why. */

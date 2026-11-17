@@ -21,7 +21,7 @@ import {
 	ACTION_BAR_ACTS,
 	ACTION_BAR_ALL,
 	ACTION_BAR_CHOSEN,
-	ACTION_BAR_SELECTION,
+	ACTION_BAR_CHOSEN_COLUMN,
 	FIELD_ERROR_LINE,
 	text,
 } from "@fcalell/ui-core/variants";
@@ -51,7 +51,7 @@ const ALL = "flex-row items-center shrink-0 active:bg-wash-press";
 // React Native's text does not shrink in a row, so a long word pushes past the
 // edge; each word of the count row gives way.
 const SHRINK = "shrink";
-// A selection bar's acts stand in one row: the more menu, then the filled act.
+// A chosen bar's acts stand in one row: the more menu, then the filled act.
 const CHOSEN_ACTS = "flex-row items-center";
 const PRIMARY = "flex-1";
 const NUMBER = formatterFor("number");
@@ -71,7 +71,7 @@ interface ActionBarInternal {
 	// The bar keeps the reason's line before a reason shows, so showing it never
 	// moves the act it describes.
 	kept?: boolean;
-	// The holder that hosts this bar's acts' run, when the bar is not the only
+	// The holder that hosts this bar's acts' attempt, when the bar is not the only
 	// host (a sheet holds its dismissal while its bar's act pends). Absent, the
 	// bar hosts its own.
 	acting?: Acting<number>;
@@ -202,7 +202,7 @@ export function ActionBarBase({
 		);
 	};
 	const press = (act: Act, at: number) =>
-		acting.run(at, {
+		acting.attempt(at, {
 			...act,
 			onAct: at === lastAt && act.onAct ? ending(act.onAct) : act.onAct,
 		});
@@ -214,13 +214,13 @@ export function ActionBarBase({
 		(pressed ? ended : undefined) ??
 		held ??
 		NO_FAILURE;
-	// A selection bar's acts: the filled act stands and the others fold into the
+	// A chosen bar's acts: the filled act stands and the others fold into the
 	// more menu, by rule and not by room.
 	const ordered = acts.map((act, at) => [act, at] as const);
 	const shownActs = chosen ? ordered.slice(-1) : ordered;
 	const folded = chosen ? acts.slice(0, -1) : [];
 	const bar = (ghost: boolean) => (
-		<View className={cn(ACTION_BAR, chosen && ACTION_BAR_SELECTION)}>
+		<View className={cn(ACTION_BAR, chosen && ACTION_BAR_CHOSEN_COLUMN)}>
 			{chosen ? <Chosen chosen={chosen} /> : null}
 			<View className={cn(ACTION_BAR_ACTS, chosen ? CHOSEN_ACTS : ACTS)}>
 				{chosen && folded.length > 0 ? (

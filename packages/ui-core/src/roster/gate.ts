@@ -74,7 +74,7 @@ export const STEP_COUNT_SEGMENTS = "gap-gap";
 export const GATE = "bg-surface p-page";
 export const GATE_COLUMN = "w-full max-w-auth";
 
-// The app's mark is a lockup, the logo (`GATE_MARK`, the avatar's size) and the
+// The app's lockup is the logo (`GATE_MARK`, the avatar's size) and the
 // app's name a row apart, a row of the step.
 export const GATE_MARK_ROW = "gap-gap";
 // An app's drawn lockup stands in the row in place of the logo and the name,

@@ -28,6 +28,10 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useMemo, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { ChangeMark } from "../../atoms/status/change";
+import type { CheckboxProps } from "../../atoms/switch/checkbox";
+import { CheckboxBase } from "../../atoms/switch/checkbox";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
@@ -41,10 +45,6 @@ import {
 import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";
 import { inertProps } from "../../lib/paint";
-import { Icon } from "../../parts/icon";
-import { ChangeMark } from "../../parts/status/change";
-import type { CheckboxProps } from "../../parts/switch/checkbox";
-import { CheckboxBase } from "../../parts/switch/checkbox";
 import { Button } from "../button";
 import type { ProseProps, TextInputProps } from "../input";
 import { InputBase } from "../input/base";

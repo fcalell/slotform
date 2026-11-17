@@ -1,8 +1,8 @@
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
+import { ChipBase } from "../../atoms/chip/base";
 import type { Closed } from "../../lib/closed";
-import { ChipBase } from "../../parts/chip/base";
 
 interface ChipProps extends Closed {
 	/** The value (a word; truncates past the short measure, 20 characters). A selection paints the pill, which takes no touch, until its read lands. */

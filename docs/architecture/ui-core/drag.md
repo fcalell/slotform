@@ -24,7 +24,7 @@ A drop is `Drop`, a place that takes a drag, as data:
   `done` is toasted once `onDrop` resolves, `to` is the route taken after, a rejection toasts as a failed act
   does, and `blocked` is why it takes nothing at the moment.
 
-A `PlaceSpec`'s `drop` is a Shell place (a board); a `RowItem`'s `drop` and a Table row slot's `drop`
+A `PlaceSpec`'s `drop` is a Shell place (a board); a `RowItem`'s `drop` and a Table row region's `drop`
 are rows of another collection.
 
 ## Reorder
@@ -52,7 +52,7 @@ type-check. What a drag holds and where it is web only is in [limits](../ui-core
 
 ## Row acts
 
-A row's own act (`RowItem.act`, a Table row slot's `act`) is the one icon act at its end, with its
+A row's own act (`RowItem.act`, a Table row region's `act`) is the one icon act at its end, with its
 wiring. A Table draws it with the row's `more` in an acts column at the grid's end, frozen there.
 Shift+Enter on the active row presses it (Enter too where the row opens nothing), and the Context Menu
 key (or Shift+F10) opens the menu.

@@ -194,7 +194,7 @@ which scales the room set at runtime, reads them without the theme.
 
 ### The room
 
-`room` is the one set a screen declares (the `Place`'s `distance: "room"`), because no media query
+`room` is the one set a screen declares (the `Panes`'s `distance: "room"`), because no media query
 detects the viewing distance of a television or a wall display. It is the touch set drawn on
 `ROOM_CANVAS` (960 × 540) and multiplied by the room unit
 `u = max(1px, min(100vw / 960, 100dvh / 540))`, never a hand-tuned ladder. Native computes the unit

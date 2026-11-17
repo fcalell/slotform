@@ -56,15 +56,15 @@ export function pickCurrent<V extends string | null>(
 
 /** The rows a waiting `items` paints: `PAINT_ROWS` options, in one group when the map declares `group`. */
 export function paintedGroups<V extends string | null>(
-	slots: { description?: unknown; group?: unknown } = {},
+	regions: { description?: unknown; group?: unknown } = {},
 ): PickOptions<V> {
 	const options = Array.from({ length: PAINT_ROWS }, (_, at) => ({
 		// A painted option's value is filler nobody reads, whatever `V` is.
 		value: `painted-${at}` as V,
 		label: "",
-		description: slots.description === undefined ? undefined : "",
+		description: regions.description === undefined ? undefined : "",
 	}));
-	return slots.group === undefined ? options : [{ label: "", options }];
+	return regions.group === undefined ? options : [{ label: "", options }];
 }
 
 /** The path of a location or an href: its query and its hash set aside. */

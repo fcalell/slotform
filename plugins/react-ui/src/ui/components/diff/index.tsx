@@ -35,7 +35,7 @@ import { Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { WordDiff } from "./word.tsx";
 
-const FRAME = "flex flex-col shrink-0 min-w-0 overflow-hidden";
+const BOX = "flex flex-col shrink-0 min-w-0 overflow-hidden";
 const TABLE = "w-full border-collapse";
 // A line stands its indent and then the rest beside it (`indented`), so a
 // wrapped line hangs one inset under its first visual line at its own indent,
@@ -194,7 +194,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 			data-wide=""
 			inert
 			data-still={stillOf(frame)}
-			className={cn(CARD, FRAME)}
+			className={cn(CARD, BOX)}
 		>
 			<table className={TABLE}>
 				<tbody>
@@ -215,7 +215,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 			</table>
 		</div>
 	) : (
-		<div data-wide="" className={cn(CARD, FRAME)}>
+		<div data-wide="" className={cn(CARD, BOX)}>
 			<table aria-label={label} className={TABLE}>
 				<tbody>
 					{shown.map((hunk, at) => (

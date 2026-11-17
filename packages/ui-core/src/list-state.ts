@@ -4,7 +4,7 @@ import type {
 	ChangeCell,
 	ChangeKind,
 	ChipMark,
-	ChoiceSlots,
+	ChoiceRegions,
 	Drop,
 	IconAct,
 	IconLinkAct,
@@ -25,7 +25,7 @@ import type {
 	TableChoice,
 	TableColumn,
 	TablePick,
-	TableRowSlots,
+	TableRowRegions,
 	ToolbarFilter,
 } from "./descriptors.ts";
 import { painting } from "./paint.ts";
@@ -60,7 +60,7 @@ export interface TreeRow<T> {
 // harmlessly.
 export function treeRows<T>(
 	items: readonly T[],
-	slots: {
+	regions: {
 		key: (item: T) => string;
 		children: (item: T) => readonly T[] | undefined;
 	},
@@ -69,8 +69,8 @@ export function treeRows<T>(
 	const rows: TreeRow<T>[] = [];
 	const walk = (level: readonly T[], depth: number) => {
 		for (const [at, item] of level.entries()) {
-			const key = slots.key(item);
-			const below = slots.children(item) ?? [];
+			const key = regions.key(item);
+			const below = regions.children(item) ?? [];
 			const open = !folded.includes(key);
 			rows.push({
 				item,
@@ -171,9 +171,9 @@ export function valueCut(value: string): { stem: string; tail: string } {
 	};
 }
 
-// One function per check row slot, each called with a loaded item; `group`
+// One function per check row region, each called with a loaded item; `group`
 // is the label the option stands under.
-export interface OptionSlots<T, V extends string> {
+export interface OptionRegions<T, V extends string> {
 	value: (item: T) => V;
 	label: (item: T) => string;
 	line?: (item: T) => string | undefined;
@@ -200,21 +200,21 @@ export function optionLeading(option: Pick<Option, "leading"> | undefined): {
 // under each label in the order it first appears.
 export function optionsOf<T, V extends string>(
 	items: readonly T[],
-	slots: OptionSlots<T, V>,
+	regions: OptionRegions<T, V>,
 ): Option<V>[] | OptionGroup<V>[] {
 	const optionOf = (item: T): Option<V> => {
 		const option: Option<V> = {
-			value: slots.value(item),
-			label: slots.label(item),
+			value: regions.value(item),
+			label: regions.label(item),
 		};
-		const line = slots.line?.(item);
+		const line = regions.line?.(item);
 		if (line !== undefined) option.line = line;
-		if (slots.recommended?.(item)) option.recommended = true;
-		const blocked = slots.blocked?.(item);
+		if (regions.recommended?.(item)) option.recommended = true;
+		const blocked = regions.blocked?.(item);
 		if (blocked !== undefined) option.blocked = blocked;
 		return option;
 	};
-	const { group } = slots;
+	const { group } = regions;
 	if (group === undefined) return items.map(optionOf);
 	const groups = new Map<string, Option<V>[]>();
 	for (const item of items) {
@@ -340,7 +340,7 @@ export function filterChip(
 		: `${label}: ${value.length} ${nounOf(label)}`;
 }
 
-// One table row as both of its forms draw it: its own slots and each
+// One table row as both of its forms draw it: its own regions and each
 // column's cell by key, read from its item once.
 export interface TableRecord {
 	id: string;
@@ -361,29 +361,29 @@ export interface TableRecord {
 export function tableRecords<T>(
 	items: readonly T[],
 	columns: readonly TableColumn<T>[],
-	row: TableRowSlots<T>,
-	choose?: ChoiceSlots<T>,
+	row: TableRowRegions<T>,
+	choose?: ChoiceRegions<T>,
 	painted = false,
 ): TableRecord[] {
-	// A slot that throws on filler answers the item itself, which a painted row
+	// A region that throws on filler answers the item itself, which a painted row
 	// reads as filler whatever `R` is.
-	const slot = <R>(fn: (item: T) => R, item: T): R =>
+	const region = <R>(fn: (item: T) => R, item: T): R =>
 		painted ? (painting(fn, item) as R) : fn(item);
 	return items.map((item) => ({
-		id: slot(row.id, item),
-		href: row.href && slot(row.href, item),
-		editable: row.editable ? slot(row.editable, item) : true,
-		locked: row.locked && slot(row.locked, item),
-		warning: row.warning && slot(row.warning, item),
-		change: row.change && slot(row.change, item),
-		blocked: choose?.blocked && slot(choose.blocked, item),
-		moved: choose?.moved && slot(choose.moved, item),
+		id: region(row.id, item),
+		href: row.href && region(row.href, item),
+		editable: row.editable ? region(row.editable, item) : true,
+		locked: row.locked && region(row.locked, item),
+		warning: row.warning && region(row.warning, item),
+		change: row.change && region(row.change, item),
+		blocked: choose?.blocked && region(choose.blocked, item),
+		moved: choose?.moved && region(choose.moved, item),
 		// A painted row draws none of its acts: the column stands, its cell empty.
 		act: painted ? undefined : row.act?.(item),
 		more: painted ? undefined : row.more?.(item),
 		drop: painted ? undefined : row.drop?.(item),
 		cells: Object.fromEntries(
-			columns.map((column) => [column.key, slot(column.cell, item)]),
+			columns.map((column) => [column.key, region(column.cell, item)]),
 		),
 	}));
 }
@@ -460,7 +460,7 @@ export function chooseAllToggled(
 // What a table's tick column reads and does, whichever way the rows are chosen
 // (the ids ticked, or a pick over a read's query): `head` the head tick's
 // state, the changes a tick and the head tick make, and `count` of `of` and
-// `onAll` for the selection bar the route gives the Pane's foot (an
+// `onAll` for the chosen bar the route gives the Pane's foot (an
 // `ActionBar`'s `chosen`, `ChosenCount`).
 export interface Chooser {
 	ticked: (id: string) => boolean;
@@ -658,7 +658,7 @@ export function touchFacts(
 	};
 }
 
-// Whether a slot's answer is a touch row's split: a slot that threw over the
+// Whether a region's answer is a touch row's split: a region that threw over the
 // filler answers the record itself.
 export function isTouchSplit(
 	value: unknown,

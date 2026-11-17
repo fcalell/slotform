@@ -1,5 +1,5 @@
 import {
-	type PendingRun,
+	type PendingAttempt,
 	pendingShare,
 	timeLeft,
 } from "@fcalell/ui-core/clock";
@@ -18,12 +18,12 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
+import { Reason } from "../../atoms/button/reason.tsx";
+import { Spinner } from "../../atoms/spinner/index.tsx";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useReducedMotion } from "../../lib/media.ts";
 import type { VarStyle } from "../../lib/style.ts";
-import { Reason } from "../../parts/button/reason.tsx";
-import { Spinner } from "../../parts/spinner/index.tsx";
 import { ActFace } from "../button/face.tsx";
 
 // The bar over a blocked act's reason, at the end on the desktop; on touch
@@ -35,7 +35,7 @@ const TRACK = `relative flex items-center grow ${YIELDS_FIRST} min-w-0 overflow-
 // runtime fraction, so the fill moves on the compositor and never lays out.
 const FILL = "absolute bottom-0 inset-x-0 motion-safe:animate-pending-fill";
 // The track's parts stand over the fill.
-const SPINNER_SLOT = "relative flex shrink-0 text-ink-meta";
+const SPINNER_REGION = "relative flex shrink-0 text-ink-meta";
 // The sentence wraps in a narrow column, never clips: the track grows by a
 // line. It stands in the control's height with the air a one-line sentence has
 // above and below it, so one line is the control's height and a wrapped one
@@ -44,19 +44,19 @@ const SENTENCE =
 	"relative min-w-0 grow py-[calc((var(--spacing-control)-1lh)/2)]";
 const LEFT = "relative shrink-0";
 
-// The elapsed share, moving on its own from where the run stands to full at
+// The elapsed share, moving on its own from where the attempt stands to full at
 // its end (`pending-fill`, `globals.css`); the clock's tick redraws only the
-// time left. The Fill mounts per run and takes its start once, so a tick never
+// time left. The Fill mounts per attempt and takes its start once, so a tick never
 // retimes it. Under reduced motion it steps with the clock instead, the share
 // set once a tick.
-export function Fill(props: { run: PendingRun; now: number }) {
-	const { run } = props;
+export function Fill(props: { attempt: PendingAttempt; now: number }) {
+	const { attempt } = props;
 	const [at] = useState(Date.now);
 	const reduced = useReducedMotion();
 	const fill: VarStyle = {
-		"--fill": reduced ? pendingShare(run, props.now) : 1,
-		"--from": pendingShare(run, at),
-		"--ms": Math.max(0, run.end - at),
+		"--fill": reduced ? pendingShare(attempt, props.now) : 1,
+		"--from": pendingShare(attempt, at),
+		"--ms": Math.max(0, attempt.end - at),
 	};
 	return <span aria-hidden className={cn(PENDING_FILL, FILL)} style={fill} />;
 }
@@ -73,7 +73,7 @@ export interface PendingBarProps extends Closed {
 
 /** One line on the group ground: the spinner, or a meta-ink line along the track's foot filling toward `until` with the time left beside the sentence, which alone is the live region; the act beside it on the desktop, under it on touch. */
 export function PendingBar({ sentence, until, act }: PendingBarProps) {
-	const { end, run, now } = usePending(until);
+	const { end, attempt, now } = usePending(until);
 	const { touched } = useTouched();
 	const blocked = act && "blocked" in act ? act.blocked : undefined;
 	const [pressed, press] = usePressed(blocked);
@@ -82,12 +82,16 @@ export function PendingBar({ sentence, until, act }: PendingBarProps) {
 		<div className={cn(PENDING_BAR, BAR)}>
 			<div className={cn(PENDING_ROW, ROW)}>
 				<div className={cn(PENDING_TRACK, TRACK)}>
-					{end === undefined || run === undefined ? (
-						<span className={SPINNER_SLOT}>
+					{end === undefined || attempt === undefined ? (
+						<span className={SPINNER_REGION}>
 							<Spinner />
 						</span>
 					) : (
-						<Fill key={`${run.start}-${run.end}`} run={run} now={now} />
+						<Fill
+							key={`${attempt.start}-${attempt.end}`}
+							attempt={attempt}
+							now={now}
+						/>
 					)}
 					<span role="status" className={cn(text({ role: "body" }), SENTENCE)}>
 						{sentence}

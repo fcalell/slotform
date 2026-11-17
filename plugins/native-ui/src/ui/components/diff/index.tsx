@@ -34,7 +34,7 @@ import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { FrameBody, FrameLine } from "../../lib/read";
 import { WordDiff } from "./word";
 
-const FRAME = "min-w-0 overflow-hidden";
+const BOX = "min-w-0 overflow-hidden";
 // A line's cells stand from its top, the numbers on its first line.
 const ROW = "flex-row items-start";
 const GUTTER = "text-right";
@@ -192,7 +192,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 	}, [painted, h.value, b.value, a.value]);
 	const numbers = numbersAt(numbersOf(shown), true);
 	const body = painted ? (
-		<View {...inertProps(true)} className={cn(CARD, FRAME)}>
+		<View {...inertProps(true)} className={cn(CARD, BOX)}>
 			{Array.from({ length: PAINT_ROWS }, (_, at) => (
 				<View
 					// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
@@ -213,7 +213,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 		<View
 			accessibilityRole="list"
 			accessibilityLabel={label}
-			className={cn(CARD, FRAME)}
+			className={cn(CARD, BOX)}
 		>
 			{shown.map((hunk, at) => (
 				<Fragment key={hunkKey(hunk, at)}>

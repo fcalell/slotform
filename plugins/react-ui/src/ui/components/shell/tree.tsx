@@ -12,12 +12,12 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { type KeyboardEvent, useMemo, useRef, useState } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { useDrop, useHold, useListedDrops } from "../../lib/drag.ts";
 import { useFolds } from "../../lib/folds.ts";
 import { follow, isRoute } from "../../lib/navigate.ts";
 import type { VarStyle } from "../../lib/style.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Icon } from "../../parts/icon/index.tsx";
 import {
 	GLYPH,
 	LABEL,

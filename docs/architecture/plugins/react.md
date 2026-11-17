@@ -56,8 +56,8 @@ HTML allows at most one `<title>` and one of each `<html>` attribute, so two `re
 contributions of either fail at generate time instead of producing a malformed document. Other kinds
 opt out of that check by returning `undefined`.
 
-`react.slots.icon` is the app's icon, from the `icon` option: the favicon links read it, and a UI plugin that draws the app's mark reads the same value, with the app's drawn
-lockup (`logo`) when it gave one ([App mark](./react-ui.md#app-mark)). It is null when the app has no
+`react.slots.icon` is the app's icon, from the `icon` option: the favicon links read it, and a UI plugin that draws the app's lockup reads the same value, with the app's drawn
+lockup (`logo`) when it gave one ([App lockup](./react-ui.md#app-lockup)). It is null when the app has no
 icon.
 
 ## Router plugin

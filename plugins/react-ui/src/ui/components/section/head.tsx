@@ -23,15 +23,15 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, use } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Reason } from "../../atoms/button/reason.tsx";
+import { Turn } from "../../atoms/turn.tsx";
 import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
 import { HeadingContext } from "../../lib/heading.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { BusyMark, FrameLine } from "../../lib/read.tsx";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Reason } from "../../parts/button/reason.tsx";
-import { Turn } from "../../parts/turn.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Count } from "../count/index.tsx";
 import { MenuBase } from "../menu/base.tsx";

@@ -16,9 +16,9 @@ The rules are `voice.md` (V#), `structure.md` (S#) and `../../../plugins/screens
 - 1a. Does the screen put its parts in the pattern's order (record: bar, kicker, name, pills,
   description, sections; list: toolbar bare on the table, band, rows on a sheet) with nothing
   out of order? (V11, V3)
-- 1b. Does every row put the same kind of fact in the same slot: name first, meta after it on the
+- 1b. Does every row put the same kind of fact in the same region: name first, meta after it on the
   same line, type pill then state pill, age or count last? Compare the rows of this screen with
-  the rows of the other screens under review and name any slot that differs. (V9)
+  the rows of the other screens under review and name any region that differs. (V9)
 - 1c. Are a definition list's values all at the start of the value column, with no list on the
   screen right-aligning its values? A value is the row's title; a switch or pick stands in the
   end group, as V9 orders it, and is no value out of place. (V11)

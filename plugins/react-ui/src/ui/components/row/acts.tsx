@@ -8,14 +8,14 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
 import { useMemo } from "react";
+import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { Reason } from "../../atoms/button/reason.tsx";
 import {
 	type Act,
 	type IconAct,
 	type MenuEntry,
 	wiringOf,
 } from "../../lib/act.ts";
-import { IconButtonBase } from "../../parts/button/glyph.tsx";
-import { Reason } from "../../parts/button/reason.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { MenuBase } from "../menu/base.tsx";

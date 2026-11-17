@@ -21,7 +21,7 @@ rules for app screens run).
   afresh: the showcase's frames drive themselves before any popup listens (see root frames under
   [roster frames](#roster-frames)), and a switch in place would mount the next density's frames while the
   old frames' popups still listen.
-- `/tv`: a screen read from across a room, a `Place` with `distance="room"` whose one column holds
+- `/tv`: a screen read from across a room, a `Panes` with `distance="room"` whose one column holds
   the strips of `Stats`, a cell each, filling the viewport, dark unless the URL asks `?mode=light`.
   It carries no view toggles, since a television has no pointer, and takes no density: the room
   scale follows the window, so a browser at 1280, 1920 and 3840 wide draws the sizes of those

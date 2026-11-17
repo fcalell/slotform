@@ -19,7 +19,7 @@ import {
 import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FailedMark, RetryMark } from "../../lib/read.tsx";
-import { Decoded } from "../../lib/slot.tsx";
+import { Decoded } from "../../lib/region.tsx";
 import type { VarStyle } from "../../lib/style.ts";
 import { CountLinks } from "./count-links.tsx";
 import { FIGURE, FIGURE_DIGITS, LABEL } from "./parts.ts";
@@ -61,7 +61,7 @@ interface MeterLine {
 
 type MeterProps = MeterBase & MeterLine;
 
-// The slot of a value an ended read left out: the loaded line's height and
+// The region of a value an ended read left out: the loaded line's height and
 // width held, nothing drawn, so the meter does not move.
 function Blank({ role, at }: { role: PaintRole; at: number }) {
 	return (

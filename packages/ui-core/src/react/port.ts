@@ -54,7 +54,7 @@ export interface ReadPort {
 	retries: (error: unknown) => boolean;
 	/** What the procedure's input schema refused in a rejection, each issue with the path of its value; none for any other failure. */
 	issues: (error: unknown) => readonly Issue[];
-	/** The call that submits the procedure's input, its run followed by the binding (dev checks, invalidation); `act` may be undefined so the hook's count stays fixed. A hook. */
+	/** The call that submits the procedure's input, its attempt followed by the binding (dev checks, invalidation); `act` may be undefined so the hook's count stays fixed. A hook. */
 	useSubmit: <P extends ProcedureCall>(
 		act: P | undefined,
 	) => (input: InputOf<P>) => Promise<OutputOf<P>>;

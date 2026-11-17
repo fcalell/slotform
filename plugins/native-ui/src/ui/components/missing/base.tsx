@@ -2,8 +2,8 @@ import type { LinkAct } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import { useContext } from "react";
+import { BackRoute, PlaceRoute } from "../../lib/container";
 import { EmptyBase, type EmptyFit } from "../../lib/empty";
-import { BackRoute, PlaceRoute } from "../../lib/frame";
 
 // The Back link of a Pane's read that answers not found: to the Pane's back,
 // else the place's route; none with neither, and none where the Pane's `back`

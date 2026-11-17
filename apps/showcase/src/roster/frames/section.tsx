@@ -2,7 +2,7 @@ import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Input } from "@fcalell/plugin-react-ui/components/input";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { createLeave } from "@fcalell/ui-core/leave";
 import { rowOneLine } from "@fcalell/ui-core/overflow";
 import { setLoading } from "@fcalell/ui-core/paint";
@@ -487,7 +487,7 @@ function Library(props: { frame: ShowcaseFrame }) {
 	];
 	return (
 		<Column>
-			<Place title="Library">
+			<Panes title="Library">
 				<Pane>
 					<Section
 						title="Notes"
@@ -527,7 +527,7 @@ function Library(props: { frame: ShowcaseFrame }) {
 						act={{ icon: "Plus", label: "Add host", onAct: act }}
 					/>
 				</Pane>
-			</Place>
+			</Panes>
 		</Column>
 	);
 }
@@ -623,7 +623,7 @@ function drawPart(frame: ShowcaseFrame, name: PartName, pair: boolean) {
 					items={
 						name === "marks"
 							? // The waiting rows take their shape from a feed's mapping of a
-								// sample record, whose status is a slot with nothing in it.
+								// sample record, whose status is a region with nothing in it.
 								itemsAt(`${frame.id}/${name}`, "loading", ITEMS).at((items) =>
 									items.map(rowOf),
 								)
@@ -656,7 +656,7 @@ function drawPart(frame: ShowcaseFrame, name: PartName, pair: boolean) {
 
 // Every shape a row holds, loaded, then each shape painted: a Section of its
 // own over items that never arrive, whose selector maps a record to that row,
-// so its waiting rows paint in the row's slots. A file row paints no form of
+// so its waiting rows paint in the row's regions. A file row paints no form of
 // its own (the sheet paints the roster's title over a facts line for it), so
 // the painted run holds the list rows alone.
 const SHAPED = [...SHAPES, ...FACTS, ...REVIEW, ...CHIPPED, ...LINES];

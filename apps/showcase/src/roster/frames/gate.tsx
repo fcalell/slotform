@@ -1,7 +1,10 @@
 import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { type AppMark, MarkProvider } from "@fcalell/plugin-react-ui/lib/mark";
+import {
+	type AppLockup,
+	LockupProvider,
+} from "@fcalell/plugin-react-ui/lib/lockup";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
 import { confirm } from "@fcalell/ui-core/react/confirm";
 import { text } from "@fcalell/ui-core/variants";
@@ -11,19 +14,19 @@ import { FILLED, GIVEN, KIND, SAVED } from "./form.tsx";
 import { StandInCard } from "./layout-context.tsx";
 import { act } from "./section-rows.ts";
 
-// The app's mark as the generated providers mount it, inline so the frame
+// The app's lockup as the generated providers mount it, inline so the frame
 // needs no asset pipeline: a logo for each mode.
 const logo = (ground: string, ink: string) =>
 	`data:image/svg+xml,${encodeURIComponent(
 		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" rx="14" fill="${ground}"/><path d="M14 46 32 14l18 32h-9l-9-17-9 17z" fill="${ink}"/></svg>`,
 	)}`;
-export const MARK: AppMark = {
+export const MARK: AppLockup = {
 	src: logo("#2f3a45", "#9fb7c9"),
 	dark: logo("#9fb7c9", "#2f3a45"),
 	name: "Acme",
 };
 // A logo that fails to load: the name stands alone.
-const BROKEN: AppMark = { src: "data:image/svg+xml,<", name: MARK.name };
+const BROKEN: AppLockup = { src: "data:image/svg+xml,<", name: MARK.name };
 
 // The frame draws the page as the Shell's frames draw theirs, a viewport tall.
 const BOX = "flex flex-col gap-gap";
@@ -117,7 +120,7 @@ export function drawGate(frame: ShowcaseFrame) {
 			<p className={text({ role: "caption" })}>
 				{note ? `${CELLS} · ${note}` : CELLS}
 			</p>
-			<MarkProvider mark={named ? BROKEN : MARK}>
+			<LockupProvider lockup={named ? BROKEN : MARK}>
 				<Gate
 					step={{ at: 1, of: 2 }}
 					title="Choose a workspace"
@@ -147,7 +150,7 @@ export function drawGate(frame: ShowcaseFrame) {
 					<StandInCard />
 					{cell === "TEXT.role.title" ? <Picks id={frame.id} /> : null}
 				</Gate>
-			</MarkProvider>
+			</LockupProvider>
 		</div>
 	);
 }

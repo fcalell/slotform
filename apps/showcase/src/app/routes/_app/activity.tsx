@@ -1,6 +1,6 @@
 import {
 	BarChart,
-	type BarSlots,
+	type BarRegions,
 } from "@fcalell/plugin-react-ui/components/bar-chart";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
@@ -17,13 +17,13 @@ type Hour = AppRouter["activity"]["hours"]["__output"][number];
 
 // A bucket is named by its week: every bar carries its name when the names fit
 // under the plot and every second, third... one when they would touch.
-const WEEK: BarSlots<Week> = {
+const WEEK: BarRegions<Week> = {
 	key: (week) => week.week,
 	value: (week) => week.count,
 	label: (week) => week.week,
 };
 
-const HOUR: BarSlots<Hour> = {
+const HOUR: BarRegions<Hour> = {
 	key: (hour) => hour.hour,
 	value: (hour) => hour.count,
 	label: (hour) => hour.hour,

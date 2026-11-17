@@ -29,6 +29,9 @@ import { Fragment, type ReactNode, useContext } from "react";
 import { View } from "react-native";
 import Animated from "react-native-reanimated";
 import { withUniwind } from "uniwind";
+import { FactBadge } from "../../atoms/row/badges";
+import { Leading } from "../../atoms/row/leading";
+import { HeldCheckbox } from "../../atoms/switch/checkbox";
 import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { badgesOf } from "../../lib/facts";
@@ -51,9 +54,6 @@ import {
 import { Press } from "../../lib/press";
 import { OptionsLine } from "../../lib/read";
 import { Strut } from "../../lib/strut";
-import { FactBadge } from "../../parts/row/badges";
-import { Leading } from "../../parts/row/leading";
-import { HeldCheckbox } from "../../parts/switch/checkbox";
 import type { PickerListBody, PickerListProps } from "./index";
 
 // The row is the target of its box or radio: a press anywhere toggles or
@@ -103,7 +103,7 @@ function GroupLabel({
 
 // The option rows every Picker in `fit: list` renders, on the `draft` its host holds: a
 // field hosts the draft of its options and draws a rejection in its own line.
-// Static `options` never paint; `items` paint `PAINT_ROWS` rows in the slots
+// Static `options` never paint; `items` paint `PAINT_ROWS` rows in the regions
 // `option` declares while their read waits, and the draft paints the marks,
 // inert. An option is its box or radio, its `leading` as a row's, its label,
 // then under the label its recommended mark as a badge (a glyph and its word;

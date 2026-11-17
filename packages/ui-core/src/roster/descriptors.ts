@@ -16,7 +16,7 @@ export interface ActBase {
 export interface Act extends ActBase {
 	// The act's visible text (a short phrase; truncates); the accessible name where only the `icon` draws.
 	label: string;
-	// The glyph a slot draws with the label, or alone where it is icon-only.
+	// The glyph a region draws with the label, or alone where it is icon-only.
 	icon?: IconName;
 	// Why the act cannot run (a sentence; wraps).
 	blocked?: string;
@@ -141,7 +141,7 @@ export type RowLeading =
 	| { avatar: { name: string; src?: string } }
 	// A type's mark: one or two characters in the family's hue (`T`, `#`, `[ ]`,
 	// `{ }`, `?`), in the code face at the caption size on the family's soft
-	// ground, in a small box its slot centres.
+	// ground, in a small box its region centres.
 	// `label` is the type's name ("Text", "Number"): the mark's accessible name and tooltip; without it the mark is decorative and hidden from assistive tech.
 	| { mark: string; family: ChipFamily; label?: string }
 	| {

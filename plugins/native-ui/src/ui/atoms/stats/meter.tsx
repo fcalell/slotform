@@ -30,7 +30,7 @@ import {
 	PaintView,
 } from "../../lib/paint";
 import { FailedMark, RetryMark } from "../../lib/read";
-import { Decoded } from "../../lib/slot";
+import { Decoded } from "../../lib/region";
 import { CountLinks } from "./count-links";
 
 const STACK = "relative min-w-0";

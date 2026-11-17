@@ -11,11 +11,11 @@ import {
 	ruleArrow,
 } from "@fcalell/ui-core/variants";
 import { Fragment, useMemo, useRef, useState } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
+import { SheetCard } from "../../atoms/section/card.tsx";
 import { type Act, wiringOf } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useTouch } from "../../lib/media.ts";
-import { Icon } from "../../parts/icon/index.tsx";
-import { SheetCard } from "../../parts/section/card.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { Button } from "../button/index.tsx";
 import { HeldInput } from "../input/base.tsx";
@@ -54,7 +54,7 @@ const TAIL =
 const ADD = "flex";
 const STACKED = "flex flex-col items-stretch";
 const STACK = "flex flex-col items-start gap-gap";
-const GROUP_SLOT = "self-stretch";
+const GROUP_REGION = "self-stretch";
 const ADD_WRAP = "max-w-full";
 const MARK = "flex shrink-0 items-center justify-center";
 // On touch the last term and the remove act share one line of the card.
@@ -256,7 +256,7 @@ export function Rules<V extends string | null = string>({
 			<div ref={hold} className={STACK}>
 				{rules.length > 0 ? (
 					// biome-ignore lint/a11y/useSemanticElements: the sheet's card sits between the list and its cards, and a `ul` over it cannot hold its `div`
-					<div role="list" className={GROUP_SLOT}>
+					<div role="list" className={GROUP_REGION}>
 						<SheetCard>
 							{rules.map((rule) => (
 								<Fragment key={rule.id}>{rowOf(rule)}</Fragment>

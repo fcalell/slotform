@@ -2,7 +2,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { CODE_NAME, FIGURES } from "@fcalell/ui-core/variants";
 import { useCopy } from "../../lib/copy.ts";
-import { Decoded } from "../../lib/slot.tsx";
+import { Decoded } from "../../lib/region.tsx";
 import { Button } from "../button/index.tsx";
 
 // An identifier (`copyable`) is the mono, carrying the body ink as the value
@@ -15,7 +15,7 @@ const STEM = "min-w-0 truncate";
 const WHOLE = "min-w-0 wrap-anywhere";
 const TAIL = "shrink-0";
 
-/** A copyable id bare in the mono, cut as the row cuts it, or `whole` (the row's `wrap`) on as many lines as it takes, its `stem` the whole value: its stem is one slot across the waiting shape and the loaded one, so it decodes if it waited. Outside the package's exports. */
+/** A copyable id bare in the mono, cut as the row cuts it, or `whole` (the row's `wrap`) on as many lines as it takes, its `stem` the whole value: its stem is one region across the waiting shape and the loaded one, so it decodes if it waited. Outside the package's exports. */
 export function IdValue(props: {
 	painted?: boolean;
 	at?: number;

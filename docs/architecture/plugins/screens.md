@@ -183,7 +183,7 @@ request outside the answered prefixes that reaches for another origin or a worke
 
 A state applies to a query, told by the procedure's kind (a direct client call to a query is a POST,
 since the wire is untouched) or by a GET where the schema lacks the path. A mutation, a frame route
-(`isFrameRoute`), the session read (`isSessionRead`) and a procedure a plugin's fixture module answers
+(`isContainerRoute`), the session read (`isSessionRead`) and a procedure a plugin's fixture module answers
 always answer from their fixture, as the story records; the app's own fixture for a plugin's procedure
 overrides it and follows the state.
 

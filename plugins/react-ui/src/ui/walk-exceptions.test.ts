@@ -20,7 +20,7 @@ import {
 import {
 	BAR_CHART_BODY,
 	GATE_CENTRED,
-	IMAGE_FRAME,
+	IMAGE_BOX,
 	SHEET_BACKDROP,
 } from "./lib/walk-classes.ts";
 
@@ -33,7 +33,7 @@ const OWNERS: Record<string, string> = {
 	"BarChart body": BAR_CHART_BODY,
 	"Sheet overlay": SHEET_BACKDROP,
 	"Diff row": diffLine({ kind: "context" }),
-	"image FRAME": IMAGE_FRAME,
+	"image BOX": IMAGE_BOX,
 	"code input": fieldValue({ kind: "code" }),
 };
 

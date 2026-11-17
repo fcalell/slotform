@@ -15,7 +15,7 @@ import { useContext, useRef, useState } from "react";
 import { PanResponder, Text as RNText, View } from "react-native";
 import { useResolveClassNames } from "uniwind";
 import { cn } from "../../lib/cn";
-import { tokenPx } from "../../lib/frame";
+import { tokenPx } from "../../lib/container";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { useCSSVariable } from "../../lib/theme";
 import type { SliderProps } from "./index";

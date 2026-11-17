@@ -1,7 +1,7 @@
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
+import { CountBase } from "../../atoms/count/base";
 import type { Closed } from "../../lib/closed";
-import { CountBase } from "../../parts/count/base";
 
 interface CountProps extends Closed {
 	/** The number, or its drawn form where it is capped (`tabCount`). A selection paints the figure until its read lands. */

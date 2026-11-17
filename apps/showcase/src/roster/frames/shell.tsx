@@ -2,7 +2,7 @@ import { Banner } from "@fcalell/plugin-react-ui/components/banner";
 import { Dock } from "@fcalell/plugin-react-ui/components/dock";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Shell } from "@fcalell/plugin-react-ui/components/shell";
-import { MarkProvider } from "@fcalell/plugin-react-ui/lib/mark";
+import { LockupProvider } from "@fcalell/plugin-react-ui/lib/lockup";
 import type {
 	GroupSpec,
 	OptionPick,
@@ -129,7 +129,7 @@ function Frame({ grouped }: { grouped: boolean }) {
 	useLoadedTrack({});
 	return (
 		<Column>
-			<MarkProvider mark={MARK}>
+			<LockupProvider lockup={MARK}>
 				<Shell
 					places={places(grouped)}
 					groups={grouped ? GROUPS : undefined}
@@ -150,12 +150,12 @@ function Frame({ grouped }: { grouped: boolean }) {
 						<StandInList />
 					</Pane>
 				</Shell>
-			</MarkProvider>
+			</LockupProvider>
 		</Column>
 	);
 }
 
-// The Shell holding a Place, one frame per state on the resting row glyph
+// The Shell holding a Panes, one frame per state on the resting row glyph
 // (the rail and the group column, and on touch the places layer's, drawn
 // open) and on the selected one the same Shell with no groups (the one
 // sidebar); the body name cell at rest draws the switcher's pick open. The

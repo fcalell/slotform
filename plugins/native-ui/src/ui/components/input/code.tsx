@@ -1,5 +1,5 @@
 import { drew, isThenable } from "@fcalell/ui-core/acts";
-import { useRun } from "@fcalell/ui-core/react/acts";
+import { useAttempt } from "@fcalell/ui-core/react/acts";
 import { usePort } from "@fcalell/ui-core/react/port";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -12,6 +12,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useContext, useRef, useState } from "react";
 import { Text as RNText, TextInput, View } from "react-native";
+import { Spinner } from "../../atoms/spinner";
 import { cn } from "../../lib/cn";
 import {
 	FieldError,
@@ -20,7 +21,6 @@ import {
 	useFieldName,
 } from "../../lib/field";
 import { FadingText, flowIn } from "../../lib/motion";
-import { Spinner } from "../../parts/spinner";
 import type { CodeInputProps } from "./index";
 
 // A one-time code: `length` boxes over one string of digits, standing at the
@@ -42,11 +42,11 @@ export function CodeField({
 	onComplete,
 }: CodeInputProps) {
 	const words = useWords();
-	const run = useRun();
+	const acting = useAttempt();
 	const port = usePort();
 	// The check's refusal stands in the control's own line until the next digit.
 	const [refused, refuse] = useState<string>();
-	const checking = run.pending !== undefined;
+	const checking = acting.pending !== undefined;
 	// The attempt a Retry runs again: its promise, so the toast's act holds it.
 	const attempt = (code: string): unknown => {
 		const result = onComplete?.(code);
@@ -56,7 +56,7 @@ export function CodeField({
 			refuse(port.refusal(error) ?? words.actFailed);
 		});
 	};
-	const complete = (code: string) => run.run(true, () => attempt(code));
+	const complete = (code: string) => acting.attempt(true, () => attempt(code));
 	const { touch } = useTouched();
 	const name = useFieldName();
 	const error = useContext(FieldError);

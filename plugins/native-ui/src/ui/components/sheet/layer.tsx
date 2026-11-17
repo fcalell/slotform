@@ -61,7 +61,7 @@ const leave = () => timing("base", "in");
 const ScrimBase = withUniwind(BottomSheetBackdrop);
 const ViewBody = withUniwind(BottomSheetView);
 
-// What the head, the foot and the scrim draw: docs/architecture/plugins/native-ui.md, "Sheets". The slots are module
+// What the head, the foot and the scrim draw: docs/architecture/plugins/native-ui.md, "Sheets". The regions are module
 // components reading this, never closures.
 interface Parts {
 	title: string;

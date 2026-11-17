@@ -16,7 +16,7 @@ import { useCSSVariable } from "./theme";
 // What the frame molecules hand each other: docs/architecture/ui-core/layout.md, "On the phone".
 export const ShellSwitcher = createContext<OptionPick | undefined>(undefined);
 
-// The Shell hands its tab bar to each Place, which draws it under its Pane.
+// The Shell hands its tab bar to each Panes, which draws it under its Pane.
 export const ShellTabs = createContext<ReactNode>(null);
 
 // The box the toasts stand in, in the Shell's coordinates.
@@ -26,18 +26,18 @@ export interface ToastBox {
 }
 
 // The Shell's root and its way to place the toasts' layer: docs/architecture/plugins/native-ui.md, "Frame host".
-export interface ToastFrame {
+export interface ToastContainer {
 	root: RefObject<View | null>;
 	place: (box: ToastBox) => void;
 }
-export const ToastFrame = createContext<ToastFrame | null>(null);
+export const ToastContainer = createContext<ToastContainer | null>(null);
 
 // The ref and `onLayout` of the box a page draws for the toasts: docs/architecture/plugins/native-ui.md, "Frame host".
 // TODO: the layer follows the box one layout late (a growing foot, the
 // keyboard); place it by layout once React Native can stand a layer after the
 // sheets' host from the page's tree, or once the sheets host the toasts.
 export function useToastBox() {
-	const frame = useContext(ToastFrame);
+	const frame = useContext(ToastContainer);
 	const box = useRef<View>(null);
 	const onLayout = () => {
 		const root = frame?.root.current;
@@ -60,7 +60,7 @@ export const BackRoute = createContext<Route | false | undefined>(undefined);
 // page), which titles the place's Pane and stands in a record's bar.
 export const PlaceName = createContext<string | undefined>(undefined);
 
-// Whether the Place is read from across a room (`distance` `room`): the Pane
+// Whether the Panes is read from across a room (`distance` `room`): the Pane
 // insets its head by the room set's page inset.
 export const DistanceContext = createContext(false);
 

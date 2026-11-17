@@ -1,7 +1,7 @@
 import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Table } from "@fcalell/plugin-react-ui/components/table";
 import type {
 	CellValue,
@@ -233,7 +233,7 @@ const WHOLE: Part = {
 function Tasks(props: {
 	part?: Part;
 	read?: Read<readonly Task[]>;
-	// The state of the selection bar docked at the page's foot, which makes
+	// The state of the chosen bar docked at the page's foot, which makes
 	// the page a publish page: the bar reads the chosen count, and while it
 	// is `disabled` nothing is chosen and the act is blocked.
 	publish?: ShowcaseFrame["state"];
@@ -294,7 +294,7 @@ function Tasks(props: {
 	const actions = publishing
 		? undefined
 		: [{ icon: "Plus" as const, label: "New task", onAct: act }];
-	// The publish page's acts stand in the Pane's foot, a selection bar over
+	// The publish page's acts stand in the Pane's foot, a chosen bar over
 	// the rows that can be ticked, which the page counts itself.
 	const reach = shown.filter((task) => blocked(task) === undefined);
 	const bar = publishing ? (
@@ -324,7 +324,7 @@ function Tasks(props: {
 	);
 	// The Pane's `read` is given or absent, never a possibly absent value.
 	const page = (
-		<Place title="Cron tasks">
+		<Panes title="Cron tasks">
 			{read ? (
 				<Pane acts={actions} read={read} foot={bar}>
 					{grid}
@@ -334,7 +334,7 @@ function Tasks(props: {
 					{grid}
 				</Pane>
 			)}
-		</Place>
+		</Panes>
 	);
 	return props.publish === "pending" ? (
 		<Pressed label={publishAct.label}>{page}</Pressed>
@@ -953,7 +953,7 @@ function Comparisons(props: { id: string; state: ShowcaseFrame["state"] }) {
 	}, [props.state]);
 	return (
 		<div ref={host} className="min-w-0">
-			<Place title="Comparisons">
+			<Panes title="Comparisons">
 				<Pane>
 					<Section title="Plan change" read={change}>
 						<Table
@@ -1032,7 +1032,7 @@ function Comparisons(props: { id: string; state: ShowcaseFrame["state"] }) {
 						/>
 					</Section>
 				</Pane>
-			</Place>
+			</Panes>
 		</div>
 	);
 }
@@ -1069,7 +1069,7 @@ export function drawTable(frame: ShowcaseFrame) {
 	if (frame.state === "empty" || frame.state === "error")
 		return isFirstCell(frame) ? (
 			<Column>
-				<Place title="Cron tasks">
+				<Panes title="Cron tasks">
 					<Pane>
 						{endedAt<Task>(frame.id, frame.state).map(({ title, items }) => (
 							<Section key={title} title={title}>
@@ -1090,7 +1090,7 @@ export function drawTable(frame: ShowcaseFrame) {
 							</Section>
 						) : null}
 					</Pane>
-				</Place>
+				</Panes>
 			</Column>
 		) : undefined;
 	if (isPaint(frame)) {
@@ -1120,7 +1120,7 @@ export function drawTable(frame: ShowcaseFrame) {
 }
 
 // A publish page: the tasks a change set holds, ticked from the grid, over a
-// selection bar docked at the foot reading how many are chosen. The state is
+// chosen bar docked at the foot reading how many are chosen. The state is
 // the bar's act's: pending, or blocked with nothing chosen.
 export function Publish(props: { state: ShowcaseFrame["state"] }) {
 	return <Tasks publish={props.state} state="rest" />;

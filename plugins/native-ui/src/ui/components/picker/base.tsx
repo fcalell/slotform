@@ -17,6 +17,8 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactElement, type ReactNode, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { Turn } from "../../atoms/turn";
 import { useHeldDraft } from "../../lib/act";
 import { CHIP_LINES } from "../../lib/chip-lines";
 import { cn } from "../../lib/cn";
@@ -28,8 +30,6 @@ import {
 	PaintView,
 } from "../../lib/paint";
 import { OptionsLine } from "../../lib/read";
-import { Icon } from "../../parts/icon";
-import { Turn } from "../../parts/turn";
 import { Chip } from "../chip";
 import { Status } from "../status";
 import type { PickerMenuProps, PickOneProps, PickSeveralProps } from "./index";

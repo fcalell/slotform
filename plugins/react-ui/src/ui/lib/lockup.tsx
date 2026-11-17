@@ -7,8 +7,8 @@ import {
 } from "@fcalell/ui-core/variants";
 import { createContext, type ReactNode, use, useState } from "react";
 
-/** The app's mark: its icon, in the light mode and, when the app gave one, the dark, and its name; and, when the app drew one, its logo (symbol and name in one image). */
-export interface AppMark {
+/** The app's lockup: its icon, in the light mode and, when the app gave one, the dark, and its name; and, when the app drew one, its logo (symbol and name in one image). */
+export interface AppLockup {
 	/** The icon in the light mode, and in the dark when `dark` is absent. */
 	src: string;
 	/** The icon in the dark mode. */
@@ -21,22 +21,22 @@ export interface AppMark {
 	name: string;
 }
 
-// The app's mark: docs/architecture/plugins/react-ui.md, "App mark".
-const MarkContext = createContext<AppMark | null>(null);
+// The app's lockup: docs/architecture/plugins/react-ui.md, "App lockup".
+const LockupContext = createContext<AppLockup | null>(null);
 
-export function MarkProvider(props: {
-	mark: AppMark | null;
+export function LockupProvider(props: {
+	lockup: AppLockup | null;
 	children: ReactNode;
 }) {
-	return <MarkContext value={props.mark}>{props.children}</MarkContext>;
+	return <LockupContext value={props.lockup}>{props.children}</LockupContext>;
 }
 
-export function useMark(): AppMark | null {
-	return use(MarkContext);
+export function useLockup(): AppLockup | null {
+	return use(LockupContext);
 }
 
 const IMAGE = "shrink-0 object-contain";
-// A mark with a dark form draws one logo per mode, each hidden under the
+// A lockup with a dark form draws one logo per mode, each hidden under the
 // other's: the theme's own `.dark` scope, not the image's media.
 const LIGHT = "[.dark_&]:hidden";
 const DARK = "hidden [.dark_&]:block";
@@ -81,39 +81,39 @@ function Drawn(props: {
 	);
 }
 
-/** The app's mark as one row: the drawn lockup when the app has one (at the Gate's `GATE_LOGO` height, its width from its own proportion, held to the row, the app's name as its alt) and otherwise the icon at the avatar's size, then the name at the body role and 500, truncating. A lockup that fails to load leaves the icon and the name. The dark form, when the app has one, is drawn under the theme's own `.dark` scope. The caller reads `useMark` first and draws no row when the app has no icon. */
-export function Lockup(props: { mark: AppMark; className: string }) {
-	const { mark } = props;
+/** The app's lockup as one row: the drawn lockup when the app has one (at the Gate's `GATE_LOGO` height, its width from its own proportion, held to the row, the app's name as its alt) and otherwise the icon at the avatar's size, then the name at the body role and 500, truncating. A lockup that fails to load leaves the icon and the name. The dark form, when the app has one, is drawn under the theme's own `.dark` scope. The caller reads `useLockup` first and draws no row when the app has no icon. */
+export function Lockup(props: { lockup: AppLockup; className: string }) {
+	const { lockup } = props;
 	const [failed, setFailed] = useState<string>();
 	if (
-		mark.logo !== undefined &&
-		failed !== mark.logo &&
-		(mark.logoDark === undefined || failed !== mark.logoDark)
+		lockup.logo !== undefined &&
+		failed !== lockup.logo &&
+		(lockup.logoDark === undefined || failed !== lockup.logoDark)
 	) {
 		const fail = (src: string) => () => setFailed(src);
 		return (
 			<div className={cn(props.className, ROW)}>
-				{mark.logoDark === undefined ? (
+				{lockup.logoDark === undefined ? (
 					<Drawn
-						src={mark.logo}
-						name={mark.name}
+						src={lockup.logo}
+						name={lockup.name}
 						size={GATE_LOGO}
-						onError={fail(mark.logo)}
+						onError={fail(lockup.logo)}
 					/>
 				) : (
 					<>
 						<Drawn
-							src={mark.logo}
-							name={mark.name}
+							src={lockup.logo}
+							name={lockup.name}
 							size={GATE_LOGO}
-							onError={fail(mark.logo)}
+							onError={fail(lockup.logo)}
 							className={LIGHT}
 						/>
 						<Drawn
-							src={mark.logoDark}
-							name={mark.name}
+							src={lockup.logoDark}
+							name={lockup.name}
 							size={GATE_LOGO}
-							onError={fail(mark.logoDark)}
+							onError={fail(lockup.logoDark)}
 							className={DARK}
 						/>
 					</>
@@ -123,12 +123,12 @@ export function Lockup(props: { mark: AppMark; className: string }) {
 	}
 	return (
 		<div className={cn(props.className, ROW)}>
-			{mark.dark === undefined ? (
-				<Logo src={mark.src} />
+			{lockup.dark === undefined ? (
+				<Logo src={lockup.src} />
 			) : (
 				<>
-					<Logo src={mark.src} className={LIGHT} />
-					<Logo src={mark.dark} className={DARK} />
+					<Logo src={lockup.src} className={LIGHT} />
+					<Logo src={lockup.dark} className={DARK} />
 				</>
 			)}
 			<span
@@ -138,7 +138,7 @@ export function Lockup(props: { mark: AppMark; className: string }) {
 					LABEL,
 				)}
 			>
-				{mark.name}
+				{lockup.name}
 			</span>
 		</div>
 	);

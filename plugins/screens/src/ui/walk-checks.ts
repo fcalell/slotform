@@ -497,7 +497,7 @@ export function checkHeadings(headings: HeadingMeasure[]): Finding[] {
 			name: first.name,
 			measured: "no h1 on the page",
 			expected: "one h1, the name of where you are",
-			fix: "a page in the Shell is named by its Place's title; a page outside it is a Gate, whose title is the h1",
+			fix: "a page in the Shell is named by its Panes's title; a page outside it is a Gate, whose title is the h1",
 		});
 	for (const extra of ones.slice(1))
 		found.push({
@@ -506,7 +506,7 @@ export function checkHeadings(headings: HeadingMeasure[]): Finding[] {
 			name: extra.name,
 			measured: `${ones.length} h1s on the page`,
 			expected: "one h1",
-			fix: "a Pane's title is an h2; the h1 is the Place's (or the Gate's)",
+			fix: "a Pane's title is an h2; the h1 is the Panes's (or the Gate's)",
 		});
 	for (const [at, heading] of headings.entries()) {
 		const before = headings[at - 1];

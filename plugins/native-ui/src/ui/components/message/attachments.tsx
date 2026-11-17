@@ -8,11 +8,11 @@ import {
 } from "@fcalell/ui-core/variants";
 import { memo, useRef } from "react";
 import { Pressable, View } from "react-native";
+import { Icon } from "../../atoms/icon";
 import { CHIP_LINES } from "../../lib/chip-lines";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
-import { Icon } from "../../parts/icon";
 import { Chip } from "../chip";
 import { Image } from "../image";
 

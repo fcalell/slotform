@@ -104,7 +104,7 @@ export function Leading(props: {
 }) {
 	const words = useWords();
 	const { leading, named, painted } = props;
-	// Painted, the kind is the slot's shape; what the marks name is not here.
+	// Painted, the kind is the region's shape; what the marks name is not here.
 	if (painted) {
 		if ("check" in leading)
 			return <HeldCheckbox checked={false} onChange={NOOP} label="" painted />;

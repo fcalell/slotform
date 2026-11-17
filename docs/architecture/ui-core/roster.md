@@ -16,7 +16,7 @@ The canon binds every component either plugin ships:
   `chip`).
 - A composed region is a typed descriptor (`Act`, `StatusMark`, `ChipMark`, `Fact`, `RecordFact`,
   `RowLeading`, `RowTrailing`, `PlaceSpec`, `Option`, `FieldBinding`, `TableColumn`, and the rest of
-  [descriptors](#descriptors)), never a node slot.
+  [descriptors](#descriptors)), never a node region.
 - No `class`, `className`, `classList` or `style` prop. A look a component does not offer is a matrix
   class set or a consumer primitive ([Tailwind reset](tokens.md#tailwind-reset)).
 - An icon is an `IconName`, a closed type over Lucide's glyph names by their PascalCase name (`Check`,
@@ -221,7 +221,7 @@ A glyph means one thing, so no mark's glyph is an act's or a state's:
 
 ## Popups and cut text
 
-- A popup trigger renders the icon act's base (`IconButtonBase` in react-ui's `parts/button/glyph.tsx`);
+- A popup trigger renders the icon act's base (`IconButtonBase` in react-ui's `atoms/button/glyph.tsx`);
   the icon act's base names the act with a Tooltip, none on touch.
 - Text the frame cuts names itself through one shared tooltip the frame host mounts
   (`shell/cut.tsx`), shown only when it measures cut.

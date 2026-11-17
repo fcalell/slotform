@@ -7,7 +7,7 @@ import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { QrCode } from "@fcalell/plugin-react-ui/components/qr-code";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Act, Option } from "@fcalell/ui-core/descriptors";
@@ -124,7 +124,7 @@ function DockedQuestions({ state }: { state: ShowcaseFrame["state"] }) {
 					act={{ label: "Upgrade", onAct: act }}
 				/>
 			</div>
-			<Place title="Assistant">
+			<Panes title="Assistant">
 				<Pane fill>
 					<Thread
 						items={TURNS}
@@ -167,7 +167,7 @@ function DockedQuestions({ state }: { state: ShowcaseFrame["state"] }) {
 						}
 					/>
 				</Pane>
-			</Place>
+			</Panes>
 		</div>
 	);
 }

@@ -2,7 +2,7 @@ import { and, inArray, notInArray, type SQL, sql } from "drizzle-orm";
 import type { SQLiteColumn, SQLiteTable } from "drizzle-orm/sqlite-core";
 import type { Selector } from "../schema.ts";
 
-export interface SelectionOptions<Q> {
+export interface ChosenOptions<Q> {
 	/** The table's id column. */
 	id: SQLiteColumn;
 	/** The where clause of the read's query, the one its list procedure builds from the same input. */
@@ -10,9 +10,9 @@ export interface SelectionOptions<Q> {
 }
 
 /** The rows a selector names, as a where clause: `{ ids }` those rows, `{ query, except }` every row the query matches but the excepted. A D1 statement binds at most 100 values, so a long `ids` or `except` is read in batches by the caller. */
-export function selectionWhere<Q>(
+export function chosenWhere<Q>(
 	selection: Selector<Q>,
-	options: SelectionOptions<Q>,
+	options: ChosenOptions<Q>,
 ): SQL {
 	const { id } = options;
 	if ("ids" in selection) return inArray(id, selection.ids);
@@ -31,15 +31,15 @@ interface Selecting {
 }
 
 /** The ids a selector names: its own for `{ ids }`, the matching rows' less the excepted for `{ query, except }`. */
-export async function selectedIds<Q>(
+export async function chosenIds<Q>(
 	db: Selecting,
 	selection: Selector<Q>,
-	options: SelectionOptions<Q>,
+	options: ChosenOptions<Q>,
 ): Promise<string[]> {
 	if ("ids" in selection) return selection.ids;
 	const rows = await db
 		.select({ id: options.id })
 		.from(options.id.table as SQLiteTable)
-		.where(selectionWhere(selection, options));
+		.where(chosenWhere(selection, options));
 	return rows.map((row) => row.id);
 }

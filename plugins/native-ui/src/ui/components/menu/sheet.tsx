@@ -8,9 +8,9 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { Icon } from "../../parts/icon";
 import { SheetHead } from "../sheet/head";
 import { SheetLayer } from "../sheet/layer";
 

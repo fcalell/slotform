@@ -9,8 +9,8 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
+import { Icon } from "../atoms/icon";
 import { ButtonBase } from "../components/button/base";
-import { Icon } from "../parts/icon";
 import type { Act } from "./act";
 import { asAct, wiringOf } from "./act";
 import { cn } from "./cn";
@@ -19,7 +19,7 @@ import { Ink } from "./ink";
 // Alone in a page body it fills what the body leaves and centres there.
 const ALONE = "grow items-center justify-center";
 const COLUMN = "items-center";
-const FRAME = "flex-row justify-center";
+const BOX = "flex-row justify-center";
 const MARK = "items-center justify-center shrink-0";
 const TEXT = "items-center";
 const LINE = "text-center";
@@ -76,9 +76,7 @@ export function EmptyBase(props: {
 		);
 	if (framed)
 		return (
-			<View
-				className={cn(props.fit === "part" ? EMPTY_PART : CARD_PART, FRAME)}
-			>
+			<View className={cn(props.fit === "part" ? EMPTY_PART : CARD_PART, BOX)}>
 				<View className={cn(EMPTY_COLUMN, COLUMN)}>
 					{mark}
 					{words}

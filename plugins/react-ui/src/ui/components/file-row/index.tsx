@@ -20,12 +20,12 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { memo } from "react";
+import { ChipBase } from "../../atoms/chip/base.tsx";
+import { IconBase } from "../../atoms/icon/index.tsx";
+import { ChangeMark } from "../../atoms/status/change.tsx";
 import { follow, useRoute } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { Roll, Swap } from "../../lib/swap.tsx";
-import { ChipBase } from "../../parts/chip/base.tsx";
-import { IconBase } from "../../parts/icon/index.tsx";
-import { ChangeMark } from "../../parts/status/change.tsx";
 
 // A row's floor, as a list row's: on touch it stands at the target.
 const ROW = "relative flex items-center min-h-row";

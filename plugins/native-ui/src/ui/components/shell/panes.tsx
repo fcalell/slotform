@@ -1,13 +1,13 @@
 import { type ReactNode, useContext } from "react";
-import { DistanceContext, ShellSwitcher, ShellTabs } from "../../lib/frame";
+import { DistanceContext, ShellSwitcher, ShellTabs } from "../../lib/container";
 import { FadingView, placeIn } from "../../lib/motion";
 import { RoomScope } from "../../lib/room";
 
-const PLACE = "flex-1";
+const PANES = "flex-1";
 
-// The Shell's content holds a place: docs/architecture/ui-core/layout.md, "Place".
+// The Shell's content holds a place: docs/architecture/ui-core/layout.md, "Panes".
 // `distance` `room` draws the room set and the touch structure; the Shell draws the place at its own distance.
-export function Place(props: { distance?: "room"; children?: ReactNode }) {
+export function Panes(props: { distance?: "room"; children?: ReactNode }) {
 	const far = props.distance === "room";
 	const tabs = useContext(ShellTabs);
 	const switcher = useContext(ShellSwitcher);
@@ -15,7 +15,7 @@ export function Place(props: { distance?: "room"; children?: ReactNode }) {
 	const page = (
 		<DistanceContext.Provider value={far}>
 			<ShellSwitcher.Provider value={far ? undefined : switcher}>
-				<FadingView entering={placeIn()} className={PLACE}>
+				<FadingView entering={placeIn()} className={PANES}>
 					{props.children}
 					{tabs}
 				</FadingView>

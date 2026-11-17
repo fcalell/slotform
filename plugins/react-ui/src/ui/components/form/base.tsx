@@ -20,11 +20,11 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
+import { DIVIDER } from "../../atoms/section/card.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useLeaveGuard } from "../../lib/leave.ts";
 import { BusyMark, FrameBody, FrameLine } from "../../lib/read.tsx";
-import { DIVIDER } from "../../parts/section/card.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import type { ActionBarProps } from "../action-bar/index.tsx";
 import { Text } from "../text/index.tsx";

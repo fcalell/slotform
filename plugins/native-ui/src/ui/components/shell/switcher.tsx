@@ -3,9 +3,9 @@ import { optionLeading } from "@fcalell/ui-core/list-state";
 import { SWITCHER, text, textStrong } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { Icon } from "../../parts/icon";
 import { Avatar } from "../avatar";
 import { PickSheet, useOptionGroups } from "../picker/sheet";
 

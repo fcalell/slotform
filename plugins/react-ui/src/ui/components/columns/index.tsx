@@ -2,7 +2,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import { type ColumnsFit, columns } from "@fcalell/ui-core/variants";
 import { type ReactNode, use } from "react";
 import type { Closed } from "../../lib/closed.ts";
-import { PageTitle } from "../../lib/frame.ts";
+import { PageTitle } from "../../lib/container.ts";
 
 // The board is one flex row: each child stands at the column width and does
 // not shrink, so no wrapper holds a track. The row

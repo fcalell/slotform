@@ -1,5 +1,8 @@
 import { z } from "zod";
 import {
+	BLANK_WORD_KEYS,
+	BLANK_WORDS,
+	type BlankWordKey,
 	COUNTED_WORD_KEYS,
 	type CountedWordKey,
 	LABEL,
@@ -8,9 +11,6 @@ import {
 	RADIUS_MAX,
 	SIZE_MAX,
 	SIZE_MIN,
-	SLOT_WORD_KEYS,
-	SLOT_WORDS,
-	type SlotWordKey,
 	WORD_KEYS,
 	type WordKey,
 } from "./tokens.ts";
@@ -44,8 +44,8 @@ export const themeSchema = z.strictObject({
 	// The mode a viewer with no stored choice starts in, ahead of the system
 	// preference. Omitted, the system preference decides.
 	defaultMode: z.enum(MODES).optional(),
-	// The paint of each glyph slot's waiting shape: the skeleton's pulse or the
-	// scramble. Omitted, every slot pulses; a shape always does.
+	// The paint of each glyph region's waiting shape: the skeleton's pulse or the
+	// scramble. Omitted, every region pulses; a shape always does.
 	loading: z
 		.strictObject({
 			text: loadingPaint,
@@ -66,13 +66,13 @@ const countedWordSchema = z.strictObject({
 	other: z.string().min(1),
 });
 
-// A slot word spells every slot it is filled with.
-function slotWordSchema(key: SlotWordKey) {
-	const slots: readonly string[] = SLOT_WORDS[key];
+// A blank word spells every blank it is filled with.
+function blankWordSchema(key: BlankWordKey) {
+	const blanks: readonly string[] = BLANK_WORDS[key];
 	return z
 		.string()
-		.refine((word) => slots.every((slot) => word.includes(`{${slot}}`)), {
-			message: `spells ${slots.map((slot) => `{${slot}}`).join(" and ")}`,
+		.refine((word) => blanks.every((blank) => word.includes(`{${blank}}`)), {
+			message: `spells ${blanks.map((blank) => `{${blank}}`).join(" and ")}`,
 		});
 }
 
@@ -86,8 +86,8 @@ export const wordsSchema = z.strictObject({
 		COUNTED_WORD_KEYS.map((key) => [key, countedWordSchema]),
 	) as Record<CountedWordKey, typeof countedWordSchema>),
 	...(Object.fromEntries(
-		SLOT_WORD_KEYS.map((key) => [key, slotWordSchema(key)]),
-	) as Record<SlotWordKey, ReturnType<typeof slotWordSchema>>),
+		BLANK_WORD_KEYS.map((key) => [key, blankWordSchema(key)]),
+	) as Record<BlankWordKey, ReturnType<typeof blankWordSchema>>),
 });
 
 // Throws an Error whose message names every offending key by its path, so a

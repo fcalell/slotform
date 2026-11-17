@@ -1,6 +1,6 @@
 import {
 	BarChart,
-	type BarSlots,
+	type BarRegions,
 } from "@fcalell/plugin-react-ui/components/bar-chart";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { isFirstCell, type ShowcaseFrame } from "../cells.ts";
@@ -16,7 +16,7 @@ interface Day {
 	at?: string;
 }
 
-const BAR: BarSlots<Day> = {
+const BAR: BarRegions<Day> = {
 	key: (day) => day.day,
 	value: (day) => day.value,
 	parts: (day) => day.parts,
@@ -98,7 +98,7 @@ const MONTHS: Month[] = DELIVERED.map(([month, live, done], index) => ({
 	partial: index === DELIVERED.length - 1 || undefined,
 	selected: index === 8 || undefined,
 }));
-const MONTH_BAR: BarSlots<Month> = {
+const MONTH_BAR: BarRegions<Month> = {
 	key: (m) => m.month,
 	value: (m) => m.value,
 	parts: (m) => m.parts,
@@ -149,7 +149,7 @@ const HUMIDITY = [
 
 // The same room just past midnight: one reading, which is the room's own and
 // its record says, so the head draws none; the bar stands in the first of the
-// plot's slots with its time under it.
+// plot's regions with its time under it.
 const MIDNIGHT: Day[] = [{ day: "00:00", value: 18.6, at: "00:00" }];
 
 // Spend per day in dollars, a total of $30.97: the head reads the cents and
@@ -180,7 +180,7 @@ const HOURS: Day[] = [
 	["16h", 64],
 	["20h", 47],
 ].map(([day, value]) => ({ day: String(day), value: Number(value) }));
-const NAMED: BarSlots<Day> = { ...BAR, label: (day) => day.day };
+const NAMED: BarRegions<Day> = { ...BAR, label: (day) => day.day };
 
 // A `CHART_FILL.series` cell past the first stacks by service (past the
 // third, by six of them); a `CHART_BAND` cell at rest adds a week of zeros,

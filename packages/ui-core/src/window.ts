@@ -25,19 +25,19 @@ export type WindowEntry = { row: number } | { space: number; before: number };
 // unmounted ones. The box's own gap stands between neighbours, a spacer
 // included, so each spacer gives back the gaps its neighbours already add:
 // one at the top and the bottom, two between runs. A zero height is omitted.
-export function slotsOf(
+export function windowEntries(
 	placed: readonly Placed[],
 	count: number,
 	total: number,
 	gap: number,
 ): WindowEntry[] {
-	const slots: WindowEntry[] = [];
+	const entries: WindowEntry[] = [];
 	const space = (height: number, before: number) => {
-		if (height > 0) slots.push({ space: height, before });
+		if (height > 0) entries.push({ space: height, before });
 	};
 	if (placed.length === 0) {
 		space(total, count);
-		return slots;
+		return entries;
 	}
 	let last: Placed | undefined;
 	for (const row of placed) {
@@ -45,11 +45,11 @@ export function slotsOf(
 		else if (row.index > last.index + 1) {
 			space(row.start - last.end - 2 * gap, row.index);
 		}
-		slots.push({ row: row.index });
+		entries.push({ row: row.index });
 		last = row;
 	}
 	if (last && last.index < count - 1) space(total - last.end - gap, count);
-	return slots;
+	return entries;
 }
 
 // The indices to mount: TanStack's range with its overscan, plus the rows kept

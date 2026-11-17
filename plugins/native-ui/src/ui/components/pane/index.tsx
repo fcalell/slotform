@@ -13,23 +13,23 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef } from "react";
 import { View } from "react-native";
+import { ToastSpace } from "../../atoms/toast/space";
 import type { IconAct, MenuEntry } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
-import type { Empty } from "../../lib/empty";
 import {
 	BackRoute,
 	DistanceContext,
 	FootReturn,
 	PlaceName,
 	useFootRegion,
-} from "../../lib/frame";
+} from "../../lib/container";
+import type { Empty } from "../../lib/empty";
 import { Lifted, Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
 import { useParentRoute } from "../../lib/navigate";
 import { FrameBody } from "../../lib/read";
 import { useToasts } from "../../lib/toast";
-import { ToastSpace } from "../../parts/toast/space";
 import { ItemHeaderBase, type ItemHeaderParts } from "../item-header/base";
 import type { SheetProps } from "../sheet";
 import { SheetDocked } from "../sheet/docked";
@@ -43,7 +43,7 @@ const BODY_WRAP = "relative flex-1";
 // and a Thread in it takes the free height.
 const BODY_CONTENT = "grow";
 // The foot stays under the body, which scrolls past it, and centres the
-// selection bar's column.
+// chosen bar's column.
 const DOCKED = "shrink-0 items-center";
 
 export type { RecordFact } from "@fcalell/ui-core/descriptors";
@@ -74,7 +74,7 @@ interface PaneBase<P extends ProcedureCall> extends Closed {
 	acts?: readonly Offered<IconAct | IconLinkAct>[];
 	/** The acts past the acts, in a menu under the more act, named "More", whose sheet is titled by the Pane's title (a record's name), "More" while it waits; the more act paints and stands blocked as an action does. */
 	more?: Offered<readonly MenuEntry[]>;
-	/** What docks at the Pane's foot over the keyboard, the body scrolling past it: the route gives it, so the Pane decides it from its props. A `Table`'s selection bar is an `ActionBar` with `chosen`, given as the foot only while a row is ticked (the Pane reserves the foot's room, border and inset included, for whatever it is given); a `Thread`'s composer a `Composer`. */
+	/** What docks at the Pane's foot over the keyboard, the body scrolling past it: the route gives it, so the Pane decides it from its props. A `Table`'s chosen bar is an `ActionBar` with `chosen`, given as the foot only while a row is ticked (the Pane reserves the foot's room, border and inset included, for whatever it is given); a `Thread`'s composer a `Composer`. */
 	foot?: ReactNode;
 	/** A task over the foot: while it is `open` the sheet docks there in the foot's place, the body scrolling above it, and closing hands focus back to the foot's input. */
 	sheet?: SheetProps<P>;
@@ -82,7 +82,7 @@ interface PaneBase<P extends ProcedureCall> extends Closed {
 	children?: ReactNode;
 }
 
-/** A page of a `Place`: on the phone one screen. `empty` belongs to the `read` it answers for, so a Pane given one without the other does not type-check. */
+/** A page of a `Panes`: on the phone one screen. `empty` belongs to the `read` it answers for, so a Pane given one without the other does not type-check. */
 export type PaneProps<P extends ProcedureCall = ProcedureCall> = PaneBase<P> &
 	PaneKindProps &
 	(
@@ -98,7 +98,7 @@ export type PaneProps<P extends ProcedureCall = ProcedureCall> = PaneBase<P> &
 		  }
 	);
 
-/** A page of a Place, on the phone one screen, of two kinds: the place's own, titled by the place's name, and a record's, pushed after it and titled by the record's name. A bar (on a record's Pane a Back act to the page above and the place's name, on the place's the shell's switcher and its title; one line, truncating, never under two fifths of the bar; then the first action at its icon and the more menu, which holds the other acts before its own items, at every width), a body that scrolls, its children a sections gap apart, and a `foot` that docks under the body over the keyboard, a `sheet` in its place while it is open, and the `empty` of its `read` standing in place of the children. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping as the screen's header, between the overline and the facts of a head at the body's top, and a `read` that answers not found fills the page with the missing shape in place of the head, its sentence worded by `noun` and its way back the page above, while an empty one keeps the head over its empty shape. The toasts stand over the body, above the foot. */
+/** A page of a Panes, on the phone one screen, of two kinds: the place's own, titled by the place's name, and a record's, pushed after it and titled by the record's name. A bar (on a record's Pane a Back act to the page above and the place's name, on the place's the shell's switcher and its title; one line, truncating, never under two fifths of the bar; then the first action at its icon and the more menu, which holds the other acts before its own items, at every width), a body that scrolls, its children a sections gap apart, and a `foot` that docks under the body over the keyboard, a `sheet` in its place while it is open, and the `empty` of its `read` standing in place of the children. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping as the screen's header, between the overline and the facts of a head at the body's top, and a `read` that answers not found fills the page with the missing shape in place of the head, its sentence worded by `noun` and its way back the page above, while an empty one keeps the head over its empty shape. The toasts stand over the body, above the foot. */
 export function Pane<P extends ProcedureCall = ProcedureCall>({
 	title: name,
 	record,
@@ -119,7 +119,7 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 		held.shape === "empty" && empty === undefined
 			? { ...held, shape: "ready" as const }
 			: held;
-	// A Pane in a room Place stands its head off the top on the table.
+	// A Pane in a room Panes stands its head off the top on the table.
 	const far = useContext(DistanceContext);
 	// The place's Pane is titled by the place's name; a record's bar holds it.
 	const place = useContext(PlaceName);

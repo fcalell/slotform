@@ -7,7 +7,7 @@ import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
-import { tokenPx } from "../../lib/frame";
+import { tokenPx } from "../../lib/container";
 import { usePress, useToggle } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { Wash } from "../../lib/press";

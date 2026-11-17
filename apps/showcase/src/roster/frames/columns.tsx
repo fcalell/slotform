@@ -1,7 +1,7 @@
 import { Columns } from "@fcalell/plugin-react-ui/components/columns";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Place } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import type { ShowcaseFrame } from "../cells.ts";
 import { STAND_INS, StandInCard } from "./layout-context.tsx";
 import { Column } from "./place.tsx";
@@ -23,13 +23,13 @@ const HEALTH = [
 // The `board` cell: four columns in a frame at the place's content width,
 // inset at the page inset the row bleeds through, so the fourth column meets
 // the edge and the row scrolls sideways. The `half` cell: a project's health
-// in a Place at the showcase's width, four sections two to a row from the
+// in a Panes at the showcase's width, four sections two to a row from the
 // the place's desktop width and stacked below it.
 export function drawColumns(frame: ShowcaseFrame) {
 	if (frame.cell.name === "COLUMNS.fit.half")
 		return (
 			<Column>
-				<Place title="Project health">
+				<Panes title="Project health">
 					<Pane>
 						<Columns fit="half">
 							{HEALTH.map(({ title }) => (
@@ -48,7 +48,7 @@ export function drawColumns(frame: ShowcaseFrame) {
 							<Section title="Inventory" items={STAND_INS.slice(0, 2)} />
 						</Columns>
 					</Pane>
-				</Place>
+				</Panes>
 			</Column>
 		);
 	return (

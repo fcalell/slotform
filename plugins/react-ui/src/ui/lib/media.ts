@@ -33,7 +33,7 @@ const density = createStore(undefined, {
 	},
 });
 
-// A `Place` that declares its `distance` as `room` hands it down, so what
+// A `Panes` that declares its `distance` as `room` hands it down, so what
 // stands inside draws the touch tree whatever the pointer.
 export const DistanceContext = createContext(false);
 

@@ -17,6 +17,7 @@ import {
 	View,
 } from "react-native";
 import { LinearTransition, ReduceMotion } from "react-native-reanimated";
+import { Icon } from "../../atoms/icon";
 import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { GroupName } from "../../lib/field";
@@ -24,7 +25,6 @@ import { curve, FadingView } from "../../lib/motion";
 import { open, usePathname } from "../../lib/navigate";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { Press } from "../../lib/press";
-import { Icon } from "../../parts/icon";
 import type { PickerSegmentsProps } from "./index";
 
 // The segments keep their natural width and a label is never cut for room (a

@@ -23,11 +23,11 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { TREE_DIVIDER } from "../../atoms/section/card.tsx";
 import { MoreRow, useReach } from "../../lib/more.tsx";
 import { ListedRoute, useRoute } from "../../lib/navigate.ts";
 import { edgeOf, type Movable } from "../../lib/reorder.ts";
 import { Window } from "../../lib/window.tsx";
-import { TREE_DIVIDER } from "../../parts/section/card.tsx";
 import { FileRowItem } from "../file-row/index.tsx";
 import { RowItem } from "../row/index.tsx";
 import { BandHead } from "./band.tsx";

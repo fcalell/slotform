@@ -4,9 +4,9 @@ import { record } from "./record.ts";
 import { createTicker, groupZeros } from "./scramble.ts";
 import { createStore } from "./store.ts";
 import {
-	LOADING_SLOTS,
+	LOADING_REGIONS,
 	type LoadingPaint,
-	type LoadingSlot,
+	type LoadingRegion,
 	MOTION_KNOBS,
 	type MotionKnobName,
 } from "./tokens.ts";
@@ -38,34 +38,34 @@ export function tune(name: MotionKnobName, value: number): void {
 
 export const subscribeMotion = motion.subscribe;
 
-// The paint each glyph slot's waiting shape takes: docs/architecture/ui-core/reads.md, "Waiting paint".
-export const loading: Record<LoadingSlot, LoadingPaint> = record(
-	LOADING_SLOTS,
+// The paint each glyph region's waiting shape takes: docs/architecture/ui-core/reads.md, "Waiting paint".
+export const loading: Record<LoadingRegion, LoadingPaint> = record(
+	LOADING_REGIONS,
 	(): LoadingPaint => "pulse",
 );
 
-export function setLoading(next: Partial<Record<LoadingSlot, LoadingPaint>>) {
+export function setLoading(next: Partial<Record<LoadingRegion, LoadingPaint>>) {
 	Object.assign(loading, next);
 	motion.emit();
 }
 
 // The paint kind of a role: titles, names and prose are text, a figure is a
 // figure and an id is an id.
-export function kindOf(role: PaintRole): LoadingSlot {
+export function kindOf(role: PaintRole): LoadingRegion {
 	if (role === "figure" || role === "id") return role;
 	return "text";
 }
 
-// Roles whose slot wraps over several lines: a scrambled box is one clipped
+// Roles whose region wraps over several lines: a scrambled box is one clipped
 // line, so these always pulse, each of their lines a bar.
 const WRAPS: ReadonlySet<PaintRole> = new Set(["sentence", "paragraph"]);
 
-// Whether a role's slot can be scrambled: the one-line ones.
+// Whether a role's region can be scrambled: the one-line ones.
 function scrambles(role: PaintRole): boolean {
 	return !WRAPS.has(role);
 }
 
-// Whether a role's waiting slot is scrambled, not pulsing: docs/architecture/ui-core/reads.md, "Waiting paint".
+// Whether a role's waiting region is scrambled, not pulsing: docs/architecture/ui-core/reads.md, "Waiting paint".
 export function scrambled(role: PaintRole): boolean {
 	return loading[kindOf(role)] === "scramble" && scrambles(role);
 }
@@ -162,7 +162,7 @@ export function paintShape(role: PaintRole, at = 0, locale?: string): string {
 	return role === "figure" ? groupZeros(text, locale) : text;
 }
 
-// A row slot run over a painted item: docs/architecture/ui-core/reads.md, "Paint shapes".
+// A row region run over a painted item: docs/architecture/ui-core/reads.md, "Paint shapes".
 export function painting<T, R>(fn: (item: T) => R, item: T): R | T {
 	try {
 		return fn(item);

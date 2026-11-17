@@ -14,12 +14,12 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import { useContext, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
 import { cn } from "../../lib/cn";
 import { FieldError, useFieldName } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";
 import { pickedFromDocument } from "../../lib/picked";
-import { Icon } from "../../parts/icon";
 import { Button } from "../button";
 import type { FilePickProps } from "./index";
 

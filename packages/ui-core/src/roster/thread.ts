@@ -65,7 +65,7 @@ export const threadEntry: RosterEntry = {
 		"ICON.fit.control",
 		"IMAGE_REMOVE",
 		"IMAGE_REMOVE_DISC",
-		"MESSAGE_ATTACH_SLOT",
+		"MESSAGE_ATTACH_REGION",
 		"MESSAGE_INPUT",
 		"MESSAGE_INPUT_BOX",
 		"MESSAGE_INPUT_CHIPS",
@@ -249,7 +249,7 @@ export const MESSAGE_FOLD = "px-gap";
 // (attach, Stop while an answer comes, Send); its notice at the text's x. On
 // touch one row (attach, the field at its bar fit growing upward, Stop's icon
 // act at the bar fit while an answer comes, Send's icon act) and the notice's row under
-// it in the same columns, its sentence at the field's text (the attach slot
+// it in the same columns, its sentence at the field's text (the attach region
 // held, the field's hairline counted).
 export const MESSAGE_INPUT = "gap-gap";
 export const MESSAGE_INPUT_BOX =
@@ -276,7 +276,7 @@ export const MESSAGE_INPUT_FIELD_VALUE =
 export const MESSAGE_NOTICE =
 	"gap-gap pl-pad pr-gap border-x border-transparent";
 export const MESSAGE_NOTICE_TEXT = "px-pad border-x border-transparent";
-export const MESSAGE_ATTACH_SLOT = "w-control";
+export const MESSAGE_ATTACH_REGION = "w-control";
 
 // Thread's gap and composer column: docs/architecture/ui-core/layout.md, "Foot".
 export const THREAD = "gap-section";

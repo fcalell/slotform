@@ -5,7 +5,7 @@ import type {
 	Option,
 	OptionGroup,
 } from "@fcalell/ui-core/descriptors";
-import type { OptionSlots } from "@fcalell/ui-core/list-state";
+import type { OptionRegions } from "@fcalell/ui-core/list-state";
 import { linked } from "@fcalell/ui-core/pick";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
 import type { Datum, Fielded as WithText } from "@fcalell/ui-core/read";
@@ -66,10 +66,10 @@ type OptionSource<T, V extends string> =
 			option?: never;
 	  }
 	| {
-			/** The items the check rows draw, constants or a selection. While its read waits, `PAINT_ROWS` rows paint in the slots `option` declares, inert. */
+			/** The items the check rows draw, constants or a selection. While its read waits, `PAINT_ROWS` rows paint in the regions `option` declares, inert. */
 			items: Datum<readonly T[]>;
-			/** One function per check row slot, each called with an item; the slots given are the shape the painted rows draw. */
-			option: OptionSlots<T, V>;
+			/** One function per check row region, each called with an item; the regions given are the shape the painted rows draw. */
+			option: OptionRegions<T, V>;
 			options?: never;
 	  };
 
@@ -152,7 +152,7 @@ export type PickerProps<V extends string | null = string, T = unknown> =
 	| PickerSegmentsProps<Extract<V, string>>
 	| PickerTabsProps;
 
-/** The pick of a place's options. As a menu, the field box showing the chosen label (the empty choice, and no choice, in the placeholder's ink), or a row's value and a chevron in a control-radius box: it opens a popover of rows under the trigger's end on the desktop, the chosen one ticked, a search leading past six options and the act under a hairline after them, and with no option a line saying there is nothing to choose yet; on touch a sheet of the same rows titled `label`. Given an array it picks several: the rows tick and the list stays open, and the box holds one removable compact pill per value, inset in the box with room above and below it. As a `list` (`fit="list"`), option rows on a hairline card, each the Checkbox (several choices) or the radio (one choice, a radiogroup) on its label's first line, the recommended mark (a glyph and its word) leading the line under it, then a `line`; the row under the pointer washes, the checked box or the ringed dot is the choice. The children stand under the first chosen option. Placed alone it draws its field; `headed`, the body of a titled `Section`, it draws none, the title naming it. Static `options` never paint; `items` paint `PAINT_ROWS` rows in the slots `option` declares while their read waits, and a `value` selection paints the marks, inert. The frame that holds the read draws its failed, missing and empty shapes. A pick whose options failed, in a row or a head, draws the failed row's mark and a retry icon at its end, so it stands on one line whatever the width. As `segments` (`fit="segments"`), segments an inside gap apart on no ground and no border, the chosen one under the selection wash in body ink at weight 500, the others in meta ink, washing and taking the body ink under the pointer; a radio group whose arrow keys move the choice; a strip that scrolls sideways fades at each end that holds more. Given `href`s and no values, the segments are links, the tabs of a place. */
+/** The pick of a place's options. As a menu, the field box showing the chosen label (the empty choice, and no choice, in the placeholder's ink), or a row's value and a chevron in a control-radius box: it opens a popover of rows under the trigger's end on the desktop, the chosen one ticked, a search leading past six options and the act under a hairline after them, and with no option a line saying there is nothing to choose yet; on touch a sheet of the same rows titled `label`. Given an array it picks several: the rows tick and the list stays open, and the box holds one removable compact pill per value, inset in the box with room above and below it. As a `list` (`fit="list"`), option rows on a hairline card, each the Checkbox (several choices) or the radio (one choice, a radiogroup) on its label's first line, the recommended mark (a glyph and its word) leading the line under it, then a `line`; the row under the pointer washes, the checked box or the ringed dot is the choice. The children stand under the first chosen option. Placed alone it draws its field; `headed`, the body of a titled `Section`, it draws none, the title naming it. Static `options` never paint; `items` paint `PAINT_ROWS` rows in the regions `option` declares while their read waits, and a `value` selection paints the marks, inert. The frame that holds the read draws its failed, missing and empty shapes. A pick whose options failed, in a row or a head, draws the failed row's mark and a retry icon at its end, so it stands on one line whatever the width. As `segments` (`fit="segments"`), segments an inside gap apart on no ground and no border, the chosen one under the selection wash in body ink at weight 500, the others in meta ink, washing and taking the body ink under the pointer; a radio group whose arrow keys move the choice; a strip that scrolls sideways fades at each end that holds more. Given `href`s and no values, the segments are links, the tabs of a place. */
 export function Picker<V extends string | null = string>(
 	props: PickOneProps<V>,
 ): ReactElement;

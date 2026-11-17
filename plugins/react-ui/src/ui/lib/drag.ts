@@ -386,7 +386,7 @@ export function useDrop(
 			run: (dragged) => {
 				const now = latest.current.drop;
 				if (!now) return;
-				latest.current.acting.run(true, {
+				latest.current.acting.attempt(true, {
 					label: now.label,
 					onAct: () => now.onDrop(dragged),
 					confirm: now.confirm,

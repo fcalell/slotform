@@ -19,12 +19,12 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useMemo, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { StatusDot } from "../../atoms/status/dot";
 import type { IconAct } from "../../lib/act";
 import { asIconAct, useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { Icon } from "../../parts/icon";
-import { StatusDot } from "../../parts/status/dot";
 import { Avatar } from "../avatar";
 import { Chip } from "../chip";
 import { Input } from "../input";
@@ -35,20 +35,20 @@ import { SheetLayer } from "../sheet/layer";
 // The rows stand a pair under the head, and under the search fixed above
 // them, which stands a pair under the head.
 const ROWS = "pt-gap pb-pad";
-const SEARCH_SLOT = "px-pad pt-gap";
+const SEARCH_REGION = "px-pad pt-gap";
 const OPTION = "flex-row items-center";
 const PRESS = "active:bg-wash-press";
 // A blocked option's label and reason.
 const BLOCKED_INK = "text-ink-disabled";
 const OPTION_TEXT = "flex-1 min-w-0";
 const TICK = "shrink-0";
-// A glyph leads an option in the row's leading slot.
+// A glyph leads an option in the row's leading region.
 const LEADING = "shrink-0 items-center justify-center";
 // An option's own chip, centred on the label's line (a chip hugs the top of its row).
 const KIND = "shrink-0 self-center";
 // The act that ends the list stands under a hairline across it, a float
 // inset below the line.
-const ACT_SLOT = "border-t pt-gap";
+const ACT_REGION = "border-t pt-gap";
 const ACT_GLYPH = "shrink-0";
 // What a search that matches nothing says, on a row of the sheet.
 const NO_MATCHES = "py-gap";
@@ -159,7 +159,7 @@ export function PickSheet<V extends string | null>({
 	act?: IconAct | IconLinkAct;
 }) {
 	const words = useWords();
-	// The act holds its own run past the sheet's close: a rejection toasts with Retry.
+	// The act holds its own attempt past the sheet's close: a rejection toasts with Retry.
 	const acting = useAct("toast");
 	const [search, setSearch] = useState("");
 	// The search clears as the sheet opens, during render, so the rows keep
@@ -199,7 +199,7 @@ export function PickSheet<V extends string | null>({
 						onClose={onClose}
 						above={
 							searching ? (
-								<View className={SEARCH_SLOT}>
+								<View className={SEARCH_REGION}>
 									<Input
 										label={words.search}
 										kind="search"
@@ -279,14 +279,14 @@ export function PickSheet<V extends string | null>({
 						</RNText>
 					) : null}
 					{act ? (
-						<View className={cn(HAIRLINE, ACT_SLOT)}>
+						<View className={cn(HAIRLINE, ACT_REGION)}>
 							<Pressable
 								accessibilityRole={"href" in act ? "link" : "button"}
 								accessibilityState={{ disabled: act.blocked !== undefined }}
 								disabled={act.blocked !== undefined}
 								onPress={() => {
 									onClose();
-									acting.run(true, asIconAct(act));
+									acting.attempt(true, asIconAct(act));
 								}}
 								className={cn(
 									row(),

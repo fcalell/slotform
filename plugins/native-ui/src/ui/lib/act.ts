@@ -13,7 +13,7 @@ import { toast } from "./toast";
 
 export type { ActSheetProps };
 
-/** A sheet for an act's `sheet`, typed by the procedure its form submits: `P` is read off the form's `act`, so `onDone` hears that procedure's output and the fields are checked against its input. An act's slot holds acts of different procedures, which a type cannot follow, so the sheet leaves here as the procedure-less `ActSheetProps` the slot takes. */
+/** A sheet for an act's `sheet`, typed by the procedure its form submits: `P` is read off the form's `act`, so `onDone` hears that procedure's output and the fields are checked against its input. An act's region holds acts of different procedures, which a type cannot follow, so the sheet leaves here as the procedure-less `ActSheetProps` the region takes. */
 export function sheetOf<P extends ProcedureCall>(
 	sheet: ActSheetProps<P>,
 ): ActSheetProps {
@@ -29,7 +29,7 @@ type Pressed<F> =
 
 /** An act as the platform draws it: the ui-core act with its `onAct` or the `sheet` it opens. */
 export type Act = Omit<ActData, "onAct"> & Pressed<ActData["onAct"]>;
-/** An act of a slot that requires its glyph. */
+/** An act of a region that requires its glyph. */
 export type IconAct = Act & { icon: IconName };
 /** What a menu holds: acts that run and links that go. */
 export type MenuEntry = Act | LinkAct;

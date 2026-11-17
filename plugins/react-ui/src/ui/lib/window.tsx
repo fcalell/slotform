@@ -1,8 +1,8 @@
 import {
 	OVERSCAN,
 	ranged,
-	slotsOf,
 	VIRTUAL_FROM,
+	windowEntries,
 } from "@fcalell/ui-core/window";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
@@ -234,13 +234,13 @@ export function Window({
 				end: stop,
 			}))
 		: [];
-	const slots = on
-		? slotsOf(placed, count, virtualizer.getTotalSize(), gap)
+	const entries = on
+		? windowEntries(placed, count, virtualizer.getTotalSize(), gap)
 		: [];
 	// What the box holds after this commit, which the effects measure it by.
-	const drawn = useRef(slots);
+	const drawn = useRef(entries);
 	useLayoutEffect(() => {
-		drawn.current = slots;
+		drawn.current = entries;
 	});
 
 	// The rows mounted are the pages the collection needs.
@@ -275,7 +275,7 @@ export function Window({
 		const found = drawn.current;
 		const mounted = [...element.children].slice(0, found.length);
 		if (process.env.NODE_ENV !== "production") check(found, mounted);
-		const first = found.findIndex((slot) => "row" in slot);
+		const first = found.findIndex((entry) => "row" in entry);
 		if (!shape && first >= 0) {
 			setShape({
 				gap: gapOf(element, horizontal),
@@ -284,11 +284,11 @@ export function Window({
 			return;
 		}
 		const rowsAt = new Map<Element, number>();
-		found.forEach((slot, at) => {
+		found.forEach((entry, at) => {
 			const node = mounted[at];
-			if (!node || !("row" in slot)) return;
-			rowsAt.set(node, slot.row);
-			virtualizer.resizeItem(slot.row, extentOf(node));
+			if (!node || !("row" in entry)) return;
+			rowsAt.set(node, entry.row);
+			virtualizer.resizeItem(entry.row, extentOf(node));
 		});
 		indexed.current = rowsAt;
 		watch.current ??= new ResizeObserver((entries) => {
@@ -315,8 +315,8 @@ export function Window({
 			const at = [...element.children].findIndex((node) =>
 				node.contains(target),
 			);
-			const slot = drawn.current[at];
-			focused.current = slot && "row" in slot ? slot.row : undefined;
+			const entry = drawn.current[at];
+			focused.current = entry && "row" in entry ? entry.row : undefined;
 		};
 		const blur = (event: FocusEvent) => {
 			const to =
@@ -339,16 +339,16 @@ export function Window({
 
 	if (!on) return Array.from({ length: count }, (_, index) => row(index));
 	const Space = spacer;
-	return slots.map((slot) => {
-		if ("row" in slot) return row(slot.row);
-		const style = horizontal ? { width: slot.space } : { height: slot.space };
+	return entries.map((entry) => {
+		if ("row" in entry) return row(entry.row);
+		const style = horizontal ? { width: entry.space } : { height: entry.space };
 		return Space === "tr" ? (
-			<tr key={`window-${slot.before}`} aria-hidden data-spacer>
+			<tr key={`window-${entry.before}`} aria-hidden data-spacer>
 				<td style={{ ...style, padding: 0, border: 0 }} />
 			</tr>
 		) : (
 			<div
-				key={`window-${slot.before}`}
+				key={`window-${entry.before}`}
 				aria-hidden
 				data-spacer
 				style={style}
@@ -359,14 +359,14 @@ export function Window({
 }
 
 // A row that is not exactly one element of the box shifts every child after
-// it off its slot, so the spacers are where it shows.
+// it off its entry, so the spacers are where it shows.
 function check(
-	slots: ReturnType<typeof slotsOf>,
+	entries: ReturnType<typeof windowEntries>,
 	mounted: readonly Element[],
 ): void {
-	slots.forEach((slot, at) => {
+	entries.forEach((entry, at) => {
 		const space = mounted[at]?.getAttribute("aria-hidden") === "true";
-		if (mounted[at] === undefined || space !== !("row" in slot)) {
+		if (mounted[at] === undefined || space !== !("row" in entry)) {
 			throw new Error(
 				"Window: each row must be exactly one element, the first children of the box",
 			);

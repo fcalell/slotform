@@ -8,7 +8,7 @@ fallbacks where Hermes lacks an `Intl` API, and the text runs a part draws.
 ## Words
 
 Every word a molecule draws on its own comes from `words`, a closed typed object with English
-defaults (`ENGLISH`). Its keys are `WORD_KEYS`, `COUNTED_WORD_KEYS` and `SLOT_WORD_KEYS` in
+defaults (`ENGLISH`). Its keys are `WORD_KEYS`, `COUNTED_WORD_KEYS` and `BLANK_WORD_KEYS` in
 `@fcalell/ui-core/tokens`. `Words` requires every key and `wordsSchema` is a strict object, so a
 translation that misses a word fails `tsc` and the schema, never the interface.
 
@@ -17,9 +17,9 @@ translation that misses a word fails `tsc` and the schema, never the interface.
 - A word drawn with a number is a **counted word**, `{ one, other }`, each form spelling `{count}`
   where the number stands, drawn through `counted(word, count)`: `one` at a count of one, `other` at
   any other. It is never a function, since the words cross into the generated entry as a literal.
-- A word drawn with values is a **slot word**, one whole phrase spelling each of its named slots as
+- A word drawn with values is a **blank word**, one whole phrase spelling each of its named blanks as
   `{name}` where the value stands, drawn through `filled(word, values)`. The schema rejects a
-  translation that drops a slot. A connective is never composed around figures: the phrase holds
+  translation that drops a blank. A connective is never composed around figures: the phrase holds
   them.
 - A tab bar's count past `TAB_COUNT_MAX` (99) reads as `countOver` through `tabCount(words, count)`.
 
@@ -77,7 +77,7 @@ it lacks an API.
 A **run** (`Run`) is a piece of a part's text:
 
 - plain words;
-- a quoted name (`quoted`): words given verbatim, in typographic quotes in the slot's own role,
+- a quoted name (`quoted`): words given verbatim, in typographic quotes in the region's own role,
   drawn whole. A badge, an overline or a line cuts it by its own width or line count, a title wraps
   it, and the text, the accessible name and the cut tooltip hold all of it;
 - a span of code (`code`): the inline code style. A row's whole title, or a fact list that is this one

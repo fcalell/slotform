@@ -15,10 +15,10 @@ import {
 import { ROW_RETRY, text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
+import { Icon } from "../atoms/icon";
+import { Spinner } from "../atoms/spinner";
 import { ButtonBase } from "../components/button/base";
 import { MissingBase } from "../components/missing/base";
-import { Icon } from "../parts/icon";
-import { Spinner } from "../parts/spinner";
 import type { Act } from "./act";
 import { wiringOf } from "./act";
 import { cn } from "./cn";
@@ -28,7 +28,7 @@ import { useShown } from "./paint";
 
 const RETRY_MARK = "shrink-0 items-center justify-center";
 
-// What a failed row draws in its value slot: the alert, in the danger ink.
+// What a failed row draws in its value region: the alert, in the danger ink.
 export function FailedMark({ label }: { label?: string }) {
 	return (
 		<View

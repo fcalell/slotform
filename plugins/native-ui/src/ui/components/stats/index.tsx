@@ -17,16 +17,16 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { Pressable, Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
+import { CountLinks } from "../../atoms/stats/count-links";
+import { Meter } from "../../atoms/stats/meter";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { navigate, useWarm } from "../../lib/navigate";
 import { inertProps } from "../../lib/paint";
 import { FailedMark, RetryMark } from "../../lib/read";
-import { Decoded } from "../../lib/slot";
-import { Icon } from "../../parts/icon";
-import { CountLinks } from "../../parts/stats/count-links";
-import { Meter } from "../../parts/stats/meter";
+import { Decoded } from "../../lib/region";
 
 const CLIP = "overflow-hidden";
 // Each cell draws its own top and start hairline; the card's edge is drawn over
@@ -39,9 +39,9 @@ const HIT = "absolute inset-0 active:bg-wash-press";
 // first line.
 const LABEL_LINE = "flex-row items-start gap-gap";
 const FIGURE = "flex-row items-baseline";
-// A failed cell's figure slot: its marks, a target tall, at the cell's start.
+// A failed cell's figure region: its marks, a target tall, at the cell's start.
 const FAILED_FIGURE = "flex-row items-center min-h-target";
-// An ended figure an enclosing frame holds keeps its slot, drawn nothing.
+// An ended figure an enclosing frame holds keeps its region, drawn nothing.
 const UNSEEN = "opacity-0";
 
 /** A cell: a `StatSpec` whose figure is a constant or a selection. */
@@ -95,7 +95,7 @@ function Cell({
 			</View>
 			<View className={cn(STATS_FIGURE, held ? FAILED_FIGURE : FIGURE)}>
 				{held ? null : ended ? (
-					// An ended read an enclosing frame holds keeps the figure's slot, drawn
+					// An ended read an enclosing frame holds keeps the figure's region, drawn
 					// nothing; a failed cell's marks stand flush at the cell's start.
 					<RNText className={cn(text({ role: "figure" }), UNSEEN)}>0</RNText>
 				) : (

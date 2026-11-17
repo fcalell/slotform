@@ -49,7 +49,7 @@ export function asORPCError(error: unknown): ORPCError<string, unknown> | null {
 }
 
 // Frame routes: docs/architecture/plugins/screens.md, "What a state applies to".
-function isFrameRoute(path: readonly string[]): boolean {
+function isContainerRoute(path: readonly string[]): boolean {
 	const under = (route: readonly string[]) =>
 		route.every((key, at) => path[at] === key);
 	return under(SCOPE_ROUTES_PATH) || under(ORG_RULES_PATH);
@@ -228,7 +228,7 @@ export async function answer(
 	const kind = kinds[path.join(".")]?.kind;
 	const query = kind ? kind === "query" : request.method === "GET";
 	const found = findFixture(app, plugins, path);
-	const owned = found?.plugin || isFrameRoute(path) || isSessionRead(path);
+	const owned = found?.plugin || isContainerRoute(path) || isSessionRead(path);
 	let state: ScreenState = query && !owned ? story : "data";
 	if (query) {
 		seen.set(path.join("."), path);
@@ -264,7 +264,7 @@ export async function answer(
 		const thrown = asORPCError(error);
 		if (thrown) {
 			const lost =
-				query && story === "data" && !isFrameRoute(path)
+				query && story === "data" && !isContainerRoute(path)
 					? failedInData(path, input, currentStory().params, thrown.code)
 					: undefined;
 			if (lost) gaps.add(lost);

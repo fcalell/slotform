@@ -4,14 +4,14 @@ import { createStore } from "./store.ts";
 
 // A pending run's toward one `until`: it began at `start` with `from` of
 // the track already filled.
-export interface PendingRun {
+export interface PendingAttempt {
 	readonly start: number;
 	readonly end: number;
 	readonly from: number;
 }
 
 // The elapsed share of the track, 0 to 1.
-export function pendingShare(run: PendingRun, now: number): number {
+export function pendingShare(run: PendingAttempt, now: number): number {
 	if (now >= run.end || run.end <= run.start) return 1;
 	const through = Math.max(0, (now - run.start) / (run.end - run.start));
 	return run.from + (1 - run.from) * through;
@@ -20,11 +20,11 @@ export function pendingShare(run: PendingRun, now: number): number {
 // A run toward `end` beginning at `now`: the first starts empty, and a moved
 // `until` carries on from the share the last run reached, so the fill never
 // jumps back.
-export function pendingRun(
+export function pendingAttempt(
 	end: number,
 	now: number,
-	last?: PendingRun,
-): PendingRun {
+	last?: PendingAttempt,
+): PendingAttempt {
 	return { start: now, end, from: last ? pendingShare(last, now) : 0 };
 }
 

@@ -15,16 +15,16 @@ import {
 	lockedAt,
 	seedOf,
 } from "@fcalell/ui-core/scramble";
-import type { LoadingSlot } from "@fcalell/ui-core/tokens";
+import type { LoadingRegion } from "@fcalell/ui-core/tokens";
 import { memo, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { I18nManager, Text as RNText, type TextProps } from "react-native";
 import { reducedNow } from "./motion";
 
-// The generated characters of a scrambled slot, in the ink of the text that
+// The generated characters of a scrambled region, in the ink of the text that
 // holds it: the page's ticker is this component's store, so a tick renders this
 // text alone (it is memoised on its props, which never change with a tick).
 const Scramble = memo(function Scramble(props: {
-	kind: LoadingSlot;
+	kind: LoadingRegion;
 	shape: string;
 	seed: number;
 }) {
@@ -32,11 +32,11 @@ const Scramble = memo(function Scramble(props: {
 	return <RNText>{frame(props.kind, props.shape, tick, props.seed)}</RNText>;
 });
 
-/** Whether a role's slot draws the scramble on the phone: the theme scrambles its kind, the slot is one line and the system has not asked for reduced motion (a still bar then). */
+/** Whether a role's region draws the scramble on the phone: the theme scrambles its kind, the region is one line and the system has not asked for reduced motion (a still bar then). */
 export const scramblesNow = (role: PaintRole): boolean =>
 	scrambled(role) && !reducedNow();
 
-/** A glyph slot painted by the scramble, set inside the slot's own `PaintText`: its characters stand where the filler would, in the ink of the text that holds them. */
+/** A glyph region painted by the scramble, set inside the region's own `PaintText`: its characters stand where the filler would, in the ink of the text that holds them. */
 export function ScrambledText(props: { role: PaintRole; at: number }) {
 	const { role, at } = props;
 	const kind = kindOf(role);

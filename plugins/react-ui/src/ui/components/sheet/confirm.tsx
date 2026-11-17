@@ -25,7 +25,7 @@ export function ConfirmSheet(props: {
 		setDecision(entry.id);
 		setTyped("");
 	}
-	// The sheet's bar holds the act's run: a rejection stays in the bar's line,
+	// The sheet's bar holds the act's attempt: a rejection stays in the bar's line,
 	// the sheet open and the act ready; an act that returns no promise is done
 	// at once.
 	const run = () => {
