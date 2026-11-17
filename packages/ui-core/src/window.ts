@@ -6,8 +6,16 @@
 // shorter collection keeps find in page and a longer one pays only for its view.
 export const VIRTUAL_FROM = 50;
 
-// Rows mounted past each edge of the scroller's view, so a fast scroll meets
-// drawn rows before measured ones.
+// Whether the rows a collection mounts reach the last of its `count` loaded,
+// `last` the highest index mounted (-1 for none), once it windows: the viewer
+// is near the end, so the next page loads without a press.
+export function reachesEnd(last: number, count: number): boolean {
+	return count >= VIRTUAL_FROM && last >= count - 1;
+}
+
+// Rows the web's window mounts past each edge of the scroller's view, so a
+// fast scroll meets drawn rows before measured ones. The phone's LegendList
+// keeps its own draw distance.
 export const OVERSCAN = 8;
 
 // A mounted row as the virtualizer places it: box-relative pixels.

@@ -248,6 +248,10 @@ what stands in it decides its form by (a Table its grid).
   Diff, a code block, a Canvas, a chart) stands at the body's width ([Rows grid](#rows-grid)).
 - A Thread or a Canvas that fills the body (`fill`), and the Pane's own failed, missing and empty
   shapes, take the free height by plain flex.
+- On the phone a Section with items or a Table that stands alone in a Pane, with no record head, fills
+  the body as a Thread does, and its rows scroll inside its card
+  ([long collections](../plugins/native-ui.md#long-collections)); beside other parts it stands in the
+  body's scroll.
 - The `empty` of the Pane's `read` stands in place of the children, centred in what the body leaves
   (the sentence at meta, the act the filled one with the plus). It answers for the Pane's own read,
   so a Pane with no `read` takes no `empty`.

@@ -157,6 +157,66 @@ export function folding(
 	return open ? folded.filter((each) => each !== key) : [...folded, key];
 }
 
+// One entry of a Section's sheet in order: a row (`index` into the rows given,
+// `depth` in its tree) or a band over its group's rows (`index` into the bands,
+// `count` its rows, 0 when it draws none). `ruled` is whether the card's
+// hairline stands above it: every entry but the first and the one a band
+// closes with its own rule.
+export type SheetEntry =
+	| { kind: "row"; key: string; index: number; depth: number; ruled: boolean }
+	| { kind: "band"; key: string; index: number; count: number; ruled: boolean };
+
+// The entries of a sheet: its rows, in order, with a band before the first
+// root row of each group and every empty group's band after the last. A row's
+// `group` is its band's index, -1 for none; a tree's child (`depth` over 0)
+// stands with its parent whatever its group. With `counted`, the Section's
+// head counts the rows, so a lone band holding every root row counts none.
+export function sheetEntries(
+	rows: readonly { key: string; depth: number; group: number }[],
+	bands: readonly { key: string }[] | undefined,
+	counted: boolean,
+): SheetEntry[] {
+	const entries: SheetEntry[] = [];
+	const ruled = () => {
+		const last = entries.at(-1);
+		return last !== undefined && last.kind !== "band";
+	};
+	const counts = bands?.map(() => 0) ?? [];
+	let roots = 0;
+	for (const row of rows) {
+		if (row.depth > 0) continue;
+		roots++;
+		if (row.group >= 0) counts[row.group] = (counts[row.group] ?? 0) + 1;
+	}
+	const lone = counted && counts.length === 1 && counts[0] === roots;
+	let shown = 0;
+	const bandsTo = (end: number) => {
+		for (const band of bands?.slice(shown, end) ?? []) {
+			const count = lone ? 0 : (counts[shown] ?? 0);
+			entries.push({
+				kind: "band",
+				key: `band:${band.key}`,
+				index: shown,
+				count,
+				ruled: ruled(),
+			});
+			shown++;
+		}
+	};
+	for (const [index, row] of rows.entries()) {
+		if (row.depth === 0) bandsTo(row.group + 1);
+		entries.push({
+			kind: "row",
+			key: row.key,
+			index,
+			depth: row.depth,
+			ruled: ruled(),
+		});
+	}
+	bandsTo(bands?.length ?? 0);
+	return entries;
+}
+
 // The characters a definition value keeps at its end when the row cuts it.
 const VALUE_TAIL = 4;
 

@@ -992,6 +992,14 @@ export interface More {
 	fetch: () => Promise<unknown>;
 }
 
+// Whether a collection's more row fetches the next page itself, without the
+// press: when it is `wanted` (the first page came back empty, or the rows a
+// long windowed collection mounts reach its last loaded row, `reachesEnd`)
+// and a next page remains that is not already loading or failed.
+export function fetchesMore(more: More, wanted: boolean): boolean {
+	return wanted && more.next && !more.fetching && !more.failed;
+}
+
 /** A window read's rows as a view can mount them. */
 export interface WindowView {
 	/** The rows the filter matches: the scroller's length. */

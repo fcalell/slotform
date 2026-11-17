@@ -19,7 +19,7 @@ const deploys = orpc.deploys.list.pages({ limit: 5 });
 The collection (`List`, `Group`, `Table`) draws the rest: a "Show more" row while a next page
 remains, the next page painted while it loads, and "Couldn't load more." with Retry when it
 failed. The viewer presses it below `VIRTUAL_FROM` rows; a collection that windows (a `Table` or
-`Section` past that many rows) loads the next page as the end of the loaded rows nears, so nothing
+`Section` past that many rows; on the phone, only one that is its Pane's only child) loads the next page as the end of the loaded rows nears, so nothing
 asks for it. The frame is not busy for a next page, draws no count while more remain, and an empty
 first page that has more fetches the next. A `Section`'s count is therefore the loaded rows only
 once the last page is in.

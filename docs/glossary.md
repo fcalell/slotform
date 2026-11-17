@@ -252,6 +252,9 @@ to fix, and a new term enters this page in the change that introduces it.
   them. [layout](architecture/ui-core/layout.md#row-list)
 - **collection**: A component that takes rows as data and draws them: a Section's row list, a `Table`, a
   `Picker` as a list. [components](architecture/ui-core/components.md#collections-and-lists)
+- **windowed collection**: A collection that mounts only the rows standing near the view. Not the
+  `window` read kind, which is how a read loads its rows. Avoid: virtualized.
+  [components](architecture/ui-core/components.md#collections-and-lists)
 - **comparison**: A `Table` whose cells hold a value per column: the leading column names the fact
   and a column follows for each compared thing. [components](architecture/ui-core/components.md#cells-and-columns)
 - **level**: A chart figure that swings around a value (a reading each hour, a share), drawn on an

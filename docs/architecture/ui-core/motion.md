@@ -189,9 +189,8 @@ it (the banner, the place, the foot), since the container, the column and `main`
 
 A message that arrives at the end of a log after the first draw (the viewer's own or another's)
 rises a `pair` as it fades in on `base` `out`, and pushes nothing but the end of the log, which
-follows it. The web plays `stream-in`; the phone rises it in Reanimated (`streamIn`), where the log
-and each message are drawn upside down, so the rise starts below by a negative offset in the
-message's own space. The act back to the newest message fades in rising a `pair` on `fast` `out` as
+follows it. The web plays `stream-in`; the phone rises it in Reanimated (`streamIn`) from a `pair`
+below its place. The act back to the newest message fades in rising a `pair` on `fast` `out` as
 the reader scrolls away (its starting style), and leaves on `fast` `in` the same way back
 (`data-leaving`); it stays mounted until it has gone.
 

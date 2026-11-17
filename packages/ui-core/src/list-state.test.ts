@@ -14,6 +14,7 @@ import {
 	listedRows,
 	nextSort,
 	type Sort,
+	sheetEntries,
 	sorted,
 	type TableRecord,
 	TOUCH_FACT_FITS,
@@ -385,4 +386,97 @@ test("the ticks read and change the chosen ids in their order", () => {
 		["a", "b"],
 	]);
 	assert.deepEqual(chooseAllToggled(rows, ["c", "a", "b"]), []);
+});
+
+const shape = (entries: ReturnType<typeof sheetEntries>) =>
+	entries.map((entry) =>
+		entry.kind === "band"
+			? `${entry.key}(${entry.count})${entry.ruled ? "|" : ""}`
+			: `${entry.key}${entry.ruled ? "|" : ""}`,
+	);
+
+test("a sheet's bands stand before each group's first row, empty ones after the last", () => {
+	const bands = [{ key: "a" }, { key: "b" }, { key: "c" }];
+	const rows = [
+		{ key: "loose", depth: 0, group: -1 },
+		{ key: "a1", depth: 0, group: 0 },
+		{ key: "a2", depth: 0, group: 0 },
+		{ key: "c1", depth: 0, group: 2 },
+	];
+	assert.deepEqual(shape(sheetEntries(rows, bands, true)), [
+		"loose",
+		"band:a(2)|",
+		"a1",
+		"a2|",
+		"band:b(0)|",
+		"band:c(1)",
+		"c1",
+	]);
+	assert.deepEqual(shape(sheetEntries([], bands, false)), [
+		"band:a(0)",
+		"band:b(0)",
+		"band:c(0)",
+	]);
+});
+
+test("a lone band holding every row counts none when the head counts them", () => {
+	const rows = [
+		{ key: "x", depth: 0, group: 0 },
+		{ key: "y", depth: 0, group: 0 },
+	];
+	assert.deepEqual(shape(sheetEntries(rows, [{ key: "a" }], true)), [
+		"band:a(0)",
+		"x",
+		"y|",
+	]);
+	assert.deepEqual(shape(sheetEntries(rows, [{ key: "a" }], false)), [
+		"band:a(2)",
+		"x",
+		"y|",
+	]);
+});
+
+test("a tree's children stand with their parent at their depth, outside any count", () => {
+	const entries = sheetEntries(
+		[
+			{ key: "p", depth: 0, group: 0 },
+			{ key: "child", depth: 1, group: -1 },
+			{ key: "q", depth: 0, group: 1 },
+		],
+		[{ key: "a" }, { key: "b" }],
+		false,
+	);
+	assert.deepEqual(shape(entries), [
+		"band:a(1)",
+		"p",
+		"child|",
+		"band:b(1)|",
+		"q",
+	]);
+	assert.deepEqual(
+		entries
+			.filter((entry) => entry.kind === "row")
+			.map((entry) => [entry.index, entry.depth]),
+		[
+			[0, 0],
+			[1, 1],
+			[2, 0],
+		],
+	);
+});
+
+test("a sheet with no bands rules every row after the first", () => {
+	assert.deepEqual(
+		shape(
+			sheetEntries(
+				[
+					{ key: "x", depth: 0, group: -1 },
+					{ key: "y", depth: 0, group: -1 },
+				],
+				undefined,
+				false,
+			),
+		),
+		["x", "y|"],
+	);
 });

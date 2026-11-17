@@ -215,8 +215,14 @@ frames over one read only the first draws it, so one refetch stands as one mark.
 
 A paginated procedure's `.pages(input)` read gives a collection its more row. A collection's last
 row over a read that pages (a `pages` read, or a `window` read, whose rows load from the start) is
-its **more row**: "Show more" while a next page remains, pressed by the viewer and
-never by scrolling; the painted rows while it loads; "Couldn't load more" with Retry when it failed.
+its **more row**: "Show more" while a next page remains, pressed by the viewer. A collection that
+windows ([collections](components.md#collections-and-lists)) with at least `VIRTUAL_FROM` loaded
+rows fetches it without the press once the rows it mounts reach its last loaded row (`reachesEnd`,
+`window.ts`; `useReach`, `react/read.ts`), counting every entry it mounts, bands and a tree's
+children included. A shorter collection, and one that does not window (on the phone, one that shares
+its Pane's scroll), keeps the press. Whether the more row fetches by itself is `fetchesMore`
+(`read.ts`): the empty first page or the reach, with a next page that is not loading or failed. The
+painted rows stand while it loads, and "Couldn't load more" with Retry when it failed.
 An empty first page that has more is not empty: the next page is fetched at once. Only the more row
 renders on the next page's fetch; the frame is not busy then, and it draws no count while more
 remains.

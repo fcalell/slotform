@@ -12,21 +12,29 @@ read shapes these components share are in [reads](reads.md); the acts and fields
 ## Collections and lists
 
 `list-state.ts` holds the decisions a collection (a Section's sheet, a `Table`, a `Picker` in
-`fit: list`) and the Stats meter, `StepCount` and Stages states make before they draw.
+`fit: list`) and the Stats meter, `StepCount` and Stages states make before they draw, among them a
+sheet's entries in order, its rows with their bands and a tree's children (`sheetEntries`), which
+both platforms draw and window. `pick.ts` holds a picker's long list as rows, each group's label
+ahead of its options (`optionRows`).
 
 Collections take data and draw their own rows (`Section`, `Table`, `Picker` in `fit: list`,
 `BarChart`, `Thread`): `items` is a constant or a selection. A `Section`'s rows are descriptors
 (`Row`: `RowItem` or `FileItem`, in `@fcalell/ui-core/descriptors`), and a row item whose
-`children` is given makes the sheet a tree. A long collection windows on the web with no prop. A
-paginated procedure's `.pages(input)` read gives the collection its more row (and, once it windows,
-loads the next page as the end nears); a `paginated: "window"` procedure's `.window(input)` read
+`children` is given makes the sheet a tree. A long collection windows with no prop: on the web
+under any scroller, on the phone where it owns its scroll
+([native-ui](../plugins/native-ui.md#long-collections)). A paginated procedure's `.pages(input)`
+read gives the collection its more row, which a long windowed collection presses for itself
+([paging](reads.md#paging)); a `paginated: "window"` procedure's `.window(input)` read
 sizes a `Table`'s scroller to the total ([paging](reads.md#paging)).
 
 `window.ts` holds how a long collection windows: from how many loaded rows it draws only those near
 the scroller's view (`VIRTUAL_FROM`), how far past each edge of the view it keeps rows
 (`OVERSCAN`), and the arithmetic that turns the rows a virtualizer placed into the children of the
-box, rows and the spacers that stand in for the rest (`windowEntries`, `ranged`, `pagesCovering`). The web
-runs it over TanStack Virtual; the arithmetic is in ui-core so it is tested without a DOM.
+box, rows and the spacers that stand in for the rest (`windowEntries`, `ranged`, `pagesCovering`), and
+whether the rows mounted reach the last loaded one (`reachesEnd`). The web runs it over TanStack
+Virtual; the arithmetic is in ui-core so it is tested without a DOM. The phone windows with
+LegendList, which places and ranges its own rows: of `window.ts` it reads only `VIRTUAL_FROM`, as
+the painted ceiling and the reach floor (`reachesEnd`).
 
 ## Table
 

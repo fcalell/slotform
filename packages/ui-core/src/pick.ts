@@ -104,3 +104,22 @@ export function scrollEdges(
 	if (space <= 0 || content <= space + 1) return { start: false, end: false };
 	return { start: offset > 1, end: offset + space < content - 1 };
 }
+
+/** One row of a picker's long list: a group's label, or an option at its place among the options (`index`, from 0). */
+export type OptionRow<V extends string | null> =
+	| { label: string }
+	| { option: Option<V>; index: number };
+
+/** The rows of a picker's long list, in order: each group's options, its label ahead of the first; a group with no options draws nothing, its label included. */
+export function optionRows<V extends string | null>(
+	groups: readonly Grouped<V>[],
+): OptionRow<V>[] {
+	const rows: OptionRow<V>[] = [];
+	let index = 0;
+	for (const group of groups) {
+		if (group.options.length === 0) continue;
+		if (group.label) rows.push({ label: group.label });
+		for (const option of group.options) rows.push({ option, index: index++ });
+	}
+	return rows;
+}

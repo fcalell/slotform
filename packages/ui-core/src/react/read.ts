@@ -41,6 +41,7 @@ import {
 } from "../read.ts";
 import { OPTION_TEXT, type OptionText } from "../reason.ts";
 import type { Words } from "../tokens.ts";
+import { reachesEnd } from "../window.ts";
 import { usePort } from "./port.ts";
 
 // Distributive, so a `Datum<T>` prop gives `T`.
@@ -219,7 +220,7 @@ export function hasBody(frame: Frame, children: ReactNode): boolean {
 
 // The collection's side of a pages read: an observer that never fetches by
 // mounting, so the query is the frame's and the leaf's, and a page is fetched
-// only when the viewer asks.
+// only when the more row asks (`fetchesMore`).
 export function useMore(read: Read<unknown>): More {
 	return usePort().useNextPage(read);
 }
@@ -294,4 +295,17 @@ export function useWindowMore(read: Read<unknown>): More {
 		}
 	};
 	return { next, fetching: pending, failed, fetch };
+}
+
+/** Whether a windowed collection's mounted rows reach the last of its `count` loaded (`reachesEnd`), for its more row to fetch without a press. Hand `onLast` the highest index mounted each time the mounted rows change. `reached` holds for the count it was seen at, so a page that lands is not taken for the end again before the rows have ranged over it. */
+export function useReach(count: number): {
+	reached: boolean;
+	onLast: (last: number) => void;
+} {
+	const [seen, setSeen] = useState<number>();
+	const onLast = useCallback(
+		(last: number) => setSeen(reachesEnd(last, count) ? count : undefined),
+		[count],
+	);
+	return { reached: seen === count, onLast };
 }
