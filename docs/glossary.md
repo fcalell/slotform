@@ -82,6 +82,8 @@ to fix, and a new term enters this page in the change that introduces it.
 - **chosen**: The rows a person has ticked in a `Table`, which its chosen bar acts on and which an api
   mutation takes as ids or as a where. Avoid: selection, which is a read's typed path.
   [layout](architecture/ui-core/layout.md#foot)
+- **keyset segment**: One statement of a cursor page: the rows after the cursor up to the next null
+  boundary of a nullable order column. [plugin-api](architecture/plugins/api.md#cursor-pages)
 - **scope**: A tenancy tier a procedure runs inside, such as an organization or a project, whose id
   the procedure takes in its input. [plugin-api](architecture/plugins/api.md#scope)
 - **tier**: One step of a tenancy, from the organization down through each scope a consumer declares.

@@ -6,10 +6,14 @@ import {
 	eq,
 	getTableColumns,
 	gt,
+	gte,
 	is,
+	isNull,
 	lt,
+	lte,
 	or,
 	type SQL,
+	sql,
 } from "drizzle-orm";
 import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { ApiError } from "../error.ts";
@@ -39,7 +43,7 @@ export type Orderable = SQLiteColumn | SQL;
 /** The sort key to ordering map a procedure names, for a key that is not a column of the table or orders by an expression. */
 export type Sorts<K extends string = string, V = SQLiteColumn> = Record<K, V>;
 
-type CursorValue = string | number | boolean | Date;
+type CursorValue = string | number | boolean | Date | null;
 
 // A moment travels as `{ $date }`: the cursor is JSON, which has no date, and
 // the page that decodes it has no column type to say a number is one.
@@ -52,7 +56,8 @@ function fromWire(value: unknown): CursorValue | undefined {
 		const at = (value as { $date: unknown }).$date;
 		return typeof at === "number" ? new Date(at) : undefined;
 	}
-	return typeof value === "string" ||
+	return value === null ||
+		typeof value === "string" ||
 		typeof value === "number" ||
 		typeof value === "boolean"
 		? value
@@ -182,14 +187,20 @@ function keysOf(orders: readonly Order[], idColumn: SQLiteColumn): string[] {
 	});
 }
 
-// The rows strictly after the cursor's, in order: for columns c1..cn and id,
-// (c1 > v1) or (c1 = v1 and c2 > v2) or ... or (all equal and id > vid), each
-// `>` a `<` in a descending column; the id follows the first column's way.
-function after(
+// The rows strictly after the cursor's, in order, as keyset segments read one
+// after another. Within a segment, for columns c1..cn and id, (c1 > v1) or
+// (c1 = v1 and c2 > v2) or ... or (all equal and id > vid), each `>` a `<` in a
+// descending column; the id follows the first column's way. Nulls sort last,
+// so nothing is past a null value, which compares by `is null`. A nullable
+// column holding a value closes the segment: the rows of the same prefix with a
+// null there follow as a segment of their own, then the shallower branches.
+// One statement with an `or c is null` term loses the index order, and SQLite
+// sorts the scope.
+function segments(
 	orders: readonly Order[],
 	idColumn: SQLiteColumn,
 	cursor: { values: readonly CursorValue[]; id: string },
-): SQL {
+): SQL[] {
 	if (cursor.values.length !== orders.length) {
 		throw new ApiError("BAD_REQUEST", { message: "Invalid cursor" });
 	}
@@ -207,17 +218,33 @@ function after(
 	];
 	// Each step's column is of some type the value must match; `SQLiteColumn`
 	// does not carry it, so the comparison takes the value as `never`.
-	const branches = steps.map((step, at) => {
-		const equal = steps
-			.slice(0, at)
-			.map((each) => eq(each.column, each.value as never));
-		const past =
-			step.direction === "desc"
-				? lt(step.column, step.value as never)
-				: gt(step.column, step.value as never);
-		return and(...equal, past);
-	});
-	return or(...branches) as SQL;
+	const equal = steps.map((step) =>
+		step.value === null
+			? isNull(step.column)
+			: eq(step.column, step.value as never),
+	);
+	const found: SQL[] = [];
+	let branches: SQL[] = [];
+	// The segment's shallowest column bounded by its value, which every branch
+	// implies: SQLite takes no range from the `or` alone and walks the scope.
+	let bound: SQL | undefined;
+	// `and` and `or` answer `undefined` only for no conditions; each here has one.
+	for (const [at, step] of [...steps.entries()].reverse()) {
+		if (step.value === null) continue;
+		const [past, from] = step.direction === "desc" ? [lt, lte] : [gt, gte];
+		branches.unshift(
+			and(...equal.slice(0, at), past(step.column, step.value as never)) as SQL,
+		);
+		bound = from(step.column, step.value as never);
+		if (step.column.notNull) continue;
+		found.push(
+			and(bound, or(...branches)) as SQL,
+			and(...equal.slice(0, at), isNull(step.column)) as SQL,
+		);
+		branches = [];
+	}
+	if (branches.length > 0) found.push(and(bound, or(...branches)) as SQL);
+	return found;
 }
 
 interface QueryBuilder<T, C> {
@@ -248,9 +275,12 @@ export function orderSql(
 ): SQL[] {
 	const direction = orders[0]?.direction ?? "asc";
 	const by = direction === "desc" ? desc : asc;
+	// The id, a primary key, is never null; `nulls last` on it as a later term
+	// makes SQLite 3.54 sort an ascending page in a temp B-tree.
 	return [
-		...orders.map((order) =>
-			order.direction === "desc" ? desc(order.column) : asc(order.column),
+		...orders.map(
+			(order) =>
+				sql`${order.direction === "desc" ? desc(order.column) : asc(order.column)} nulls last`,
 		),
 		by(idColumn),
 	];
@@ -269,23 +299,24 @@ export async function paginate<
 	const orders = orderOf(options as PageOptions<unknown, string>);
 	const keys = keysOf(orders, idColumn);
 
-	let where = options.where;
-	if (options.cursor) {
-		const cursorCondition = after(
-			orders,
-			idColumn,
-			decodeCursor(options.cursor),
-		);
-		where = where ? and(where, cursorCondition) : cursorCondition;
-	}
-
+	// The first page is one statement: the whole order, nulls last.
+	const reads = options.cursor
+		? segments(orders, idColumn, decodeCursor(options.cursor))
+		: [undefined];
 	const columns = withKept(options.columns, keys);
-	const rows = await queryBuilder.findMany({
-		...(columns ? { columns } : {}),
-		where,
-		limit: limit + 1,
-		orderBy: orderSql(orders, idColumn),
-	});
+	const orderBy = orderSql(orders, idColumn);
+	const rows: T[] = [];
+	for (const segment of reads) {
+		if (rows.length > limit) break;
+		rows.push(
+			...(await queryBuilder.findMany({
+				...(columns ? { columns } : {}),
+				where: and(options.where, segment),
+				limit: limit + 1 - rows.length,
+				orderBy,
+			})),
+		);
+	}
 
 	const hasMore = rows.length > limit;
 	const data = hasMore ? rows.slice(0, -1) : rows;
@@ -296,15 +327,8 @@ export async function paginate<
 		nextCursor:
 			hasMore && lastItem
 				? encodeCursor(
-						keys.map((key) => {
-							const value = lastItem[key];
-							if (value === null || value === undefined) {
-								throw new Error(
-									`paginate: the row's ${key} is empty, and a keyset cursor needs a value to continue past. Sort by a column that is never null.`,
-								);
-							}
-							return value as CursorValue;
-						}),
+						// `withKept` keeps the order columns, which hold a cursor value.
+						keys.map((key) => lastItem[key] as CursorValue),
 						lastItem.id as string,
 					)
 				: null,

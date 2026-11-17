@@ -4,13 +4,13 @@ import Database from "better-sqlite3";
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { paginate } from "./cursor.ts";
 import { paginateWindow } from "./window.ts";
 
 const tasks = sqliteTable("tasks", {
 	id: text("id").primaryKey(),
 	title: text("title").notNull(),
 	points: integer("points").notNull(),
+	due: integer("due"),
 });
 const tags = sqliteTable("tags", {
 	taskId: text("task_id").notNull(),
@@ -20,13 +20,13 @@ const tags = sqliteTable("tags", {
 function setup() {
 	const sqlite = new Database(":memory:");
 	sqlite.exec(
-		"create table tasks (id text primary key, title text not null, points integer not null); create table tags (task_id text not null, name text not null)",
+		"create table tasks (id text primary key, title text not null, points integer not null, due integer); create table tags (task_id text not null, name text not null)",
 	);
 	const db = drizzle(sqlite, { schema: { tasks, tags } });
 	const titles = ["b", "A", "c", "B", "a", "C"];
 	titles.forEach((title, at) => {
 		db.insert(tasks)
-			.values({ id: `t${at}`, title, points: at })
+			.values({ id: `t${at}`, title, points: at, due: at % 3 ? at : null })
 			.run();
 		if (at % 2 === 0)
 			db.insert(tags)
@@ -122,18 +122,21 @@ test("a window pages a joined query", async () => {
 	);
 });
 
-test("a cursor page takes the same sorts map", async () => {
+test("a window on a nullable column puts the nulls last either way", async () => {
 	const db = setup();
-	const page = await paginate(db.query.tasks, {
-		idColumn: tasks.id,
-		orderBy: { column: tasks.id, direction: "asc" },
-		sorts: { name: tasks.title },
-		sort: { column: "name", direction: "asc" },
-		limit: 2,
-	});
-	assert.deepEqual(
-		page.data.map((r) => r.id),
-		["t1", "t3"],
-	);
-	assert.ok(page.nextCursor);
+	for (const [direction, expected] of [
+		["asc", ["t1", "t2", "t4", "t5", "t0", "t3"]],
+		["desc", ["t5", "t4", "t2", "t1", "t3", "t0"]],
+	] as const) {
+		const page = await paginateWindow(db.query.tasks, {
+			db,
+			idColumn: tasks.id,
+			orderBy: { column: tasks.due, direction },
+			limit: 6,
+		});
+		assert.deepEqual(
+			page.data.map((r) => r.id),
+			expected,
+		);
+	}
 });

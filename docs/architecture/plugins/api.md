@@ -336,6 +336,45 @@ dependency runs from auth to api.
   config also adds is refused: the scope middleware reads `<scope>Id` off the raw input before
   validation, so the consumer's schema could only weaken or contradict the config's.
 
+## Cursor pages
+
+A `paginated: true` page is a keyset: `paginate` (`lib/cursor.ts`) orders by the order columns and
+then `id`, and continues strictly after the cursor's row. Every order column's term is
+`<column> <direction> nulls last`, in `paginate` and `paginateWindow` alike (`orderSql`), so a
+server-sorted `Table` orders as a locally sorted one does, an empty cell last either way
+([components](../ui-core/components.md#sort)). The `id` tiebreak, a primary key, carries no suffix:
+SQLite 3.54 serves `nulls last` from an ordinary index on the first term in both directions, and on
+a later term ascending it sorts in a temp B-tree.
+
+**Keyset segments.** The rows after a cursor are a sequence of keyset segments, each one statement.
+Within a segment the predicate is the prefix expansion: for steps `c1..cn, id`,
+`(c1 past v1) or (c1 = v1 and c2 past v2) or ... or (all equal and id past vid)`, `past` being `>`
+ascending and `<` descending, and-ed with a bound on the segment's shallowest column, `ck >= vk`
+(`<=` descending), which every branch implies. A value the cursor holds as null compares by `is null`, and nothing is
+past it in its column, so its `past` term is dropped. A nullable column (drizzle's `notNull` is
+false) whose cursor value is not null closes the segment: the rows of the same prefix whose column
+is null follow as a segment of their own, then the shallower branches as the next. A not-null column
+adds no segment, so a page over not-null keys is one statement. The page reads the segments in
+order, each with the rows still missing of `limit + 1`, and stops once it has them; a page that does
+not reach a null boundary reads one.
+
+SQLite takes no range on the sort column from the prefix expansion's `or` alone: it walks the
+scope's index entries from the first (`SEARCH ... (org=?)`). The bound gives it one, `(org=? AND
+due>?)` (`due<?` descending; SQLite prints `>=` as `>`). The null rows are never ORed into a
+segment: an `or c is null` term (or `c is ?` for the equality) turns the plan into a MULTI-INDEX OR
+and a temp B-tree over every remaining match of the scope. A null segment seeks `(org=? AND due=?)`,
+or `(org=? AND due=? AND id>?)` after a null cursor value. The `cursor.test.ts` plan test pages a
+nullable `due` within one org over an `(org, due, id)` index, in both directions, and asserts that
+each statement's plan is one row: `(org=?)` for the first page and one of those seeks for every
+other statement, so no statement sorts in a temp B-tree or scans.
+
+An order whose inner column is nullable (`points`, then a nullable `due`) pages
+correctly, and SQLite sorts each of its statements in a temp B-tree: no index order puts the inner
+nulls last within each outer value.
+
+**Wire form.** A cursor is base64 of the UTF-8 JSON `[[v1, ..., vn], id]`; a value is a string,
+number, boolean, `{ $date }` or `null`. Anything else answers `BAD_REQUEST` before any query.
+
 ## Scope
 
 A tenancy tier, as the procedure factory sees it, is a structural descriptor: plugin-auth's scope
@@ -485,3 +524,5 @@ the worker is built. What `generate` checks is in [mcp](../../../plugins/api/gui
 - `plugins/api/src/not-found.ts`: `isNotFound()`.
 - `plugins/api/src/mcp.ts`: `defineMcp()`.
 - `plugins/api/src/lib/local-origin.ts`: the local-dev hostnames.
+- `plugins/api/src/lib/cursor.ts`: `paginate`, the keyset segments, the cursor wire form, `orderSql`.
+- `plugins/api/src/lib/window.ts`: `paginateWindow`, the id sort and the read by id.

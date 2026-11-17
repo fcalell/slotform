@@ -22,22 +22,22 @@ return paginate(db.query.projects, {
 // { data: Project[], nextCursor: string | null }
 ```
 
-Rows order by the order column in the direction given, then by `id` in the same direction, so a
-`desc` page is the newest rows and rows sharing a moment page in a stable order by `id`. The
-cursor encodes the last row's order-column values and `id`, so the next page continues past that row.
+Rows order by the order column in the direction given, an empty value (`null`) last either way,
+then by `id` in the first column's direction, so a `desc` page is the newest rows and rows sharing
+a moment page in a stable order by `id`. The cursor encodes the last row's order-column values and
+`id`, so the next page continues past that row, into the empty values once the others are spent.
 `nextCursor` is `null` on the last page.
 
 `orderBy` takes one column or an array of them (`[{ column: tasks.title, direction: "asc" }, ...]`),
 and `sort: input.sort` (the caller's, from a procedure declaring `sort`) replaces it; `id` is always
-the last tiebreak. The cursor encodes the order columns' values and the id, so a keyset runs on any
-column (a nullable column is not a key: order by a `notNull` one). A cursor with another
-number of order columns answers `BAD_REQUEST`.
+the last tiebreak. Any column of the table is a key, nullable or not. A cursor with another number
+of order columns answers `BAD_REQUEST`.
 
 `columns` is Drizzle's relational `columns` config narrowed to exclusion: the row's keys other than
 `id` and the order columns, each `false` (`columns: { body: false }`). The answer's row type omits each
 key it names, and `id` and the order columns always stay because the cursor reads them. A malformed
-cursor (not base64, no separator, a non-numeric time, an empty id) answers `BAD_REQUEST`, before
-any query. `clampLimit(limit)` keeps a limit within 1 to
+cursor (not base64, not the JSON of the values and an id, a non-numeric time, an empty id)
+answers `BAD_REQUEST`, before any query. `clampLimit(limit)` keeps a limit within 1 to
 `LIMIT_CEILING` (10 000), defaulting to `DEFAULT_LIMIT` (20).
 
 ## Window pagination
