@@ -192,12 +192,12 @@ directory-snapshot diff or produce duplicate-timestamp files. Every migration-wr
 takes two locks before it touches the migrations directory:
 
 - **Cross-process:** a lock file opened with `fs.openSync(path, "wx")` (`O_EXCL`), atomic on POSIX; a
-  second writer fails with `EEXIST`. A stale lock from a crashed process is detected by its PID.
+  second writer fails with `EEXIST`. A lock is stale, and the next writer reclaims it, when its PID is dead, when it is empty and older than 5 seconds (a writer killed between creating the file and writing its PID), or when it is older than the system boot (a recycled PID may belong to an unrelated live process).
 - **In-process:** a `Map<lockPath, Promise>` keyed on the lock path, sequencing code in the same
   process; two different cwds never queue against each other.
 
-The lock file is deleted on release, and an exit handler (also on `SIGINT` and `SIGTERM`) removes
-the ones this PID holds. The lock lives in `plugins/db/src/node/` because it is plugin-internal:
+Release and the exit handler (also on `SIGINT` and `SIGTERM`) delete a lock file only while it still
+holds this process's PID, so a lock another process took after the file was deleted by hand stays. The lock lives in `plugins/db/src/node/` because it is plugin-internal:
 `@fcalell/cli` stays domain-agnostic.
 
 ## Deploy checks

@@ -4,8 +4,10 @@ import {
 	openSync,
 	readFileSync,
 	rmSync,
+	statSync,
 	writeSync,
 } from "node:fs";
+import { uptime } from "node:os";
 import { dirname } from "node:path";
 
 // Cross-process and in-process migration lock: docs/architecture/plugins/db.md, "Migration lock".
@@ -31,7 +33,7 @@ function installExitHandlers(): void {
 	const cleanup = () => {
 		for (const path of heldLocks) {
 			try {
-				rmSync(path, { force: true });
+				removeIfOwned(path);
 			} catch {
 				// Best-effort: nothing else we can do during shutdown.
 			}
@@ -63,6 +65,27 @@ function errnoCode(err: unknown): string | undefined {
 		: undefined;
 }
 
+// A lock a user deleted and another process took holds that process's PID:
+// removing it would release the other process's lock.
+function removeIfOwned(path: string): void {
+	if (readFileSync(path, "utf-8").trim() === String(process.pid)) {
+		rmSync(path, { force: true });
+	}
+}
+
+// A writer killed between creating the file and writing its PID leaves it
+// empty; a lock older than the boot survives a reboot, where its PID may
+// belong to an unrelated live process.
+const EMPTY_LOCK_STALE_MS = 5000;
+
+function isStale(path: string): boolean {
+	const { mtimeMs } = statSync(path);
+	if (mtimeMs < Date.now() - uptime() * 1000) return true;
+	const contents = readFileSync(path, "utf-8").trim();
+	if (contents === "") return Date.now() - mtimeMs > EMPTY_LOCK_STALE_MS;
+	return !pidIsAlive(Number.parseInt(contents, 10));
+}
+
 function pidIsAlive(pid: number): boolean {
 	if (!Number.isFinite(pid) || pid <= 0) return false;
 	try {
@@ -83,15 +106,14 @@ function tryAcquire(path: string): LockHandle | null {
 		fd = openSync(path, "wx");
 	} catch (err) {
 		if (errnoCode(err) !== "EEXIST") throw err;
-		// Stale-lock inspection: if the file's PID is dead, reclaim it.
+		// Stale-lock inspection: a dead PID, an empty file or a lock from before
+		// the boot is reclaimed.
 		// Atomicity: this read-then-rm-then-create window is protected by
 		// the in-process queue (any same-process contender waits on the
 		// promise chain) and by the fact that EEXIST + "owner is alive"
 		// means a real other-process holder we should wait for.
 		try {
-			const contents = readFileSync(path, "utf-8").trim();
-			const pid = Number.parseInt(contents, 10);
-			if (Number.isFinite(pid) && !pidIsAlive(pid)) {
+			if (isStale(path)) {
 				rmSync(path, { force: true });
 				try {
 					fd = openSync(path, "wx");
@@ -114,7 +136,7 @@ function tryAcquire(path: string): LockHandle | null {
 			if (!heldLocks.has(path)) return;
 			heldLocks.delete(path);
 			try {
-				rmSync(path, { force: true });
+				removeIfOwned(path);
 			} catch {
 				// Already gone; nothing to do.
 			}
