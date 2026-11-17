@@ -21,7 +21,7 @@ into the consumer's `devDependencies` and gitignores `.wrangler` and `.dev.vars`
 | Target slot | Behaviour |
 | --- | --- |
 | `cliSlots.artifactFiles` | `.stack/wrangler.toml`, from `wranglerToml`; `.dev.vars` and its mirror `.stack/.dev.vars` ([.dev.vars](#devvars)) |
-| `cloudflare.slots.bindings` | `RATE_LIMITER_RPC`, 1000 requests per 60 s per IP, when any worker path exists ([api's rate limiting](api.md#rate-limiting)); the queue `QUEUE` when `api.slots.queueHandler` is set ([merge contract](#wranglertoml-merge-contract)) |
+| `cloudflare.slots.bindings` | `RATE_LIMITER_RPC` when any worker path exists ([api's rate limiting](api.md#rate-limiting)), contributed here since plugin-api cannot: cloudflare imports api for `env`, and the reverse import would cycle; the queue `QUEUE` when `api.slots.queueHandler` is set ([merge contract](#wranglertoml-merge-contract)) |
 | `api.slots.envType` | The global `Env` `wrangler types` declares, so a procedure's `context.env` is typed on Cloudflare |
 | `api.slots.devTargetOrigins` | `http://localhost:8787`, unless `app.origins` is set |
 | `vite.slots.serverProxy` | Every `api.slots.routePrefixes` path to the wrangler dev port |

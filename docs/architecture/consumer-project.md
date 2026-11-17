@@ -80,11 +80,9 @@ The web `<head>` belongs to `plugin-react`: its options render into `.stack/inde
 `react.slots.htmlHead` ([HTML shell](./plugins/react.md#html-shell)).
 
 `app.name` flows into the generated `wrangler.toml`. `app.domain` seeds `api.slots.cors` with
-`https://${domain}` and `https://app.${domain}`, and auth's derived `trustedOrigins`;
-`plugin-vite`'s dev-port localhost origin goes to `api.slots.devCorsOrigins`. `app.origins`
-replaces the derived allow-list entirely. Local origins in it are dev-only (honoured under
-`STACK_DEV`, stripped from the deploy), except under a node server bound to loopback, whose
-deployment is local.
+`https://${domain}` and `https://app.${domain}`, and auth's derived `trustedOrigins`. `app.origins`
+replaces the derived allow-list entirely; where its local origins and the dev servers' origins go is
+under [CORS and origins](./plugins/api.md#cors-and-origins).
 
 Every plugin the consumer depends on is listed explicitly; there is no implicit-resolution layer.
 Which plugin requires which is the [dependency graph](../architecture.md#dependency-graph);

@@ -123,15 +123,15 @@ accept any string and fail at request time.
 | `callbackFile` | `value<string>` | Consumer callback-file path (default `src/worker/plugins/auth.ts`); override for a restructured worker layout. The path must stay under `src/`, since the generated worker imports it relative to `.stack/worker.ts`; generate fails otherwise |
 | `cookiePrefix` | `value<string>` | Resolved session-cookie prefix (`cookies.prefix` ?? better-auth's `"better-auth"` default); read by native-ui's generated auth-client constants |
 | `clientFlags` | `value<AuthClientFlags \| null>` | The web client's `{ passkey, emailOtp, magicLink, organization, mcp }`, from the options, `organization` carrying the access control's statements and role grants as the worker gets them; seeded null and filled by auth's own contribution, so a reader without auth in the config sees null |
-| `reservedSlugs` | `list<string>` | The app's top-level routes, which an organization slug may not take (an organization is served at `/<slug>`). With organizations on, `runtimeOptions` bakes them beside plugin-api's `RESERVED_SLUGS` and the runtime refuses them on organization create and update |
+| `reservedSlugs` | `list<string>` | The first segments of the app's top-level routes, from a frontend plugin; with organizations on, `runtimeOptions` bakes them beside plugin-api's `RESERVED_SLUGS` ([reserved slugs](./plugins/auth.md#reserved-slugs)) |
 
-Auth also contributes to other plugins' slots (`api.slots.*`, `cloudflare.slots.*`, `db.slots.schemaModules`, `screens.slots.handlerModules`, `screens.slots.serveEnv`, `screens.slots.serveControls`); those rows name it.
+Auth's contributions to other plugins' slots are on its page ([slot contributions](./plugins/auth.md#slot-contributions)).
 
 ## `cloudflare.slots.*` (plugin-cloudflare)
 
 | Slot | Kind | Purpose |
 |------|------|---------|
-| `bindings` | `list<WranglerBindingSpec>` | D1 / KV / R2 / queue / analytics_engine / rate_limiter / var bindings; cloudflare itself contributes the api worker's `RATE_LIMITER_RPC` whenever `api.slots.routePrefixes` is non-empty (plugin-api cannot: cloudflare imports api for `env`, and the reverse import would cycle), and the queue `QUEUE` (a producer plus the consumer of the queue named after `app.name`, batch 10, timeout 5 s, 3 retries) whenever `api.slots.queueHandler` is non-null. The wrangler derivation also reads `api.slots.scheduledHandler`: root `[triggers] crons` and the handler must come together, and a root `[[queues.consumers]]` needs `queueHandler` |
+| `bindings` | `list<WranglerBindingSpec>` | D1 / KV / R2 / queue / analytics_engine / rate_limiter / var bindings; cloudflare's own (`RATE_LIMITER_RPC`, the queue) are on its page ([slots and contributions](./plugins/cloudflare.md#slots-and-contributions)) |
 | `routes` | `list<WranglerRouteSpec>` | Worker route patterns |
 | `vars` | `map<string, string>` | Plain-text `[vars]` |
 | `compatibilityDate` | `value<string>` | Defaults to `2025-01-01` (plugin-cloudflare's `DEFAULT_COMPATIBILITY_DATE`); override with `value` + `override:true` |
@@ -143,9 +143,9 @@ Auth also contributes to other plugins' slots (`api.slots.*`, `cloudflare.slots.
 
 | Slot | Kind | Purpose |
 |------|------|---------|
-| `schemaModules` | `list<string>` | Modules whose tables the scaffolded `src/schema/index.ts` re-exports (`export *`), so they migrate with the app's own; auth contributes its `/schema` subpath, plus `/schema/organization`, `/schema/passkey`, `/schema/oauth` and `/schema/devices` when those are on |
+| `schemaModules` | `list<string>` | Modules whose tables the scaffolded `src/schema/index.ts` re-exports (`export *`), so they migrate with the app's own; auth contributes its [schema tables](./plugins/auth.md#schema-tables) |
 
-db contributes `node.slots.bundleEntries` on the sqlite dialect (its migrations, applied before the bundle listens). It also contributes `screens.slots.serveSteps` (the scratch database of `stack screens serve`).
+db's contributions to other plugins' slots are on its page ([slots and contributions](./plugins/db.md#slots-and-contributions)).
 
 ## `expo.slots.*` (plugin-expo)
 
@@ -167,14 +167,8 @@ db contributes `node.slots.bundleEntries` on the sqlite dialect (its migrations,
 | `entrySource` | `derived<string \| null>` | Final `.stack/entry.tsx` source (imports + providers around `<ExpoRoot>`) |
 | `routesDtsSource` | `derived<string \| null>` | `.stack/routes.d.ts`: expo-router's typed-routes declaration over the routes directory, from the generator the app's Expo CLI runs; null when routing is off |
 
-expo also contributes to other plugins' slots: its dev-server localhost to `api.slots.devCorsOrigins`
-(when `app.origins` is not set), honoured by the worker only under `STACK_DEV`; its deep-link
-scheme (`scheme` ?? the slug of `app.name`, the one `.stack/app.config.cjs` registers) to
-`api.slots.nativeScheme`; and, when `minNativeBuild` is configured, the version-gate middleware to
-`api.slots.middlewareEntries` (`after-cors`, `order: 0`, resolving `api.slots.routePrefixes` for
-the gate's scope) plus its telemetry dataset to `cloudflare.slots.bindings`. While routing is on,
-it points the consumer's `package.json` `main` at `.stack/entry.tsx` through
-`cliSlots.packageJsonFields`.
+expo's contributions to other plugins' slots are on its page
+([slots and contributions](./plugins/expo.md#slots-and-contributions)).
 
 ## `nativeUi.slots.*` (plugin-native-ui)
 
@@ -226,7 +220,7 @@ native-ui also contributes to another plugin's slots: the Auth provider to `expo
 | `topLevelRoutes` | `derived<string[]>` | The static first segments of the routes' URLs under TanStack's file convention (through pathless layouts and groups, never a param), sorted; empty when routing is off. react-ui hands them to `auth.slots.reservedSlugs` |
 | `homeScaffold` | `value<ScaffoldSpec \| null>` (`override`) | Scaffold for `<routesDir>/index.tsx`; null when routing is off; a design-system plugin overrides it with its own home |
 
-plugin-query (`query()`, which requires `api`) owns no slot. It contributes the web app's `QueryProvider` (`@fcalell/plugin-query/tanstack-query`, with `hold={holdFor}` from `@fcalell/ui-core/paint`, `order: 2`) to `react.slots.providers` and its source entry to `vite.slots.optimizeExclude`; both are inert in an app without react or vite. The provider holds the query client and the port the read hooks of `@fcalell/ui-core/react/*` and the UI components run on; on the phone native-ui contributes it to `expo.slots.providers`.
+plugin-query owns no slot; its contributions are on its page ([contributions](./plugins/query.md#contributions)).
 
 ## `reactUi.slots.*` (plugin-react-ui)
 
@@ -239,7 +233,7 @@ The four `appCss*` lists are the inputs of `.stack/app.css`, which `aggregateApp
 | `appCssSources` | `list<CssSourceInline>` | Class patterns Tailwind generates whether or not a scanned file spells them, each rendered as `@source inline("…")` after the sheet's `@source "../src"`: class characters and Tailwind's brace expansion (`bg-{canvas,surface}`). react-ui contributes the token classes (`tokenSources`) |
 | `appCssBlocks` | `list<CssBlock>` | Top-level `@theme` / `@utility` / `@custom-variant` blocks, rendered after `@source` and before the layers. None of the three at-rules may sit inside a `@layer`, which is why they don't ride `appCssLayers`. The `theme` and `utility` bodies are declaration records rendered property by property through the CSS render boundary; a `variant` body is rules holding `@slot`, built by the contributing plugin from its own constants, as a layer's content is. react-ui's own `touch:` variant rides here, over the density layer's condition |
 | `appCssLayers` | `list<{ name, content }>` | CSS `@layer` blocks. Dark mode and density ride this slot as `@layer base`: `@theme` compiles into `@layer theme` and Tailwind sorts `base` after it, so a layered `.dark { … }` or `:root[data-density="desktop"] { … }` overrides the seeded values |
-| `fonts` | `derived<FontEntry[]>` | Resolved font files (consumer options or `defaultFonts`: IBM Plex Sans on its `wght` axis, IBM Plex Mono at 400, 500 and 600); `[]` loads none. The families the roles bind to are the theme's `fonts` knob, emitted by ui-core |
+| `fonts` | `derived<FontEntry[]>` | Resolved font files ([fonts](./plugins/react-ui.md#fonts)) |
 | `resolvedTheme` | `derived<ResolvedTheme>` | The `theme` option run through `@fcalell/ui-core`'s `deriveTheme`, resolved once so every block contribution reads one value |
 | `appCssSource` | `derived<string \| null>` | Final `.stack/app.css`; null when nothing landed |
 

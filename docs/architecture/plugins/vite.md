@@ -78,10 +78,9 @@ The build step passes no `--outDir`: the generated config's `build.outDir` is th
 relative CLI flag would resolve against `config.root` (`.stack`) and move the output to
 `.stack/dist/client`.
 
-plugin-vite also contributes its dev server's localhost origin to `api.slots.devCorsOrigins` while
-`app.origins` is not set, so the auth and worker CORS allow-list picks up the dev server without
-consumer config ([CORS and origins](./api.md#cors-and-origins)). That list applies only when the
-worker runs with `STACK_DEV`; a deploy never trusts localhost.
+plugin-vite also contributes its dev server's localhost origin to `api.slots.devCorsOrigins`, so the
+auth and worker CORS allow-list picks up the dev server without consumer config
+([local and dev origins](./api.md#local-and-dev-origins)).
 
 ### Dev server port
 

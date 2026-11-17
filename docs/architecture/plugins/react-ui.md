@@ -111,8 +111,9 @@ time's characters, in the time's own font, so one `ch` of that box is the whole 
 
 ## Fonts
 
-Fonts resolve from options only, so every other contribution reads one source. An omitted `fonts`
-takes `defaultFonts`, while `fonts: []` means no fonts at all: no `@font-face`, no preload, no
+Fonts resolve from options only, into `reactUi.slots.fonts`, so every other contribution reads one
+source. An omitted `fonts` takes `defaultFonts` (IBM Plex Sans on its `wght` axis, IBM Plex Mono at
+400, 500 and 600), while `fonts: []` means no fonts at all: no `@font-face`, no preload, no
 `<style>` tag. The `??` that does this is load-bearing, and the font functions take the fonts
 argument as required (codegen always passes the resolved slot value; a direct caller imports
 `defaultFonts`), so `fonts: []` keeps its meaning from consumer config to runtime.

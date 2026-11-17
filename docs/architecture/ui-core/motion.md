@@ -139,7 +139,7 @@ tick rides, a changing figure or mark swaps (`Swap`, `Roll`).
 
 ## Wait and settle
 
-A read that lasts shows its waiting form after `WAIT_DELAY` (400 ms, no consumer option): the loaded
+A read that lasts shows its waiting form after `WAIT_DELAY` ([timing](reads.md#timing)): the loaded
 tree painted, each slot breathing in one page-wide phase (`PULSE`), or the spinner where a wait has no
 shape ([waiting paint](reads.md#waiting-paint)). A painted fill's whole animation is the appear fade
 after `--wait-delay` (`paint-in`), then the breath on the fill's alpha (`pulse-fill`), one phase
@@ -147,9 +147,7 @@ across the page. Under reduced motion `--pulse-name` is `none`, so the fade snap
 still. The phone breathes in `lib/motion`.
 
 The switch to the loaded form lands at once: the painted form is the loaded one's geometry, so
-nothing moves and no transition runs. A view transition snapshots the whole document and blocks input
-until it finishes (236 to 328 ms per click, measured on a consumer), and the anchor apps animate none
-of this.
+nothing moves and no transition runs ([moves land at once](../../decisions/moves-land-at-once.md)).
 
 `theme.loading` is `{ text, figure, id }`, each `pulse` or `scramble` (omitted: all `pulse`; a shape
 always pulses). It rides `ResolvedTheme.loading` to both plugins: on the web as `data-loading-*` on

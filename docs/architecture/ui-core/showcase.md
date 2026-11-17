@@ -117,10 +117,8 @@ the gate type-checks the stories the roster names.
 ### Storybook config
 
 `.storybook/` holds the roster's own config: the story globs, `rosterPlugin` and the generator of
-`stories/`. Its Vite config is `.stack/storybook.vite.config.ts`, written at Storybook's start by
-`writeStorybookConfig({ config, cwd })` from `@fcalell/plugin-screens/node`: the app's own config
-without the router plugin and the frame-blocking headers, with the dependency optimizer started
-([Storybook host](../plugins/screens.md#storybook-host)).
+`stories/`. Its Vite config is the one `writeStorybookConfig` writes at Storybook's start
+([a Storybook that draws components](../plugins/screens.md#a-storybook-that-draws-components)).
 
 The preview (`.storybook/preview.tsx`):
 

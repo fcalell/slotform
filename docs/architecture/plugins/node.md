@@ -228,10 +228,9 @@ connection refuses acts.
 ## Dev
 
 The dev process runs the generated server directly under the consumer's node (type stripping, no
-build step): `node --watch .stack/server.ts`. `STACK_DEV=1` mirrors wrangler's `.dev.vars` signal so
-the worker runtime enters dev mode, and each declared `api.slots.env` var the shell leaves unset gets
-its `devDefault` through `ProcessSpec.env`, as `.dev.vars` gives it on Cloudflare
-([cloudflare's .dev.vars](cloudflare.md#devvars)). The main listener binds last: its `listening on`
+build step): `node --watch .stack/server.ts`. Its env, `ProcessSpec.env`, carries `STACK_DEV=1`,
+which puts the worker runtime in [dev mode](../runtime.md#dev-mode), and the `devDefault` of each
+declared `api.slots.env` var the shell leaves unset. The main listener binds last: its `listening on`
 line is the dev supervisor's ready signal (`readyPattern`), so it comes once every port answers, and
 the wording and the pattern stay equal.
 

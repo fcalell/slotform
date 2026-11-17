@@ -8,9 +8,12 @@ the run and save logic) is `@fcalell/ui-core`'s ([reads](../ui-core/reads.md),
 
 ## Contributions
 
+`query()` requires `api` and owns no slot. Its contributions to react and vite are inert in an app
+without either.
+
 | Slot | Contribution |
 |------|--------------|
-| `react.slots.providers` | `<QueryProvider hold={holdFor}>` around the web app (`order: 2`) |
+| `react.slots.providers` | `<QueryProvider hold={holdFor}>` (`holdFor` from `@fcalell/ui-core/paint`) around the web app (`order: 2`) |
 | `vite.slots.optimizeExclude` | `@fcalell/plugin-query/tanstack-query`, which imports `virtual:stack-schema` |
 | `cliSlots.initDeps` | `@orpc/tanstack-query` |
 

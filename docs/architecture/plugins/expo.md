@@ -23,8 +23,8 @@ of them carry an ordering rule:
 
 | Target slot | Behaviour |
 | --- | --- |
-| `api.slots.nativeScheme` | The deep-link scheme: the `scheme` option, else the app name's slug |
-| `api.slots.devCorsOrigins` | The Metro dev server's `http://localhost:<port>` (default 8081), unless `app.origins` is set (an explicit `[]` is honoured) |
+| `api.slots.nativeScheme` | The deep-link scheme: the `scheme` option, else the app name's slug, the one `.stack/app.config.cjs` registers |
+| `api.slots.devCorsOrigins` | The Metro dev server's `http://localhost:<port>` (default 8081), under the rule of [local and dev origins](api.md#local-and-dev-origins) |
 | `api.slots.middlewareEntries` | The version gate ([Version gate](#version-gate)) |
 | `cloudflare.slots.bindings` | The gate's analytics-engine dataset ([Version gate](#version-gate)) |
 | `cliSlots.artifactFiles` | The generated files ([Generated files](#generated-files)) |

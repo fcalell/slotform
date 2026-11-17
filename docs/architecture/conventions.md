@@ -215,17 +215,15 @@ line and a type role) each have their own word. A text role keeps `meta` (the ty
 | `selected` | What is open beside it: a row's (the open record), a chart bar's | `boolean`; on a bar, `(item) => boolean` |
 | `partial` | A chart bar whose period is not over | `(item) => boolean` |
 | `leading`, `trailing` | The start and the end slot of a row. A picker option has the start slot too | `RowLeading`, `RowTrailing`; `OptionLeading` (the kinds a picker draws) on an option |
-| `status` | A work state: its tone's mark and its word | `StatusMark`, `{ tone, label? }` everywhere: a fact, a row's title and leading, a table cell, a canvas node |
-| `chip` | A data value's tag | `ChipMark`, `{ family, label }` |
+| `status` | A work state: its tone's mark and its word, [one shape everywhere](ui-core/roster.md#status-and-chips) | `StatusMark`, `{ tone, label? }` |
+| `chip` | A data value's tag, [one shape everywhere](ui-core/roster.md#status-and-chips) | `ChipMark`, `{ family, label }` |
 | `acts` | A list of acts: an action bar's, a form's, a gate's, a pane's bar's (its first stands, the rest fold into `more`) | `Act[]`; `readonly Datum<IconAct \| IconLinkAct>[]` on a pane |
 | `label` | The words of a mark or an act; the accessible name where only a glyph draws | `string` |
 | `description` | A paragraph that explains: a field's, a section's, a sheet's, a gate's | `string`, or `Runs` on a gate |
 
-A list of facts holds the base `Fact` (words, a status, a chip, `{ warning }`, a boolean mark
-`RowMark`); a record head's `RecordFact` is the base plus what only a head acts on (words that open
-or go, a pick, a count beside its word). The kinds are told apart by their keys, never a tag, and
-`splitFacts` (`@fcalell/ui-core/list-state`) is the one reading of a list for a component's
-drawing. A string is one fact whatever it holds: a middle dot inside it is text, so a list that
+A list of facts holds the base `Fact`, whose kinds and their one reading are in
+[facts](ui-core/roster.md#facts) (its boolean mark is `RowMark`); a record head's `RecordFact` is the
+base plus what only a head acts on (words that open or go, a pick, a count beside its word). A string is one fact whatever it holds: a middle dot inside it is text, so a list that
 wants two facts gives two elements. A fact is a badge cut with an ellipsis where its line is out of
 room, which touch cannot read, so it is short; a sentence is the row's `line`. Whatever changes what
 a row does (`lock`, `href`, `act`) is a prop, not a fact.

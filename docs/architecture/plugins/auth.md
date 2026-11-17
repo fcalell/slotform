@@ -107,7 +107,8 @@ when it refuses. The limit runs in production only and is skipped when no email 
 An organization is served at `/<slug>`, so its slug may not take plugin-api's `RESERVED_SLUGS` (the
 addresses every stack app serves or a router reads as an act) nor a first segment of the app's own
 top-level routes, which it would shadow. A frontend plugin contributes its routes' first segments to
-`auth.slots.reservedSlugs`; auth never reads a frontend's routes. Codegen bakes the combined list with organizations on. A
+`auth.slots.reservedSlugs`; auth never reads a frontend's routes. Codegen bakes the combined list
+with organizations on, and the runtime refuses its slugs on organization create and update. A
 refused slug answers a code and a field error: a form reads `fieldErrors` off the answer, as it reads
 an API procedure's refusal, and shows it under the field that made the slug.
 
@@ -221,6 +222,9 @@ configuration contributes the flag.
 | `api.slots.callbacks` | The callback file, whenever it exists; its absence throws while `emailOtp` or `magicLink` is on |
 | `api.slots.rbacStatements` | `ac`'s statements, else the default organization statements |
 | `api.slots.entities` | The auth tables' export names (`account`, `session`, `user`, `verification`), and the organization, passkey, OAuth (`mcp`) and device key (`apikey`, with `devices`) tables when enabled; the `auth.*` procedures declare their `reads` and `writes` over them |
+| `db.slots.schemaModules` | The [schema tables](#schema-tables)' subpaths, each when its option is on, so they migrate with the app's own |
+| `screens.slots.serveEnv` | The app URL variable set to the run's origin, and with email codes the fixture address and code ([screens](#screens)) |
+| `screens.slots.serveControls` | `@fcalell/plugin-auth/serve`, the `/fixture/link` control, with email codes on ([screens](#screens)) |
 | `screens.slots.handlerModules` | `@fcalell/plugin-auth/screens`: MSW handlers answering `GET */api/auth/get-session` with a signed-in session typed by Better Auth's `Session` and `User`; unread without `screens` in the config |
 | `screens.slots.fixtureModules` | `@fcalell/plugin-auth/screens-fixtures`: a fixtures tree answering `auth.session` with the same user and session (`src/screens-session.ts` holds them once); unread without `screens` in the config |
 | `cliSlots.initPrompts` | Cookie prefix and organization toggle |

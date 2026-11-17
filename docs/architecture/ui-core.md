@@ -48,15 +48,12 @@ All of it is under `packages/ui-core/src/`.
   declare what two or more components share and re-export the rest, so the subpaths keep their names;
   a component file takes what it shares from `roster/shared.ts` or `roster/descriptors.ts`, never from
   the four, so no ui-core file is in an import cycle ([roster files](ui-core/roster.md#roster-files)).
-- The framework-free logic subpaths: `paint`, `arrive`, `scramble`, `roll`, `follow`, `clock`,
-  `store`, `format`, `window`, `drag`, `file`, `list-state`, `same-by`, `waveform`, `player`,
-  `manifest`, and the others the package exports.
+- The framework-free logic subpaths ([Subpaths](#subpaths)).
 
 ## Subpaths
 
-Every subpath with what it exports is listed in the package README
-([Install](../../packages/ui-core/README.md#install)). Each part's page covers its subpaths; the ones
-below are shared by several parts.
+Each part's page covers its subpaths, the package README lists every subpath with what it exports
+([Install](../../packages/ui-core/README.md#install)), and the ones below are shared by several parts.
 
 - `store.ts` is `createStore`, the one held value with `get`, `set`, `emit`, `subscribe` and `size`
   (how many listen) that every `useSyncExternalStore` source over plain state is built on. Its

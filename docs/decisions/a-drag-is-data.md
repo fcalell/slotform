@@ -20,8 +20,8 @@ already takes it whole (`selector()`), so a drop is `mutate({ tasks: drag.picked
 **No drag is the pointer's alone.** A drop's `label` is required, and the platform adds it as an
 entry to the more menu of every row whose kind it accepts, so what a drag does by pointer a menu
 does by keyboard; a reorder adds Move up, down, to top and to bottom, and Alt with the arrows moves
-the focused row. Rejected: an optional label with a dev warning (a floor that is a warning is a
-floor nobody keeps), a drop that is only its `onDrop`.
+the focused row. An optional label fails: a drop that is only its `onDrop` has no menu entry, so
+the keyboard cannot reach it, and a dev warning on the missing label is a floor nobody keeps.
 
 **Trade-off.** A move shows at once and the read's own order replaces it, so a consumer that
 updates nothing leaves the viewer's order in place until the data changes; a refusal puts it back

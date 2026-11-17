@@ -129,11 +129,11 @@ a key added there fails to compile until it is listed.
 
 ### Dev mode
 
-`.dev.vars` carries `STACK_DEV=1`, contributed by `plugin-cloudflare` and never through
-`api.slots.env`, so it is never prompted as a deploy secret. `createWorker` derives `_devMode` from
+`STACK_DEV=1` reaches the worker only in local dev, from the deploy target: `.dev.vars` on Cloudflare
+([.dev.vars](./plugins/cloudflare.md#devvars)), the dev process's env on Node
+([node's dev](./plugins/node.md#dev)). `createWorker` derives `_devMode` from
 `env.STACK_DEV === "1"`, the one dev predicate every gate reads, and threads it through the base
-context. `.dev.vars` loads only under wrangler and Miniflare local dev, so `_devMode` is false in
-production. Rate limiting (`plugin-api`'s `rateLimit` middleware, `plugin-auth`'s `/api/auth/*`
+context, so `_devMode` is false in production. Rate limiting (`plugin-api`'s `rateLimit` middleware, `plugin-auth`'s `/api/auth/*`
 limiter) is skipped whenever `_devMode` is true. The same flag admits the dev origins
 ([CORS and origins](./plugins/api.md#cors-and-origins)).
 

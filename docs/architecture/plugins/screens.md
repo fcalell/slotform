@@ -275,7 +275,9 @@ multiplies where an include list would add.
 
 ### Changed runs
 
-`--changed` follows the module graph, so some files' change must rerun every test file: for each
+With `--changed`, Vitest reruns the story files whose import graph holds a file with uncommitted
+changes, or one changed since the ref (`<ref>...HEAD` plus uncommitted). It follows the module graph,
+so some files' change must rerun every test file: for each
 workspace package the app links, the files under its `src/` that no source export serves. A served
 directory is in the graph; a compiled entry (`dist/`, gitignored) holds none of its `src/`. A
 published app links nothing, so its list is empty.
@@ -344,7 +346,7 @@ so is the move the other way, of a block present while waiting and absent loaded
 It must lie inside the app: Vitest writes a screenshot only where Vite's `server.fs.allow` reaches, the
 workspace. A story's shot at a width goes to `<dir>/<screen>/<story>-<width>.png`, the screen its
 title without `Screens/` and the story its name in kebab case (`Data, dark` is `data-dark`); the open
-pass adds `-open-<control>`.
+pass adds `-open-<slug>`, the control text in kebab case.
 
 ### Test run exit
 
@@ -411,21 +413,26 @@ rule. The class lists the exceptions name (in `./walk` and `./shift`) live in re
 
 ## Shared browser
 
-Every screens command on the machine shares one Chrome. Its address is `chrome.json` in
-`$XDG_RUNTIME_DIR/stack/` (the OS tmp dir without it), and a lock file makes the start and the
-last-one-out check atomic across processes. A command opens its own browser context and disposes it at
-the end. A Chrome a command started closes when its last context closes; one `stack screens browser`
-started stays until `stack screens browser stop`.
+Every screens command on the machine shares one headless Chrome. Its address is `chrome.json`
+(`{ port, pid }`, plus `kept` when `stack screens browser` started it) in `$XDG_RUNTIME_DIR/stack/`
+(the OS tmp dir without it). A `chrome.lock` file taken by exclusive create orders every start and
+every last-one-out check across processes, and a stale `chrome.json` (a dead pid, a port that does
+not answer) is replaced. Each command opens its own browser context (`Target.createBrowserContext`,
+disposed on detach) with its tabs inside, and disposes it at the end, on failure and on SIGINT or
+SIGTERM. A Chrome a command started closes when `Target.getBrowserContexts` is empty; one
+`stack screens browser` started stays until `stack screens browser stop`. A connect that fails because
+the browser has just closed starts it once more.
 
 The DevTools protocol (CDP) client talks to it over Node's own WebSocket. Nothing there waits without a
-limit: every call rejects, naming what it waited for. The test run's provider (`src/node/provider.ts`
+limit: every call carries a timeout and rejects, naming its method. The test run's provider (`src/node/provider.ts`
 over `browser.ts`) is a Vitest browser provider with one context per session, reduced motion, a device
 scale of 1, and the commands `__vitest_viewport`, `__vitest_takeScreenshot`, `press` and `key`.
 
 ## Judging shoot and drive
 
 `shoot` and `drive` judge a page with the test run's own page code (`src/ui/inject.ts`: the render
-walk, the overflow check, the control hit test), bundled once and injected into each tab, and axe with
+walk, the overflow check, the control hit test), bundled once by the app's Vite and injected into each
+tab, never copied, and axe with
 the rules the test run turns on.
 
 ## Serve

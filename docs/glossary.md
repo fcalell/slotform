@@ -110,6 +110,10 @@ to fix, and a new term enters this page in the change that introduces it.
   database id, an unmarked destructive migration or schema drift. [plugin-db](architecture/plugins/db.md#deploy-gates)
 - **seed**: The data a consumer declares for its database, written idempotently.
   [plugin-db](architecture/plugins/db.md#seed)
+- **main listener**: The node server's listener for the app's own origins: it admits the Host of one
+  of them or the bound address. [plugin-node](architecture/plugins/node.md#hosts-and-listeners)
+- **further listener**: A named node listener beside the main one, admitting the Host of the origin
+  its `originVar` env var holds. [plugin-node](architecture/plugins/node.md#hosts-and-listeners)
 
 ## Design system
 
@@ -130,10 +134,16 @@ to fix, and a new term enters this page in the change that introduces it.
 - **theme**: The knobs and the starting mode an app gives both UI plugins.
   [tokens](architecture/ui-core/tokens.md#knobs)
 - **mode**: Light or dark. [plugin-react-ui](architecture/plugins/react-ui.md#modes)
+- **mode script**: The script that sets the mode before first paint, from the viewer's stored choice,
+  else the theme's `defaultMode`, else the system preference.
+  [plugin-react-ui](architecture/plugins/react-ui.md#mode-script-and-csp)
 - **contrast floor**: The least contrast a text ink holds on the hardest ground it stands on, in both
   modes. [tokens](architecture/ui-core/tokens.md#contrast-floors)
 - **density**: The set of type, spacing and sizes a screen draws in, `desktop` or `touch`, decided by
   the pointer and the width, never by a knob. [tokens](architecture/ui-core/tokens.md#density-and-room)
+- **density rule**: The one query that picks a screen's density: `desktop` where the primary pointer
+  is fine and the viewport is at least `tablet` wide, `touch` everywhere else.
+  [plugin-react-ui](architecture/plugins/react-ui.md#density)
 - **room**: The density set a screen read from a distance declares (a television, a wall display):
   the touch set scaled to the screen. [tokens](architecture/ui-core/tokens.md#the-room)
 - **type role**: A named text style (body, title, meta and the rest) carrying its size, ink and family;
@@ -185,8 +195,15 @@ to fix, and a new term enters this page in the change that introduces it.
   [words](architecture/ui-core/words.md#words)
 - **text run**: A piece of a part's text: plain words, a quoted name, a span of code or strong words.
   Avoid: run, on its own. [words](architecture/ui-core/words.md#text-runs)
+- **parts line**: One text of parts a middle dot apart, which never breaks at a separator: a record
+  head's overline, a message's provenance. [plugin-react-ui](architecture/plugins/react-ui.md#text)
 - **move**: One motion a component may make, named in its roster entry.
   [motion](architecture/ui-core/motion.md#moves-and-move-cells)
+- **line**: A line of text that appears in flow (a blocked act's reason, a field's error, a notice): it
+  fades in and pushes what follows at once, and leaves at once.
+  [motion](architecture/ui-core/motion.md#lines-and-blocks)
+- **block**: A box a change adds to or removes from the flow (a fold, a chip, a sheet, a row): it lands
+  at once, and fades in only when it arrives on its own. [motion](architecture/ui-core/motion.md#lines-and-blocks)
 - **anchor screen**: The pinned screen of the anchor product a consumer's screen is stood beside and
   judged against. [consumer project](architecture/consumer-project.md#designing-screens)
 
@@ -216,6 +233,10 @@ to fix, and a new term enters this page in the change that introduces it.
   them. [layout](architecture/ui-core/layout.md#sheet-of-rows)
 - **collection**: A component that takes rows as data and draws them: a Section's sheet, a `Table`, a
   `Picker` as a list. [components](architecture/ui-core/components.md#collections-and-lists)
+- **comparison**: A `Table` whose cells hold a value per column: the leading column names the fact
+  and a column follows for each compared thing. [components](architecture/ui-core/components.md#cells-and-columns)
+- **level**: A chart figure that swings around a value (a reading each hour, a share), drawn on an
+  axis around its readings, never from zero. [components](architecture/ui-core/components.md#axis)
 - **row**: One box on a sheet, whatever it holds, with one form everywhere: a leading slot, a text
   group and an end group. A row is a descriptor, never a component. [layout](architecture/ui-core/layout.md#rows)
 - **text group**: The title or label of a row over its description or facts line.

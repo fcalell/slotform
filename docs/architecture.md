@@ -76,33 +76,33 @@ A stack package depends on another, never peers on it
 
 How the CLI works:
 
-- [Slot graph](./architecture/slot-graph.md): slot kinds, contributing and deriving, ordering by data.
-- [Slot catalog](./architecture/slot-catalog.md): every slot and spec type.
-- [Plugin authoring](./architecture/plugin-authoring.md): `plugin()`, options, callbacks, `ContributionCtx`, templates, the checklist.
-- [Codegen](./architecture/codegen.md): the AST and printers, the codegen trust boundary, import merge, the CSS escape boundary, the `.stack/` emit rules.
-- [Commands](./architecture/commands.md): each command's procedure, the dev supervisor, plugin subcommands, the screens command.
-- [Consumer project](./architecture/consumer-project.md): the generated consumer repo, config, install modes, lint.
-- [Runtime](./architecture/runtime.md): the worker chain, background handlers, `virtual:stack-procedure`.
+- [Slot graph](./architecture/slot-graph.md): how plugins coordinate.
+- [Slot catalog](./architecture/slot-catalog.md): the shape of every slot.
+- [Plugin authoring](./architecture/plugin-authoring.md): how a plugin is written.
+- [Codegen](./architecture/codegen.md): how generated source is built and emitted.
+- [Commands](./architecture/commands.md): what each command does, step by step.
+- [Consumer project](./architecture/consumer-project.md): the repo a consumer has.
+- [Runtime](./architecture/runtime.md): the worker the consumer deploys.
 
 How the repo is kept:
 
-- [Conventions](./architecture/conventions.md): package, build, exports, placement, folder and prop-naming rules.
-- [Releasing](./architecture/releasing.md): what is published, the version rule, peers, the check.
+- [Conventions](./architecture/conventions.md): where code goes and how it is named.
+- [Releasing](./architecture/releasing.md): what is published and how it is versioned.
 
 The design contract:
 
-- [ui-core](./architecture/ui-core.md): what ui-core is, its source map and subpaths, the sharing line.
-- [Tokens](./architecture/ui-core/tokens.md): knobs, the token contract, derivation, contrast floors, density and room, scales, emit.
-- [Motion](./architecture/ui-core/motion.md): the motion contract.
-- [Words](./architecture/ui-core/words.md): words, counted and slotted words, formatters.
-- [Roster](./architecture/ui-core/roster.md): canon, roster, closed props, matrices, cells, variants, the `DESIGN.md` emit.
-- [Layout](./architecture/ui-core/layout.md): Shell, Place, Pane, Section, rows, the fold rules, headings, cards, the rows grid.
-- [Reads](./architecture/ui-core/reads.md): the read model, frames, holds, paint and waiting forms, the port.
-- [Acts](./architecture/ui-core/acts.md): acts, saves, forms, confirm, leave, reasons, fields, commit.
-- [Collections and content components](./architecture/ui-core/components.md): `Table`, `Picker`, `Toolbar`, `Rules`, `Thread`, `BarChart`, the file controls, `Image`, `Diff`, the canvas and the other components that hold a collection or a piece of content.
-- [Sound](./architecture/ui-core/sound.md): track, player, dock, waveform.
-- [Drag](./architecture/ui-core/drag.md): drag, drop, reorder.
-- [Showcase](./architecture/ui-core/showcase.md): the showcase app, roster frames, Storybook, the guide pages, enforcement.
+- [ui-core](./architecture/ui-core.md): the contract both design systems share.
+- [Tokens](./architecture/ui-core/tokens.md): how the theme becomes values.
+- [Motion](./architecture/ui-core/motion.md): what moves, and how.
+- [Words](./architecture/ui-core/words.md): the words a screen says.
+- [Roster](./architecture/ui-core/roster.md): the components and their closed props.
+- [Layout](./architecture/ui-core/layout.md): how a screen is laid out.
+- [Reads](./architecture/ui-core/reads.md): how a screen reads and waits.
+- [Acts](./architecture/ui-core/acts.md): how a screen changes data.
+- [Collections and content components](./architecture/ui-core/components.md): the components that hold a collection or a piece of content.
+- [Sound](./architecture/ui-core/sound.md): playing audio.
+- [Drag](./architecture/ui-core/drag.md): moving things by pointer.
+- [Showcase](./architecture/ui-core/showcase.md): where the contract is drawn and enforced.
 
 One page per plugin, what it owns and contributes, its runtime, its generated files and its limits:
 [api](./architecture/plugins/api.md), [auth](./architecture/plugins/auth.md),

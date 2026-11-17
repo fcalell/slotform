@@ -230,20 +230,19 @@ writes them as `devDependencies`, see [consumer project](./consumer-project.md#f
 handler runs the `storybook` the app installs and the config resolves its framework and addon from
 the app. The handler resolves no slot: both screens files are `generate` artifacts,
 `screens.slots.viteConfig` and `storybookMain`. A Storybook of the app's own that draws components
-(the showcase's roster) runs on a third, `.stack/storybook.vite.config.ts`, which its own config
-writes by calling `writeStorybookConfig` from `@fcalell/plugin-screens/node`; `generate` never
-writes it and no command serves it.
+(the showcase's roster) runs on a third config, which no command serves
+([a Storybook that draws components](./plugins/screens.md#a-storybook-that-draws-components)).
 
 `stack screens test [--all | --changed <ref>] [--shots <dir>]` runs `ctx.generate()` and then the
-app's own `vitest run --config .stack/screens.vitest.config.ts --passWithNoTests`, adding
-`--changed` (with the ref when given) unless `--all`: Vitest reruns the story files whose import
-graph holds a file with uncommitted changes, or one changed since the ref (`<ref>...HEAD` plus
-uncommitted). It runs on `.stack/screens-test/`, the same Storybook config plus the floors
+app's own Vitest on `.stack/screens.vitest.config.ts`, adding `--changed` (with the ref when given)
+unless `--all` ([test run](./plugins/screens.md#test-run), [changed runs](./plugins/screens.md#changed-runs)).
+It runs on `.stack/screens-test/`, the same Storybook config plus the floors
 (`@fcalell/plugin-screens/floors`): axe with every rule on (`region` and `target-size` included),
 no horizontal overflow at 320, 1280 and 1920 px (`horizontal overflow at <w>px: scrollWidth <n>`),
 and no `console.error`, `console.warn` or window `error`. A test is a story, named for the screen's
 title, the state and the mode (`Screens/projects/$id`, `Data, dark`). With `--shots`, the floors
-also save a PNG of each story at each width into the directory (`<dir>/<screen>/<story>-<width>.png`).
+also save a PNG of each story at each width into the directory
+([screenshots](./plugins/screens.md#screenshots)).
 
 `stack screens test` also takes:
 
@@ -251,11 +250,11 @@ also save a PNG of each story at each width into the directory (`<dir>/<screen>/
   viewport.
 - `--open <control text>`: after a story draws, the floors press the control with that text or
   accessible name through the provider's `press` command, wait for it to settle, then judge and
-  shoot with it open as `<story>-<width>-open-<slug>.png`; a screen with no such control fails,
-  naming it.
+  shoot with it open ([screenshots](./plugins/screens.md#screenshots)); a screen with no such
+  control fails, naming it.
 - `--search <query>`: the search every screen is drawn at, in place of the fixtures' example.
 
-The run's browser is the shared Chrome below, through the `chrome()` Vitest provider
+The run's browser is the [shared Chrome](./plugins/screens.md#shared-browser), through the `chrome()` Vitest provider
 (`@fcalell/plugin-screens/browser`); a missing Chrome fails before anything is generated, with one
 line.
 
@@ -265,8 +264,8 @@ a running app in a tab of the shared Chrome (reduced motion, scale 1, touch unde
 until the page is quiet: no request in flight, nothing `aria-busy`, `--settle` ms at most. An event
 stream, an `EventSource` and a response with its headers in for 1.5 s and its body open do not count
 as in flight, and a page still busy at the cap is shot with a note, not a finding. It then judges
-the page (horizontal overflow, the render walk and axe: the page code of `src/ui/` bundled once by
-the app's Vite and injected, never copied) and writes `<dir>/<route-slug>-<width>-<mode>.png`; it
+the page ([judging shoot and drive](./plugins/screens.md#judging-shoot-and-drive)) and writes
+`<dir>/<route-slug>-<width>-<mode>.png` (`-open-<slug>` before `.png` with `--open`); it
 prints the findings like the test run and exits non-zero on any. `stack screens drive <plan.json>
 --url <app>` runs a plan `{ each, steps }` over the same page and judgement; its steps are `goto`,
 `open`, `key`, `type`, `fx`, `shot`, `offline` and `scroll`, and any other fails the plan before it
@@ -279,9 +278,8 @@ with the app's own `vite build --outDir`, adds the `screens.slots.serveEnv` cont
 run's env, runs the `screens.slots.serveSteps` (db: the database migrated from `src/migrations/` and
 seeded from `src/schema/seed.ts`), and starts the first `screens.slots.serveTargets` entry on a free
 port (or `--port`). The target serves the worker wrapped in `fixtureControls` of
-`@fcalell/plugin-screens/serve`, with the `screens.slots.serveControls` modules (auth's
-`/fixture/link`), so `/fixture/*` exists in a served app and nowhere in `generate`, `dev` or `build`
-output. It then runs the app's `src/app/seed.ts` (`defineServeSeed`) with a client signed in through
+`@fcalell/plugin-screens/serve`, with the `screens.slots.serveControls` modules
+([serve](./plugins/screens.md#serve)). It then runs the app's `src/app/seed.ts` (`defineServeSeed`) with a client signed in through
 `/fixture/link`, prints one line, `stack screens serve: <url>`, writes `{ url, pid }` to
 `<scratch>/serve.json` and stays in the foreground. SIGINT or SIGTERM stops the server and deletes
 the scratch directory unless `--keep`, which prints the directory instead. With `--entry <file>`
@@ -290,16 +288,8 @@ the command still owns the directory, the port and the line, but runs `node <fil
 target, and takes the file listening on the port as ready. Any step or seed that throws stops the
 run with its error.
 
-`stack screens browser` starts the shared Chrome and returns; `stack screens browser stop` ends it.
-The browser is one headless Chrome per machine. `chrome.json` (`{ port, pid }`, plus `kept` when
-`browser` started it) in `$XDG_RUNTIME_DIR/stack/` (the OS tmp dir without it) holds its address; a
-`chrome.lock` file taken by exclusive create orders every start and every last-one-out check; a
-stale file (a dead pid, a port that does not answer) is replaced. Each command opens its own browser
-context (`Target.createBrowserContext`, disposed on detach) with its tabs inside, and disposes it at
-the end, on failure and on SIGINT or SIGTERM. A browser a command started closes when
-`Target.getBrowserContexts` is empty; one `browser` started stays until `stop`. A connect that fails
-because the browser has just closed starts it once more. Every protocol call carries a timeout and
-names its method.
+`stack screens browser` starts the shared Chrome and returns, and the Chrome stays until
+`stack screens browser stop` ends it ([shared browser](./plugins/screens.md#shared-browser)).
 
 A story's forced state (loading, error, empty, not found) answers a query only; a mutation always
 answers from its fixture (or `no fixture for <path>`). The kind is the HTTP method: stack's client
