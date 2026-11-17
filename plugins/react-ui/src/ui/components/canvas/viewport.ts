@@ -1,4 +1,5 @@
 import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
+import { type Band, bandAt, edgeSpeed } from "@fcalell/ui-core/drag";
 import { createStore } from "@fcalell/ui-core/store";
 import { select } from "d3-selection";
 import { type D3ZoomEvent, zoom, zoomIdentity } from "d3-zoom";
@@ -12,20 +13,31 @@ import { travel } from "../../lib/follow.ts";
 import { spacing } from "../../lib/media.ts";
 import type { Box } from "./geometry.ts";
 import {
+	autoPan,
 	type Clearance,
 	centreOf,
 	clearOfStack,
 	EXTENT,
 	NO_CLEARANCE,
+	PITCH,
 	paneOf,
 	shiftInto,
 	standIn,
 	standsIn,
 	type Transform,
+	wheelPan,
 	whole,
 	ZOOM_TO_NODE,
 	zoomAbout,
 } from "./view.ts";
+
+// A drag that pans the view near the pane's edge (`Viewport.edge`): the
+// pointer's client position, and what the drag does again at it once the
+// view has moved under it.
+export interface EdgeDrag {
+	point: CanvasPoint;
+	follow: (point: CanvasPoint) => void;
+}
 
 // What a zoom stands about: a node's box, or the box it takes at a scale. Under
 // the text floor the boxes spread as the scale moves (`glyphTier`), so a zoom
@@ -72,6 +84,11 @@ export interface Viewport {
 	size(): { width: number; height: number };
 	// A pointer's client position as a flow point.
 	screenToFlow(point: CanvasPoint): CanvasPoint;
+	// A drag of a node or a link heard at each pointer move: while the pointer
+	// stands near the pane's edge the view pans toward it a step a frame
+	// (`autoPan`, `edgeSpeed`), the viewer's move, and the drag follows its
+	// pointer again after each step. `null` ends it.
+	edge(drag: EdgeDrag | null): void;
 }
 
 const STEP = 1.2;
@@ -81,8 +98,7 @@ const MOST = Math.log2(STEP);
 // The DOM's own approximation of a line in a wheel's `deltaMode`: Chrome and
 // Firefox report pixels for a trackpad, so a line count comes from a mouse.
 const LINE = 16;
-// The dot grid, in the pattern page's range: a 16 px pitch of 1 px dots.
-export const PITCH = 16;
+// The dot grid's dots, in the pattern page's range: 1 px across, a `PITCH` apart.
 export const DOT = 0.5;
 
 // d3-zoom's own scale of a wheel's delta by its mode; a Ctrl or Cmd wheel (a
@@ -231,6 +247,44 @@ function make(region: RefObject<HTMLElement | null>) {
 			);
 	};
 
+	// The drag near the edge; the frame its next step waits on (0 when none
+	// does); and the edge band the pointer stands in, which the speed ramps and
+	// steps over (`bandAt`, `edgeSpeed`). A step at zero depth ends the frames
+	// until the pointer moves.
+	let dragged: EdgeDrag | null = null;
+	let frame = 0;
+	let band: Band | undefined;
+	const step = (now: number) => {
+		frame = 0;
+		const element = region.current;
+		const rect = element?.getBoundingClientRect();
+		const depth =
+			dragged &&
+			rect &&
+			autoPan(
+				{ x: dragged.point.x - rect.left, y: dragged.point.y - rect.top },
+				rect,
+			);
+		if (!dragged || !element || !depth || (depth.x === 0 && depth.y === 0)) {
+			band = undefined;
+			return;
+		}
+		// One number per edge and corner the pane pans toward.
+		const side = Math.sign(depth.x) * 3 + Math.sign(depth.y);
+		const { band: next, elapsed, since } = bandAt(band, element, side, now);
+		band = next;
+		stop();
+		moved = true;
+		const { k } = held.get();
+		behaviour.translateBy(
+			select(element),
+			edgeSpeed(depth.x, elapsed, since) / k,
+			edgeSpeed(depth.y, elapsed, since) / k,
+		);
+		frame = requestAnimationFrame(step);
+		dragged.follow(dragged.point);
+	};
+
 	const viewport: Viewport = {
 		get: held.get,
 		subscribe: held.subscribe,
@@ -291,6 +345,13 @@ function make(region: RefObject<HTMLElement | null>) {
 				y: (point.y - (rect?.top ?? 0) - y) / k,
 			};
 		},
+		edge(drag) {
+			// A drag ended or begun enters the band afresh, whether or not a frame
+			// ran between.
+			if (!drag || !dragged) band = undefined;
+			dragged = drag;
+			if (!frame) frame = requestAnimationFrame(step);
+		},
 	};
 
 	// A plain wheel pans through `translateBy`, which takes world units; the
@@ -308,10 +369,11 @@ function make(region: RefObject<HTMLElement | null>) {
 			event.preventDefault();
 			moved = true;
 			const unit = pixels(event, element.clientHeight);
+			const by = wheelPan(event);
 			behaviour.translateBy(
 				selection,
-				(-event.deltaX * unit) / held.get().k,
-				(-event.deltaY * unit) / held.get().k,
+				(-by.x * unit) / held.get().k,
+				(-by.y * unit) / held.get().k,
 			);
 		};
 		element.addEventListener("wheel", wheel, { passive: false });

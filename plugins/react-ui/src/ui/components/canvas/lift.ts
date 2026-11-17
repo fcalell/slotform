@@ -14,18 +14,17 @@ import type { Viewport } from "./viewport.ts";
 export const LIFT_MS = DRAG_DELAY;
 export const SLOP = DRAG_DELAY_SLOP;
 
-// Where a node stands after the pointer moved from `from` to `to` (client
-// pixels) since it stood at `start` (flow coordinates), at zoom `zoom`.
-function carried(
-	start: CanvasPoint,
-	from: CanvasPoint,
-	to: CanvasPoint,
-	zoom: number,
+// Where a held node stands with the pointer at `point` (client pixels):
+// `grab` (flow pixels) from the node's corner to where it was taken, under
+// the pointer as the view stands now, so a pan under a still pointer carries
+// the node with it.
+export function heldAt(
+	viewport: Viewport,
+	point: CanvasPoint,
+	grab: CanvasPoint,
 ): CanvasPoint {
-	return {
-		x: start.x + (to.x - from.x) / zoom,
-		y: start.y + (to.y - from.y) / zoom,
-	};
+	const at = viewport.screenToFlow(point);
+	return { x: at.x - grab.x, y: at.y - grab.y };
 }
 
 interface Lift {
@@ -54,8 +53,8 @@ interface Press {
 	timer: number | undefined;
 	// The event time at which the press has held long enough to lift.
 	due: number;
-	// Set when the node lifts: where it stood and where the finger was.
-	hold: { start: CanvasPoint; from: CanvasPoint } | null;
+	// Set when the node lifts: where the finger took it (`heldAt`).
+	hold: { grab: CanvasPoint } | null;
 	// The node's latest position while held.
 	point: CanvasPoint;
 	// The node dropped (a second finger landed) while this finger is still down.
@@ -114,17 +113,29 @@ export function useLift(args: {
 		latest.current = args;
 	});
 
+	// The hold ends: the view stops panning at the pane's edge for it.
+	const unhold = () => {
+		latest.current.viewport.edge(null);
+		setLifted(false);
+	};
 	const finish = (state: Press) => {
 		unhook(state);
 		press.current = null;
-		setLifted(false);
+		unhold();
 	};
 	// A node held by a finger drops where it is, once.
 	const settle = (state: Press, point: CanvasPoint) => {
 		if (!state.hold || state.dropped) return;
 		state.dropped = true;
 		latest.current.drop(latest.current.id, point);
-		setLifted(false);
+		unhold();
+	};
+	// The held node follows the finger at `point`.
+	const follow = (state: Press, point: CanvasPoint) => {
+		if (!state.hold || state.dropped) return;
+		const { id, at, viewport } = latest.current;
+		state.point = heldAt(viewport, point, state.hold.grab);
+		at(id, state.point);
 	};
 
 	// A page slower than the press lifts the node on its timer before it handles
@@ -136,7 +147,7 @@ export function useLift(args: {
 		starving(false);
 		latest.current.at(latest.current.id, null);
 		state.hold = null;
-		setLifted(false);
+		unhold();
 	};
 
 	const down = (event: PointerEvent<HTMLElement>) => {
@@ -167,9 +178,10 @@ export function useLift(args: {
 		if (!latest.current.enabled) return;
 		document.addEventListener("pointerdown", state.other, true);
 		state.timer = window.setTimeout(() => {
-			const { id, at, place } = latest.current;
+			const { id, at, place, viewport } = latest.current;
 			const start = place();
-			state.hold = { start, from: state.now };
+			const taken = viewport.screenToFlow(state.now);
+			state.hold = { grab: { x: taken.x - start.x, y: taken.y - start.y } };
 			state.point = start;
 			state.target.setPointerCapture(state.pointer);
 			starving(true);
@@ -189,14 +201,11 @@ export function useLift(args: {
 			unlift(state);
 		if (state.hold) {
 			if (state.dropped) return;
-			const { id, at, viewport } = latest.current;
-			state.point = carried(
-				state.hold.start,
-				state.hold.from,
+			follow(state, point);
+			latest.current.viewport.edge({
 				point,
-				viewport.get().k,
-			);
-			at(id, state.point);
+				follow: (again) => follow(state, again),
+			});
 			return;
 		}
 		state.now = point;
@@ -209,18 +218,11 @@ export function useLift(args: {
 	const up = (event: PointerEvent<HTMLElement>) => {
 		const state = press.current;
 		if (!state || event.pointerId !== state.pointer) return;
-		if (state.hold && !state.dropped) {
-			const { viewport } = latest.current;
+		if (state.hold && !state.dropped)
 			settle(
 				state,
-				carried(
-					state.hold.start,
-					state.hold.from,
-					client(event),
-					viewport.get().k,
-				),
+				heldAt(latest.current.viewport, client(event), state.hold.grab),
 			);
-		}
 		armed.current = state.moved || state.hold !== null;
 		finish(state);
 	};

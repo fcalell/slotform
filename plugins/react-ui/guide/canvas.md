@@ -80,7 +80,7 @@ did, and the selection's outline is the accent's ink, which is stronger than the
 
 ## Moving around
 
-A plain wheel pans, Ctrl or Cmd with the wheel zooms (a trackpad pinch is a Ctrl wheel), a drag
+A plain wheel pans, Shift with a wheel that only scrolls up and down pans sideways, Ctrl or Cmd with the wheel zooms (a trackpad pinch is a Ctrl wheel), a drag
 pans, even from a node (with `onMove` a drag from a node moves that node instead), one finger pans
 and two pinch. The zoom stack at the bottom left zooms in, zooms out and fits (a zoom step is about the focused node, which stays where it stands, else the pane's centre; a zoom about a node, a step or a glyph's press, keeps it whole and clear of the stack): Fit shows the
 whole graph, centred clear of the zoom stack and the `act`, never larger than its own size, and
@@ -153,14 +153,19 @@ all of them; a node without one among placed ones lands at the centre of the vie
 ## Editing
 
 Editing is controlled: the canvas reports and holds nothing of yours. `onMove(id, position)`
-reports a node's position when a drag ends, once for each node when the canvas lays them out or
+reports a node's position when a drag ends or an arrow key moves it, once for each node when the canvas lays them out or
 Arrange runs, and once for a node that lands. **Store each one and pass it back as `position`**:
 that is what makes a drag, Arrange and a landing stick, and a position you do not store is
 forgotten on release.
 
 - **Move.** With `onMove` a node follows a drag at once, with no long press and no handle, and
   the edges and group boxes follow it, and it stands over the nodes it crosses. A drag never
-  selects. Arrange joins the zoom stack, the
+  selects. Held near the canvas's edge, a dragged node or a dragged link pans the view toward that
+  edge, faster the nearer it is, and the node stays under the pointer, so a node or an in port out
+  of sight is reached without letting go. A node that can move is a button in the Tab order: an
+  arrow key moves the focused node a quarter of the dot grid's pitch (4 px), and Shift with an
+  arrow one pitch (16 px), each reported through `onMove` as a drop is. Every position a move
+  reports is in whole pixels. Arrange joins the zoom stack, the
   way to lay the graph out again without dragging: it ignores every position, reports each
   node's, and fits the view.
 - **Landing.** A node added without a `position` among placed ones lands with its centre at the
@@ -250,7 +255,7 @@ A state never moves a node or runs the layout again.
 ## Choosing a node
 
 A canvas with no handler is read-only: it has no node button and no node moves. Pass `onSelect`
-and each node is a button named by its text, in path order in the Tab order. Enter or Space
+and each node is a button named by its text, in path order in the Tab order (with `onMove` it is one too, see Editing). Enter or Space
 chooses it, Escape or a click on the ground calls `onSelect(null)`, and a node focused from the
 keyboard pans into view. Hold the choice yourself and pass it back as `selected`; a change from
 outside (a row in a list) pans to its node.

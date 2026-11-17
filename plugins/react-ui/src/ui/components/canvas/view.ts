@@ -1,4 +1,5 @@
 import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
+import { edgeDepth } from "@fcalell/ui-core/drag";
 import type { Box, Size } from "./geometry.ts";
 
 const ORIGIN: CanvasPoint = { x: 0, y: 0 };
@@ -57,12 +58,59 @@ export function inside(
 	);
 }
 
-// A transform at whole pixels: docs/architecture/plugins/react-ui.md, "Canvas".
-export const whole = ({ x, y, k }: Transform): Transform => ({
-	k,
-	x: Math.round(x),
-	y: Math.round(y),
+// A transform, or a node's dropped position, at whole pixels:
+// docs/architecture/plugins/react-ui.md, "Canvas".
+export const whole = <T extends CanvasPoint>(point: T): T => ({
+	...point,
+	x: Math.round(point.x),
+	y: Math.round(point.y),
 });
+
+// The dot grid's pitch, in flow pixels.
+export const PITCH = 16;
+
+const ARROWS: Record<string, CanvasPoint> = {
+	ArrowLeft: { x: -1, y: 0 },
+	ArrowRight: { x: 1, y: 0 },
+	ArrowUp: { x: 0, y: -1 },
+	ArrowDown: { x: 0, y: 1 },
+};
+
+// What an arrow key moves a focused node by, in flow pixels: a quarter of the
+// grid's pitch, and with Shift four times that, one pitch. Undefined for any
+// other key.
+export function keyStep(key: string, shift: boolean): CanvasPoint | undefined {
+	const arrow = ARROWS[key];
+	if (!arrow) return undefined;
+	const step = shift ? PITCH : PITCH / 4;
+	return { x: arrow.x * step, y: arrow.y * step };
+}
+
+// A plain wheel's pan, in the wheel's own units: with Shift and no sideways
+// delta (a mouse wheel off a Mac, where the system does not turn it) the
+// vertical delta pans sideways.
+export function wheelPan(wheel: {
+	deltaX: number;
+	deltaY: number;
+	shiftKey: boolean;
+}): CanvasPoint {
+	return wheel.shiftKey && wheel.deltaX === 0
+		? { x: wheel.deltaY, y: 0 }
+		: { x: wheel.deltaX, y: wheel.deltaY };
+}
+
+// How deep a drag at `point` in the pane (pane pixels from its top left)
+// stands in the pane's edge band on each axis, as the translate it asks of
+// the view: toward 1 at the start edge, so the view moves right or down and
+// what lies past that edge comes in, toward -1 at the end edge, 0 in the
+// middle. A scroller's band and speed (`edgeDepth`, `edgeSpeed`), with the
+// sign turned, since a pan moves the content where a scroll moves the view.
+export function autoPan(point: CanvasPoint, pane: Size): CanvasPoint {
+	return {
+		x: 0 - edgeDepth(point.x, 0, pane.width),
+		y: 0 - edgeDepth(point.y, 0, pane.height),
+	};
+}
 
 // The scale a pan or zoom stays within; the lower end rises with the graph
 // (`minZoomFor`).

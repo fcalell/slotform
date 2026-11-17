@@ -3,7 +3,7 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
 import { Shell } from "@fcalell/plugin-react-ui/components/shell";
 import { spacing } from "@fcalell/plugin-react-ui/lib/media";
-import type { CanvasNode } from "@fcalell/ui-core/descriptors";
+import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
@@ -589,6 +589,146 @@ function Chosen({
 	);
 }
 
+// The layer's horizontal translate.
+const translateOf = (layer: HTMLElement) =>
+	Number(/translate\(([^p]+)px/.exec(layer.style.transform)?.[1] ?? Number.NaN);
+
+// Frames a step of the moved scene waits for the canvas to draw what it did.
+const STEP_WAIT = 6;
+// Frames the pointer is held at the pane's edge.
+const EDGE_HOLD = 20;
+
+// A canvas that moves its nodes (`onMove` and no `onSelect`), judged as a
+// viewer moves one. Its first node is a focusable button: an arrow moves it a
+// step and Shift and an arrow four steps, each reported at whole pixels. Its
+// card dragged to the pane's start and held there pans the view toward that
+// edge, the card staying under the pointer, and the drop is reported at whole
+// pixels left of where it stood, after which the view stands still.
+function Moved({ label, graph }: { label: string; graph: Graph }) {
+	const host = useRef<HTMLDivElement>(null);
+	const [places, setPlaces] = useState(() => new Map<string, CanvasPoint>());
+	const reported = useRef(new Map<string, CanvasPoint>());
+	const onMove = (id: string, position: CanvasPoint) => {
+		reported.current.set(id, position);
+		setPlaces((last) => new Map(last).set(id, position));
+	};
+	useEffect(() => {
+		let scene = 0;
+		const later = (frames: number, then: () => void) => {
+			scene = requestAnimationFrame(() =>
+				frames > 1 ? later(frames - 1, then) : then(),
+			);
+		};
+		const fault = (text: string) => console.error(`${label}: ${text}`);
+		const whole = (point: CanvasPoint | undefined): point is CanvasPoint =>
+			point !== undefined &&
+			Number.isInteger(point.x) &&
+			Number.isInteger(point.y);
+		const stop = onceOpen(host.current, (region) => {
+			const card = region.querySelector<HTMLElement>(
+				"[data-layer] button[data-node]:not([aria-hidden=true])",
+			);
+			const layer = region.querySelector<HTMLElement>("[data-layer]");
+			const id = card?.dataset.node;
+			if (!card || !layer || !id) {
+				fault("a node it can move is no focusable button");
+				return;
+			}
+			// The card dragged from its middle to the pane's start and held there.
+			const drag = (before: CanvasPoint) => {
+				const box = card.getBoundingClientRect();
+				const from = {
+					clientX: box.left + box.width / 2,
+					clientY: box.top + box.height / 2,
+				};
+				const to = {
+					clientX: region.getBoundingClientRect().left + 2,
+					clientY: from.clientY,
+				};
+				const pointer = (type: string, at: typeof from) =>
+					card.dispatchEvent(
+						new PointerEvent(type, {
+							...at,
+							pointerId: 1,
+							pointerType: "mouse",
+							bubbles: true,
+						}),
+					);
+				const panned = translateOf(layer);
+				pointer("pointerdown", from);
+				pointer("pointermove", to);
+				later(EDGE_HOLD, () => {
+					if (!(translateOf(layer) > panned))
+						fault("a node held at the pane's start does not pan the view");
+					const held = card.getBoundingClientRect();
+					if (held.left > to.clientX || held.right < to.clientX)
+						fault("the held node is left behind as the view pans");
+					pointer("pointerup", to);
+					const dropped = translateOf(layer);
+					later(STEP_WAIT, () => {
+						const moved = reported.current.get(id);
+						if (!whole(moved) || moved.x >= before.x)
+							fault(
+								"a drop past the pane's start is not reported, whole, left of where it stood",
+							);
+						if (translateOf(layer) !== dropped)
+							fault("the view pans on after the drop");
+					});
+				});
+			};
+			const key = (name: string, shiftKey = false) =>
+				card.dispatchEvent(
+					new KeyboardEvent("keydown", { key: name, shiftKey, bubbles: true }),
+				);
+			card.focus();
+			key("ArrowRight");
+			later(STEP_WAIT, () => {
+				const first = reported.current.get(id);
+				key("ArrowRight", true);
+				later(STEP_WAIT, () => {
+					const second = reported.current.get(id);
+					key("ArrowRight");
+					later(STEP_WAIT, () => {
+						const third = reported.current.get(id);
+						if (!whole(first) || !whole(second) || !whole(third)) {
+							fault(
+								"an arrow on a focused node reports no move at whole pixels",
+							);
+							return;
+						}
+						const step = third.x - second.x;
+						if (step <= 0 || second.x - first.x !== 4 * step)
+							fault(
+								`Shift and an arrow move ${second.x - first.x} px, not four arrows' ${4 * step} px`,
+							);
+						drag(third);
+					});
+				});
+			});
+		});
+		return () => {
+			stop();
+			cancelAnimationFrame(scene);
+		};
+	}, [label]);
+	const nodes = graph.nodes.map((node) => ({
+		...node,
+		position: places.get(node.id) ?? node.position,
+	}));
+	return (
+		<div ref={host}>
+			<div className={CROWDED_STAGE}>
+				<Canvas
+					label={label}
+					nodes={nodes}
+					edges={graph.edges}
+					onMove={onMove}
+				/>
+			</div>
+		</div>
+	);
+}
+
 // A canvas in a Shell's Pane with a sheet open over it, as a step's sheet opens
 // in the app: the graph stands behind the scrim, drawn, never the bare ground.
 function UnderSheet() {
@@ -808,6 +948,8 @@ export function drawCanvas(scene: ShowcaseScene) {
 					narrower={NARROWER_STAGE}
 					id="step-8"
 				/>
+				{/* A canvas that moves its nodes: an arrow moves a focused node, and a node held at the pane's edge pans the view. It judges both. */}
+				<Moved label="Moved" graph={CROWDED} />
 				<UnderSheet />
 			</>
 		);

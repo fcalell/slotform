@@ -46,7 +46,14 @@ import {
 	text,
 	textStrong,
 } from "@fcalell/ui-core/variants";
-import { type ReactNode, useEffect, useId, useMemo, useRef } from "react";
+import {
+	type FocusEvent,
+	type ReactNode,
+	useEffect,
+	useId,
+	useMemo,
+	useRef,
+} from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { ChangeMark } from "../../atoms/status/change.tsx";
 import type { CheckboxProps } from "../../atoms/switch/checkbox.tsx";
@@ -196,6 +203,10 @@ type Body = FormFieldBase & {
 	children?: ReactNode | ((control: FieldControl<unknown>) => ReactNode);
 	/** A control placed alone: no form's label column to share, so the name stands over the control (`FIELD_ALONE`). */
 	alone?: boolean;
+	/** A derived form's: set afresh when a refusal names this field first, its control then takes focus. */
+	seek?: object;
+	/** A derived form's: focus left the field. */
+	onLeave?: () => void;
 } & Partial<Controls<string | null, string, unknown>>;
 
 // The one descriptor set, if any.
@@ -392,6 +403,26 @@ export function FieldBody(props: Body) {
 		);
 		return () => cancelAnimationFrame(frame);
 	}, [folded]);
+	// A refusal that names this field first hands its control focus, which
+	// scrolls it into view: the line under it may stand below the fold.
+	const { seek, onLeave } = props;
+	useEffect(() => {
+		if (seek) focusFirst(root.current);
+	}, [seek]);
+	// Focus leaving the field, not moving within it (a pick's trigger to its
+	// list), is the field left.
+	const onBlur =
+		onLeave &&
+		((event: FocusEvent<HTMLDivElement>) => {
+			const { relatedTarget } = event;
+			if (
+				!(
+					relatedTarget instanceof Node &&
+					event.currentTarget.contains(relatedTarget)
+				)
+			)
+				onLeave();
+		});
 	const labelId = useId();
 	// What a group of controls is named by.
 	const groupName = useMemo(() => ({ labelledBy: labelId }), [labelId]);
@@ -540,6 +571,7 @@ export function FieldBody(props: Body) {
 			);
 		return (
 			<Field.Root
+				onBlur={onBlur}
 				ref={root}
 				invalid={Boolean(error)}
 				disabled={disabled}
@@ -603,6 +635,7 @@ export function FieldBody(props: Body) {
 	if (splits)
 		return (
 			<Field.Root
+				onBlur={onBlur}
 				ref={root}
 				invalid={Boolean(error)}
 				disabled={disabled}
@@ -630,6 +663,7 @@ export function FieldBody(props: Body) {
 		);
 	return (
 		<Field.Root
+			onBlur={onBlur}
 			ref={root}
 			invalid={Boolean(error)}
 			disabled={disabled}

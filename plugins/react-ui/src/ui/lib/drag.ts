@@ -1,8 +1,11 @@
 import type { Dragged, Drop, Moved } from "@fcalell/ui-core/descriptors";
 import {
 	accepts,
+	type Band,
+	bandAt,
 	DRAG_DELAY,
 	DROP_HOLD,
+	edgeDepth,
 	edgeSpeed,
 	moveOf,
 	pressed,
@@ -124,12 +127,35 @@ export function useDrag(): View | undefined {
 	return useSyncExternalStore(store.subscribe, store.get, () => undefined);
 }
 
-/** Whether an element is a scroller with room to scroll. */
-function scrolls(element: Element): boolean {
-	return (
-		element.scrollHeight > element.clientHeight &&
-		/auto|scroll/.test(getComputedStyle(element).overflowY)
-	);
+// WebKit ignores a `preventDefault` from a `touchmove` listener added after
+// the touch began, and a finger's drag begins after its hold: so the one
+// non-passive listener stands while any draggable stands, before any touch,
+// and acts only while a drag stands.
+let holders = 0;
+
+/** Holds the page still under a finger's drag while `on`, a part `press` drags being mounted: the first holder registers the one non-passive `touchmove` listener, the last to unmount removes it. */
+export function useTouchHold(on: boolean): void {
+	useEffect(() => {
+		if (!on) return undefined;
+		if (holders++ === 0)
+			window.addEventListener("touchmove", holdPage, { passive: false });
+		return () => {
+			if (--holders === 0) window.removeEventListener("touchmove", holdPage);
+		};
+	}, [on]);
+}
+
+function holdPage(event: TouchEvent) {
+	if (standing === "drag" && event.cancelable) event.preventDefault();
+}
+
+/** Whether an element is a scroller that can still scroll toward `side` (below 0 its start, above 0 its end). */
+function canScroll(element: Element, side: number): boolean {
+	if (!/auto|scroll/.test(getComputedStyle(element).overflowY)) return false;
+	return side < 0
+		? element.scrollTop > 0
+		: Math.ceil(element.scrollTop) + element.clientHeight <
+				element.scrollHeight;
 }
 
 /** Opens the folded branch a drag of a kind a drop under it accepts has stood over for `DROP_HOLD`. */
@@ -172,30 +198,33 @@ function swallowClick() {
 const OWN =
 	"button:not([data-hit]), input, textarea, select, [contenteditable], [role=menuitem], [role=checkbox], [role=slider], [data-nodrag]";
 
-// Whether a press stands (a drag stands only after one).
-let pressing = false;
+// What stands: a press, or the drag it became.
+let standing: "press" | "drag" | undefined;
 
-/** Starts a press on a row. Past the slop (a finger: after its hold) it becomes a drag, which `make` describes lazily, since the rows are read when the drag begins. Escape and a cancelled pointer end it with no drop. */
+/** Starts a press on a row. Past the slop (a finger: after its hold) it becomes a drag, which `make` describes lazily, since the rows are read when the drag begins. Escape and a cancelled pointer end it with no drop. Its part calls `useTouchHold`, so the page holds still under a finger's drag. */
 export function press(
 	event: ReactPointerEvent<Element>,
 	make: () => Source | undefined,
 ): void {
-	if (pressing) return;
+	if (standing) return;
 	if (event.button !== 0 || !event.isPrimary) return;
 	if (event.target instanceof Element && event.target.closest(OWN)) return;
 	const pointer = event.pointerType;
+	// Only the pointer that started the press moves, drops or ends it: a second
+	// finger's touch is not this drag's.
+	const { pointerId } = event;
+	const mine = (next: PointerEvent) => next.pointerId === pointerId;
 	const start = { x: event.clientX, y: event.clientY };
 	const at = { ...start };
 	let held = pointer !== "touch";
 	let live: Live | undefined;
 	let frame = 0;
+	// The edge band the drag stands in, which its speed ramps from (`bandAt`).
+	let band: Band | undefined;
 	let timer: ReturnType<typeof setTimeout> | undefined;
 
 	// A held finger's long press would open the browser's menu on a link.
 	const stop = (event: Event) => event.preventDefault();
-	const touchmove = (event: Event) => {
-		if (live && event.cancelable) event.preventDefault();
-	};
 
 	const probe = (found: Element[]) => {
 		if (!live) return;
@@ -242,17 +271,29 @@ export function press(
 		live.line = line;
 	};
 
-	const tick = () => {
+	// The innermost scroller under the pointer whose edge band it stands in and
+	// that can still move that way is carried, whichever list holds it; one at
+	// its end passes the drag to the next one out.
+	const carry = (y: number, found: Element[], time: number) => {
+		for (const scroller of found) {
+			const box = scroller.getBoundingClientRect();
+			const depth = edgeDepth(y, box.top, box.bottom);
+			const side = Math.sign(depth);
+			if (side === 0 || !canScroll(scroller, side)) continue;
+			const step = bandAt(band, scroller, side, time);
+			band = step.band;
+			scroller.scrollTop += edgeSpeed(depth, step.elapsed, step.since);
+			return;
+		}
+		band = undefined;
+	};
+
+	const tick = (time: number) => {
 		frame = requestAnimationFrame(tick);
 		if (!live) return;
 		const found = document.elementsFromPoint(live.x, live.y);
-		// The scroller under the pointer is carried near its edges, whichever
-		// list holds it; a branch held over opens.
-		const scroller = found.find(scrolls);
-		if (scroller) {
-			const box = scroller.getBoundingClientRect();
-			scroller.scrollTop += edgeSpeed(live.y, box.top, box.bottom);
-		}
+		carry(live.y, found, time);
+		// A branch held over opens.
 		hold(live, found);
 		probe(found);
 		const next: View = {
@@ -278,13 +319,14 @@ export function press(
 			moved: undefined,
 			line: undefined,
 		};
+		standing = "drag";
 		window.getSelection()?.removeAllRanges();
 		window.addEventListener("selectstart", stop);
-		window.addEventListener("touchmove", touchmove, { passive: false });
 		frame = requestAnimationFrame(tick);
 	};
 
 	const move = (next: PointerEvent) => {
+		if (!mine(next)) return;
 		at.x = next.clientX;
 		at.y = next.clientY;
 		if (live) {
@@ -301,8 +343,12 @@ export function press(
 		else if (verdict === "drag") begin();
 	};
 
-	const up = () => cleanup(true);
-	const cancel = () => cleanup(false);
+	const up = (next: PointerEvent) => {
+		if (mine(next)) cleanup(true);
+	};
+	const cancel = (next: PointerEvent) => {
+		if (mine(next)) cleanup(false);
+	};
 	const key = (event: KeyboardEvent) => {
 		if (event.key === "Escape") cleanup(false);
 	};
@@ -316,8 +362,7 @@ export function press(
 		window.removeEventListener("keydown", key, true);
 		window.removeEventListener("contextmenu", stop);
 		window.removeEventListener("selectstart", stop);
-		window.removeEventListener("touchmove", touchmove);
-		pressing = false;
+		standing = undefined;
 		const done = live;
 		live = undefined;
 		if (!done) return;
@@ -331,7 +376,7 @@ export function press(
 		}
 	}
 
-	pressing = true;
+	standing = "press";
 	window.addEventListener("pointermove", move);
 	window.addEventListener("pointerup", up);
 	window.addEventListener("pointercancel", cancel);

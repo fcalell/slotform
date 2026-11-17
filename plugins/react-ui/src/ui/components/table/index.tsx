@@ -117,7 +117,13 @@ import { age, ageWidest } from "../../lib/age.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useColumns } from "../../lib/columns.ts";
 import { PageTitle } from "../../lib/container.ts";
-import { draggedLabel, press, useDrop, useOffers } from "../../lib/drag.ts";
+import {
+	draggedLabel,
+	press,
+	useDrop,
+	useOffers,
+	useTouchHold,
+} from "../../lib/drag.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import type { CellFit } from "../../lib/field.ts";
 import { useTouch } from "../../lib/media.ts";
@@ -924,6 +930,21 @@ const Cell = memo(function Cell(props: {
 	);
 });
 
+// The cursor's column stops that carry no column key: the tick column and the
+// acts column.
+const TICK_STOP = Symbol("tick");
+const ACTS_STOP = Symbol("acts");
+
+// The cursor's cell as its record and its column's stop, so a row landing
+// above it, a sort or a column hidden leaves it on its cell; its `place`
+// stands where the record or the stop is gone, and for a window's row not
+// loaded yet, which has no id.
+interface CursorCell {
+	id: string | undefined;
+	stop: string | symbol | undefined;
+	place: Cursor;
+}
+
 function Grid(props: {
 	columns: readonly TableColumn[];
 	// `undefined` where a window's page is not loaded: its row is painted.
@@ -949,13 +970,18 @@ function Grid(props: {
 	menu: boolean;
 }) {
 	const { columns, rows, sort, painted, chooser } = props;
+	useTouchHold(props.drag !== undefined || props.movable !== undefined);
 	const words = useWords();
-	// A tick column leads the cursor's columns: the leading cell is its
-	// column `shift`.
-	const shift = chooser ? 1 : 0;
-	// The acts column follows the columns: the cursor's last stop.
+	// The cursor's columns: a tick column leads them, the acts column follows
+	// them as the last stop. The leading cell is column `shift`.
 	const acting = props.hasAct || props.menu;
-	const actsAt = shift + columns.length;
+	const stops: readonly (string | symbol)[] = [
+		...(chooser ? [TICK_STOP] : []),
+		...columns.map((column) => column.key),
+		...(acting ? [ACTS_STOP] : []),
+	];
+	const shift = stops[0] === TICK_STOP ? 1 : 0;
+	const actsAt = stops.indexOf(ACTS_STOP);
 	const acts = (props.hasAct ? 1 : 0) + (props.menu ? 1 : 0);
 	const actsWide: VarStyle | undefined = acting
 		? { "--acts": acts }
@@ -964,21 +990,44 @@ function Grid(props: {
 	const scroll = use(Scroller);
 	const frame = useRef<HTMLDivElement>(null);
 	const body = useRef<HTMLTableSectionElement>(null);
-	const [cursor, setCursor] = useState<Cursor>({ row: 0, column: 0 });
+	const places = useMemo(() => {
+		const map = new Map<string, number>();
+		rows.forEach((each, place) => {
+			if (each) map.set(each.id, place);
+		});
+		return map;
+	}, [rows]);
+	const indexOf = (id: string | undefined) => places.get(id ?? "") ?? -1;
+	// No cursor set yet stands at the first cell.
+	const [cursor, setCursor] = useState<CursorCell>();
+	const cursorAt = (row: number, column: number) =>
+		setCursor({
+			id: rows[row]?.id,
+			stop: stops[column],
+			place: { row, column },
+		});
 	// The cursor's cell in its edit: `started` from the keyboard or a tap, its
 	// control mounted afresh (focused), or `entered` when focus
 	// reached a control the pointer already showed.
 	const [editing, setEditing] = useState<"started" | "entered">();
 	const start = (id: string, column: number) => {
-		setCursor({ row: indexOf(id), column });
+		cursorAt(indexOf(id), column);
 		setEditing("started");
 	};
+	const found = {
+		row: indexOf(cursor?.id),
+		column: cursor?.stop === undefined ? -1 : stops.indexOf(cursor.stop),
+	};
+	const fallback = cursor?.place ?? { row: 0, column: 0 };
 	const at: Cursor = {
-		row: Math.min(cursor.row, Math.max(rows.length - 1, 0)),
-		column: Math.min(
-			cursor.column,
-			Math.max(columns.length - 1 + shift + (acting ? 1 : 0), 0),
-		),
+		row:
+			found.row >= 0
+				? found.row
+				: Math.min(fallback.row, Math.max(rows.length - 1, 0)),
+		column:
+			found.column >= 0
+				? found.column
+				: Math.min(fallback.column, Math.max(stops.length - 1, 0)),
 	};
 	const edits = props.onEdit !== undefined;
 	// The characters of each chip column's widest chip among the rows loaded,
@@ -1003,19 +1052,11 @@ function Grid(props: {
 		frame.current?.querySelector<HTMLElement>(
 			`td[data-row="${CSS.escape(id)}"][data-column="${column}"]`,
 		);
-	const places = useMemo(() => {
-		const map = new Map<string, number>();
-		rows.forEach((each, place) => {
-			if (each) map.set(each.id, place);
-		});
-		return map;
-	}, [rows]);
-	const indexOf = (id: string | undefined) => places.get(id ?? "") ?? -1;
 	// The cursor moves first and its cell takes focus once the row stands: a row
 	// the window had not mounted is kept by the cursor, drawn by this render.
 	const [wanted, setWanted] = useState<Cursor>();
 	const focusCell = (row: number, column: number) => {
-		setCursor({ row, column });
+		cursorAt(row, column);
 		setWanted({ row, column });
 	};
 	// The cell scrolls clear of the frozen columns it would stand under, by the
@@ -1079,7 +1120,7 @@ function Grid(props: {
 		const column = Number(cell.dataset.column);
 		const same = row === at.row && column === at.column;
 		// A focus on the cursor's own cell sets nothing.
-		if (!same) setCursor({ row, column });
+		if (!same) cursorAt(row, column);
 		// The started edit's control taking focus keeps it started.
 		setEditing((now) =>
 			inEdit(target) ? (same && now) || "entered" : undefined,
@@ -1105,7 +1146,7 @@ function Grid(props: {
 		// The tick column has no field, nor has the acts column.
 		const place = column - shift;
 		const field = columns[place];
-		const onActs = acting && column === actsAt;
+		const onActs = column === actsAt;
 		if (!record || (!field && column >= shift && !onActs)) return;
 		if (inEdit(target)) {
 			// An open edit: Enter has committed and Escape put the value back and
@@ -1128,7 +1169,8 @@ function Grid(props: {
 			const moved = stepOf(props.movable.ids(), record.id, step);
 			if (moved) {
 				props.movable.move(record.id, moved);
-				focusCell(moved.index, column);
+				// The cursor holds the record, so it follows it to its new place.
+				setWanted({ row: moved.index, column });
 			}
 			return;
 		}
@@ -1143,7 +1185,7 @@ function Grid(props: {
 		}
 		const to = moveCursor(event.key, { row, column }, event.ctrlKey, {
 			rows: rows.length,
-			columns: columns.length + shift + (acting ? 1 : 0),
+			columns: stops.length,
 			page: pageOf(cell),
 		});
 		// The leading link answers Enter and Space itself; the

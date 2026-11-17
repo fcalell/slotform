@@ -246,10 +246,20 @@ form paints, inert, until the ability's read lands.
 
 `submit: { label, done, to, destructive }` words the bar's filled act; `destructive` draws it destructive (a form that rejects, abandons or closes something). `acts` are the other acts standing in the bar before it (a Cancel, a destructive Decline with `confirm`), each an act of any bar; a `Gate`'s form passes them through, and with `commit: "field"` they stand in a bar of their own under the fields, the last of them filled.
 
+A typed value the schema's own checks refuse (a string shorter or longer than its `.min` or `.max`, one
+not in its format (`z.email()`, `z.url()`, `z.uuid()` and the other formats), a number under its `.min`,
+over its `.max`, past its `.gt()`/`.lt()` or not whole for `.int()`) stands under its field as the
+field's issue ("Use at least 3 characters.", "This isn't in the form this field takes.") once the
+viewer leaves the field, and only then blocks the submit, so a value half typed is not called wrong; a
+press of the submit while such an issue waits unseen sends nothing and shows every field's. A `lines` or
+`json` field's issue waits the same. A `.regex()` is the server's to judge: the schema drops its flags.
+
 The server's refusal of a value (a `BAD_REQUEST` from the input schema) stands under its field until the
-field changes, once: where every issue names a field the form shows the bar draws none of them, and an
+field changes, once, and the first refused field in the form's order takes focus, scrolled into view: where every issue names a field the form shows the bar draws none of them, and an
 issue on a key the form does not show stands in the bar; the submit act is pending while the procedure
-runs, and any other rejection stands in the bar. The server words a machine name in a refusal between
+runs, and any other rejection stands in the bar. The fields stay editable while it runs: its answer
+reaches only the fields left as they were sent, so a field changed meanwhile is neither refused nor put
+back. The server words a machine name in a refusal between
 backticks (``z.string().refine(known, "No project at `apps/billing`")``, ``new ApiError("BAD_REQUEST",
 { message: "No project at `apps/billing`" })``) and the field draws the span as a `{ code }` run;
 an `error` a screen passes itself from a server message goes through `markedRuns` from

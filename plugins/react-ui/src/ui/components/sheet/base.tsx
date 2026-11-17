@@ -168,10 +168,7 @@ export function SheetBase({
 			});
 	};
 	const centred = decision === true && !touch;
-	usePageTurn(open, title, description, () => {
-		leave.clear();
-		setTouched(false);
-	});
+	usePageTurn(open, title, description, () => setTouched(false));
 	// A decision draws no close act: its acts dismiss it.
 	const head = (
 		<SheetHead

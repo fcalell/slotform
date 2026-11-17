@@ -1,16 +1,22 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { SCROLL_EDGE } from "@fcalell/ui-core/drag";
 import type { Box } from "./geometry.ts";
 import {
+	autoPan,
 	type Clearance,
 	clearOfStack,
 	fitTransform,
 	inside,
+	keyStep,
 	OPEN_UNDER,
 	overviewTransform,
+	PITCH,
 	solveScale,
 	standIn,
 	standsIn,
+	wheelPan,
+	whole,
 } from "./view.ts";
 
 const inset = 16;
@@ -265,4 +271,54 @@ test("an overview stands the boxes the canvas draws past the zoom stack, not onl
 		"the low box is past the stack",
 	);
 	assert.ok(inside(glyph, view, phone, inset), "the anchor stands whole");
+});
+
+test("a drop at zoom 1.2 reports whole pixels, so the stored node draws its border on one column", () => {
+	// A drag of 7 px at zoom 1.2 from x 100 lands at 105.8333.
+	assert.deepEqual(whole({ x: 100 + 7 / 1.2, y: 40 - 3 / 1.2 }), {
+		x: 106,
+		y: 38,
+	});
+	// A transform keeps its scale.
+	assert.deepEqual(whole({ x: 10.4, y: -2.6, k: 1.2 }), {
+		x: 10,
+		y: -3,
+		k: 1.2,
+	});
+});
+
+test("an arrow moves a quarter pitch, Shift a whole pitch; another key nothing", () => {
+	assert.deepEqual(keyStep("ArrowRight", false), { x: PITCH / 4, y: 0 });
+	assert.deepEqual(keyStep("ArrowUp", true), { x: 0, y: -PITCH });
+	assert.equal(keyStep("Enter", false), undefined);
+});
+
+test("Shift and a vertical wheel pan sideways; a sideways delta stays as it is", () => {
+	assert.deepEqual(wheelPan({ deltaX: 0, deltaY: 30, shiftKey: true }), {
+		x: 30,
+		y: 0,
+	});
+	assert.deepEqual(wheelPan({ deltaX: 0, deltaY: 30, shiftKey: false }), {
+		x: 0,
+		y: 30,
+	});
+	// A Mac turns a Shift wheel itself: its sideways delta is kept.
+	assert.deepEqual(wheelPan({ deltaX: 30, deltaY: 0, shiftKey: true }), {
+		x: 30,
+		y: 0,
+	});
+});
+
+test("a drag pans toward the edge it nears, deeper the nearer, and not in the middle", () => {
+	const pane = { width: 320, height: 600 };
+	assert.deepEqual(autoPan({ x: 160, y: 300 }, pane), { x: 0, y: 0 });
+	// At the left edge the view moves right, bringing what lies left in.
+	assert.deepEqual(autoPan({ x: 0, y: 300 }, pane), { x: 1, y: 0 });
+	// Half way into the bottom band, half as deep, upward.
+	assert.deepEqual(autoPan({ x: 160, y: 600 - SCROLL_EDGE / 2 }, pane), {
+		x: 0,
+		y: -0.5,
+	});
+	// Past the edge (a pointer captured outside the pane) holds the edge's depth.
+	assert.deepEqual(autoPan({ x: 400, y: -50 }, pane), { x: -1, y: 1 });
 });

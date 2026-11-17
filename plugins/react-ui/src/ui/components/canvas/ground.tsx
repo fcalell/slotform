@@ -3,7 +3,8 @@ import { CANVAS_GROUND, canvasNode } from "@fcalell/ui-core/variants";
 import { useId } from "react";
 import { IconBase } from "../../atoms/icon/index.tsx";
 import { Painted } from "../../lib/paint.tsx";
-import { DOT, PITCH } from "./viewport.ts";
+import { PITCH } from "./view.ts";
+import { DOT } from "./viewport.ts";
 
 // Under `tablet` the region keeps half of the column it stands in, so the
 // column scrolls past it and the head and banners above it scroll away. In a

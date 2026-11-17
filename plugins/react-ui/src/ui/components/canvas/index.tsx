@@ -50,7 +50,7 @@ import { EdgeLabel } from "./label.tsx";
 import { useLayout } from "./layout.ts";
 import { type EdgeTone, edgeLook, nodeLook } from "./look.ts";
 import { type NodeEdit, NodeView } from "./node.tsx";
-import { landAt, place } from "./view.ts";
+import { landAt, place, whole } from "./view.ts";
 import { useViewport, useViewportValue } from "./viewport.ts";
 import { ActFoot, ZoomPainted, ZoomStack } from "./zoom.tsx";
 
@@ -252,9 +252,12 @@ function CanvasGraph({
 			return next;
 		});
 	}, []);
+	// Every move a viewer makes (a drag, a lift, an arrow key) reports here, at
+	// whole pixels, so a node stored where it was dropped draws its border on
+	// one pixel column.
 	const drop = useCallback(
 		(id: string, point: CanvasPoint) => {
-			onMove?.(id, point);
+			onMove?.(id, whole(point));
 			at(id, null);
 		},
 		[onMove, at],

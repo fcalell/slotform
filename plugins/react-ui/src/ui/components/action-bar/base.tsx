@@ -76,6 +76,8 @@ interface ActionBarInternal {
 	ended?: string;
 	/** The filled act is its form's submit button, so Enter in a field presses it. */
 	submits?: boolean;
+	/** A press of the filled act while it is blocked: the form it submits shows what blocks it. */
+	onBlocked?: () => void;
 }
 
 function AllAct(props: { label: string; onAct: () => void }) {
@@ -128,6 +130,7 @@ export function ActionBarBase({
 	painted = false,
 	ended,
 	submits = false,
+	onBlocked,
 }: ActionBarProps & ActionBarInternal) {
 	const words = useWords();
 	const own = useAct<number>("line");
@@ -223,7 +226,10 @@ export function ActionBarBase({
 		return (
 			<ReasonHostContext
 				key={act.label}
-				value={() => setPressedUnder(act.blocked)}
+				value={() => {
+					setPressedUnder(act.blocked);
+					if (last) onBlocked?.();
+				}}
 			>
 				<SubmitContext value={!ghost && last && submits}>
 					<ActInert value={ghost || (acting.holds && !running)}>

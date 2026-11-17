@@ -109,6 +109,7 @@ function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
 			frame={frame}
 			touch={own}
 			guards={form.commit !== "field"}
+			edited={form.edited}
 			className={cn(GATE_STEP, FORM)}
 		>
 			{fieldless ? null : (

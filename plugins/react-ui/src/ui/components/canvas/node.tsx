@@ -17,6 +17,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import {
 	type FocusEvent,
+	type KeyboardEvent,
 	type MouseEvent,
 	type PointerEvent,
 	type RefObject,
@@ -33,8 +34,9 @@ import { Count } from "../count/index.tsx";
 import { UNZOOM } from "./floor.ts";
 import type { Size } from "./geometry.ts";
 import { hit } from "./hit.ts";
-import { useLift } from "./lift.ts";
+import { heldAt, useLift } from "./lift.ts";
 import type { NodeLook } from "./look.ts";
+import { keyStep } from "./view.ts";
 import type { About, Viewport } from "./viewport.ts";
 
 // The node's icon draws in the node's own ink (`canvasNodeInk`): it would else
@@ -162,7 +164,8 @@ export interface NodeEdit {
 	ports: boolean;
 	// Sets a node's live position, `null` clearing it.
 	at: (id: string, point: CanvasPoint | null) => void;
-	// A release that moved the node: reports it, then clears the live position.
+	// A move the viewer made (a release that moved the node, an arrow key):
+	// reports it at whole pixels, then clears the live position.
 	drop: (id: string, point: CanvasPoint) => void;
 	// Sets the connection in progress from a node, `null` clearing it.
 	// `target` is the node whose in port the pointer is over.
@@ -185,8 +188,9 @@ function useLanded(landing: boolean): boolean {
 }
 
 // A node: its glyph, its text column and its trailing figure, placed in flow
-// coordinates. With `onSelect` it is one button named by its visible text;
-// without, the same box, drawn and not operated. Under the text floor (`below`)
+// coordinates. With `onSelect`, or when it can be moved, it is one button
+// named by its visible text; without either, the same box, drawn and not
+// operated. Under the text floor (`below`)
 // the card keeps its box and draws nothing, and a glyph button stands over it;
 // until the canvas is `bare` the glyph carries its node's name.
 // This is the one place a node's pointer handlers live.
@@ -257,6 +261,14 @@ export function NodeView({
 	} | null>(null);
 	const linked = useRef<CanvasPoint | null>(null);
 	const moved = useRef(false);
+	// A node unmounted mid-drag or mid-link (its data changed under the press)
+	// ends the edge pan it was driving.
+	useEffect(
+		() => () => {
+			if (held.current || linked.current) viewport.edge(null);
+		},
+		[viewport],
+	);
 	// The click that ends a drag is armed to be swallowed until it arrives or a
 	// task passes: a release off the node fires no click, and no event says so.
 	const armed = useRef(false);
@@ -283,6 +295,8 @@ export function NodeView({
 			: null;
 	const glyphed = below && frame !== null;
 	const opens = look.role === "call" && node.href !== undefined;
+	const movable = draggable || liftable;
+	const focusable = onSelect !== undefined || movable;
 	const classes = cn(
 		canvasNode({ state: look.state, role: look.role, tone: look.surface }),
 		canvasNodeInk({ tone: look.surface }),
@@ -290,7 +304,7 @@ export function NodeView({
 		opens && OPENABLE,
 		lift.lifted && HELD,
 		onSelect && look.state === "rest" && HOVERED,
-		onSelect && FOCUSED,
+		focusable && FOCUSED,
 		draggable && GRAB,
 		lifted && LIFTED,
 		landing && INVISIBLE,
@@ -324,25 +338,26 @@ export function NodeView({
 		};
 		moved.current = false;
 	};
-	const where = (event: PointerEvent, grab: CanvasPoint): CanvasPoint => {
-		const point = viewport.screenToFlow(client(event));
-		return { x: point.x - grab.x, y: point.y - grab.y };
-	};
 	const drag = (event: PointerEvent<HTMLElement>) => {
 		const state = held.current;
 		if (!state) return;
 		if (event.clientX !== state.from.x || event.clientY !== state.from.y)
 			moved.current = true;
-		if (moved.current) at(id, where(event, state.grab));
+		if (!moved.current) return;
+		const follow = (point: CanvasPoint) =>
+			at(id, heldAt(viewport, point, state.grab));
+		follow(client(event));
+		viewport.edge({ point: client(event), follow });
 	};
 	const release = (event: PointerEvent<HTMLElement>) => {
 		const state = held.current;
 		if (!state) return;
 		held.current = null;
+		viewport.edge(null);
 		unpan(state.target);
 		event.currentTarget.releasePointerCapture(event.pointerId);
 		if (!moved.current) return;
-		drop(id, where(event, state.grab));
+		drop(id, heldAt(viewport, client(event), state.grab));
 		armed.current = true;
 		setTimeout(() => {
 			armed.current = false;
@@ -352,6 +367,7 @@ export function NodeView({
 		const state = held.current;
 		if (!state) return;
 		held.current = null;
+		viewport.edge(null);
 		unpan(state.target);
 		at(id, null);
 	};
@@ -417,15 +433,15 @@ export function NodeView({
 				moved.current = true;
 			const target = region.current;
 			if (!moved.current || !target) return;
-			linking(
-				id,
-				viewport.screenToFlow(client(event)),
-				hit(client(event), target).node,
-			);
+			const follow = (point: CanvasPoint) =>
+				linking(id, viewport.screenToFlow(point), hit(point, target).node);
+			follow(client(event));
+			viewport.edge({ point: client(event), follow });
 		},
 		release(event: PointerEvent<HTMLElement>) {
 			if (!linked.current) return;
 			linked.current = null;
+			viewport.edge(null);
 			event.currentTarget.releasePointerCapture(event.pointerId);
 			linking(id, null, null);
 			const target = region.current;
@@ -437,6 +453,7 @@ export function NodeView({
 		cancel() {
 			if (!linked.current) return;
 			linked.current = null;
+			viewport.edge(null);
 			linking(id, null, null);
 		},
 	};
@@ -531,7 +548,14 @@ export function NodeView({
 	const focused = (event: FocusEvent<HTMLButtonElement>) => {
 		if (event.currentTarget.matches(":focus-visible")) onFocusVisible(id);
 	};
-	const element = onSelect ? (
+	// An arrow moves a movable node by a step (`keyStep`), as a drop does.
+	const nudge = (event: KeyboardEvent<HTMLButtonElement>) => {
+		const by = keyStep(event.key, event.shiftKey);
+		if (!movable || !by) return;
+		event.preventDefault();
+		drop(id, { x: box.x + by.x, y: box.y + by.y });
+	};
+	const element = focusable ? (
 		<button
 			type="button"
 			ref={measure}
@@ -541,7 +565,8 @@ export function NodeView({
 			inert={glyphed}
 			aria-hidden={glyphed || undefined}
 			style={place}
-			onClick={() => onSelect(id)}
+			onClick={onSelect && (() => onSelect(id))}
+			onKeyDown={nudge}
 			onFocus={focused}
 			className={classes}
 			{...handlers}

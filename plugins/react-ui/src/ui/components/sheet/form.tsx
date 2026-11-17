@@ -20,13 +20,19 @@ export function SheetForm(props: {
 	acting: Acting<number>;
 }) {
 	const { form } = props;
-	// A sheet's form is the sheet's: its input edits the sheet's leave, which
-	// the sheet asks when it is closed, so the form asks nothing of its own.
+	// A sheet's form is the sheet's: its edit by value is the sheet's leave,
+	// which the sheet asks when it is closed, so the form asks nothing of its own.
 	const touch = useTouched();
 	const frame = useFrame(form.read);
 	const bar = useFormBar(form.bar, frame, props.outer, props.acting);
 	return (
-		<FormShell frame={frame} touch={touch} guards={false} className={cn(ROWS)}>
+		<FormShell
+			frame={frame}
+			touch={touch}
+			guards={false}
+			edited={form.edited}
+			className={cn(ROWS)}
+		>
 			<FormRows
 				frame={frame}
 				groups={form.groups}

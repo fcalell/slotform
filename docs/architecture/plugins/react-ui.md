@@ -426,11 +426,27 @@ and a reader draws again.
 - **Whole pixels.** A 1 px stroke at a whole coordinate straddles two pixel columns at half
   intensity, so the layer stands at a whole translate (`fitTransform`, `openTransform`) and a stroke
   at `n + 0.5` (`crisp`) is one solid column at scale 1, as are a node's border and a dot of the grid.
-  The viewport applies it to every transform the canvas sets itself.
+  The viewport applies it to every transform the canvas sets itself, and the canvas's `drop` to every
+  position a viewer's move reports (a drag, a lift, an arrow key), so a stored node draws its border on
+  one column at scale 1.
 - **Viewport.** d3-zoom runs on the region's element, its transform applied to the layer marked
   `data-layer` and the grid pattern marked `data-grid` inside it. A pan touches no React state. A
   move lands on the element, which the effect reaches after the commit: one asked for before it lands
-  nowhere.
+  nowhere. A plain wheel with Shift and no sideways delta pans sideways (`wheelPan`): a Mac turns a
+  Shift wheel into a sideways delta itself, so no platform check is needed.
+- **Edge pan.** A drag of a node (a mouse drag or a lift) or of a link hands the viewport its pointer at
+  each move (`Viewport.edge`). While the pointer stands in the pane's edge band, a frame loop pans the
+  view toward that edge at a scroller's edge speed, ramp included
+  ([Web drag](../ui-core/drag.md#web-drag); `autoPan` in `view.ts` turns its sign, since a pan moves
+  the content where a scroll moves the view), and has the drag follow its pointer again, so the dragged
+  node stays under it: a held node's place is the pointer's flow point less where it was taken
+  (`heldAt`), read at the view as it stands. The loop stops on a frame at zero depth (the pointer
+  out of the band) and on the drag's end, and a drag begun or ended enters the band afresh; a node
+  unmounted mid-drag ends its pan. The band's entry and steps are `bandAt`'s; its pans are the
+  viewer's move.
+- **Keyboard move.** A node that can move is a button, with `onSelect` or without. An arrow moves the
+  focused one by `keyStep` (a quarter of the grid's `PITCH`, Shift the whole pitch) through `drop`,
+  the path a release takes. Nothing is announced ([product](../../product.md)).
 - **Ground.** The region's ground is the region, its layer or its grid (which carries
   `data-ground`). Everything else inside (a node, the zoom stack, the act) is a part.
 - **Chrome.** What the canvas's own chrome takes from the pane is a part marked `data-clear` with the

@@ -83,7 +83,7 @@ import { ChangeMark } from "../../atoms/status/change.tsx";
 import { StatusDot } from "../../atoms/status/dot.tsx";
 import { ageShort } from "../../lib/age.ts";
 import { CodeCut, CodeWhole, RunText, Soft } from "../../lib/code.tsx";
-import { press, useDrop, useOffers } from "../../lib/drag.ts";
+import { press, useDrop, useOffers, useTouchHold } from "../../lib/drag.ts";
 import { DistanceContext, useTouch } from "../../lib/media.ts";
 import { follow, navigate, useRoute } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
@@ -467,6 +467,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	const extra = [...offers, ...moves];
 	const draggable =
 		!painted && (dragged !== undefined || movable !== undefined);
+	useTouchHold(draggable);
 	// The row is a block among its list's: named for the page's block move, and
 	// fading in if it arrived on its own (held from the first render, so the
 	// fade is not cut short by a later one).
