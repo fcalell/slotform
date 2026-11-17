@@ -1,4 +1,5 @@
 import {
+	type CANCEL_SYMBOL,
 	cancel,
 	confirm as clackConfirm,
 	isCancel,
@@ -9,7 +10,7 @@ import {
 } from "@clack/prompts";
 import type { CommandContext } from "./create-plugin.ts";
 
-function unwrap<T>(value: T | symbol): T {
+function unwrap<T>(value: T | typeof CANCEL_SYMBOL): T {
 	if (isCancel(value)) {
 		cancel("Cancelled.");
 		process.exit(0);

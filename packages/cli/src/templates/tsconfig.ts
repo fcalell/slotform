@@ -20,6 +20,13 @@ function isSplit(layout: TsconfigLayout): boolean {
 	return layout.worker && (layout.native || layout.web);
 }
 
+// Whether a project `tsconfigTemplate` writes extends `node-tsx.json`, whose `types` names `node`:
+// the worker's under a split, or the single config of an app with no web or native side. The app
+// then installs `@types/node`; the server's tests run under Node on either target.
+export function extendsNodeTsx(layout: TsconfigLayout): boolean {
+	return isSplit(layout) || !(layout.web || layout.native);
+}
+
 // The tsconfig that compiles the worker's sources: docs/architecture/consumer-project.md, "TypeScript projects".
 export function workerTsconfig(layout: TsconfigLayout): string {
 	return isSplit(layout) ? "tsconfig.worker.json" : "tsconfig.json";
@@ -101,7 +108,9 @@ function workerProject(options: TsconfigOptions): Project {
 	return {
 		extends: "@fcalell/typescript-config/node-tsx.json",
 		compilerOptions: {
-			types: options.node ? ["node"] : [],
+			// The Workers' globals come from `.stack/worker-configuration.d.ts`; the node target keeps
+			// the preset's `node`.
+			...(options.node ? {} : { types: [] }),
 			paths: options.procedurePaths,
 			composite: true,
 			// `node-tsx` (via base) disables incremental, which composite

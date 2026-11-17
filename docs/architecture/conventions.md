@@ -99,12 +99,18 @@ new ones.
 }
 ```
 
-- **`base.json`**, the foundation every other preset extends: `strict`, `isolatedModules`,
+- **`base.json`**, the foundation every other preset extends: `isolatedModules`,
   `skipLibCheck`, `target: ES2022`, `module: node18`, `moduleResolution: node16`,
   `noUncheckedIndexedAccess`, and `incremental` with its build info under
-  `node_modules/.cache/tsc/`, so a re-check reads only what changed.
+  `node_modules/.cache/tsc/`, so a re-check reads only what changed. `strict` and
+  `esModuleInterop` are TypeScript 7 defaults, and `types` keeps TypeScript 7's default `[]`: no
+  `@types/*` package is global unless a config names it.
 - **`node-tsx.json`**, type-checking for Node packages and consumers: `base.json` plus
-  `module: esnext`, `moduleResolution: bundler`, `noEmit`, `allowImportingTsExtensions`.
+  `module: esnext`, `moduleResolution: bundler`, `noEmit`, `allowImportingTsExtensions`, and
+  `types: ["node"]`, so a project that extends it declares `@types/node`. A worker project sets
+  `types: []` over it ([consumer project](./consumer-project.md#typescript-projects)); a
+  `web-vite.json` project with Node files of its own (tests, `src/node/`, a Storybook config)
+  names `node` in its own `types`.
 - **`web-vite.json`**, type-checking for a web app Vite bundles (the consumer app `stack init`
   writes when `vite` is in the config): `base.json` plus `lib: ESNext, DOM, DOM.Iterable`,
   `module: esnext`, `moduleResolution: bundler`, `jsx: react-jsx`, `noEmit`,

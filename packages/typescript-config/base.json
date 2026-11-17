@@ -5,7 +5,6 @@
 		"outDir": "${configDir}/dist",
 		"declaration": true,
 		"declarationMap": true,
-		"esModuleInterop": true,
 		"incremental": true,
 		"isolatedModules": true,
 		"lib": ["ESNext"],
@@ -15,7 +14,6 @@
 		"noUncheckedIndexedAccess": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"strict": true,
 		"target": "ES2022",
 		"tsBuildInfoFile": "${configDir}/node_modules/.cache/tsc/tsbuildinfo.json"
 	}

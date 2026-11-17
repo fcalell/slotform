@@ -65,8 +65,8 @@
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@tanstack/router-generator": "^1.168.0",
-		"@types/node": "^25.5.0",
-		"typescript": "^5.9.3",
+		"@types/node": "^26.6.6",
+		"typescript": "^7.0.2",
 		"vite": "^7.3.6"
 	}
 }

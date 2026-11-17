@@ -110,8 +110,8 @@
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@types/better-sqlite3": "^9.6.0",
-		"@types/node": "^25.5.0",
+		"@types/node": "^26.6.6",
 		"better-sqlite3": "^13.2.0",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.2"
 	}
 }

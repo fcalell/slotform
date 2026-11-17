@@ -103,11 +103,11 @@
 		"@fcalell/typescript-config": "workspace:^",
 		"@orpc/tanstack-query": "^1.16.2",
 		"@tanstack/react-query": "^5.107.1",
-		"@types/node": "^25.5.0",
+		"@types/node": "^26.6.6",
 		"@types/react": "~19.2.16",
 		"expo-network": "~56.0.0",
 		"react": "19.2.3",
 		"react-native": "^0.85.3",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.2"
 	}
 }

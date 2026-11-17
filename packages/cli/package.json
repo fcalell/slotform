@@ -101,9 +101,9 @@
 		}
 	},
 	"dependencies": {
-		"@clack/prompts": "^0.11.0",
+		"@clack/prompts": "^1.9.0",
 		"magicast": "^0.5.5",
-		"node-html-parser": "^7.1.0",
+		"node-html-parser": "^9.0.7",
 		"picocolors": "^1.1.0",
 		"slice-ansi": "^10.0.1",
 		"smol-toml": "^1.9.1",
@@ -113,9 +113,9 @@
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
-		"@types/node": "^25.5.0",
+		"@types/node": "^26.6.6",
 		"ts-morph": "^28.0.0",
-		"typescript": "^5.9.3",
+		"typescript": "^7.0.2",
 		"zod": "^4.6.7"
 	}
 }

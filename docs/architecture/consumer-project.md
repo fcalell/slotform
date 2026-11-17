@@ -204,6 +204,12 @@ files `stack init` writes and the tsconfig the worker's bundler reads. `node` is
 its server runs under Node, with no Workers globals, and holds the consumer's services under
 `src/server`.
 
+The `typescript` and `@types/node` ranges `stack init` and `stack plugin init` write are the CLI's
+own `devDependencies`, the compiler stack's sources are checked with, since an app's `tsc` reads
+the `.tsx` sources the UI plugins ship. `@types/node` goes in wherever a project extends
+`node-tsx.json`, which names it in `types`
+([conventions](./conventions.md#typescript-presets)).
+
 A consumer with both an app and a worker spans two environments that cannot share one program: the
 app (DOM, or react-native) and the worker (workerd globals from the generated
 `worker-configuration.d.ts`, or Node's on the node target; never the DOM). One program merges both

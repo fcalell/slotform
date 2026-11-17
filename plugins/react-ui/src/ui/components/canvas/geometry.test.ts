@@ -75,7 +75,8 @@ test("an edge chip never prints over a loop's border or its head", () => {
 	assert.equal(frame.y, 124, "the frame's top border stands over the legs");
 	for (const [id, { label }] of routes) {
 		assert.ok(label, `${id} carries its chip`);
-		const straddles = label.y < frame.y && frame.y < label.y + label.height;
+		const straddles: boolean =
+			label.y < frame.y && frame.y < label.y + label.height;
 		assert.ok(!straddles, `${id}'s chip straddles the loop's border`);
 		assert.ok(
 			!overlaps(label, { ...frame, height: head }),

@@ -3,6 +3,7 @@ import { basename, resolve } from "node:path";
 import { log, outro } from "@clack/prompts";
 import { StackError } from "../lib/errors.ts";
 import { stackWorkspaceRoot, toWorkspaceSpecs } from "../lib/install.ts";
+import { TYPES_NODE_SPEC, TYPESCRIPT_SPEC } from "../lib/manifest.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import { writeIfMissingString } from "../lib/scaffold.ts";
 import {
@@ -166,7 +167,8 @@ function pluginPackageJsonTemplate(options: PluginPackageJsonOptions): string {
 		},
 		devDependencies: {
 			"@fcalell/typescript-config": stackSpec("@fcalell/typescript-config"),
-			typescript: "^5.9.3",
+			"@types/node": TYPES_NODE_SPEC,
+			typescript: TYPESCRIPT_SPEC,
 		},
 	};
 

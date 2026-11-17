@@ -1,10 +1,14 @@
-import { TS_MORPH_SPEC } from "../lib/manifest.ts";
+import {
+	TS_MORPH_SPEC,
+	TYPES_NODE_SPEC,
+	TYPESCRIPT_SPEC,
+} from "../lib/manifest.ts";
 import {
 	PACKAGE_MANAGER,
 	stackPluginSpecs,
 	stackSpec,
 } from "../lib/stack-packages.ts";
-import { tsconfigLayout } from "./tsconfig.ts";
+import { extendsNodeTsx, tsconfigLayout } from "./tsconfig.ts";
 
 interface PackageJsonOptions {
 	name: string;
@@ -19,7 +23,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 	const devDeps: Record<string, string> = {
 		"@fcalell/cli": stackSpec("@fcalell/cli"),
 		"@fcalell/typescript-config": stackSpec("@fcalell/typescript-config"),
-		typescript: "^5.9.3",
+		typescript: TYPESCRIPT_SPEC,
 		// The CLI's optional peer: `stack generate` prints its TypeScript with it.
 		"ts-morph": TS_MORPH_SPEC,
 	};
@@ -30,17 +34,12 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 		devDeps["@biomejs/biome"] = "^2.6.8";
 	}
 
-	const hasWorker =
-		options.plugins.includes("api") || options.plugins.includes("db");
-	const node = tsconfigLayout(options.plugins).node;
-	if (hasWorker || node) {
-		// The server's tests run under Node on either target, and on the node
-		// target its server does too, with no wrangler.
-		devDeps["@types/node"] = "^25.5.0";
-	}
-	if (hasWorker && !node) devDeps.wrangler = "^4.162.0";
+	const layout = tsconfigLayout(options.plugins);
+	const hasWorker = layout.worker;
+	if (extendsNodeTsx(layout)) devDeps["@types/node"] = TYPES_NODE_SPEC;
+	if (hasWorker && !layout.node) devDeps.wrangler = "^4.162.0";
 
-	const hasNative = options.plugins.includes("expo");
+	const hasNative = layout.native;
 	const hasReactDom = options.plugins.includes("react");
 	if (hasNative || hasReactDom) {
 		// React's types back the app's JSX (`react/jsx-runtime`) so the app's
@@ -56,7 +55,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 
 	Object.assign(deps, stackPluginSpecs(options.plugins, null));
 
-	const hasWeb = tsconfigLayout(options.plugins).web;
+	const hasWeb = layout.web;
 
 	const pkg: Record<string, unknown> = {
 		name: options.name,

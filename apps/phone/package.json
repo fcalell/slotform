@@ -54,10 +54,10 @@
 	"devDependencies": {
 		"@fcalell/cli": "workspace:*",
 		"@fcalell/typescript-config": "workspace:*",
-		"@types/node": "^25.5.0",
+		"@types/node": "^26.6.6",
 		"@types/react": "~19.2.0",
 		"babel-plugin-react-compiler": "^1.0.0",
-		"typescript": "^5.9.3",
+		"typescript": "^7.0.2",
 		"wrangler": "^4.162.0"
 	},
 	"main": ".stack/entry.tsx"

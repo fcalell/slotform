@@ -19,7 +19,7 @@ Sixteen packages, all `@fcalell/*`, all at one version:
 | `@fcalell/plugin-api`, `-auth`, `-cloudflare`, `-db`, `-expo`, `-native-ui`, `-node`, `-query`, `-react`, `-react-ui`, `-screens`, `-vite` | `plugins/<name>` | one per domain, named in `stack.config.ts` |
 
 Private, never published: the root (`@fcalell/stack`) and the two apps, `apps/showcase` and
-`apps/phone`, stack consumers inside the checkout (`.changeset/config.json` ignores them). The two
+`apps/phone`, stack consumers inside the checkout (`private`, which changesets never versions). The two
 presets are public although only a devDependency: `stack init` writes both into every app's
 `package.json`, and `.stack/biome.json` extends the Biome one.
 
@@ -53,10 +53,15 @@ holds each entry to the package's own manifest.
 - **A consumer's specs are `^<the CLI's version>`.** `stack init` and `stack add` write them from the
   CLI's own `package.json` (`stackSpec`), and the consumer's lockfile is the pin. An unpublished
   checkout takes the git spec instead ([consumer project](./consumer-project.md#installing-stack)).
+- **The CLI reads its own manifest at run time.** `packages/cli/src/lib/manifest.ts` parses the
+  packed `package.json` when the CLI starts: `version` for `stackSpec`, the `ts-morph` peer for
+  `TS_MORPH_SPEC`, and the `typescript` and `@types/node` devDependencies for `TYPESCRIPT_SPEC` and
+  `TYPES_NODE_SPEC`, the ranges a scaffold writes. The published manifest keeps its
+  `devDependencies`; a CLI whose manifest lacks one fails at start.
 - **The bump goes through changesets.** `pnpm changeset` goes with each user-facing change; at
   release time `pnpm version-packages` applies the pending ones (versions and changelogs), and the
-  result is committed on `master`. The first release, `0.1.0`, needs no changeset: the manifests
-  are already at it.
+  result is committed on `master`; with no pending changeset it exits 1. The first release,
+  `0.1.0`, needs no changeset: the manifests are already at it.
 
 ## Peers: one copy of each stack package
 
@@ -138,4 +143,4 @@ app should not hold are optional peers ([consumer project](./consumer-project.md
 - `scripts/release-check.ts`: `pnpm release:check`.
 - `scripts/prepare.ts`: every package's `prepare`.
 - `packages/cli/src/lib/stack-packages.ts`: `STACK_PACKAGES`, `stackSpec`, the git spec.
-- `.changeset/config.json`: the fixed version group and the ignored apps.
+- `.changeset/config.json`: the fixed version group.

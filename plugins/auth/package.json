@@ -135,11 +135,11 @@
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
-		"@types/node": "^25.5.0",
+		"@types/node": "^26.6.6",
 		"@react-native-google-signin/google-signin": "^16.1.2",
 		"@types/react": "~19.2.16",
 		"expo-apple-authentication": "~56.0.4",
 		"react": "19.2.3",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.2"
 	}
 }

@@ -23,6 +23,10 @@ export const cliManifest = z
 		name: z.string(),
 		version: z.string(),
 		peerDependencies: z.looseObject({ "ts-morph": z.string() }),
+		devDependencies: z.looseObject({
+			typescript: z.string(),
+			"@types/node": z.string(),
+		}),
 	})
 	.parse(
 		JSON.parse(
@@ -33,3 +37,8 @@ export const cliManifest = z
 // The ts-morph range an app declares as a devDependency: the CLI's optional peer, which prints the
 // TypeScript `stack generate` writes.
 export const TS_MORPH_SPEC = cliManifest.peerDependencies["ts-morph"];
+
+// The TypeScript and Node types an app or a plugin the CLI scaffolds compiles with: the ones stack's
+// own sources, which an app's `tsc` also reads, are checked with.
+export const TYPESCRIPT_SPEC = cliManifest.devDependencies.typescript;
+export const TYPES_NODE_SPEC = cliManifest.devDependencies["@types/node"];

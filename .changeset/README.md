@@ -14,4 +14,4 @@ and changelogs) and the result is committed; `pnpm release:check` proves the tar
 release` publishes. The order, the version rule and the one-copy peer rules are in
 `docs/architecture/releasing.md`.
 
-The private apps (`phone`, `showcase`) are ignored and never published.
+The private apps (`phone`, `showcase`) are never versioned or published: changesets leaves a private package alone.

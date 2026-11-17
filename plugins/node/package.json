@@ -92,9 +92,9 @@
 		"@biomejs/biome": "^2.6.8",
 		"@fcalell/typescript-config": "workspace:^",
 		"@tanstack/react-query": "^5.107.1",
-		"@types/node": "^25.5.0",
+		"@types/node": "^26.6.6",
 		"@types/ws": "^8.18.2",
 		"esbuild": "^0.28.2",
-		"typescript": "^5.9.3"
+		"typescript": "^7.0.2"
 	}
 }

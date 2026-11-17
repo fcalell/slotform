@@ -1,6 +1,8 @@
 {
 	"extends": "@fcalell/typescript-config/web-vite.json",
 	"compilerOptions": {
+		// `src/node/` and the tests run under Node.
+		"types": ["node"],
 		// Vitest types `vitest/browser` only through a provider package; the screens
 		// provider is its own, so the types come from the package every provider re-exports.
 		"paths": {
