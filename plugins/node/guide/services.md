@@ -87,7 +87,9 @@ The hub takes `onSubscribe(conn)`, `onUnsubscribe(conn)` and `onMessage.<type>(p
 `@fcalell/plugin-node/client` opens one socket to `/ws` on its first subscribe, and
 `client.subscribe(board, { onMessage: { tick(payload) {} }, onStatus(status) {} })` answers a
 subscription with `send(type, payload)` and `unsubscribe()`. The client reconnects on its own and
-subscribes again, so a channel that sends a snapshot in `onSubscribe` stays consistent.
+subscribes again, so a channel that sends a snapshot in `onSubscribe` stays consistent. A session
+that ended (close code 1008) is not retried until `reconnect()` or a new subscribe. A `send` made
+before the socket is open is queued (the newest 100 are kept) and goes out after the subscribes.
 
 ## Who is connected
 

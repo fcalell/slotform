@@ -111,11 +111,13 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 		log = consoleLog,
 	} = options;
 	const services = (options.services ?? []).flat();
-	const { hub, connectionHandlers } = createWsHub(log);
+	const { hub, connectionHandlers, startSweep } = createWsHub(log);
 	const wss = new WebSocketServer({
 		noServer: true,
 		...(options.maxFrame !== undefined && { maxPayload: options.maxFrame }),
 	});
+
+	let stopSweep: (() => void) | undefined;
 
 	const app = new Hono<{
 		Bindings: Bindings;
@@ -322,6 +324,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 	async function stop(): Promise<void> {
 		if (shuttingDown) return;
 		shuttingDown = true;
+		stopSweep?.();
 		unsubscribe(SESSION_ENDED_CHANNEL, onSessionEnded);
 		await stopServices();
 		// Live WebSocket connections and idle keep-alive sockets would
@@ -386,6 +389,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 			// request.
 			worker?.checkEnv?.(env);
 			subscribe(SESSION_ENDED_CHANNEL, onSessionEnded);
+			stopSweep = startSweep();
 			await startServices();
 			for (const [name, extra] of Object.entries(listeners)) {
 				const bound = await listen(

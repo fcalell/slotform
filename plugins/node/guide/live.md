@@ -28,7 +28,8 @@ channel read (before sign-in, say). A handler gets the
 current value (`undefined` before the snapshot), the frame's payload and `{ client }`, to write
 another read's key. Returning `undefined` changes nothing. A handler that throws fails the read:
 before the snapshot it is the frame's failure, after it the read is stale with its last value
-kept. The frame's Retry resubscribes, and asks a socket in its backoff to reconnect at once.
+kept. The frame's Retry resubscribes, and asks a socket in its backoff to reconnect at once, abandons one still connecting, and
+reopens one whose session ended.
 
 ## Drawing it
 

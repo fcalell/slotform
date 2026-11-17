@@ -184,8 +184,8 @@ stop handle. The consumer's half is the guide's [services](../../../plugins/node
 
 The channel contract is isomorphic: the consumer defines one `ChannelDef` in a shared module and
 imports it from server code (`hub.channel`) and browser code (`client.subscribe`). Types flow from
-the zod schemas, with no codegen. The wire protocol is JSON text frames: `sub`, `unsub` and `msg`
-from client to server, `msg` from server to client. Every frame is zod-validated at both ends; an
+the zod schemas, with no codegen. The wire protocol is JSON text frames: `sub`, `unsub`, `msg` and
+`ping` from client to server, `msg` and `pong` from server to client. Every frame is zod-validated at both ends; an
 invalid frame is dropped and logged.
 
 `./server`'s hub serves the contract: `ctx.ws.channel(def, { onSubscribe, onUnsubscribe, onMessage })`
@@ -197,6 +197,14 @@ such as presence never outlives the socket. The transport is `@hono/node-server`
 used. `ws`'s `maxPayload` enforces `bounds.frame`, and Hono's body limit enforces `bounds.body`. On
 shutdown the server calls `terminate()` on the tracked sockets before `server.close()`, which
 otherwise hangs on live sockets.
+
+The hub keeps three guards on a socket. One socket's frames run in the order they arrived, so an
+`unsub` never overtakes the `sub` whose async `onSubscribe` is still running; a `ping` is answered at
+once, ahead of that queue. Every 30 seconds (`IDLE_SWEEP_MS`) the hub, which the server starts and stops with it, sends each socket a protocol
+ping and terminates one that answered nothing (no pong, no frame) since the last sweep, so a client
+that vanished without a close stops being present and stops receiving broadcasts. A send to a socket
+with more than `MAX_BUFFERED_BYTES` (4 MiB) unsent terminates it, since a stalled link would grow the
+server's memory without bound; the client reconnects and is snapshotted again.
 
 A connection's session is fixed at the upgrade. A session auth ends (a sign-out, a revoke) closes the
 socket, as does `ws.closeSession(id)` for one the app ends itself; a lost membership changes nothing
@@ -220,6 +228,25 @@ number of subscriptions share a channel: every frame on it reaches each of them,
 every open and reopen the client sends `sub` once per channel, so a server that snapshots on
 subscribe gives reconnect consistency. It uses the global `WebSocket` (the browser's; Node >= 22 has
 it natively, so the same client runs in tests).
+
+The client keeps its own liveness, with the constants named in `./client`:
+
+- A socket still connecting after `CONNECT_TIMEOUT_MS` is abandoned and retried, and `reconnect()` also
+  abandons one that is connecting.
+- The backoff resets only after a socket stayed open `MIN_UPTIME_MS`, so a server that accepts and
+  closes at once is not retried at the base delay. Each delay is a full jitter, a random share of the
+  backoff step, so clients dropped together do not retry together.
+- Close code 1008 (the session ended) stops reconnecting until `reconnect()` or a new subscribe, so a
+  screen that subscribes after the viewer signs in again reopens the socket. The online and visible
+  wake does not.
+- The page listeners are registered when the client opens its first socket, so constructing a client
+  reads no environment.
+- When the page becomes visible or the browser comes back online, an open socket gets an app-level
+  `ping` (a browser cannot read protocol pings) and is dropped and reconnected if no frame arrives
+  within `PING_TIMEOUT_MS`; a socket waiting on its backoff reconnects at once. The listeners are
+  guarded, so the client loads on Node and React Native, which have no such events.
+- A `send` while the socket is not open is queued, at most `SEND_QUEUE_MAX`, the oldest dropped, and
+  flushed after the `sub` frames on open. A `send` after `close()` throws.
 
 The socket's status is a read in the query cache. It never opens the socket, only watches it. Its
 `meta.reach` is what the mutation guard asks (`guardReach`, [query's acts](query.md#acts)): a lost

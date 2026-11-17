@@ -22,8 +22,13 @@ export function defineChannel<
 	return { name, ...shape };
 }
 
+// A session end closes its socket with this code and reason; the client stops
+// retrying on it: docs/architecture/plugins/node.md, "Channels".
+export const SESSION_ENDED = { code: 1008, reason: "session ended" };
+
 // Wire protocol, JSON text frames: docs/architecture/plugins/node.md, "Channels".
 export const clientFrameSchema = z.union([
+	z.object({ t: z.literal("ping") }),
 	z.object({ t: z.literal("sub"), ch: z.string() }),
 	z.object({ t: z.literal("unsub"), ch: z.string() }),
 	z.object({
@@ -35,12 +40,15 @@ export const clientFrameSchema = z.union([
 ]);
 export type ClientFrame = z.infer<typeof clientFrameSchema>;
 
-export const serverFrameSchema = z.object({
-	t: z.literal("msg"),
-	ch: z.string(),
-	type: z.string(),
-	payload: z.unknown(),
-});
+export const serverFrameSchema = z.union([
+	z.object({ t: z.literal("pong") }),
+	z.object({
+		t: z.literal("msg"),
+		ch: z.string(),
+		type: z.string(),
+		payload: z.unknown(),
+	}),
+]);
 export type ServerFrame = z.infer<typeof serverFrameSchema>;
 
 // What a channel's opening reply may be in a screens fixture: the payload of its
