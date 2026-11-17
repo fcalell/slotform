@@ -19,26 +19,14 @@ applies Biome's fixes.
 
 ## Where things are
 
-The monorepo has `packages/` (`@fcalell/cli`, `@fcalell/ui-core`, tsconfig and Biome presets),
-`plugins/` (one `@fcalell/plugin-<name>` per domain) and `apps/` (`showcase` and `phone`, private
-consumers). `pnpm stories` opens the roster's Storybook.
-
-Read before you change code (the same list as in `CLAUDE.md`):
-
-- `docs/product.md`, the philosophy. A new consumer-facing option or public surface is the last
-  resort.
-- `docs/architecture/overview.md`, then `docs/architecture/conventions.md` before editing
-  TypeScript.
-- `docs/architecture/plugin-authoring.md` and `docs/architecture/slot-catalog.md` before writing a
-  plugin. A slot added, renamed, removed or reshaped updates the catalog in the same commit.
-- `packages/ui-core/guide/structure.md` before editing a ui component.
+[`docs/architecture.md`](docs/architecture.md) maps the monorepo. Before a change, read the pages
+[`docs/index.md`](docs/index.md) lists for that kind of task.
 
 ## Commits and pull requests
 
 - The commit scope is the package, like `plugin-auth`: `fix(plugin-auth): reject expired codes`.
 - Add a changeset for a user-facing change with `pnpm changeset`. All `@fcalell/*` packages are
-  versioned together. A change to a manifest's `files`, `exports`, dependencies or peers is
-  checked by `pnpm release:check` (`docs/architecture/releasing.md`).
+  versioned together.
 - Fill in the pull request template.
 
 ## Security

@@ -1,4 +1,4 @@
-# Plugin screens
+# plugin-screens
 
 `@fcalell/plugin-screens` is the screens workbench: a Storybook host that serves every route of a web
 app in each state its queries can take, answered from typed fixtures by MSW, and the test run that

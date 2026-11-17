@@ -2,7 +2,6 @@
 
 ## Rules
 
-- Gate: `pnpm check` (type-check, tests, Biome; it writes nothing). It must pass before a change is complete.
 - A slot added, renamed, removed or reshaped updates `docs/architecture/slot-catalog.md` in the same commit.
 - A new consumer-facing option or public surface is the last resort (`docs/product.md`).
 - A manifest's `files`, `exports`, dependencies or peers: read `docs/architecture/releasing.md`
@@ -29,7 +28,7 @@
 
   The shoot command is `pnpm --filter showcase test-screens --screen <a,b> --mode dark --width 320,1920 --state data,empty --shots shots/<round>`;
   `--open <control text>` draws an open layer. A critic that did not build the part reads the shots
-  (`packages/ui-core/guide/critique.md`); the builder never judges its own.
+  (`packages/ui-core/guide/critique.md`).
 - Commit scope is the package, like `plugin-auth`.
 - Guide pages: this repo is no consumer, so open them by repo path (`packages/*/guide/`,
   `plugins/*/guide/`).

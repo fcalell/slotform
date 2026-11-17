@@ -1,4 +1,4 @@
-# Auth plugin
+# plugin-auth
 
 `@fcalell/plugin-auth` wraps Better Auth: the options it bakes into the worker, the runtime that
 builds Better Auth per request environment, the `auth.*` procedures, the web and native clients, the

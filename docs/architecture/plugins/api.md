@@ -1,4 +1,4 @@
-# Plugin api
+# plugin-api
 
 `@fcalell/plugin-api` owns the worker: every fragment of `.stack/worker.ts` and `.stack/procedure.ts`,
 the procedure factory route files call, the wire contract between the worker and its clients, the

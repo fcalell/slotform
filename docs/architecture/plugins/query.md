@@ -1,4 +1,4 @@
-# Query plugin
+# plugin-query
 
 `@fcalell/plugin-query` is the TanStack Query binding of the api's procedures: the query client and
 its provider, the read builder over oRPC's query utils, the binding half of acts, the scope merge,
