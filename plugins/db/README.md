@@ -4,6 +4,8 @@ Database plugin for the `@fcalell/stack` framework. Wraps Drizzle ORM over Cloud
 SQLite file: the worker's `db` client, the `stack db` commands, the local dev push, the deploy's
 migration gates and steps.
 
+How it is built: [docs/architecture/plugins/db.md](../../docs/architecture/plugins/db.md).
+
 ## Install
 
 ```bash
@@ -14,94 +16,29 @@ stack add db
 consumer's `dependencies` and `drizzle-kit` into its `devDependencies`. `drizzle-kit` is an
 optional peer of the plugin (the `stack db` commands run it; an install that only runs the app
 holds none of it), and `better-sqlite3` is the plugin's own dependency: `drizzle-kit`, `stack db
-push` and the sqlite runtime load the plugin's `better-sqlite3`.
-
-`drizzle-orm` is the consumer's because the declarations the consumer's worker project emits name
-drizzle types as `import("drizzle-orm/...")`, and the consumer's type-check resolves those imports from
-the consumer root. With no root copy every schema table types as `any`; with a second physical
-copy beside the plugin's, TypeScript treats the two `Column` classes as distinct and
-`app.db.select().from(table)` fails. So the root copy must be the one the plugin resolves. A
-consumer that links the stack checkout (`link:../stack/plugins/db`) links
-`../stack/plugins/db/node_modules/drizzle-orm` too, so the schema and `app.db`
-share one copy.
+push` and the sqlite runtime load the plugin's `better-sqlite3`. The consumer's root `drizzle-orm`
+is the one copy the plugin resolves
+([type resolution](../../docs/architecture/plugins/db.md#type-resolution)).
 
 ## Guide
 
-Configuring the dialect, writing the schema and the seed, the `stack db` commands, migration
+Configuring the dialect, writing the schema and the seed, the `stack db` commands and migration
 safety live in `guide/`, indexed into a consumer's `.stack/guide.md`:
 [`change-a-table.md`](./guide/change-a-table.md),
 [`destructive-change.md`](./guide/destructive-change.md), [`schema.md`](./guide/schema.md),
 [`fts.md`](./guide/fts.md), [`seed.md`](./guide/seed.md), [`commands.md`](./guide/commands.md),
 [`migration-safety.md`](./guide/migration-safety.md) and [`config.md`](./guide/config.md).
 
-## Plugin implementation
-
-Built with `plugin` from `@fcalell/cli`. Owns no slots; everything is a contribution to other
-plugins' slots or to `cliSlots.*`.
-
-```ts
-import { plugin } from "@fcalell/cli";
-import { cliSlots } from "@fcalell/cli/cli-slots";
-import { api } from "@fcalell/plugin-api";
-import { cloudflare } from "@fcalell/plugin-cloudflare";
-
-export const db = plugin("db", {
-  label: "Database",
-  schema: dbOptionsSchema,
-  requires: ["api"],
-  dependencies: { "drizzle-orm": "^0.45.2" },
-  gitignore: [".db-kit"],
-  guide: [/* change-a-table, destructive-change, schema, seed, … */],
-  commands: { push, generate, apply, reset, create, check, seed },
-  contributes: (self) => [
-    cloudflare.slots.bindings.contribute(/* the D1 binding */),
-    api.slots.pluginRuntimes.contribute(/* dbRuntime entry */),
-    // env, worker imports, entities, dev, deploy, init, remove …
-  ],
-});
-```
-
-### Slot contributions
-
-| Target slot | Behavior |
-|-------------|----------|
-| `cloudflare.slots.bindings` | D1 binding with its `migrationsDir` (d1, when `databaseId` is set) |
-| `api.slots.env` | `{ name: fileVar, devDefault: path }` (sqlite only) |
-| `api.slots.pluginRuntimes` | `dbRuntime({ binding, schema })` from `./runtime` (d1), `dbRuntime({ fileVar, schema })` from `./runtime/sqlite` (sqlite) |
-| `api.slots.workerImports` | `import * as schema from "../src/schema/index.ts"` on both dialects (node refuses a directory import), gated on the schema dir existing |
-| `api.slots.entities` | Sorted value-export names from `src/schema/index.ts` (both dialects); `export *` re-exports are skipped, so auth contributes its own table names |
-
-### Lifecycle contributions
-
-| `cliSlots` slot | Behavior |
-|-----------------|----------|
-| `initPrompts` | Asks for dialect, then database ID or SQLite path |
-| `initScaffolds` | Writes `src/schema/index.ts` from `templates/schema.ts` |
-| `devReadySetup` | Pushes the schema into the local database (sqlite's file, or the miniflare D1 `wrangler dev` reads), then seeds |
-| `devWatchers` | Re-push on `src/schema/**` (both dialects); re-seed on `src/schema/seed.ts` (300ms debounce) |
-| `deployChecks` | d1: a real `databaseId`, the destructive-migration gate, the drift gate, the committed-migrations confirm, and, when `seed.ts` exists, the seeded tables with what the remote seed does to rows outside them |
-| `deploySteps` | d1: `applyMigrationsRemote`, then the seed when `seed.ts` exists, both `pre` phase; the remote seed upserts and deletes rows outside the seed only when `seed.ts` exports `prune = true` |
-| `removeFiles` | `src/schema/`, `src/migrations/` |
-
-### Runtime
-
-`./runtime` is the D1 `RuntimePlugin` for the worker builder chain, taking plain options:
-`dbRuntime({ binding: "DB_MAIN", schema })`. The sqlite runtime lives on `./runtime/sqlite` so a
-Workers bundle never pulls in the native driver: `dbRuntime({ fileVar: "DB_FILE", schema })`
-opens the file that env var names, once per process, and refuses a missing var by name. Both
-return `{ db }` to downstream plugins through the builder's context accumulation; the clients
-behind them (`./d1`, `./sqlite`) are cached per binding and per file path.
-
 ## Exports
 
 | Subpath | Purpose |
 |---------|---------|
 | `@fcalell/plugin-db` | `db()`, `DbOptions` |
-| `@fcalell/plugin-db/orm` | Drizzle table/column builders, table constraints, operators, `alias`, the `SQL` type, relations, aggregates, table and view introspection, row types, `defineSeed`/`seedTable` |
+| `@fcalell/plugin-db/orm` | Drizzle table/column builders, table constraints, operators, `alias`, the `SQL` type, relations, aggregates, table and view introspection, `sqliteView`, row types, `defineSeed`/`seedTable`, and full-text search: `ftsTable`, `match`, `bm25`, `highlight`, `ftsQuery` |
 | `@fcalell/plugin-db/d1` | `createClient()` for Cloudflare D1 |
 | `@fcalell/plugin-db/sqlite` | `createClient()` for SQLite (requires `better-sqlite3`) |
 | `@fcalell/plugin-db/runtime` | `dbRuntime()`, the D1 runtime plugin factory |
-| `@fcalell/plugin-db/runtime/sqlite` | `dbRuntime()`, the SQLite runtime plugin factory (node target) |
+| `@fcalell/plugin-db/runtime/sqlite` | `dbRuntime()`, the SQLite runtime plugin factory (node target), and `migrateSqlite()`, the production bundle's migrate task |
 
 ## License
 

@@ -1,122 +1,169 @@
 # Runtime architecture
 
+How the generated worker runs: the `.stack/worker.ts` chain `stack generate` writes, the
+`RuntimePlugin` protocol each plugin's runtime implements, the context every procedure and job
+receives, the consumer's middleware and background handlers, the MCP endpoint, and the
+`virtual:stack-procedure` module that types a route handler's `context`.
+
+## The generated worker
+
 `stack.config.ts` is never imported by the worker. The slot graph reads config at generate time and
-inlines plugin options as JS literals into the file produced by `api.slots.workerSource`. Runtime
+inlines plugin options as JS literals into the file `api.slots.workerSource` produces. Runtime
 factories receive plain option objects, never `PluginConfig`.
 
-Generated `.stack/worker.ts` (composed by `api.slots.workerSource` from contributions to
-`api.slots.workerImports` / `pluginRuntimes` / `callbacks` / `cors`):
+`.stack/worker.ts` is composed from the contributions to `api.slots.workerImports`,
+`pluginRuntimes`, `callbacks` and `cors`, and is emitted only when the worker has something to run:
+at least one plugin runtime or one consumer route.
 
 ```ts
-import createWorker from "@fcalell/plugin-api/runtime";
-import dbRuntime from "@fcalell/plugin-db/runtime";
-import authRuntime from "@fcalell/plugin-auth/runtime";
 import * as schema from "../src/schema/index.ts";
-import authCallbacks from "../src/worker/plugins/auth";
-import * as routes from "../src/worker/routes";
+import * as routes from "../src/worker/routes/index.ts";
+import createWorker from "@fcalell/plugin-api/runtime";
+import authRuntime from "@fcalell/plugin-auth/runtime";
+import dbRuntime from "@fcalell/plugin-db/runtime";
+import authCallbacks from "../src/worker/plugins/auth.ts";
 
-const worker = createWorker({
+const worker = createWorker<Env>({
+  prefix: "/rpc",
   cors: ["https://example.com", "https://app.example.com"],
+  devCors: ["http://localhost:8081", "http://localhost:8787"],
+  envChecks: [{ name: "AUTH_SECRET", minLength: 32 }, { name: "APP_URL", url: true, devLocalhost: true }],
 })
+  .use(authRuntime({ trustedOrigins: ["https://example.com", "https://app.example.com"], callbacks: authCallbacks /* , … */ }))
   .use(dbRuntime({ binding: "DB_MAIN", schema }))
-  .use(authRuntime({ trustedOrigins: ["https://example.com", "https://app.example.com"], callbacks: authCallbacks }))
   .handler(routes);
 
 export type AppRouter = typeof worker._router;
+export type { Entity } from "./procedure.ts";
 export default worker;
 ```
 
 Runtime code lives in each plugin's `src/worker/` and is published from the `./runtime` subpath;
 the CLI discovers it by checking `package.json` exports. `worker/` files never import from `node/`
-and vice versa (see `conventions.md`).
+and the reverse ([plugin folder structure](./conventions.md#plugin-folder-structure)).
+
+### Chain order
+
+The chain is `createWorker(options)`, then the plugin runtimes (`.use`), then the consumer's
+middleware (`.use`), then `.handler(routes)`. Plugin runtimes come first so composition middleware
+sees the context they inject (`c.var.db`, `c.var.auth`). The runtimes are emitted apart from the
+middleware so callbacks are spliced into their options without touching the expression tree.
+
+The generated `.use(...)` runtimes are sorted by plugin name, so the worker source is the same
+whatever the order of `config.plugins`. That order carries no meaning: each runtime attaches its
+own `c.var.<plugin>`, and `.handler()` reorders by `dependsOn` (below) before anything runs.
+
+The routes handler is a value slot that api seeds only when the consumer has at least one routable
+file under `src/worker/routes`. The worker imports `../src/worker/routes`, which resolves to the
+generated `index.ts` barrel, and the barrel is skipped with no routes, so the handler is gated on
+the same predicate and handler, barrel and import are wired together or not at all. A plugin that
+owns the root handler shape overrides the slot with `override: true`.
+
+### Request order
+
+`.handler()` builds a Hono app in this order:
+
+1. The framework wrappers: CORS, the request logger, secure headers.
+2. The liveness route, `GET /`, answering `{ ok: true }`. It is registered before the env and
+   context middleware so it needs no bindings: Hono runs handlers in registration order, so the
+   middleware below never runs for it.
+3. The consumer's Hono middleware that runs before context injection, in contribution order.
+4. Context injection: the plugin context of the invocation (below), then each runtime plugin's
+   `fetch(request, env, ctx)`, in the `dependsOn`-sorted order. A plugin that owns a URL prefix
+   (auth's `/api/auth`) claims the request by returning a `Response`, and passes with `null` or
+   `undefined`. A claimed path returns inside this step and never reaches the steps after it.
+5. The post-context middleware, mounted after injection and before any route, so it reads
+   `__stackCtx` through `stackContext(c)`; everything above it runs with no context at all.
+6. The oRPC handler at the configured `prefix` (`/rpc`). Its `GET` and `POST` wire is the
+   [wire contract](./plugins/api.md#wire-contract).
+7. `POST /mcp`, when `src/worker/mcp.ts` exists ([MCP endpoint](#mcp-endpoint)).
+
+The plugin context of one invocation is shared by a request and a job: the env checks (value
+validation once per isolate), each runtime's `validateEnv`, then every plugin's `context(env, ctx)`
+and every context-injecting fn entry, in sorted order over the base context.
+
+## Runtime plugin protocol
+
+`RuntimePlugin` in `@fcalell/cli` is the protocol every plugin that ships a worker runtime
+implements. A runtime contributes typed context to the request chain and may register oRPC routes
+or intercept HTTP requests (`fetch`, step 4 above).
 
 A `RuntimePlugin` declares `dependsOn: readonly string[]` (other plugins' `name`s) when it reads
-another plugin's `context()` output. `createWorker`'s `.handler()` topologically sorts the `.use()`
-chain by `dependsOn` before running any `context()`/`fetch()`, so a dependency's context always
-builds first regardless of `.use()` registration order. This is the runtime analog of a slot's
-`inputs`. `authRuntime` declares `dependsOn: ["db"]` since it reads `upstream.db`.
+another plugin's `context()` output. `.handler()` stable-topologically sorts the plugin entries of
+the `.use()` chain by `dependsOn` before running any `context()` or `fetch()`, so a dependency's
+context always builds first whatever the registration order. Fn and middleware entries keep their
+positions; the reordered plugins go back into the positions plugin entries already held, and
+plugins with no `dependsOn` edge between them keep their relative order. That is what lets the
+generated worker sort runtimes alphabetically for deterministic codegen while dependencies still
+run first. A name that is not registered is ignored: presence is validated at config level by
+`requires`. This is the runtime analog of a slot's `inputs`
+([contributing and deriving](./slot-graph.md#contributing-and-deriving)). `authRuntime` declares
+`dependsOn: ["db"]` since it reads `upstream.db`.
 
 A `RuntimePlugin<TName, TDeps, TProvides, TRoutes>` may also register oRPC routes through
 `routes(procedure)`. `@fcalell/cli` keeps `procedure` as `unknown`; the plugin narrows it with one
 cast to plugin-api's `ProcedureFactory`, and its return type is `TRoutes`. `AppBuilder<TContext,
 TPluginRoutes>` accumulates each `.use(plugin)`'s `TRoutes`, and `.handler(routes)` returns
 `WorkerExport<TPluginRoutes & TConsumerRoutes>`, so `AppRouter` (`typeof worker._router`) holds the
-plugins' procedures beside the consumer's, and the typed client and `Fixtures<AppRouter>` reach them.
-A plugin without `routes` contributes the empty type. `authRuntime` is generic over its options, so
-its router type always holds `auth.session`, `auth.signOut` and `auth.user.update`; `emailOtp` (unless
-off) adds `auth.signIn.sendOtp` and `verifyOtp`, `magicLink` adds `auth.signIn.magicLink`, and
-`organization` adds `auth.organization.*`, `auth.orgRules` and `auth.scope.<name>.bySlug`. An option
-that is off adds nothing. Each `auth.*` procedure runs a Better Auth server endpoint with the
-request's headers (`context.auth.api`), copies the `set-cookie` headers it returns to
-`resHeaders`, and answers the endpoint's body (`plugins/auth/src/worker/procedures.ts`). `scope` has one literal key per scope with a slug, the organization
-and the scopes the `scopes` module exports whose `slug` is a column: `Scope` carries its `slug` as a
-type parameter (`null` or the column), so a scope without one has no key. Each `bySlug` answers the
-scope's `ScopeContext`, the chain's rows and the caller's `member`.
+plugins' procedures beside the consumer's, and the typed client and `Fixtures<AppRouter>` reach
+them. A plugin without `routes` contributes the empty type. Which `auth.*` procedures auth's
+runtime adds, by option: [procedures](./plugins/auth.md#procedures).
 
-`.dev.vars` carries `STACK_DEV=1` (contributed by `plugin-cloudflare`, never through `api.slots.env`,
-so it's never prompted as a deploy secret). `createWorker` derives `_devMode` from
-`env.STACK_DEV === "1"` and threads it through the base context; `.dev.vars` only loads under
-wrangler/Miniflare local dev, so `_devMode` is false in production. Rate limiting (`plugin-api`'s
-`rateLimit` middleware, `plugin-auth`'s `/api/auth/*` limiter) is skipped whenever `_devMode` is
-true.
+## The context
 
 The base context every procedure starts from is `env`, `httpRequest` (the raw HTTP `Request`),
 `reqHeaders`, `resHeaders` (oRPC's header plugins), `executionCtx` and `_devMode`. `env` takes the
-type the deploy target names through `api.slots.envType`: `BaseContext<TEnv>` and `createWorker<TEnv>`
-carry it, and the generated worker and procedure entry render `createWorker<Env>(…)` on Cloudflare,
-so `context.env.APP_URL` reads as `string` and an undeclared var is a type error. Without a target
-that names one (node) `env` is `unknown`. The parameter is type-only; `envChecks` stays the runtime
-guard. Plugin-db adds
-`db`, plugin-auth's runtime `auth`, `tenancy` and `_rateLimiter` (and `oauth` with `mcp`), and its auth middleware `user`
-and `session`; the MCP endpoint adds `_caller`. A scoped procedure then writes each resolved level's row under its scope's name,
-`organization` and `member` at the root. The raw request is `httpRequest`, not `request`, because
-a consumer's scope takes its table's name and `request` is a common one. `defineScope` refuses
-every one of these keys as a scope name, since the row would overwrite it; its list checks
-plugin-api's `BaseContext` keys by type, so a key added there fails to compile until it is listed.
+type the deploy target names through `api.slots.envType`: `BaseContext<TEnv>` and
+`createWorker<TEnv>` carry it, and the generated worker and procedure entry render
+`createWorker<Env>(…)` on Cloudflare, so `context.env.APP_URL` reads as `string` and an undeclared
+var is a type error. Without a target that names one (node) `env` is `unknown`. The parameter is
+type-only; `envChecks` stays the runtime guard.
 
-The RPC route answers `GET` and `POST`. The client sends a query as `GET` (its input in `?data=`, oRPC's own encoding) and everything else as `POST`: `createClient` sets the `RPCLink` `method` from the operation context oRPC's TanStack Query utils put on each call, under the symbol `@orpc/tanstack-query` exports (`createApiQueryUtils` in `@fcalell/plugin-query/tanstack-query`, the module that imports that peer, hands it to the client: a second copy of the package would be a second symbol, so the client never imports it itself) (`queryOptions`, `infiniteOptions` and the streamed and live forms are reads, `mutationOptions` and a call outside the utils are not), so the wire carries the kind that otherwise exists only in the worker, which is what lets the screens workbench force a state on queries alone. oRPC's `RPCHandler` refuses a `GET` (`405`) on a procedure whose route method is not `GET` (`StrictGetMethodPlugin`, on by default), and `.query()` is the only terminal that sets it, so a mutation or a bare handler never runs from a link or a cross-site navigation; the `POST` content-type guard does not apply to a `GET`, which has no body. The trade-offs: a query's input is in the URL, so it reaches access logs and the browser history; an input too long for the URL (oRPC's `maxUrlLength`, 2083 characters) falls back to `POST` on its own, which the worker still accepts for a query; and a `GET` is not preflighted when cross-origin, which is safe only because it reaches reads. The response carries no `Cache-Control` and no validator, so nothing caches it.
+Plugin-db adds `db`; plugin-auth's runtime adds `auth`, `tenancy` and `_rateLimiter` (and `oauth`
+with `mcp`), and its auth middleware `user` and `session`; the MCP endpoint adds `_caller`. A scoped
+procedure then writes each resolved level's row under its scope's name, `organization` and `member`
+at the root. The raw request is `httpRequest`, not `request`, because a consumer's scope takes its
+table's name and `request` is a common one. `defineScope` refuses every one of these keys as a scope
+name, since the row would overwrite it; its list checks plugin-api's `BaseContext` keys by type, so
+a key added there fails to compile until it is listed.
 
-With `src/worker/mcp.ts`, `.handler(routes, { mcp, name })` also mounts `POST /mcp` after context
-injection (any other method is `405`). Its order: a forbidden `Origin` is `403`; the context's
-`oauth.verify(request)` answers the verified agent or its challenge `Response`, returned unchanged
-(`401` first draws the per-IP `RATE_LIMITER_RPC` budget, outside dev mode, since a forged `kid`
-costs a key refetch; an accepted token never does, `verify` limits per grant); the body is read to
-4 MiB (`413`; invalid JSON `400`, a batch `400`). The MCP SDK serves it statelessly for both
-protocol eras, each request a fresh server. Each listed procedure runs through oRPC in process
-with the stack context, the pinned `tenancy`, `_caller: { user, session }` from `verify` (the
-auth gate takes it in place of `getSession`; `/rpc` never sets it), `reqHeaders` without
-`cookie` and `authorization`, an `httpRequest` rebuilt from them with no body, and a fresh
-`resHeaders`. The tools resolve against the consumer routes when `.handler()` runs, so a tool the
-endpoint cannot serve fails the boot; the SDK loads on the first `/mcp` request. `.query()` and
-`.mutation()` stamp oRPC meta `kind`, from which a query tool carries `readOnlyHint`. An
-`ORPCError` is an `isError` result of `{ code, message, data }`; any other throw is a masked
-`INTERNAL_SERVER_ERROR` result and is logged.
+### Dev mode
 
-Env vars the worker reads are declared on `api.slots.env` by the plugin that reads them, never
-by a deploy target: cloudflare renders the list into `.dev.vars` (each var deploys as a secret), node sets each
-var the shell leaves unset to its `devDefault` in the dev process, and both bake the same
-`envChecks`. A static-only cloudflare deploy (no api) reads the slot as `[]`.
+`.dev.vars` carries `STACK_DEV=1`, contributed by `plugin-cloudflare` and never through
+`api.slots.env`, so it is never prompted as a deploy secret. `createWorker` derives `_devMode` from
+`env.STACK_DEV === "1"`, the one dev predicate every gate reads, and threads it through the base
+context. `.dev.vars` loads only under wrangler and Miniflare local dev, so `_devMode` is false in
+production. Rate limiting (`plugin-api`'s `rateLimit` middleware, `plugin-auth`'s `/api/auth/*`
+limiter) is skipped whenever `_devMode` is true. The same flag admits the dev origins
+([CORS and origins](./plugins/api.md#cors-and-origins)).
 
-Env values are asserted once per isolate, on the first request: `createWorker({ envChecks })`
-carries every `api.slots.env` entry plus its validation hints (presence always;
-`minLength`, `url`, `devLocalhost` when declared), baked by `api.slots.workerBase`. A failed check
-throws by var name on every request until fixed; `devLocalhost` refuses to serve when `STACK_DEV`
-is set but the var's hostname is not local, so dev settings can't ride into a deploy. Binding
-presence stays a per-request `validateEnv` on the runtime plugin that owns the binding (db).
-The worker export also carries `checkEnv(env)`, which runs every baked check and every runtime plugin's
-`validateEnv` and throws once, listing every missing or malformed var. The node server calls it before it
-starts a service or opens the port, so a production hub missing `AUTH_SECRET` or `APP_URL` fails at start
-with that list; a Worker has no start, and the first request runs the same checks.
+### Env checks
 
-The same flag gates the dev origins. `api.slots.devCorsOrigins` holds the localhost origin of
-each frontend dev server (vite, metro) and `api.slots.devTargetOrigins` that of each deploy
-target's dev process (the node server, wrangler). The two, frontends first, are emitted as
-`createWorker({ devCors })` and `authRuntime({ devTrustedOrigins })`, separate from the
-production lists, and each runtime appends them only when `STACK_DEV` is set, so the deployed
-worker refuses a credentialed localhost origin. Auth also widens its cookie `sameSite` to `none`
-while those dev origins are live. `APP_URL`'s dev default is the first frontend origin, else the
-first deploy-target origin, so a project with no frontend still passes its `devLocalhost` check
-under `stack dev`.
+The worker asserts its env values once per isolate and `checkEnv(env)` runs every check at once;
+both are plugin-api's ([env vars](./plugins/api.md#env-vars)). Binding presence is a per-request
+`validateEnv` on the runtime plugin that owns the binding (db), and `checkEnv` runs those too.
+
+## Middleware
+
+The consumer's middleware is an implicit contribution through two convention files, each published
+through `api.slots.middlewareEntries` so third-party plugins can interleave middleware around them:
+
+- `src/worker/middleware.ts` runs before context injection: the cheap, context-free guards (a
+  header check, a redirect) that reject a request before the worker pays for a db client.
+- `src/worker/middleware.context.ts` runs after it, registered with `.useAfterContext()`, so it and
+  the raw Hono routes it registers reach `db` and `auth` through `stackContext(c)` instead of
+  rebuilding their own clients.
+
+An entry is a middleware call plus the builder method that mounts it: `use` before the worker
+injects its plugin context, `useAfterContext` after (the only side that can read `db` and `auth`).
+`worker.ts` and `procedure.ts` share that one type, so both rebuild the identical chain. Entries are
+ordered by `phase` (`before-cors`, `after-cors`, `before-routes`, `after-routes`, `after-context`),
+then by `order` ascending, stable within ties; the ordered calls feed `api.slots.middlewareCalls`
+and their deduplicated imports `api.slots.middlewareImports`, which join `workerImports`.
+
+`.use(fn)` dispatches on the function's arity: Hono middleware is `(c, next) => Promise<Response |
+void>` (arity 2), a context-injecting fn is `(ctx) => extra` (arity 1). A consumer writing native
+Hono middleware exports it as is, unwrapped.
 
 ## Background handlers
 
@@ -124,203 +171,130 @@ With `src/worker/queue.ts` and `src/worker/scheduled.ts`, `.handler(routes, { �
 (each key only for a file that exists; a worker with plugins and no routes passes `{}` for the
 routes) adds `queue(batch, env, ctx)` and `scheduled(controller, env, ctx)` to the exported worker,
 present only when mounted, so Cloudflare's queue and cron events reach the same module its fetch
-does. Both build their context with the function the request path uses: the env checks (values
-asserted once per isolate), each runtime's `validateEnv`, then every plugin's `context(env, ctx)` and
-every context-injecting `use(fn)` in dependency order. The job context holds `env`, `executionCtx`
-(`waitUntil` only, a no-op when the runtime gave no context), `_devMode` and what the plugins provide
-(`db`, `auth` runtime, `tenancy`); it has no `httpRequest`, `reqHeaders` or `resHeaders`, no user or
-session, and no plugin `fetch` or middleware runs for it. `.stack/procedure.ts` exports `JobContext`
-(`WorkerContext` without those three keys) and `defineQueue` / `defineScheduled` typed against it; a
-handler is the plain function `defineQueue<Body>(run)` returns. A handler's throw is rethrown: the
-queue redelivers the batch (messages the handler acked first stay acked), a cron invocation is logged
-as failed. Plugin-node refuses both files, since a Node server never calls them.
+does. A mount is set when its convention file exists, and the file is refused unless the app has a
+worker to mount it on (a routes directory or a plugin runtime).
 
-## Node target (`plugin-node`)
+Both build their context with the function the request path uses (the env checks, each runtime's
+`validateEnv`, then every plugin's `context(env, ctx)` and every context-injecting `use(fn)` in
+dependency order). The job context holds `env`, `executionCtx` (`waitUntil` only, a no-op when the
+runtime gave no context), `_devMode` and what the plugins provide (`db`, `auth` runtime, `tenancy`);
+it has no `httpRequest`, `reqHeaders` or `resHeaders`, no user or session, and no plugin `fetch` or
+middleware runs for it. `.stack/procedure.ts` exports `JobContext` (`WorkerContext` without those
+three keys, as a mapped type: the base context's index signature would make `Omit` drop every named
+key) and `defineQueue` / `defineScheduled`, from `createJobs` typed against it. Each returns its
+handler as given; `defineQueue<Body>(run)` is the plain function, and the generated worker mounts
+it. A handler's throw is rethrown: the queue redelivers the batch (messages the handler acked first
+stay acked), a cron invocation is logged as failed. Plugin-node refuses both files, since a Node
+server never calls them.
 
-`plugin-cloudflare` and `plugin-node` are alternative deploy targets for the same worker. On the
-node target, `.stack/server.ts` (composed by `node.slots.serverSource`) calls
-`startNodeServer` from `@fcalell/plugin-node/server`: an outer Hono app that mounts the worker's
-fetch handler on every `api.slots.routePrefixes` path, serves the web client's build
-(`vite.slots.outDir`, `dist/client`) statically with SPA fallback to its `index.html` (the
-fallback shadows the worker's `GET /` liveness route; with no vite neither is mounted), listens on the configured port and host unless `PORT` and `HOST` say otherwise (never under `STACK_DEV`), and runs
-consumer background services (`src/server/services/<name>.ts`, each default-exporting a
-`defineService({ name, start, ready? })`; start may return a stop handle, stops run in reverse order on
-shutdown). Every `start` runs (file-name order) before any `ready`, and `ready` before the server
-listens, so work that needs another service (enqueueing a job) belongs in `ready`.
+## MCP endpoint
 
-`start(ctx)` receives `{ log, ws, http }`. `http.port` is the server's listen port and
-`http.mount(prefix, handler)` registers a raw fetch-style route: every request whose path equals
-`prefix` or is under `prefix + "/"` goes to `handler` (longest registered prefix wins, duplicate
-throws), matched after `/ws` and before the worker/static/SPA, so a service can host its own HTTP
-subtree (e.g. an in-process MCP endpoint the spawned CLI reaches directly by port, not through the
-vite dev proxy). `http.session(request)` resolves a request's `Cookie` or `Authorization` to the
-`{ user, session }` the app's auth holds, through the same worker `get-session` call the `/ws`
-upgrade makes (null when there is none or the app has no auth), so a mounted route and a socket
-accept the same credentials, a device key among them, by one origin rule (`ws-guard.ts`): a bearer
-is read on any request, a cookie only under an Origin the app trusts, or on a route's `GET` or
-`HEAD` with no Origin, which a browser sends from the app's own page.
+With `src/worker/mcp.ts`, `.handler(routes, { mcp, name })` also mounts `POST /mcp` after context
+injection (any other method is `405`). Its order:
 
-The entry hands `startNodeServer` module URLs (`workerModule`/`procedureModule`/`servicesModule`)
-instead of importing them: route files import `virtual:stack-procedure`, which plain node cannot
-resolve (tsx/esbuild resolve it via tsconfig paths). Static imports resolve at link time, before
-any hook can register, so the boot calls `node:module`'s `registerHooks` to map
-`virtual:stack-procedure` to `.stack/procedure.ts` and only then dynamic-imports the worker and
-the services barrel.
+1. A forbidden `Origin` is `403`.
+2. The context's `oauth.verify(request)` answers the verified agent or its challenge `Response`,
+   returned unchanged ([MCP OAuth](./plugins/auth.md#mcp-oauth)). A `401` first draws the per-IP
+   `RATE_LIMITER_RPC` budget, outside dev mode, since a forged `kid` costs a key refetch; an
+   accepted token never does, as `verify` limits per grant.
+3. The body is read to 4 MiB (`413`); invalid JSON is `400`, a batch `400`.
 
-`stack build` adds a self-contained form of the same server (`node.slots.serverBundleSource`, written to
-`.stack/server.bundle.ts` by the `node-bundle` build step, phase `post`, after the client is built). It
-imports the worker and the services barrel, which esbuild follows (`virtual:stack-procedure` is its
-alias for `.stack/procedure.ts`), and hands `startNodeServer` the modules (`modules`), the client's
-directory as a URL beside the bundle (`staticDir`) and the `boot` tasks of `node.slots.bundleEntries`
-(db applies its committed migrations). The output is `server/` beside the client's directory: `server.mjs`,
-the entries' copied files (`migrations/`) and `node_modules/` with only the packages that carry a native
-addon (found while resolving: a `binding.gyp`, `prebuilds/` or `build/Release`) and their runtime
-dependencies; `workers/` holds each `new Worker(new URL(...))` module the app's sources start, bundled on its own (the build rewrites the URL), and a `loadModules(new URL("./dir/", import.meta.url))` call becomes lazy imports of that directory's modules, so neither a thread's file nor a directory listing is needed at run time. It runs with only `node`.
-
-Node has no bindings: the worker gets `env = process.env`, `executionCtx` degrades to a no-op
-`waitUntil`, and binding-backed features (rate limiters) skip themselves when the binding is
-absent. `STACK_DEV=1` and the `devDefault` of every `api.slots.env` var the shell leaves unset
-arrive via `ProcessSpec.env` on the dev process, not `.dev.vars`. The consumer's TypeScript
-(`.stack/`, `src/`) runs directly under Node >= 24 (type stripping) while the stack packages it
-imports load compiled from `dist/`, so everything of the consumer's on the runtime import path
-stays erasable-only syntax (no parameter properties, no enums) and names the file of every
-value import (`./types.ts`, `../src/schema/index.ts`): node resolves neither a missing extension
-nor a directory (`ERR_UNSUPPORTED_DIR_IMPORT`). The generated worker imports the schema as
-`../src/schema/index.ts` on both dialects for that reason: the sqlite worker runs under node on
-this target. esbuild resolves the file form
-for the Workers bundle. A node consumer's route files name their files the same way.
-
-### Database on the node target
-
-`db({ dialect: "sqlite" })` runs through `@fcalell/plugin-db/runtime/sqlite` (`src/server/`), a
-module separate from the D1 `./runtime` so a Workers bundle never pulls in a native driver. The
-driver is `better-sqlite3` through plugin-db's own `createClient` (a plain dependency of the
-plugin): the pinned `drizzle-orm@0.45.2` ships no `node:sqlite` driver. The installation decides
-where the file lives: the runtime opens the file the `fileVar` env var names (default `DB_FILE`),
-once per process, and `path` is only that var's `devDefault`. Both `validateEnv` and `context`
-refuse a missing var by name, because better-sqlite3 opens an anonymous temporary database for an
-undefined path and would serve an empty database silently. The context is `{ db }` exactly as on
-D1, so a procedure is the same code on both dialects. `createClient` sets the connection's
-pragmas as defaults, with no option: WAL, `synchronous = NORMAL`, a busy timeout, foreign keys,
-a larger page cache and mmap window, in-memory temp storage, and `PRAGMA optimize` on open,
-periodically (an unref'd timer) and at process exit. D1 is untouched.
-
-`stack db push` (and the sqlite local migrate) create the file's directory before drizzle-kit
-runs: drizzle-kit neither creates it nor fails without it, reporting success while writing
-nothing.
-
-### Auth on the node target, passkeys, consumer plugins
-
-`plugin-auth` requires `api` and `db` only; its rate-limiter bindings and `nodejs_compat` flag
-are cloudflare contributions that stay inert on node, where the limiter skips itself. Every value
-import on its runtime path names its file, so `authRuntime` loads under plain node.
-
-`auth({ passkey })` adds `@better-auth/passkey`'s `passkey()` configured, not wrapped. Codegen
-bakes every default: `rpID` from `app.domain` (a registrable suffix of the derived origins, as
-WebAuthn requires of the relying party), `rpName` from `app.name`, `origin` from the resolved
-production CORS list. A `localhost` ceremony matches neither, so codegen also bakes
-`passkey.devOrigin` (the dev origins) and the runtime, under `STACK_DEV`, passes
-`rpID: "localhost"` and those origins to `passkey()` instead, as it does for
-`devTrustedOrigins`. `@better-auth/passkey`, `/expo`, `/mcp`, `/oauth-provider`, `/cimd` and
-`/core` are pinned to the exact `better-auth` version: each release peer-requires its own version
-of `better-auth` and `@better-auth/core`.
-
-`auth({ mcp: true })` (refused without `organization`) makes the worker an OAuth authorization
-server for MCP clients. The runtime adds `jwt()`, `mcp()` and `cimd()` (profile
-`mcp-2026-07-28`) in that order, then a guards plugin, and `disabledPaths` closes the session
-`/token` and the four `/oauth2/*-consent(s)` paths. The pins: the login, organization-choice and
-consent pages (`/sign-in`, `/connect/organization`, `/connect/consent`), the resource
-`${APP_URL}/mcp`, scopes `mcp` and `offline_access`, the authorization-code and refresh grants only,
-a 600 s code, a 3600 s access JWT, a 30-day refresh token reusable for 30 s, dynamic registration
-off, and `clientPrivileges` refusing every action (clients come from metadata documents, never a
-session). The guards force `prompt=consent` on every external authorization (CIMD clients share a
-`client_id`), refuse a `set-active` carrying the authorization's signed query for an organization
-the tenancy does not resolve (`ORGANIZATION_NOT_RESOLVED`) and mark the request that chose, which
-is what lets the resumed authorization pass the organization step (which a member of exactly one organization never reaches), delete a client's older tokens
-when its consent is accepted, and, with the organization hooks, delete a member's grants when they
-are removed, leave, or the organization is deleted. A grant is one `oauthConsent` row, unique by
-client, member and organization (`referenceId`). The runtime's `fetch` also hands the two
-`/.well-known/oauth-*` prefixes to Better Auth behind the IP limiter.
-
-`context.oauth.verify(request)` reads only the `Authorization` header: signature against the stored
-keys (never a fetch of the worker's own JWKS URL), issuer, exact audience, `typ` `at+jwt`, expiry,
-scope `mcp`, DPoP binding, then one read joining the consent (client, member, `organization_id`),
-the user and the member under the membership predicate; a token issued before the consent's
-`createdAt` is refused. It answers `{ user (with `agent: true`), session (the grant's, no token),
-member, grant, tenancy }` or the `401`, `403` or `429` `Response` a client reads, and its
-`tenancy` resolves the grant's organization alone. `revokeGrant(id, userId?)` ends a grant by its consent id (with `userId`, only one of that member's) and `listGrants(userId)` lists a member's grants; `auth.oauth.grants.list` and `revoke` are their procedures.
-The per-grant limiter (`RATE_LIMITER_AGENT`) is applied inside `verify`, skipped under dev mode.
-The CIMD transport is `worker/cimd-transport.ts`: HTTPS `GET`/`HEAD` only, no IP literal or
-special-use name, the host resolved over DNS over HTTPS and every address required public, redirects
-returned unfollowed; it cannot pin the connection to the checked address, a window accepted because
-a Worker's egress reaches the public internet only.
-
-`auth({ devices: true })` is a bearer credential for a machine with no browser, built from
-`@better-auth/api-key` configured, not wrapped. A key is `stk_` plus 48 random letters, stored as a
-SHA-256, made by a signed-in member through the `auth.devices.*` procedures and shown once. The
-plugin's `customAPIKeyGetter` reads only an `Authorization: Bearer stk_…` header (any other bearer, an
-expo session token or an OAuth access token, is never taken for a key) and `enableSessionForAPIKeys`
-makes the validated key the session on every call that carries it, with `session.id` the key's id.
-So one credential reaches every door that already asks `auth.api.getSession`: a procedure's auth
-middleware, the `/ws` upgrade's `get-session` (which forwards `Authorization`, and a headless client
-sends no `Origin`), and a service route through `http.session(request)`, the same lookup. The
-`device-guard` plugin registers ahead of the key plugin and refuses a key every auth endpoint
-outside a closed list, so a stolen key cannot mint another or change the sign-in; the key plugin's
-HTTP routes are in `disabledPaths`, so the `auth.devices.*` limits cannot be bypassed. Each key
-validation reads and writes its row (the per-key limiter, `lastRequest`), and revocation is
-therefore immediate for requests and not for an open socket. `plugin-api`'s auth middleware maps a
-401 or 403 thrown by the session lookup to `UNAUTHORIZED` and a 429 to `TOO_MANY_REQUESTS`; every
-other throw still surfaces as a 500.
-
-The callbacks file is the consumer's seam into better-auth's own extension mechanism:
-`AuthCallbacks.plugins` are registered after the framework's plugins, and the file is wired
-whenever it exists. Every callback is optional in `AuthCallbacks`; with `emailOtp` or `magicLink` on, generate
-refuses a missing file and the runtime refuses to build better-auth without `sendOTP` or
-`sendMagicLink`, naming it, while `emailOtp: false` without `magicLink` requires neither. The
-per-email rate limit covers the OTP send and `/sign-in/magic-link`, which share a bucket. `drizzleAdapter`'s schema
-map starts from the drizzle client's full schema (the consumer's `src/schema`) and then names the
-framework's tables explicitly (`organization`, `passkey` and `apikey` tables only when enabled), so a
-consumer plugin's model resolves to the consumer's table of that name while the framework's
-models never depend on the consumer's export names.
-
-The typed WebSocket surface lives on this target: `@fcalell/plugin-node/ws` (the isomorphic
-`defineChannel` contract), `./server`'s hub (`ctx.ws.channel(def, { onSubscribe, onUnsubscribe,
-onMessage })` → `broadcast`/per-connection `send`; a connection carries an `id` stable for the
-socket's life, and `onUnsubscribe` runs once on an unsub or the socket's close, so per-connection
-state such as presence never outlives the socket), and `./client` (browser client, shared socket,
-auto-reconnect with resubscribe). The target bounds its transports from `node({ bounds })`: a body
-over `body` bytes is refused with 413 by Hono's body limit, and a frame over `frame` bytes closes
-its socket through `ws`'s `maxPayload`. Everything is zod-validated at both ends; invalid frames are dropped and
-logged. Gotcha: `@hono/node-ws` peer-pins `@hono/node-server` v1 and must not be used; node-server
-v2 ships its own `upgradeWebSocket` plus `serve({ websocket: { server } })` with a
-`ws` `WebSocketServer({ noServer: true })`. Graceful shutdown must `terminate()` the tracked WS
-clients before `server.close()` or close hangs on live sockets.
+The MCP SDK serves it statelessly for both protocol eras, each request a fresh server. Each listed
+procedure runs through oRPC in process with the stack context, the pinned `tenancy`,
+`_caller: { user, session }` from `verify` (the auth gate takes it in place of `getSession`; `/rpc`
+never sets it), `reqHeaders` without `cookie` and `authorization`, an `httpRequest` rebuilt from
+them with no body, and a fresh `resHeaders`. The tools resolve against the consumer routes when
+`.handler()` runs, so a tool the endpoint cannot serve fails the boot ([MCP](./plugins/api.md#mcp));
+the SDK loads on the first `/mcp` request. `.query()` and `.mutation()` stamp oRPC meta `kind`, from
+which a query tool carries `readOnlyHint`. An `ORPCError` is an `isError` result of
+`{ code, message, data }`; any other throw is a masked `INTERNAL_SERVER_ERROR` result and is logged.
 
 ## `virtual:stack-procedure`
 
-`src/worker/routes/*.ts` files author procedures via `import { procedure } from "virtual:stack-procedure"`
-(plugin-api README, "Write procedures"). That specifier resolves through a tsconfig `paths` alias
-(`packages/cli/src/templates/tsconfig.ts`) to `api.slots.procedureSource`'s generated
-`.stack/procedure.ts` — not a bundler virtual-module plugin, since the worker never runs through
-Vite. esbuild (`wrangler` dev and deploy bundling) resolves tsconfig `paths` natively; the node
-target maps the specifier with a `registerHooks` resolve hook (above).
+`src/worker/routes/*.ts` files author procedures with
+`import { procedure } from "virtual:stack-procedure"`. The specifier resolves through a tsconfig
+`paths` alias to `api.slots.procedureSource`'s generated `.stack/procedure.ts`, not a bundler
+virtual-module plugin, since the worker never runs through Vite. esbuild (`wrangler` dev and deploy
+bundling) resolves tsconfig `paths` natively, and the node target maps the specifier with a
+`registerHooks` resolve hook ([runtime](./plugins/node.md#runtime)); `paths` needs no `baseUrl` to
+resolve relative to the tsconfig's own directory (TS 4.1+). Which tsconfig holds the alias and how
+the bundler finds it: [TypeScript projects](./consumer-project.md#typescript-projects). Plugin-api
+declares the alias for `stack init`'s tsconfig template only, never for `stack generate`, since the
+tsconfig is scaffolded once. Its own presence is the gate: an app with no runtimes has no
+`.stack/procedure.ts`, and the declared alias then never resolves, which is harmless.
 
-`.stack/procedure.ts` rebuilds the same `.use()` chain `workerBase` + `pluginRuntimes` produce (minus
-callbacks/handler) as real, never-exported code, purely so `typeof` can extract the exact
-`TContext` a route handler's `context` will carry — the same trick `workerSource` uses for
-`AppRouter` (`typeof worker._router`). `TStatements` (for `procedure({ rbac })` / `procedure({ can })`'s
-autocomplete) comes from `api.slots.rbacStatements`, a plain-JSON handoff `auth` contributes from
-`organization.ac.statements`; absent that contribution it falls back to `Record<never, never>`, which
-makes `rbac`/`can` un-settable rather than accepting an arbitrary string.
+`.stack/procedure.ts` is gated the same way `workerSource` is: no runtimes and no routes, no
+artifact. The slot's compute is the one place that gate is checked; the renderer itself renders a
+runtimes-less chain.
+
+```ts
+// .stack/procedure.ts (generated)
+import createWorker from "@fcalell/plugin-api/runtime";
+import type { AppBuilder } from "@fcalell/plugin-api/runtime";
+import { createJobs, createProcedure } from "@fcalell/plugin-api/procedure";
+const __chain = createWorker<Env>({ prefix: "/rpc", cors: [/* … */] }).use(dbRuntime({ binding: "DB_MAIN", schema }));
+
+type ContextOf<B> = B extends AppBuilder<infer C> ? C : never;
+export type WorkerContext = ContextOf<typeof __chain>;
+type RbacStatements = Record<never, never>; // or auth's contributed statements
+export type Entity = string; // or a contributed "projects" | "tasks" union
+// … JobContext, defineQueue, defineScheduled
+export const procedure = createProcedure<WorkerContext, RbacStatements, Entity>();
+```
+
+### The rebuilt chain
+
+`TContext`, the type argument to `createProcedure`, matches the request context `.stack/worker.ts`
+builds at runtime: the same runtime plugins, the same options, the same `.use()` order and the same
+consumer middleware chain. A context-injecting middleware (arity 1) extends `TContext` as a runtime
+plugin does, so leaving it out would compile `.stack/procedure.ts` against a narrower context than
+the worker builds and hide a key such as `requestId` a route handler should see. Rather than derive
+each runtime factory's or middleware's generics by hand, the file rebuilds the identical chain as
+real code that is never exported or called further, and TypeScript infers `TContext` from
+`typeof __chain`, the way `.stack/worker.ts` gives `AppRouter` (`typeof worker._router`). The
+runtime factories and middleware are pure: constructing them without calling `.handler()` has no
+observable effect. The chain mirrors the worker's loop (runtimes, then the middleware chain, the
+same order), with `middlewareCalls` and `middlewareImports` beside `pluginRuntimes`, minus two
+things: the callback splicing, since callbacks are an options passthrough for request-time behavior
+and never change a `RuntimePlugin`'s declared `TProvides`, and the terminal `.handler(...)`, since
+the chain is only typed.
+
+The file takes the full `workerImports` list, since a runtime option value can reference an
+identifier that needs its own import (db's `schema`, contributed beside the `pluginRuntimes` entry,
+not on it), minus the route barrel: route files import `virtual:stack-procedure`, so this file
+importing the barrel back would be a cycle. For the same reason a consumer's
+`src/worker/middleware.ts` never imports from `src/worker/routes/*`: middleware, routes,
+`procedure.ts`, middleware is a cycle and no supported pattern, and the barrel exclusion guards
+only the routes-to-`procedure.ts` direction. `WorkerContext` is exported so post-context middleware
+types `stackContext<WorkerContext>(c)`, and that middleware imports it type-only: `procedure.ts`
+imports the middleware file back, and only erasure keeps that from being a real cycle.
+
+`TStatements` (the autocomplete of `procedure({ rbac })` and `procedure({ can })`) comes from
+`api.slots.rbacStatements`, a plain-JSON handoff `auth` contributes from
+`organization.ac.statements`; absent that contribution it falls back to `Record<never, never>`,
+which makes `rbac` and `can` un-settable rather than accepting an arbitrary string.
+
+### Input and output types
 
 The builder derives two types from one input schema: the caller's side is the config's additions
-merged with `z.input`, the handler's side the additions' handler form merged with `z.output`.
-The additions split the same way: a scope adds `<name>Id: string` to both, and `paginated: true`
-adds an optional `limit` for the caller and `limit: number` for the handler, because the input
-defaults it (`paginated: "window"` the same for `offset`; `sort` adds the typed `sort` field). `.output(schema)` swaps the sides: the handler returns `z.input` and the caller
-receives `z.output`. oRPC parses the input before the handler runs and sends the validated output,
-so the split is types only; the runtime chain is unchanged. `Procedure<TInput, TOutput>` carries
-the caller's side only, because every reader of a built procedure is a caller: `RouterClient`,
-`createClient`, `createApiQueryUtils` and the emitted `.stack/types`
-declarations, which inline the brand. The handler's side is used only where the handler is
-written, so a third parameter would be read by nothing and grow every emitted declaration.
+merged with `z.input`, the handler's side the additions' handler form merged with `z.output`. The
+additions split the same way: a scope adds `<name>Id: string` to both, and `paginated: true` adds
+an optional `limit` for the caller and `limit: number` for the handler, because the input defaults
+it (`paginated: "window"` the same for `offset`; `sort` adds the typed `sort` field).
+`.output(schema)` swaps the sides: the handler returns `z.input` and the caller receives
+`z.output`. oRPC parses the input before the handler runs and sends the validated output, so the
+split is types only; the runtime chain is the same. `Procedure<TInput, TOutput>` carries the
+caller's side only, because every reader of a built procedure is a caller: `RouterClient`,
+`createClient`, `createApiQueryUtils` and the emitted `.stack/types` declarations, which inline the
+brand. The handler's side is used only where the handler is written, so a third parameter would be
+read by nothing and grow every emitted declaration.
+
+## In the code
+
+- `packages/cli/src/runtime.ts`: the `RuntimePlugin` protocol, `dependsOn`, `fetch`, `routes`.
+- `plugins/api/src/worker/index.ts`: `createWorker`, the request order, the `dependsOn` sort, the invocation context, `checkEnv`, middleware dispatch, the MCP and job mounts.
+- `plugins/api/src/node/codegen.ts`: the worker chain's emit order and the middleware ordering.
+- `plugins/api/src/node/procedure-codegen.ts`: `.stack/procedure.ts` and its rebuilt chain.
+- `plugins/api/src/node/types.ts`: the middleware entry type both files share.
+- `plugins/api/src/index.ts`: the runtime sort, the routes handler slot, the background mounts, the middleware convention files, the `virtual:stack-procedure` alias and the procedure source slot.
+- `plugins/api/src/procedure.ts`: the procedure builder and the background handler factories.

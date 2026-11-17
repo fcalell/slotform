@@ -7,6 +7,8 @@ which token to pick. The contract subpaths export build-time data only, so each 
 own CSS from the same records and ui-core stays framework-free outside `react/*`. One subpath is Node-only:
 `./manifest`, the guide pages the UI plugins index.
 
+How it is built: [docs/architecture/ui-core.md](../../docs/architecture/ui-core.md).
+
 ## Install
 
 ```bash
@@ -80,7 +82,7 @@ The subpaths:
   focus, and ending the edit. Both plugins' `Input` drive their `onCommit` with it.
 - `@fcalell/ui-core/reason`: `pressStands(blocked, pressedUnder)`, whether a blocked act's press
   still shows its reason: a press is kept as the reason it came under and stands while the act
-  is blocked by that reason, so unblocking or a new reason forgets it in render.
+  is blocked by that reason, so unblocking or a different reason forgets it in render.
 - `@fcalell/ui-core/leave`: `createLeave()`, whether leaving a form asks: a field's input edits it, the
   filled act's press clears the edit while the act runs (a rejection puts it back), and a leave
   attempt asks once while the form stands edited. Both plugins' forms drive it.
@@ -153,102 +155,3 @@ The contract has two modes, `light` and `dark`. `themeTokens` seeds the light co
 density set into the `@theme` block as well, because Tailwind v4 generates no utility from a
 property declared only inside a variant block; which mode and density seed it never shows, since
 every utility reads its variable and the active scope sets it.
-
-## DESIGN.md
-
-The package's `DESIGN.md`, shipped in its `files` so a consumer reads it under
-`node_modules/@fcalell/ui-core/`, is the contract in the [DESIGN.md
-format](https://github.com/google-labs-code/design.md): the default theme's tokens as front matter,
-each matrix cell and single cell as a component (dark values and their components suffixed `-dark`),
-and the roster with the cells each component draws, its states and the tokens it owns.
-`src/design-md.ts` emits it and `pnpm --filter @fcalell/ui-core design-md` writes it, then fails
-when `design.md lint` reports an error. The committed file is the emitter's output, never edited by hand.
-
-## The knobs
-
-A theme sets a knob and never a token. Six knobs; everything else is the sheet and moves only
-with it.
-
-| Knob | Default | Moves |
-| --- | --- | --- |
-| `hue.accent` | 264 | the accent-bound roles: `accent`, `accent-soft`, `accent-ink`, `accent-edge`, `ring`, `selected-outline`, `act-accent` with `act-accent-hover`, `act-accent-press` and `act-accent-pending`, `toggle-on` and `toggle-on-hover`. The three status hues, the hued chip families and the avatars are fixed |
-| `hue.cast` | `hue.accent` | the hue every neutral carries: `canvas`, `surface`, `group`, `band`, `raised`, the three hairlines, `scrim`, the three inks, the washes, `skeleton`, `switch-off`, `fill-disabled`, `fill-neutral` with the neutral chip's soft and ink and the light shadows. Each neutral keeps the chroma the sheet declares for it, so the cast tints the chrome and moves no contrast. It never reaches the accent, the status trio, the hued chip families or the avatars |
-| `radius` | 3 | the control's corner radius in px, 0 to 12; a chip and a row take it, and a card, a popover and a sheet take a third more, rounded up (3 → 4, 6 → 8, 9 → 12), so a layer stays rounder than what stands on it. `full` stays round |
-| `fonts` | `sans` "IBM Plex Sans", `mono` "IBM Plex Mono" | the two families as `--font-sans` and `--font-mono`, each followed by its metric fallback face (`fallbackFace(family)`, the family name plus ` Fallback`) and then its platform fallback stack. The files are each plugin's `fonts` option |
-| `size` | 13 | the desktop body in px, 12 to 18; the touch and room body is `max(16, round(size × 16 / 13))`. Every type size, every space (a base of `4 × body / 13` at the default) and every size but the target (28 desktop, 44 touch, declared) is a formula over it: a control and a row are the body line and a gap above and below it, never under the target; an icon `body × 7 / 6`, rounded to even, its meta and control forms two px either side; a dot half the meta icon. A component's own measure is a multiple of one of these in its recipe, so the knob scales every component with the type |
-| `defaultMode` | unset | the mode a viewer with no stored choice starts in, ahead of the system preference; unset, the system decides |
-
-`hue.accent` and `hue.cast` are in `[0, 360)`; an unset cast is the accent's hue, so an
-accent alone tints the chrome toward it. Chroma is never a knob: it decides whether a cast is a
-tint or a color. A re-hued accent holds its chroma inside sRGB at its lightness, so
-it loses saturation at a hue the gamut cannot carry and never clips to another color, and a role
-that carries a contrast contract (`accent-ink` on `group` and on `accent-soft` at 4.5:1, the
-dark `accent` on `group` at 3:1, `act-accent-pending` at 3:1 under `on-act-accent`) moves its
-lightness from where it starts, a declared literal or a `mix`, until the contract holds; the
-sheet carries the held value at its own hue. The contrast pairs then hold at every hue of either
-knob, whatever the accent and the cast.
-
-Density is not a knob. The web draws the desktop set where the primary pointer is fine and the
-viewport is at least `tablet` wide, and the touch set everywhere else, so a desktop window narrower
-than `tablet` draws the touch set; a `data-density` attribute on the root pins any set, which is how
-the showcase addresses a density. Native is touch-only outside a room place. The `room` set is the
-one a screen declares (the place's `distance`), since no query detects how far a screen is read from:
-the touch set drawn on a 960 × 540 canvas and multiplied by the room unit `u = max(1px, min(100vw /
-960, 100dvh / 540))` (native: from the window's size), so at 1920 × 1080 `u` is 2 and the body is
-32, the title 44, a control 88 and a row 96. In the room only, `display` is 5 times the body and
-`page` is 48 canvas units all round; the radii, the fixed widths, the hairline and the ring scale by
-`u` too, and a room page holds one column and never splits, because breakpoints stay px. A molecule
-whose structure (not a token) follows density reads it through the web's `touch:` variant, which
-applies exactly where the touch set draws (a `data-density="touch"` pin, or no `desktop` pin where
-the pointer is not fine or the viewport is narrower than `tablet`); native has no variant, since it
-always draws the touch set and so the touch structure.
-
-## Words
-
-Every word a molecule draws on its own comes from `words`, a typed object passed once beside
-`theme`; the keys are `WORD_KEYS`, `COUNTED_WORD_KEYS` and `SLOT_WORD_KEYS` in `./tokens`. A
-counted word is `{ one, other }`, each form spelling `{count}` where the number stands, drawn
-through `counted(word, count)` (`one` at a count of one, `other` at any other). A slot word spells
-each of its named slots as `{name}` where the value stands, drawn through `filled(word, values)`;
-a tab bar's count past `TAB_COUNT_MAX` reads as `countOver` through `tabCount(words, count)`; the
-schema rejects a translation that drops a slot. `Words` requires every key and `wordsSchema` is
-closed, so a translation that misses a word fails `tsc` and the schema, never the interface.
-`ENGLISH` is the default. A sentence that belongs to the consumer is a prop on the molecule that
-draws it (`placeholder`, `notice`, every `sentence`, every label), never a key.
-
-## The sheet
-
-Every token's roles and values (colors, type, space, sizes, radii, widths, elevation, motion) and
-the contrast each pair holds are `DESIGN.md`'s, emitted from `tokens.ts`; the reasons behind the
-shape of the sheet are in `docs/architecture/ui-core.md`. Neither is repeated here.
-
-## What the reset does not catch
-
-Eleven namespaces reset to `initial`: `--color-*`, `--radius-*`, `--text-*`, `--leading-*`,
-`--tracking-*`, `--shadow-*`, `--font-*`, `--container-*`, `--breakpoint-*`,
-`--transition-duration-*`, `--ease-*`. The numeric `--spacing` base stays live because dimension
-utilities derive from it, so no build check can tell a role from a numeric; the matrices pin their
-cell strings verbatim instead. `--font-weight-*` stays live because the roles name their weights. A
-bare `duration-150` stays live because Tailwind turns a number into milliseconds without reading the
-theme. The ownership rule and the closed props keep a numeric off a call site: a look the matrices
-do not cover is a matrix cell or a consumer primitive under `ui/`, never a class on a call site.
-
-## The canon, the roster and the sharing line
-
-The rules every component of either plugin is built under (one name per concept, composed
-regions as descriptors, no class or style prop, the roster as data, the platform-invariant cells
-and the overlays) are architecture: `docs/architecture/ui-core.md`. The roster itself is
-`ROSTER` in `@fcalell/ui-core/roster`.
-
-## Composing with cn
-
-`cn()` merges class inputs and resolves Tailwind conflicts, last wins. Its `tailwind-merge` config
-registers six contract scales under `theme`: the type roles as font sizes and again as leading,
-the tracked roles as tracking, the radius roles, the spacing roles plus the sizes, and the widths
-as containers. Two members of one scale then collapse to the last, so `min-h-control` and
-`min-h-control` collapse, and a type role beside a color leaves both standing.
-
-A role owns three properties, so the config also declares `font-size` as conflicting with both
-`leading-` and `tracking-`: a later role clears the earlier role's line height and letter spacing
-together. **Compose the type role before any later size class, never after.** That conflict runs
-one way, so `cn("leading-title", "text-body")` returns `text-body` alone.

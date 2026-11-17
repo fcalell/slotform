@@ -1,7 +1,10 @@
 # Releasing
 
-How the packages reach the npm registry, and how a consumer moves from a git pin to a version.
-The owner publishes; nothing in the repository logs in to npm or publishes on its own.
+How the packages reach the npm registry: what is published, the version rule, the peer rules that
+keep one copy of each stack package in a consumer, the packages' `prepare`, and the check a release
+passes. The owner publishes; nothing in the repository logs in to npm or publishes on its own. The
+publish runbook is [publishing](../procedures/publishing.md), and moving a consumer from a git pin to
+a version is [consumer version move](../procedures/consumer-version-move.md).
 
 ## What is published
 
@@ -16,55 +19,69 @@ Sixteen packages, all `@fcalell/*`, all at one version:
 | `@fcalell/plugin-api`, `-auth`, `-cloudflare`, `-db`, `-expo`, `-native-ui`, `-node`, `-query`, `-react`, `-react-ui`, `-screens`, `-vite` | `plugins/<name>` | one per domain, named in `stack.config.ts` |
 
 Private, never published: the root (`@fcalell/stack`) and the two apps, `apps/showcase` and
-`apps/phone`, which are stack consumers inside the checkout (`.changeset/config.json` ignores
-them). The two presets are public although only a devDependency: `stack init` writes both into
-every app's `package.json`, and `.stack/biome.json` extends the Biome one.
+`apps/phone`, stack consumers inside the checkout (`.changeset/config.json` ignores them). The two
+presets are public although only a devDependency: `stack init` writes both into every app's
+`package.json`, and `.stack/biome.json` extends the Biome one.
 
-A tarball holds what its `files` lists and nothing more: `dist/` (JavaScript with `.d.ts` and
-maps), `src/` (the entries a bundler compiles resolve to it, `ui-core`'s guide sends a reader to
-`src/roster.ts` and `src/roster/`, and the maps point into it), `guide/*.md` (a consumer's `stack generate` indexes
-them), `DESIGN.md` for ui-core, `templates/` and `lint/` where a plugin scaffolds or contributes
-them, the README and the LICENSE. Test files, `tsconfig*.json` and ui-core's maintainer scripts
-stay out. Which `exports` entries resolve to `dist/` and which to source:
-`conventions.md`, "Build and exports".
+A tarball holds what its `files` lists and nothing more:
+
+- `dist/`: JavaScript with `.d.ts` and maps.
+- `src/`: the entries a bundler compiles resolve to it, ui-core's guide sends a reader to
+  `src/roster.ts` and `src/roster/`, and the maps point into it.
+- `guide/*.md`: a consumer's `stack generate` indexes them.
+- `DESIGN.md` for ui-core, and `templates/` and `lint/` where a plugin scaffolds or contributes
+  them.
+- The README and the LICENSE.
+
+Test files, `tsconfig*.json` and ui-core's maintainer scripts stay out. Which `exports` entries
+resolve to `dist/` and which to source is in [conventions](./conventions.md#build-and-exports).
+
+The CLI keeps a table of every first-party package a consumer installs (`STACK_PACKAGES`): the
+directory it lives in within stack's repository, the first-party packages its `dependencies` name,
+and `builds`, pnpm's verdict on each build script the package brings into the app (`true` runs it,
+`false` skips it), which the install that brings the package meets before any plugin loads. A test
+holds each entry to the package's own manifest.
 
 ## The version rule
 
 - **One version for every public package** (`fixed` in `.changeset/config.json`). A release
-  publishes all sixteen or none; never a subset.
+  publishes all sixteen or none, never a subset.
 - **Stack-to-stack ranges are carets of that version.** A package depends on another with
-  `workspace:^`, which `pnpm pack` and `pnpm publish` write as `^<version>`. On `0.x` a caret
-  holds the minor (`^0.1.0` is `>=0.1.0 <0.2.0`), so a breaking change bumps the minor and
-  everything else the patch, until `1.0.0`; then semver.
-- **A consumer's specs are `^<the CLI's version>`.** `stack init` and `stack add` write them
-  from the CLI's own `package.json` (`stackSpec`), and its lockfile is the pin.
-- **The bump goes through changesets.** `pnpm changeset` with each user-facing change; at
-  release time `pnpm version-packages` applies the pending ones (versions and changelogs),
-  and the result is committed on `master`. The first release, `0.1.0`, needs no changeset: the
-  manifests are already at it.
+  `workspace:^`, which `pnpm pack` and `pnpm publish` write as `^<version>`. On `0.x` a caret holds
+  the minor (`^0.1.0` is `>=0.1.0 <0.2.0`), so a breaking change bumps the minor and everything
+  else the patch, until `1.0.0`; then semver.
+- **A consumer's specs are `^<the CLI's version>`.** `stack init` and `stack add` write them from the
+  CLI's own `package.json` (`stackSpec`), and the consumer's lockfile is the pin. An unpublished
+  checkout takes the git spec instead ([consumer project](./consumer-project.md#installing-stack)).
+- **The bump goes through changesets.** `pnpm changeset` goes with each user-facing change; at
+  release time `pnpm version-packages` applies the pending ones (versions and changelogs), and the
+  result is committed on `master`. The first release, `0.1.0`, needs no changeset: the manifests
+  are already at it.
 
 ## Peers: one copy of each stack package
 
 A consumer must end with exactly one copy of each stack package, or its slots split
 (`Slot 'api:envType' is defined twice: two copies of its package are installed`). pnpm makes one
-instance of a package per set of resolved peers, so a peer that resolves differently in two
-places turns one `@fcalell/plugin-api` into two, and every stack package above it into two.
-The rules that prevent it:
+instance of a package per set of resolved peers, so a peer that resolves differently in two places
+turns one `@fcalell/plugin-api` into two, and every stack package above it into two. The rules that
+prevent it:
 
-1. **A stack package depends on another stack package, never peers on it.** The ranges are
-   lockstep carets, so one install holds one version.
+1. **A stack package depends on another stack package, never peers on it.** The ranges are lockstep
+   carets, so one install holds one version.
 2. **A stack package's own peers are third-party and optional** unless the plugin cannot work
    without them (`react`, `@tanstack/react-query`, `@orpc/tanstack-query`, Expo's modules). A
    consumer's root resolves each once.
-3. **A third-party dependency's optional peer that a consumer's tree can hold in two versions
-   becomes a direct dependency of the stack package.** `@orpc/server` has an optional peer `ws`;
-   wrangler's miniflare pins `ws` exactly while Storybook and Vitest take the newest, so an app
-   with a worker held two `ws`, pnpm resolved `@orpc/server`'s peer to either by context, and
-   `plugin-api`, `plugin-auth` and `plugin-screens` (each depends on `@orpc/server`) and every
-   package above them each existed twice. Each of the three lists `ws: ^8.21.1`, which settles
-   the peer inside the package. When `stack generate` names a slot defined twice after an
-   install, look for the next peer of this kind: compare the parenthesised suffixes of the
-   duplicated keys in the lockfile's `snapshots:`; the one that differs is the peer.
+3. **A third-party dependency's optional peer that a consumer's tree can hold in two versions is a
+   direct dependency of the stack package.** `@orpc/server` has an optional peer `ws`; wrangler's
+   miniflare pins `ws` exactly while Storybook and Vitest take the newest, so an app with a worker
+   holds two `ws`, and pnpm resolves `@orpc/server`'s peer to either by context. `plugin-api`,
+   `plugin-auth` and `plugin-screens` each depend on `@orpc/server`, so each lists `ws: ^8.21.1`,
+   which settles the peer inside the package; without it, each of the three and every package above
+   them exists twice.
+
+When `stack generate` names a slot defined twice after an install, the cause is a peer of the third
+kind: compare the parenthesised suffixes of the duplicated keys in the lockfile's `snapshots:`; the
+one that differs is the peer.
 
 Count the copies in any consumer, from its root; each stack package must show `1`:
 
@@ -73,77 +90,52 @@ awk '/^snapshots:/{s=1} s && /^  .?@fcalell\//' pnpm-lock.yaml \
   | sed -E "s/^  '?(@fcalell\/[a-z-]+)@.*/\1/" | sort | uniq -c
 ```
 
+## Prepare script
+
+A package's `prepare` is `node ../../scripts/prepare.ts`, run from the package's directory. An
+install of a checkout (`link:`, a git spec, `pnpm install` in the workspace) has no `dist/` until it
+builds one. `pnpm pack` and `pnpm publish` run `prepare` too, but a release builds once, before
+either (`turbo run build`, which `pnpm release:check` and `pnpm release` run), so under those two
+commands a `dist/` already there is the build, and `prepare` leaves it alone. Without one, it
+builds. There is no `prepublishOnly`.
+
 ## The check
 
-`pnpm release:check` (`scripts/release-check.ts`) proves the tarballs, with no server and no
-login. It builds, packs the sixteen packages, and checks each tarball (MIT, a LICENSE, a
-`repository.directory`, `publishConfig.access: public`, no `workspace:` range left, no test file,
-every `exports` and `bin` target present). It then makes three consumers with `stack init`
-(a worker web app, a Node-target web app, a native app), each installing **only** from the
-tarballs (`overrides` to `file:` tarballs in the consumer's `pnpm-workspace.yaml`, which is what
-the registry will serve), runs `stack generate`, `stack build` and `tsc -b` on them (the native
-one has no `stack build`), counts the copies of each stack package in the lockfile, and ends with
-`pnpm -r publish --dry-run`. Its logs, tarballs and consumers land in a fresh directory it
-prints; `--only web,node,native` narrows the consumers, `--keep` keeps their `node_modules`.
+`pnpm release:check` (`scripts/release-check.ts`) proves the tarballs, with no server and no login;
+it publishes nothing.
+
+1. It builds every package (`turbo run build`; `--no-build` skips it when they are built).
+2. It packs the sixteen public packages and checks each tarball: MIT, a LICENSE, a
+   `repository.directory`, `publishConfig.access: public`, no `workspace:` range left, no test
+   file, every `exports` and `bin` target present.
+3. It makes three consumers with `stack init`, each installing **only** from the tarballs
+   (`overrides` to `file:` tarballs in the consumer's `pnpm-workspace.yaml`, which is what the
+   registry will serve), so no workspace link and no registry copy of a stack package stands in
+   for a tarball:
+   - `web`: cloudflare, db, auth, api, query, vite, react, react-ui, screens;
+   - `node`: node, db, auth, api, query, vite, react, react-ui, screens;
+   - `native`: expo, native-ui, db, auth, api, query, cloudflare.
+4. On each it runs `stack generate`, `stack build` (not on `native`) and `tsc -b`, and counts the
+   copies of each stack package in the lockfile.
+5. It ends with `pnpm -r publish --dry-run`.
+
+`node scripts/release-check.ts [--out <dir>] [--only web,node,native] [--keep] [--no-build]`:
+`--out` is where the tarballs, the consumers and the logs go (a fresh directory under the system
+temp directory by default, printed); `--only` narrows the consumers; `--keep` keeps each consumer's
+`node_modules`, which are otherwise removed after the consumer is checked, to spare the disk.
 
 All three consumers type-check, the native one included: `plugin-auth`'s `src/expo.tsx` ships as
 source, so an app's `tsc` reads it, and it names no type from `expo-apple-authentication` or
-`@react-native-google-signin/google-signin` (optional peers that an app signing in by the browser
-installs neither of). It declares the little it uses of each and casts the dynamic import to it.
+`@react-native-google-signin/google-signin`, optional peers that an app signing in by the browser
+installs neither of. It declares the little it uses of each and casts the dynamic import to it.
 
-The check prints each consumer's `node_modules` size and package count: a build-time tool that
-slips into a runtime package's `dependencies` shows there first. The packages a server that only
-runs the app should not hold are optional peers (`consumer-project.md`, "Installing stack", "From npm").
+The check prints each consumer's `node_modules` size and package count: a build-time tool that slips
+into a runtime package's `dependencies` shows there first. The packages a server that only runs the
+app should not hold are optional peers ([consumer project](./consumer-project.md#from-npm)).
 
-## Publishing
+## In the code
 
-Once, on the machine that publishes: `npm login` as the account that owns the `@fcalell` scope
-(two-factor on; `pnpm` forwards npm's one-time-password prompt).
-
-```bash
-git switch master && git pull --ff-only          # a clean tree on master: publish refuses otherwise
-pnpm install --frozen-lockfile
-pnpm version-packages                            # only after a first release; commit the bump
-pnpm turbo run build                             # JavaScript and .d.ts into every dist/: the one build
-pnpm check                                       # the gate
-pnpm release:check                               # tarballs, three consumers, the dry run
-pnpm -r publish --dry-run                        # the dry run alone, with the git checks on
-pnpm release                                     # the build again (cached), then pnpm -r publish --access public
-git tag "v$(node -p "require('./packages/cli/package.json').version")"
-git push --follow-tags
-```
-
-`pnpm -r publish` goes in dependency order and skips a version the registry already holds, so
-after a failure part-way (a dropped connection, an expired one-time password) the same command
-resumes. A package's `prepare` (`scripts/prepare.ts`) builds a checkout's install, and under `pnpm pack` and
-`pnpm publish` leaves a `dist/` that is there alone: a release builds once, before them, and
-there is no `prepublishOnly`. A package with no `dist/` still builds when packed.
-
-Then, from an empty directory, the README's route: `pnpm add -D @fcalell/cli`, then
-`pnpm exec stack init my-app`, which must install, generate and finish. A bad release is not
-unpublished; the next patch fixes it.
-
-## Moving a consumer from a git pin to a version
-
-A consumer that pinned a commit (`github:fcalell/stack#<sha>&path:/plugins/db`) moves to the
-version once the registry holds it. In its `package.json`, every `@fcalell/*` spec in
-`dependencies` and `devDependencies` becomes the caret of the release:
-
-```diff
--"@fcalell/plugin-db": "github:fcalell/stack#55a1add…&path:/plugins/db",
-+"@fcalell/plugin-db": "^0.1.0",
-```
-
-In its `pnpm-workspace.yaml`, delete what only the git route needed, and keep the third-party
-verdicts:
-
-- the `overrides` entries naming `@fcalell/*`;
-- `blockExoticSubdeps: false`;
-- the `allowBuilds` keys of the form `"@fcalell/<name>@git+https://github.com/fcalell/stack.git": true`;
-- `childConcurrency` and `networkConcurrency`, which only the git prepares needed.
-
-Then `pnpm install`, and check that the lockfile holds no `github.com/fcalell/stack` entry and one
-copy of each stack package (the command above), run `stack generate`, and run the consumer's
-`pnpm check`. From then on `pnpm update "@fcalell/*"` moves every stack package together; a
-review round that fixes stack links a checkout instead (`consumer-project.md`, "From a
-checkout"), and the pin moves to the next version, not the next commit.
+- `scripts/release-check.ts`: `pnpm release:check`.
+- `scripts/prepare.ts`: every package's `prepare`.
+- `packages/cli/src/lib/stack-packages.ts`: `STACK_PACKAGES`, `stackSpec`, the git spec.
+- `.changeset/config.json`: the fixed version group and the ignored apps.
