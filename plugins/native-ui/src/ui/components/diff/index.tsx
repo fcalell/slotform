@@ -194,11 +194,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 	const body = painted ? (
 		<View {...inertProps(true)} className={cn(CARD, BOX)}>
 			{Array.from({ length: PAINT_ROWS }, (_, at) => (
-				<View
-					// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
-					key={at}
-					className={cn(diffLine({ kind: "context" }), ROW)}
-				>
+				<View key={at} className={cn(diffLine({ kind: "context" }), ROW)}>
 					<Gutters numbers={numbersAt(BOTH, true)} />
 					<PaintText
 						painted

@@ -167,7 +167,6 @@ export function PaneHead(props: {
 		const ended = endedReason(words, one.phase);
 		return (
 			<IconButtonBase
-				// biome-ignore lint/suspicious/noArrayIndexKey: a painted act has no name, and the acts stand in a fixed order
 				key={at}
 				icon={ended ? "CircleAlert" : "Ellipsis"}
 				label={ended ?? ""}

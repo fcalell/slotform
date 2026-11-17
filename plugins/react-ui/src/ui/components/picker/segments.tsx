@@ -43,7 +43,6 @@ const CHOSEN = '[role="radio"][aria-checked="true"], [aria-current="page"]';
 const SLACK = 1;
 function useReveal<E extends HTMLElement>(chosen: string) {
 	const track = useRef<E>(null);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: the choice is what moves the segment to reveal
 	useLayoutEffect(() => {
 		const box = track.current;
 		if (!box) return;

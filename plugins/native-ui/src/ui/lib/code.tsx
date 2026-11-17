@@ -47,13 +47,11 @@ export function RunText(props: {
 		if ("quoted" in run) return `“${run.quoted}”`;
 		if ("code" in run)
 			return (
-				// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 				<RNText key={at} className={look}>
 					{props.whole ? codeWhole(run.code) : run.code}
 				</RNText>
 			);
 		return (
-			// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 			<RNText key={at} className={textStrong({ role: "meta" })}>
 				{run.strong}
 			</RNText>

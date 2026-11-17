@@ -239,13 +239,7 @@ export function BadgeLine(props: { badges: readonly BadgeSpec[] }) {
 			className={cn(BADGE_LINE, "flex-row items-start")}
 		>
 			{props.badges.map((spec, at) => (
-				<FactBadge
-					// biome-ignore lint/suspicious/noArrayIndexKey: the badges are one line, in the order the facts gave; a badge is its position
-					key={at}
-					spec={spec}
-					at={at}
-					onOpen={open}
-				/>
+				<FactBadge key={at} spec={spec} at={at} onOpen={open} />
 			))}
 		</View>
 	);

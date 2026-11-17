@@ -71,11 +71,12 @@ test("a cron event gets the same context", async () => {
 	assert.ok(worker.scheduled);
 	await worker.scheduled(event, {}, undefined);
 	assert.equal(given, event);
-	assert.equal(seen?.db, "the database");
-	assert.equal(seen?._devMode, false);
-	assert.equal("httpRequest" in (seen ?? {}), false);
+	assert.ok(seen);
+	assert.equal(seen.db, "the database");
+	assert.equal(seen._devMode, false);
+	assert.equal("httpRequest" in seen, false);
 	// No Workers context: waitUntil is a no-op, not a throw.
-	(seen?.executionCtx as { waitUntil(p: Promise<unknown>): void }).waitUntil(
+	(seen.executionCtx as { waitUntil(p: Promise<unknown>): void }).waitUntil(
 		Promise.resolve(),
 	);
 });

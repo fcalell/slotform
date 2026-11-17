@@ -147,6 +147,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 			}
 			const pane = bar.closest("[data-page]")?.getBoundingClientRect().width;
 			if (pane !== undefined && pane < BREAKPOINT_PX.tablet) {
+				// biome-ignore lint/performance/useDomNodeTextContent: the text a viewer sees, which CSS and hidden elements change; textContent is not it
 				const shown = trigger.innerText.trim();
 				if (shown !== "")
 					console.error(

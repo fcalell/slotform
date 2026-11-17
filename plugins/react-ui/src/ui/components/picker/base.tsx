@@ -1474,7 +1474,6 @@ function PickRows<V extends string | null>(
 	// window keeping the tab stop's row, and takes the focus.
 	const scroll = useScroller();
 	const [wanted, setWanted] = useState<{ index: number }>();
-	// biome-ignore lint/correctness/useExhaustiveDependencies: only a new `wanted` is a move to focus
 	useLayoutEffect(() => {
 		if (!wanted) return;
 		scroll.holder.current

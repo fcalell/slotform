@@ -112,7 +112,6 @@ function Code(props: { text: string }) {
 			{indent === "" ? null : <span className={INDENT}>{indent}</span>}
 			<span className={cn(DIFF_HANG, HANG)}>
 				{tokenParts(rest).map((part, at) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: a part is its position in the line
 					<Fragment key={at}>
 						{at > 0 ? <wbr /> : null}
 						{part}
@@ -199,7 +198,6 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 			<table className={TABLE}>
 				<tbody>
 					{Array.from({ length: PAINT_ROWS }, (_, at) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
 						<tr key={at} className={diffLine({ kind: "context" })}>
 							<Gutters numbers={numbersAt(BOTH, touch)} />
 							<td className={cn(DIFF_CODE, CODE)}>

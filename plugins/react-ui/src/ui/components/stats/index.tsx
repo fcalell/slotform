@@ -174,7 +174,6 @@ export function Stats({ items }: StatsProps) {
 			<ul className={CELLS}>
 				{items.map((item, at) =>
 					item.bound !== undefined ? (
-						// biome-ignore lint/suspicious/noArrayIndexKey: a bound cell's label may be a read, so its place is its key
 						<li key={at} className={cn(STATS_CELL, CELL)}>
 							<Meter
 								label={item.label}

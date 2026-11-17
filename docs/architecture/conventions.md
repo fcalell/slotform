@@ -140,6 +140,8 @@ belongs to the domain it enforces ([consumer project](./consumer-project.md#lint
 What `shared.json` configures:
 
 - **Formatter:** on, tab indentation; the CSS formatter on.
+- **Markdown and YAML:** the formatters are off. Biome 2.6 turns them on by default; they would realign every
+  table in the docs and rewrite `pnpm-workspace.yaml`, which pnpm writes with its own quotes.
 - **Linter:** on with the default rules, `noThenProperty` off, and `useValidAriaRole` an error that
   skips non-DOM components (`ignoreNonDom`), so React Native's `role` props pass.
 - **Plugins:** none. Biome resolves a plugin path against the root config's directory, not the

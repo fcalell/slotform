@@ -73,7 +73,6 @@ export function PaintedNodes() {
 		<div aria-hidden="true" className={cn(WAITING, "gap-section")}>
 			{Array.from({ length: WAITING_NODES }, (_, at) => (
 				<div
-					// biome-ignore lint/suspicious/noArrayIndexKey: a fixed count of identical stand-ins
 					key={at}
 					className={cn(canvasNode({ role: "step" }), WAITING_NODE)}
 				>

@@ -406,7 +406,6 @@ export function useDrop(
 	const shows = keyOf(drop);
 	const first = useRef(true);
 	// What the drop says of itself changed: the rows that offer it by menu draw again.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: `shows` is the change
 	useEffect(() => {
 		if (first.current) {
 			first.current = false;
@@ -433,7 +432,6 @@ export function useListedDrops(
 	const shows = items
 		.map((each) => `${each.path}|${keyOf(each.drop)}`)
 		.join("\n");
-	// biome-ignore lint/correctness/useExhaustiveDependencies: `shows` is the change
 	useEffect(() => {
 		const keys = latest.current.map((each, at) => {
 			const key = `${id}:${at}`;
@@ -487,7 +485,6 @@ export function useOffers(
 	);
 	const read = useRef(payload);
 	read.current = payload;
-	// biome-ignore lint/correctness/useExhaustiveDependencies: `stood` is the drops standing
 	return useMemo(() => {
 		if (kind === undefined) return [];
 		// Every drop standing that takes the kind: a place's with its path, a row's

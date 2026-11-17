@@ -324,14 +324,14 @@ export const nativeUi = plugin("native-ui", {
 		// The `@source` root pointing into ui-core only resolves when the package
 		// sits in the consumer's node_modules.
 		"@fcalell/ui-core": stackSpec("@fcalell/ui-core"),
-		uniwind: "^1.8.0",
+		uniwind: "^1.13.2",
 		"react-native-gesture-handler": "^3.0.0",
 		"react-native-reanimated": "^4.4.1",
 		"react-native-worklets": "^0.9.0",
 		"react-native-safe-area-context": "^5.6.0",
 		"react-native-keyboard-controller": "^1.18.0",
 		"@gorhom/bottom-sheet": "^5.2.14",
-		"lucide-react-native": "^1.49.0",
+		"lucide-react-native": "^1.73.0",
 		// lucide's required peer; also backs consumer brand glyphs. Without it a
 		// fresh consumer can't render any icon.
 		"react-native-svg": "^15.15.4",
@@ -340,17 +340,17 @@ export const nativeUi = plugin("native-ui", {
 		"expo-clipboard": "~56.0.3",
 		// Code's download act writes the text to a file and hands it to the share sheet.
 		"expo-file-system": "~56.0.7",
-		"expo-sharing": "~56.0.16",
+		"expo-sharing": "~56.0.27",
 		// file `Input`'s Choose act opens the system document picker.
 		"expo-document-picker": "~56.0.4",
 		// `Thread`'s composer's attach act opens the photo library beside the files.
 		"expo-image-picker": "~56.0.16",
 		"expo-secure-store": "~56.0.0",
-		"@tanstack/react-query": "^5.101.0",
-		"@better-auth/expo": "1.7.7",
+		"@tanstack/react-query": "^5.107.1",
+		"@better-auth/expo": "1.7.25",
 		// Metro bundles optional peers: docs/architecture/plugins/native-ui.md, "Requires and peers".
 		"expo-constants": "~56.0.0",
-		"expo-linking": "~56.0.0",
+		"expo-linking": "~56.0.19",
 		"expo-network": "~56.0.0",
 		"expo-web-browser": "~56.0.0",
 	},

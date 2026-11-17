@@ -436,7 +436,6 @@ export function drawInput(scene: ShowcaseScene) {
 	return (
 		<>
 			{drawn.map((one, place) => (
-				// biome-ignore lint/suspicious/noArrayIndexKey: a kind is its position
 				<div key={place} className="contents">
 					{one}
 				</div>

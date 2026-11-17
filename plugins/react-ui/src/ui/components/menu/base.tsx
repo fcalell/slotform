@@ -127,7 +127,8 @@ function moveFocus(event: KeyboardEvent<HTMLElement>): void {
 	const rows = [
 		...event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]'),
 	];
-	const at = rows.findIndex((row) => row === document.activeElement);
+	const focused = document.activeElement;
+	const at = focused instanceof HTMLElement ? rows.indexOf(focused) : -1;
 	event.preventDefault();
 	rows[move(at, rows.length)]?.focus();
 }

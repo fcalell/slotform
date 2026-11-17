@@ -219,7 +219,6 @@ export const MessageBase = memo(function MessageBase(
 			<PartsLine
 				parts={[
 					...factParts(from).map((runs, at) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: the parts are one line, in order; a part is its position
 						<RunText key={at} runs={runs} whole fit="name" />
 					)),
 					...(time ? [time] : []),

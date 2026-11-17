@@ -263,7 +263,6 @@ function logOf<T>(
 	if (drawn.painted)
 		return PAINT_TURNS.map((author, at) => (
 			<MessageBase
-				// biome-ignore lint/suspicious/noArrayIndexKey: the messages are fixed stand-ins
 				key={at}
 				painted
 				author={author}

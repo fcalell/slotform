@@ -192,7 +192,6 @@ export function Code({
 			<code>
 				{painted ? (
 					Array.from({ length: PAINT_ROWS }, (_, at) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
 						<Fragment key={at}>
 							{at > 0 ? "\n" : null}
 							<Painted role="sentence" at={at} />

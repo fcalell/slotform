@@ -67,17 +67,17 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"dependencies": {
-		"@casl/ability": "^7.0.1",
+		"@casl/ability": "^7.1.3",
 		"@fcalell/cli": "workspace:^",
 		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-react": "workspace:^",
 		"@fcalell/plugin-vite": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
-		"@orpc/client": "^1.14.4"
+		"@orpc/client": "^1.16.2"
 	},
 	"peerDependencies": {
-		"@orpc/tanstack-query": "^1.14.4",
-		"@tanstack/react-query": "^5.100.2",
+		"@orpc/tanstack-query": "^1.16.2",
+		"@tanstack/react-query": "^5.107.1",
 		"expo-network": "~56.0.0",
 		"react": "^19.2.0",
 		"react-native": "^0.85.0"
@@ -101,10 +101,10 @@
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
-		"@orpc/tanstack-query": "^1.14.4",
-		"@tanstack/react-query": "^5.104.0",
+		"@orpc/tanstack-query": "^1.16.2",
+		"@tanstack/react-query": "^5.107.1",
 		"@types/node": "^25.5.0",
-		"@types/react": "^19.2.16",
+		"@types/react": "~19.2.16",
 		"expo-network": "~56.0.0",
 		"react": "19.2.3",
 		"react-native": "^0.85.3",

@@ -47,7 +47,6 @@ export function Soft({ text }: { text: string }): ReactNode {
 	for (const found of text.matchAll(ADDRESS)) {
 		out.push(text.slice(at, found.index));
 		found[0].split(PARTS).forEach((part, n) => {
-			// biome-ignore lint/suspicious/noArrayIndexKey: a break is its place in the address
 			if (n > 0) out.push(<wbr key={`${found.index}-${n}`} />);
 			out.push(part);
 		});
@@ -61,12 +60,10 @@ export function Soft({ text }: { text: string }): ReactNode {
 export function CodeBound(props: { code: string; wraps?: boolean }) {
 	return boundPieces(props.code).map((part, at) =>
 		at % 2 === 1 ? (
-			// biome-ignore lint/suspicious/noArrayIndexKey: a piece is its position
 			<span key={at} className={PIECE}>
 				{part}
 			</span>
 		) : props.wraps ? (
-			// biome-ignore lint/suspicious/noArrayIndexKey: a piece is its position
 			<Soft key={at} text={part} />
 		) : (
 			part
@@ -77,7 +74,6 @@ export function CodeBound(props: { code: string; wraps?: boolean }) {
 /** A whole value of code with a break opportunity after each run of its path and URL separators (`<wbr>`, which adds no character to a copy or a selection), so a path or a URL wider than its line breaks between segments and a short name moves whole; its box's `wrap-anywhere` breaks inside a segment only where that segment alone is wider than the line, never before a hyphen (`CodeBound`). Outside the package's exports. */
 export function CodeWhole(props: { code: string }) {
 	return props.code.split(SEPARATED).map((part, at) => (
-		// biome-ignore lint/suspicious/noArrayIndexKey: a segment is its position
 		<Fragment key={at}>
 			{at > 0 ? <wbr /> : null}
 			<CodeBound code={part} />
@@ -155,12 +151,10 @@ export function RunText(props: {
 			const kept = run.slice(cut, end);
 			if (bound)
 				return (
-					// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 					<Fragment key={at}>
 						<CodeBound code={kept} wraps={wraps} />
 					</Fragment>
 				);
-			// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 			return wraps ? <Soft key={at} text={kept} /> : kept;
 		}
 		if ("quoted" in run) return `“${run.quoted}”`;
@@ -169,13 +163,11 @@ export function RunText(props: {
 			const text = whole ? <CodeWhole code={run.code} /> : run.code;
 			if (!open && !close)
 				return (
-					// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 					<code key={at} className={cn(look, span)}>
 						{text}
 					</code>
 				);
 			return (
-				// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 				<span key={at} className={GLUED}>
 					{open ? <span className={MARK}>{open}</span> : null}
 					<code className={cn(look, span, FLEX_CODE)}>{text}</code>
@@ -184,7 +176,6 @@ export function RunText(props: {
 			);
 		}
 		return (
-			// biome-ignore lint/suspicious/noArrayIndexKey: a run is its position
 			<span key={at} className={textStrong({ role: "meta" })}>
 				{run.strong}
 			</span>

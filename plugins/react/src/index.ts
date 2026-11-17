@@ -232,15 +232,15 @@ export const react = plugin("react", {
 	requires: ["vite"],
 
 	dependencies: {
-		"@tanstack/react-query": "^5.100.2",
-		"@tanstack/react-router": "^1.170.40",
+		"@tanstack/react-query": "^5.107.1",
+		"@tanstack/react-router": "^1.170.46",
 	},
 	// The generated vite config imports them from the consumer, and Babel
 	// resolves the compiler plugin from there.
 	devDependencies: {
 		// `stack generate` writes the route tree with it: an optional peer of the plugin.
-		"@tanstack/router-generator": "^1.167.39",
-		"@tanstack/router-plugin": "^1.168.41",
+		"@tanstack/router-generator": "^1.168.0",
+		"@tanstack/router-plugin": "^1.169.0",
 		"@vitejs/plugin-react": "^5.2.0",
 		"babel-plugin-react-compiler": "^1.0.0",
 	},

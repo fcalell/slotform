@@ -135,7 +135,6 @@ export function SheetDocked<P extends ProcedureCall>({
 	// whatever held it: an act that relabels or leaves drops focus to the
 	// document, which a page with nothing tabbable gives to the sheet's first
 	// one.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: a new page takes focus
 	useEffect(() => {
 		if (!open || !body) return;
 		const frame = requestAnimationFrame(() => {

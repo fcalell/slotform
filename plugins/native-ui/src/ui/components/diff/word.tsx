@@ -81,7 +81,6 @@ export function WordDiff(props: {
 						className={cn(text({ role: "body" }), PROSE_DIFF_TEXT)}
 					>
 						{Array.from({ length: PAINT_ROWS }, (_, at) => (
-							// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
 							<Fragment key={at}>
 								{at > 0 ? "\n" : null}
 								<Painted role="sentence" at={at} />

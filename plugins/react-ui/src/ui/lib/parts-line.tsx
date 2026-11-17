@@ -13,7 +13,6 @@ export function PartsLine(props: {
 }) {
 	const { parts, className } = props;
 	return parts.map((part, at) => (
-		// biome-ignore lint/suspicious/noArrayIndexKey: the parts are one line, in order; a part is its position
 		<span key={at} className={cn(className)}>
 			{at > 0 ? BOUND : null}
 			{part}

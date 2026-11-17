@@ -472,7 +472,6 @@ export function BarChart<T>(props: BarChartProps<T>) {
 						<View className={cn(CHART_GRID, CHART_TICK_LANE, AXIS)}>
 							{Array.from({ length: bands }, (_, index) => (
 								<View
-									// biome-ignore lint/suspicious/noArrayIndexKey: a band is its index
 									key={index}
 									className={cn(
 										chartBand({ kind: "axis", rule: band(index, bands) }),
@@ -512,7 +511,6 @@ export function BarChart<T>(props: BarChartProps<T>) {
 								<View className={cn(CHART_GRID, GRID)}>
 									{Array.from({ length: bands }, (_, index) => (
 										<View
-											// biome-ignore lint/suspicious/noArrayIndexKey: a band is its index
 											key={index}
 											className={cn(
 												chartBand({ kind: "grid", rule: band(index, bands) }),

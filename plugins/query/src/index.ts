@@ -11,7 +11,7 @@ export const query = plugin("query", {
 
 	dependencies: {
 		// The query utils `createApiQueryUtils` wraps the client in: plugins/query/README.md, "Install".
-		"@orpc/tanstack-query": "^1.14.4",
+		"@orpc/tanstack-query": "^1.16.2",
 	},
 
 	guide: [

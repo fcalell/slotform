@@ -357,19 +357,11 @@ export function ItemHeaderBase<V extends string | null = string>({
 					<PartsLine
 						parts={placed.flatMap((part, at) =>
 							part.painted
-								? [
-										// biome-ignore lint/suspicious/noArrayIndexKey: the parts are a fixed list, in order
-										<Painted key={at} role="word" at={at} />,
-									]
+								? [<Painted key={at} role="word" at={at} />]
 								: // A part is one part, a dot inside its string text: every
 									// separator is the line's.
 									factParts([part.value as Run]).map((runs, within) => (
-										<RunText
-											// biome-ignore lint/suspicious/noArrayIndexKey: the parts are a fixed list, in order
-											key={`${at}.${within}`}
-											runs={runs}
-											fit="name"
-										/>
+										<RunText key={`${at}.${within}`} runs={runs} fit="name" />
 									)),
 						)}
 					/>
@@ -396,7 +388,6 @@ export function ItemHeaderBase<V extends string | null = string>({
 				<div inert={painted || undefined} className={cn(BADGE_LINE, FACTS)}>
 					{line.map((fact, at) =>
 						fact.painted ? (
-							// biome-ignore lint/suspicious/noArrayIndexKey: a painted fact has no text to key by
 							<PaintedFact key={at} fact={fact.value} at={at} />
 						) : (
 							<FactPart

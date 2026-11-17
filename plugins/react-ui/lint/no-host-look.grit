@@ -8,7 +8,7 @@ jsx_attribute(name=$n) as $a where {
 	$a <: within or {
 		jsx_opening_element(name=$t),
 		jsx_self_closing_element(name=$t)
-	} ,
+	},
 	$t <: r"[a-z].*",
 	or {
 		and {

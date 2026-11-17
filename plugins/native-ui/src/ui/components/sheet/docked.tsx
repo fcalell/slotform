@@ -118,7 +118,6 @@ export function SheetDocked<P extends ProcedureCall>({
 	const [touchedValue, setTouched] = useTouchState();
 	const page = usePageTurn(open, title, description, () => setTouched(false));
 	// A new page opens at its top, not where the last one was scrolled to.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: a new page resets the scroll
 	useEffect(() => {
 		scroll.current?.scrollTo({ y: 0, animated: false });
 	}, [page]);

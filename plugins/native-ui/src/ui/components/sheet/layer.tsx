@@ -205,7 +205,6 @@ export function SheetLayer({
 	// A `dismiss()` while it holds none marks the modal dismissing for good,
 	// and every later `present()` then draws nothing.
 	const held = useRef(false);
-	// biome-ignore lint/correctness/useExhaustiveDependencies: read again at each opening
 	const timings = useMemo(
 		() => ({ enter: enter(), release: released() }),
 		[open],

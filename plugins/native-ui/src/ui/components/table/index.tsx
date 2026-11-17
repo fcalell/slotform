@@ -605,7 +605,6 @@ function Grid(props: {
 						{props.painted
 							? rows.map((_, index) => (
 									<PaintedLeadRow
-										// biome-ignore lint/suspicious/noArrayIndexKey: the painted rows are fixed stand-ins
 										key={index}
 										lead={lead}
 										choosing={choose !== undefined}
@@ -651,12 +650,7 @@ function Grid(props: {
 						</View>
 						{props.painted
 							? rows.map((_, index) => (
-									<PaintedRestRow
-										// biome-ignore lint/suspicious/noArrayIndexKey: the painted rows are fixed stand-ins
-										key={index}
-										columns={rest}
-										index={index}
-									/>
+									<PaintedRestRow key={index} columns={rest} index={index} />
 								))
 							: rows.map((row) => (
 									<RestRow

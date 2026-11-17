@@ -62,7 +62,7 @@
 		"test": "node --test 'src/**/*.test.ts'"
 	},
 	"peerDependencies": {
-		"drizzle-kit": "^0.31.10"
+		"drizzle-kit": "^0.31.11"
 	},
 	"peerDependenciesMeta": {
 		"drizzle-kit": {
@@ -75,15 +75,15 @@
 		"@fcalell/plugin-cloudflare": "workspace:^",
 		"@fcalell/plugin-node": "workspace:^",
 		"@fcalell/plugin-screens": "workspace:^",
-		"better-sqlite3": "^13.0.3",
-		"drizzle-orm": "^0.45.2",
-		"zod": "^4.3.6"
+		"better-sqlite3": "^13.2.0",
+		"drizzle-orm": "^0.45.4",
+		"zod": "^4.6.7"
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@types/better-sqlite3": "^9.6.0",
 		"@types/node": "^25.5.0",
-		"drizzle-kit": "^0.31.10",
+		"drizzle-kit": "^0.31.11",
 		"typescript": "^5.9.3"
 	}
 }

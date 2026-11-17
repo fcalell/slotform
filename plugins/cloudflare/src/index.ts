@@ -156,7 +156,7 @@ export const cloudflare = plugin("cloudflare", {
 	schema: cloudflareOptionsSchema,
 
 	devDependencies: {
-		wrangler: "^4.98.0",
+		wrangler: "^4.162.0",
 	},
 	gitignore: [".wrangler", ".dev.vars"],
 

@@ -17,9 +17,9 @@
 		"release": "turbo run build && pnpm -r publish --access public"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.16",
+		"@biomejs/biome": "^2.6.8",
 		"@changesets/cli": "^2.29.0",
-		"turbo": "^2.8.17"
+		"turbo": "^2.11.11"
 	},
 	"packageManager": "pnpm@11.28.4",
 	"engines": {

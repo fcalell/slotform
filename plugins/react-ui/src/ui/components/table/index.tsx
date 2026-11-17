@@ -1023,7 +1023,6 @@ function Grid(props: {
 	// scrolls nothing.
 	// A row of a window not loaded yet takes the focus once its page lands.
 	const wantedId = wanted ? rows[wanted.row]?.id : undefined;
-	// biome-ignore lint/correctness/useExhaustiveDependencies: only a new `wanted` (or its row arriving) is a move to focus
 	useLayoutEffect(() => {
 		if (!wanted) return;
 		const cell = cellAt(rows[wanted.row]?.id ?? "", wanted.column);
@@ -1528,7 +1527,6 @@ function MorePage(props: {
 				<tbody className={BODY_ROWS}>
 					{Array.from({ length: PAINT_ROWS }, (_, index) => (
 						<PaintedRow
-							// biome-ignore lint/suspicious/noArrayIndexKey: the painted rows are fixed stand-ins
 							key={index}
 							index={index}
 							columns={props.columns}

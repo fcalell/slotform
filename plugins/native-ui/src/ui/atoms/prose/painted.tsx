@@ -21,21 +21,14 @@ export function PaintedProse({
 			<View className={PROSE_BLOCKS}>
 				{Array.from({ length: rows }, (_, row) =>
 					lines === undefined ? (
-						<PaintText
-							painted
-							// biome-ignore lint/suspicious/noArrayIndexKey: the paragraphs are fixed stand-ins
-							key={row}
-							className={text({ role: "body" })}
-						>
+						<PaintText painted key={row} className={text({ role: "body" })}>
 							<Painted role="paragraph" at={at + row} />
 						</PaintText>
 					) : (
-						// biome-ignore lint/suspicious/noArrayIndexKey: the paragraphs are fixed stand-ins
 						<View key={row}>
 							{Array.from({ length: lines }, (_, line) => (
 								<PaintText
 									painted
-									// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
 									key={line}
 									numberOfLines={1}
 									{...clipWhen(true)}

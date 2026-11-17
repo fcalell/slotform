@@ -68,7 +68,6 @@ export function CodeField({
 			<View className={cn(OTP, "relative flex-row items-center")}>
 				{Array.from({ length }, (_, index) => (
 					<View
-						// biome-ignore lint/suspicious/noArrayIndexKey: a box is its position
 						key={index}
 						className={cn(
 							otpBox({ state: error || refused ? "error" : "rest" }),

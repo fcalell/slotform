@@ -277,7 +277,6 @@ export function ItemHeaderBase({
 					className={ITEM_OVERLINE}
 				>
 					{placed.map((part, at) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: the parts are a fixed list, in order
 						<Fragment key={at}>
 							{at === 0 ? null : META_TAIL}
 							{part.painted ? (
@@ -315,7 +314,6 @@ export function ItemHeaderBase({
 				<View className={cn(BADGE_LINE, FACTS)}>
 					{line.map((fact, at) =>
 						fact.painted ? (
-							// biome-ignore lint/suspicious/noArrayIndexKey: a painted fact has no text to key by
 							<PaintedFact key={at} fact={fact.value} at={at} />
 						) : (
 							<FactPart

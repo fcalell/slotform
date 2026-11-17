@@ -120,12 +120,12 @@ export const db = plugin("db", {
 	dependencies: {
 		// One root copy of drizzle-orm: docs/architecture/plugins/db.md, "Type resolution".
 		// better-sqlite3 is the plugin's own dependency.
-		"drizzle-orm": "^0.45.2",
+		"drizzle-orm": "^0.45.4",
 	},
 	// The migrations tool: an optional peer of the plugin, so an install that only
 	// runs the app holds none of it (and none of its esbuilds).
 	devDependencies: {
-		"drizzle-kit": "^0.31.10",
+		"drizzle-kit": "^0.31.11",
 	},
 	gitignore: [".db-kit"],
 

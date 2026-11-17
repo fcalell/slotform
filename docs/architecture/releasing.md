@@ -75,7 +75,7 @@ prevent it:
    direct dependency of the stack package.** `@orpc/server` has an optional peer `ws`; wrangler's
    miniflare pins `ws` exactly while Storybook and Vitest take the newest, so an app with a worker
    holds two `ws`, and pnpm resolves `@orpc/server`'s peer to either by context. `plugin-api`,
-   `plugin-auth` and `plugin-screens` each depend on `@orpc/server`, so each lists `ws: ^8.21.1`,
+   `plugin-auth` and `plugin-screens` each depend on `@orpc/server`, so each lists `ws: ^8.23.0`,
    which settles the peer inside the package; without it, each of the three and every package above
    them exists twice.
 

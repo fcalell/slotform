@@ -27,7 +27,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 		devDeps["@fcalell/biome-config"] = stackSpec("@fcalell/biome-config");
 		// biome-config only carries config; the `lint`/`check` scripts need the
 		// Biome binary itself on the consumer's PATH.
-		devDeps["@biomejs/biome"] = "^2.4.16";
+		devDeps["@biomejs/biome"] = "^2.6.8";
 	}
 
 	const hasWorker =
@@ -38,7 +38,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 		// target its server does too, with no wrangler.
 		devDeps["@types/node"] = "^25.5.0";
 	}
-	if (hasWorker && !node) devDeps.wrangler = "^4.98.0";
+	if (hasWorker && !node) devDeps.wrangler = "^4.162.0";
 
 	const hasNative = options.plugins.includes("expo");
 	const hasReactDom = options.plugins.includes("react");

@@ -67,6 +67,7 @@ function nameOf(element: HTMLElement): string {
 				.map((id) => document.getElementById(id)?.textContent)
 				.join(" "),
 		);
+	// biome-ignore lint/performance/useDomNodeTextContent: the text a viewer sees, which CSS and hidden elements change; textContent is not it
 	return words(element.innerText || element.getAttribute("title"));
 }
 
@@ -91,6 +92,7 @@ export function controlPoint(text: string): ControlPoint | null {
 				box.height > 0 &&
 				getComputedStyle(element).visibility !== "hidden" &&
 				!("disabled" in element && element.disabled) &&
+				// biome-ignore lint/performance/useDomNodeTextContent: the text a viewer sees, which CSS and hidden elements change; textContent is not it
 				(nameOf(element) === want || words(element.innerText) === want)
 			);
 		},

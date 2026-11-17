@@ -668,11 +668,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 				{lineNode}
 				<View className={cn(ROW_STEPS, STEPS)}>
 					{listed.map((step, index) => (
-						<View
-							// biome-ignore lint/suspicious/noArrayIndexKey: the steps are fixed-order data that never reorder, so position is the identity
-							key={index}
-							className={cn(ROW_META_LINE, STEP)}
-						>
+						<View key={index} className={cn(ROW_META_LINE, STEP)}>
 							<StatusDot
 								tone={painted ? "done" : step.tone}
 								painted={painted}

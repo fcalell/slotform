@@ -89,7 +89,6 @@ export function CodeField({
 						/>
 						{Array.from({ length }, (_, index) => (
 							<span
-								// biome-ignore lint/suspicious/noArrayIndexKey: a box is its position
 								key={index}
 								aria-hidden
 								className={cn(

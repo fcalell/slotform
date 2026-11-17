@@ -24,7 +24,6 @@ export function PaintedProse({
 			<div className={cn(PROSE_BLOCKS, STACK)}>
 				<p className={text({ role: "body" })}>
 					{Array.from({ length: lines }, (_, line) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: the lines are fixed stand-ins
 						<span key={line} className={PAINTED_LINE}>
 							<Painted role="sentence" at={at + line} />
 						</span>
