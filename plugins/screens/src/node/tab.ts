@@ -1,5 +1,4 @@
 import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
-import type { ControlPoint } from "../ui/page.ts";
 import { type Cdp, sleep } from "./chrome.ts";
 
 // One tab, driven over CDP: navigation, evaluation, the viewport, real input
@@ -319,17 +318,6 @@ export class Tab {
 
 	async type(text: string): Promise<void> {
 		for (const char of text) await this.key(char);
-	}
-
-	// Presses the control `point` (a page script's answer) names: a hit test
-	// first, so a control something covers is an error, never a silent miss.
-	async press(point: ControlPoint | null, what: string): Promise<void> {
-		if (!point) throw new Error(`no control named "${what}"`);
-		if (!point.ok)
-			throw new Error(
-				`"${point.label}" is covered by ${point.hit} at ${Math.round(point.x)},${Math.round(point.y)}`,
-			);
-		await this.click(point.x, point.y);
 	}
 
 	async offline(offline: boolean): Promise<void> {

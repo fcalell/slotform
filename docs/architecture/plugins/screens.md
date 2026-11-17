@@ -431,11 +431,38 @@ limit: every call carries a timeout and rejects, naming its method. A tab that c
 with that reason, and every call to it after, so a run says "the tab crashed" instead of timing out. A
 `goto` waits for the `load` lifecycle event of the document its `Page.navigate` made (the reply's
 `loaderId`); a same-document navigation, such as a fragment on the open page, makes no document and is
-done at the reply. A press lands in the middle of the part inside the viewport of the control's first
-client rect that shows a pixel or more (`pressPoint`), so an inline link wrapped over two lines is pressed
-on a line, and the hit test reads what is drawn there. The test run's provider (`src/node/provider.ts`
-over `browser.ts`) is a Vitest browser provider with one context per session, reduced motion, a device
-scale of 1, and the commands `__vitest_viewport`, `__vitest_takeScreenshot`, `press` and `key`.
+done at the reply. The test run's provider (`src/node/provider.ts` over `browser.ts`) is a Vitest browser
+provider with one context per session, reduced motion, a device scale of 1, and the commands
+`__vitest_viewport`, `__vitest_takeScreenshot`, `press` and `key`.
+
+### A press
+
+A press of a control by its text or accessible name (`--open` in the test run, `open` in shoot and
+drive) is up to three tries (`TRIES`, `src/ui/press.ts`): at once, after 50 ms, after 100 ms more.
+Each try finds the control again (`aim`, `src/ui/page.ts`), scrolls it into view instantly at that
+try's alignment (centre, then start, then end, so a sticky header or footer over it at one is clear of
+it at another), and takes the press point (`pressPoint`): the middle of the part inside the viewport of
+the control's first client rect that shows a pixel or more, so an inline link wrapped over two lines is
+pressed on a line. The hit test (`coverAt`) runs twice: at the point before any input is sent, so a
+covered try sends nothing, and again on the first trusted pointer, mouse or touch event of the press,
+in a capture listener on the window that the try arms. When that event's point hits something other
+than the control, a part of it or a box that holds it, the listener cancels the whole gesture, so
+neither the cover nor the control sees it and the next try starts from an untouched page. A try that
+finds no control, or a cover at either hit test, goes to the next. When the last try is still covered,
+the press fails naming the last cover and its point: `"delete" is covered by div.toast at 160,412
+(3 tries)`; with no control on the last try, `no control named "Delete" (3 tries)`. The test run
+reports that line as a finding of the screen; shoot and drive report it for the route or the step. A
+press that lands adds one page evaluation and no wait; the retries cost time only on a cover, at most
+150 ms and three round trips.
+
+The second hit test leans on two facts of Chrome. Blink dispatches a press's `pointerdown` before its
+`mousedown` or `touchstart`, so the first event has a point; a first event with none is the try's
+cover, named by its type (`touchstart with no pointer event before it`), never a landed press. `aim`
+drops a press still armed from a try whose input failed, so no verdict outlives its try. The reply to `Input.dispatchMouseEvent`
+comes when the renderer acknowledges the event, after its DOM dispatch, and the reply to a
+`touchEnd` comes after the tap it makes, so `landed` reads the verdict once the input's last reply is
+in. The listener is active (`passive: false`), because a window's `touchstart` listener is passive by
+default and a passive listener cannot cancel the tap.
 
 ## Judging shoot and drive
 
@@ -485,6 +512,7 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/ui/channels.ts`: the channel answer a plugin's handler module imports.
 - `plugins/screens/src/ui/msw.ts`: the one MSW copy.
 - `plugins/screens/src/ui/checks.ts`: the test run's checks and their order, screenshot paths.
+- `plugins/screens/src/ui/press.ts`: a press and its tries.
 - `plugins/screens/src/ui/shift.ts`: the loading shift.
 - `plugins/screens/src/ui/walk.ts`: the render walk and its exceptions.
 - `plugins/screens/src/ui/walk-checks.ts`: the walk's pure checks.

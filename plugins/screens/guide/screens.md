@@ -325,13 +325,14 @@ edit, name it and one of each: `stack screens test --screen deploys --state data
 ### Opening a popup, a search for a filter
 
 - `--open <control text>` presses, once a story has drawn, the control whose visible text or accessible
-  name is that text (with real mouse input after a hit test), waits for what it opens to settle, then
-  runs the checks and takes the shot with it open, named `<story>-<width>-open-<slug>.png`; Escape
-  closes it. A Menu, a Picker, a Dialog or a Sheet is then judged and seen. A screen that draws no such
-  control fails, naming it: narrow the run with `--state` to the states that draw it. Each width starts
-  from a clean page: before each press and after each Escape the pointer is moved off the page and the
-  focused control is blurred, so the tooltip of the control pressed (or refocused by the close) at one
-  width never stands over the layer at the next.
+  name is that text (with real mouse input after a hit test, tried up to three times over about 150 ms
+  at different scroll positions; a control still covered fails, naming what covers it), waits for what
+  it opens to settle, then runs the checks and takes the shot with it open, named
+  `<story>-<width>-open-<slug>.png`; Escape closes it. A Menu, a Picker, a Dialog or a Sheet is then
+  judged and seen. A screen that draws no such control fails, naming it: narrow the run with `--state`
+  to the states that draw it. Each width starts from a clean page: before each press and after each
+  Escape the pointer is moved off the page and the focused control is blurred, so the tooltip of the
+  control pressed (or refocused by the close) at one width never stands over the layer at the next.
 - `--search <query>` draws every screen at this search in place of the fixtures' example, so a filter-on
   empty shape is drawn: `--screen deploys --state empty --search "?q=x"`. An empty value draws none.
 
@@ -367,7 +368,7 @@ control pressed). Defaults: widths `320,1920`, mode `dark`. A guarded route need
 | Step | Does |
 | --- | --- |
 | `goto` | opens a path of the app and waits until quiet |
-| `open` | presses the control with this text or accessible name: real mouse (touch under 768 px) input after a hit test, then waits until quiet |
+| `open` | presses the control with this text or accessible name: real mouse (touch under 768 px) input after a hit test, retried as `--open` is, then waits until quiet |
 | `key` | one key: `Enter`, `Escape`, `Tab`, `Backspace`, `Delete`, `Space`, an arrow, `Home`, `End`, `PageUp`, `PageDown`, or one character |
 | `type` | types text into the focused element |
 | `fx` | GETs a path of the app from the page; its text answer is `{{fx}}` in later steps |

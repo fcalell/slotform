@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import type { ControlPoint } from "../ui/page.ts";
+import { press } from "../ui/press.ts";
 import { HEIGHT, SHOT_MAX_HEIGHT } from "../widths.ts";
 import { withLease } from "./browser.ts";
 import { call, judge, prepare, settle } from "./judge.ts";
@@ -169,11 +170,19 @@ export class Page {
 	}
 
 	async open(text: string): Promise<void> {
-		const point = await call<ControlPoint | null>(
-			this.tab,
-			`controlPoint(${JSON.stringify(text)})`,
+		const failure = await press(
+			{
+				aim: (align) =>
+					call<ControlPoint | null>(
+						this.tab,
+						`aim(${JSON.stringify(text)}, ${JSON.stringify(align)})`,
+					),
+				click: (x, y) => this.tab.click(x, y),
+				landed: () => call<string | null>(this.tab, "landed()"),
+			},
+			text,
 		);
-		await this.tab.press(point, text);
+		if (failure) throw new Error(failure);
 		await this.quiet();
 	}
 

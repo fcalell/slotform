@@ -15,7 +15,8 @@ import {
 import { fetchingReads } from "./busy.ts";
 import { storyClient } from "./client.tsx";
 import { unpinned } from "./globals.ts";
-import { checksAt, controlPoint, hiddenHeight, READ_BUSY } from "./page.ts";
+import { aim, checksAt, hiddenHeight, landed, READ_BUSY } from "./page.ts";
+import { press } from "./press.ts";
 import { compare, measure, type SectionBox } from "./shift.ts";
 import { densityMark, settled, watchFirstPaint } from "./walk.ts";
 
@@ -295,17 +296,19 @@ async function opened(
 	path: string | null,
 ): Promise<string[]> {
 	await clean();
-	const point = controlPoint(text);
-	const at = `on ${title} at ${width}px`;
-	if (!point) return [`--open: no control named "${text}" ${at}`];
-	if (!point.ok)
-		return [`--open: "${point.label}" is covered by ${point.hit} ${at}`];
-	// The point is in this frame; the press is in the page that holds it.
-	const frame = window.frameElement?.getBoundingClientRect();
-	await commands.press(
-		point.x + (frame?.left ?? 0),
-		point.y + (frame?.top ?? 0),
+	const failure = await press(
+		{
+			aim: async (align) => aim(text, align),
+			// The point is in this frame; the press is in the page that holds it.
+			click: (x, y) => {
+				const frame = window.frameElement?.getBoundingClientRect();
+				return commands.press(x + (frame?.left ?? 0), y + (frame?.top ?? 0));
+			},
+			landed: async () => landed(),
+		},
+		text,
 	);
+	if (failure) return [`--open: ${failure} on ${title} at ${width}px`];
 	await settle(true);
 	const found = checksAt(width, false).map(
 		(line) => `with "${text}" open: ${line}`,
