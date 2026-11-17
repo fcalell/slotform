@@ -40,6 +40,7 @@ import {
 	type FieldedKey,
 	FieldFocus,
 	FieldNameContext,
+	FieldTurn,
 	GroupName,
 } from "../../lib/field";
 import { Ink } from "../../lib/ink";
@@ -165,6 +166,11 @@ export type Body = FormFieldBase & {
 	// A control placed alone: no form's label column to share, so the name
 	// stands over the control (`FIELD_ALONE`).
 	alone?: boolean;
+	// A derived form's: set afresh when a refusal names this field first, its
+	// typing control then takes focus.
+	seek?: object;
+	// A derived form's: the typing control was left.
+	onLeave?: () => void;
 } & Partial<Controls<string | null, string, unknown>>;
 
 // The one descriptor set, if any.
@@ -357,6 +363,8 @@ export function FieldBody(props: Body) {
 	} = props;
 	const words = useWords();
 	const folded = answered !== undefined;
+	const { seek, onLeave } = props;
+	const turn = onLeave && { seek, leave: onLeave };
 	// The field hosts its control's save: a save the server refused stands in
 	// the error line until the control's next change.
 	const kind = kindOf(props);
@@ -459,7 +467,9 @@ export function FieldBody(props: Body) {
 		<FieldNameContext.Provider value={label}>
 			<FieldDisabled.Provider value={disabled}>
 				<FieldError.Provider value={Boolean(error)}>
-					<FieldFocus.Provider value={reopened}>{control}</FieldFocus.Provider>
+					<FieldFocus.Provider value={reopened}>
+						<FieldTurn.Provider value={turn}>{control}</FieldTurn.Provider>
+					</FieldFocus.Provider>
 				</FieldError.Provider>
 			</FieldDisabled.Provider>
 		</FieldNameContext.Provider>

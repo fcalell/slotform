@@ -67,7 +67,13 @@ function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
 		outer,
 	);
 	return (
-		<FormShell touch={touch} guard={form.commit !== "field"} card frame={frame}>
+		<FormShell
+			touch={touch}
+			guard={form.commit !== "field"}
+			edited={form.edited}
+			card
+			frame={frame}
+		>
 			<FormRows {...form} frame={frame} />
 			{bar}
 		</FormShell>

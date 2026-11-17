@@ -14,7 +14,7 @@ import { Text as RNText, TextInput, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { useCaretAtEnd } from "../../lib/caret";
 import { cn } from "../../lib/cn";
-import { FieldError, useFieldName } from "../../lib/field";
+import { FieldError, useFieldName, useFieldTurn } from "../../lib/field";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
 
@@ -48,6 +48,7 @@ export function ProseBase({
 	};
 	const [moment] = useState(() => commitMoment<string>());
 	const input = useRef<TextInput>(null);
+	const leave = useFieldTurn(input);
 	const caret = useCaretAtEnd(autoFocus, typed);
 	// A commit that returns its save's promise holds the value while it pends.
 	const commit = (next: string) => {
@@ -97,7 +98,10 @@ export function ProseBase({
 				autoCapitalize={mono ? "none" : "sentences"}
 				autoCorrect={!mono}
 				onFocus={() => moment.focus(typed)}
-				onBlur={() => moment.leave(typed, commit)}
+				onBlur={() => {
+					moment.leave(typed, commit);
+					leave?.();
+				}}
 				onKeyPress={(event) => {
 					if (!onCommit || event.nativeEvent.key !== "Escape") return;
 					moment.cancel(typed, edit);

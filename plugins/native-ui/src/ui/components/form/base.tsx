@@ -1,12 +1,18 @@
+import type { ProcedureCall } from "@fcalell/ui-core/form";
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
+import type { FormModel } from "@fcalell/ui-core/react/form";
 import {
 	type Frame,
 	submitOf,
 	useFrame,
 	usePainted,
 } from "@fcalell/ui-core/react/read";
-import { type Touched, TouchedContext } from "@fcalell/ui-core/react/touched";
+import {
+	type Touched,
+	TouchedContext,
+	useEditedByValue,
+} from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
@@ -19,6 +25,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
+import type { Act } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
@@ -53,9 +60,14 @@ interface FormGroup {
 	empty?: Empty;
 }
 
+// A derived form's bar: its acts, and what a press of its blocked submit
+// tells the form, as `useFormModel` gives it.
+type FormBar = ActionBarProps &
+	Pick<NonNullable<FormModel<ProcedureCall, Act>["bar"]>, "onBlocked">;
+
 interface FormBase extends Closed {
 	/** The acts that close the form, drawn in its foot; the bar's filled act submits the form. */
-	bar?: ActionBarProps;
+	bar?: FormBar;
 	/** `field`: each field commits itself, so the form draws no bar and, standing edited, asks nothing when its screen is left. */
 	commit?: "submit" | "field";
 	/** What the form's fields hold, read once for the form's frame: the fields' leaves paint while it waits, the filled act with them, inert; its failure and a missing record stand in the fields' place. Each group has its own. */
@@ -64,6 +76,8 @@ interface FormBase extends Closed {
 	empty?: Empty;
 	/** What follows the fields at the card inset (a live preview of what the form would send), the bar after it. */
 	after?: ReactNode;
+	/** A field holds a value other than its first: the form's leave stands edited. */
+	edited: boolean;
 }
 
 // The form's structure is its props: `children`, a flat run of `FormField`s,
@@ -172,7 +186,7 @@ export function FormRows({
 // form's has ended. A sheet that hoists the bar into its foot draws none here.
 // Outside the package's exports.
 export function useFormBar(
-	bar: ActionBarProps | undefined,
+	bar: FormBar | undefined,
 	frame: Frame,
 	// The reads the bar paints under besides the form's own (the sheet's read,
 	// the ability the form is gated on); constants are no read.
@@ -201,17 +215,21 @@ export function useFormBar(
 export function FormShell({
 	touch,
 	guard,
+	edited,
 	card,
 	frame,
 	children,
 }: {
 	touch: Touched;
 	guard: boolean;
+	// A field holds a value other than its first: a value put back un-edits the form.
+	edited: boolean;
 	card: boolean;
 	frame: Frame;
 	children: ReactNode;
 }) {
 	useLeaveGuard(touch.leave, guard);
+	useEditedByValue(touch, edited);
 	return (
 		<TouchedContext.Provider value={touch}>
 			<View

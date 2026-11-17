@@ -81,6 +81,9 @@ interface ActionBarInternal {
 	// The read the filled act submits has ended: the act stands blocked under
 	// this reason, the failed sentence or `words.missing`.
 	ended?: string;
+	// A press of the filled act while it is blocked: the form it submits shows
+	// what blocks it.
+	onBlocked?: () => void;
 }
 
 function AllAct({ act }: { act: Act }) {
@@ -138,6 +141,7 @@ export function ActionBarBase({
 	acting: given,
 	painted = false,
 	ended,
+	onBlocked,
 }: ActionBarProps & ActionBarInternal) {
 	const where = fit ?? "end";
 	const words = useWords();
@@ -232,7 +236,10 @@ export function ActionBarBase({
 					return (
 						<ReasonHostContext.Provider
 							key={act.label}
-							value={() => setPressedUnder(act.blocked)}
+							value={() => {
+								setPressedUnder(act.blocked);
+								if (last) onBlocked?.();
+							}}
 						>
 							<ActInert.Provider value={ghost || (acting.holds && !running)}>
 								<View className={chosen ? PRIMARY : undefined}>

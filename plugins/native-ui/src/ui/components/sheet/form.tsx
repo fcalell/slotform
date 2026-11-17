@@ -30,7 +30,13 @@ export function SheetForm({
 	const frame = useFrame(form.read);
 	const bar = useFormBar(form.bar, frame, outer, acting);
 	return (
-		<FormShell touch={touch} guard={false} card={false} frame={frame}>
+		<FormShell
+			touch={touch}
+			guard={false}
+			edited={form.edited}
+			card={false}
+			frame={frame}
+		>
 			<FormRows {...form} after={undefined} frame={frame} />
 			{bar}
 		</FormShell>

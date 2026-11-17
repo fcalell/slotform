@@ -19,6 +19,7 @@ import {
 	FieldFocus,
 	useFieldClaim,
 	useFieldName,
+	useFieldTurn,
 } from "../../lib/field";
 import { FadingText, flowIn } from "../../lib/motion";
 import type { CodeInputProps } from "./index";
@@ -63,6 +64,7 @@ export function CodeField({
 	const focused = useContext(FieldFocus);
 	const input = useRef<TextInput>(null);
 	const column = useFieldClaim(input);
+	const leave = useFieldTurn(input);
 	return (
 		<View className="gap-gap">
 			<View className={cn(OTP, "relative flex-row items-center")}>
@@ -82,7 +84,10 @@ export function CodeField({
 				<TextInput
 					ref={input}
 					onFocus={column.onFocus}
-					onBlur={column.onBlur}
+					onBlur={() => {
+						column.onBlur();
+						leave?.();
+					}}
 					accessibilityLabel={name}
 					accessibilityState={{ disabled: checking, busy: checking }}
 					autoFocus={focused}

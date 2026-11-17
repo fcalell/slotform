@@ -78,3 +78,23 @@ export function useFieldClaim(input: RefObject<TextInput | null>) {
 		},
 	};
 }
+
+// A derived form's field around its typing control: the refusal that names
+// the field first (`seek`, set afresh per refusal) focuses the control, and
+// the control's blur is the field left (`leave`).
+export const FieldTurn = createContext<
+	{ seek: object | undefined; leave: () => void } | undefined
+>(undefined);
+
+// A typing control's part in its form's field: takes focus on a refusal that
+// names the field first, and returns what its blur calls.
+export function useFieldTurn(
+	input: RefObject<TextInput | null>,
+): (() => void) | undefined {
+	const turn = useContext(FieldTurn);
+	const seek = turn?.seek;
+	useEffect(() => {
+		if (seek) input.current?.focus();
+	}, [seek, input]);
+	return turn?.leave;
+}

@@ -28,6 +28,7 @@ import {
 	type InlineFit,
 	useFieldClaim,
 	useFieldName,
+	useFieldTurn,
 } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, PaintPressable } from "../../lib/paint";
@@ -122,6 +123,7 @@ export function InputBase({
 	const focused = useContext(FieldFocus);
 	const input = useRef<TextInput>(null);
 	const column = useFieldClaim(input);
+	const leave = useFieldTurn(input);
 	const caret = useCaretAtEnd(autoFocus, typed);
 	// A placeholder's colour is a prop, never a class: `FIELD_PLACEHOLDER`'s ink.
 	const placeholderInk = useTokenColor("--color-ink-meta");
@@ -202,6 +204,7 @@ export function InputBase({
 				}}
 				onBlur={() => {
 					column.onBlur();
+					leave?.();
 					moment.leave(typed, commit);
 					cell?.done();
 				}}
