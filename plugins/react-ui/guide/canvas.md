@@ -222,7 +222,7 @@ A node says its state in its own text or mark, never by colour alone.
   its words in place of the line, in the ink a line has. The dot stays when the node is selected,
   which takes the border. Pass the first words only, and name the whole warning outside the canvas
   in a `Banner` and a `List`. A node with a `warning` and a `status` draws both marks.
-- `status` is a `StatusMark` (`{ tone, label }`): a fact, so it is a badge (voice 19) under the title,
+- `status` is a `StatusMark` (`{ tone, label }`): a fact, so it is a badge (voice.md, **Badges**) under the title,
   its tone's mark (the dot, a spinner while the state is `running`) inside it before its `label`,
   which stays in the meta ink; the title takes the node's whole width. The badge never breaks: the
   label keeps its whole word up to the short measure and is cut with an ellipsis inside the badge

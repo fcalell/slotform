@@ -1,7 +1,7 @@
 {
 	"name": "@fcalell/plugin-vite",
 	"version": "0.1.0",
-	"description": "Framework-agnostic Vite lifecycle plugin for @fcalell/stack, with Tailwind v4 and the providers and schema virtual modules.",
+	"description": "The Vite lifecycle plugin for @fcalell/stack, framework-agnostic: renders .stack/vite.config.ts from what other plugins contribute, runs vite for dev and build, and serves the providers and schema virtual modules.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",

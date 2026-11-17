@@ -99,6 +99,8 @@ flight. A fresh read costs no request (`staleTime` decides), a `pages` read fetc
 and a failed prefetch is dropped. Streams, idle reads (`skipToken`, `enabled: false`) and reads
 whose input comes from another read's data are not preloaded. It warms the client it is given: on
 the web the router's `context` carries the one `QueryProvider` holds, and on the phone a route
-exports `preload` (`node_modules/@fcalell/plugin-expo/guide/routes.md`).
+file exports `preload(client, params)`, and a press-in on a row, link, stat or fact that opens the
+route calls it with the app's query client and the href's params, so there is no `loader`
+(`node_modules/@fcalell/plugin-expo/guide/routes.md`).
 
 **Check:** `pnpm check` passes, and under `pnpm dev` the list shows "Show more" until the last page.

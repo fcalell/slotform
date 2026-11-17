@@ -122,7 +122,7 @@ or as choice segments, a `Switch` and a `Slider` draw their field: the label ove
 switch at the end of its label's line), the word `optional` under the label with `optional`, and
 `description` or `error` under the control, where a refused save's reason also stands until the next
 change. `error` is a sentence, words or runs (`["No project at ", { code: "apps/billing" }, "."]`),
-so a machine name in it stands boxed in the mono (voice 7). A `Form` draws its own fields from their `label`s, and a `Toolbar` names its acts, so a
+so a machine name in it stands boxed in the mono (voice.md, **Type**). A `Form` draws its own fields from their `label`s, and a `Toolbar` names its acts, so a
 control there draws nothing around itself; nor does a `search` or a `Picker` at the `bar`, `row` or
 `pill` fit, which reads its label in its box. A label is never a `Text` over a bare control, and a
 `Section`'s title is the Section's, never its control's label. A list an answer picks from heads as
@@ -229,7 +229,7 @@ form paints, inert, until the ability's read lands.
 
 | The schema says | The field draws |
 | --- | --- |
-| a string | a line of text (`control: "mono"` the line in the mono, `Input kind="source"`, for a machine name a person types: a path, a host, a flag, an identifier, so the value reads as the issue under it quotes it (voice 7); `"prose"` many lines, `"source"` many lines in mono, `"code"` the one-time code boxes (`Input kind="code"`, as many as the schema's fixed length: `z.string().length(n)`, else the field throws naming its key; the submit stays blocked until every box is filled), `"secret"` a masked line (`Input kind="secret"`: an API key, a token; the box is never filled: the secret is never read back. A secret the server holds is told in `values` by its masked form (the last characters, never the secret): the form draws no box for it but the sentence "Saved, ends in 1234" (the last four characters of the masked form, in the meta ink) with a quiet Replace, which opens the empty box with focus, and a quiet Remove that asks first and then sends the field alone as `null` where the schema takes it, else as the empty string (so the field must be optional or nullable); Enter in the box commits and never removes; omit it from `values` and the field stands as unset, and an untouched saved secret is left out of the input), `"date"` a date line; a `format: date` string is one already) |
+| a string | a line of text (`control: "mono"` the line in the mono, `Input kind="source"`, for a machine name a person types: a path, a host, a flag, an identifier, so the value reads as the issue under it quotes it (voice.md, **Type**); `"prose"` many lines, `"source"` many lines in mono, `"code"` the one-time code boxes (`Input kind="code"`, as many as the schema's fixed length: `z.string().length(n)`, else the field throws naming its key; the submit stays blocked until every box is filled), `"secret"` a masked line (`Input kind="secret"`: an API key, a token; the box is never filled: the secret is never read back. A secret the server holds is told in `values` by its masked form (the last characters, never the secret): the form draws no box for it but the sentence "Saved, ends in 1234" (the last four characters of the masked form, in the meta ink) with a quiet Replace, which opens the empty box with focus, and a quiet Remove that asks first and then sends the field alone as `null` where the schema takes it, else as the empty string (so the field must be optional or nullable); Enter in the box commits and never removes; omit it from `values` and the field stands as unset, and an untouched saved secret is left out of the input), `"date"` a date line; a `format: date` string is one already) |
 | an enum, or a string with `options` | a pick (`options` gives the labels, or the choices of a string the schema does not list; a function of the draft, `(draft) => options`, narrows them by the fields before it as the draft changes, may answer a read so the pick paints while it waits, and a chosen value that is no longer among them is cleared) |
 | a boolean | a switch |
 | a number | a numeric line |
@@ -265,7 +265,7 @@ the value falls back. `submit.done` is toasted per commit and `onDone` hears eac
 and `to` have no place without a bar, and the form asks nothing when its page is left.
 
 A `Form`'s submit is always the filled act, and a `Form` has no quiet form of it: a bar draws at most one
-filled act (voice 5), and a screen that stands two of them (a `Form`'s submit beside the Pane's own
+filled act (voice.md, **Controls**), and a screen that stands two of them (a `Form`'s submit beside the Pane's own
 filled act, an `ActionBar` of a record's decision) has two answers to the one question of what to do
 first. So a `Form` that stands in a Pane beside the Pane's filled act lives in a sheet: the Pane's act, or
 a row's, opens it (`sheet`), and the sheet's bar is the one filled act while it is open. A `Form` that
@@ -324,7 +324,7 @@ A row that shows a running task gives its `progress`, `{ value, max }`: the mete
 
 The rows of one sheet share one `leading` kind or none, so their titles share one start: an avatar, a
 glyph, a type's mark and a tick stand in one region at the avatar's size, a status in its dot's space, and
-a row with no `leading` reserves none (voice 9), so its title stands where the others' marks do. A
+a row with no `leading` reserves none (voice.md, **Rows**), so its title stands where the others' marks do. A
 `leading: { tone }` draws the dot alone, its `label` its accessible name; a list whose rows say the state nowhere else gives it as a status fact. It is for a list whose every row has a state; where only some do (a read-only value among
 switches), the state is a status fact of the row, leading its facts line, and the leading is a kind every row
 has (a glyph) or none.

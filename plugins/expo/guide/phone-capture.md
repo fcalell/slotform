@@ -61,23 +61,13 @@ Maestro's `inputText` drops characters. Tap the field in a flow, then type throu
 adb shell input text 'Buy%soat%smilk'
 ```
 
-## Measure
+## Read the hierarchy
 
-`maestro hierarchy` prints each element's bounds in px (`[x1,y1][x2,y2]`), its text, its
-accessibility label and its state. A size in dp is px × 160 / the density:
-
-```sh
-echo $(( (y2 - y1) * 160 / $(adb shell wm density | grep -o '[0-9]*$') ))
-```
-
-The shell's ImageMagick reads the screenshot: a pixel's colour, and the contrast ratio between
-the lightest and darkest pixels of a box, such as a label's bounds over its fill.
-
-```sh
-magick shot.png -format '%[hex:p{540,2090}]\n' info:
-magick shot.png -crop 240x42+420+552 -colorspace LinearGray \
-  -format '%[fx:(maxima+0.05)/(minima+0.05)]\n' info:
-```
+`maestro hierarchy` prints each element's text, accessibility label and state. The capture is for
+a critic to look at: the screenshots and these files go to a critic who did not build the screen
+([`critique.md`](../../../packages/ui-core/guide/critique.md)). Nothing is measured from them by hand: a number that
+matters (a height, a size, a contrast) is a rule of the render walk
+([The render walk](../../screens/guide/screens.md#the-render-walk)), and one with no rule there is not taken.
 
 ## Toasts and warnings
 

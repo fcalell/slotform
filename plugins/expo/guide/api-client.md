@@ -32,9 +32,11 @@ serves a region the app draws itself. Page: `node_modules/@fcalell/plugin-query/
 ## The URL
 
 Set `EXPO_PUBLIC_API_URL` in `.env` to the deployed worker's origin. Unset, the client calls
-`http://localhost:8787`, the local worker under `stack dev`. A physical device or an Android
-emulator has its own `localhost`, so set the variable to an address it reaches (the machine's LAN
-address) while developing on one. Expo inlines `EXPO_PUBLIC_*` variables into the bundle at
+`http://localhost:8787`, the local worker under `stack dev`. An Android emulator or a physical
+device has its own `localhost`, so the fallback reaches the worker only when something carries the
+port over. A device on the LAN needs `EXPO_PUBLIC_API_URL` set to the machine's LAN address. An
+emulator needs no URL when `adb reverse tcp:8787 tcp:8787` carries its port 8787 to the worker
+([the render page](./phone-render.md)); without the reverse, set the variable. Expo inlines `EXPO_PUBLIC_*` variables into the bundle at
 build time: never put a secret in one. A server chosen while the app runs
 (typed at sign-in) is `url: () => server.url` (`createClient`) and `baseURL: () => server.url`
 (`createAuthClient`): each is read on every use, so changing the address needs no restart.
