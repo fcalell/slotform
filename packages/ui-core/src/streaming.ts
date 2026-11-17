@@ -47,7 +47,7 @@ const runOf = (text: string, at: number, char: string): string => {
 	return text.slice(at, end);
 };
 
-// `markdown` with every run still open at its end closed (a fence, an emphasis, strong or strike run, a code span, a link's text or target), so it reads in the form it is becoming. A closed text, and a marker no text follows, come back as they are.
+// `markdown` with every run still open at its end closed (a fence, an emphasis, strong or strike run, a code span, a link's text or target), so it reads in the form it is becoming. A marker run at the very end that closes nothing is held back, the next character decides what it is, and the closers go before any trailing whitespace, which is dropped. A closed text comes back as it is.
 export function closeOpenRuns(markdown: string): string {
 	const fence = openFence(markdown);
 	if (fence) return `${markdown}${markdown.endsWith("\n") ? "" : "\n"}${fence}`;
@@ -55,6 +55,8 @@ export function closeOpenRuns(markdown: string): string {
 	const stack: Opener[] = [];
 	let code: string | undefined;
 	let target = false;
+	// Where, in `tail`, the marker run at its very end starts when it closes nothing: the next character decides what it is.
+	let held: number | undefined;
 	let at = 0;
 	while (at < tail.length) {
 		const char = tail[at] ?? "";
@@ -71,10 +73,11 @@ export function closeOpenRuns(markdown: string): string {
 			continue;
 		}
 		if (char === "`") {
+			const start = at;
 			const run = runOf(tail, at, "`");
 			at += run.length;
-			// A marker opens only when text follows it.
 			if (at < tail.length) code = run;
+			else held = start;
 			continue;
 		}
 		if (char === "[") {
@@ -97,6 +100,7 @@ export function closeOpenRuns(markdown: string): string {
 			at += 1;
 			continue;
 		}
+		const start = at;
 		const size = runOf(tail, at, char).length;
 		const before = at > 0 ? (tail[at - 1] ?? "") : "";
 		const after = tail[at + size] ?? "";
@@ -120,6 +124,7 @@ export function closeOpenRuns(markdown: string): string {
 				} else break;
 			}
 		}
+		if (left > 0 && after === "") held = start;
 		if (left === 0 || after === "" || /\s/.test(after)) continue;
 		if (char === "_" && WORD.test(before)) continue;
 		if (char === "~") stack.push("~~");
@@ -135,5 +140,10 @@ export function closeOpenRuns(markdown: string): string {
 	let closing = code ?? "";
 	if (target) closing += ")";
 	for (const opener of stack.toReversed()) closing += CLOSER[opener];
-	return markdown + closing;
+	if (held === undefined && closing === "") return markdown;
+	const kept =
+		held === undefined
+			? markdown
+			: markdown.slice(0, markdown.length - tail.length + held);
+	return kept.trimEnd() + closing;
 }

@@ -267,7 +267,12 @@ answers. A message sent while an answer comes is answered next.
 
 `closeOpenRuns` (`streaming.ts`) takes a reply that is still arriving and closes the runs left open
 at its end, so an opened emphasis, strong, strike, code span, link or fence draws in its own form
-from its first character, and the closing marker, when it comes, changes nothing already drawn.
+from its first character, and the closing marker, when it comes, changes nothing already drawn. Two
+rules keep a closer valid. A marker run at the very end that closes nothing is held back (cut from
+what is returned), because the next character decides whether it opens a run: `**a *` draws as
+`**a**`, `2 * 3 *` as `2 * 3`. The closers of the runs still open go before any trailing
+whitespace, which is dropped, because a closer after a space closes nothing: `**bold ` and
+`**bold **` both draw as `**bold**`.
 
 ## Charts
 
