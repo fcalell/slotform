@@ -194,6 +194,11 @@ stack db check          # Check migrations for schema drift and destructive chan
 stack db seed           # Seed the database from src/schema/seed.ts
 ```
 
+A subcommand's flags are parsed by `node:util`'s `parseArgs` from the command's `options`:
+`--name value` and `--name=value`, a one-character `alias` as a short flag (grouped short flags
+work), a longer `alias` as a second long name, and `--` ends the flags. An unknown flag, a missing
+value, a value on a boolean, and a number that does not parse each fail before the handler runs.
+
 A subcommand runs after the slot graph is built, and its handler receives a `CommandContext`:
 
 ```ts

@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
 import { emitKeypressEvents, type Key } from "node:readline";
-import { stripVTControlCharacters } from "node:util";
 import { log } from "@clack/prompts";
 import pc from "picocolors";
+import sliceAnsi from "slice-ansi";
+import stringWidth from "string-width";
+import wrapAnsi from "wrap-ansi";
 import type { OutputStream } from "./proc.ts";
 import { createLogContext } from "./prompt.ts";
 import type { LogContext } from "./slots.ts";
@@ -74,10 +76,6 @@ const ESCAPE =
 // biome-ignore lint/suspicious/noControlCharactersInRegex: it matches escape sequences
 const SGR = /^\x1b\[[0-9;:]*m$/;
 // biome-ignore lint/suspicious/noControlCharactersInRegex: it matches escape sequences
-const SGR_SPLIT = /(\x1b\[[0-9;:]*m)/;
-// biome-ignore lint/suspicious/noControlCharactersInRegex: it matches escape sequences
-const SGR_RESET = /^\x1b\[0?[;m]/;
-// biome-ignore lint/suspicious/noControlCharactersInRegex: it matches escape sequences
 const LONE_ESCAPE = /\x1b(?!\[[0-9;:]*m)/g;
 // biome-ignore lint/suspicious/noControlCharactersInRegex: it matches control characters
 const CONTROL = /[\x00-\x08\x0b-\x1a\x1c-\x1f\x7f]/g;
@@ -94,71 +92,23 @@ export function sanitizeLine(raw: string): string {
 		.replace(CONTROL, "");
 }
 
-const graphemes = new Intl.Segmenter();
-const EMOJI = /\p{Emoji_Presentation}|\p{Extended_Pictographic}️/u;
-const WIDE =
-	/[ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3FFFD}]/u;
-const ZERO_WIDTH = /^[\p{M}\p{Cf}]+$/u;
-
-// The columns a terminal gives a grapheme. A regex can read no Unicode width
-// property, so wide is emoji and the CJK blocks.
-function graphemeWidth(grapheme: string): number {
-	if (EMOJI.test(grapheme) || WIDE.test(grapheme)) return 2;
-	return ZERO_WIDTH.test(grapheme) ? 0 : 1;
-}
-
-function textWidth(text: string): number {
-	let width = 0;
-	for (const { segment } of graphemes.segment(stripVTControlCharacters(text))) {
-		width += graphemeWidth(segment);
-	}
-	return width;
-}
-
-// A sanitized line cut into rows of at most `width` columns. A row after the
-// first starts by replaying the colours in effect where the cut fell.
+// A sanitized line cut into rows of at most `width` columns. wrap-ansi
+// closes the colours at a cut and reopens them on the next row.
 export function wrapLine(line: string, width: number): string[] {
-	const rows: string[] = [];
-	let row = "";
-	let used = 0;
-	let style = "";
-	for (const [i, part] of line.split(SGR_SPLIT).entries()) {
-		if (i % 2 === 1) {
-			row += part;
-			// A reset, alone or opening a list, starts the style over.
-			style = SGR_RESET.test(part) ? part : style + part;
-			continue;
-		}
-		for (const { segment } of graphemes.segment(part)) {
-			const w = graphemeWidth(segment);
-			if (used + w > width && used > 0) {
-				rows.push(row);
-				row = style;
-				used = 0;
-			}
-			row += segment;
-			used += w;
-		}
-	}
-	rows.push(row);
-	return rows;
+	return wrapAnsi(line, width, {
+		hard: true,
+		wordWrap: false,
+		trim: false,
+	}).split("\n");
 }
 
 function truncate(text: string, width: number): string {
-	if (textWidth(text) <= width) return text;
-	let out = "";
-	let used = 0;
-	for (const { segment } of graphemes.segment(text)) {
-		const w = graphemeWidth(segment);
-		if (used + w > width - 1) break;
-		out += segment;
-		used += w;
-	}
-	return width < 1 ? "" : `${out}…`;
+	if (stringWidth(text) <= width) return text;
+	return width < 1 ? "" : `${sliceAnsi(text, 0, width - 1)}…`;
 }
 
 function fit(text: string, width: number): string {
-	return text + " ".repeat(Math.max(0, width - textWidth(text)));
+	return text + " ".repeat(Math.max(0, width - stringWidth(text)));
 }
 
 function failed(status: ProcessStatus & { kind: "exited" }): boolean {
@@ -195,7 +145,7 @@ interface Layout {
 // up to two fifths of the terminal; the output takes the rest, past the
 // separator and a space.
 function layout(panes: Pane[], cols: number, rows: number): Layout {
-	const longest = Math.max(5, ...panes.map((pane) => textWidth(pane.name)));
+	const longest = Math.max(5, ...panes.map((pane) => stringWidth(pane.name)));
 	const side = Math.max(1, Math.min(longest + 6, Math.floor(cols * 0.4)));
 	return {
 		side,

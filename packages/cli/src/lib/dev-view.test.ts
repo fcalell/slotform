@@ -26,7 +26,7 @@ test("a row holds as many columns as the width, a wide grapheme two", () => {
 
 test("a row cut inside a colour starts with that colour", () => {
 	assert.deepEqual(wrapLine(`${ESC}[31mabcdef${ESC}[39m`, 4), [
-		`${ESC}[31mabcd`,
+		`${ESC}[31mabcd${ESC}[39m`,
 		`${ESC}[31mef${ESC}[39m`,
 	]);
 });
@@ -92,4 +92,16 @@ test("a pane scrolled past its oldest line holds at it", () => {
 			.map((row) => row.split("│ ")[1]),
 		["one", "two"],
 	);
+});
+
+test("a wide character outside emoji and the CJK blocks takes two columns", () => {
+	// East Asian Width W: vertical forms, Kana Supplement.
+	assert.deepEqual(wrapLine("\uFE10\uFE10\uFE10", 4), [
+		"\uFE10\uFE10",
+		"\uFE10",
+	]);
+	assert.deepEqual(wrapLine("\u{1B000}\u{1B000}\u{1B000}", 4), [
+		"\u{1B000}\u{1B000}",
+		"\u{1B000}",
+	]);
 });

@@ -1,3 +1,4 @@
+import { type ParseArgsOptionDescriptor, parseArgs } from "node:util";
 import type { CommandDefinition, InternalCliPlugin } from "./create-plugin.ts";
 import { StackError } from "./errors.ts";
 import type { Slot } from "./slots.ts";
@@ -35,19 +36,20 @@ export function parseCommandFlags(
 	const flags: Record<string, unknown> = {};
 	const defs = command.options ?? {};
 
-	const longLookup = new Map<string, string>();
-	const shortLookup = new Map<string, string>();
+	// A one-character alias is a short flag; a longer one is a second long
+	// name, an option of its own that folds into its key.
+	const options: Record<string, ParseArgsOptionDescriptor> = {};
+	const canonicalOf = new Map<string, string>();
 	for (const [key, def] of Object.entries(defs)) {
-		longLookup.set(key, key);
-		if (def.alias) {
-			longLookup.set(def.alias, key);
-			if (def.alias.length === 1) {
-				shortLookup.set(def.alias, key);
-			}
+		const type = def.type === "boolean" ? "boolean" : "string";
+		options[key] = { type };
+		canonicalOf.set(key, key);
+		if (def.alias?.length === 1) {
+			options[key].short = def.alias;
+		} else if (def.alias) {
+			options[def.alias] = { type };
+			canonicalOf.set(def.alias, key);
 		}
-	}
-
-	for (const [key, def] of Object.entries(defs)) {
 		if (def.default !== undefined) {
 			flags[key] = def.default;
 		} else if (def.type === "boolean") {
@@ -55,64 +57,57 @@ export function parseCommandFlags(
 		}
 	}
 
-	const availableList = () =>
+	const availableList =
 		Object.entries(defs)
 			.map(([k, d]) => (d.alias ? `--${k} (-${d.alias})` : `--${k}`))
 			.join(", ") || "(none)";
 
-	for (let i = 0; i < argv.length; i++) {
-		const arg = argv[i];
-		if (arg === undefined) continue;
-		// Positional — silently passed through (unchanged behavior).
-		if (!arg.startsWith("-")) continue;
+	const { tokens = [] } = parseArgs({
+		args: argv,
+		options,
+		strict: false,
+		allowPositionals: true,
+		tokens: true,
+	});
 
-		let canonical: string | undefined;
-		if (arg.startsWith("--")) {
-			const token = arg.slice(2);
-			canonical = longLookup.get(token);
-			if (!canonical) {
-				throw new StackError(
-					`Unknown flag "${arg}" for command "${command.description}". Available: ${availableList()}`,
-					"UNKNOWN_FLAG",
-				);
-			}
-		} else {
-			const token = arg.slice(1);
-			canonical = shortLookup.get(token);
-			if (!canonical) {
-				throw new StackError(
-					`Unknown flag "${arg}" for command "${command.description}". Available: ${availableList()}`,
-					"UNKNOWN_FLAG",
-				);
-			}
+	for (const token of tokens) {
+		if (token.kind !== "option") continue;
+		const canonical = canonicalOf.get(token.name);
+		const def = canonical === undefined ? undefined : defs[canonical];
+		if (canonical === undefined || def === undefined) {
+			throw new StackError(
+				`Unknown flag "${token.rawName}" for command "${command.description}". Available: ${availableList}`,
+				"UNKNOWN_FLAG",
+			);
 		}
-
-		const def = defs[canonical];
-		if (!def) continue;
-
+		const { value } = token;
 		if (def.type === "boolean") {
-			flags[canonical] = true;
-		} else {
-			const next = argv[i + 1];
-			if (next === undefined || next.startsWith("-")) {
+			if (value !== undefined) {
 				throw new StackError(
-					`Flag "${arg}" requires a ${def.type} value.`,
-					"MISSING_FLAG_VALUE",
+					`Flag "${token.rawName}" takes no value.`,
+					"INVALID_FLAG_VALUE",
 				);
 			}
-			if (def.type === "number") {
-				const parsed = Number(next);
-				if (Number.isNaN(parsed)) {
-					throw new StackError(
-						`Flag "${arg}" expects a number, got "${next}".`,
-						"INVALID_FLAG_VALUE",
-					);
-				}
-				flags[canonical] = parsed;
-			} else {
-				flags[canonical] = next;
+			flags[canonical] = true;
+		} else if (
+			value === undefined ||
+			(!token.inlineValue && value.startsWith("-"))
+		) {
+			throw new StackError(
+				`Flag "${token.rawName}" requires a ${def.type} value.`,
+				"MISSING_FLAG_VALUE",
+			);
+		} else if (def.type === "number") {
+			const parsed = Number(value);
+			if (Number.isNaN(parsed)) {
+				throw new StackError(
+					`Flag "${token.rawName}" expects a number, got "${value}".`,
+					"INVALID_FLAG_VALUE",
+				);
 			}
-			i++;
+			flags[canonical] = parsed;
+		} else {
+			flags[canonical] = value;
 		}
 	}
 
