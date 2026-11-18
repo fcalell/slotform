@@ -135,7 +135,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 								<RunText runs={partRuns(said.value)} whole />
 							)}
 						</RNText>
-						{end === undefined || acted ? null : left}
+						{acted ? null : left}
 					</View>
 					{offer.painted ? (
 						<View className={ACT_REGION}>

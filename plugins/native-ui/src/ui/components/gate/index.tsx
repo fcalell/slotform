@@ -1,7 +1,5 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { useFrame } from "@fcalell/ui-core/react/read";
-import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { runsOf } from "@fcalell/ui-core/runs";
 import { GATE, GATE_COLUMN, GATE_STEP, text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useContext, useRef, useState } from "react";
@@ -15,8 +13,7 @@ import { DistanceContext } from "../../lib/container";
 import { FieldClaim } from "../../lib/field";
 import { Scroll } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
-import { type FormProps, useDerivedForm } from "../form";
-import { FormRows, FormShell, useFormBar } from "../form/base";
+import { type FormProps, StandingForm } from "../form";
 import { ContainerHost } from "../shell/host";
 import { StepCount } from "../step-count";
 
@@ -53,31 +50,6 @@ export interface GateProps<P extends ProcedureCall = AnyCall> extends Closed {
 	// The step's form, a `Form`'s props (its procedure, its fields), drawn after
 	// the body in the column: its bar stands across it.
 	form?: FormProps<P>;
-}
-
-// The step's form over its procedure, its bar across the column. It stands in
-// the step, so a new step starts it afresh.
-function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
-	const { frame: form, outer } = useDerivedForm(props.form, true);
-	const frame = useFrame(form.read);
-	const [touch] = useTouchState();
-	const bar = useFormBar(
-		form.bar && { fit: "full", ...form.bar },
-		frame,
-		outer,
-	);
-	return (
-		<FormShell
-			touch={touch}
-			guard={form.commit !== "field"}
-			edited={form.edited}
-			card
-			frame={frame}
-		>
-			<FormRows {...form} frame={frame} />
-			{bar}
-		</FormShell>
-	);
 }
 
 export function Gate<P extends ProcedureCall = AnyCall>({
@@ -128,7 +100,8 @@ export function Gate<P extends ProcedureCall = AnyCall>({
 								) : null}
 								{banner}
 								{children}
-								{form ? <GateForm form={form} /> : null}
+								{/* The step's form, its bar across the column; it stands in the step, so a new step starts it afresh. */}
+								{form ? <StandingForm form={form} fit="full" /> : null}
 							</FadingView>
 						</View>
 					</Scroll>

@@ -41,7 +41,9 @@ export interface ButtonAttemptProps extends Named {
 	glyph?: undefined;
 }
 
-export interface ButtonGlyphProps extends Named {
+export interface ButtonGlyphProps
+	extends Named,
+		Pick<ButtonAttemptProps, "confirm" | "done" | "to" | "sheet"> {
 	/** `quiet` (the default) draws the glyph in the meta ink, `primary` on the accent fill (the act its bar is for). */
 	act?: "quiet" | "primary";
 	fit?: ButtonFit;
@@ -50,14 +52,6 @@ export interface ButtonGlyphProps extends Named {
 	glyph: true;
 	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `ACT_DELAY`) its glyph swapped for a spinner. A rejection raises a failed toast with Retry. */
 	onAct?: () => unknown;
-	/** Asked before `onAct` runs, as a decision over the page: declined, nothing runs. */
-	confirm?: Decision;
-	/** Toasted once `onAct` resolves (a sentence). */
-	done?: string;
-	/** The route gone to once `onAct` resolves, after `done`. */
-	to?: string;
-	/** The sheet a press opens, in place of running `onAct`. */
-	sheet?: ActSheetProps;
 	href?: undefined;
 }
 

@@ -1,4 +1,3 @@
-import { commitMoment } from "@fcalell/ui-core/commit";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { useTouched } from "@fcalell/ui-core/react/touched";
@@ -10,7 +9,7 @@ import {
 	field,
 	fieldValue,
 } from "@fcalell/ui-core/variants";
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import {
 	type KeyboardTypeOptions,
 	Text as RNText,
@@ -35,6 +34,7 @@ import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, PaintPressable } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
 import { ActSheet } from "../sheet/act";
+import { useCommitMoment } from "./commit";
 import type { InputKind, TextInputProps } from "./index";
 
 const SURFACE: Record<InputKind, FieldKind> = {
@@ -57,10 +57,18 @@ const KEYBOARD: Record<InputKind, KeyboardTypeOptions> = {
 	date: "number-pad",
 };
 
-// A day typed as digits, the hyphens of `YYYY-MM-DD` placed as they land.
+// The day a date field takes: its placeholder, and the parts its mask places
+// the hyphens between as the digits land.
+const DAY = "YYYY-MM-DD";
+const DAY_PARTS = DAY.split("-").map((part) => part.length);
+
 function maskDate(typed: string): string {
-	const digits = typed.replace(/\D/g, "").slice(0, 8);
-	return [digits.slice(0, 4), digits.slice(4, 6), digits.slice(6, 8)]
+	let digits = typed.replace(/\D/g, "");
+	return DAY_PARTS.map((length) => {
+		const part = digits.slice(0, length);
+		digits = digits.slice(length);
+		return part;
+	})
 		.filter((part) => part !== "")
 		.join("-");
 }
@@ -112,17 +120,13 @@ export function InputBase({
 		if (!ended) onChange(kept);
 	};
 	const words = useWords();
-	const [moment] = useState(() => commitMoment<string>());
-	// A commit that returns its save's promise holds the value while it pends.
-	const commit = (next: string) => {
-		if (onCommit) draft.change(next, () => onCommit(next));
-	};
 	const { touch } = useTouched();
 	const name = useFieldName();
 	const error = useContext(FieldError);
 	const disabled = useContext(FieldDisabled);
 	const focused = useContext(FieldFocus);
 	const input = useRef<TextInputInstance>(null);
+	const moment = useCommitMoment({ draft, typed, edit, onCommit, input });
 	const column = useFieldClaim(input);
 	const leave = useFieldTurn(input);
 	const caret = useCaretAtEnd(autoFocus, typed);
@@ -183,8 +187,7 @@ export function InputBase({
 					edit(next);
 				}}
 				placeholder={
-					placeholder ??
-					(search ? words.search : date ? "YYYY-MM-DD" : undefined)
+					placeholder ?? (search ? words.search : date ? DAY : undefined)
 				}
 				multiline={wraps}
 				submitBehavior={wraps ? "submit" : undefined}
@@ -201,16 +204,16 @@ export function InputBase({
 				autoCorrect={which === "text"}
 				onFocus={() => {
 					column.onFocus();
-					moment.focus(typed);
+					moment.focus();
 				}}
 				onBlur={() => {
 					column.onBlur();
 					leave?.();
-					moment.leave(typed, commit);
+					moment.leave();
 					cell?.done();
 				}}
 				onSubmitEditing={() => {
-					moment.commit(typed, commit);
+					moment.submit();
 					// A secret's act (remove) is a press, never what return ends with.
 					if (
 						act &&
@@ -220,11 +223,7 @@ export function InputBase({
 					)
 						acting.attempt(true, act);
 				}}
-				onKeyPress={(event) => {
-					if (!onCommit || event.nativeEvent.key !== "Escape") return;
-					moment.cancel(typed, edit);
-					input.current?.blur();
-				}}
+				onKeyPress={moment.onKeyPress}
 			/>
 			{which === "number" && unit && !painted ? (
 				<RNText

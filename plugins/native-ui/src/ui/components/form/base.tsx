@@ -44,7 +44,6 @@ const BAND = "min-w-0";
 // The legend is a row, the busy mark after its title.
 const LEGEND = "flex-row items-center gap-gap";
 
-// One group of fields a `Form` draws, titled.
 interface FormGroup {
 	/** The group's name, its heading (a short phrase; wraps); without it the group draws no heading, for fields that lead or close the form among titled groups. */
 	title?: string;

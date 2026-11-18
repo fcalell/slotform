@@ -127,25 +127,12 @@ function Control(props: Typed) {
 // a press runs the act).
 // In a `Gate` it takes focus as it mounts unless a typing control there
 // holds it.
-// `onCommit` hears the value once the viewer is done with it: on leaving the
-// field or on the keyboard's return, only when it changed since the field took
-// focus; with it, a hardware Escape puts back the value at focus and leaves
-// the field. In a `Table` cell it stands at the bar fit, named by the cell,
+// `onCommit` hears the value as `useCommitMoment` says. In a `Table` cell it stands at the bar fit, named by the cell,
 // focused as the edit starts, a number end-aligned in tabular figures as the
 // cell reads. In a list row's entry or a `Rules` term it stands at the bar
 // fit, named by its label.
-// `prose` is many lines in a field box that grows with its value from three
-// body lines, the budget's count under the value in the error ink once over;
-// `source` is mono and keeps indentation, and a sheet holding one stands full
-// height; return is a new line, and `onCommit` hears the value once the viewer
-// leaves the field having changed it since focus.
-// `code` is a one-time code: `length` boxes over one string of digits;
-// `onComplete` hears the code once its last digit lands, and a promise it
-// returns holds the boxes at rest while the code is checked.
-// `file` is a field box that is the act: a press opens the system's document
-// picker; empty it reads Choose file, chosen it shows the file's name and
-// size with an act that removes it. A file of another type is refused in a
-// line under the box and never reaches `onChange`.
+// `prose`, `code` and `file` draw as `ProseBase`, `CodeField` and `FileField`
+// describe.
 export function Input(allProps: InputProps) {
 	const { label, description, optional, error, ...props } = allProps;
 	const owned = use(FieldOwned);

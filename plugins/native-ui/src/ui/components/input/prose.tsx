@@ -1,4 +1,3 @@
-import { commitMoment } from "@fcalell/ui-core/commit";
 import { wordCount } from "@fcalell/ui-core/controls";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
@@ -9,7 +8,7 @@ import {
 	textArea,
 	textAreaBudget,
 } from "@fcalell/ui-core/variants";
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef } from "react";
 import {
 	Text as RNText,
 	TextInput,
@@ -23,6 +22,7 @@ import { FieldError, useFieldName, useFieldTurn } from "../../lib/field";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
 
+import { useCommitMoment } from "./commit";
 import type { ProseProps } from "./index";
 
 // The field box every prose Input renders, on the `draft` its host holds: a field
@@ -30,9 +30,8 @@ import type { ProseProps } from "./index";
 // Many lines of typing in a field box that grows with its value from three
 // body lines, the budget's count under the value in the error ink once over.
 // `source` is mono and keeps indentation; a sheet holding one stands full
-// height. `onCommit` hears the value once the viewer leaves the field having
-// changed it since focus (return is a new line here); with it, a hardware
-// Escape puts back the value at focus and leaves the field.
+// height. Return is a new line, so `onCommit` hears the value on leaving the
+// field alone (`useCommitMoment`).
 export function ProseBase({
 	draft,
 	source,
@@ -51,14 +50,10 @@ export function ProseBase({
 		draft.change(next);
 		if (!ended) onChange(next);
 	};
-	const [moment] = useState(() => commitMoment<string>());
 	const input = useRef<TextInputInstance>(null);
+	const moment = useCommitMoment({ draft, typed, edit, onCommit, input });
 	const leave = useFieldTurn(input);
 	const caret = useCaretAtEnd(autoFocus, typed);
-	// A commit that returns its save's promise holds the value while it pends.
-	const commit = (next: string) => {
-		if (onCommit) draft.change(next, () => onCommit(next));
-	};
 	const { touch } = useTouched();
 	const name = useFieldName();
 	const error = useContext(FieldError);
@@ -102,16 +97,12 @@ export function ProseBase({
 				placeholder={placeholder}
 				autoCapitalize={mono ? "none" : "sentences"}
 				autoCorrect={!mono}
-				onFocus={() => moment.focus(typed)}
+				onFocus={moment.focus}
 				onBlur={() => {
-					moment.leave(typed, commit);
+					moment.leave();
 					leave?.();
 				}}
-				onKeyPress={(event) => {
-					if (!onCommit || event.nativeEvent.key !== "Escape") return;
-					moment.cancel(typed, edit);
-					input.current?.blur();
-				}}
+				onKeyPress={moment.onKeyPress}
 			/>
 			{count !== undefined && budget !== undefined ? (
 				<View className={cn("flex-row justify-end", painted && "opacity-0")}>

@@ -158,7 +158,6 @@ function Elided(props: {
 	);
 }
 
-// The elided band before the hunk at `at`, where lines go unshown there.
 function ElidedBefore(props: {
 	hunks: readonly Hunk[];
 	at: number;
@@ -235,7 +234,6 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 	);
 }
 
-// A diff of hunks, or of two texts by line or by word.
 export function Diff(props: DiffProps) {
 	return props.by === "word" ? (
 		<WordDiff label={props.label} before={props.before} after={props.after} />

@@ -167,7 +167,6 @@ function Hairline({ duration }: { duration?: number }) {
 	);
 }
 
-// The elapsed time, the seek and the total.
 function Progress({ duration }: { duration?: number }) {
 	const words = useWords();
 	const { time, duration: known } = usePlayerTime();

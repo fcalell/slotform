@@ -38,8 +38,7 @@ function groupsOf(items: readonly Act[]) {
 
 // One act of a menu sheet: its glyph in the meta ink (danger for a
 // destructive act), its label, and, blocked, its label faded over its reason,
-// the row inert. Outside the package's exports: the Shell's switcher draws
-// its create act with it.
+// the row inert.
 function MenuRow({ item, onAct }: { item: Act; onAct: () => void }) {
 	const blocked = item.blocked !== undefined;
 	const kind = item.destructive ? "destructive" : "act";
@@ -75,8 +74,8 @@ function MenuRow({ item, onAct }: { item: Act; onAct: () => void }) {
 
 // A menu on the phone: a sheet titled `title` with its close act, its rows
 // under the head, the destructive acts last under a hairline between the
-// groups; taking an act closes the sheet first. Outside the package's exports: the `Menu` opens it
-// from the more act, the Shell's More tab from its tab.
+// groups; taking an act closes the sheet first. Outside the package's exports: a
+// `MenuBase` opens it from its more act, a `MessageInput` from its attach act.
 export function MenuSheet({
 	label,
 	title,

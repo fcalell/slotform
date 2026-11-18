@@ -31,7 +31,7 @@ import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import { ChangeMark } from "../../atoms/status/change";
 import type { CheckboxProps } from "../../atoms/switch/checkbox";
-import { CheckboxBase } from "../../atoms/switch/checkbox";
+import { CheckboxBase, checkboxPress } from "../../atoms/switch/checkbox";
 import type { Closed } from "../../lib/closed";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
@@ -159,7 +159,7 @@ type FormFieldProps<
 	);
 
 // The props a field body reads, its descriptors at their widest.
-export type Body = FormFieldBase & {
+type Body = FormFieldBase & {
 	field?: FieldBinding<unknown>;
 	error?: Run | Runs;
 	children?: ReactNode | ((control: FieldControl<unknown>) => ReactNode);
@@ -173,112 +173,103 @@ export type Body = FormFieldBase & {
 	onLeave?: () => void;
 } & Partial<Controls<string | null, string, unknown>>;
 
-// The one descriptor set, if any.
-function kindOf(props: Body): ControlKind | undefined {
-	if (props.input) return "input";
-	if (props.textArea) return "textArea";
-	if (props.picker) return "picker";
-	if (props.switch) return "switch";
-	if (props.checkbox) return "checkbox";
-	if (props.slider) return "slider";
-	if (props.options) return "options";
-	if (props.segments) return "segments";
-	return undefined;
+// The descriptor set, if any: its kind, the value its control saves (which
+// the field holds the draft of) and its control over that draft. A checkbox
+// is drawn by its row.
+interface Described {
+	kind: ControlKind;
+	saved: Datum<unknown>;
+	draw: (draft: Draft<unknown>, error: string | undefined) => ReactNode;
 }
 
-// The value the descriptor's control saves, which the field holds the draft of.
-function savedOf(props: Body, kind: ControlKind | undefined): Datum<unknown> {
-	switch (kind) {
-		case "input":
-			return props.input?.value;
-		case "textArea":
-			return props.textArea?.value;
-		case "picker":
-			return props.picker?.value;
-		case "switch":
-			return props.switch?.checked;
-		case "checkbox":
-			return props.checkbox?.checked;
-		case "slider":
-			return props.slider?.value;
-		case "options":
-			return props.options?.value;
-		case "segments":
-			return props.segments?.value;
-		default:
-			return undefined;
-	}
-}
-
-// The control a field draws: the descriptor's control over the draft the field
-// holds, or its children. A checkbox is drawn by its row.
-function controlOf(
-	props: Body,
-	kind: ControlKind | undefined,
-	draft: Draft<unknown>,
-	error: string | undefined,
-): ReactNode {
+function describedOf(props: Body): Described | undefined {
 	const { label, disabled } = props;
 	// The one draft holds the value of whichever control the field draws, and a
 	// pick of one and of several share a handler: each branch names its control's
 	// types, which the compiler cannot tie to the branch.
-	if (props.input)
-		return <InputBase {...props.input} draft={draft as Draft<string>} />;
-	if (props.textArea)
-		return <ProseBase {...props.textArea} draft={draft as Draft<string>} />;
-	if (props.picker)
-		return (
-			<PickerBase<string | null>
-				{...props.picker}
-				label={label}
-				form={{ invalid: Boolean(error), disabled: disabled === true }}
-				draft={
-					draft as Draft<string | null | readonly (string | null)[] | undefined>
-				}
-				onChange={
-					props.picker.onChange as (
-						next: string | null | (string | null)[],
-					) => unknown
-				}
-			/>
-		);
-	if (props.switch)
-		return (
-			<SwitchBase
-				{...props.switch}
-				draft={draft as Draft<boolean>}
-				label={label}
-			/>
-		);
-	if (props.slider)
-		return (
-			<SliderBase
-				{...props.slider}
-				draft={draft as Draft<number>}
-				label={label}
-			/>
-		);
-	if (props.options)
-		return (
-			<PickerListBase
-				{...props.options}
-				label={label}
-				draft={draft as Draft<string | null | readonly string[]>}
-				onChange={
-					props.options.onChange as (next: string | string[]) => unknown
-				}
-			/>
-		);
-	if (props.segments)
-		return (
-			<SegmentsBase
-				{...props.segments}
-				draft={draft as Draft<string>}
-				label={label}
-			/>
-		);
-	if (kind !== undefined) return null;
-	return childrenOf(props);
+	const { input, textArea, picker, checkbox, slider, options, segments } =
+		props;
+	const toggle = props.switch;
+	if (input)
+		return {
+			kind: "input",
+			saved: input.value,
+			draw: (draft) => <InputBase {...input} draft={draft as Draft<string>} />,
+		};
+	if (textArea)
+		return {
+			kind: "textArea",
+			saved: textArea.value,
+			draw: (draft) => (
+				<ProseBase {...textArea} draft={draft as Draft<string>} />
+			),
+		};
+	if (picker)
+		return {
+			kind: "picker",
+			saved: picker.value,
+			draw: (draft, error) => (
+				<PickerBase<string | null>
+					{...picker}
+					label={label}
+					form={{ invalid: Boolean(error), disabled: disabled === true }}
+					draft={
+						draft as Draft<
+							string | null | readonly (string | null)[] | undefined
+						>
+					}
+					onChange={
+						picker.onChange as (
+							next: string | null | (string | null)[],
+						) => unknown
+					}
+				/>
+			),
+		};
+	if (toggle)
+		return {
+			kind: "switch",
+			saved: toggle.checked,
+			draw: (draft) => (
+				<SwitchBase {...toggle} draft={draft as Draft<boolean>} label={label} />
+			),
+		};
+	if (checkbox)
+		return { kind: "checkbox", saved: checkbox.checked, draw: () => null };
+	if (slider)
+		return {
+			kind: "slider",
+			saved: slider.value,
+			draw: (draft) => (
+				<SliderBase {...slider} draft={draft as Draft<number>} label={label} />
+			),
+		};
+	if (options)
+		return {
+			kind: "options",
+			saved: options.value,
+			draw: (draft) => (
+				<PickerListBase
+					{...options}
+					label={label}
+					draft={draft as Draft<string | null | readonly string[]>}
+					onChange={options.onChange as (next: string | string[]) => unknown}
+				/>
+			),
+		};
+	if (segments)
+		return {
+			kind: "segments",
+			saved: segments.value,
+			draw: (draft) => (
+				<SegmentsBase
+					{...segments}
+					draft={draft as Draft<string>}
+					label={label}
+				/>
+			),
+		};
+	return undefined;
 }
 
 // The control a field is given as children, bound drawn from the field's
@@ -310,19 +301,17 @@ function CheckboxRow(props: {
 	children: ReactNode;
 }) {
 	const { checkbox, draft, label, disabled } = props;
-	const ended = draft.ended !== undefined;
-	const checked = draft.painted ? false : draft.value;
+	const painted = draft.painted && draft.ended === undefined;
 	return (
 		<Pressable
-			{...inertProps(draft.painted && !ended)}
-			accessibilityRole="checkbox"
-			accessibilityLabel={label}
-			accessibilityState={{ checked, disabled: disabled || ended }}
-			disabled={disabled}
-			onPress={() => {
-				const next = checked !== true;
-				draft.change(next, () => checkbox.onChange(next));
-			}}
+			{...inertProps(painted)}
+			{...checkboxPress({
+				draft,
+				onChange: checkbox.onChange,
+				label,
+				disabled,
+				painted,
+			})}
 			className={cn(row({ state: "rest" }), FIELD)}
 		>
 			{props.children}
@@ -367,8 +356,8 @@ export function FieldBody(props: Body) {
 	const turn = onLeave && { seek, leave: onLeave };
 	// The field hosts its control's save: a save the server refused stands in
 	// the error line until the control's next change.
-	const kind = kindOf(props);
-	const { draft, refused } = useFieldDraft(savedOf(props, kind));
+	const described = describedOf(props);
+	const { draft, refused } = useFieldDraft(described?.saved);
 	// A field unfolding mounts its control afresh, which takes focus as it
 	// mounts where `FieldFocus` asks.
 	const [wasFolded, setWasFolded] = useState(folded);
@@ -389,8 +378,10 @@ export function FieldBody(props: Body) {
 	const worded = given === undefined ? "" : partText(given);
 	const error = worded === "" ? undefined : worded;
 	// A folded field draws no control, so the consumer's function is not called.
-	const control = folded ? null : controlOf(props, kind, draft, error);
-	const form = kind ?? "field";
+	const drawn = () =>
+		described ? described.draw(draft, error) : childrenOf(props);
+	const control = folded ? null : drawn();
+	const form = described?.kind ?? "field";
 	// What a group of controls is named by, one value per change.
 	const groupName = useMemo(() => ({ label }), [label]);
 	// A toggle stands at the value line's end; any other control fills it.
@@ -448,7 +439,7 @@ export function FieldBody(props: Body) {
 				/>
 			</View>
 		);
-	// The one draft holds the checkbox's value here, as `controlOf` says of its
+	// The one draft holds the checkbox's value here, as `describedOf` says of its
 	// controls.
 	if (props.checkbox)
 		return (

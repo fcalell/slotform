@@ -62,17 +62,7 @@ export function CheckboxBase({
 	return (
 		<Pressable
 			{...inertProps(painted === true)}
-			accessibilityRole="checkbox"
-			accessibilityLabel={label}
-			accessibilityState={{
-				checked: absent ? false : value,
-				disabled: disabled || ended,
-			}}
-			disabled={disabled}
-			onPress={() => {
-				const next = value !== true;
-				draft.change(next, () => onChange(next));
-			}}
+			{...checkboxPress({ draft, onChange, label, disabled, painted })}
 			onPressIn={press.onPressIn}
 			onPressOut={press.onPressOut}
 			className="shrink-0 items-center justify-center size-target"
@@ -85,6 +75,34 @@ export function CheckboxBase({
 			/>
 		</Pressable>
 	);
+}
+
+/** The press of a tick box, on the box or on the row whose label is its target: its accessible state, and the toggle that changes `draft` and saves through `onChange`. A read that ended leaves it unchecked and disabled. Outside the package's exports. */
+export function checkboxPress({
+	draft,
+	onChange,
+	label,
+	disabled,
+	painted,
+}: Omit<CheckboxProps, "checked"> & {
+	draft: Draft<boolean | "mixed">;
+	disabled: boolean;
+	painted: boolean;
+}) {
+	const ended = draft.ended !== undefined;
+	return {
+		accessibilityRole: "checkbox" as const,
+		accessibilityLabel: label,
+		accessibilityState: {
+			checked: painted || ended ? false : draft.value,
+			disabled: disabled || ended,
+		},
+		disabled,
+		onPress: () => {
+			const next = draft.value !== true;
+			draft.change(next, () => onChange(next));
+		},
+	};
 }
 
 /** A tick box that holds its own draft, as a row's does; a rejection toasts. Outside the package's exports. */

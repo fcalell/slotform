@@ -87,9 +87,6 @@ export interface ItemHeaderParts {
 	image?: { src: Datum<string>; alt: string };
 }
 
-// A mark that does not hold (a ring that is false) says no fact.
-const isMark = isMarkFact;
-
 function FactPart({
 	fact,
 	entering,
@@ -222,19 +219,18 @@ export function ItemHeaderBase({
 				draws(each) &&
 				(each.painted || (isRun(each.value) && filled(each.value))),
 		);
-	const stood = drawn
-		.slice(overline.length)
-		.filter(
-			(each) =>
-				draws(each) &&
-				(each.painted || !isMark(each.value) || says(each.value)),
-		);
+	const stood = drawn.slice(overline.length).filter(
+		(each) =>
+			draws(each) &&
+			// A mark that does not hold (a ring that is false) says no fact.
+			(each.painted || !isMarkFact(each.value) || says(each.value)),
+	);
 	const painted = drawn.some(paints) || paints(name);
 	// A quiet fact stands beside the name where the head draws one; a head with
 	// no name keeps it in the facts line.
 	const named = title !== undefined && (!name.painted || paints(name));
 	const aside = (each: (typeof stood)[number]) =>
-		named && !each.painted && isMark(each.value) && wordless(each.value);
+		named && !each.painted && isMarkFact(each.value) && wordless(each.value);
 	// A quiet fact passed `aside`: drawn, and a mark.
 	const quiet = stood.filter(aside);
 	const line = stood.filter((each) => !aside(each));

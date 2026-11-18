@@ -77,9 +77,6 @@ const KEYS = "flex-row flex-wrap";
 const KEY = "flex-row items-center";
 const DOT = "shrink-0";
 const BODY = "flex-row items-start";
-// The body stands half a meta line below the head, so the top tick, centred
-// on the plot's top edge, keeps the pair gap from the head's last line.
-
 const AXIS = "shrink-0";
 // With no tick to draw (a waiting chart, a chart of nothing but zeros) the
 // axis is not drawn, and its lane and the gap after it are the body's padding
@@ -347,7 +344,8 @@ export function BarChart<T>(props: BarChartProps<T>) {
 	const { drawn, frame } = useCollection(props.items);
 	const { painted } = drawn;
 	const { bar } = props;
-	// The top tick reaches above the plot by half a meta line.
+	// The body stands half a meta line below the head, so the top tick, centred
+	// on the plot's top edge, keeps the pair gap from the head's last line.
 	const reach = { paddingTop: tickReach(useTokenPx("--leading-meta")) };
 	// The meta size the names stand at, which their stride is measured in.
 	const metaSize = useTokenPx("--text-meta");
@@ -667,7 +665,11 @@ function Times(props: {
 }) {
 	const [line, setLine] = useState(0);
 	const [widths, setWidths] = useState<Readonly<Record<number, number>>>({});
-	const longest = Math.max(0, ...Object.values(widths));
+	// Only the times drawn now count: a width kept from earlier data is not one.
+	const longest = Math.max(
+		0,
+		...props.times.map(([time, at]) => (time ? (widths[at] ?? 0) : 0)),
+	);
 	const region = line / props.regions;
 	return (
 		<View
@@ -724,7 +726,6 @@ function Time(props: {
 	);
 }
 
-// A legend entry: the key's dot in its mark and its name, then its figure.
 function Key(props: { name: string; at: number; children: ReactNode }) {
 	return (
 		<View className={cn(CHART_KEY, KEY)}>

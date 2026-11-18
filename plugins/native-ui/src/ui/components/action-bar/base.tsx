@@ -43,9 +43,8 @@ import type { ActionBarProps } from "./index";
 // the filled act first.
 const ACTS = "flex-col-reverse";
 // The count and the acts that choose or clear every row stand a pair apart
-// over the acts, one line: of those that apply (choose all while a row is
-// unchosen, clear while one is chosen) the first stands, washed at the press,
-// and the other is the more menu's (`actsSplit`).
+// over the acts, one line; the act that stands (`actsSplit`) is washed at the
+// press.
 const COUNT = "flex-row items-center";
 const ALL = "flex-row items-center shrink-0 active:bg-wash-press";
 // React Native's text does not shrink in a row, so a long word pushes past the
@@ -55,8 +54,9 @@ const SHRINK = "shrink";
 const CHOSEN_ACTS = "flex-row items-center";
 const PRIMARY = "flex-1";
 const NUMBER = formatterFor("number");
-// A kept failure line holds its height while nothing failed.
-const KEPT = "opacity-0";
+// A kept failure line holds its height while nothing failed, and the bar a
+// pending bar replaces keeps its room: unseen, not removed.
+const UNSEEN = "opacity-0";
 // A pending bar and the bar it replaces share one row: each is the row's width
 // and the second is pulled back over the first, so the row is the taller of the
 // two. A percentage margin resolves against the row's width; Tailwind has no
@@ -64,7 +64,6 @@ const KEPT = "opacity-0";
 const HOLD = "flex-row";
 const CELL = "w-full";
 const OVER = { marginLeft: "-100%" } as const;
-const GHOST = "opacity-0";
 // What a docked foot gives the bar it draws; no app sets it, so it is outside
 // `ActionBarProps`.
 interface ActionBarInternal {
@@ -100,8 +99,7 @@ function AllAct({ act }: { act: Act }) {
 
 // The count over the acts, with the act that clears the rows while any are
 // chosen and the one that chooses every row while some stand unchosen: the
-// phone's table has no head tick. The first that applies stands and the other
-// is in a more menu.
+// phone's table has no head tick.
 function Chosen({ chosen }: { chosen: ChosenCount }) {
 	const words = useWords();
 	const counts = {
@@ -123,7 +121,7 @@ function Chosen({ chosen }: { chosen: ChosenCount }) {
 		<View className={cn(ACTION_BAR_CHOSEN, COUNT)}>
 			<RNText className={cn(text({ role: "meta" }), SHRINK)}>{said}</RNText>
 			{standing.map((act) => (
-				<AllAct key="all" act={act} />
+				<AllAct key={act.label} act={act} />
 			))}
 			{folded.length > 0 ? (
 				<MenuBase label={words.more} title={words.more} items={folded} />
@@ -275,7 +273,7 @@ export function ActionBarBase({
 							(acting.line !== undefined || standing === undefined)
 							? FIELD_ERROR_LINE
 							: text({ role: "meta" }),
-						!shown && KEPT,
+						!shown && UNSEEN,
 					)}
 				>
 					{/* A failure is the server's sentence: its backticked spans are code. */}
@@ -297,7 +295,7 @@ export function ActionBarBase({
 				pointerEvents="none"
 				accessibilityElementsHidden
 				importantForAccessibility="no-hide-descendants"
-				className={cn(CELL, GHOST)}
+				className={cn(CELL, UNSEEN)}
 			>
 				{bar(true)}
 			</View>

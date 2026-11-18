@@ -43,9 +43,15 @@ export interface GalleryProps extends Closed {
 // it stepping through the others, a Close act, the system's back and a press
 // on the scrim.
 export function Gallery({ items }: GalleryProps) {
-	// The picture open, by its place in the list.
-	const [open, setOpen] = useState<number>();
+	// The picture open, by its key: a list that changes under the view keeps it on
+	// that picture, and one that drops the picture closes the view.
+	const [openKey, setOpenKey] = useState<string>();
+	const found = items.findIndex((item) => item.key === openKey);
+	const open = found < 0 ? undefined : found;
+	if (openKey !== undefined && open === undefined) setOpenKey(undefined);
 	const shown = open === undefined ? undefined : items[open];
+	const setOpen = (at: number | undefined) =>
+		setOpenKey(at === undefined ? undefined : items[at]?.key);
 	return (
 		<View className={GALLERY}>
 			{items.map((item, at) => (

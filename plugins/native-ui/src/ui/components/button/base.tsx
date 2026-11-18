@@ -26,8 +26,8 @@ import type { ButtonAttemptProps } from "./index";
 
 const STACK = "items-start gap-gap";
 const BOX = "flex-row items-center justify-center";
-const PENDING = "opacity-0";
-// Painted, the act keeps its loaded box and draws none of its content.
+// Pending, the content gives way to the spinner; painted, the act keeps its
+// loaded box and draws none of its content.
 const HIDDEN = "opacity-0";
 const SPINNER_LAYER = "absolute inset-0 items-center justify-center";
 
@@ -41,39 +41,49 @@ const WASH: Record<ButtonAct, string> = {
 	quiet: "rounded-control bg-wash-press",
 };
 
-const FILL_PENDING: Record<ButtonAct, string> = {
-	primary: "bg-act-accent-pending",
-	danger: "bg-act-danger-pending",
-	secondary: "",
-	destructive: "",
-	quiet: "",
-};
-
-// A filled act's label reads in the meta ink on the disabled fill, which holds
-// 4.5:1; the unfilled acts' words are in the disabled ink.
-const LABEL_BLOCKED: Record<ButtonAct, string> = {
-	primary: "text-ink-meta",
-	danger: "text-ink-meta",
-	secondary: "text-ink-disabled",
-	destructive: "text-ink-disabled",
-	quiet: "text-ink-disabled",
-};
-const INK_BLOCKED: Record<ButtonAct, "ink-meta" | "ink-disabled"> = {
-	primary: "ink-meta",
-	danger: "ink-meta",
-	secondary: "ink-disabled",
-	destructive: "ink-disabled",
-	quiet: "ink-disabled",
-};
-
-// The blocked ink is the label's and the glyph's, through `Ink`: a view draws
-// no text colour.
-const BLOCKED: Record<ButtonAct, string> = {
-	primary: "bg-fill-disabled",
-	danger: "bg-fill-disabled",
-	secondary: "",
-	destructive: "",
-	quiet: "",
+// Each act's pending fill and blocked look. A filled act's label reads in the
+// meta ink on the disabled fill, which holds 4.5:1; the unfilled acts' words
+// are in the disabled ink. The blocked ink is the label's and the glyph's,
+// through `Ink`: a view draws no text colour.
+const LOOK: Record<
+	ButtonAct,
+	{
+		pending: string;
+		blocked: string;
+		label: string;
+		ink: "ink-meta" | "ink-disabled";
+	}
+> = {
+	primary: {
+		pending: "bg-act-accent-pending",
+		blocked: "bg-fill-disabled",
+		label: "text-ink-meta",
+		ink: "ink-meta",
+	},
+	danger: {
+		pending: "bg-act-danger-pending",
+		blocked: "bg-fill-disabled",
+		label: "text-ink-meta",
+		ink: "ink-meta",
+	},
+	secondary: {
+		pending: "",
+		blocked: "",
+		label: "text-ink-disabled",
+		ink: "ink-disabled",
+	},
+	destructive: {
+		pending: "",
+		blocked: "",
+		label: "text-ink-disabled",
+		ink: "ink-disabled",
+	},
+	quiet: {
+		pending: "",
+		blocked: "",
+		label: "text-ink-disabled",
+		ink: "ink-disabled",
+	},
 };
 
 // Pending and blocked look: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
@@ -83,8 +93,8 @@ function lookOf(
 	shown: boolean,
 	muted: boolean,
 ): string {
-	if (pending) return shown ? FILL_PENDING[kind] : "";
-	if (muted) return BLOCKED[kind];
+	if (pending) return shown ? LOOK[kind].pending : "";
+	if (muted) return LOOK[kind].blocked;
 	return "";
 }
 
@@ -128,9 +138,9 @@ export function ButtonBase({
 	const look = painted
 		? PAINT_CONTROL
 		: lookOf(kind, pending, drawn, muted || inert);
-	const labelLook = drawn ? PENDING : (muted || inert) && LABEL_BLOCKED[kind];
+	const labelLook = drawn ? HIDDEN : (muted || inert) && LOOK[kind].label;
 	const ink =
-		(muted || inert) && !pending ? INK_BLOCKED[kind] : buttonContentTone(kind);
+		(muted || inert) && !pending ? LOOK[kind].ink : buttonContentTone(kind);
 	const press = () => {
 		if (pending || inert) return;
 		if (muted) {
@@ -167,7 +177,7 @@ export function ButtonBase({
 		>
 			<Ink.Provider value={ink}>
 				{icon ? (
-					<View className={cn(drawn && PENDING, painted && HIDDEN)}>
+					<View className={cn((drawn || painted) && HIDDEN)}>
 						<Icon name={icon} fit="control" />
 					</View>
 				) : null}
@@ -183,13 +193,11 @@ export function ButtonBase({
 					{label}
 				</RNText>
 				{wait !== undefined ? (
-					<View
-						className={cn((drawn || !waiting) && PENDING, painted && HIDDEN)}
-					>
+					<View className={cn((drawn || !waiting || painted) && HIDDEN)}>
 						<CountBase value={wait} inAct />
 					</View>
 				) : count !== undefined ? (
-					<View className={cn(drawn && PENDING, painted && HIDDEN)}>
+					<View className={cn((drawn || painted) && HIDDEN)}>
 						<CountBase value={count} inAct />
 					</View>
 				) : null}
