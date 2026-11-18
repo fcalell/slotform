@@ -27,7 +27,7 @@ function parseExportList(body: string): string[] {
 }
 
 // Returns `null` when the schema file doesn't exist or has no value exports
-// — the caller treats `null` as "skip contribution, leave the seed".
+// — the caller then contributes no entity names.
 export function extractSchemaEntities(cwd: string): readonly string[] | null {
 	const schemaPath = join(cwd, "src", "schema", "index.ts");
 	if (!existsSync(schemaPath)) return null;

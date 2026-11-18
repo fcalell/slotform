@@ -10,7 +10,7 @@ export const MIGRATIONS_TABLE = "d1_migrations";
 
 // Flags that target the local miniflare-backed D1 that `wrangler dev` reads:
 // the dev state, or the `persist` directory of a `stack screens serve` run.
-export function localD1Flags(persist = LOCAL_PERSIST): string[] {
+function localD1Flags(persist = LOCAL_PERSIST): string[] {
 	return ["--local", "--persist-to", persist, "--config", WRANGLER_CONFIG];
 }
 

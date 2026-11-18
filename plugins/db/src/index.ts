@@ -13,27 +13,17 @@ import {
 	assertDeployableDatabaseId,
 	createD1Database,
 	D1_PLACEHOLDER_ID,
-	isWranglerAuthed,
 } from "./node/d1.ts";
 import { extractSchemaEntities } from "./node/entities.ts";
+import { DB_KIT_DIR, migrationFiles, migrationsDir } from "./node/layout.ts";
 import { migrationLockPath, withMigrationLock } from "./node/lock.ts";
-import {
-	assertNoUnacknowledgedDrops,
-	detectLatestDrops,
-	detectSchemaDrift,
-	formatDeadTriggers,
-	formatDropReport,
-	formatFailedMigration,
-	hasDrops,
-} from "./node/migration-safety.ts";
+import { MIGRATION_CHECKS } from "./node/migration-safety.ts";
 import {
 	applyMigrationsLocal,
 	applyMigrationsRemote,
 	generateMigrations,
-	listMigrationFiles,
-	migrationsExist,
+	localTarget,
 	pushSchemaLocal,
-	sqliteFile,
 } from "./node/push.ts";
 import { applySeed, describeSeed, loadSeed } from "./node/seed.ts";
 import { dbOptionsSchema } from "./types.ts";
@@ -71,42 +61,24 @@ interface InitPromptCtx {
 	};
 }
 
-// A COALESCING latch for local schema re-applies — NOT a serializer.
-//
-// Cross-process AND in-process *exclusion* is already owned by the underlying
-// op (`pushSchemaLocal` / `applyMigrationsLocal` both wrap `withMigrationLock`:
-// file lock + an in-process promise queue keyed on the lock path). So this latch
-// deliberately does not re-serialize; its one job is to coalesce: when the
-// devReadySetup task and the schema watcher fire in quick succession (or a save
-// lands mid-run), collapse them into at most one in-flight + one queued run
-// instead of stacking up N redundant drizzle-kit/wrangler runs when only the
-// latest schema matters. (Dropping this latch would still be correct — the lock
-// would queue every call — but a busy editing session would run a backlog of
-// pointless applies.)
-//
-// Scoped to a single `collect()` (graph build) via the `contributes:
-// (self) => { ... }` closure: two graphs over the same cwd get independent
-// latches, and a long-running watcher's latch is GC'd with its graph.
-function createSerialized(op: () => Promise<void>): () => Promise<void> {
+// The coalescing latch for local schema pushes: docs/architecture/plugins/db.md, "Local dev push".
+// At most one run in flight and one queued; a call while one is queued joins it.
+// The queued run starts once the one in flight settles, fulfilled or rejected.
+function coalesce(op: () => Promise<void>): () => Promise<void> {
 	let current: Promise<void> | null = null;
 	let queued: Promise<void> | null = null;
-	return function run(): Promise<void> {
-		if (queued) return queued;
-		if (current) {
-			queued = current.then(() => {
-				const next = op();
-				current = next.finally(() => {
-					current = null;
-				});
-				queued = null;
-				return current;
-			});
-			return queued;
-		}
+	const start = (): Promise<void> => {
+		queued = null;
 		current = op().finally(() => {
 			current = null;
 		});
 		return current;
+	};
+	return () => {
+		if (queued) return queued;
+		if (!current) return start();
+		queued = current.then(start, start);
+		return queued;
 	};
 }
 
@@ -127,7 +99,7 @@ export const db = plugin("db", {
 	devDependencies: {
 		"drizzle-kit": "^0.31.11",
 	},
-	gitignore: [".db-kit"],
+	gitignore: [DB_KIT_DIR],
 
 	guide: [
 		{
@@ -179,9 +151,7 @@ export const db = plugin("db", {
 			description: "Push schema to local database",
 			handler: async (ctx) => {
 				ctx.log.info(
-					ctx.options.dialect === "sqlite"
-						? `Pushing schema to ${sqliteFile(ctx.cwd, ctx.options)}...`
-						: "Pushing schema...",
+					`Pushing schema to ${localTarget(ctx.cwd, ctx.options)}...`,
 				);
 				await pushSchemaLocal(ctx.cwd, ctx.options);
 				ctx.log.success("Schema pushed");
@@ -235,11 +205,9 @@ export const db = plugin("db", {
 				if (flags.remote) {
 					await applyMigrationsRemote(ctx.cwd, ctx.options);
 				} else {
-					if (ctx.options.dialect === "sqlite") {
-						ctx.log.info(
-							`Applying migrations to ${sqliteFile(ctx.cwd, ctx.options)}`,
-						);
-					}
+					ctx.log.info(
+						`Applying migrations to ${localTarget(ctx.cwd, ctx.options)}...`,
+					);
 					await applyMigrationsLocal(ctx.cwd, ctx.options);
 				}
 				ctx.log.success("Migrations applied");
@@ -248,6 +216,10 @@ export const db = plugin("db", {
 		reset: {
 			description: "Reset local database (all data will be lost)",
 			handler: async (ctx) => {
+				if (ctx.options.dialect !== "d1") {
+					ctx.log.error("`stack db reset` only applies to the d1 dialect.");
+					return;
+				}
 				if (process.stdin.isTTY) {
 					const ok = await ctx.prompt.confirm(
 						"Reset local database? All data will be lost.",
@@ -280,12 +252,6 @@ export const db = plugin("db", {
 					ctx.log.error("`stack db create` only applies to the d1 dialect.");
 					return;
 				}
-				if (!isWranglerAuthed()) {
-					ctx.log.error(
-						"Not authenticated with Cloudflare. Run `wrangler login` first.",
-					);
-					return;
-				}
 				const name =
 					typeof flags.name === "string" ? flags.name : basename(ctx.cwd);
 				ctx.log.info(`Creating D1 database "${name}"...`);
@@ -304,44 +270,15 @@ export const db = plugin("db", {
 			description: "Check migrations for schema drift and destructive changes",
 			handler: async (ctx) => {
 				const problems: string[] = [];
-
-				// Drift check — schema edited without `stack db generate`.
-				if (detectSchemaDrift(ctx.cwd, ctx.options)) {
-					ctx.log.error(
-						"Schema drift: `src/schema` has changes with no migration. Run `stack db generate`.",
-					);
-					problems.push("drift");
-				} else {
-					ctx.log.success("No schema drift.");
+				for (const check of MIGRATION_CHECKS) {
+					const problem = check.run(ctx.cwd, ctx.options);
+					if (problem) {
+						ctx.log.error(problem);
+						problems.push(check.problem);
+					} else {
+						ctx.log.success(check.pass);
+					}
 				}
-
-				// Destructive check — newest migration drops a table/column/view.
-				const drops = detectLatestDrops(ctx.cwd, ctx.options);
-				if (drops && hasDrops(drops.report) && !drops.acknowledged) {
-					ctx.log.error(formatDropReport(drops.migration, drops.report));
-					problems.push("destructive migration");
-				} else {
-					ctx.log.success("No unacknowledged destructive changes.");
-				}
-
-				// A rebuilt content table left without its full-text triggers.
-				const dead = formatDeadTriggers(ctx.cwd, ctx.options);
-				if (dead) {
-					ctx.log.error(dead);
-					problems.push("full-text triggers");
-				} else {
-					ctx.log.success("Full-text indexes keep their triggers.");
-				}
-
-				// Every migration must build a database from nothing.
-				const failed = formatFailedMigration(ctx.cwd, ctx.options);
-				if (failed) {
-					ctx.log.error(failed);
-					problems.push("migration does not apply");
-				} else {
-					ctx.log.success("Every migration applies to an empty database.");
-				}
-
 				if (problems.length > 0) {
 					throw new StackError(
 						`db check failed: ${problems.join(", ")}`,
@@ -372,16 +309,20 @@ export const db = plugin("db", {
 	},
 
 	contributes: (self) => {
-		// Graph-scoped schema apply locks and push-based dev: docs/architecture/plugins/db.md, "Local dev push".
-		const schemaSerializers = new Map<string, () => Promise<void>>();
-		const getSharedSchemaApply = (cwd: string): (() => Promise<void>) => {
-			let cached = schemaSerializers.get(cwd);
-			if (!cached) {
-				cached = createSerialized(() => pushSchemaLocal(cwd, self.options));
-				schemaSerializers.set(cwd, cached);
+		// One coalescing latch per cwd, scoped to the graph: docs/architecture/plugins/db.md, "Local dev push".
+		const schemaPushes = new Map<string, () => Promise<void>>();
+		const schemaPush = (cwd: string): (() => Promise<void>) => {
+			let push = schemaPushes.get(cwd);
+			if (!push) {
+				push = coalesce(() => pushSchemaLocal(cwd, self.options));
+				schemaPushes.set(cwd, push);
 			}
-			return cached;
+			return push;
 		};
+		const migrationsPath = posix
+			.normalize(self.options.migrations)
+			.replace(/\/$/, "");
+		const d1 = self.options.dialect === "d1";
 
 		return [
 			cliSlots.initPrompts.contribute(() => ({
@@ -419,7 +360,7 @@ export const db = plugin("db", {
 
 			// The D1 binding, d1 only, with a required migrationsDir: docs/architecture/plugins/db.md, "Slots and contributions".
 			cloudflare.slots.bindings.contribute(() => {
-				if (self.options.dialect !== "d1") return undefined;
+				if (!d1) return undefined;
 				const databaseId = self.options.databaseId;
 				if (!databaseId) return undefined;
 				return {
@@ -484,7 +425,7 @@ export const db = plugin("db", {
 					},
 					copy: [
 						{
-							from: self.options.migrations ?? "./src/migrations",
+							from: self.options.migrations,
 							to: "migrations",
 							// The journal and the statements; drizzle-kit's snapshots only
 							// diff the next generate.
@@ -551,17 +492,15 @@ export const db = plugin("db", {
 				return names ? [...names] : undefined;
 			}),
 
-			// Local schema apply at `stack dev` Ready time. Shares its latch with
-			// the schema watcher below via `getSharedSchemaApply(cwd)` so that a
-			// re-apply triggered by a file change while the initial apply is
-			// still in flight queues behind it instead of racing.
+			// The schema push at `stack dev` Ready time, through the latch the
+			// schema watcher below shares.
 			cliSlots.devReadySetup.contribute((ctx) => {
-				const serializedSchema = getSharedSchemaApply(ctx.cwd);
+				const push = schemaPush(ctx.cwd);
 				return {
 					name: "db-schema-apply",
 					run: async () => {
 						ctx.log.info("Applying schema to local database...");
-						await serializedSchema();
+						await push();
 						ctx.log.success("Schema applied");
 					},
 				};
@@ -578,13 +517,9 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// Schema watcher — push-based for both dialects: a schema
-			// save re-pushes into the local database the running worker reads.
-			// Shares the serialized helper with `devReadySetup` (same graph,
-			// same cwd → same latch); a stale watcher from a previous graph
-			// cannot starve the current graph.
+			// A schema save re-pushes into the local database the running worker reads.
 			cliSlots.devWatchers.contribute((ctx) => {
-				const serializedSchema = getSharedSchemaApply(ctx.cwd);
+				const push = schemaPush(ctx.cwd);
 				return {
 					name: "schema",
 					paths: "src/schema/**",
@@ -592,14 +527,12 @@ export const db = plugin("db", {
 					debounce: 300,
 					handler: async () => {
 						ctx.log.info("Schema change detected, re-pushing...");
-						await serializedSchema();
+						await push();
 						ctx.log.success("Schema pushed");
 					},
 				};
 			}),
 
-			// Seed watcher — re-seed when `seed.ts` changes (the schema watcher
-			// above ignores it). No-ops when the file doesn't exist.
 			cliSlots.devWatchers.contribute((ctx) => ({
 				name: "seed",
 				paths: "src/schema/seed.ts",
@@ -617,7 +550,9 @@ export const db = plugin("db", {
 			screens.slots.serveSteps.contribute((ctx) => ({
 				name: "database",
 				run: async (serve) => {
-					if (!migrationsExist(ctx.cwd, self.options)) {
+					if (
+						migrationFiles(migrationsDir(ctx.cwd, self.options)).length === 0
+					) {
 						throw new Error(
 							"No migrations to build the scratch database from: run `stack db generate`.",
 						);
@@ -632,114 +567,82 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// The database ID guard: docs/architecture/plugins/db.md, "Deploy checks".
-			cliSlots.deployChecks.contribute(() => {
-				if (self.options.dialect !== "d1") return undefined;
-				assertDeployableDatabaseId(self.options.databaseId);
-				return undefined;
-			}),
+			// The deploy contributions, d1 only: docs/architecture/plugins/db.md, "Deploy checks".
+			...(d1
+				? [
+						cliSlots.deployChecks.contribute(() => {
+							assertDeployableDatabaseId(self.options.databaseId);
+							return undefined;
+						}),
 
-			// The destructive-migration check: docs/architecture/plugins/db.md, "Deploy checks".
-			cliSlots.deployChecks.contribute((ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				assertNoUnacknowledgedDrops(ctx.cwd, self.options);
-				return undefined;
-			}),
+						// `stack db check`'s checks, each refusing the deploy before the
+						// build or any migration touches the cloud.
+						...MIGRATION_CHECKS.map((check) =>
+							cliSlots.deployChecks.contribute((ctx) => {
+								const problem = check.run(ctx.cwd, self.options);
+								if (problem) throw new StackError(problem, check.code);
+								return undefined;
+							}),
+						),
 
-			// A full-text index's content table rebuilt by a migration that does not
-			// create its triggers again: the index would go stale after the deploy.
-			cliSlots.deployChecks.contribute((ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				const dead = formatDeadTriggers(ctx.cwd, self.options);
-				if (dead) throw new StackError(dead, "DB_FTS_TRIGGERS");
-				return undefined;
-			}),
+						// Lists the committed migrations for the deploy plan; the
+						// "Database migrations" step below applies the ones still pending
+						// remotely (wrangler's journal decides), so the action does nothing.
+						cliSlots.deployChecks.contribute((ctx) => {
+							const files = migrationFiles(
+								migrationsDir(ctx.cwd, self.options),
+							);
+							if (files.length === 0) return undefined;
+							return {
+								plugin: "db",
+								description: `${files.length} committed migration(s); pending ones apply before the worker deploys`,
+								items: files.map((name) => ({ label: name })),
+								action: async () => {},
+							};
+						}),
 
-			// A migration that fails on an empty database fails the deploy's
-			// migrate step, after the checks: refuse it here.
-			cliSlots.deployChecks.contribute((ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				const failed = formatFailedMigration(ctx.cwd, self.options);
-				if (failed) throw new StackError(failed, "DB_MIGRATION_FAILS");
-				return undefined;
-			}),
+						cliSlots.deploySteps.contribute((ctx) => ({
+							name: "Database migrations",
+							phase: "pre",
+							run: () => applyMigrationsRemote(ctx.cwd, self.options),
+						})),
 
-			// The drift check: docs/architecture/plugins/db.md, "Deploy checks".
-			cliSlots.deployChecks.contribute((ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				if (detectSchemaDrift(ctx.cwd, self.options)) {
-					throw new StackError(
-						"Schema drift: `src/schema` has changes with no committed migration. Run `stack db generate` and commit the migration before deploying.",
-						"DB_DRIFT",
-					);
-				}
-				return undefined;
-			}),
+						// Lists the seeded tables and what the remote seed does to rows
+						// outside the seed, so the deploy plan (printed even where no
+						// confirm runs) states it. The "Database seed" step owns the run.
+						cliSlots.deployChecks.contribute(async (ctx) => {
+							const seed = await loadSeed(ctx.cwd);
+							if (seed === null || seed.specs.length === 0) return undefined;
+							return {
+								plugin: "db",
+								description: seed.prune
+									? "Database seed: `prune` is set in src/schema/seed.ts, so the remote database DELETES every row of these tables that is not in the seed"
+									: "Database seed upserts these tables and keeps every other row (`export const prune = true` in src/schema/seed.ts deletes them)",
+								items: describeSeed(seed.specs, { prune: seed.prune }),
+								action: async () => {},
+							};
+						}),
 
-			// Pending-migrations confirm — lists the committed migrations for
-			// the deploy plan; the pre-phase step below applies only those
-			// still pending remotely (wrangler's journal decides).
-			cliSlots.deployChecks.contribute((ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				const files = listMigrationFiles(ctx.cwd, self.options);
-				if (files.length === 0) return undefined;
-				return {
-					plugin: "db",
-					description: `${files.length} committed migration(s); pending ones apply before the worker deploys`,
-					items: files.map((name) => ({ label: name })),
-					// The "Database migrations" pre-phase deploy step owns the
-					// apply; a second apply here would just double the call.
-					action: async () => {},
-				};
-			}),
+						// The deploy-time seed: docs/architecture/plugins/db.md, "Seed".
+						cliSlots.deploySteps.contribute(async (ctx) => {
+							if (!(await ctx.fileExists("src/schema/seed.ts")))
+								return undefined;
+							return {
+								name: "Database seed",
+								phase: "pre",
+								run: async () => {
+									await applySeed(ctx.cwd, self.options, { remote: true });
+								},
+							};
+						}),
+					]
+				: []),
 
-			// Deploy-time migration execution — only for d1.
-			cliSlots.deploySteps.contribute((ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				return {
-					name: "Database migrations",
-					phase: "pre",
-					run: () => applyMigrationsRemote(ctx.cwd, self.options),
-				};
-			}),
-
-			// Seed plan — lists the seeded tables and what the remote seed does to
-			// rows outside the seed, so the deploy plan (printed even where no
-			// confirm runs) states it. The "Database seed" step below owns the run.
-			cliSlots.deployChecks.contribute(async (ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				const seed = await loadSeed(ctx.cwd);
-				if (seed === null || seed.specs.length === 0) return undefined;
-				return {
-					plugin: "db",
-					description: seed.prune
-						? "Database seed: `prune` is set in src/schema/seed.ts, so the remote database DELETES every row of these tables that is not in the seed"
-						: "Database seed upserts these tables and keeps every other row (`export const prune = true` in src/schema/seed.ts deletes them)",
-					items: describeSeed(seed.specs, { prune: seed.prune }),
-					action: async () => {},
-				};
-			}),
-
-			// The deploy-time seed: docs/architecture/plugins/db.md, "Seed".
-			cliSlots.deploySteps.contribute(async (ctx) => {
-				if (self.options.dialect !== "d1") return undefined;
-				if (!(await ctx.fileExists("src/schema/seed.ts"))) return undefined;
-				return {
-					name: "Database seed",
-					phase: "pre",
-					run: async () => {
-						await applySeed(ctx.cwd, self.options, { remote: true });
-					},
-				};
-			}),
-
-			cliSlots.removeFiles.contribute(() => ["src/schema/", "src/migrations/"]),
+			cliSlots.removeFiles.contribute(() => ["src/schema/", migrationsPath]),
 
 			// drizzle-kit writes the migrations (snapshots, journal) in its own
 			// format: generated, so Biome skips them.
-			cliSlots.lintIgnore.contribute(() =>
-				posix.normalize(self.options.migrations).replace(/\/$/, ""),
-			),
+			cliSlots.lintIgnore.contribute(() => migrationsPath),
 		];
 	},
 });

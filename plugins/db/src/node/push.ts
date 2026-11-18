@@ -1,14 +1,8 @@
 import { createHash, createHmac } from "node:crypto";
-import {
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { LOCAL_PERSIST } from "@fcalell/plugin-cloudflare";
-import type { DbOptions } from "../types.ts";
+import type { ResolvedDbOptions } from "../types.ts";
 import {
 	assertSqliteDriver,
 	runDrizzleKit,
@@ -23,6 +17,7 @@ import {
 	pendingFtsMigrations,
 	resyncRecreatedContent,
 } from "./fts.ts";
+import { DB_KIT_DIR, migrationFiles, migrationsDir } from "./layout.ts";
 import { migrationLockPath, withMigrationLock } from "./lock.ts";
 import {
 	columnsBefore,
@@ -34,17 +29,24 @@ import { executeSql, MIGRATIONS_TABLE, migrationsApply } from "./wrangler.ts";
 // The sqlite file a command works on: docs/architecture/plugins/db.md, "Local dev push".
 export function sqliteFile(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 	scratch?: string,
 ): string {
-	const named = scratch ?? process.env[options.fileVar ?? "DB_FILE"];
+	const named = scratch ?? process.env[options.fileVar];
 	const file = named ? named : options.path;
 	if (!file) {
 		throw new Error(
-			`No sqlite file: set ${options.fileVar ?? "DB_FILE"} or the \`path\` option of db()`,
+			`No sqlite file: set ${options.fileVar} or the \`path\` option of db()`,
 		);
 	}
 	return resolve(cwd, file);
+}
+
+// The local database a command works on, as its log names it.
+export function localTarget(cwd: string, options: ResolvedDbOptions): string {
+	return options.dialect === "sqlite"
+		? sqliteFile(cwd, options)
+		: "the local D1";
 }
 
 // drizzle-kit neither creates the file's directory nor fails without it
@@ -52,7 +54,7 @@ export function sqliteFile(
 // the directory is made first.
 function sqliteLocalUrl(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 	scratch?: string,
 ): string {
 	const url = sqliteFile(cwd, options, scratch);
@@ -93,28 +95,16 @@ function ensureMiniflareD1(cwd: string, databaseId: string): string {
 	return path;
 }
 
-export function listMigrationFiles(cwd: string, options: DbOptions): string[] {
-	const dir = join(cwd, options.migrations ?? "./src/migrations");
-	if (!existsSync(dir)) return [];
-	return readdirSync(dir)
-		.filter((f) => f.endsWith(".sql"))
-		.sort();
-}
-
-export function migrationsExist(cwd: string, options: DbOptions): boolean {
-	return listMigrationFiles(cwd, options).length > 0;
-}
-
 export async function pushSchemaLocal(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 ): Promise<void> {
-	// `drizzle-kit push` writes to the dev SQLite file; serialize cross-process
-	// to avoid SQLite's per-file lock surfacing as "database is locked" when
-	// `stack db push` is run while `stack dev`'s schema watcher fires.
 	assertSqliteDriver();
+	// `drizzle-kit push` writes to the dev SQLite file; the lock serializes it
+	// across processes, so SQLite's per-file lock does not surface as "database
+	// is locked" when `stack db push` runs while `stack dev`'s schema watcher fires.
 	return withMigrationLock(migrationLockPath(cwd), async () => {
-		const configDir = join(cwd, ".db-kit");
+		const configDir = join(cwd, DB_KIT_DIR);
 		mkdirSync(configDir, { recursive: true });
 
 		// Push targets the miniflare D1 that wrangler dev reads: docs/architecture/plugins/cloudflare.md, "Local state".
@@ -147,42 +137,28 @@ export async function pushSchemaLocal(
 // `--custom`) in place of the schema diff, named `name`.
 export async function generateMigrations(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 	{ custom = false, name }: { custom?: boolean; name?: string } = {},
 ): Promise<Array<{ name: string; sql: string }>> {
-	// The pre-fix race: this function snapshots the migrations dir, runs
-	// drizzle-kit generate, then snapshots again. A concurrent writer (e.g.
-	// `stack dev`'s schema watcher pushing schema, which can also trigger a
-	// migration write, or a parallel `stack db generate`) can drop a file
-	// into the dir mid-flight — the dir-snapshot diff would then attribute
-	// that file to *this* generate call's "new" set. Wrap the entire
-	// snapshot/generate/snapshot triple in an exclusive lock so no other
-	// migration-writing operation can interleave.
+	// The new migrations are the files the directory gains across the run, so
+	// the listing, drizzle-kit generate and the second listing hold the lock
+	// together: no other migration writer adds a file in between.
 	return withMigrationLock(migrationLockPath(cwd), async () => {
-		const migrationsDir = join(cwd, options.migrations ?? "./src/migrations");
-		const existingFiles = new Set<string>();
-		if (existsSync(migrationsDir)) {
-			for (const f of readdirSync(migrationsDir)) {
-				existingFiles.add(f);
-			}
-		}
+		const dir = migrationsDir(cwd, options);
+		const existing = new Set(migrationFiles(dir));
 
-		const configDir = join(cwd, ".db-kit");
+		const configDir = join(cwd, DB_KIT_DIR);
 		mkdirSync(configDir, { recursive: true });
 
 		const configPath = join(configDir, "drizzle-generate.config.ts");
 		writeDrizzleConfig(configPath, {
 			schema: "./src/schema/index.ts",
-			out: options.migrations ?? "./src/migrations",
+			out: options.migrations,
 		});
 
 		const kit = ["generate", "--config", configPath];
 		const newSql = (): string[] =>
-			existsSync(migrationsDir)
-				? readdirSync(migrationsDir)
-						.filter((f) => f.endsWith(".sql") && !existingFiles.has(f))
-						.sort()
-				: [];
+			migrationFiles(dir).filter((f) => !existing.has(f));
 
 		if (custom) {
 			runDrizzleKit(
@@ -192,19 +168,19 @@ export async function generateMigrations(
 			);
 			return newSql().map((entry) => ({
 				name: entry,
-				sql: readFileSync(join(migrationsDir, entry), "utf-8"),
+				sql: readFileSync(join(dir, entry), "utf-8"),
 			}));
 		}
 
-		const before = columnsBefore(migrationsDir);
+		const before = columnsBefore(dir);
 		runDrizzleKit(cwd, kit, { createOnConflict: true });
 
 		// Full-text indexes are not in drizzle's snapshot, so they migrate as
 		// custom migrations of their own, after the tables they read.
 		const fts = loadFtsDefinitions(cwd);
-		const after = columnsBefore(migrationsDir);
+		const after = columnsBefore(dir);
 		for (const entry of newSql()) {
-			const file = join(migrationsDir, entry);
+			const file = join(dir, entry);
 			const sql = readFileSync(file, "utf-8");
 			const synced = resyncRecreatedContent(
 				expressionIndexes(copyOnlyExisting(sql, before), after),
@@ -212,10 +188,7 @@ export async function generateMigrations(
 			);
 			if (synced !== sql) writeFileSync(file, synced, "utf-8");
 		}
-		for (const pending of pendingFtsMigrations(
-			fts,
-			migratedFts(migrationsDir),
-		)) {
+		for (const pending of pendingFtsMigrations(fts, migratedFts(dir))) {
 			const before = new Set(newSql());
 			runDrizzleKit(cwd, [...kit, "--custom", "--name", pending.name], {
 				createOnConflict: true,
@@ -223,19 +196,19 @@ export async function generateMigrations(
 			const [created] = newSql().filter((f) => !before.has(f));
 			if (!created)
 				throw new Error(`Could not write migration ${pending.name}`);
-			writeFileSync(join(migrationsDir, created), pending.sql, "utf-8");
+			writeFileSync(join(dir, created), pending.sql, "utf-8");
 		}
 
 		return newSql().map((entry) => ({
 			name: entry,
-			sql: readFileSync(join(migrationsDir, entry), "utf-8"),
+			sql: readFileSync(join(dir, entry), "utf-8"),
 		}));
 	});
 }
 
 export async function applyMigrationsRemote(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 ): Promise<void> {
 	if (options.dialect === "sqlite") {
 		throw new Error("Remote migrations not supported for sqlite dialect");
@@ -257,7 +230,7 @@ export async function applyMigrationsRemote(
 // `scratch` is a screens-serve run's database: docs/architecture/plugins/db.md, "Seed".
 export async function applyMigrationsLocal(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 	scratch?: string,
 ): Promise<void> {
 	// Both branches read the migrations dir; the sqlite branch additionally
@@ -266,13 +239,13 @@ export async function applyMigrationsLocal(
 	return withMigrationLock(migrationLockPath(cwd), async () => {
 		if (options.dialect === "sqlite") {
 			assertSqliteDriver();
-			const configDir = join(cwd, ".db-kit");
+			const configDir = join(cwd, DB_KIT_DIR);
 			mkdirSync(configDir, { recursive: true });
 
 			const configPath = join(configDir, "drizzle-migrate.config.ts");
 			writeDrizzleConfig(configPath, {
 				schema: "./src/schema/index.ts",
-				out: options.migrations ?? "./src/migrations",
+				out: options.migrations,
 				dbCredentials: { url: sqliteLocalUrl(cwd, options, scratch) },
 			});
 

@@ -1,7 +1,21 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { FTS_KEY, ftsQuery, ftsTable } from "./fts.ts";
+import type { SQL } from "drizzle-orm";
+import {
+	integer,
+	SQLiteSyncDialect,
+	sqliteTable,
+	text,
+} from "drizzle-orm/sqlite-core";
+import {
+	bm25,
+	FTS_KEY,
+	ftsConvergeStatements,
+	ftsQuery,
+	ftsTable,
+	highlight,
+	match,
+} from "./fts.ts";
 import {
 	deadFtsTriggers,
 	migratedFts,
@@ -40,6 +54,89 @@ test("ftsTable refuses a content table without an integer key", () => {
 	assert.throws(
 		() => ftsTable("t_search", { content: textKeyed, columns: ["id"] }),
 		/integer primary key/,
+	);
+});
+
+const dialect = new SQLiteSyncDialect();
+const render = (query: SQL) => {
+	const { sql, params } = dialect.sqlToQuery(query);
+	return { sql, params };
+};
+
+test("match binds the query against the index", () => {
+	assert.deepEqual(render(match(search, '"daft"*')), {
+		sql: '"task_search" MATCH ?',
+		params: ['"daft"*'],
+	});
+});
+
+test("bm25 lists weights in index order, 1 for a column left out", () => {
+	assert.equal(render(bm25(search)).sql, 'bm25("task_search")');
+	assert.equal(
+		render(bm25(search, { ownerName: 5 })).sql,
+		'bm25("task_search", 1, 5)',
+	);
+	assert.equal(
+		render(bm25(search, { ownerName: 5, title: 10 })).sql,
+		'bm25("task_search", 10, 5)',
+	);
+});
+
+test("highlight names the column by its place in the index", () => {
+	assert.deepEqual(render(highlight(search, "ownerName", "<b>", "</b>")), {
+		sql: 'highlight("task_search", 1, ?, ?)',
+		params: ["<b>", "</b>"],
+	});
+});
+
+test("ftsTable addresses rows by the column `rowid` names", () => {
+	const keyed = sqliteTable("notes", {
+		id: text("id").primaryKey(),
+		seq: integer("seq").notNull().unique(),
+		body: text("body"),
+	});
+	const def = ftsTable("note_search", {
+		content: keyed,
+		columns: ["body"],
+		rowid: "seq",
+	})[FTS_KEY];
+	assert.match(def.create, /content_rowid=`seq`/);
+	assert.throws(
+		() =>
+			ftsTable("note_search", {
+				content: keyed,
+				columns: ["body"],
+				// @ts-expect-error: a column the table lacks
+				rowid: "missing",
+			}),
+		/has no column "missing"/,
+	);
+});
+
+test("a live index converges: nothing when current, triggers alone, or the whole index", () => {
+	const def = search[FTS_KEY];
+	const triggers = new Map(def.triggers.map((t) => [t.name, t.sql]));
+	assert.deepEqual(
+		ftsConvergeStatements(def, { table: def.create, triggers }),
+		[],
+	);
+	const lost = ftsConvergeStatements(def, {
+		table: def.create,
+		triggers: new Map(),
+	});
+	assert.doesNotMatch(lost.join("\n"), /VIRTUAL TABLE/);
+	assert.match(lost.join("\n"), /CREATE TRIGGER `task_search_ai`/);
+	assert.match(lost.at(-1) ?? "", /VALUES \('rebuild'\)/);
+	const missing = ftsConvergeStatements(def, { table: null, triggers });
+	assert.match(missing.join("\n"), /DROP TABLE IF EXISTS `task_search`/);
+	assert.match(missing.join("\n"), /CREATE VIRTUAL TABLE `task_search`/);
+});
+
+test("two indexes of one name are refused", () => {
+	const def = search[FTS_KEY];
+	assert.throws(
+		() => pendingFtsMigrations([def, { ...def, hash: "0" }], new Map()),
+		/Two full-text indexes are named "task_search"/,
 	);
 });
 

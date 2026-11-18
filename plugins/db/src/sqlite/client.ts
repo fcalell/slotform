@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
+import { BUSY_TIMEOUT, FOREIGN_KEYS, WAL } from "./pragmas.ts";
 
 // One cache serves every TSchema; each caller's schema is its own, so the
 // lookup casts the client back.
@@ -10,14 +11,12 @@ const cache = new Map<string, unknown>();
 // statistics (`PRAGMA optimize` is cheap when nothing changed).
 const OPTIMIZE_EVERY_MS = 2 * 60 * 60 * 1000;
 
-// The connection pragmas and BUSY_TIMEOUT_MS: docs/architecture/plugins/db.md, "Database on the node target".
-export const BUSY_TIMEOUT_MS = 5000;
-
+// The connection pragmas: docs/architecture/plugins/db.md, "Database on the node target".
 const PRAGMAS = [
-	"journal_mode = WAL",
+	WAL,
 	"synchronous = NORMAL",
-	`busy_timeout = ${BUSY_TIMEOUT_MS}`,
-	"foreign_keys = ON",
+	BUSY_TIMEOUT,
+	FOREIGN_KEYS,
 	"cache_size = -65536",
 	"mmap_size = 268435456",
 	"temp_store = MEMORY",

@@ -1,9 +1,8 @@
 import { z } from "zod";
 
-// Schema uses `.superRefine` to enforce the discriminated constraint at
-// runtime while keeping a loose input type (both `databaseId` and `path` are
-// optional). This preserves the historical `DbOptions` shape so consumers can
-// type `db({ dialect: "d1" })` and still trigger the runtime check.
+// `.superRefine` enforces the dialect's required option at parse time, so the
+// input type keeps both `databaseId` and `path` optional: `db({ dialect: "d1" })`
+// type-checks and fails at the runtime check with the option's name.
 export const dbOptionsSchema = z
 	.object({
 		dialect: z.enum(["d1", "sqlite"]),
@@ -31,3 +30,6 @@ export const dbOptionsSchema = z
 	});
 
 export type DbOptions = z.input<typeof dbOptionsSchema>;
+
+// The options with their defaults applied, as every command and contribution receives them.
+export type ResolvedDbOptions = z.output<typeof dbOptionsSchema>;

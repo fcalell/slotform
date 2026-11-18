@@ -23,11 +23,9 @@ db({ dialect: "sqlite", path: "./data/app.sqlite" })
   runtime opens the file the `DB_FILE` env var names, and refuses a missing var by name; `path`
   is that var's dev default. `stack dev` and the `stack db` commands (`push`, `apply`, `seed`) use the same resolution, `DB_FILE` first and `path` otherwise ([commands](./commands.md)). Nothing is remote:
   `--remote` is refused, and a deploy runs no database step. The connection is tuned for a
-  server that owns its file, with no option: WAL journal (the file gains `-wal` and `-shm`
-  siblings; back it up with them, or with SQLite's backup, never a bare copy of the main file
-  while it runs), `synchronous = NORMAL`, a 5 s busy timeout, foreign keys on, a 64 MiB page
-  cache, 256 MiB of memory-mapped reads, temporary tables in memory, and `PRAGMA optimize`
-  on open, every two hours and at exit. D1 manages its own.
+  server that owns its file, with no option. Its WAL journal gives the file `-wal` and `-shm`
+  siblings: back it up with them, or with SQLite's backup, never a bare copy of the main file
+  while it runs. Foreign keys are enforced. D1 manages its own.
 
 ## Options
 

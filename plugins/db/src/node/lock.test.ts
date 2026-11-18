@@ -71,3 +71,33 @@ test("a lock older than the boot is reclaimed though its PID is alive", async ()
 	});
 	assert.equal(ran, true);
 });
+
+test("two tasks on one lock run one after the other", async () => {
+	const path = lockIn();
+	const order: string[] = [];
+	const task = (name: string) => async () => {
+		order.push(`${name} start`);
+		await new Promise((r) => setTimeout(r, 50));
+		order.push(`${name} end`);
+	};
+	await Promise.all([
+		withMigrationLock(path, task("a")),
+		withMigrationLock(path, task("b")),
+	]);
+	assert.deepEqual(order, ["a start", "a end", "b start", "b end"]);
+});
+
+test("a lock a live process holds is waited for, not taken", async () => {
+	const path = lockIn();
+	await withMigrationLock(path, async () => {});
+	writeFileSync(path, String(process.ppid));
+	let ran = false;
+	const waiting = withMigrationLock(path, async () => {
+		ran = true;
+	});
+	await new Promise((r) => setTimeout(r, 300));
+	assert.equal(ran, false);
+	rmSync(path);
+	await waiting;
+	assert.equal(ran, true);
+});

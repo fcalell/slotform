@@ -6,7 +6,8 @@ import Database from "better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
-import { BUSY_TIMEOUT_MS, createClient } from "../sqlite/client.ts";
+import { createClient } from "../sqlite/client.ts";
+import { BUSY_TIMEOUT, WAL } from "../sqlite/pragmas.ts";
 
 // The sqlite dialect's runtime, for the node target. The file path comes from
 // the env var `fileVar` names, so the installation decides where it lives;
@@ -55,8 +56,10 @@ export function migrateSqlite(options: {
 		// carries the app's schema, which a connection opened here must not claim.
 		const sqlite = new Database(file);
 		try {
-			sqlite.pragma("journal_mode = WAL");
-			sqlite.pragma(`busy_timeout = ${BUSY_TIMEOUT_MS}`);
+			// Foreign keys stay off: a migration's table copy drops a parent table
+			// inside the migrator's transaction, where its own `PRAGMA foreign_keys=OFF` is a no-op.
+			sqlite.pragma(WAL);
+			sqlite.pragma(BUSY_TIMEOUT);
 			migrate(drizzle(sqlite), { migrationsFolder: folder });
 		} finally {
 			sqlite.close();

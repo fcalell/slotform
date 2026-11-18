@@ -2,6 +2,7 @@ import { mkdirSync, realpathSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { runCommand } from "./exec.ts";
+import { DB_KIT_DIR } from "./layout.ts";
 
 // Locating drizzle-kit: docs/architecture/plugins/db.md, "drizzle-kit".
 function drizzleKitBin(): string {
@@ -75,7 +76,7 @@ export function runDrizzleKit(
 	assertDrizzleOrm(bin);
 	let node = [bin, ...args];
 	if (createOnConflict) {
-		const preload = join(cwd, ".db-kit", "answer-create.cjs");
+		const preload = join(cwd, DB_KIT_DIR, "answer-create.cjs");
 		mkdirSync(dirname(preload), { recursive: true });
 		writeFileSync(preload, ANSWER_CREATE, "utf-8");
 		node = ["--require", preload, ...node];

@@ -4,7 +4,9 @@ import { pathToFileURL } from "node:url";
 import { getTableColumns, getTableName } from "drizzle-orm";
 import { getTableConfig, type SQLiteTable } from "drizzle-orm/sqlite-core";
 import type { SeedEntry } from "../orm.ts";
-import type { DbOptions } from "../types.ts";
+import { BUSY_TIMEOUT, FOREIGN_KEYS } from "../sqlite/pragmas.ts";
+import type { ResolvedDbOptions } from "../types.ts";
+import { DB_KIT_DIR } from "./layout.ts";
 import { sqliteFile } from "./push.ts";
 import { executeSqlFile } from "./wrangler.ts";
 
@@ -55,16 +57,16 @@ function chunk<T>(items: T[], size: number): T[][] {
 	return out;
 }
 
-// One or more INSERT statements for `rows`, grouped by which columns each row
-// provides (so a row omitting a defaulted column keeps its DEFAULT rather than
-// being forced to NULL). When `pkColumns` is set, each statement upserts on the
-// primary key; otherwise it's a plain insert (the caller has already cleared
-// the table).
 function cell(row: Record<string, SqlPrimitive>, column: string): SqlPrimitive {
 	const value = row[column];
 	return value === undefined ? null : value;
 }
 
+// One or more INSERT statements for `rows`, grouped by which columns each row
+// provides (so a row omitting a defaulted column keeps its DEFAULT rather than
+// being forced to NULL). When `pkColumns` is set, each statement upserts on the
+// primary key; otherwise it's a plain insert (the caller has already cleared
+// the table).
 function insertStatements(
 	table: string,
 	rows: Array<Record<string, SqlPrimitive>>,
@@ -219,9 +221,11 @@ function tableToSpec(
 					`Seed for table "${tableName}": unknown column "${jsKey}"`,
 				);
 			}
+			// An `undefined` value is an omitted column, as drizzle's insert reads it: its SQL default applies.
+			if (value === undefined) continue;
 			// mapToDriverValue returns unknown; a driver value is one of SqlPrimitive.
 			out[column.name] =
-				value === undefined || value === null
+				value === null
 					? null
 					: (column.mapToDriverValue(value) as SqlPrimitive);
 		}
@@ -247,11 +251,16 @@ interface LoadedSeed {
 
 // Import the consumer's `src/schema/seed.ts` (node strips its types, as it
 // does for `stack.config.ts`) and introspect it. Returns `null` when no seed file exists.
+// Each load imports a fresh URL: Node's ESM cache would hand a long-running
+// `stack dev` the file as it was at the first load. The modules it imports
+// (the schema) stay cached.
 export async function loadSeed(cwd: string): Promise<LoadedSeed | null> {
 	const seedPath = join(cwd, "src", "schema", "seed.ts");
 	if (!existsSync(seedPath)) return null;
 	// The consumer's module: `default` and `prune` are checked below.
-	const mod = (await import(pathToFileURL(seedPath).href)) as {
+	const mod = (await import(
+		`${pathToFileURL(seedPath).href}?t=${Date.now()}`
+	)) as {
 		default?: unknown;
 		prune?: unknown;
 	};
@@ -288,7 +297,7 @@ async function buildSeedSqlFromCwd(
 // Where the seed applies: docs/architecture/plugins/db.md, "Seed".
 export async function applySeed(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 	opts: { remote: boolean; scratch?: string },
 ): Promise<boolean> {
 	const sql = await buildSeedSqlFromCwd(cwd, { remote: opts.remote });
@@ -303,7 +312,10 @@ export async function applySeed(
 		const { default: Database } = await import("better-sqlite3");
 		const db = new Database(sqliteFile(cwd, options, opts.scratch));
 		try {
-			db.exec(sql);
+			// The prune relies on the schema's `ON DELETE` actions, which run only with foreign keys on.
+			db.pragma(BUSY_TIMEOUT);
+			db.pragma(FOREIGN_KEYS);
+			db.transaction(() => db.exec(sql))();
 		} finally {
 			db.close();
 		}
@@ -314,8 +326,8 @@ export async function applySeed(
 	if (!databaseName) {
 		throw new Error("Cannot seed: no databaseId configured");
 	}
-	const seedFile = join(".db-kit", "seed.sql");
-	mkdirSync(join(cwd, ".db-kit"), { recursive: true });
+	const seedFile = join(DB_KIT_DIR, "seed.sql");
+	mkdirSync(join(cwd, DB_KIT_DIR), { recursive: true });
 	writeFileSync(join(cwd, seedFile), sql, "utf-8");
 	executeSqlFile(
 		cwd,

@@ -3,15 +3,7 @@ import { spawnSync } from "node:child_process";
 // The placeholder database ID: docs/architecture/plugins/db.md, "Deploy checks".
 export const D1_PLACEHOLDER_ID = "YOUR_D1_DATABASE_ID";
 
-const UUID_RE =
-	/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const UUID_ANYWHERE =
-	/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
-
-export function isWranglerAuthed(): boolean {
-	const result = spawnSync("npx", ["wrangler", "whoami"], { stdio: "pipe" });
-	return result.status === 0;
-}
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 type D1CreateResult =
 	| { ok: true; id: string; name: string }
@@ -21,6 +13,14 @@ type D1CreateResult =
 // discriminated result so the caller owns user-facing messaging (this module
 // stays log-free — it's a pure node helper).
 export function createD1Database(name: string): D1CreateResult {
+	if (
+		spawnSync("npx", ["wrangler", "whoami"], { stdio: "pipe" }).status !== 0
+	) {
+		return {
+			ok: false,
+			error: "Not authenticated with Cloudflare. Run `wrangler login` first.",
+		};
+	}
 	const result = spawnSync(
 		"npx",
 		["wrangler", "d1", "create", name, "--json"],
@@ -31,14 +31,7 @@ export function createD1Database(name: string): D1CreateResult {
 	const stderr = result.stderr?.toString().trim() ?? "";
 
 	if (result.status !== 0) {
-		const authFailed =
-			stderr.includes("not authenticated") || stderr.includes("login");
-		return {
-			ok: false,
-			error: authFailed
-				? "Not authenticated with Cloudflare. Run `wrangler login` first."
-				: stderr || "Failed to create D1 database.",
-		};
+		return { ok: false, error: stderr || "Failed to create D1 database." };
 	}
 
 	try {
@@ -49,7 +42,7 @@ export function createD1Database(name: string): D1CreateResult {
 		// Fall back to UUID regex extraction from human-readable output.
 	}
 
-	const match = stdout.match(UUID_ANYWHERE);
+	const match = stdout.match(UUID);
 	if (match) return { ok: true, id: match[0], name };
 
 	return {
@@ -69,7 +62,7 @@ export function assertDeployableDatabaseId(
 				"and set its id as `databaseId` in stack.config.ts before deploying.",
 		);
 	}
-	if (!UUID_RE.test(databaseId)) {
+	if (!new RegExp(`^${UUID.source}$`, "i").test(databaseId)) {
 		throw new Error(
 			`db: \`databaseId\` ("${databaseId}") is not a valid D1 database id. ` +
 				"Use the `database_id` UUID from `wrangler d1 create`, not the database name.",

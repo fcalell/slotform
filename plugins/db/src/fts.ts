@@ -16,11 +16,6 @@ export const FTS_KEY = Symbol.for(FTS_KEY_NAME);
 
 const STATEMENT_BREAKPOINT = "--> statement-breakpoint";
 
-export interface FtsTrigger {
-	name: string;
-	sql: string;
-}
-
 // Everything `stack db` needs to create, sync and migrate one index.
 export interface FtsDefinition {
 	// The virtual table's name.
@@ -31,7 +26,7 @@ export interface FtsDefinition {
 	columns: string[];
 	// The statement that creates the virtual table (no trailing `;`).
 	create: string;
-	triggers: FtsTrigger[];
+	triggers: { name: string; sql: string }[];
 	// Identity of the whole definition; a migration carries it as a marker.
 	hash: string;
 }
@@ -124,6 +119,13 @@ export type FtsTable<
 > & { readonly [FTS_KEY]: FtsDefinition };
 
 const q = (name: string): string => `\`${name.replace(/`/g, "``")}\``;
+
+// An index's triggers, by the event each follows on the content table.
+const TRIGGER_EVENTS = ["ai", "ad", "au"] as const;
+const triggerName = (
+	name: string,
+	event: (typeof TRIGGER_EVENTS)[number],
+): string => `${name}_${event}`;
 const str = (value: string): string => `'${value.replace(/'/g, "''")}'`;
 
 // FNV-1a: a change detector for a definition, not a security hash.
@@ -163,40 +165,50 @@ function buildFtsDefinition(input: {
 	// rating on a 50k-row table never touches the index.
 	const watched = [rowid, ...columns].map(q).join(", ");
 
-	const triggers: FtsTrigger[] = [
-		{
-			name: `${name}_ai`,
-			sql: `CREATE TRIGGER ${q(`${name}_ai`)} AFTER INSERT ON ${q(content)} BEGIN\n\t${add}\nEND`,
-		},
-		{
-			name: `${name}_ad`,
-			sql: `CREATE TRIGGER ${q(`${name}_ad`)} AFTER DELETE ON ${q(content)} BEGIN\n\t${remove}\nEND`,
-		},
-		{
-			name: `${name}_au`,
-			sql: `CREATE TRIGGER ${q(`${name}_au`)} AFTER UPDATE OF ${watched} ON ${q(content)} BEGIN\n\t${remove}\n\t${add}\nEND`,
-		},
-	];
+	const body = {
+		ai: `AFTER INSERT ON ${q(content)} BEGIN\n\t${add}\nEND`,
+		ad: `AFTER DELETE ON ${q(content)} BEGIN\n\t${remove}\nEND`,
+		au: `AFTER UPDATE OF ${watched} ON ${q(content)} BEGIN\n\t${remove}\n\t${add}\nEND`,
+	};
+	const triggers = TRIGGER_EVENTS.map((event) => {
+		const trigger = triggerName(name, event);
+		return {
+			name: trigger,
+			sql: `CREATE TRIGGER ${q(trigger)} ${body[event]}`,
+		};
+	});
 
 	const hash = fnv1a([create, ...triggers.map((t) => t.sql)].join("\n"));
 	return { name, content, columns, create, triggers, hash };
 }
 
-// The statements that put a definition in force on a database where the
-// content table exists: the table, its triggers, and a rebuild of the index
-// from the rows already there.
-function creationStatements(def: FtsDefinition): string[] {
-	return [
-		`${def.create};`,
-		...def.triggers.map((t) => `${t.sql};`),
-		`INSERT INTO ${q(def.name)}(${q(def.name)}) VALUES ('rebuild');`,
-	];
-}
-
-const dropTriggers = (def: Pick<FtsDefinition, "name">): string[] =>
-	["ai", "ad", "au"].map(
-		(s) => `DROP TRIGGER IF EXISTS ${q(`${def.name}_${s}`)};`,
+const dropTriggers = (name: string): string[] =>
+	TRIGGER_EVENTS.map(
+		(event) => `DROP TRIGGER IF EXISTS ${q(triggerName(name, event))};`,
 	);
+
+// The index's triggers and a rebuild of it from the content rows already there.
+const triggersAndRebuild = (def: FtsDefinition): string[] => [
+	...def.triggers.map((t) => `${t.sql};`),
+	`INSERT INTO ${q(def.name)}(${q(def.name)}) VALUES ('rebuild');`,
+];
+
+// The statements that put a definition in force on a database where the
+// content table exists.
+const creationStatements = (def: FtsDefinition): string[] => [
+	`${def.create};`,
+	...triggersAndRebuild(def),
+];
+
+// The index's triggers created again, after a copy of its content table took them.
+const resyncStatements = (def: FtsDefinition): string[] => [
+	...dropTriggers(def.name),
+	...triggersAndRebuild(def),
+];
+
+/** Whether `sql` creates the index's triggers: the insert trigger, the first of the three, stands for them. */
+export const createsFtsTriggers = (sql: string, def: FtsDefinition): boolean =>
+	sql.includes(`CREATE TRIGGER ${q(triggerName(def.name, "ai"))}`);
 
 const ftsMarker = (def: Pick<FtsDefinition, "name" | "hash">): string =>
 	`-- stack:fts ${def.name} ${def.hash}`;
@@ -211,25 +223,21 @@ export function ftsMigrationSql(
 	{ replace }: { replace: boolean },
 ): string {
 	const head = replace
-		? [...dropTriggers(def), `DROP TABLE IF EXISTS ${q(def.name)};`]
+		? [...dropTriggers(def.name), `DROP TABLE IF EXISTS ${q(def.name)};`]
 		: [];
 	return `${ftsMarker(def)}\n${join([...head, ...creationStatements(def)])}`;
 }
 
 export function ftsDropMigrationSql(name: string): string {
 	return `${ftsDropMarker(name)}\n${join([
-		...dropTriggers({ name }),
+		...dropTriggers(name),
 		`DROP TABLE IF EXISTS ${q(name)};`,
 	])}`;
 }
 
 // Resync after a table copy: docs/architecture/plugins/db.md, "Full-text indexes".
 export function ftsResyncSql(def: FtsDefinition): string {
-	return join([
-		...dropTriggers(def),
-		...def.triggers.map((t) => `${t.sql};`),
-		`INSERT INTO ${q(def.name)}(${q(def.name)}) VALUES ('rebuild');`,
-	]);
+	return join(resyncStatements(def));
 }
 
 // Statements for a live database, run in one transaction: the idempotent
@@ -243,15 +251,9 @@ export function ftsConvergeStatements(
 		(t) => state.triggers.get(t.name) === t.sql,
 	);
 	if (tableOk && triggersOk) return [];
-	if (tableOk) {
-		return [
-			...dropTriggers(def),
-			...def.triggers.map((t) => `${t.sql};`),
-			`INSERT INTO ${q(def.name)}(${q(def.name)}) VALUES ('rebuild');`,
-		];
-	}
+	if (tableOk) return resyncStatements(def);
 	return [
-		...dropTriggers(def),
+		...dropTriggers(def.name),
 		`DROP TABLE IF EXISTS ${q(def.name)};`,
 		...creationStatements(def),
 	];

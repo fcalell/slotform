@@ -1,7 +1,8 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+	createsFtsTriggers,
 	FTS_KEY_NAME,
 	type FtsDefinition,
 	ftsConvergeStatements,
@@ -11,15 +12,18 @@ import {
 	ftsShadowTables,
 } from "../fts.ts";
 import { runCommand } from "./exec.ts";
+import { migrationFiles } from "./layout.ts";
 
 // Declared indexes are read in a fresh process: docs/architecture/plugins/db.md, "Full-text indexes".
+// One index exported under two names is one definition; two indexes of one
+// name are two, which `assertUnique` refuses.
 const LOADER = `
 const [file, key] = process.argv.slice(1);
 const mod = await import(file);
 const defs = [];
 for (const value of Object.values(mod)) {
 	const def = value?.[Symbol.for(key)];
-	if (def && !defs.some((d) => d.name === def.name)) defs.push(def);
+	if (def && !defs.includes(def)) defs.push(def);
 }
 process.stdout.write("\\n@@stack-fts@@" + JSON.stringify(defs));
 `;
@@ -60,11 +64,7 @@ function assertUnique(defs: FtsDefinition[]): void {
 // newest definition migrated, or gone once a drop migration followed it.
 export function migratedFts(migrationsDir: string): Map<string, string> {
 	const state = new Map<string, string>();
-	if (!existsSync(migrationsDir)) return state;
-	const files = readdirSync(migrationsDir)
-		.filter((f) => f.endsWith(".sql"))
-		.sort();
-	for (const file of files) {
+	for (const file of migrationFiles(migrationsDir)) {
 		const sql = readFileSync(join(migrationsDir, file), "utf-8");
 		for (const [, name, hash] of sql.matchAll(/^-- stack:fts (\S+) (\S+)$/gm)) {
 			if (name && hash) state.set(name, hash);
@@ -134,20 +134,16 @@ export function deadFtsTriggers(
 	migrationsDir: string,
 	declared: FtsDefinition[],
 ): Array<{ index: string; table: string; migration: string }> {
-	if (!existsSync(migrationsDir)) return [];
-	const files = readdirSync(migrationsDir)
-		.filter((f) => f.endsWith(".sql"))
-		.sort();
 	const dead = new Map<string, string>();
-	for (const file of files) {
+	for (const file of migrationFiles(migrationsDir)) {
 		const sql = readFileSync(join(migrationsDir, file), "utf-8");
 		for (const def of declared) {
 			const at = rebuildAt(sql, def.content);
 			if (at >= 0) {
-				if (sql.slice(at).includes(`CREATE TRIGGER \`${def.name}_ai\``)) {
+				if (createsFtsTriggers(sql.slice(at), def)) {
 					dead.delete(def.name);
 				} else dead.set(def.name, file);
-			} else if (sql.includes(`CREATE TRIGGER \`${def.name}_ai\``)) {
+			} else if (createsFtsTriggers(sql, def)) {
 				dead.delete(def.name);
 			}
 		}

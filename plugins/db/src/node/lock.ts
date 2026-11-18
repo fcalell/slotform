@@ -1,14 +1,17 @@
 import {
 	closeSync,
+	linkSync,
 	mkdirSync,
 	openSync,
 	readFileSync,
+	renameSync,
 	rmSync,
 	statSync,
 	writeSync,
 } from "node:fs";
 import { uptime } from "node:os";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
+import { DB_KIT_DIR } from "./layout.ts";
 
 // Cross-process and in-process migration lock: docs/architecture/plugins/db.md, "Migration lock".
 
@@ -22,8 +25,9 @@ interface LockHandle {
 // each other.
 const inProcessQueue = new Map<string, Promise<unknown>>();
 
-// Track lock files this process holds so a crash/SIGINT/SIGTERM doesn't
-// leave a stale file blocking the next run.
+// Track lock files this process holds so an exit, including one on an uncaught
+// exception (which emits `exit`), SIGINT or SIGTERM, doesn't leave a stale file
+// blocking the next run.
 const heldLocks = new Set<string>();
 let exitHandlersInstalled = false;
 
@@ -52,11 +56,6 @@ function installExitHandlers(): void {
 			if (process.listenerCount(signal) === 0) process.exit(code);
 		});
 	}
-	process.once("uncaughtException", (err) => {
-		cleanup();
-		// Re-throw so the default handler still prints + exits non-zero.
-		throw err;
-	});
 }
 
 function errnoCode(err: unknown): string | undefined {
@@ -99,6 +98,30 @@ function pidIsAlive(pid: number): boolean {
 	}
 }
 
+// Two processes can find the same stale lock. Each moves it aside under a name
+// of its own (a rename is atomic, so one of them moves it) and discards what it
+// moved only while that is still stale: a reclaimer that moved the fresh lock
+// the other just created links it back. The link fails rather than overwrite
+// a lock a third process took in that window, which then holds beside it.
+function reclaim(path: string): void {
+	const aside = `${path}.${process.pid}.stale`;
+	try {
+		renameSync(path, aside);
+	} catch (err) {
+		if (errnoCode(err) === "ENOENT") return;
+		throw err;
+	}
+	try {
+		if (!isStale(aside)) linkSync(aside, path);
+	} catch (err) {
+		if (errnoCode(err) !== "EEXIST") throw err;
+	} finally {
+		rmSync(aside, { force: true });
+	}
+}
+
+// A lock that is taken returns null, and the caller polls again; a stale one
+// (a dead PID, an empty file or a lock from before the boot) is reclaimed first.
 function tryAcquire(path: string): LockHandle | null {
 	mkdirSync(dirname(path), { recursive: true });
 	let fd: number;
@@ -106,26 +129,16 @@ function tryAcquire(path: string): LockHandle | null {
 		fd = openSync(path, "wx");
 	} catch (err) {
 		if (errnoCode(err) !== "EEXIST") throw err;
-		// Stale-lock inspection: a dead PID, an empty file or a lock from before
-		// the boot is reclaimed.
-		// Atomicity: this read-then-rm-then-create window is protected by
-		// the in-process queue (any same-process contender waits on the
-		// promise chain) and by the fact that EEXIST + "owner is alive"
-		// means a real other-process holder we should wait for.
+		let stale: boolean;
 		try {
-			if (isStale(path)) {
-				rmSync(path, { force: true });
-				try {
-					fd = openSync(path, "wx");
-				} catch {
-					return null;
-				}
-			} else {
-				return null;
-			}
-		} catch {
-			return null;
+			stale = isStale(path);
+		} catch (inspect) {
+			// Released between the open and the inspection: the next poll takes it.
+			if (errnoCode(inspect) === "ENOENT") return null;
+			throw inspect;
 		}
+		if (stale) reclaim(path);
+		return null;
 	}
 	writeSync(fd, String(process.pid));
 	closeSync(fd);
@@ -211,5 +224,5 @@ export async function withMigrationLock<T>(
 }
 
 export function migrationLockPath(cwd: string): string {
-	return `${cwd}/.db-kit/migration.lock`;
+	return join(cwd, DB_KIT_DIR, "migration.lock");
 }

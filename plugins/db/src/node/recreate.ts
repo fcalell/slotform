@@ -1,32 +1,14 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { newestSnapshot } from "./layout.ts";
 
 // The table-copy rewrite: docs/architecture/plugins/db.md, "drizzle-kit".
-
-interface Snapshot {
-	tables?: Record<
-		string,
-		{ columns?: Record<string, { name?: string } | undefined> }
-	>;
-}
 
 /** The columns of each table in the newest drizzle snapshot of a migrations dir, or none where there is no snapshot. */
 export function columnsBefore(
 	migrationsDir: string,
 ): Map<string, ReadonlySet<string>> {
-	const meta = join(migrationsDir, "meta");
 	const out = new Map<string, ReadonlySet<string>>();
-	if (!existsSync(meta)) return out;
-	const newest = readdirSync(meta)
-		.filter((f) => /^\d+_snapshot\.json$/.test(f))
-		.sort()
-		.at(-1);
-	if (!newest) return out;
-	// drizzle-kit's snapshot file: every field is read as optional.
-	const snapshot = JSON.parse(
-		readFileSync(join(meta, newest), "utf-8"),
-	) as Snapshot;
-	for (const [table, def] of Object.entries(snapshot.tables ?? {})) {
+	const { tables = {} } = newestSnapshot(migrationsDir);
+	for (const [table, def] of Object.entries(tables)) {
 		out.set(
 			table,
 			new Set(

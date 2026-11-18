@@ -74,10 +74,8 @@ import {
 } from "drizzle-orm/sqlite-core";
 
 // A view's body with declared columns: raw `sql`, a query builder, or the
-// callback that makes one. drizzle's `ManualViewBuilder.as` takes only `sql`
-// and calls `.inlineParams()` on whatever it gets, so a builder or a callback
-// died at schema load with `query.inlineParams is not a function` and
-// `stack db generate` failed. A builder is turned into its `sql` here; the
+// callback that makes one. drizzle's `ManualViewBuilder.as` takes `sql` only
+// (plugins/db/guide/schema.md), so a builder is turned into its `sql` here; the
 // declared columns stay the view's typed shape.
 type ViewBody =
 	| SQL

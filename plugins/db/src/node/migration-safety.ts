@@ -1,14 +1,7 @@
-import {
-	cpSync,
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	rmSync,
-} from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import type { DbOptions } from "../types.ts";
+import type { ResolvedDbOptions } from "../types.ts";
 import { runDrizzleKit, writeDrizzleConfig } from "./drizzle-kit.ts";
 import {
 	deadFtsTriggers,
@@ -16,56 +9,26 @@ import {
 	migratedFts,
 	pendingFtsMigrations,
 } from "./fts.ts";
+import {
+	DB_KIT_DIR,
+	migrationFiles,
+	migrationsDir,
+	readJournal,
+	readSnapshot,
+	type Snapshot,
+} from "./layout.ts";
 
 // The destructive marker: docs/architecture/plugins/db.md, "Deploy checks".
 const ALLOW_DESTRUCTIVE_MARKER = "stack:allow-destructive";
 
 // Drift paths stay relative to cwd: docs/architecture/plugins/db.md, "drizzle-kit".
-// The workspace lives under the gitignored `.db-kit`.
-const DRIFT_DIR = ".db-kit/drift";
-const DRIFT_CONFIG = ".db-kit/drift.config.ts";
-
-// Only the tables/columns/views a snapshot diff needs. Drizzle snapshot files
-// carry far more (indexes, FKs, checks); we read the two keys that describe a
-// destructive change and ignore the rest, so this survives snapshot-version
-// bumps that leave `tables`/`views` shape intact.
-interface Snapshot {
-	tables?: Record<string, { columns?: Record<string, unknown> }>;
-	views?: Record<string, unknown>;
-}
-
-interface JournalEntry {
-	idx: number;
-	tag: string;
-}
-
-interface Journal {
-	entries?: JournalEntry[];
-}
+const DRIFT_DIR = `${DB_KIT_DIR}/drift`;
+const DRIFT_CONFIG = `${DB_KIT_DIR}/drift.config.ts`;
 
 interface DropReport {
 	tables: string[];
 	columns: { table: string; column: string }[];
 	views: string[];
-}
-
-function migrationsDirOf(cwd: string, options: DbOptions): string {
-	return join(cwd, options.migrations ?? "./src/migrations");
-}
-
-function readJournal(migrationsDir: string): Journal | null {
-	const journalPath = join(migrationsDir, "meta", "_journal.json");
-	if (!existsSync(journalPath)) return null;
-	// drizzle-kit's journal file: every field is read as optional.
-	return JSON.parse(readFileSync(journalPath, "utf-8")) as Journal;
-}
-
-function readSnapshot(migrationsDir: string, idx: number): Snapshot {
-	const name = `${String(idx).padStart(4, "0")}_snapshot.json`;
-	const snapshotPath = join(migrationsDir, "meta", name);
-	if (!existsSync(snapshotPath)) return {};
-	// drizzle-kit's snapshot file: every field is read as optional.
-	return JSON.parse(readFileSync(snapshotPath, "utf-8")) as Snapshot;
 }
 
 // Drops present in `prev` and gone in `next`. A dropped table subsumes its
@@ -100,48 +63,11 @@ function diffSnapshots(prev: Snapshot, next: Snapshot): DropReport {
 	return { tables, columns, views };
 }
 
-export function hasDrops(report: DropReport): boolean {
-	return (
-		report.tables.length > 0 ||
-		report.columns.length > 0 ||
-		report.views.length > 0
-	);
-}
+const sameSchema = (a: Snapshot, b: Snapshot): boolean =>
+	JSON.stringify([a.tables ?? {}, a.views ?? {}]) ===
+	JSON.stringify([b.tables ?? {}, b.views ?? {}]);
 
-// The destructive-migration check: docs/architecture/plugins/db.md, "Deploy checks".
-export function detectLatestDrops(
-	cwd: string,
-	options: DbOptions,
-): { report: DropReport; acknowledged: boolean; migration: string } | null {
-	const migrationsDir = migrationsDirOf(cwd, options);
-	const entries = readJournal(migrationsDir)?.entries;
-	if (!entries || entries.length === 0) return null;
-
-	const sorted = [...entries].sort((a, b) => a.idx - b.idx);
-	const newest = sorted[sorted.length - 1];
-	if (!newest) return null;
-	const predecessor = sorted.length >= 2 ? sorted[sorted.length - 2] : null;
-
-	const nextSnapshot = readSnapshot(migrationsDir, newest.idx);
-	const prevSnapshot = predecessor
-		? readSnapshot(migrationsDir, predecessor.idx)
-		: {};
-
-	const report = diffSnapshots(prevSnapshot, nextSnapshot);
-	const sqlPath = join(migrationsDir, `${newest.tag}.sql`);
-	const sql = existsSync(sqlPath) ? readFileSync(sqlPath, "utf-8") : "";
-
-	return {
-		report,
-		acknowledged: sql.includes(ALLOW_DESTRUCTIVE_MARKER),
-		migration: `${newest.tag}.sql`,
-	};
-}
-
-export function formatDropReport(
-	migration: string,
-	report: DropReport,
-): string {
+function formatDropReport(migration: string, report: DropReport): string {
 	const lines: string[] = [];
 	for (const t of report.tables) lines.push(`  - drops table "${t}"`);
 	for (const v of report.views) lines.push(`  - drops view "${v}"`);
@@ -162,34 +88,46 @@ export function formatDropReport(
 	].join("\n");
 }
 
-// The destructive-migration check: docs/architecture/plugins/db.md, "Deploy checks".
-export function assertNoUnacknowledgedDrops(
+/** The newest schema change's unacknowledged drops, formatted; null when it drops nothing or carries the marker. The newest schema change is the newest migration whose snapshot differs from its predecessor's: a custom migration (an index, a backfill) after it leaves the snapshot as it was. Docs: docs/architecture/plugins/db.md, "Deploy checks". */
+export function formatUnacknowledgedDrops(
 	cwd: string,
-	options: DbOptions,
-): void {
-	const result = detectLatestDrops(cwd, options);
-	if (!result || !hasDrops(result.report) || result.acknowledged) return;
-	throw new Error(formatDropReport(result.migration, result.report));
+	options: ResolvedDbOptions,
+): string | null {
+	const dir = migrationsDir(cwd, options);
+	const entries = readJournal(dir) ?? [];
+	for (let at = entries.length - 1; at >= 0; at--) {
+		const entry = entries[at];
+		if (!entry) continue;
+		const prevEntry = entries[at - 1];
+		const prev = prevEntry ? readSnapshot(dir, prevEntry) : {};
+		const next = readSnapshot(dir, entry);
+		if (sameSchema(prev, next)) continue;
+		const report = diffSnapshots(prev, next);
+		const migration = `${entry.tag}.sql`;
+		const sqlPath = join(dir, migration);
+		const sql = existsSync(sqlPath) ? readFileSync(sqlPath, "utf-8") : "";
+		const drops =
+			report.tables.length + report.columns.length + report.views.length;
+		if (drops === 0 || sql.includes(ALLOW_DESTRUCTIVE_MARKER)) return null;
+		return formatDropReport(migration, report);
+	}
+	return null;
 }
 
-function countSqlFiles(dir: string): number {
-	if (!existsSync(dir)) return 0;
-	return readdirSync(dir).filter((f) => f.endsWith(".sql")).length;
-}
-
-// The drift check: docs/architecture/plugins/db.md, "Deploy checks".
-export function detectSchemaDrift(cwd: string, options: DbOptions): boolean {
-	const migrationsDir = migrationsDirOf(cwd, options);
+/** The drift problem, formatted: the schema, or a full-text index, changed with no committed migration; null when the migrations match. Docs: docs/architecture/plugins/db.md, "Deploy checks". */
+export function formatDrift(
+	cwd: string,
+	options: ResolvedDbOptions,
+): string | null {
+	const dir = migrationsDir(cwd, options);
 	const driftAbs = join(cwd, DRIFT_DIR);
 	const configAbs = join(cwd, DRIFT_CONFIG);
 
 	rmSync(driftAbs, { recursive: true, force: true });
 	mkdirSync(driftAbs, { recursive: true });
 	try {
-		if (existsSync(migrationsDir)) {
-			cpSync(migrationsDir, driftAbs, { recursive: true });
-		}
-		const before = countSqlFiles(driftAbs);
+		if (existsSync(dir)) cpSync(dir, driftAbs, { recursive: true });
+		const before = migrationFiles(driftAbs).length;
 
 		// Config paths stay relative to cwd: docs/architecture/plugins/db.md, "drizzle-kit".
 		writeDrizzleConfig(configAbs, {
@@ -201,13 +139,13 @@ export function detectSchemaDrift(cwd: string, options: DbOptions): boolean {
 			createOnConflict: true,
 		});
 
-		if (countSqlFiles(driftAbs) > before) return true;
-
-		// A full-text index declared, changed or removed since its migration.
-		return (
-			pendingFtsMigrations(loadFtsDefinitions(cwd), migratedFts(migrationsDir))
-				.length > 0
-		);
+		const drift =
+			migrationFiles(driftAbs).length > before ||
+			pendingFtsMigrations(loadFtsDefinitions(cwd), migratedFts(dir)).length >
+				0;
+		return drift
+			? "Schema drift: `src/schema` has changes with no committed migration. Run `stack db generate` and commit the migration."
+			: null;
 	} finally {
 		rmSync(driftAbs, { recursive: true, force: true });
 		rmSync(configAbs, { force: true });
@@ -217,10 +155,10 @@ export function detectSchemaDrift(cwd: string, options: DbOptions): boolean {
 /** What a full-text index's content table lost to a rebuild: each index a committed migration rebuilt the table of without creating its triggers again. Its writes no longer reach the index. */
 export function formatDeadTriggers(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 ): string | null {
 	const dead = deadFtsTriggers(
-		migrationsDirOf(cwd, options),
+		migrationsDir(cwd, options),
 		loadFtsDefinitions(cwd),
 	);
 	if (dead.length === 0) return null;
@@ -239,17 +177,13 @@ export function formatDeadTriggers(
 /** The first committed migration that fails to build a database from nothing, applied in order to a scratch in-memory sqlite, as `stack db apply` and a fresh deploy would; null when all apply. A statement SQLite refuses (a rebuilt table's index on a column it lacks, an empty custom migration) is reported with its migration. */
 export function formatFailedMigration(
 	cwd: string,
-	options: DbOptions,
+	options: ResolvedDbOptions,
 ): string | null {
-	const dir = migrationsDirOf(cwd, options);
-	if (!existsSync(dir)) return null;
-	const journaled = readJournal(dir)?.entries?.map((e) => `${e.tag}.sql`);
-	const files = (
-		journaled ??
-		readdirSync(dir)
-			.filter((f) => f.endsWith(".sql"))
-			.sort()
-	).filter((f) => existsSync(join(dir, f)));
+	const dir = migrationsDir(cwd, options);
+	const journaled = readJournal(dir)?.map((e) => `${e.tag}.sql`);
+	const files = (journaled ?? migrationFiles(dir)).filter((f) =>
+		existsSync(join(dir, f)),
+	);
 	if (files.length === 0) return null;
 	const Database = createRequire(import.meta.url)("better-sqlite3");
 	const db = new Database(":memory:");
@@ -278,3 +212,31 @@ export function formatFailedMigration(
 		db.close();
 	}
 }
+
+/** The checks `stack db check` runs and a d1 deploy refuses on, in that order: each formats its problem, or returns null. */
+export const MIGRATION_CHECKS = [
+	{
+		problem: "drift",
+		code: "DB_DRIFT",
+		pass: "No schema drift.",
+		run: formatDrift,
+	},
+	{
+		problem: "destructive migration",
+		code: "DB_DESTRUCTIVE",
+		pass: "No unacknowledged destructive changes.",
+		run: formatUnacknowledgedDrops,
+	},
+	{
+		problem: "full-text triggers",
+		code: "DB_FTS_TRIGGERS",
+		pass: "Full-text indexes keep their triggers.",
+		run: formatDeadTriggers,
+	},
+	{
+		problem: "migration does not apply",
+		code: "DB_MIGRATION_FAILS",
+		pass: "Every migration applies to an empty database.",
+		run: formatFailedMigration,
+	},
+] as const;

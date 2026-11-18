@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
+import { dbOptionsSchema } from "../types.ts";
 import { sqliteFile } from "./push.ts";
 
-const options = { dialect: "sqlite" as const, path: "./data/app.sqlite" };
+const options = dbOptionsSchema.parse({
+	dialect: "sqlite",
+	path: "./data/app.sqlite",
+});
 const saved = { DB_FILE: process.env.DB_FILE, TV_DB: process.env.TV_DB };
 
 function env(vars: Record<string, string | undefined>): void {

@@ -3,7 +3,6 @@ import {
 	mkdirSync,
 	mkdtempSync,
 	readdirSync,
-	readFileSync,
 	rmSync,
 	symlinkSync,
 	writeFileSync,
@@ -12,7 +11,10 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
+import { dbOptionsSchema } from "../types.ts";
 import { generateMigrations } from "./push.ts";
+
+const SQLITE = dbOptionsSchema.parse({ dialect: "sqlite", path: "./x.db" });
 
 // drizzle-orm's root, beside its `version` entry.
 const orm = dirname(
@@ -40,9 +42,9 @@ test("a table that adds and drops a column generates an add and a drop", async (
 	const cwd = consumer();
 	try {
 		write(cwd, 'old: text("old")');
-		await generateMigrations(cwd, { dialect: "sqlite" });
+		await generateMigrations(cwd, SQLITE);
 		write(cwd, 'fresh: text("fresh")');
-		const [migration] = await generateMigrations(cwd, { dialect: "sqlite" });
+		const [migration] = await generateMigrations(cwd, SQLITE);
 		assert.ok(migration, "a migration is written, not 'no changes'");
 		assert.match(migration.sql, /ADD `fresh`/);
 		assert.match(migration.sql, /DROP COLUMN `old`/);
@@ -53,7 +55,6 @@ test("a table that adds and drops a column generates an add and a drop", async (
 			).length,
 			2,
 		);
-		assert.ok(readFileSync(join(cwd, "src", "migrations", migration.name)));
 	} finally {
 		rmSync(cwd, { recursive: true, force: true });
 	}
@@ -64,8 +65,9 @@ test("a drizzle-kit failure is thrown, not read as no changes", async () => {
 	try {
 		writeFileSync(join(cwd, "src", "schema", "index.ts"), "export const x = ;");
 		await assert.rejects(
-			generateMigrations(cwd, { dialect: "sqlite" }),
-			/Unexpected/,
+			generateMigrations(cwd, SQLITE),
+			// drizzle-kit exits 0 here: the error text on its output is the failure.
+			/Command failed: drizzle-kit generate[\s\S]*Unexpected/,
 		);
 	} finally {
 		rmSync(cwd, { recursive: true, force: true });

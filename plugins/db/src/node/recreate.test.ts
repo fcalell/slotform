@@ -38,6 +38,15 @@ test("the columns before are the newest snapshot's, by database name", () => {
 					},
 				},
 			});
+		writeFileSync(
+			join(dir, "meta", "_journal.json"),
+			JSON.stringify({
+				entries: [
+					{ idx: 1, tag: "0001_b" },
+					{ idx: 0, tag: "0000_a" },
+				],
+			}),
+		);
 		writeFileSync(join(dir, "meta", "0000_snapshot.json"), snapshot(["a"]));
 		writeFileSync(
 			join(dir, "meta", "0001_snapshot.json"),

@@ -6,8 +6,8 @@ migration and no restart. Everywhere else (the deployed database) is built
 from the committed migrations in `src/migrations/`, which `stack db generate` writes. So a
 schema change is done only when its migration is generated and committed.
 
-`push`, `generate`, the sqlite `apply` and `check` run the app's `drizzle-kit` (its devDependency,
-which the plugin takes as an optional peer), never one from `PATH`.
+`push`, `generate`, the sqlite `apply` and `check` run the app's `drizzle-kit`
+([config](./config.md#rules)), never one from `PATH`.
 
 | Command | Run it when |
 | --- | --- |
@@ -19,7 +19,7 @@ which the plugin takes as an optional peer), never one from `PATH`.
 | `stack db apply --remote` | Applying them to the deployed D1 by hand; deploy does it on its own |
 | `stack db seed [--remote]` | Re-running the seed. Page: [seed](./seed.md) |
 | `stack db create [--name <n>]` | d1, once: creates the D1 database (named after the app's directory by default) and prints the `databaseId` to set |
-| `stack db reset` | d1: the local D1 is in a state a push cannot fix. It deletes the local worker state, the D1 with it, and the next `stack dev` recreates it |
+| `stack db reset` | d1 only (sqlite refuses it): the local D1 is in a state a push cannot fix. It deletes the local worker state, the D1 with it, and the next `stack dev` recreates it |
 
 ## Which sqlite file
 
