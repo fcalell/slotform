@@ -37,9 +37,15 @@ const SOURCES = [
 ];
 
 // Native client defaults: docs/architecture/plugins/native-ui.md, "Native clients in src/lib".
-const DEFAULT_AUTH_MODULE = { source: "../src/lib/auth", export: "authClient" };
+// The paths are the consumer root's; an entry import is relative to `.stack/`.
+const AUTH_MODULE_PATH = "src/lib/auth";
+const QUERY_MODULE_PATH = "src/lib/query";
+const DEFAULT_AUTH_MODULE = {
+	source: `../${AUTH_MODULE_PATH}`,
+	export: "authClient",
+};
 const DEFAULT_QUERY_MODULE = {
-	source: "../src/lib/query",
+	source: `../${QUERY_MODULE_PATH}`,
 	export: "queryClient",
 };
 
@@ -65,24 +71,14 @@ const fonts = slot.derived({
 		ctx.options.fonts ?? [],
 });
 
-// Extra CSS `@import`s aggregated into global.css (beyond tailwindcss+uniwind).
-const appCssImports = slot.list<string>({
-	source: SOURCE,
-	name: "appCssImports",
-});
-
 // Rendered `.stack/global.css`. Always emits — uniwind needs the entry file
 // whenever native-ui is in the config.
 const appCssSource = slot.derived({
 	source: SOURCE,
 	name: "appCssSource",
-	inputs: { resolved: resolvedTheme, imports: appCssImports },
-	compute: (inp): string | null =>
-		aggregateGlobalCss({
-			resolved: inp.resolved,
-			sources: SOURCES,
-			extraImports: inp.imports,
-		}),
+	inputs: { resolved: resolvedTheme },
+	compute: (inp): string =>
+		aggregateGlobalCss({ resolved: inp.resolved, sources: SOURCES }),
 });
 
 // ── Provider specs ─────────────────────────────────────────────────
@@ -267,9 +263,10 @@ const nativeThemeSource = slot.derived({
 async function hasAuthModule(
 	ctx: Pick<ContributionCtx, "fileExists">,
 ): Promise<boolean> {
-	const base = DEFAULT_AUTH_MODULE.source.slice("../".length);
 	const present = await Promise.all(
-		[".ts", ".tsx"].map((extension) => ctx.fileExists(`${base}${extension}`)),
+		[".ts", ".tsx"].map((extension) =>
+			ctx.fileExists(`${AUTH_MODULE_PATH}${extension}`),
+		),
 	);
 	return present.some(Boolean);
 }
@@ -362,7 +359,6 @@ export const nativeUi = plugin("native-ui", {
 		nativeThemeSource,
 		resolvedTheme,
 		fonts,
-		appCssImports,
 		appCssSource,
 	},
 
@@ -431,17 +427,17 @@ export const nativeUi = plugin("native-ui", {
 		// Scaffolds: docs/architecture/plugins/native-ui.md, "Native clients in src/lib".
 		cliSlots.initScaffolds.contribute((ctx) => {
 			if (self.options.queryClientModule) return undefined;
-			return ctx.scaffold("lib-query.ts", "src/lib/query.ts");
+			return ctx.scaffold("lib-query.ts", `${QUERY_MODULE_PATH}.ts`);
 		}),
 		cliSlots.initScaffolds.contribute(async (ctx) => {
 			if (self.options.authClientModule) return undefined;
 			if ((await ctx.resolve(auth.slots.clientFlags)) === null)
 				return undefined;
-			return ctx.scaffold("lib-auth.ts", "src/lib/auth.ts");
+			return ctx.scaffold("lib-auth.ts", `${AUTH_MODULE_PATH}.ts`);
 		}),
 		cliSlots.removeFiles.contribute(() => [
-			"src/lib/query.ts",
-			"src/lib/auth.ts",
+			`${QUERY_MODULE_PATH}.ts`,
+			`${AUTH_MODULE_PATH}.ts`,
 		]),
 
 		// uniwind types: docs/architecture/plugins/native-ui.md, "Type-checking".

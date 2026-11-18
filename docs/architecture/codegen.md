@@ -77,8 +77,8 @@ the CSS parser loudly, but an unclosed `calc(` in one declaration and a stray `)
 every declaration between them into one, and the stylesheet builds clean with the whole block gone.
 Each half is well-formed alone, so nothing downstream catches it.
 
-Each UI plugin wraps the helpers in a thin layer that only stamps its own label into the error
-(`plugins/react-ui/src/node/css-escape.ts`, `plugins/native-ui/src/node/css.ts`). react-ui's layer
+react-ui wraps the helpers in a layer that stamps its label into the error
+(`plugins/react-ui/src/node/css-escape.ts`); native-ui passes its label to them directly. react-ui's layer
 adds `cssProperty` for a declaration's property name: `@theme` carries only custom properties, but a
 `@utility` body and the mode block carry plain properties (`box-shadow`, `color-scheme`), which are
 `<ident>`s, and both spellings cross the same boundary. A plugin contributing a token block to
@@ -147,6 +147,5 @@ one entry per line with a trailing comma; the width is 80, Biome's default, whic
 - `packages/cli/src/commands/generate.ts`: the artifact collapse and newline rule.
 - `plugins/react-ui/src/node/codegen.ts`, `plugins/react-ui/src/node/css-escape.ts`: the
   `.stack/app.css` renderer and its label layer.
-- `plugins/native-ui/src/node/codegen.ts`, `plugins/native-ui/src/node/css.ts`: the uniwind
-  stylesheet renderer and its label layer.
+- `plugins/native-ui/src/node/codegen.ts`: the uniwind stylesheet renderer.
 - `plugins/node/src/node/barrel.ts`: the tracked barrel.

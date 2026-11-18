@@ -40,9 +40,8 @@ It windows the phone's long collections ([Long collections](#long-collections)).
   names). `stack generate` writes it into the routes directory as `+not-found.tsx`, a re-export, only
   while the app has no `+not-found` route of its own ([Routes](./expo.md#routes)). It stands where
   expo-router stands a route: inside the root layout's `Shell` when the layout draws one, alone when
-  it does not. Under a record's `Pane` it is the missing sentence in that Pane's body; elsewhere
-  under a `Shell` a record's `Pane` titled "Not found" with the missing shape; outside one a `Gate`
-  with Back.
+  it does not. Under a `Shell` it is a record's `Pane` titled "Not found" with the missing shape;
+  outside one it is a `Gate` with Back.
 - `uniwind/types` in the consumer's tsconfig `types` ([Type-checking](#type-checking)).
 
 ## Generated files
@@ -104,9 +103,6 @@ turns adaptive theming back on.
 - There is no theme provider: uniwind theming is CSS-first (a global `Uniwind.setTheme`), never
   context-based.
 
-`AppProviders` (`./app`) composes the UI half of the same stack for use outside the generated entry
-(tests, a screenshot harness); the entry adds Auth and Query through plugin-expo's `providers` slot.
-
 ## Native clients in src/lib
 
 The consumer configures the native clients in `src/lib/`. The provider defaults point at that
@@ -160,9 +156,9 @@ uniwind's per-prop class channels as `?: never`. The first four are the ones the
 platforms ([closed props](../ui-core/roster.md#the-canon-and-the-closed-props)); the
 per-prop channels uniwind adds to React Native's hosts would reopen the look one property at a time.
 A look the matrices do not cover is a matrix class set in ui-core or a primitive under the app's `ui/`,
-never a prop. The prop names are the roster in `@fcalell/ui-core/roster`. Inside a component, a
-class sits only on a `View`, `Pressable`, `ScrollView` or `Animated.View` and carries layout
-plumbing; nothing carries a product noun in a prop, an enum word or a string.
+never a prop. The prop names are the roster in `@fcalell/ui-core/roster`. Inside a component a class
+follows the consumer's rule ([classes are geometry, on hosts only](../../../plugins/native-ui/guide/rules.md#classes-are-geometry-on-hosts-only)),
+and nothing carries a product noun in a prop, an enum word or a string.
 
 `Image`'s full view is the sheet base's `view` form: a gorhom modal at the screen's height inside the
 safe area, with no handle, ground, body or foot, so a sheet's chrome never takes the picture's space.
@@ -449,7 +445,6 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 - `plugins/native-ui/src/node/theme.ts`: the uniwind stylesheet's variants and utilities.
 - `plugins/native-ui/src/node/codegen.ts`: `.stack/global.css` and its `@source` roots.
 - `plugins/native-ui/templates/lib-auth.ts`: the scaffolded native auth client.
-- `plugins/native-ui/src/ui/app/index.tsx`: `AppProviders`.
 - `plugins/native-ui/src/ui/lib/closed.ts`: `Closed`.
 - `plugins/native-ui/src/ui/lib/theme.ts`: switching the active theme.
 - `plugins/native-ui/src/ui/lib/raised.tsx`: `RaisedGround` and `SoftGround`.

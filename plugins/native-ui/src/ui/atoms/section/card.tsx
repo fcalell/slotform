@@ -6,9 +6,9 @@ import { cn } from "../../lib/cn";
 import { between } from "../../lib/group";
 import { blockIn, FadingView } from "../../lib/motion";
 
+// The card's clip rounds the rows' outer corners.
 const BOX = "overflow-hidden";
 
-// The card's clip rounds the rows' outer corners.
 /** The hairline card every Section's rows stand on; the rows pad themselves with its inset. Outside the package's exports. */
 export function SheetCard(props: { className?: string; children: ReactNode }) {
 	return (

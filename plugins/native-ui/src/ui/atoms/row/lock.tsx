@@ -1,8 +1,7 @@
 import { useWords } from "@fcalell/ui-core/react/words";
 import { LOCK_GLYPH } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { Ink } from "../../lib/ink";
-import { IconBase } from "../icon";
+import { MetaGlyph } from "./glyphs";
 
 // A table's lock: the meta glyph named `Locked`, after a cell its row locks and
 // in a column head whose column is read only. A row's lock is a badge of its
@@ -17,9 +16,7 @@ export function LockMark() {
 			accessibilityLabel={words.locked}
 			className={LOCK_GLYPH}
 		>
-			<Ink.Provider value="ink-meta">
-				<IconBase name="Lock" fit="meta" stroke="line" />
-			</Ink.Provider>
+			<MetaGlyph name="Lock" />
 		</View>
 	);
 }

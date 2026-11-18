@@ -6,9 +6,13 @@ import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 
 const CIRCLE = "items-center justify-center overflow-hidden";
 
+// A name's first two words; an email address stands for a name by its local
+// part, whose dots, underscores and hyphens part words ("ada.lovelace@…"
+// reads AL).
 function initials(name: string): string {
-	return name
-		.split(/\s+/)
+	const [local] = name.split("@", 1);
+	return (local ?? "")
+		.split(/[\s._-]+/)
 		.filter(Boolean)
 		.slice(0, 2)
 		.map((word) => word[0]?.toUpperCase() ?? "")

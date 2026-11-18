@@ -1,12 +1,7 @@
 import type { RowMark } from "@fcalell/ui-core/descriptors";
-import {
-	BADGE_RING,
-	BADGE_RING_CENTRE,
-	ROW_FLAG,
-} from "@fcalell/ui-core/variants";
+import { ROW_FLAG } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { Ink } from "../../lib/ink";
-import { IconBase } from "../icon";
+import { MetaGlyph, RequiredRing } from "./glyphs";
 
 const END_MARK = "flex-row items-center shrink-0";
 
@@ -19,14 +14,10 @@ const END_MARK = "flex-row items-center shrink-0";
 export function EndMark({ mark }: { mark: RowMark }) {
 	const glyph =
 		"ring" in mark ? (
-			<View className={BADGE_RING}>
-				<View className={BADGE_RING_CENTRE} />
-			</View>
+			<RequiredRing />
 		) : (
 			<View className={ROW_FLAG}>
-				<Ink.Provider value="ink-meta">
-					<IconBase name={mark.flag} fit="meta" stroke="line" />
-				</Ink.Provider>
+				<MetaGlyph name={mark.flag} />
 			</View>
 		);
 	return (

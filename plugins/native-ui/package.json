@@ -22,7 +22,6 @@
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
 		},
-		"./app": "./src/ui/app/index.tsx",
 		"./audio/expo": "./src/ui/audio/expo.ts",
 		"./components/action-bar": "./src/ui/components/action-bar/index.tsx",
 		"./components/banner": "./src/ui/components/banner/index.tsx",

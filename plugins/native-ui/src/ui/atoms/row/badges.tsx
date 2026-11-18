@@ -4,8 +4,6 @@ import { isCode } from "@fcalell/ui-core/runs";
 import {
 	BADGE,
 	BADGE_LINE,
-	BADGE_RING,
-	BADGE_RING_CENTRE,
 	CODE_NAME,
 	chipDot,
 	FIGURES,
@@ -26,6 +24,7 @@ import { open } from "../../lib/navigate";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 import { IconBase } from "../icon";
 import { StatusDot } from "../status/dot";
+import { MetaGlyph, RequiredRing } from "./glyphs";
 
 // A badge is one box that never breaks inside: a flex line of its glyph and its
 // words, the words cut with an ellipsis where the badge is wider than its line
@@ -133,27 +132,15 @@ function Mark({ spec }: { spec: BadgeSpec }) {
 				</Ink.Provider>
 			);
 		case "lock":
-			return (
-				<Ink.Provider value="ink-meta">
-					<IconBase name="Lock" fit="meta" stroke="line" />
-				</Ink.Provider>
-			);
+			return <MetaGlyph name="Lock" />;
 		case "chip":
 			return spec.family && spec.family !== "neutral" ? (
 				<View className={cn(chipDot({ family: spec.family }), GLYPH)} />
 			) : null;
 		case "ring":
-			return (
-				<View className={BADGE_RING}>
-					<View className={BADGE_RING_CENTRE} />
-				</View>
-			);
+			return <RequiredRing />;
 		case "flag":
-			return spec.icon ? (
-				<Ink.Provider value="ink-meta">
-					<IconBase name={spec.icon} fit="meta" stroke="line" />
-				</Ink.Provider>
-			) : null;
+			return spec.icon ? <MetaGlyph name={spec.icon} /> : null;
 		default:
 			return null;
 	}
