@@ -96,4 +96,4 @@ Read the pages listed for a task whole before proposing a change of that kind.
 
 - [Publishing](procedures/publishing.md): the owner's release runbook.
 - [Consumer version move](procedures/consumer-version-move.md): moving a consumer from a git pin to a version.
-- [Consumer migration](procedures/consumer-migration.md): moving stead or martechthings onto stack as it stands: Node floor, moved imports, renames, behaviour changes.
+- [Consumer migration](procedures/consumer-migration.md): moving a consumer onto stack as it stands: Node floor, moved imports, renames, behaviour changes.

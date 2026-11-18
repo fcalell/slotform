@@ -108,7 +108,7 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 - `docs/architecture/plugin-authoring.md` sets a guide page at about 600 words at most, and most guide pages exceed it: the rule changes or the pages do.
 - `CLAUDE.md` says "screen run", which `docs/glossary.md` lists under Avoid.
 - The showcase's static copy repeats its places and dates (Frankfurt in 7 files, Oct 31 in 3, Oct 14 in 2).
-- Consumer migration (stead, martechthings) follows stack, on the owner's word.
+- Consumer migration ([procedure](procedures/consumer-migration.md)) follows stack, on the owner's word.
 
 ## Not verified on a device or browser
 

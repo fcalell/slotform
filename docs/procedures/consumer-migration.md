@@ -1,6 +1,6 @@
 # Consumer migration
 
-How a consumer (stead, martechthings) moves onto stack as it stands now: the Node floor, the check
+How a consumer moves onto stack as it stands now: the Node floor, the check
 that lists every import that no longer resolves, the imports that move, the renames, the behaviour
 that changes, and what to run after. It covers a consumer pinned to any stack commit
 before the plugin-query split. Moving the pin to a published version is
@@ -180,7 +180,7 @@ These are not visible to the import check. Search for each.
 | CLI guide | `gap.md`, guide key `gap` | `shortfall.md`, guide key `shortfall` |
 | Scaffold import alias (a new `stack init` project) | none | `"imports": { "#/*": "./src/*" }` in `package.json` |
 
-A consumer that keeps its own alias (`#src/*` in martechthings) keeps working. Taking the scaffold's
+A consumer that keeps its own alias (such as `#src/*`) keeps working. Taking the scaffold's
 `#/*` means renaming every `#src/` import in the app.
 
 ## Behaviour that changes
