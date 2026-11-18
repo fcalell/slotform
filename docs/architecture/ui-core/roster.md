@@ -46,12 +46,12 @@ public is [public roster](../../decisions/public-roster.md).
 
 ## The roster
 
-The roster is data: `ROSTER` in `packages/ui-core/src/roster.ts` names every component both UI
+The roster is data: `packages/ui-core/src/roster.ts` (`rosterEntries`) names every component both UI
 plugins ship, in four layers (`atom`, `layout`, `shared`, `content`), with the prop names it takes,
 the class sets it draws, the tokens it owns, the moves it makes and the states it has, the same in both
 plugins. An entry with `platforms` ships on those alone (`Canvas` is web only). `DESIGN.md` is emitted
 from it, and the showcase draws each component in exactly the class sets and states its entry lists
-([showcase](showcase.md)). A component's directory is `componentDir(name)`. A component draws
+([showcase](showcase.md)). A component's directory is its name in kebab-case. A component draws
 another's place by composing it, never by spelling its class sets.
 
 ### Roster entries
@@ -77,7 +77,7 @@ covers every chip role); every other namespace names its tokens. A namespace lef
 ### Roster files
 
 Each entry is declared in its component's `src/roster/<component>.ts`, beside the descriptors,
-matrices, cvas and class sets that component alone uses; `ROSTER` groups them by layer. The four public
+matrices, cvas and class sets that component alone uses; `roster.ts` groups them by layer. The four public
 modules (`roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`) declare what two or more
 components share and import the component files to re-export the rest, so the subpaths keep their
 names. A component file therefore takes what it shares from `roster/shared.ts` (values and types,
@@ -253,7 +253,7 @@ reports an error. The committed file is the emitter's output, never edited by ha
 
 ## In the code
 
-- `packages/ui-core/src/roster.ts`: `ROSTER`, the layers and `componentDir`.
+- `packages/ui-core/src/roster.ts`: the layers and `rosterEntries`.
 - `packages/ui-core/src/roster/shared.ts`: the shared roster types (`RosterEntry`, the states, token ownership), `build`, the variant props, `TEXT` and the button label class sets.
 - `packages/ui-core/src/roster/descriptors.ts`: the descriptors two or more components take (`Run`, `Fact`, `StatusMark`, `ChipMark`, `ChangeKind`, `Drop`, `RouteRegistry`).
 - `packages/ui-core/src/roster/<component>.ts`: one component's entry, descriptors, matrices and class sets (`button.ts`, `picker.ts` among them).

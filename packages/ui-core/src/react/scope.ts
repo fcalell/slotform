@@ -4,8 +4,9 @@ import {
 	createElement,
 	type ReactNode,
 	use,
-	useEffect,
+	useLayoutEffect,
 	useMemo,
+	useState,
 } from "react";
 import { registerScope, releaseScope, type ScopeIds } from "../scope.ts";
 
@@ -16,17 +17,34 @@ const ScopeContext = createContext<{ ids: ScopeIds; depth: number }>({
 	depth: 0,
 });
 
+function sameIds(a: ScopeIds, b: ScopeIds): boolean {
+	const keys = Object.keys(a);
+	return (
+		keys.length === Object.keys(b).length &&
+		keys.every((key) => a[key] === b[key])
+	);
+}
+
 // The route's scope, registered with the client for the subtree it renders: docs/architecture/ui-core/reads.md, "Scope ids".
 export function ScopeBoundary(props: { ids: ScopeIds; children?: ReactNode }) {
 	const outer = use(ScopeContext);
-	const { ids: own } = props;
-	const ids = useMemo(() => ({ ...outer.ids, ...own }), [outer, own]);
+	const merged = { ...outer.ids, ...props.ids };
+	// The ids keep their identity while their values hold, so a layout that
+	// writes `ids={{ ... }}` inline does not register again on every render.
+	const [ids, setIds] = useState(merged);
+	if (!sameIds(ids, merged)) setIds(merged);
 	const depth = outer.depth + 1;
-	registerScope(ids, depth);
-	useEffect(() => {
+	// The ids the registration holds: the children render only once their own
+	// boundary's ids are committed, so a render that never commits (an
+	// interrupted navigation) registers nothing.
+	const [shown, setShown] = useState<ScopeIds>();
+	useLayoutEffect(() => {
 		registerScope(ids, depth);
+		setShown(ids);
 		return () => releaseScope(ids, outer.ids, outer.depth);
-	}, [ids, depth, outer]);
+	}, [ids, depth, outer.ids, outer.depth]);
 	const value = useMemo(() => ({ ids, depth }), [ids, depth]);
-	return createElement(ScopeContext, { value }, props.children);
+	return shown === ids
+		? createElement(ScopeContext, { value }, props.children)
+		: null;
 }

@@ -14,7 +14,7 @@ import {
 	type Width,
 } from "../tokens.ts";
 
-export const PLATFORMS = ["web", "native"] as const;
+const PLATFORMS = ["web", "native"] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
 // The states a component can be drawn in: docs/architecture/ui-core/roster.md, "Roster entries".

@@ -43,7 +43,6 @@ export const gateEntry: RosterEntry = {
 	},
 };
 
-// A step count's segment that turns done cross-fades its fill on `base`.
 export const FILL_FADE = "transition-[background-color] duration-base ease-out";
 
 // One segment of an onboarding step count at the meter's height, a gap: the steps
@@ -70,7 +69,7 @@ export const STEP_COUNT_SEGMENTS = "gap-gap";
 // column at the `auth` width (a column class set is a width; the region centres
 // it). A step with a title is one stack, a fields gap between every part: the
 // mark, the count, the title, the description, the banner and the body. The mark is the avatar's size, and a
-// drawn lockup in the Gate stands taller, at `gate-mark`.
+// drawn lockup in the Gate stands taller, at `GATE_LOGO`'s height.
 export const GATE = "bg-surface p-page";
 export const GATE_COLUMN = "w-full max-w-auth";
 

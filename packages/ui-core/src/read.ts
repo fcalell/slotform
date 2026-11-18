@@ -1,5 +1,7 @@
 // What a read is at this moment, free of any framework: docs/architecture/ui-core/reads.md, "Read model".
 
+import { isPlain } from "./plain.ts";
+import { reached } from "./reached.ts";
 import { createStore } from "./store.ts";
 import type { Words } from "./tokens.ts";
 
@@ -304,12 +306,6 @@ export type Lifted<T, K extends string> = T extends readonly (infer E)[]
 /** A data prop whose text props may be selections too: a constant, a selection of the whole, or a constant with selections in its `K` props (an act's `blocked`, an option's `description`). */
 export type Fielded<T, K extends string> = Datum<T> | Lifted<T, K>;
 
-const isPlain = (v: unknown): v is Record<string, unknown> => {
-	if (typeof v !== "object" || v === null) return false;
-	const proto = Object.getPrototypeOf(v);
-	return proto === Object.prototype || proto === null;
-};
-
 // Walks a list or a plain object one level (and the list under its `nesting`
 // key, a group's options), handing every selection held in a `keys` prop to
 // `take` and putting back what it returns; a value with none is returned as it
@@ -531,11 +527,7 @@ export function sampleOf<T>(
 function slotted(v: unknown): unknown {
 	if (isStandIn(v)) return "";
 	if (Array.isArray(v)) return v.map(slotted);
-	if (
-		typeof v === "object" &&
-		v !== null &&
-		Object.getPrototypeOf(v) === Object.prototype
-	)
+	if (isPlain(v))
 		return Object.fromEntries(
 			Object.entries(v).map(([key, value]) => [key, slotted(value)]),
 		);
@@ -586,13 +578,6 @@ type Pages = { pages: readonly Page[] };
 // A window read's data has its pages by number, an infinite read's in an array.
 const isWindowState = (data: unknown): data is WindowState =>
 	!Array.isArray((data as Pages).pages);
-
-// The pages loaded from the start without a gap.
-function reached(state: WindowState): number {
-	let page = 0;
-	while (state.pages[page] !== undefined) page++;
-	return page;
-}
 
 // More pages remain when the last one names a cursor (a window: the rows
 // loaded from the start fall short of the total). False over the stand-in
@@ -782,7 +767,6 @@ export function planFrame<S>(
 	query: (read: Read<unknown>) => { fetchMore?: boolean } | undefined,
 	enclosing: Holds,
 ): {
-	reads: readonly Read<unknown>[];
 	// The observed reads: every painted read carries `heldStandIn`, so the
 	// frame is a holder of each in the dev check, not a painter.
 	queries: Observed[];
@@ -793,7 +777,6 @@ export function planFrame<S>(
 	const plan = planSelections(selection === undefined ? [] : [selection]);
 	const [held, ...extra] = plan.painted.filter((r) => !enclosing.has(r.key));
 	return {
-		reads: plan.reads,
 		queries: plan.queries(heldStandIn),
 		held,
 		extra,
@@ -855,15 +838,6 @@ export function windowOf(v: unknown): Read<unknown> | undefined {
 	return isRead(v) && v.kind === "window" ? v : undefined;
 }
 
-// A draft's value follows its selection until the viewer edits it; the edit
-// kept is this. `key` names the selection's reads, so an edit belongs to the
-// data it was made over: a different read key drops it. A constant has no key,
-// and its edit stays.
-export interface Kept<T> {
-	key: string | undefined;
-	value: T;
-}
-
 export function readsOf(v: unknown): readonly Read<unknown>[] {
 	return isSelection(v) ? v[SELECTION].reads : [];
 }
@@ -872,13 +846,6 @@ export function readKey(v: unknown): string | undefined {
 	return isSelection(v)
 		? v[SELECTION].reads.map((r) => r.key).join("|")
 		: undefined;
-}
-
-export function draftFor<T>(
-	draft: Kept<T> | null,
-	key: string | undefined,
-): Kept<T> | null {
-	return draft && draft.key === key ? draft : null;
 }
 
 // Dev checks read the query cache's own observers: docs/architecture/ui-core/reads.md, "Dev checks".

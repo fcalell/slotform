@@ -3,7 +3,7 @@ import type { RosterEntry } from "./shared.ts";
 // A code a camera reads: `value` is the text it carries, `label` what it
 // is for, its accessible name (the text is never drawn nor read aloud).
 // Its modules are crisp-edged in a dark ink on a light tile in both
-// modes, inside a four-module quiet zone; the tile is a square at its
+// modes, inside a quiet zone `QR_QUIET` modules wide; the tile is a square at its
 // container's width down to the image's height cap, centred where the
 // cap narrows it, so the code is never cropped. A `value` that is a
 // selection paints the tile at that square until the read lands. It

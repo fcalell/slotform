@@ -120,7 +120,7 @@ export interface CanvasPoint {
 }
 
 // What a node is in its graph, drawn in its shape and tone: `start` a pill in
-// the accent, `step` the plain card, `decision` a compact card with a diamond
+// the accent, `step` the plain card, `decision` a card with a diamond
 // (its answers are its out-edges' labels), `wait` a card in the attention
 // tone (something waits for a person), `call` a card with a double edge
 // (another graph runs here), `end` a quiet pill.
@@ -166,7 +166,7 @@ export interface CanvasEdge {
 	id: string;
 	from: string;
 	to: string;
-	// Drawn on the edge in a chip (a word; truncates past the short measure, 20 characters).
+	// Drawn on the edge in a chip (a word; truncates past the short measure, `measure-short`).
 	label?: string;
 	handoff?: boolean;
 }
@@ -200,8 +200,7 @@ export const LIFT =
 // run changes at once.
 export const PATH_TONE = "transition-colors duration-base ease-out";
 
-// A node's role is its shape (`role`: its radius, and a decision's compact
-// height) and its tone (`tone`: its ground and, at rest, its edge): `plain` the
+// A node's role is its shape (`role`: its radius) and its tone (`tone`: its ground and, at rest, its edge): `plain` the
 // plain card, `strong` a decision's stronger edge, `accent` a start's pill,
 // `attention` the wait on a person, `muted` an end's pill; `off` and
 // `dimmed` are the quiet a node draws over any role: an off node a filled card
@@ -239,20 +238,34 @@ const NODE_STATE = {
 // here.
 const CALL_EDGE = "outline-1 outline-offset-2 outline-edge";
 
-// A node's box on the canvas's ground: a card, a decision's compact card, or a
-// pill.
+// The shape each role draws: a start and an end are pills, the rest cards.
+const ROLE_SHAPE = {
+	step: "card",
+	start: "pill",
+	decision: "card",
+	wait: "card",
+	call: "card",
+	end: "pill",
+} as const satisfies Record<CanvasRole, "card" | "pill">;
+// `Object.keys` types its keys as `string`.
+const ROLES = Object.keys(ROLE_SHAPE) as CanvasRole[];
+const byRole = (classOf: (role: CanvasRole) => string) =>
+	// `Object.fromEntries` types its keys as `string`; `ROLES` holds every role.
+	Object.fromEntries(ROLES.map((role) => [role, classOf(role)])) as Record<
+		CanvasRole,
+		string
+	>;
+const RADIUS = { card: "rounded-card", pill: "rounded-full" };
+// A role's outline: its radius, and a call's second hairline.
+const roleEdge = (role: CanvasRole) =>
+	role === "call" ? `${RADIUS.card} ${CALL_EDGE}` : RADIUS[ROLE_SHAPE[role]];
+
+// A node's box on the canvas's ground: a card or a pill.
 export const CANVAS_NODE = matrix({
 	base: `w-node min-h-control gap-gap px-pad py-gap border ${ANSWER} ${LIFT}`,
 	variants: {
 		state: NODE_STATE,
-		role: {
-			step: "py-gap rounded-card",
-			start: "py-gap rounded-full",
-			decision: "py-gap rounded-card",
-			wait: "py-gap rounded-card",
-			call: `py-gap rounded-card ${CALL_EDGE}`,
-			end: "py-gap rounded-full",
-		},
+		role: byRole(roleEdge),
 		tone: NODE_GROUND,
 	},
 	compoundVariants: [...NODE_EDGES],
@@ -325,14 +338,11 @@ export const CANVAS_NODE_GLYPH = matrix({
 	base: `absolute -z-10 border ${PATH_TONE}`,
 	variants: {
 		state: NODE_STATE,
-		role: {
-			step: "inset-0 rounded-card",
-			start: "inset-0 rounded-full",
-			decision: "inset-gap rotate-45 rounded-chip",
-			wait: "inset-0 rounded-card",
-			call: `inset-0 rounded-card ${CALL_EDGE}`,
-			end: "inset-0 rounded-full",
-		},
+		role: byRole((role) =>
+			role === "decision"
+				? "inset-gap rotate-45 rounded-chip"
+				: `inset-0 ${roleEdge(role)}`,
+		),
 		tone: NODE_GROUND,
 	},
 	compoundVariants: [...NODE_EDGES],
@@ -345,39 +355,23 @@ export const CANVAS_NODE_GLYPH = matrix({
 // circle's corner is outside its arc, a gap in is on it) and a diamond's flush
 // too: its corners are outside its edges, so the status above and the warning
 // below stand apart, never over its icon or on one another.
-const MARK_SEAT = {
-	step: "flush",
-	start: "inset",
-	decision: "flush",
-	wait: "flush",
-	call: "flush",
-	end: "inset",
-} as const;
-// `Object.keys` types its keys as `string`.
-const MARK_ROLES = Object.keys(MARK_SEAT) as Array<keyof typeof MARK_SEAT>;
+const flush = (role: CanvasRole) => ROLE_SHAPE[role] === "card";
 export const CANVAS_NODE_MARK = matrix({
 	base: "absolute flex",
 	variants: {
-		role: {
-			step: "end-0",
-			start: "end-gap",
-			decision: "end-0",
-			wait: "end-0",
-			call: "end-0",
-			end: "end-gap",
-		},
+		role: byRole((role) => (flush(role) ? "end-0" : "end-gap")),
 		place: { status: "", warning: "" },
 	},
-	compoundVariants: MARK_ROLES.flatMap((role) => [
+	compoundVariants: ROLES.flatMap((role) => [
 		{
 			role,
 			place: "status" as const,
-			class: MARK_SEAT[role] === "flush" ? "top-0" : "top-gap",
+			class: flush(role) ? "top-0" : "top-gap",
 		},
 		{
 			role,
 			place: "warning" as const,
-			class: MARK_SEAT[role] === "flush" ? "bottom-0" : "bottom-gap",
+			class: flush(role) ? "bottom-0" : "bottom-gap",
 		},
 	]),
 	defaultVariants: { role: "step", place: "status" },
@@ -425,8 +419,7 @@ export const canvasNodeInk = build(CANVAS_NODE_INK);
 export const canvasNodeName = build(CANVAS_NODE_NAME);
 
 // Canvas: the ground the nodes stand on, one step off the page; a port, a
-// hollow ring on the node's edge inside a hit box the target's size (24, 44 on
-// touch); a group's dashed frame and its head on the group ground; the zoom
+// hollow ring on the node's edge inside a hit box the target's size (`TARGET_PX`); a group's dashed frame and its head on the group ground; the zoom
 // stack's box. The dot grid, the edge strokes and the zoom's buttons (icon `Button`)
 // are not class sets.
 export const CANVAS_GROUND = "bg-canvas";

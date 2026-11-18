@@ -37,7 +37,6 @@ import { waveformEntry } from "./roster/waveform.ts";
 
 export {
 	type Owns,
-	PLATFORMS,
 	type Platform,
 	type RosterEntry,
 	STATES,
@@ -47,7 +46,7 @@ export {
 const LAYERS = ["atom", "layout", "shared", "content"] as const;
 export type Layer = (typeof LAYERS)[number];
 
-export const ROSTER: Record<Layer, Record<string, RosterEntry>> = {
+const ROSTER: Record<Layer, Record<string, RosterEntry>> = {
 	atom: {
 		Text: textEntry,
 		Button: buttonEntry,
@@ -90,11 +89,6 @@ export const ROSTER: Record<Layer, Record<string, RosterEntry>> = {
 		Canvas: canvasEntry,
 	},
 };
-
-// `FormField` → `form-field`: the component directory under `src/ui/components`.
-export function componentDir(name: string): string {
-	return name.replace(/(?<!^)[A-Z]/g, (ch) => `-${ch}`).toLowerCase();
-}
 
 export function rosterEntries(
 	platform?: Platform,

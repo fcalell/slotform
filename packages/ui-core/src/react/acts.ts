@@ -8,20 +8,13 @@ import {
 	keepSave,
 	startAttempt,
 } from "../acts.ts";
-import type { Act, ActBase, Decision } from "../descriptors.ts";
-import {
-	type Datum,
-	draftFor,
-	endedReason,
-	isEnded,
-	type Kept,
-	readKey,
-	readsOf,
-} from "../read.ts";
+import type { Act } from "../descriptors.ts";
+import { type Datum, endedReason, isEnded, readKey, readsOf } from "../read.ts";
 import { pressStands } from "../reason.ts";
-import type { Tone } from "../tokens.ts";
+import type { Tone, Words } from "../tokens.ts";
 import { ask } from "./confirm.ts";
-import { usePort } from "./port.ts";
+import { failedSentence } from "./failed.ts";
+import { type ReadPort, usePort } from "./port.ts";
 import { useSelections } from "./read.ts";
 import { usePressed } from "./reason.ts";
 import { useWords } from "./words.ts";
@@ -36,10 +29,23 @@ export interface Draft<T> {
 	change: (next: T, save?: () => unknown) => Promise<void> | undefined;
 }
 
+// The edit a draft keeps, by the key of the reads it was made over: docs/architecture/ui-core/acts.md, "Field values".
+interface Kept<T> {
+	key: string | undefined;
+	value: T;
+}
+
+function draftFor<T>(
+	draft: Kept<T> | null,
+	key: string | undefined,
+): Kept<T> | null {
+	return draft && draft.key === key ? draft : null;
+}
+
 // A field's value: docs/architecture/ui-core/acts.md, "Field values".
 export function useDraft<T>(
 	value: Datum<T>,
-	failed?: (error: unknown, again: () => unknown) => void,
+	failed: (error: unknown, again: () => unknown) => void,
 ): Draft<T> {
 	const port = usePort();
 	const [drawn] = useSelections([value] as const);
@@ -67,7 +73,6 @@ export function useDraft<T>(
 			release: () => setHeld(null),
 			rollback: (error) => {
 				setHeld(null);
-				if (!failed) return;
 				drew(error);
 				failed(error, () => change(next, save));
 			},
@@ -113,7 +118,7 @@ export function useFieldDraft<T>(value: Datum<T>): {
 	const words = useWords();
 	const [refused, refuse] = useState<string>();
 	const draft = useDraft(value, (error) =>
-		refuse(port.refusal(error) ?? words.actFailed),
+		refuse(failedSentence(port, words, error)),
 	);
 	const reason = endedReason(words, draft.ended);
 	const [pressed, press] = usePressed(reason);
@@ -176,14 +181,9 @@ export interface ActPlatform {
 }
 
 /** What `attempt` takes: the `onAct`, its wiring (`confirm`, `done`, `to`, and the `sheet` it opens instead of running), and the label and `destructive` a `confirm`'s decision draws its act with. */
-export type Attemptable = Partial<ActBase> & {
-	confirm?: Decision;
-	done?: string;
-	to?: string;
-	sheet?: unknown;
-	label?: string;
-	destructive?: boolean;
-};
+export type Attemptable = Partial<
+	Pick<Act, "onAct" | "confirm" | "done" | "to" | "label" | "destructive">
+> & { sheet?: unknown };
 
 // What an act's holder reads: which act pends (inert at once; the pending look
 // comes after `ACT_DELAY`), whether it holds its siblings (while one pends),
@@ -203,14 +203,27 @@ export function createActs(platform: ActPlatform): {
 	useAct: <K = true>(where: "line" | "toast") => Acting<K>;
 	useHeldDraft: <T>(value: Datum<T>) => Draft<T>;
 } {
-	/** A holder's attempt of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one; a refusal the server answered (a 4xx) has no Retry, as it would answer the same again; an act refused for the connection draws the generic one, with no Retry either, and the connection's own sentence is the offline banner's alone. */
+	// A failed toast, with a Retry that runs `again` unless the server refused it (a 4xx).
+	function failedToast(
+		port: ReadPort,
+		words: Words,
+		error: unknown,
+		again: () => unknown,
+	) {
+		platform.toast(failedSentence(port, words, error), {
+			tone: "failed",
+			act: port.retries(error)
+				? { label: words.retry, onAct: again }
+				: undefined,
+		});
+	}
+
+	/** A holder's attempt of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one, and the toast has a Retry where the port's `retries` says so; an act refused for the connection: docs/architecture/ui-core/acts.md, "Rejections". */
 	function useAct<K = true>(where: "line" | "toast"): Acting<K> {
 		const port = usePort();
 		const words = useWords();
 		const attempt = useAttempt<K>();
 		const [opened, setOpened] = useState<{ key: K; open: boolean }>();
-		const sentenceOf = (error: unknown) =>
-			port.refusal(error) ?? words.actFailed;
 		const { pending, failure } = attempt;
 		// The act's work: `onAct`, then `done`, then `to`, each once the one before
 		// resolved (at once for an `onAct` that returns nothing).
@@ -240,12 +253,7 @@ export function createActs(platform: ActPlatform): {
 				return Promise.resolve(result).catch((error: unknown) => {
 					drew(error);
 					if (isPlaced(error)) return;
-					platform.toast(sentenceOf(error), {
-						tone: "failed",
-						act: port.retries(error)
-							? { label: words.retry, onAct: () => work(act) }
-							: undefined,
-					});
+					failedToast(port, words, error, () => work(act));
 				});
 			});
 		};
@@ -254,7 +262,7 @@ export function createActs(platform: ActPlatform): {
 			holds: pending !== undefined,
 			line:
 				failure && !isPlaced(failure.error)
-					? sentenceOf(failure.error)
+					? failedSentence(port, words, failure.error)
 					: undefined,
 			attempt: (key, act) => {
 				if (!act.confirm) return go(key, act);
@@ -280,14 +288,9 @@ export function createActs(platform: ActPlatform): {
 	function useHeldDraft<T>(value: Datum<T>): Draft<T> {
 		const port = usePort();
 		const words = useWords();
-		const draft = useDraft(value, (error, again) => {
-			platform.toast(port.refusal(error) ?? words.actFailed, {
-				tone: "failed",
-				act: port.retries(error)
-					? { label: words.retry, onAct: again }
-					: undefined,
-			});
-		});
+		const draft = useDraft(value, (error, again) =>
+			failedToast(port, words, error, again),
+		);
 		const reason = endedReason(words, draft.ended);
 		// One sentence stands at a time: a drag or a run of keystrokes over it does
 		// not stack toasts, and it is said again once its toast has left (or the

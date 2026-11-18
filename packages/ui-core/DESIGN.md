@@ -1237,32 +1237,12 @@ components:
     typography: "{typography.body}"
     textColor: "{colors.ink-body-dark}"
     backgroundColor: "{colors.accent-soft-dark}"
-  banner-running:
-    rounded: "{rounded.control}"
-    typography: "{typography.body}"
-    textColor: "{colors.ink-body}"
-    backgroundColor: "{colors.accent-soft}"
-  banner-running-dark:
-    rounded: "{rounded.control}"
-    typography: "{typography.body}"
-    textColor: "{colors.ink-body-dark}"
-    backgroundColor: "{colors.accent-soft-dark}"
   banner-waiting:
     rounded: "{rounded.control}"
     typography: "{typography.body}"
     textColor: "{colors.ink-body}"
     backgroundColor: "{colors.chip-neutral-soft}"
   banner-waiting-dark:
-    rounded: "{rounded.control}"
-    typography: "{typography.body}"
-    textColor: "{colors.ink-body-dark}"
-    backgroundColor: "{colors.chip-neutral-soft-dark}"
-  banner-idle:
-    rounded: "{rounded.control}"
-    typography: "{typography.body}"
-    textColor: "{colors.ink-body}"
-    backgroundColor: "{colors.chip-neutral-soft}"
-  banner-idle-dark:
     rounded: "{rounded.control}"
     typography: "{typography.body}"
     textColor: "{colors.ink-body-dark}"
@@ -1297,21 +1277,33 @@ components:
     typography: "{typography.body}"
     textColor: "{colors.ink-body-dark}"
     backgroundColor: "{colors.danger-soft-dark}"
+  banner-running:
+    rounded: "{rounded.control}"
+    typography: "{typography.body}"
+    textColor: "{colors.ink-body}"
+    backgroundColor: "{colors.accent-soft}"
+  banner-running-dark:
+    rounded: "{rounded.control}"
+    typography: "{typography.body}"
+    textColor: "{colors.ink-body-dark}"
+    backgroundColor: "{colors.accent-soft-dark}"
+  banner-idle:
+    rounded: "{rounded.control}"
+    typography: "{typography.body}"
+    textColor: "{colors.ink-body}"
+    backgroundColor: "{colors.chip-neutral-soft}"
+  banner-idle-dark:
+    rounded: "{rounded.control}"
+    typography: "{typography.body}"
+    textColor: "{colors.ink-body-dark}"
+    backgroundColor: "{colors.chip-neutral-soft-dark}"
   banner-glyph-active:
     textColor: "{colors.accent-ink}"
   banner-glyph-active-dark:
     textColor: "{colors.accent-ink-dark}"
-  banner-glyph-running:
-    textColor: "{colors.accent-ink}"
-  banner-glyph-running-dark:
-    textColor: "{colors.accent-ink-dark}"
   banner-glyph-waiting:
     textColor: "{colors.ink-meta}"
   banner-glyph-waiting-dark:
-    textColor: "{colors.ink-meta-dark}"
-  banner-glyph-idle:
-    textColor: "{colors.ink-meta}"
-  banner-glyph-idle-dark:
     textColor: "{colors.ink-meta-dark}"
   banner-glyph-done:
     textColor: "{colors.ok}"
@@ -1325,6 +1317,14 @@ components:
     textColor: "{colors.danger}"
   banner-glyph-failed-dark:
     textColor: "{colors.danger-dark}"
+  banner-glyph-running:
+    textColor: "{colors.accent-ink}"
+  banner-glyph-running-dark:
+    textColor: "{colors.accent-ink-dark}"
+  banner-glyph-idle:
+    textColor: "{colors.ink-meta}"
+  banner-glyph-idle-dark:
+    textColor: "{colors.ink-meta-dark}"
   toast-state-active:
     textColor: "{colors.accent-ink}"
   toast-state-active-dark:

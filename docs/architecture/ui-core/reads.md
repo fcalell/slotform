@@ -311,10 +311,10 @@ coarse clock's ([ages and the clock](words.md#ages-and-the-clock)).
 - A layout puts the boundary where it has resolved the slug:
   `<ScopeBoundary ids={{ organizationId: organization.id }}>`, and under a project
   `{ projectId: project.id }`, which extends the outer ids.
-- The registration is set while the boundary renders, because its children read the ids in their own
-  render (a query key is built there), before any effect runs. It is set again on mount at the
-  boundary's depth, so an outer boundary's effect, which runs after the inner's, never puts its own ids
-  over them. On unmount the boundary releases its ids and the outer boundary's return.
+- The boundary registers its ids in a layout effect and renders its children only once they are
+  committed, so a child reads them in its own render (a query key is built there) and a render that
+  never commits registers nothing. A change of the ids' values remounts the subtree. On unmount the
+  boundary releases its ids and the outer boundary's return.
 - `scope.ts` imports no React: a client bundle holds one copy of the module, reached by package name.
 
 ## Sort

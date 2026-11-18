@@ -8,7 +8,7 @@ export interface ActBase {
 	onAct: () => unknown;
 }
 
-// A labelled text act, 44 px, with an optional `blocked` reason drawn under
+// A labelled text act at the control height, with an optional `blocked` reason drawn under
 // it. `destructive` marks an act that removes or ends something: an
 // `ActionBar` draws it as `danger` when it is the bar's filled act and as
 // `destructive` (the hairline form) otherwise. A promise its `onAct`
@@ -70,13 +70,13 @@ export interface StatusMark {
 // A value's tag: docs/architecture/ui-core/roster.md, "Status and chips".
 export interface ChipMark {
 	family: ChipFamily;
-	// The value (a word; truncates past the short measure, 20 characters).
+	// The value (a word; truncates past the short measure, `measure-short`).
 	label: string;
 }
 
 // One filter of a toolbar, which draws it as a `Picker` while the toolbar
-// holds two or fewer filters on the desktop, and folds all of them behind one
-// Filters act at three or more there (`FOLD_FILTERS_AT`) and at touch whatever
+// holds fewer than `FOLD_FILTERS_AT` filters on the desktop, and folds all of them behind one
+// Filters act at that many or more there and at touch whatever
 // their count, a removable chip for each one set. A
 // pick is set while `value` is a string (unset, or on the `null` option, the
 // empty choice, it is not; its empty value is `null`), a pick of several while
@@ -106,7 +106,7 @@ export type ToolbarFilter<V extends string | null = string> =
 // removable.
 export interface Option<V extends string | null = string> {
 	value: V;
-	// The option's text (a short phrase; truncates; a row pick's value holds a word, truncating past the short measure, 20 characters).
+	// The option's text (a short phrase; truncates; a row pick's value holds a word, truncating past the short measure, `measure-short`).
 	label: string;
 	// Under the label (a short phrase; truncates).
 	line?: string;
@@ -181,39 +181,40 @@ export type Fact = Run | StatusMark | ChipMark | { warning: string } | RowMark;
 // workspace and an account), drawn as a `Picker` at the row fit. A promise
 // `onChange` returns holds the viewer's pick while it pends; a refusal puts
 // it back, with its reason.
-export interface OptionPick<V extends string | null = string> {
+// What a pick of one and a pick of several share.
+export interface PickBase<V extends string | null> {
+	// The hint drawn while nothing is chosen (a short phrase; truncates).
+	placeholder?: string;
+	options: readonly Option<V>[] | readonly OptionGroup<V>[];
+	// The act that makes a new option, ending the list under a hairline: an act that runs, or a link to where it is made.
+	act?: IconAct | IconLinkAct;
+}
+
+export interface OptionPick<V extends string | null = string>
+	extends PickBase<V> {
 	// Tells it from a pick of several (see `MultiPick`).
 	several?: false;
 	// What is picked, the trigger's name (a short phrase; read aloud, never drawn on the trigger; in a toolbar the field's label in the folded panel and the lead of its chip, "Work type: Change").
 	label: string;
-	// The hint drawn while nothing is chosen (a short phrase; truncates).
-	placeholder?: string;
-	options: readonly Option<V>[] | readonly OptionGroup<V>[];
 	value?: NoInfer<V>;
 	onChange: (value: NoInfer<V>) => unknown;
-	// The act that makes a new option, ending the list under a hairline: an act that runs, or a link to where it is made.
-	act?: IconAct | IconLinkAct;
 }
 
 // A pick of several: the options ticked in the list, which stays open while
 // the viewer picks, and the chosen ones drawn as removable chips (in a rule's
 // row, one chip for one value and from two a token naming how many). Its
 // empty value is `[]`.
-export interface MultiPick<V extends string | null = string> {
+export interface MultiPick<V extends string | null = string>
+	extends PickBase<V> {
 	// Tells it from a pick of one, so an inline `onChange` reads its value's type
 	// from the entry it stands in (a toolbar's filter requires it).
 	several?: true;
 	// What is picked, the trigger's name (a short phrase; read aloud, and in a rule's row the noun of the folded count, its first letter lowercased: "5 projects").
 	label: string;
-	// The hint drawn while nothing is chosen (a short phrase; truncates).
-	placeholder?: string;
-	options: readonly Option<V>[] | readonly OptionGroup<V>[];
 	value: readonly NoInfer<V>[];
 	// A promise it returns holds the viewer's picks while it pends; a refusal
 	// puts them back, with its reason.
 	onChange: (value: NoInfer<V>[]) => unknown;
-	// The act that makes a new option, ending the list under a hairline: an act that runs, or a link to where it is made.
-	act?: IconAct | IconLinkAct;
 }
 
 // A list row's trailing: a value that cannot change (an age, a count, a
@@ -356,14 +357,10 @@ export interface Dragged<Q = unknown> {
 }
 
 // A place that takes a drag: docs/architecture/ui-core/drag.md, "Drag and drop".
-export interface Drop<Q = unknown> {
+export interface Drop<Q = unknown>
+	extends Pick<Act, "label" | "blocked" | "confirm" | "done" | "to"> {
 	accepts: string | readonly string[];
-	label: string;
 	onDrop(drag: Dragged<Q>): unknown;
-	blocked?: string;
-	confirm?: Decision;
-	done?: string;
-	to?: string;
 }
 
 // Where a row moved to: its index in the order the move makes, and the rows it

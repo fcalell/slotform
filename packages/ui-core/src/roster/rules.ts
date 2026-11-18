@@ -108,7 +108,6 @@ export const RULES = "gap-y-gap";
 export const RULE_ROW = "gap-gap";
 export const RULE_CARD = "px-pad py-gap";
 
-// A pair row's arrow ink, its state's.
 export function ruleArrowContentTone(
 	state: keyof (typeof RULE_ARROW)["variants"]["state"],
 ): ContentTone {

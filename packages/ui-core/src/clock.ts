@@ -1,5 +1,6 @@
 // What a clock-read part draws: docs/architecture/ui-core/reads.md, "Clock".
 
+import { trackTime } from "./player.ts";
 import { createStore } from "./store.ts";
 
 // A pending run's toward one `until`: it began at `start` with `from` of
@@ -28,11 +29,10 @@ export function pendingAttempt(
 	return { start: now, end, from: last ? pendingShare(last, now) : 0 };
 }
 
-// The time left until `end`, minutes then seconds padded to two; 0:00 once
-// past it.
+// The time left until `end`, in whole seconds rounded up, as a track's time
+// is drawn; 0:00 once past it.
 export function timeLeft(end: number, now: number): string {
-	const seconds = Math.max(0, Math.ceil((end - now) / 1000));
-	return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+	return trackTime(Math.ceil((end - now) / 1000));
 }
 
 const UNITS: ReadonlyArray<readonly [Intl.RelativeTimeFormatUnit, number]> = [

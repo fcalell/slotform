@@ -42,7 +42,7 @@ All of it is under `packages/ui-core/src/`.
 - `tokens.ts`: the token values as data, `MOTION_KNOBS`, `MOVES` and the English `words`.
 - `derive.ts`: `deriveTheme`.
 - `variants.ts` and `variant-tables.ts`: the matrices and `MATRIX_GROUPS`.
-- `roster.ts`: `ROSTER`.
+- `roster.ts`: the roster by layer (`rosterEntries`).
 - `roster/<component>.ts`: one roster component's contract: its entry, the descriptors, matrices, cvas
   and class sets it alone uses ([roster files](ui-core/roster.md#roster-files)).
 - The framework-free logic subpaths ([Subpaths](#subpaths)).

@@ -11,8 +11,11 @@ export interface ConfirmEntry extends Confirmation {
 const queue = createStore<ConfirmEntry[]>([]);
 let nextId = 1;
 
-export function confirm(confirmation: Confirmation): void {
-	queue.set([...queue.get(), { ...confirmation, id: nextId++ }]);
+/** Queues a decision; returns its id. */
+export function confirm(confirmation: Confirmation): number {
+	const id = nextId++;
+	queue.set([...queue.get(), { ...confirmation, id }]);
+	return id;
 }
 
 // Each asked decision's answer, called once the decision leaves the queue.
@@ -28,8 +31,7 @@ export function ask(question: Question): Promise<boolean> {
 	if (queue.size === 0) return Promise.resolve(true);
 	return new Promise((resolve) => {
 		let taken = false;
-		answers.set(nextId, () => resolve(taken));
-		confirm({
+		const id = confirm({
 			...question,
 			act: {
 				...question.act,
@@ -38,6 +40,7 @@ export function ask(question: Question): Promise<boolean> {
 				},
 			},
 		});
+		answers.set(id, () => resolve(taken));
 	});
 }
 

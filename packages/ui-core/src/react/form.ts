@@ -32,6 +32,7 @@ import {
 import { type Datum, isSelection, isStandIn, type Selection } from "../read.ts";
 import { registeredScope } from "../scope.ts";
 import type { ActPlatform } from "./acts.ts";
+import { failedSentence } from "./failed.ts";
 import { usePort } from "./port.ts";
 import { useSelections } from "./read.ts";
 import { useWords } from "./words.ts";
@@ -43,7 +44,7 @@ type Options = Selection<readonly Option<string>[]>;
 // a value or a draft of `InputOf<P>` is cast to those where it is read, and
 // the input the fields make is cast back to `InputOf<P>` where it is sent.
 type Spec = FieldSpec<unknown, Options, Record<string, string>, Datum<string>>;
-type Draft = Readonly<Record<string, Held>>;
+type Edits = Readonly<Record<string, Held>>;
 type Values = Readonly<Record<string, unknown>>;
 
 interface FormModelBase<P extends ProcedureCall, A> {
@@ -175,7 +176,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 	const port = usePort();
 	const words = useWords();
 	const send = port.useSubmit(props?.act);
-	const [draft, setDraft] = useState<Draft>({});
+	const [draft, setDraft] = useState<Edits>({});
 	// The draft as it stands now, which a send's late answer reads against
 	// the draft it sent.
 	const now = useRef(draft);
@@ -306,8 +307,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 		if (typeof value === "string") return has(value) ? value : undefined;
 		return Array.isArray(value) ? value.filter(has) : value;
 	};
-	// What a field holds: the viewer's, else the form's first value.
-	const holds = (key: string, held: Draft): Held | undefined => {
+	const holds = (key: string, held: Edits): Held | undefined => {
 		const derived = shown.get(key);
 		if (!derived) return undefined;
 		if (key in held) return held[key];
@@ -339,7 +339,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 	// and the choices each field with options draws (a function of the fields
 	// before it). A change hands `onChange` the input its next draft makes.
 	const specOf = new Map(specs);
-	const make = (held: Draft) => {
+	const make = (held: Edits) => {
 		let blocked: string | undefined = denied;
 		const sent: Record<string, unknown> = { ...given_ };
 		// What a typed text says is wrong with it, by field.
@@ -427,7 +427,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 	const commitField = async (key: string, derived: Derived, next: Held) => {
 		const made: Record<string, unknown> = { ...given_ };
 		if (isEmpty(derived, next)) {
-			// An optional pick's empty choice sends the key absent.
+			// Any other optional field emptied sends the key absent.
 			if (derived.nullable) made[key] = null;
 			else if (derived.control === "several" || derived.control === "lines")
 				made[key] = [];
@@ -437,7 +437,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 				)
 			)
 				made[key] = "";
-			else if (derived.control !== "pick" || derived.required) {
+			else if (derived.required) {
 				throw new Error(
 					requiredReason(words, specOf.get(key)?.label ?? key, false),
 				);
@@ -470,7 +470,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 		} catch (error) {
 			drew(error);
 			setRefused([
-				{ path: [key], message: port.refusal(error) ?? words.actFailed },
+				{ path: [key], message: failedSentence(port, words, error) },
 			]);
 		}
 	};
@@ -490,51 +490,6 @@ export function useFormModel<P extends ProcedureCall, A>(
 		clearRefused(key);
 		onDone?.(output, input);
 		return output;
-	};
-
-	// The fields stay editable while a send runs: its answer reaches only the
-	// fields left as they were sent, so what the viewer typed meanwhile is
-	// neither refused nor reset.
-	const onAct = async () => {
-		const snapshot = draft;
-		// A typed issue the viewer has not seen yet (its field not left) does not
-		// block the act; the press shows every field's and sends nothing.
-		const unseen = [...wrong].find(([key]) => !left.has(key));
-		if (unseen) {
-			press();
-			const error = new Error(unseen[1]);
-			placed(error);
-			throw error;
-		}
-		try {
-			const input = await wire(sent);
-			const output = await send(input);
-			await onDone?.(output, input);
-			// The fields go back to `values` only where the form stays: a sheet
-			// drops its edits as it opens again and leaves over what was sent, and
-			// a form whose submit goes `to` a page is left as it was.
-			if (stays && submit?.to === undefined)
-				startOver(changedSince(shown, snapshot, now.current));
-			return output;
-		} catch (error) {
-			// A field changed since the send is past its refusal.
-			const changed = changedSince(shown, snapshot, now.current);
-			const standing = port
-				.issues(error)
-				.filter((issue) => !changed.has(String(issue.path[0])));
-			if (standing.length > 0) {
-				setRefused(standing);
-				const key = firstRefused(fields, standing);
-				if (key !== undefined) setSeek({ key });
-				drew(error);
-				// A value refusal stands under its field: where every refusal that
-				// stands names a field the form shows, the bar draws none of them
-				// again; one whose fields all changed says the press failed.
-				if (standing.every((issue) => shown.has(String(issue.path[0]))))
-					placed(error);
-			}
-			throw error;
-		}
 	};
 
 	// What a field says under its control, in the order the specs stand.
@@ -630,6 +585,51 @@ export function useFormModel<P extends ProcedureCall, A>(
 		];
 	};
 	const fields = specs.flatMap(([key, spec]) => field(key, spec));
+
+	// The fields stay editable while a send runs: its answer reaches only the
+	// fields left as they were sent, so what the viewer typed meanwhile is
+	// neither refused nor reset.
+	const onAct = async () => {
+		const snapshot = draft;
+		// A typed issue the viewer has not seen yet (its field not left) does not
+		// block the act; the press shows every field's and sends nothing.
+		const unseen = [...wrong].find(([key]) => !left.has(key));
+		if (unseen) {
+			press();
+			const error = new Error(unseen[1]);
+			placed(error);
+			throw error;
+		}
+		try {
+			const input = await wire(sent);
+			const output = await send(input);
+			await onDone?.(output, input);
+			// The fields go back to `values` only where the form stays: a sheet
+			// drops its edits as it opens again and leaves over what was sent, and
+			// a form whose submit goes `to` a page is left as it was.
+			if (stays && submit?.to === undefined)
+				startOver(changedSince(shown, snapshot, now.current));
+			return output;
+		} catch (error) {
+			// A field changed since the send is past its refusal.
+			const changed = changedSince(shown, snapshot, now.current);
+			const standing = port
+				.issues(error)
+				.filter((issue) => !changed.has(String(issue.path[0])));
+			if (standing.length > 0) {
+				setRefused(standing);
+				const key = firstRefused(fields, standing);
+				if (key !== undefined) setSeek({ key });
+				drew(error);
+				// A value refusal stands under its field: where every refusal that
+				// stands names a field the form shows, the bar draws none of them
+				// again; one whose fields all changed says the press failed.
+				if (standing.every((issue) => shown.has(String(issue.path[0]))))
+					placed(error);
+			}
+			throw error;
+		}
+	};
 
 	const others = props.acts ?? [];
 	const bar =

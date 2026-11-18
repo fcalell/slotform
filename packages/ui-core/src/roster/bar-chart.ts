@@ -10,8 +10,8 @@ import { build, CARD_PART, matrix } from "./shared.ts";
 // `°C`, is a level unless `level` is `false`), and none where that span is
 // one reading, and its plot draws each reading as a dot (`CHART_LEVEL`,
 // `CHART_DOT`) against an axis around the readings (`levelScale`), never a
-// bar from zero. Each bar stands in its region of the plot, at least seven
-// (`CHART_REGIONS`), so a short series stands in the first of them; the
+// bar from zero. Each bar stands in its region of the plot, at least
+// `CHART_REGIONS` of them, so a short series stands in the first of them; the
 // first and last bars' times stand under their bars, and the times
 // between at evenly spaced strides as the plot's width holds them
 // (`timeSpace`). While its read waits the total and the legend's figures are

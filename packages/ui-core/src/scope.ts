@@ -1,15 +1,17 @@
+import { isPlain } from "./plain.ts";
+
 // The scope the route supplies to the client: docs/architecture/ui-core/reads.md, "Scope ids".
 
 /** The ids a boundary registers: `{ organizationId }`, and under a project `{ organizationId, projectId }`. */
 export type ScopeIds = Readonly<Record<string, string>>;
 
-// Ambient: the scope of the innermost boundary rendered, with its depth (the
+// Ambient: the scope of the innermost boundary committed, with its depth (the
 // boundaries above it). One client, one active route subtree per isolate (the
 // same assumption as plugin-api's registered client); an SSR target that
 // serves many users from one isolate passes ids explicitly (`scoped`).
 let registered: { ids: ScopeIds; depth: number } = { ids: {}, depth: 0 };
 
-/** Registers a boundary's ids at its depth. A boundary shallower than the one registered never replaces it: React runs mount effects child first, so without the depth an outer boundary's effect would put its own ids back over the inner's. */
+/** Registers a boundary's ids at its depth. A boundary shallower than the one registered never replaces it. */
 export function registerScope(ids: ScopeIds, depth = 0): void {
 	if (depth >= registered.depth) registered = { ids, depth };
 }
@@ -25,15 +27,6 @@ export function releaseScope(
 
 export function registeredScope(): ScopeIds {
 	return registered.ids;
-}
-
-// An input the ids may be merged into: nothing, or a plain object. A
-// `skipToken`, a string, an array, a class instance pass through as they are.
-function isMergeable(input: unknown): input is object | undefined {
-	if (input === undefined) return true;
-	if (typeof input !== "object" || input === null) return false;
-	const proto = Object.getPrototypeOf(input);
-	return proto === Object.prototype || proto === null;
 }
 
 /** The part of `.stack/schema.ts` the client reads here: each procedure by dotted path with the input key its scope adds (null when it has none). */
@@ -60,7 +53,9 @@ export function mergeScope(
 		return (...args: unknown[]) =>
 			mergeScope(ids, input(...args), procedure, key, lenient);
 	}
-	if (!isMergeable(input)) return input;
+	// An input the ids may be merged into: nothing, or a plain object. A
+	// `skipToken`, a string, an array, a class instance pass through as they are.
+	if (input !== undefined && !isPlain(input)) return input;
 	if ((input as Record<string, unknown> | undefined)?.[key] !== undefined) {
 		return input;
 	}

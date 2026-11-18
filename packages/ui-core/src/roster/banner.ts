@@ -51,21 +51,24 @@ export const bannerEntry: RosterEntry = {
 	},
 };
 
+// A banner tone's look: `running` wears `active`'s, `idle` wears `waiting`'s.
+function aliased<T extends { active: string; waiting: string }>(own: T) {
+	return { ...own, running: own.active, idle: own.waiting };
+}
+
 // A page's notice on its tone's soft ground, a pair inset around its content
 // (the act's height on a line with an act); the tone's colour is its glyph's
-// alone. `running` wears `active`'s, `idle` wears `waiting`'s.
+// alone.
 export const BANNER = matrix({
 	base: "rounded-control px-pad py-gap gap-gap text-body leading-body text-ink-body",
 	variants: {
-		tone: {
+		tone: aliased({
 			active: "bg-accent-soft",
-			running: "bg-accent-soft",
 			waiting: "bg-chip-neutral-soft",
-			idle: "bg-chip-neutral-soft",
 			done: "bg-ok-soft",
 			attention: "bg-warn-soft",
 			failed: "bg-danger-soft",
-		},
+		}),
 	},
 	defaultVariants: { tone: "active" },
 });
@@ -73,15 +76,13 @@ export const BANNER = matrix({
 export const BANNER_GLYPH = matrix({
 	base: "",
 	variants: {
-		tone: {
+		tone: aliased({
 			active: "text-accent-ink",
-			running: "text-accent-ink",
 			waiting: "text-ink-meta",
-			idle: "text-ink-meta",
 			done: "text-ok",
 			attention: "text-warn",
 			failed: "text-danger",
-		},
+		}),
 	},
 	defaultVariants: { tone: "active" },
 });

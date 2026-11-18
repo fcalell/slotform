@@ -171,7 +171,7 @@ and has no look-ahead: a reset (`border-0`) is excluded per category.
 
 ## Components
 
-Each roster component lives in `src/ui/components/<componentDir(name)>/index.tsx` and is imported as
+Each roster component lives in `src/ui/components/<name in kebab-case>/index.tsx` and is imported as
 `@fcalell/plugin-react-ui/components/<dir>`. The file exports the component and its `XProps`
 interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classList` and `style` as
 `?: never`) and declares exactly the roster's prop names

@@ -12,6 +12,7 @@ import {
 	useState,
 	useSyncExternalStore,
 } from "react";
+import { reached } from "../reached.ts";
 import {
 	combine,
 	createFlags,
@@ -29,6 +30,7 @@ import {
 	isSelection,
 	lift,
 	type More,
+	moreOf,
 	NO_HOLDS,
 	placeholderData,
 	planFrame,
@@ -272,29 +274,23 @@ export function useWindow(
 
 /** The collection's side of a window read below the scroller (or one whose rows are only listed): "Show more" loads the page after the rows loaded from the start. */
 export function useWindowMore(read: Read<unknown>): More {
-	const view = useWindow(read);
+	const port = usePort();
+	const { state } = port.useWindowState(read);
 	const [pending, setPending] = useState(false);
 	const [failed, setFailed] = useState(false);
-	const reached = (() => {
-		if (!view) return 0;
-		let page = 0;
-		while (view.rows[page * view.size] !== undefined) page++;
-		return page;
-	})();
-	const next = view !== undefined && reached * view.size < view.total;
 	const fetch = async () => {
-		if (!view) return;
+		if (!state) return;
 		setPending(true);
 		setFailed(false);
 		try {
-			await view.ensure([reached]);
+			await port.ensurePages(read, [reached(state)]);
 		} catch {
 			setFailed(true);
 		} finally {
 			setPending(false);
 		}
 	};
-	return { next, fetching: pending, failed, fetch };
+	return { next: moreOf(state), fetching: pending, failed, fetch };
 }
 
 /** Whether a windowed collection's mounted rows reach the last of its `count` loaded (`reachesEnd`), for its more row to fetch without a press. Hand `onLast` the highest index mounted each time the mounted rows change. `reached` holds for the count it was seen at, so a page that lands is not taken for the end again before the rows have ranged over it. */

@@ -114,8 +114,8 @@ The subpaths:
   `timeLeft`, a `PendingAttempt` with `pendingAttempt` and `pendingShare` (a `Banner` with `until`'s clock
   and fill), and an ISO moment's age: `ageOf` (its value and unit), `ageWords` (long) and `ageShort`
   (a row's "2 min"). Both plugins tick `now` from one shared clock.
-- `@fcalell/ui-core/roster`: the component roster as data (`ROSTER`, `STATES`,
-  `PLATFORMS`, `rosterEntries(platform?)`): the layer, prop names, drawn class sets, moves, states and
+- `@fcalell/ui-core/roster`: the component roster as data (`STATES`,
+  `rosterEntries(platform?)`): the layer, prop names, drawn class sets, moves, states and
   platforms of every component the plugins ship.
 - `@fcalell/ui-core/canvas`: what a `Canvas` and its consumers decide from a graph, free of any
   framework: `pathOrder(nodes, edges)`, every node id once, depth first from the roots with a node
