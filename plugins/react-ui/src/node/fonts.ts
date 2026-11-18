@@ -4,7 +4,7 @@ import { basename } from "node:path";
 import { fallbackFace } from "@fcalell/ui-core/tokens";
 import type { Plugin, ResolvedConfig, Rolldown } from "vite";
 import type { FontEntry } from "../types.ts";
-import { cssString, cssUrl } from "./css-escape.ts";
+import { cssString, cssTokenValue, cssUrl } from "./css-escape.ts";
 
 export type { FontEntry };
 
@@ -21,7 +21,7 @@ const plexSansFallback: FontEntry["fallback"] = {
 	sizeAdjust: "101.17%",
 };
 
-export const plexSans: FontEntry = {
+const plexSans: FontEntry = {
 	family: "IBM Plex Sans",
 	specifier:
 		"@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2",
@@ -67,9 +67,6 @@ export const defaultFonts: FontEntry[] = [
 	plexMono("600"),
 ];
 
-// Fails fast when a consumer-declared font specifier can't be resolved.
-// Emits an actionable multi-line error (family, specifier, likely causes)
-// rather than silently producing CSS that references a missing woff2.
 class MissingFontError extends Error {
 	constructor(font: FontEntry, cause: unknown) {
 		const detail = cause instanceof Error ? cause.message : String(cause);
@@ -85,10 +82,6 @@ class MissingFontError extends Error {
 	}
 }
 
-// Returns the resolved absolute path, or throws MissingFontError with a
-// clear message. Consumer-declared fonts must resolve; we don't silently
-// fall back to system fonts and leave the consumer wondering why their
-// webfont never loads.
 function resolveFontAbs(font: FontEntry): string {
 	try {
 		const require = createRequire(import.meta.url);
@@ -144,15 +137,11 @@ function buildFontFaceCss(
 	// A family's static cuts share one metric fallback face.
 	const fallbacks = new Set<string>();
 	for (const { font, href } of fonts) {
-		// Every consumer-supplied value crosses a CSS context boundary —
-		// family names land inside a `font-family:` declaration, URLs land
-		// inside `url(...)`. Without escaping, a stray quote or paren
-		// terminates the declaration early and the rest of the @font-face
-		// block becomes attacker- or accident-controlled CSS.
+		// Every consumer-supplied value crosses the CSS escape boundary: docs/architecture/codegen.md, "CSS escape boundary".
 		blocks.push(`@font-face {
 	font-family: ${cssString(font.family)};
 	src: ${cssUrl(href)} format("woff2");
-	font-weight: ${font.weight};
+	font-weight: ${cssTokenValue(font.weight)};
 	font-style: ${font.style};
 	font-display: swap;
 }`);
@@ -161,10 +150,10 @@ function buildFontFaceCss(
 		blocks.push(`@font-face {
 	font-family: ${cssString(fallbackFace(font.family))};
 	src: ${localSources(font.fallback.family)};
-	ascent-override: ${font.fallback.ascentOverride};
-	descent-override: ${font.fallback.descentOverride};
-	line-gap-override: ${font.fallback.lineGapOverride};
-	size-adjust: ${font.fallback.sizeAdjust};
+	ascent-override: ${cssTokenValue(font.fallback.ascentOverride)};
+	descent-override: ${cssTokenValue(font.fallback.descentOverride)};
+	line-gap-override: ${cssTokenValue(font.fallback.lineGapOverride)};
+	size-adjust: ${cssTokenValue(font.fallback.sizeAdjust)};
 }`);
 	}
 	return blocks.join("\n");
@@ -256,9 +245,6 @@ export function themeFontsPlugin(fonts: FontEntry[]): Plugin {
 					});
 				}
 
-				// Skip the <style> tag entirely when no fonts are configured —
-				// `fonts: []` means "no fonts," and that should leave the
-				// document head clean instead of emitting an empty <style/>.
 				if (resolved.length > 0) {
 					tags.push({
 						tag: "style",

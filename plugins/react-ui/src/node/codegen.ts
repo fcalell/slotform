@@ -14,6 +14,10 @@ import {
 	cssTokenValue,
 } from "./css-escape.ts";
 
+// The app's source root, relative to the project: the sheet scans it and the lint rules run on it
+// with file routing off.
+export const APP_SOURCE_DIR = "src";
+
 // The `.stack/app.css` render, escaped and validated: docs/architecture/codegen.md, "CSS escape boundary".
 export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 	if (
@@ -30,7 +34,7 @@ export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 		lines.push(renderImport(cssImportSchema.parse(imp)));
 	}
 	// `source(none)` roots the scan at declared sources: docs/architecture/plugins/react-ui.md, "Stylesheet assembly".
-	lines.push(`@source "../src";`);
+	lines.push(`@source "../${APP_SOURCE_DIR}";`);
 	for (const pattern of payload.sources) {
 		lines.push(
 			`@source inline(${cssString(cssSourceInlineSchema.parse(pattern))});`,
@@ -73,8 +77,6 @@ export function renderRule(
 	return [`${selector} {`, ...renderDeclarations(declarations), "}"].join("\n");
 }
 
-// A rule inside one media query: a token block a device class sets, such as
-// the desktop density sizes under the desktop query.
 export function renderMediaRule(query: string, rule: string): string {
 	return [`@media ${query} {`, rule, "}"].join("\n");
 }

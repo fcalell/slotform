@@ -18,8 +18,7 @@ export const cssUrl = (value: string): string => cssUrlBase(value, LABEL);
 export const cssIdent = (value: string): string => cssIdentBase(value, LABEL);
 export const cssSupportsExpression = (value: string): string =>
 	cssSupportsExpressionBase(value, LABEL);
-export const cssVarName = (value: string): string =>
-	cssVarNameBase(value, LABEL);
+const cssVarName = (value: string): string => cssVarNameBase(value, LABEL);
 export const cssTokenValue = (value: string): string =>
 	cssTokenValueBase(value, LABEL);
 

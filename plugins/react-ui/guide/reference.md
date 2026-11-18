@@ -93,7 +93,7 @@ is a `sheet` search param on its route.
 | --- | --- | --- |
 | `theme` | the calibrated defaults | Six knobs: `hue` (`{ accent?, cast? }`; the accent 264, the cast the neutrals' hue, the accent's unless set), `radius` (the control's corner radius in px, 6; a layer takes a third more), `fonts` (`{ sans?, mono? }` family names; IBM Plex Sans (sans) and IBM Plex Mono (mono) unless set), `size` (the desktop body in px, 13, 12 to 18: every type size, space and size scales with it), `defaultMode` (where a viewer with no stored choice starts, ahead of `prefers-color-scheme`) and `loading` (`{ text?, figure?, id? }`, each `"pulse"` or `"scramble"`: how that kind of waiting region is painted, the skeleton's breath or generated characters; omitted, all pulse. A technical voice scrambles figures and ids, `{ figure: "scramble", id: "scramble" }`; a shape always pulses). |
 | `words` | English | Every word a component draws on its own, every key required. Read with `useWords()`. |
-| `fonts` | IBM Plex Sans upright and italic on the `wght` axis, IBM Plex Mono at 400, 500 and 600 | The font files to load, each preloaded with a metric fallback face (a `local()` face over the system font of the same metrics, `Liberation` and `Arimo` standing in for Arial on Linux); `[]` loads none. Which family binds to `sans` or `mono` is `theme.fonts`. `inter` and `interItalic` come from `@fcalell/plugin-react-ui/node/fonts`. |
+| `fonts` | IBM Plex Sans upright and italic on the `wght` axis, IBM Plex Mono at 400, 500 and 600 | The font files to load, each preloaded with a metric fallback face (a `local()` face over the system font of the same metrics, `Liberation` and `Arimo` standing in for Arial on Linux); `[]` loads none. Which family binds to `sans` or `mono` is `theme.fonts`. The default list is `defaultFonts`, from `@fcalell/plugin-react-ui/node/fonts`. |
 
 ```ts
 reactUi({
@@ -182,7 +182,7 @@ keyframe that leaves the part standing once animations are off.
 
 ## Auditing with axe
 
-Run every axe rule except the document-structure ones (landmarks, heading order, skip links): screen readers are not a target. Exclude nothing for an open popup: a Menu or a Picker takes `aria-hidden` off the focus guards Base UI draws around it (the spans that relay Tab between a trigger and its portaled popup, focusable and `aria-hidden` in Base UI 1.8.0, which `aria-hidden-focus` would flag; each moves focus the moment it takes it, so nothing rests on one), so an open menu audits clean.
+Run every axe rule except the document-structure ones (landmarks, heading order, skip links): screen readers are not a target. Exclude nothing for an open popup: a Menu or a Picker takes `aria-hidden` off the focus guards Base UI draws around it, so an open menu audits clean.
 
 ## Safe areas
 

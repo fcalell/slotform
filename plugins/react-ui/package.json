@@ -140,7 +140,6 @@
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
-		"@tailwindcss/cli": "^4.3.5",
 		"@tailwindcss/vite": "^4.3.5",
 		"@types/node": "^26.6.6",
 		"@types/react": "^19.3.0",

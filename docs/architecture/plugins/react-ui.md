@@ -23,6 +23,9 @@ and `canvasPlugin` ([Canvas serving](#canvas-serving)).
 `pb-safe` and `pt-safe` pad by `env(safe-area-inset-bottom)` and `env(safe-area-inset-top)`, which
 are non-zero under the react plugin's `viewport-fit=cover`.
 
+The `tailwindcss` and `@tailwindcss/vite` ranges `reactUi()` writes into the app are the package's
+own optional peer ranges, read from its `package.json` when the plugin loads.
+
 The plugin hands the CLI ui-core's guide pages (`cliSlots.guide`), as native-ui does; the index
 lists each page once.
 
@@ -71,9 +74,8 @@ re-points it to the strong edge. The token side of grounds and edges is
 ## Density
 
 The **density rule** is one query (`./density`), built once and read by the density layer, the
-`touch:` variant and `useTouch` (`lib/media`): the desktop set draws where the primary pointer is
-fine and the viewport is at least `tablet` wide, the touch set everywhere else. A `data-density`
-attribute on the root pins any set on any device, which is how the showcase and a board address a
+`touch:` variant and `useTouch` (`lib/media`); what it draws and the `data-density` pin are the
+guide's [Density](../../../plugins/react-ui/guide/reference.md#density). The pin is how the showcase and a board address a
 density. The token sets themselves are [density and room](../ui-core/tokens.md#density-and-room).
 
 - **Desktop set.** It draws under the rule's desktop query and overrides the seeded touch set in
@@ -130,15 +132,13 @@ lands inside the consumer's allowed root and the entry is inert.
 
 ## Mode script and CSP
 
-The **mode script** sets the mode before first paint, so a dark viewer never sees a light flash: the
-viewer's stored choice, else the theme's `defaultMode`, else the system preference. It sets the
-`dark` class the stylesheet keys on. A mode that came from the system keeps following it: a change
-of the system's colour scheme (a schedule that darkens a screen at dusk, a viewer's switch) moves the
-class while the page is open, unless the viewer has stored a choice by then. A stored choice or a
-`defaultMode` is the page's own, and no change of the system moves it. Blocked storage or a missing
-`matchMedia` leaves the fallback in place: the script runs before the page and never throws into it.
-The consumer's half (the order and the API) is the guide's
-[Modes](../../../plugins/react-ui/guide/reference.md#modes).
+The **mode script** sets the `dark` class the stylesheet keys on before first paint, so a dark
+viewer never sees a light flash, in the order the guide's
+[Modes](../../../plugins/react-ui/guide/reference.md#modes) gives. With no `defaultMode` it listens to
+the system's colour scheme (a schedule that darkens a screen at dusk, a viewer's switch) and reads
+the stored choice again at each change, so a choice stored after load holds. Storage that throws
+reads as no stored choice; a missing `matchMedia` with no `defaultMode` leaves the page light. The
+script runs before the page and never throws into it.
 
 The script also writes the paint each glyph region waits in as `data-loading-<region>` on the root. The
 stylesheet and `lib/scramble` read it (the shared `loading` record reads it once, so any module that
@@ -165,8 +165,8 @@ stylesheet's `@source`) with file routing off. A routes directory at the project
 whole project. `stack generate` writes them into `.stack/biome.json`, which the app's `biome.json`
 extends ([Lint](../consumer-project.md#lint)).
 
-A new rule is a file in `lint/`, a name in `LINT_RULES` (`src/node/lint.ts`) and a row in the page's
-table. A rule matches the attribute's text by regex, since Biome's GritQL reads a node's text whole
+A new rule is a file in `lint/` whose header states what it forbids and a name in `LINT_RULES`
+(`src/node/lint.ts`). A rule matches the attribute's text by regex, since Biome's GritQL reads a node's text whole
 and has no look-ahead: a reset (`border-0`) is excluded per category.
 
 ## Components
@@ -199,10 +199,8 @@ interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classL
 
 `Gate` is the layout container of a page outside the shell, a sign-in or a consent step
 ([Gate](../ui-core/layout.md#gate)): one column at the `auth` width on the surface, centred across and
-down the viewport, holding a `banner`, the `mark` (`{ name, src? }`), an optional `step` (its step
-count), the `title` (the page's one `h1`), a `description` (`Runs`: words, `{ strong }`, `{ code }`
-and `{ quoted }` runs), the body and the `acts` (`Button`s on one wrapping line under the body,
-start-aligned with the description, the primary first; a first run's body is its `acts`). It mounts
+down the viewport, the app's lockup ([App lockup](#app-lockup)) at its top and its `acts` an `ActionBar`; its props
+are the guide's [Gate](../../../plugins/react-ui/guide/containers.md#gate). It mounts
 the same `ContainerHost` as the `Shell` (`components/shell/host.tsx`: the `toast()` queue, the
 `confirm()` decisions). The first field of a step takes focus as the page opens and as `title`
 changes (`focusFirst` in `./lib/focus`). Its `form` (a `Form`'s props, over the step's procedure) is
@@ -270,8 +268,8 @@ Who holds focus is tracked by the page's own focus and press events, never read 
 a render: the React compiler memoizes a render-time ref read, so the answer would be the mount's.
 
 - **Pane.** A `Pane` opened from a press in another `Pane` takes the keyboard on its head's first
-  control, so the Tab after a row's open is not the list's next row, and a `Pane` hidden by the
-  opening (below `tablet` of the Panes) keeps no focus. A `Pane` drawn with the page, focus on the
+  control, as the guide's [rules](../../../plugins/react-ui/guide/rules.md) say, and a `Pane` hidden by the opening (below
+  `tablet` of the Panes) keeps no focus. A `Pane` drawn with the page, focus on the
   body, takes nothing.
 - **Foot region.** A foot region hands focus to its first field when what held it leaves with its own
   page (a docked `Sheet` closing for the `Thread`'s composer that returns); the document takes focus
@@ -321,9 +319,8 @@ Their foot is the top of what docks at the container's foot, which names itself 
 anchor: a place's `foot` (a Pane's docked foot, which spans the body that scrolls past it, centres a field's own
 measure column at every density, and draws nothing, border and inset included, while it holds nothing, such as a chosen bar with no row
 ticked), a filling `Thread`'s input, and on touch an open bottom sheet. The layer stands above the
-anchor by layout as it grows, and at `main`'s foot without one. A toast covers the page behind a
-sheet and never the sheet's sentence, field or act, and covers the page's last line only where
-nothing docks.
+anchor by layout as it grows, and at `main`'s foot without one, so a toast covers what the guide's
+[rules](../../../plugins/react-ui/guide/rules.md#an-act-holds-its-attempt) say it may.
 
 The layer is fixed, as the sheet is: an anchor resolves only for a layer whose containing block is
 the anchor's own, and an absolute layer in `main` (relative) cannot reach a fixed sheet in the
@@ -404,8 +401,7 @@ each line. The runs themselves are [text runs](../ui-core/words.md#text-runs).
 
 A file attached to a message (`lib/picked`) that is an image also carries `src`, an object URL made
 for its thumbnail. Nothing in the package knows when the consumer is done showing it, so the
-consumer revokes it (`URL.revokeObjectURL(file.src)`) once it drops the attachment, as the guide's
-[rules](../../../plugins/react-ui/guide/rules.md) say.
+consumer revokes it, as the guide's [rules](../../../plugins/react-ui/guide/rules.md) say.
 
 ## Canvas
 
@@ -445,7 +441,7 @@ and a reader draws again.
   unmounted mid-drag ends its pan. The band's entry and steps are `bandAt`'s; its pans are the
   viewer's move.
 - **Keyboard move.** A node that can move is a button, with `onSelect` or without. An arrow moves the
-  focused one by `keyStep` (a quarter of the grid's `PITCH`, Shift the whole pitch) through `drop`,
+  focused one by `keyStep` (the step the guide's [Editing](../../../plugins/react-ui/guide/canvas.md#editing) gives) through `drop`,
   the path a release takes. Nothing is announced ([product](../../product.md)).
 - **Ground.** The region's ground is the region, its layer or its grid (which carries
   `data-ground`). Everything else inside (a node, the zoom stack, the act) is a part.

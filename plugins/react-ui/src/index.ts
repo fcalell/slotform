@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { ContributionCtx } from "@fcalell/cli";
 import { plugin, slot, stackSpec } from "@fcalell/cli";
 import {
@@ -13,7 +14,7 @@ import { type PreviewGlobal, screens } from "@fcalell/plugin-screens";
 import { vite } from "@fcalell/plugin-vite";
 import { deriveTheme } from "@fcalell/ui-core/derive";
 import { uiCoreGuide } from "@fcalell/ui-core/manifest";
-import { LOADING_REGIONS } from "@fcalell/ui-core/tokens";
+import { z } from "zod";
 import { aggregateAppCss } from "./node/codegen.ts";
 import { defaultFonts, type FontEntry } from "./node/fonts.ts";
 import { lintPlugins } from "./node/lint.ts";
@@ -41,45 +42,20 @@ import {
 
 const SOURCE = "react-ui";
 
-function fontEntryToExpression(font: FontEntry): TsExpression {
-	return {
-		kind: "object",
-		properties: [
-			{ key: "family", value: { kind: "string", value: font.family } },
-			{ key: "specifier", value: { kind: "string", value: font.specifier } },
-			{ key: "weight", value: { kind: "string", value: font.weight } },
-			{ key: "style", value: { kind: "string", value: font.style } },
-			{
-				key: "fallback",
-				value: {
-					kind: "object",
-					properties: [
-						{
-							key: "family",
-							value: { kind: "string", value: font.fallback.family },
-						},
-						{
-							key: "ascentOverride",
-							value: { kind: "string", value: font.fallback.ascentOverride },
-						},
-						{
-							key: "descentOverride",
-							value: { kind: "string", value: font.fallback.descentOverride },
-						},
-						{
-							key: "lineGapOverride",
-							value: { kind: "string", value: font.fallback.lineGapOverride },
-						},
-						{
-							key: "sizeAdjust",
-							value: { kind: "string", value: font.fallback.sizeAdjust },
-						},
-					],
-				},
-			},
-		],
-	};
-}
+// The Tailwind ranges an app installs are this package's optional peers, read from its
+// own package.json, one level above `src/` and `dist/` alike.
+const tailwindPeers = z
+	.object({
+		peerDependencies: z.object({
+			tailwindcss: z.string(),
+			"@tailwindcss/vite": z.string(),
+		}),
+	})
+	.parse(
+		JSON.parse(
+			readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+		),
+	).peerDependencies;
 
 // ── Slot declarations ──────────────────────────────────────────────
 
@@ -123,7 +99,7 @@ const resolvedTheme = slot.derived({
 		deriveTheme(ctx.options.theme),
 });
 
-// Rendered `.stack/app.css`. Returns null when no imports or layers landed.
+// Rendered `.stack/app.css`, null when nothing landed.
 const appCssSource = slot.derived({
 	source: SOURCE,
 	name: "appCssSource",
@@ -133,13 +109,7 @@ const appCssSource = slot.derived({
 		blocks: appCssBlocks,
 		layers: appCssLayers,
 	},
-	compute: (inp): string | null =>
-		aggregateAppCss({
-			imports: inp.imports,
-			sources: inp.sources,
-			blocks: inp.blocks,
-			layers: inp.layers,
-		}),
+	compute: (inp): string | null => aggregateAppCss(inp),
 });
 
 export const reactUi = plugin("react-ui", {
@@ -153,10 +123,10 @@ export const reactUi = plugin("react-ui", {
 		// The guide's index points into the consumer's node_modules for
 		// ui-core's pages.
 		"@fcalell/ui-core": stackSpec("@fcalell/ui-core"),
-		tailwindcss: "^4.3.5",
+		tailwindcss: tailwindPeers.tailwindcss,
 	},
 	devDependencies: {
-		"@tailwindcss/vite": "^4.3.5",
+		"@tailwindcss/vite": tailwindPeers["@tailwindcss/vite"],
 	},
 
 	guide: [
@@ -240,29 +210,10 @@ export const reactUi = plugin("react-ui", {
 			const { defaultMode, loading } = await ctx.resolve(
 				self.slots.resolvedTheme,
 			);
-			// The slots the theme scrambles, as `data-loading-*` on the root.
-			const scrambled = LOADING_REGIONS.filter(
-				(slot) => loading[slot] === "scramble",
-			);
-			const args: TsExpression[] = [
-				defaultMode
-					? { kind: "string", value: defaultMode }
-					: { kind: "identifier", name: "undefined" },
-			];
-			if (scrambled.length > 0) {
-				args.push({
-					kind: "object",
-					properties: scrambled.map((slot) => ({
-						key: slot,
-						value: { kind: "string", value: "scramble" },
-					})),
-				});
-			}
-			if (!defaultMode && scrambled.length === 0) args.length = 0;
 			return {
 				kind: "call",
 				callee: { kind: "identifier", name: "themeModePlugin" },
-				args,
+				args: Object.values(literalToProps({ defaultMode, loading })),
 			};
 		}),
 		// The mode script's hash in the CSP: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
@@ -322,7 +273,7 @@ export const reactUi = plugin("react-ui", {
 			return {
 				kind: "call",
 				callee: { kind: "identifier", name: "themeFontsPlugin" },
-				args: [{ kind: "array", items: entries.map(fontEntryToExpression) }],
+				args: Object.values(literalToProps({ entries })),
 			};
 		}),
 
@@ -388,7 +339,6 @@ export const reactUi = plugin("react-ui", {
 			},
 		),
 
-		// The web rules, as lint rules on the app's own sources.
 		cliSlots.lintPlugins.contribute(async (ctx) =>
 			lintPlugins(await ctx.resolve(react.slots.routesDir)),
 		),
@@ -426,27 +376,23 @@ export const reactUi = plugin("react-ui", {
 		react.slots.entryImports.contribute(
 			(): TsImportSpec => ({ source: "./app.css", sideEffect: true }),
 		),
-		// The app's router, handed to react-ui's navigation, so an act opens a
-		// route in place; with routing off the entry has no router to hand over.
+		// The app's router, handed to react-ui's navigation so an act opens a route
+		// in place, and the default not-found page: docs/architecture/plugins/react-ui.md, "Router bindings".
+		// With routing off the entry has no router to hand over.
 		react.slots.routerBindings.contribute(
-			async (ctx): Promise<TsImportSpec | undefined> => {
+			async (ctx): Promise<TsImportSpec[] | undefined> => {
 				if ((await ctx.resolve(react.slots.routesDir)) === null)
 					return undefined;
-				return {
-					source: "@fcalell/plugin-react-ui/lib/navigate",
-					named: ["bindRouter"],
-				};
-			},
-		),
-		// The default not-found page: docs/architecture/plugins/react-ui.md, "Router bindings".
-		react.slots.routerBindings.contribute(
-			async (ctx): Promise<TsImportSpec | undefined> => {
-				if ((await ctx.resolve(react.slots.routesDir)) === null)
-					return undefined;
-				return {
-					source: "@fcalell/plugin-react-ui/lib/not-found",
-					named: ["bindNotFound"],
-				};
+				return [
+					{
+						source: "@fcalell/plugin-react-ui/lib/navigate",
+						named: ["bindRouter"],
+					},
+					{
+						source: "@fcalell/plugin-react-ui/lib/not-found",
+						named: ["bindNotFound"],
+					},
+				];
 			},
 		),
 		// Mode and density as workbench toolbars: docs/architecture/plugins/react-ui.md, "Screens workbench".

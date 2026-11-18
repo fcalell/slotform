@@ -1,6 +1,6 @@
 # Blocks: text, figures and pictures
 
-The parts that read as a block in a `Section`'s body. `Stats` and `BarChart` draw a card of their own; a `Prose`, `Stages`, `Image` or `Slider` stands in a `Card`. The lists, tables and threads are `content.md`; `Waveform` is `audio.md` and `Canvas` is `canvas.md`. This page is what each takes.
+The parts that read as a block in a `Section`'s body. `Stats` and `BarChart` draw a card of their own; [`Card`](./containers.md#card) names the ones that stand in a `Card`. The lists, tables and threads are `content.md`; `Waveform` is `audio.md` and `Canvas` is `canvas.md`. This page is what each takes.
 
 ## Text
 

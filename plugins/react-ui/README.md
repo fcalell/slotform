@@ -12,10 +12,9 @@ How it is built: [docs/architecture/plugins/react-ui.md](../../docs/architecture
 stack add react-ui
 ```
 
-Peer dependencies: `react` and `react-dom` `^19.2.0`. `plugin-react` and `plugin-vite` are listed
-alongside. The consumer declares `tailwindcss` (the plugin's `dependencies`) and
-`@tailwindcss/vite` (its `devDependencies`), since the generated config and stylesheet import them;
-both are optional peers of the plugin, so an install that only runs the app holds neither.
+Peer dependencies: `react` and `react-dom` `^19.2.0`. The config needs `vite()` and `react()`
+beside it. `tailwindcss` and `@tailwindcss/vite` are optional peers that `reactUi()` writes into the
+app ([From npm](../../docs/architecture/consumer-project.md#from-npm)).
 
 ```ts
 // stack.config.ts

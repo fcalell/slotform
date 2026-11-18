@@ -1,11 +1,16 @@
 import { scriptHash } from "@fcalell/plugin-vite/csp";
+import {
+	LOADING_REGIONS,
+	type LoadingPaint,
+	type LoadingRegion,
+} from "@fcalell/ui-core/tokens";
 import type { Plugin } from "vite";
 
 type Mode = "light" | "dark";
 
 // The glyph regions a theme paints by the scramble, by region (`theme.loading`;
 // a region left out pulses).
-type Loading = Partial<Record<"text" | "figure" | "id", "pulse" | "scramble">>;
+type Loading = Partial<Record<LoadingRegion, LoadingPaint>>;
 
 // The mode before first paint: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 export function modeScript(
@@ -18,13 +23,12 @@ export function modeScript(
 	const follow = defaultMode
 		? ""
 		: "try{var q=matchMedia('(prefers-color-scheme: dark)');q.addEventListener('change',function(e){var s;try{s=localStorage.getItem('theme')}catch(x){}if(s!=='light'&&s!=='dark')document.documentElement.classList.toggle('dark',e.matches);});}catch(e){}";
-	return `(function(){${loadingScript(loading)}try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=${fallback};if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}${follow}})();`;
+	return `(function(){${loadingScript(loading)}try{var t;try{t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=${fallback};if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}${follow}})();`;
 }
 
 // The paint each glyph region waits in: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 function loadingScript(loading: Loading): string {
-	return (["text", "figure", "id"] as const)
-		.filter((region) => loading[region] === "scramble")
+	return LOADING_REGIONS.filter((region) => loading[region] === "scramble")
 		.map(
 			(region) =>
 				`document.documentElement.dataset.loading${region[0]?.toUpperCase()}${region.slice(1)}='scramble';`,
