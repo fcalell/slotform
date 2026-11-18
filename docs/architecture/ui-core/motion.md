@@ -46,10 +46,10 @@ all read. A knob's `unit` is the CSS unit its variable takes (`""` for a scale).
 
 `reducedMotionTokens` sets every duration rung and the scramble's tick to 0, and the web renders it
 under `prefers-reduced-motion: reduce`. Each transition reads its duration through a rung's variable,
-so none moves. Two loops stay:
+so none moves. Two things keep their time:
 
-- the spinner's turn, since a spinner that stops is a wait that looks over;
-- the delays: the wait and act delays are not rungs, so they hold while the fades themselves snap.
+- the spinner's turn, the one loop that stays, since a spinner that stops is a wait that looks over;
+- the wait and act delays, which are not rungs, so they hold while the fades themselves snap.
 
 On the phone reduced motion follows the system, which zeroes the Reanimated timings.
 
@@ -141,16 +141,15 @@ tick rides, a changing figure or mark swaps (`Swap`, `Roll`).
 
 A read that lasts shows its waiting shape after `WAIT_DELAY` ([timing](reads.md#timing)): the loaded
 tree painted, each region breathing in one page-wide phase (`PULSE`), or the spinner where a wait has no
-shape ([waiting paint](reads.md#waiting-paint)). A painted fill's whole animation is the appear fade
-after `--wait-delay` (`paint-in`), then the breath on the fill's alpha (`pulse-fill`), one phase
-across the page. Under reduced motion `--pulse-name` is `none`, so the fade snaps and the fill stands
-still. The phone breathes in `lib/motion`.
+shape ([waiting paint](reads.md#waiting-paint)). On the web the fade is `paint-in` and the breath
+`pulse-fill` ([one breath](reads.md#one-breath)); under reduced motion `--pulse-name` is `none`, so
+the fade snaps and the fill stands still. The phone breathes in `lib/motion`.
 
 The switch to the loaded shape lands at once: the painted shape is the loaded one's geometry, so
 nothing moves and no transition runs ([moves land at once](../../decisions/moves-land-at-once.md)).
 
-`theme.loading` is `{ text, figure, id }`, each `pulse` or `scramble` (omitted: all `pulse`; a shape
-always pulses). It rides `ResolvedTheme.loading` to both plugins: on the web as `data-loading-*` on
+`theme.loading` is `{ text, figure, id }`, each `pulse` or `scramble` (which region takes which:
+[waiting paint](reads.md#waiting-paint)). It rides `ResolvedTheme.loading` to both plugins: on the web as `data-loading-*` on
 the root, set by `themeModePlugin` before first paint; on the phone through the generated
 `.stack/native-theme.ts`.
 
@@ -160,8 +159,8 @@ When the theme scrambles a region's kind, the region paints generated characters
 instead of the pulse (`@fcalell/ui-core/scramble`: `frame`, `decode`, `createTicker`, over the kind
 `kindOf` of `@fcalell/ui-core/paint` gives a role). Every function is pure over the tick it is given,
 so both platforms draw the same frame for the same region, and one ticker serves every region of a page.
-A figure or id that waited then decodes by locking its characters across `slow`. `Decoded`
-(`lib/region`) draws both forms as one instance. A wrapping region always pulses.
+A figure or id that waited then decodes ([waiting paint](reads.md#waiting-paint)) by locking its
+characters across `slow`. `Decoded` (`lib/region`) draws both forms as one instance.
 
 ## Spinner
 
@@ -197,9 +196,10 @@ the reader scrolls away (its starting style), and leaves on `fast` `in` the same
 ## Web motion
 
 The web owns the keyframe animations on top of the shared contract, timed by the contract's rungs
-and curves, in react-ui's `globals.css`: `content-show`, `content-hide`, `page-slide`, `stream-in`,
-`paint-in`, `pulse-fill`, `swap-in`, `swap-out`, `act-in` and `act-out`. `spin` is Tailwind's own,
-which Tailwind emits beside the theme's `--animate-spin`.
+and curves: every `@keyframes` in react-ui's `globals.css`. `spin` is Tailwind's own,
+which Tailwind emits beside the theme's `--animate-spin`. react-ui's `@theme` names
+`--animate-content-show`, `--animate-content-hide` and `--animate-spin`, each on a contract rung and
+curve.
 
 ## Phone motion
 

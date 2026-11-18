@@ -44,8 +44,7 @@ How a read's query behaves (`ReadKind`):
   `missing`, the read ended. A read that answers not found is `missing`, beside `failed`.
 - A waiting page is the loaded tree painted, never a second tree, so a `Section` stands whatever its
   data holds and draws its `empty` when the answer holds nothing. No Section is gated on its data's
-  length and none waits on a hand-built tree; the plugins' verify check `b-wait` holds that no
-  waiting tree stands beside the loaded one.
+  length and none waits on a hand-built tree.
 - An address no route serves is drawn by stack, with the `notFound` word ([words](words.md)).
 - What a leaf draws for one value (`Drawn`) is a constant or real data as given, or a selection with
   a read still to land, whose `value` is the stand-in's and whose `phase` (`DrawnPhase`) says why:
@@ -301,15 +300,14 @@ parts out of step.
 ## Clock
 
 What a clock-read part draws (a `Banner`'s pending run with `until`, an age) is a function of its
-times and now (epoch milliseconds) in `clock.ts`, so both platforms read one answer. Each plugin ticks
-`now` from one shared coarse clock (`createClock`).
+times and now (epoch milliseconds) in `clock.ts`, so both platforms read one answer; `now` is the
+coarse clock's ([ages and the clock](words.md#ages-and-the-clock)).
 
 ## Scope ids
 
 - The URL names a route's scope by slug; the boundary that resolves it registers the ids
-  (`ScopeBoundary` in `react/scope.ts`), and the binding's query utils merge them into the input of
-  every call before the query key is built (`{ ...ids, ...input }`, an explicit id wins). The id stays
-  in the key, so two scopes never share a cache entry.
+  (`ScopeBoundary` in `react/scope.ts`), which the binding's query utils put in each scoped call's
+  input ([scope](../plugins/api.md#scope), [the route scopes the client](../../decisions/scoped-client.md)).
 - A layout puts the boundary where it has resolved the slug:
   `<ScopeBoundary ids={{ organizationId: organization.id }}>`, and under a project
   `{ projectId: project.id }`, which extends the outer ids.

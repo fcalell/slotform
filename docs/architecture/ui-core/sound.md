@@ -14,10 +14,10 @@ A track is a descriptor (`Track`, with `Peaks`), so a record that plays is data 
 What both platforms run lives in ui-core, free of any framework and of the sound:
 
 - `@fcalell/ui-core/player`: the player's rules (a time as worded, `trackTime`; the queue's
-  neighbours, `neighbour`; `PREVIOUS_RESTART`, past which Previous returns to the track's start; the
-  global `shortcut`s) and the store itself. `createPlayer` holds the track, its queue or
-  `QueueProvider`, the play state, the volume, the clock and the rules that move them. It drives an
-  `Output` the app passes through `connect`, and takes a `PlayerHost` for the kept volume and the
+  neighbours, `neighbour`; the global `shortcut`s) and the store itself. `createPlayer` holds the
+  track, its queue or `QueueProvider`, the play state, the volume, the clock and the rules that move
+  them (Previous returns to the track's start past `PREVIOUS_RESTART`, 3 seconds in). It drives the
+  `Output` that the `Engine` the app passes through `connect` makes, and takes a `PlayerHost` for the kept volume and the
   frame. `windowQueue` is the `QueueProvider` for a list too long to hold.
 - `@fcalell/ui-core/waveform`: a waveform's arithmetic, free of the canvas: the peaks reduced to the
   columns a width draws (`columns`), the moment a pointer or a key names (`momentAt`, `seekKey`) and
@@ -30,7 +30,7 @@ device's own buttons set the volume, so the store keeps none, and the clock foll
 
 ## Dock
 
-`Dock` is the player's dock, a roster part nothing mounts by default: an app gives a Shell's foot
+`Dock` is the player's dock, a component nothing mounts by default: an app gives a Shell's foot
 `foot={<Dock />}`. It draws what the player holds and makes no sound. While a track is loaded it
 stands under the place at the column's width, a hairline over the surface, and holds:
 
@@ -38,7 +38,8 @@ stands under the place at the column's width, a hairline over the surface, and h
   name keeps its place);
 - the name over its line;
 - previous, play or pause (the primary glyph) and next;
-- the elapsed time, the seek (the waveform where the track has peaks, else a slider) and the total;
+- the elapsed time, the seek (on the web the waveform where the track has peaks, else a slider; on
+  the phone a slider) and the total;
 - mute and volume, not on touch, where the device's own buttons set the volume;
 - a close.
 
@@ -59,8 +60,8 @@ Space on a cell of a table that chooses nothing is the dock's.
 
 ## Waveform
 
-`Waveform` is a roster part nothing mounts by default. The web `Waveform` is a canvas that reads its
-colours off its element once per mode. The phone would draw the same columns.
+`Waveform` is a component nothing mounts by default. The web `Waveform` is a canvas that reads its
+colours off its element once per mode.
 
 ## Scope
 

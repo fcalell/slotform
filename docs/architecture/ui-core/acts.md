@@ -56,11 +56,9 @@ and a menu takes one as an entry. A `Pane`'s missing shape's way back is one; it
 
 On the phone, `Link` takes either kind of href and decides by its shape: an href from the app's root
 is a route and navigates through expo-router; a scheme (`https:`, `mailto:`) or a protocol-relative
-`//` is somewhere else, which the OS opens. On the web every route reader shares one listener
-(`useRoute` in `lib/navigate.ts`), and a link's intent preloads its route: one delegated listener
-for the page covers every anchor stack draws, and a pointer or focus that rests on an anchor for
-TanStack's intent delay loads that route, so a pass across a list loads nothing. External, hash-only
-and current hrefs have nothing to load, and a navigation never waits on a preload.
+`//` is somewhere else, which the OS opens. On the web a pointer or focus that rests on an anchor for
+TanStack's intent delay loads that route, so a pass across a list loads nothing, and a navigation
+never waits on a preload ([navigation](../plugins/react-ui.md#navigation)).
 
 ## ActionBar
 
@@ -83,9 +81,9 @@ Layout:
   field's height. A Pane's `foot` docks the bar; a `Form` or a `Sheet` keeps it in flow.
 
 An act's `onAct` promise is the bar's run: while one pends, the others are inert, and a rejection
-stands in the bar's line under the acts, the act ready again. A blocked act is silent until it is
-pressed or its form or sheet has taken input; then its reason (the pressed act's, else the last
-blocked act's) stands in the line under the acts, at the filled act's edge on the web. The bar
+stands in the bar's line under the acts, the act ready again. Once a blocked act's reason shows
+([touched](#touched)), the reason (the pressed act's, else the last blocked act's) stands in the
+line under the acts, at the filled act's edge on the web. The bar
 draws that line then and keeps it, so the act keeps its row and stretches as a live one does.
 
 `chosen` makes it a chosen bar of one row: the count at its start, then the select-all act and
@@ -102,9 +100,8 @@ down: the host holds the attempt, so a press calls the handler as it is. `line` 
 the act instead (the public phone `Button` standing alone).
 
 Pending and blocked acts stay focusable and ignore the press. Both are inert, so one look is
-chosen: pending over blocked. A blocked act waits for a touch: inert and silent until it is pressed,
-or until its form or sheet has taken input; then its reason stands under the act, or on the line of
-the host that holds it. The filled act's reason, once its read ended, is the body's and draws on a
+chosen: pending over blocked. Once a blocked act's reason shows ([touched](#touched)), it stands
+under the act, or on the line of the host that holds it. The filled act's reason, once its read ended, is the body's and draws on a
 press alone. An icon act inside a disabled field is inert.
 
 An act whose own datum waits is **painted**: its box filled, its content undrawn, inert. A

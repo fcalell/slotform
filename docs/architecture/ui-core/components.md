@@ -44,10 +44,9 @@ of list rows with the sort a `Picker` above it. Below `tablet` the rows stand on
 ### Items and forms
 
 It takes `items`, constants or a selection, each column reading its cell from the item and `row` the
-row's own regions. While the selection's read waits it paints `PAINT_ROWS` rows over the constant
-header, each cell by its column's kind, inert. It is a frame of its items as a Section's sheet is:
-its failed, missing and empty shapes and its stale and paused line are its own
-([frames](reads.md#frames)). `label` is its accessible name (`aria-label` on the grid or the list,
+row's own regions. It is a frame of its items as a Section's sheet is: what it paints while the
+read waits, its failed, missing and empty shapes and its stale and paused line are its own
+([what a frame draws](reads.md#what-a-frame-draws)). `label` is its accessible name (`aria-label` on the grid or the list,
 `accessibilityLabel` on the phone), in place of the page's title naming it.
 
 ### Keyboard
@@ -112,14 +111,13 @@ body's column and start. The grid draws no count: the chosen bar's is the count.
 ### Row acts, drag and reorder
 
 A row's `act` and `more` regions draw an acts column at the grid's end, frozen there like the leading
-column: the icon act, then the more act, each a cell cursor stop of its own column. Shift+Enter on
-the active row runs its act from any cell (Enter does where the row opens nothing) and the Context
-Menu key opens its more menu.
+column: the icon act, then the more act, each a cell cursor stop of its own column. The keys that
+press them are in [row acts](drag.md#row-acts).
 
 `drag` makes the rows draggable (a ticked row drags the whole pick, an unticked one itself) onto a
 `drop` (a Shell place, a row of another collection), and `reorder` moves a row within the grid while
-it is unsorted: the pointer lands it at a line (`DROP_LINE`), Alt with Up, Down, Home or End moves
-the active row, and the more menu holds the same moves. A row that is a `drop` washes as selected
+it is unsorted: the pointer lands it at a line (`DROP_LINE`), and the keyboard and the more menu move
+the active row ([without a pointer](drag.md#without-a-pointer)). A row that is a `drop` washes as selected
 while a drag is over it. The mechanics are in [drag](drag.md).
 
 The `selected` row is the open record, washed. The `current` row (what is playing, the step a run is
@@ -178,9 +176,9 @@ the first paint.
 
 `value` and `options` are data. A selection paints the trigger, inert and its content undrawn, until
 its read lands. A `value` whose read ended leaves the box empty and blocked: opening it says the
-failed sentence and opens nothing. Options that have failed draw the failed sentence with Retry (or
-`missing`) in a line under the trigger, which stays painted; the picker holds that read, so it needs
-no frame and draws no busy or stale flag.
+failed sentence and opens nothing. Options that have ended draw their line under the trigger
+([failed lines](reads.md#failed-stale-and-paused-lines)), which stays painted; the picker holds that
+read, so it needs no frame and draws no busy or stale flag.
 
 ### List
 
@@ -241,8 +239,7 @@ its mark (`marked`, with `PICKED_GLYPH`).
 ## Thread
 
 A collection of messages from `items` through the `message` map, constants or a selection. While
-the selection's read waits it paints `PAINT_TURNS`: an ask of yours, its bubble at the end, over the
-other author's reply at the start.
+the selection's read waits it paints `PAINT_TURNS` ([what a frame draws](reads.md#what-a-frame-draws)).
 
 - A message is a `Message` descriptor by its author. `you` and `other` take `name`, `attachments`
   (an attachment with `src` a thumbnail, one without a chip of its name, in one row over the bubble)
@@ -252,9 +249,8 @@ other author's reply at the start.
 - A reply's body is a `Prose`. `at` is an ISO moment each plugin formats in the document's language:
   the time alone today, "tomorrow" or "yesterday" and the time a day either side, the year only when
   it is not this year's.
-- It is a frame of its items with its composer and reply kept: its failed and missing shapes stand in
-  the log's place with the generic sentences, and its empty shape is one sentence (`empty`, else the
-  generic one) centred in the log, so a thread whose items failed still sends.
+- It is a frame of its items with its composer and reply kept
+  ([what a frame draws](reads.md#what-a-frame-draws)); its empty shape is centred in the log.
 
 The `composer` is the input under the log, or its `sheet` docked in its place while it is open:
 stacked on the desktop, one row on touch. A thread among a Pane's sections that should keep the

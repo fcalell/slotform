@@ -44,10 +44,7 @@ All of it is under `packages/ui-core/src/`.
 - `variants.ts` and `variant-tables.ts`: the matrices and `MATRIX_GROUPS`.
 - `roster.ts`: `ROSTER`.
 - `roster/<component>.ts`: one roster component's contract: its entry, the descriptors, matrices, cvas
-  and class sets it alone uses. `roster.ts`, `descriptors.ts`, `variants.ts` and `variant-tables.ts`
-  declare what two or more components share and re-export the rest, so the subpaths keep their names;
-  a component file takes what it shares from `roster/shared.ts` or `roster/descriptors.ts`, never from
-  the four, so no ui-core file is in an import cycle ([roster files](ui-core/roster.md#roster-files)).
+  and class sets it alone uses ([roster files](ui-core/roster.md#roster-files)).
 - The framework-free logic subpaths ([Subpaths](#subpaths)).
 
 ## Subpaths
@@ -92,9 +89,8 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
 - Native has no render harness: no check draws a native screen.
 - A native Button's `count` is not in its accessible name.
 - Base UI's Checkbox, Switch, Radio and OTP field look for a `<label>` after every render unless named
-  by `aria-labelledby`, a `Field` label or a native button, and the look grows with the document.
-  react-ui's Switch and its checkbox tick render a native `<button>` (`nativeButton`), and a disabled
-  one carries `disabled` and `data-disabled`, never `aria-disabled`.
+  by `aria-labelledby`, a `Field` label or a native button, and the look grows with the document
+  (react-ui's Switch and checkbox: [field box](plugins/react-ui.md#field-box-and-focus-rings)).
 - The native toasts' layer stands over a box measured against the container's root (`ToastSpace`,
   `ToastContainer`) and follows a growing input a layout late.
 - An `Image`'s full view takes no pinch-zoom or pan.
@@ -105,14 +101,12 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
 - The Table's columns menu, keyboard cursor and kept column choice are web only: the phone's Table
   honours a column's `hidden` default and nothing else of them.
 - A Shift-arrow run on a window read ticks the rows loaded between its ends; a row whose page has not
-  landed is passed over. Home and End move along a row (the grid pattern) and Ctrl with them to the
-  first and last cell, so the first and last row are Ctrl+Home and Ctrl+End.
+  landed is passed over.
 - Drag, drop, reorder, `choose` over a window's query (`Picked`) and a Table row's `act`, `more` and
   `drop` are web only. The phone's Table and list rows ignore them (a drag there would fight the
   scroll, and the menu is the way), and the phone's `choose` holds ids.
 - A drag holds one collection's rows. A reorder moves one row: a ticked set drags to a drop and is not
-  moved as a set. A Section reorders when it is flat and ungrouped (not a tree), and a Table while it
-  is unsorted. Over a window read a drop that lands beside a row whose page is not loaded has no line,
+  moved as a set ([which collections reorder](ui-core/drag.md#reorder)). Over a window read a drop that lands beside a row whose page is not loaded has no line,
   since the neighbours' ids are unknown, and the auto-scroll brings the pages in.
 - The drops a row offers by menu are the ones mounted: a drop in a windowed collection that is
   scrolled out is not offered, so a long list of targets keeps its own `more` entries.

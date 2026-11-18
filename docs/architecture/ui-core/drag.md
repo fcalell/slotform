@@ -34,7 +34,9 @@ A collection that orders its rows takes `reorder: { onMove(id, { index, after, b
 position needs; the order it keeps is the consumer's. The rows show a move at once and keep it until
 the data answers, and the held move goes with a refusal. `onMove` and `onDrop` run as acts do
 (confirm, run, toast, go, a rejection toasted with Retry), and a drop lands at once like every block
-move ([moves land at once](../../decisions/moves-land-at-once.md)).
+move ([moves land at once](../../decisions/moves-land-at-once.md)). Which collections reorder is
+each one's own: a Section's sheet ([acts and drag](layout.md#acts-and-drag)) and a Table
+([row acts, drag and reorder](components.md#row-acts-drag-and-reorder)).
 
 ## Without a pointer
 
@@ -53,8 +55,8 @@ type-check. What a drag holds and where it is web only is in [limits](../ui-core
 ## Row acts
 
 A row's own act (`RowItem.act`, a Table row region's `act`) is the one icon act at its end, with its
-wiring. A Table draws it with the row's `more` in an acts column at the grid's end, frozen there.
-Shift+Enter on the active row presses it (Enter too where the row opens nothing), and the Context Menu
+wiring. A Table draws it with the row's `more` in its acts column
+([row acts, drag and reorder](components.md#row-acts-drag-and-reorder)). Shift+Enter on the active row presses it (Enter too where the row opens nothing), and the Context Menu
 key (or Shift+F10) opens the menu.
 
 ## Web drag

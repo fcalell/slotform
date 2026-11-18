@@ -59,9 +59,8 @@ bar on touch, and a column that holds the current place.
   `children`, except that a route under a branch selects its tab.
 - A place with a `drop` takes what is dragged from a row; the container draws the label that follows
   the pointer and the line a reordered row lands at ([drag](drag.md)).
-- The routes a descriptor carries read `RouteRegistry`, an interface a platform fills by
-  declaration merging into `@fcalell/ui-core/descriptors` (`interface RouteRegistry { route: ... }`):
-  native-ui registers the app's expo-router paths. With nothing registered a route is any string.
+- The routes a descriptor carries are `Route`s, typed by the platform's `RouteRegistry`
+  ([the canon](roster.md#the-canon-and-the-closed-props)).
 
 ### Column and foot
 
@@ -97,7 +96,7 @@ container as the Shell is:
 one centred column at the `auth` width holding the step, a fields gap between every part:
 
 1. the app's lockup, its logo and name, which the app gives the UI plugin once (a drawn lockup
-   40 tall);
+   two body lines tall, `GATE_LOGO`);
 2. an optional `StepCount`;
 3. the title, required, the page's one `h1`;
 4. the description, its strong runs at 500;
@@ -148,7 +147,8 @@ row that draws no bar, and each Pane a flex column.
   `data-wide`) is the place's main object, so it takes the spare space and the record beside it holds
   `list` from `tablet`. Content decides it, as it decides a body's width ([Rows grid](#rows-grid)).
 - **Expand.** An expanded record's Pane (`data-expanded`, set by its Expand act) hides the Pane
-  before it, the one `:has()` the structure rules name, and takes the whole Panes. Both stay
+  before it (`:has(~ [data-expanded])`, the place's CSS the structure rules except), and takes the
+  whole Panes. Both stay
   mounted, so the list's scroll and typed text survive, and the hidden Pane leaves the tab order.
   A Pane opened from another takes the keyboard on its first control (`usePaneFocus`).
 - **A record's acts.** Only a record's head draws Back, Close and Expand; the place's Pane has none,
@@ -339,8 +339,7 @@ and no Section stands in a Section.
 ### Head
 
 - The title line is the fold toggle where the Section folds. A blocked act's reason stands on its
-  own line under the head row; on the phone it shows once the act is pressed or its form or sheet is
-  touched, as a `Button`'s does.
+  own line under the head row, shown as a `Button`'s is ([touched](acts.md#touched)).
 - Titled, the head stands over the body; a Section with `items` and no `title` draws the sheet alone.
 - `description` paints where it will stand while its selection waits. Loaded, `""` draws no line, as
   an undefined one does, and so does one whose read ended, the read's holder saying why once.
@@ -387,9 +386,8 @@ own; a Section with no `read` takes no `empty`.
 - A row with a `drag` is dragged by a press that moves (a finger after a hold of `DRAG_DELAY`), and
   one with a `drop` takes what is released on it (`DROP_ON`). `reorder` makes the sheet's rows
   movable: a drag lands the row at the line (`DROP_LINE`) between two rows and the sheet scrolls near
-  its edges; Alt with Up or Down moves the focused row, and its more menu holds Move up, down, to top
-  and to bottom. A flat sheet reorders; a tree or a grouped one does not. The mechanics are in
-  [drag](drag.md).
+  its edges, and the keyboard and the more menu move it ([without a pointer](drag.md#without-a-pointer)).
+  A flat sheet reorders; a tree or a grouped one does not. The mechanics are in [drag](drag.md).
 
 ## Rows
 
@@ -619,8 +617,8 @@ A **card** is the surface inside a hairline edge at the card radius.
   desktop set's figures (the touch set is the two-line form already), each the short measure (20
   characters, `ROW_TEXT_FLOOR`'s text) in the text group at its floor of two fifths of the row, a gap
   between them; the end group, the rest, holds two short-measure words at the caption size and the
-  gap between them. The row is as wide as the wider of the two needs (765 px at the default `size`
-  knob; the name and meta bind), whatever the device or the viewport. A row in a narrower container
+  gap between them. The row is as wide as the wider of the two needs (`rowOneLine`, whose px at the
+  default `size` knob `DESIGN.md` prints; the name and meta bind), whatever the device or the viewport. A row in a narrower container
   takes the two-line form rather than cut its meta.
 - **Title lines.** A two-line row's title wraps to `ROW_TITLE_LINES` (three) lines before it is cut:
   the title is the row's name, and a name cut at one line leaves it unread. A name that is a sentence
@@ -644,7 +642,7 @@ The consumer-facing side of these rules is in
 ## Chip runs
 
 The gap between the lines of a wrapped run of chips is the fields gap, wider than the target less
-the chip (44 - 24), so no remove act's hit slop, which reaches that far past its chip, meets the next
+the chip ([sizes](tokens.md#sizes-and-hit-target)), so no remove act's hit slop, which reaches that far past its chip, meets the next
 line's. The web draws that gap on touch alone.
 
 ## In the code

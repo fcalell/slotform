@@ -63,9 +63,9 @@ An entry holds:
   its class sets, or a single-class-set constant of `./variants`;
 - `draws`, the matrix groups and constants of its own box ([matrices](#matrices));
 - `motion`, the moves it makes ([moves and move class sets](motion.md#moves-and-move-class-sets));
-- the states it has a form for: the eight interaction states, plus `empty` for a component with an
-  empty shape, and the states a read puts a frame or collection in (`busy`, `stale`, `paused`, `more`,
-  `streaming`);
+- the states it has a form for, of the closed set `STATES` (`roster/shared.ts`): the interaction
+  states, `empty` for a component with an empty shape, and the states a read puts a frame or
+  collection in;
 - the tokens it owns ([token ownership](#token-ownership)).
 
 ### Token ownership
@@ -94,9 +94,8 @@ beside the cvas built from them, and are re-exported. `MATRIX_GROUPS` registers 
 with its axes, and `matrixClasses` enumerates the class sets (`BUTTON.act.primary`); the showcase reads the
 list.
 
-- A matrix holds platform-invariant class sets only, classes both a web and a native renderer take: fills,
-  borders, ink, spacing roles, radius, type role, weight, family, sizes and widths. Which class sets those
-  are is [the sharing line](../ui-core.md#the-sharing-line).
+- A matrix holds platform-invariant class sets only, classes both a web and a native renderer take
+  ([the sharing line](../ui-core.md#the-sharing-line)).
 - What a component is given (act, family, checked, error) is an axis; where the pointer or focus is on
   it is an overlay.
 - A part with an axis is a matrix; a part with one shape is a named constant (`POPOVER`, `PAGE_HEAD`).
@@ -105,8 +104,8 @@ list.
   component that draws it; an entry's `draws` lists the matrix groups and constants of its own box.
 - No class set holds an arbitrary value.
 - Heights are floors, never fixed: a minimum height is the floor of something pressed (control, field,
-  target, chip, row). An element a pointer lands on is the target (28 px on the desktop, 44 on touch,
-  [sizes](tokens.md#sizes-and-hit-target)), so a smaller drawn box stands in a target-sized box
+  target, chip, row). An element a pointer lands on is the target
+  ([sizes](tokens.md#sizes-and-hit-target)), so a smaller drawn box stands in a target-sized box
   pulled back by the difference (`REMOVE_HIT`). A part beside a line of text is that line's box
   (`LINE_BOX`). Stacking between components is the token `STACK_ORDER`
   ([layers](tokens.md#layers-and-shadows)). A long unbroken word never widens a page.

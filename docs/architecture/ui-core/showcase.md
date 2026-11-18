@@ -53,8 +53,8 @@ answers every procedure, with an example value for each route param (`deployId`,
 
 ## The roster in Storybook
 
-The roster is in Storybook: one story per roster component and accessibility-relevant state
-(`rest`, `disabled`, `loading`, `error`, `empty`, `selected`), every class set of that component in that
+The roster is in Storybook: one story per roster component and drawn state (`DRAWN_STATES` in
+`class-sets.ts`, each one a prop of the component), every class set of that component in that
 state, light and dark side by side, at the toolbar's density (desktop or touch). The `rest` story
 takes a `classSet` control to browse one class set. Pointer and focus states stay in the roster and draw no
 story, since the web variants match only real pseudo-classes: hover, press and focus are driven on
@@ -107,11 +107,12 @@ page draws. An edge no public composition reaches has no scene.
 ### Story generation
 
 `.storybook/roster.ts` writes one CSF module per roster component into the gitignored
-`apps/showcase/stories/` (Storybook's watcher does not see dot directories), each importing only that
-component's drawer and written only when its text changes, so an unchanged module is neither
+`apps/showcase/stories/` (Storybook's watcher does not see dot directories), each importing `state-stories.tsx` and that
+component's drawer, and written only when its text changes, so an unchanged module is neither
 re-indexed nor re-run. The roster is read in a child process (`roster-list.ts`), since Node caches ES
 modules, and `rosterPlugin` rewrites the generated modules when the roster, its class sets or a drawer
-change, so a roster edit reaches the sidebar without a restart. `pnpm generate` runs `roster.ts`, so
+change, so a roster edit reaches the sidebar without a restart; a roster that does not load keeps
+the stories last written, and the error goes to the dev server's log. `pnpm generate` runs `roster.ts`, so
 the check type-checks the stories the roster names.
 
 ### Storybook config
@@ -152,8 +153,8 @@ always answers from its fixture, whatever state the screen is forced into
 
 The test run opens each screen in every state, light and dark, and fails it on an axe violation, a
 horizontal overflow, a finding of the render walk, or a console error or warning. The run's checks
-are one preview annotation (`@fcalell/plugin-screens/checks`) that visits 320 (touch set), 1280
-(desktop set) and 1920 (where a cap leaves dead space) and, per width, checks overflow and runs the
+are one preview annotation (`@fcalell/plugin-screens/checks`) that visits each
+[rubric width](../plugins/screens.md#rubric-widths) and, per width, checks overflow and runs the
 render walk ([test run order](../plugins/screens.md#test-run-order)). The run also fails each read in
 turn (one procedure's GETs answered with a server error) and runs the checks at each width.
 
@@ -168,8 +169,8 @@ chip inside a card, popover or sheet, which keep their roles' radii, since a con
 would need the inner part to know its outer. The rules themselves are in
 [render walk rules](../plugins/screens.md#render-walk-rules).
 
-**Shift check.** The run measures every Section heading waiting and then loaded at 320, 1280 and
-1920 px and fails the screen when the first Section moves, a later one moves by other than what the
+**Shift check.** The run measures every Section heading waiting and then loaded at each rubric
+width and fails the screen when the first Section moves, a later one moves by other than what the
 Sections above grew by, or a Section that stood disappears
 ([loading shift comparison](../plugins/screens.md#loading-shift-comparison)).
 
@@ -181,9 +182,8 @@ keep (`packages/ui-core/guide/structure.md`) are judged in review.
 
 **Changed runs.** A change reaches a story file only through its module graph, which `dist/` and
 generated files do not join, so the generated screens config adds `workspaceTriggers(<app dir>)`
-(`@fcalell/plugin-screens/node`) to Vitest's `forceRerunTriggers`: for each linked workspace
-package, every file under `src/` that no source export serves. `stack screens test --changed <ref>`
-diffs `<ref>...HEAD` plus uncommitted edits ([changed runs](../plugins/screens.md#changed-runs)).
+(`@fcalell/plugin-screens/node`) to Vitest's `forceRerunTriggers`, the files no module graph
+reaches ([changed runs](../plugins/screens.md#changed-runs)).
 
 **Voice lengths.** `voice.test.ts` holds `packages/ui-core/guide/voice.md` to its tokens: the page
 states a length by its token. A px value stands only as the value at the default `size` (or
@@ -193,12 +193,12 @@ constant the test lists: a number no knob moves. A formula never joins that list
 ## The guide
 
 ui-core's `guide/` holds what both platforms share: the screen recipe, the voice (the anchor app,
-its pinned screens, the decisions and the floors) and the structure rules; the package README lists
-the pages ([README](../../../packages/ui-core/README.md#install)). A screen is judged by standing its
-render beside the anchor screen and asking which looks better.
+its pinned screens, the decisions and the floors), the critic's checklist and the structure rules;
+the package README lists the pages ([README](../../../packages/ui-core/README.md#install)). How a
+screen is judged is the screen recipe's (`packages/ui-core/guide/screen.md`).
 
-ui-core is no plugin: `@fcalell/ui-core/manifest` lists its pages (`uiCoreGuide`), and react-ui and
-native-ui each contribute them to `cliSlots.guide`, where the index lists a page once. Each UI plugin
+`@fcalell/ui-core/manifest` lists the pages (`uiCoreGuide`) that react-ui and native-ui contribute
+to `cliSlots.guide` ([the guide](../consumer-project.md#the-guide)). Each UI plugin
 adds `@fcalell/ui-core` to the consumer's own `dependencies`, so the index's
 `node_modules/@fcalell/ui-core/guide/` paths resolve. A platform's rules for every `.tsx` are its
 plugin's own page (react-ui's `guide/rules.md`).

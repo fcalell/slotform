@@ -69,7 +69,7 @@ The web design system is `reactUi()` beside them, with the same `theme` and `wor
 reactUi({
   theme: { hue: { accent: 120 }, defaultMode: "dark" },  // the ui-core contract; fonts default to IBM Plex Sans and IBM Plex Mono
   words: { ...ENGLISH, back: "Zurück" },
-  fonts: [plexSans],   // the files to load; default IBM Plex Sans (wght) + IBM Plex Mono 400/500/600
+  fonts: defaultFonts, // the files to load; default IBM Plex Sans (wght) + IBM Plex Mono 400/500/600
 }),
 ```
 
@@ -409,7 +409,7 @@ configures nothing. A lint plugin is a `path` to the `.grit` file inside its pac
 (`@fcalell/plugin-react-ui/lint/no-img.grit`) and `includes`, the globs relative to the consumer's
 root of the sources it runs on (for react-ui, the routes directory's parent). A rule is a regex
 over an attribute's text, so it reads a literal class string and not a class a function builds;
-the rules page's table lists what each rule leaves to a reviewer.
+each rule's `.grit` header states what it forbids, and the rest of the rules page is a reviewer's.
 
 `.stack/biome.json` renders the slot, and the consumer's `biome.json` extends it. It is written for
 every app, so that `extends` always resolves. The file carries each rule as
@@ -446,7 +446,7 @@ loads no Claude Code settings reads the same ones by path.
 - Every plugin ships pages except vite: a web app is always vite with react (react requires vite),
   so vite's options and its dev server live in react's `web-app` page, the page a step on the web
   app opens.
-- ui-core is no plugin, so its pages (the screen recipe, the voice, the structure rules) are listed
+- ui-core is no plugin, so its pages (the screen recipe, the voice, the critic's checklist, the structure rules) are listed
   by `@fcalell/ui-core/manifest` and contributed by both UI plugins; the index writes a page two
   plugins list once. Every listed page exists and every page under `guide/` is listed.
 - A page links a page of its own package relatively (`./client.md`) and another package's by the
