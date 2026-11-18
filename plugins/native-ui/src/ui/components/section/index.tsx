@@ -56,7 +56,7 @@ const CARD_BOUNDED = "shrink min-h-0";
 export type Band = Omit<BandData, "act"> & { act?: IconAct | IconLinkAct };
 
 /** A descriptor's reads as the platform draws them: a row's `act`, `more`, `title`, `line` and `facts`, a switch's `checked`, a pick's `options` and `value`, the same in a tree's children, may be a `Datum`; the row's `facts` may be a read of the whole list or a list of facts that are each a read of their own. */
-export type WithReads<T> = T extends unknown
+type WithReads<T> = T extends unknown
 	? {
 			[K in keyof T]: K extends "act" | "more"
 				? Datum<Sheeted<T[K]>>
@@ -248,11 +248,11 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 	// It stands alone in its Pane: it fills the body and its rows window.
 	const alone = useContext(BodyAlone);
 	const more = pagesOf(items);
+	const list = !one && (drawn.painted || !factsOnly(drawn.value));
 	const rows: Omit<RowsInternal, "drawn" | "foot" | "alone"> = {
 		paint,
 		groups: bands.painted ? undefined : bands.value,
-		counted:
-			!one && title !== undefined && (drawn.painted || !factsOnly(drawn.value)),
+		counted: title !== undefined && list,
 	};
 	// The more row ends the card, behind the hairline a further row would have;
 	// the next page paints in the shape of the rows that stand, at the card's
@@ -301,7 +301,7 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 			{...props}
 			fill={alone}
 			title={title}
-			list={!one && (drawn.painted || !factsOnly(drawn.value))}
+			list={list}
 			frame={frame}
 			// The count is the items the Section lists: its top-level rows less
 			// those marked `counted: false`, and the nested rows marked `counted:

@@ -1,6 +1,6 @@
 import type { Option } from "@fcalell/ui-core/descriptors";
 import { optionLeading, toggled } from "@fcalell/ui-core/list-state";
-import { pickCurrent, type Several } from "@fcalell/ui-core/pick";
+import { pickCurrent } from "@fcalell/ui-core/pick";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { useOptions } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -61,23 +61,6 @@ const HIDDEN = "opacity-0";
 const DISABLED_FILL = "bg-fill-disabled";
 const DISABLED_INK = "text-ink-disabled";
 
-// A pick's props once its value is drawn: the viewer's pick or the
-// selection's, no longer a datum.
-type Drawn<V extends string | null> = Omit<
-	PickerMenuProps<V>,
-	"value" | "onChange"
-> &
-	(
-		| { value?: V; onChange: (value: V) => void }
-		| { value: readonly V[]; onChange: (value: V[]) => void }
-	);
-
-function isSeveral<V extends string | null>(
-	props: Drawn<V>,
-): props is Drawn<V> & Several<V> {
-	return Array.isArray(props.value);
-}
-
 function isSet<V>(value: V | readonly V[] | undefined): value is readonly V[] {
 	return Array.isArray(value);
 }
@@ -102,8 +85,6 @@ export function PickerBase<V extends string | null = string>(
 		onChange: (next: V | V[]) => unknown;
 	} & Composed,
 ) {
-	// The value is the viewer's pick once made, else the selection's; a painted
-	// pick draws as a single one, as the placeholder is no array.
 	const { draft } = given;
 	// Waiting options paint the trigger as a waiting value does, and the sheet
 	// has no rows to open.
@@ -112,13 +93,14 @@ export function PickerBase<V extends string | null = string>(
 	// says why and opens nothing, so nothing can be picked.
 	const ended = draft.ended !== undefined;
 	const painted = given.painted || (draft.painted && !ended) || waiting.painted;
+	// The value is the viewer's pick once made, else the selection's; a painted
+	// pick draws as a single one, as the placeholder is no array.
 	const picked = draft.painted ? undefined : draft.value;
+	const several = isSet(picked) ? picked : undefined;
+	const value = isSet(picked) ? undefined : picked;
 	const onChange = (next: V | V[]) => {
 		draft.change(next, () => given.onChange(next));
 	};
-	const props: Drawn<V> = isSet(picked)
-		? { ...given, value: picked, onChange }
-		: { ...given, value: picked, onChange };
 	const { label, placeholder, fit = "field", act, form } = given;
 	const words = useWords();
 	// What an empty box says: the hint, else the generic word in a row (its label
@@ -130,8 +112,6 @@ export function PickerBase<V extends string | null = string>(
 		state: form?.invalid ? "error" : "rest",
 	});
 	const disabled = form?.disabled === true;
-	const several = isSeveral(props) ? props : undefined;
-	const value = isSeveral(props) ? undefined : props.value;
 	const [open, setOpen] = useState(false);
 	const opens = () => {
 		if (ended) draft.change(undefined);
@@ -142,14 +122,13 @@ export function PickerBase<V extends string | null = string>(
 	const current = painted
 		? undefined
 		: pickCurrent(groups.flat, value, several !== undefined);
-	const chosen = (painted ? [] : (several?.value ?? [])).flatMap(
+	const chosen = (painted ? [] : (several ?? [])).flatMap(
 		(one) => groups.flat.find((option) => option.value === one) ?? [],
 	);
 	// The sheet closes itself on a single pick; a pick of several keeps it
 	// open, an option toggling in and out.
 	const pick = (next: V) => {
-		if (isSeveral(props)) props.onChange(toggled(props.value, next));
-		else props.onChange(next);
+		onChange(several ? toggled(several, next) : next);
 	};
 	const leads = optionLeading(current);
 	const status = leads.tone ? (
@@ -227,9 +206,7 @@ export function PickerBase<V extends string | null = string>(
 							key={String(option.value)}
 							family="neutral"
 							label={option.label}
-							onRemove={() =>
-								several.onChange(toggled(several.value, option.value))
-							}
+							onRemove={() => onChange(toggled(several, option.value))}
 						/>
 					))}
 				</View>
@@ -309,7 +286,7 @@ export function PickerBase<V extends string | null = string>(
 				title={label}
 				groups={groups}
 				value={value}
-				chosen={several?.value}
+				chosen={several}
 				onChange={pick}
 				open={open}
 				onClose={() => setOpen(false)}

@@ -43,8 +43,8 @@ export function SheetForm({
 	);
 }
 
-// Drops the viewer's edits as the sheet opens again, on the render that sees
-// it open. Outside the package's exports.
+// Drops the viewer's edits as the sheet opens again. Outside the package's
+// exports.
 export function useClearOnOpen(open: boolean, clear: () => void): void {
 	const [wasOpen, setWasOpen] = useState(open);
 	if (open !== wasOpen) {

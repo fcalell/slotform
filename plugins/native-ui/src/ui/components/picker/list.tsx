@@ -135,10 +135,9 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	const onChange = (next: V | V[]) => {
 		draft.change(next, () => props.onChange(next));
 	};
-	const choice: OptionChoice<V> =
-		value === null || typeof value === "string"
-			? { value, onChange }
-			: { value, onChange };
+	// The value is one choice or a set and `onChange` takes either form; TypeScript
+	// does not split one object over the union's two shapes.
+	const choice = { value, onChange } as OptionChoice<V>;
 	// A list with no `options` has `items`, so its read's value is a list.
 	const options = rowsPaint
 		? paintedGroups<V>(props.option)

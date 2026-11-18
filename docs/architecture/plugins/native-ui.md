@@ -297,7 +297,7 @@ Pane's scroll with other parts draws every row.
   row holds a text field. `KeyboardAwareLegendList` (`@legendapp/list/keyboard`, which needs
   keyboard-controller 1.21.7 or later) goes unused: its `KeyboardChatScrollView` lifts the content
   for the keyboard itself, which inside `Lifted` would lift it a second time.
-- **Sheets.** A tall Picker sheet's body is the list itself. `SheetLayer` with `scrolls` drops its
+- **Sheets.** A tall Picker sheet's body is the list itself. A `tall` `SheetLayer` drops its
   `BottomSheetScrollView`, and the list scrolls through gorhom's `useBottomSheetScrollableCreator()`
   (`renderScrollComponent`), so a drag on the rows moves the sheet as a drag on any sheet body does;
   gorhom takes one scrollable per sheet. The group labels are entries and so are the options

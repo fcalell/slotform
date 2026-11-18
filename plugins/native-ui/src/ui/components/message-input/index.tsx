@@ -81,7 +81,7 @@ export interface MessageInputProps extends Closed {
 	disabled?: boolean;
 }
 
-// One row: the attach act, the field growing upward to eight lines (its
+// One row: the attach act, the field growing upward to its cap (its
 // attachments over the text), Stop's icon act while an answer comes and
 // Send's icon act; the notice under it in the same columns, its sentence at the field's
 // text. A Thread's `composer`; outside the package's exports.

@@ -236,8 +236,7 @@ export function Prose({ markdown }: ProseProps) {
 		[source],
 	);
 	// An ended read draws no text; the frame that holds it says why.
-	if (!root)
-		return paints(drawn) ? <PaintedProse rows={1} lines={PAINT_ROWS} /> : null;
+	if (!root) return paints(drawn) ? <PaintedProse lines={PAINT_ROWS} /> : null;
 	return (
 		<View className={cn(PROSE, COLUMN)}>
 			{root.blocks.length > 0 ? <Blocks part={root} /> : null}

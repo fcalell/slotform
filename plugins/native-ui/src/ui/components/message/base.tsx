@@ -130,7 +130,8 @@ function SystemMessage(props: {
 // turn while a thread's items are not here, inert: yours a bubble of one
 // phrase's filler over the time's; the other author's its head, the name's
 // filler and the time's, over one clipped line of filler where `name` is set,
-// else that line over the time's filler). A named turn's time
+// else that line over the time's filler, so a log of short turns paints at its
+// loaded height). A named turn's time
 // stands in its head beside the name; another's unnamed turn stands its time
 // under it, as yours does. Memoised on its props:
 // a thread's re-render skips each message whose author, body and time are
@@ -145,11 +146,6 @@ export const MessageBase = memo(function MessageBase(
 				at?: number;
 		  },
 ) {
-	// Painted, a turn stands as a short loaded one does: yours a bubble of one
-	// line over the time's filler; a reply its head (the name's filler and the
-	// time's) over one clipped line where the thread names its authors, else the
-	// line over the time's filler, so a log of short turns paints at its loaded
-	// height.
 	if ("painted" in props) {
 		const stamp = (
 			<PaintText
@@ -198,7 +194,7 @@ export const MessageBase = memo(function MessageBase(
 						{stamp}
 					</View>
 				) : null}
-				<PaintedProse rows={1} lines={1} at={props.at} />
+				<PaintedProse lines={1} at={props.at} />
 				{props.name ? null : <View className={HEAD}>{stamp}</View>}
 			</View>
 		);

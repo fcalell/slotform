@@ -26,11 +26,10 @@ import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
 import { titleBound } from "../../lib/bind";
 import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
-import { tokenPx } from "../../lib/container";
+import { useTokenPx } from "../../lib/container";
 import { Ink } from "../../lib/ink";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { BusyMark, FrameLine } from "../../lib/read";
-import { useCSSVariable } from "../../lib/theme";
 import { Button } from "../button";
 import { Count } from "../count";
 import { MenuBase } from "../menu/base";
@@ -165,8 +164,8 @@ export function SectionHead(props: {
 	// The overhang is what the target has over the label's own height: a line's
 	// at first, and the label's lines once laid out, so a title that wraps
 	// pushes the description down and is never pulled into it.
-	const target = tokenPx(useCSSVariable("--spacing-target"));
-	const leading = tokenPx(useCSSVariable("--leading-heading"));
+	const target = useTokenPx("--spacing-target");
+	const leading = useTokenPx("--leading-heading");
 	const [laid, setLaid] = useState<number>();
 	const overhang = Math.max(0, (target - (laid ?? leading)) / 2);
 	const shown = (

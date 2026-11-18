@@ -161,14 +161,12 @@ interface SheetLayerProps {
 	// An act of the sheet runs: the scrim and the drag down do not dismiss it.
 	holds?: boolean;
 	// Stands at the cap from its first frame (a menu that searches, so its
-	// list does not jump as the filter narrows); the rest grow with their
-	// content.
-	tall?: boolean;
-	// The children scroll themselves (a long list, through gorhom's
+	// list does not jump as the filter narrows), and its children scroll
+	// themselves (a long list, through gorhom's
 	// `useBottomSheetScrollableCreator`), so the sheet gives them no scroll of
-	// its own: gorhom takes one scrollable per sheet. Only a `tall` sheet, which
-	// never sizes from its content.
-	scrolls?: boolean;
+	// its own: gorhom takes one scrollable per sheet. The rest grow with
+	// their content and scroll in the sheet.
+	tall?: boolean;
 	// The children over the whole screen inside the safe area (an image's full
 	// size), with no head, ground or foot, so no accessible name of its own
 	// (the children name themselves): the scrim and the children's own close
@@ -234,7 +232,6 @@ export function SheetLayer({
 	foot,
 	holds = false,
 	tall,
-	scrolls,
 	view,
 	children,
 }: SheetLayerProps) {
@@ -252,9 +249,12 @@ export function SheetLayer({
 	// past it the body scrolls. Nothing here decides the height after
 	// `present()`.
 	const cap = height - insets.top;
-	// Whether gorhom holds the sheet, from `present()` to its `onDismiss`.
-	// A `dismiss()` while it holds none marks the modal dismissing for good,
-	// and every later `present()` then draws nothing.
+	// Whether gorhom holds the sheet and no one has asked it away, from
+	// `present()` to the `dismiss()` that `open` asks or the viewer's dismissal
+	// (`onDismiss`). A `dismiss()` while it holds none marks the modal
+	// dismissing for good, and every later `present()` then draws nothing; a
+	// dismissal `open` asked is no close the viewer made, so `onClose` hears
+	// only the others.
 	const held = useRef(false);
 	const timings = useMemo(
 		() => ({ enter: enter(), release: released() }),
@@ -265,7 +265,10 @@ export function SheetLayer({
 			setSettled(false);
 			held.current = true;
 			ref.current?.present();
-		} else if (held.current) ref.current?.dismiss(leave());
+		} else if (held.current) {
+			held.current = false;
+			ref.current?.dismiss(leave());
+		}
 	}, [open]);
 	const parts: Parts = {
 		title,
@@ -291,6 +294,7 @@ export function SheetLayer({
 			// commit; the mechanism is undiagnosed.
 			onChange={(index) => setSettled(index >= 0)}
 			onDismiss={() => {
+				if (!held.current) return;
 				held.current = false;
 				onClose();
 			}}
@@ -306,7 +310,7 @@ export function SheetLayer({
 			snapPoints={full ? FULL : undefined}
 			animationConfigs={settled ? timings.release : timings.enter}
 		>
-			<SheetBody view={view} scrolls={scrolls} footed={footed}>
+			<SheetBody view={view} scrolls={tall} footed={footed}>
 				{children}
 			</SheetBody>
 		</BottomSheetModal>

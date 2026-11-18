@@ -142,7 +142,7 @@ function OptionText({
 
 // The sheet a `Picker` opens: a menu sheet titled `title`, its
 // rows edge to edge at the card's inset under their group labels, the chosen
-// one ticked, a search leading them past six options (the sheet then stands
+// one ticked, a search leading them past `SEARCH_PAST` options (the sheet then stands
 // full height, the search in its head) and an act (the act
 // that makes a new option) under a hairline after them; a pick or the act
 // closes it.
@@ -290,7 +290,6 @@ export function PickSheet<V extends string | null>({
 				onClose={onClose}
 				title={title}
 				tall={searching}
-				scrolls={searching}
 				head={
 					<SheetHead
 						title={title}

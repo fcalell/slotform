@@ -19,16 +19,19 @@ import { type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useAct } from "../../lib/act";
 import { cn } from "../../lib/cn";
-import { type FootRegionValue, FootReturn, tokenPx } from "../../lib/container";
+import {
+	type FootRegionValue,
+	FootReturn,
+	useTokenPx,
+} from "../../lib/container";
 import { FieldClaim, FieldNameContext } from "../../lib/field";
 import { Scroll, type ScrollRef } from "../../lib/hosts";
 import { blockIn, FadingView } from "../../lib/motion";
-import { useCSSVariable } from "../../lib/theme";
 import { ActionBarBase } from "../action-bar/base";
 import { Button } from "../button";
 import { type FormProps, useDerivedForm } from "../form";
 import { type SheetSubmit, submitAct } from "./base";
-import { SheetForm, useClearOnOpen } from "./form";
+import { SheetForm } from "./form";
 
 // The sheet fills its foot, which bounds it: the head and the foot keep their
 // height and the body scrolls in what is left. The foot centres what it holds,
@@ -40,18 +43,17 @@ const HEAD_MAIN = "flex-1 min-w-0";
 // heading line tall, centred on the line; a taller act overflows it centred.
 const FIRST_LINE = "shrink-0 justify-center items-center";
 const TITLE = "shrink";
-const BODY = "shrink";
 // In a foot the body scrolls past two fifths of the foot's region and its
 // content keeps three rows, so a body shorter than three rows pads to them
 // while the scroller itself yields below them where the region is short. Yoga
 // has no container units: the region's height comes from its layout
 // (the `region` the Pane or Thread measures), the head and foot from theirs,
 // and the row from its token.
+const BODY = "shrink";
 const FOOT = "shrink-0";
 
 /** What a docked `Sheet` draws: the public `Sheet`'s props, standing in a foot, and the foot's measured `region`. Outside the package's exports: a `Pane` and a `Thread` draw it for their `sheet`. */
 interface SheetDockedProps<P extends ProcedureCall = ProcedureCall> {
-	open: boolean;
 	onClose: () => void;
 	title: string;
 	description?: string;
@@ -70,10 +72,9 @@ interface SheetDockedProps<P extends ProcedureCall = ProcedureCall> {
 // hold their height, and each page opens at its top; the foot holds the submit,
 // and under it one kept line for a blocked reason or a failed
 // run's sentence. The first field of each page takes focus as it mounts, and
-// leaving sets the foot's claim for the input that returns. Closed it draws
-// nothing.
+// leaving sets the foot's claim for the input that returns. Its holder mounts it
+// only while the sheet is open, so closing drops its state.
 export function SheetDocked<P extends ProcedureCall>({
-	open,
 	onClose,
 	title,
 	description,
@@ -88,14 +89,13 @@ export function SheetDocked<P extends ProcedureCall>({
 	// and closing is held while it runs.
 	const acting = useAct<number>("line");
 	const derived = useDerivedForm(form, false);
-	useClearOnOpen(open, derived.clear);
 	// Closing runs in the screen's block move: the sheet fades out on `fast` as
 	// the body above takes the room back.
 	const close = () => {
 		if (!acting.holds) onClose();
 	};
 	const claim = useContext(FootReturn);
-	const floor = DOCKED_FLOOR_ROWS * tokenPx(useCSSVariable("--spacing-row"));
+	const floor = DOCKED_FLOOR_ROWS * useTokenPx("--spacing-row");
 	// The head's and the foot's heights, which the sheet pins.
 	const [head, setHead] = useState(0);
 	const [pinFoot, setPinFoot] = useState(0);
@@ -110,13 +110,11 @@ export function SheetDocked<P extends ProcedureCall>({
 					}),
 				}
 			: undefined;
-	const line = {
-		height: Number.parseFloat(String(useCSSVariable("--leading-heading") ?? 0)),
-	};
+	const line = { height: useTokenPx("--leading-heading") };
 	const held = useRef<TextInputInstance>(null);
 	const scroll = useRef<ScrollRef>(null);
 	const [touchedValue, setTouched] = useTouchState();
-	const page = usePageTurn(open, title, description, () => setTouched(false));
+	const page = usePageTurn(true, title, description, () => setTouched(false));
 	// A new page opens at its top, not where the last one was scrolled to.
 	useEffect(() => {
 		scroll.current?.scrollTo({ y: 0, animated: false });
@@ -127,7 +125,6 @@ export function SheetDocked<P extends ProcedureCall>({
 		},
 		[claim],
 	);
-	if (!open) return null;
 	return (
 		<TouchedContext.Provider value={touchedValue}>
 			<FieldNameContext.Provider value={title}>

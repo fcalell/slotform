@@ -97,7 +97,7 @@ export type PickerListBody<V extends string, T> = OptionSource<T, V> & {
 };
 
 // What every list fit holds: its name, its fit and its body.
-export type PickerListShape<V extends string, T> = PickerListBody<V, T> &
+type PickerListShape<V extends string, T> = PickerListBody<V, T> &
 	Closed &
 	Fielded & {
 		fit: "list";
@@ -120,7 +120,7 @@ export type PickerListShape<V extends string, T> = PickerListBody<V, T> &
 // paints the radios, inert, until its read lands and follows it until the
 // viewer chooses. Once its read ended the control stands with no value and a
 // change says why instead.
-export type PickerListOneProps<
+type PickerListOneProps<
 	V extends string = string,
 	T = unknown,
 > = PickerListShape<V, T> & {
@@ -132,7 +132,7 @@ export type PickerListOneProps<
 
 // A list of several choices: the chosen set, check rows. A selection of it
 // paints as one choice, the placeholder being no array.
-export type PickerListSetProps<
+type PickerListSetProps<
 	V extends string = string,
 	T = unknown,
 > = PickerListShape<V, T> & {
@@ -170,7 +170,7 @@ export interface PickerSegmentsProps<V extends string = string>
 // whose href is the route's path or its nearest parent (expo-router's
 // pathname) is selected, and a press opens its href. It holds no value and
 // hears no change: the route is its value.
-export interface PickerTabsProps extends Closed {
+interface PickerTabsProps extends Closed {
 	fit: "segments";
 	options: readonly LinkSegment[];
 	label?: never;
@@ -188,33 +188,7 @@ export type PickerProps<V extends string | null = string, T = unknown> =
 	| PickerSegmentsProps<Extract<V, string>>
 	| PickerTabsProps;
 
-// The pick of a place's options. Placed alone, the field fit, a list and
-// choice segments draw their field (the label over them, the description or
-// the error under); in a `FormField`'s children or a `Toolbar`, and at the
-// `bar` and `row` fits, which read their label in their box, they are bare,
-// the label their accessible name; the tabs of a place are links, no control,
-// and take none. As a menu, a pick that applies at once,
-// outside a form: the field box showing the chosen label (the empty choice,
-// and no choice, in the placeholder's ink), or a row's value and a chevron in
-// a control-radius box; with no value either shows `placeholder` (else
-// `label`) in the placeholder's ink, and an option carrying a state shows as
-// its status, one carrying a glyph leads with it. A tap opens the sheet of
-// options titled `label`, `act` under a hairline after them. As a `list`
-// (`fit="list"`), option rows on a hairline card, each the Checkbox (several
-// choices) or the radio (one choice, a radiogroup) on its label's first line,
-// the option's `leading` (a glyph, a status's mark or an avatar) after it, the
-// recommended mark under the label as a badge (a glyph and its word, one box
-// that never breaks inside), then the option's `line` as plain text; the pressed
-// row washes, the checked box or the ringed dot is the choice. The children
-// stand under the first chosen option. Placed alone it draws its field;
-// `headed`, the body of a titled `Section`, it draws none, the title naming
-// it. Static `options` never paint; `items`
-// paint `PAINT_ROWS` rows in the regions `option` declares while their read
-// waits, and a `value` selection paints the marks, inert. A failed or missing
-// `items` read says so in a line under the list. As `segments`
-// (`fit="segments"`), a view switch over a few options, one chosen: a radio
-// group. Given `href`s and no values, the segments are links, the tabs of a
-// place.
+// The pick of a place's options: docs/architecture/ui-core/components.md, "Picker".
 export function Picker<V extends string | null = string>(
 	props: PickOneProps<V>,
 ): ReactElement;

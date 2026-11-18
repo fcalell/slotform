@@ -92,7 +92,7 @@ export function PaneHead(props: {
 	// A painted act is inert; one whose read ended stands blocked: docs/architecture/ui-core/acts.md, "Blocked and pending acts".
 	const built = actionAt.map((one, at) => {
 		if (!one.painted) {
-			return <Button glyph key={one.value.label} {...asIconAct(one.value)} />;
+			return <Button glyph key={at} {...asIconAct(one.value)} />;
 		}
 		const ended = endedReason(words, one.phase);
 		return (
