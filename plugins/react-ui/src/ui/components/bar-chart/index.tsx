@@ -268,7 +268,6 @@ export type BarChartProps<T = unknown> = Closed & {
 
 const NONE: readonly never[] = [];
 
-// A bar's part by key; a key it lacks is 0.
 const part = (bar: Bar, key: string) => bar.parts?.[key] ?? 0;
 
 // One bar's region in the plot: the bar, or its parts stacked, standing on the

@@ -12,14 +12,7 @@ import {
 	TOOLTIP,
 	TOOLTIP_CUT,
 } from "@fcalell/ui-core/variants";
-import {
-	type ComponentProps,
-	type ReactElement,
-	type ReactNode,
-	use,
-	useContext,
-} from "react";
-import type { Closed } from "../../lib/closed.ts";
+import { type ReactElement, type ReactNode, use, useContext } from "react";
 import { spacing, useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { PAINT_BOX } from "../../lib/paint.tsx";
@@ -29,29 +22,23 @@ import { Swap } from "../../lib/swap.tsx";
 import { Icon } from "../icon/index.tsx";
 import { Spinner } from "../spinner/index.tsx";
 import { Turn } from "../turn.tsx";
+import { BLOCKED, FADE_IN, FADE_OUT, type Handed, PRESS } from "./look.ts";
 
 const BOX = "relative inline-flex items-center justify-center shrink-0";
 // Inside a field or a clipping frame the ring is drawn inset.
 const INSET = "focus-visible:-outline-offset-2";
 // A trigger stays pressed while its popup is open: docs/architecture/plugins/react-ui.md, "Icon acts".
-const PRESS =
+const GLYPH_PRESS =
 	"hover:bg-wash-hover hover:text-ink-body active:bg-wash-press active:text-ink-body aria-expanded:bg-wash-press aria-expanded:text-ink-body";
 // A disclosure (a branch's fold) is expanded while its body shows, which is no
 // popup: its chevron stands bare in the meta ink open or closed, as a
 // Section's fold toggle's does, and only turns.
 const DISCLOSE =
 	"hover:bg-wash-hover hover:text-ink-body active:bg-wash-press active:text-ink-body";
-const DISABLED = "aria-disabled:text-ink-disabled";
-// The primary glyph's fill answers the pointer as a primary Button's does, and
-// blocked reads in the meta ink on the disabled fill.
-const PRIMARY_PRESS = "hover:bg-act-accent-hover active:bg-act-accent-press";
-const PRIMARY_BLOCKED =
-	"aria-disabled:bg-fill-disabled aria-disabled:text-ink-meta";
-// Pending, the glyph fades out and the spinner in once `--act-delay` has run
-// (`globals.css`).
-const FADE_OUT = "opacity-0 animate-act-out";
-const SPINNER_LAYER =
-	"absolute inset-0 flex items-center justify-center animate-act-in";
+const SPINNER_LAYER = cn(
+	"absolute inset-0 flex items-center justify-center",
+	FADE_IN,
+);
 // Painted, the glyph keeps its place and is filled in its own box, the button
 // around it staying as bare as the loaded one: an icon act is a glyph, so its
 // waiting shape is a glyph's worth of fill where it will stand, never a filled
@@ -62,10 +49,6 @@ const POSITIONER = "z-(--layer-popover)";
 // The hover rest before the name shows, a beat longer than a pointer passing
 // over the act and short enough that a rested pointer is answered.
 export const SHOW_AFTER = 500;
-
-// The press a public Button maps from `onAct`, or the props a Base UI
-// trigger hands through its `render`: never a style channel.
-type Handed = Omit<ComponentProps<"button">, keyof Closed | "children">;
 
 /** The icon act every Button's icon form and every popup trigger renders. Outside the package's exports: a molecule hands it to a trigger's `render`. */
 export function IconButtonBase({
@@ -104,17 +87,17 @@ export function IconButtonBase({
 	const disabled =
 		useContext(FieldDisabled) || handed.disabled === true || pending === true;
 	const inset = framed || fit === "field";
+	// The primary glyph's fill answers the pointer and reads blocked as a
+	// primary Button's does; any other glyph as a secondary one.
+	const kind = primary ? "primary" : "secondary";
+	const rest = open === undefined ? GLYPH_PRESS : DISCLOSE;
 	const look = painted
 		? undefined
 		: disabled || blocked
-			? primary
-				? PRIMARY_BLOCKED
-				: DISABLED
+			? BLOCKED[kind]
 			: primary
-				? PRIMARY_PRESS
-				: open === undefined
-					? PRESS
-					: DISCLOSE;
+				? PRESS.primary
+				: rest;
 	return (
 		<Named label={label}>
 			<BaseButton
@@ -251,7 +234,7 @@ export function IconButtonLink(props: {
 				onClick={follow}
 				tabIndex={props.tabIndex}
 				aria-label={props.label}
-				className={cn(iconButton({ fit: props.fit }), BOX, PRESS)}
+				className={cn(iconButton({ fit: props.fit }), BOX, GLYPH_PRESS)}
 			>
 				<Icon name={props.icon} fit="control" />
 			</a>

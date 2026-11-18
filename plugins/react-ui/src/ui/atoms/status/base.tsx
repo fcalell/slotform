@@ -6,14 +6,12 @@ import {
 	STATUS,
 	STATUS_LABEL,
 	stateChip,
-	statusDot,
 } from "@fcalell/ui-core/variants";
-import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
+import { Painted } from "../../lib/paint.tsx";
 import { StatusDot } from "./dot.tsx";
 
 const BOX = "inline-flex items-center min-w-0 max-w-full";
 const WORD = "truncate";
-const DOT = "shrink-0";
 /** What every status draws: the public `Status`, or `painted` (the dot's box and a word's filler while the status's data is not here, inert). A state chip (a status given its own word) is a chip: the caption line between its hairlines, wherever it stands. Outside the package's exports. */
 export function StatusBase(
 	props:
@@ -28,10 +26,7 @@ export function StatusBase(
 	if (props.painted)
 		return (
 			<span inert className={cn(STATUS, BOX)}>
-				<span
-					aria-hidden
-					className={cn(statusDot({ tone: "done" }), DOT, PAINT_BOX)}
-				/>
+				<StatusDot tone="done" painted />
 				<span className={cn(STATUS_LABEL, WORD)}>
 					<Painted role="word" />
 				</span>

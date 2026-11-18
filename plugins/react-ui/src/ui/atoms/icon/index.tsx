@@ -10,7 +10,7 @@ const GLYPH = "shrink-0";
 
 // Every Lucide name to its glyph; the annotation fails the build when the
 // package lacks a name ui-core's `lucide` carries.
-export const GLYPHS: Record<IconName, lucide.LucideIcon> = lucide;
+const GLYPHS: Record<IconName, lucide.LucideIcon> = lucide;
 
 /** A Lucide glyph. */
 interface IconProps extends Closed {

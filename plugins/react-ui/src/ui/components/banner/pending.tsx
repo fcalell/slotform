@@ -6,8 +6,7 @@ import {
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
 import { usePending } from "@fcalell/ui-core/react/clock";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import {
 	PENDING_BAR,
 	PENDING_FILL,
@@ -18,13 +17,13 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
-import { Reason } from "../../atoms/button/reason.tsx";
 import { Spinner } from "../../atoms/spinner/index.tsx";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useReducedMotion } from "../../lib/media.ts";
 import type { VarStyle } from "../../lib/style.ts";
 import { ActFace } from "../button/face.tsx";
+import { useReasonLine } from "../row/acts.tsx";
 
 // The bar over a blocked act's reason, at the end on the desktop; on touch
 // the track stacks over the act as an ActionBar's acts do.
@@ -74,10 +73,8 @@ export interface PendingBarProps extends Closed {
 /** One line on the group ground: the spinner, or a meta-ink line along the track's foot filling toward `until` with the time left beside the sentence, which alone is the live region; the act beside it on the desktop, under it on touch. */
 export function PendingBar({ sentence, until, act }: PendingBarProps) {
 	const { end, attempt, now } = usePending(until);
-	const { touched } = useTouched();
 	const blocked = act && "blocked" in act ? act.blocked : undefined;
-	const [pressed, press] = usePressed(blocked);
-	const host = blocked === undefined ? undefined : press;
+	const { host, line } = useReasonLine(blocked);
 	return (
 		<div className={cn(PENDING_BAR, BAR)}>
 			<div className={cn(PENDING_ROW, ROW)}>
@@ -106,9 +103,7 @@ export function PendingBar({ sentence, until, act }: PendingBarProps) {
 					</ReasonHostContext>
 				) : null}
 			</div>
-			{blocked === undefined ? null : (
-				<Reason shown={pressed || touched}>{blocked}</Reason>
-			)}
+			{line}
 		</div>
 	);
 }

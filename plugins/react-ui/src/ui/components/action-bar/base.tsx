@@ -31,14 +31,10 @@ import { MenuBase } from "../menu/base.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import type { ActionBarProps } from "./index.tsx";
 
-// The bar is the `acts` container, as wide as the block it closes, and its
-// acts lay out by that width alone (`acts-stacked:`, up to the auth column's
-// width): stacked, one act per row across the block, the filled act on top;
-// wider, the acts at their width at the block's end, wrapped to a further row
-// when they need more, the filled act last. The tree holds the acts in reading
-// order, the filled act last, so a stacked bar runs in reverse to draw it on
-// top. The line under the acts (a blocked act's reason, a failed run's
-// sentence) stands at the filled act's edge.
+// The bar is the `acts` container, its acts laid out by its width alone
+// (`acts-stacked:`): plugins/react-ui/guide/rules.md, "A record's decision is
+// an `ActionBar`". The tree holds the acts in reading order, the filled act
+// last, so a stacked bar runs in reverse to draw it on top.
 const BAR = "@container/acts flex flex-col w-full";
 const ACTS =
 	"flex flex-wrap items-center justify-end min-w-0 acts-stacked:flex-col-reverse acts-stacked:items-stretch acts-stacked:*:w-full";

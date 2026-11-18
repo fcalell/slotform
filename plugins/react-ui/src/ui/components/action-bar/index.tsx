@@ -14,7 +14,7 @@ export interface ActionBarProps extends Closed {
 	pending?: PendingBarProps;
 }
 
-/** The acts row over its line, beside a chosen count when `chosen` is set; while one act is pending the others ignore the press. It holds its acts' attempt. The width of the block it closes lays it out, never the viewport: up to the auth column's width its acts stack one per row across the block, the filled act on top; wider, they stand at their width at the block's end, the filled act last. A blocked act is silent until it is pressed, or until the form or sheet it stands in has taken input; then its reason stands in the line under the acts, at the filled act's edge, and the line leaves when the reason does. */
+/** The acts row over its line, beside a chosen count when `chosen` is set; while one act is pending the others ignore the press. It holds its acts' attempt. The width of the block it closes lays it out, never the viewport, and a blocked act's reason stands in the line under the acts: plugins/react-ui/guide/rules.md, "A record's decision is an `ActionBar`". */
 export function ActionBar(bar: ActionBarProps) {
 	return <ActionBarBase {...bar} />;
 }

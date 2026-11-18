@@ -11,20 +11,11 @@ import {
 import type { ReactNode } from "react";
 import { follow } from "../../lib/navigate.ts";
 import { Icon } from "../icon/index.tsx";
+import { BOX, LABEL, PRESS } from "./look.ts";
 
-export const BOX =
-	"relative inline-flex items-center justify-center max-w-full min-w-0";
-export const LABEL = "truncate";
 // An act's anchor keeps to its words in a stretching parent (a Gate's step), as a Button does in its stack; the `field` fit that spans its container comes after it and wins.
 const KEEPS = "w-fit";
 const GLYPH = "shrink-0";
-export const PRESS: Record<ButtonAct, string> = {
-	primary: "hover:bg-act-accent-hover active:bg-act-accent-press",
-	danger: "hover:bg-act-danger-hover active:bg-act-danger-press",
-	secondary: "hover:bg-wash-hover active:bg-wash-press",
-	destructive: "hover:bg-wash-hover active:bg-wash-press",
-	quiet: "hover:bg-wash-hover active:bg-wash-press",
-};
 
 // The accent anchor: inline is underlined at rest and plain under the pointer;
 // on its own the other way round, on the target height. The line is always

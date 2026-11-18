@@ -25,8 +25,6 @@ import {
 	chipDot,
 	FIGURES,
 	ITEM_PILL_ACT,
-	ROW_FLAG,
-	ROW_WARNING,
 	text,
 	YIELDS_LAST_EACH,
 } from "@fcalell/ui-core/variants";
@@ -36,6 +34,7 @@ import { follow } from "../../lib/navigate.ts";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 import { IconBase } from "../icon/index.tsx";
 import { StatusDot } from "../status/dot.tsx";
+import { flagGlyph, says, warnGlyph, wordless } from "./marks.tsx";
 
 // A badge is a flex box of its glyph and its words: the box never breaks, the
 // words are cut inside it. A glyph is one box that keeps its size.
@@ -131,20 +130,6 @@ export function BadgesLine(props: {
 	);
 }
 
-/** The warning glyph, in the warn ink. */
-function WarnGlyph({ painted }: { painted?: boolean }) {
-	return (
-		<span className={cn(ROW_WARNING, GLYPH)}>
-			<IconBase
-				name="TriangleAlert"
-				fit="meta"
-				stroke="line"
-				painted={painted}
-			/>
-		</span>
-	);
-}
-
 /** A boolean mark's glyph: the required ring outlined with its centre filled (never a chip's solid dot), or the flag's icon, in the meta ink. */
 function MarkGlyph({ mark }: { mark: RowMark }) {
 	if ("ring" in mark)
@@ -153,11 +138,7 @@ function MarkGlyph({ mark }: { mark: RowMark }) {
 				<span className={BADGE_RING_CENTRE} />
 			</span>
 		);
-	return (
-		<span aria-hidden className={cn(ROW_FLAG, GLYPH)}>
-			<IconBase name={mark.flag} fit="meta" stroke="line" />
-		</span>
-	);
+	return flagGlyph(mark.flag);
 }
 
 /** A status's badge: its tone's mark (the dot, the running dots, the waiting ring), then its word, the tone's own word where it brings none. A status with an empty label is its mark alone, named by the tone's word. `painted` is the mark's box and a word's filler. */
@@ -181,11 +162,10 @@ export function StatusBadge(props: { status: StatusMark; painted?: boolean }) {
 	);
 }
 
-/** A warning's badge: the warn glyph and its phrase. */
 export function WarningBadge(props: { warning: string; painted?: boolean }) {
 	return (
 		<Badge
-			glyph={<WarnGlyph painted={props.painted} />}
+			glyph={warnGlyph({ painted: props.painted })}
 			painted={props.painted}
 		>
 			{props.warning}
@@ -261,15 +241,13 @@ export function FactBadge(props: { fact: Fact; painted?: boolean }) {
 		return <WarningBadge warning={fact.warning} painted={painted} />;
 	if (isChipFact(fact)) return painted ? null : <ChipBadge chip={fact} />;
 	if (isMarkFact(fact)) {
-		if (painted || fact.words === false) return null;
-		if ("ring" in fact && !fact.ring) return null;
+		if (painted || wordless(fact) || !says(fact)) return null;
 		return <MarkBadge mark={fact} />;
 	}
 	if (painted) return <Badge painted />;
 	return <WordsBadge fact={fact} />;
 }
 
-/** A badge's filler: a fact that is not here yet, at the loaded badge's size. */
 export function PaintedBadge() {
 	return <Badge painted />;
 }

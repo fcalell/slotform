@@ -1,13 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { glyphTier, minZoomFor, routeSide } from "./floor.ts";
-import { type Box, crosses, routeEdges } from "./geometry.ts";
-
-const overlaps = (a: Box, b: Box) =>
-	a.x < b.x + b.width &&
-	b.x < a.x + a.width &&
-	a.y < b.y + b.height &&
-	b.y < a.y + a.height;
+import { type Box, crosses, overlaps, routeEdges } from "./geometry.ts";
 
 test("two edge chips never print over each other", () => {
 	// A fan-out whose two legs run a few pixels apart (two handoffs to
@@ -200,6 +194,7 @@ test("under the text floor a loop's grown head never covers the step above it", 
 		for (const [id, box] of tier.cards) {
 			const routed = tier.boxes.get(id);
 			assert.ok(routed);
+			assert.equal(routed.x + routed.width / 2, box.x + box.width / 2);
 			assert.equal(routed.y + routed.height / 2, box.y + box.height / 2);
 		}
 	}

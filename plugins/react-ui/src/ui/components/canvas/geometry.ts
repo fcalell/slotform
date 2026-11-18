@@ -229,14 +229,12 @@ export function leftPads(
 	return out;
 }
 
-// The part of a group's frame its head covers: the top `head` pixels.
 const headBand = (frame: Box, head: number): Box => ({
 	...frame,
 	height: head,
 });
 
-// Whether two boxes share any area.
-const overlaps = (a: Box, b: Box): boolean =>
+export const overlaps = (a: Box, b: Box): boolean =>
 	a.x < b.x + b.width &&
 	b.x < a.x + a.width &&
 	a.y < b.y + b.height &&
@@ -343,7 +341,6 @@ export function bendRoute(
 	return [from, { x: from.x, y }, { x: to.x, y }, to];
 }
 
-// The vertical legs of a polyline.
 export function verticalLegs(points: readonly CanvasPoint[]): Leg[] {
 	const legs: Leg[] = [];
 	points.forEach((point, index) => {
@@ -548,7 +545,7 @@ export function routeEdges(input: RouteInput): Routes {
 		);
 		let bend: number | undefined;
 		let points: CanvasPoint[] | undefined;
-		if (from.x !== to.x && to.y >= from.y + 2 * pair) {
+		if (from.x !== to.x && end.y >= from.y + 2 * pair) {
 			// The bend stands a `pair` under the source, which leaves the leg under
 			// it the whole of a chip's room (`layerGap`); else in the gap above the
 			// target.

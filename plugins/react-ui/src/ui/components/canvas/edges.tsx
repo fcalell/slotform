@@ -46,10 +46,13 @@ export function Stroke({
 				markerWidth={ARROW}
 				markerHeight={ARROW}
 				refX={ARROW_REF}
-				refY={4}
+				refY={ARROW / 2}
 				orient="auto"
 			>
-				<path d="M0 0 L8 4 L0 8 Z" fill="currentColor" />
+				<path
+					d={`M0 0 L${ARROW} ${ARROW / 2} L0 ${ARROW} Z`}
+					fill="currentColor"
+				/>
 			</marker>
 			<path
 				d={path}

@@ -411,8 +411,8 @@ and a reader draws again.
 
 - **Layout.** A layer gap holds the router's own space (`canvas/elk.ts`): a forward edge bends a
   `pair` under its source, and under the bend a label chip hangs a `pair` below it with a `pair` of
-  air and an arrowhead beneath it before the next node. With no chip the gap is the bend's `pair`, a
-  `pair` and the arrowhead, never under `floor`.
+  air and an arrowhead beneath it before the next node. With no chip the gap is the bend's `pair`, two
+  `pair`s and the arrowhead, never under `floor`.
 - **Text floor.** A node's smallest text is the caption role, and its size is the text floor: the
   same number, so a node draws its words from zoom 1 up and its glyph alone below. Both are read from
   the type scale at the desktop body size.

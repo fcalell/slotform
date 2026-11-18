@@ -24,7 +24,6 @@ export const OVERVIEW_FLOOR = 0.5;
 export const UNZOOM_VAR = "--canvas-unzoom";
 export const UNZOOM = { scale: `var(${UNZOOM_VAR})` };
 
-// Whether text of `text` px at zoom 1 renders under `floor` px at `zoom`.
 export function belowFloor(zoom: number, text: number, floor: number): boolean {
 	return zoom * text < floor;
 }
@@ -124,7 +123,6 @@ export function routeSide(zoom: number, glyph: number, step: number): number {
 	return Math.ceil(glyph / zoom / step) * step;
 }
 
-// Each box as a square of `side`, on the same centre: where its glyph stands.
 function glyphBoxes(
 	boxes: ReadonlyMap<string, Box>,
 	side: number,

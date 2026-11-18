@@ -149,7 +149,7 @@ async function drawn(density: Density, inputs: readonly ElkInput[]) {
 		if (size) boxes.set(id, { ...at, ...size });
 	}
 	const ids = new Set(last.edges.map((edge) => edge.id));
-	return routeEdges({
+	const { routes } = routeEdges({
 		boxes,
 		edges: last.edges,
 		back: [],
@@ -162,7 +162,9 @@ async function drawn(density: Density, inputs: readonly ElkInput[]) {
 		pair: density.pair,
 		ports: false,
 		port: 0,
-	}).routes;
+	});
+	assert.equal(routes.size, last.edges.length, "every edge is routed");
+	return routes;
 }
 
 // Each chip stands a `pair` beside a leg of its own edge, within the leg, and

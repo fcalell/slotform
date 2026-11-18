@@ -8,14 +8,21 @@ import {
 	button,
 	buttonLabel,
 } from "@fcalell/ui-core/variants";
-import { type ComponentProps, use } from "react";
-import { BOX, LABEL, PRESS } from "../../atoms/button/link.tsx";
+import { use } from "react";
+import {
+	BLOCKED,
+	BOX,
+	FADE_IN,
+	FADE_OUT,
+	type Handed,
+	LABEL,
+	PRESS,
+} from "../../atoms/button/look.ts";
 import { Reason } from "../../atoms/button/reason.tsx";
 import { CountBase } from "../../atoms/count/base.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { Spinner } from "../../atoms/spinner/index.tsx";
 import { useAct } from "../../lib/act.ts";
-import type { Closed } from "../../lib/closed.ts";
 import { ActInert, endSubmit, SubmitContext } from "../../lib/form.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
 import { ActSheet } from "../sheet/act.tsx";
@@ -23,15 +30,8 @@ import type { ButtonAttemptProps } from "./index.tsx";
 
 const STACK =
 	"flex flex-col items-start gap-gap min-w-0 max-w-full *:max-w-full";
-// The props a Base UI trigger hands through its `render` (a popup's trigger),
-// never a style channel.
-type Handed = Omit<ComponentProps<"button">, keyof Closed | "children">;
 const GLYPH = "shrink-0";
 const PENDING = "opacity-0";
-// Pending, the label and glyph fade out and the fill and spinner fade in once
-// `--act-delay` has run (`globals.css`).
-const FADE_OUT = "opacity-0 animate-act-out";
-const FADE_IN = "animate-act-in";
 // Painted, the act keeps its loaded box and draws none of its content.
 const HIDDEN = "invisible";
 const SPINNER_LAYER =
@@ -43,14 +43,6 @@ const FILL_PENDING: Record<ButtonAct, string> = {
 	secondary: "",
 	destructive: "",
 	quiet: "",
-};
-
-const BLOCKED: Record<ButtonAct, string> = {
-	primary: "aria-disabled:bg-fill-disabled aria-disabled:text-ink-meta",
-	danger: "aria-disabled:bg-fill-disabled aria-disabled:text-ink-meta",
-	secondary: "aria-disabled:text-ink-disabled",
-	destructive: "aria-disabled:text-ink-disabled",
-	quiet: "aria-disabled:text-ink-disabled",
 };
 
 // A filled act's label reads in the meta ink on the disabled fill, which holds
