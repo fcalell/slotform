@@ -12,7 +12,7 @@ stack screens dev   # serves the workbench (--port 6006)
 stack screens test  # checks the screens a changed file reaches; narrow it with --screen, --state, --width, --mode; --shots <dir> saves a PNG of each (see The test run)
 stack screens shoot --url <app> --route /,/x   # opens routes of a live app, shoots and judges each (see Driving a live app)
 stack screens drive <plan.json> --url <app>    # runs a plan of steps in a live app (see Driving a live app)
-stack screens serve [--entry <file>] [--keep]   # runs the real server on a scratch database, seeded (see The seeded server)
+stack screens serve [--port <n>] [--entry <file>] [--keep]   # runs the real server on a scratch database, seeded (see The seeded server)
 stack screens browser [stop]                   # starts or ends the shared Chrome (see The shared browser)
 ```
 
@@ -28,9 +28,8 @@ Every command drives one headless Chrome per machine, over the DevTools protocol
 command connects to it, or starts it under a lock when none runs, so two commands at once share one
 Chrome; a stale file (a dead pid, a port that does not answer) is replaced. `chrome.json` also holds
 `kept` when `stack screens browser` started the browser. A `chrome.lock` file, taken by exclusive
-create, orders every start and every last-one-out check; a lock whose owner is gone is removed. A
-connect that fails because the browser has just closed starts it once more. Each command opens its
-own browser context and its tabs inside it, and disposes the context when it ends, on failure and
+create, orders every start and every last-one-out check; a lock whose owner is gone is removed. Each
+command opens its own browser context and its tabs inside it, and disposes the context when it ends, on failure and
 on SIGINT or SIGTERM, so commands share the browser and nothing else. A browser a command started
 closes when the last context is gone. `stack screens browser` starts one that stays, for a
 session of many short commands; `stack screens browser stop` ends it. Every protocol call has a
@@ -354,10 +353,13 @@ stack screens shoot --url http://localhost:3000 --route /,/deploys --width 320,1
 body is still open are held by design and do not count; a page still busy at the cap is shot and the run
 prints a note, which does not fail it), then writes `<dir>/<route-slug>-<width>-<mode>.png` (`/` is `index`; the default
 directory is `.stack/shots`; `--full` grows the shot as above; `--open` adds a shot per route with the
-control pressed). Defaults: widths `320,1920`, mode `dark`. A guarded route needs a session:
-`--cookie name=value` sets one, `--sign-in <url>` opens a URL first in the same context, which sets it.
+control pressed). Defaults: widths `320,1920`, mode `dark`; a width is 200 to 4000 px. A route that fails
+(it does not load, its `--open` control is not found) is reported with its path, and the run goes on to
+the next. A guarded route needs a session: `--cookie name=value` sets one, `--sign-in <url>` is opened
+once first in a tab of the same context, which sets it for every tab after.
 
-`drive <plan.json>` runs a plan once for each viewport of `each` (default 320 and 1920, dark):
+`drive <plan.json>` runs a plan once for each viewport of `each` (default 320 and 1920, dark; the widths
+and modes `shoot` takes):
 
 ```json
 { "each": [{ "width": 320, "mode": "dark" }],

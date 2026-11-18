@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
+import { openedPart, slug } from "../slug.ts";
 import type { ControlPoint } from "../ui/page.ts";
 import { press } from "../ui/press.ts";
 import { HEIGHT, SHOT_MAX_HEIGHT } from "../widths.ts";
@@ -29,13 +30,6 @@ export interface Target {
 export const messageOf = (error: unknown): string =>
 	error instanceof Error ? error.message : String(error);
 
-export const slug = (text: string): string =>
-	text
-		.toLowerCase()
-		.split(/[^a-z0-9]+/)
-		.filter(Boolean)
-		.join("-");
-
 // A route's name in a file: `/` is `index`, `/deploys/abc?x=1` is
 // `deploys-abc-x-1`.
 export const routeSlug = (route: string): string => slug(route) || "index";
@@ -45,27 +39,42 @@ export const shotName = (
 	width: number,
 	mode: string,
 	opened?: string,
-): string =>
-	`${name}-${width}-${mode}${opened ? `-open-${slug(opened)}` : ""}.png`;
+): string => `${name}-${width}-${mode}${openedPart(opened)}.png`;
+
+// The viewports of a run without its own: a phone and a monitor, dark.
+export const DEFAULT_WIDTHS = [320, 1920];
+export const DEFAULT_MODE = "dark";
+
+// A viewport width in px; `at` names the value and where it came from.
+export function parseWidth(value: unknown, at: string): number {
+	if (
+		typeof value !== "number" ||
+		!Number.isInteger(value) ||
+		value < 200 ||
+		value > 4000
+	)
+		throw new Error(`${at} is not a width in px (200 to 4000)`);
+	return value;
+}
+
+// A value of `prefers-color-scheme`; `at` names the value and where it came
+// from.
+export function parseMode(value: unknown, at: string): string {
+	if (value !== "light" && value !== "dark")
+		throw new Error(`${at} is not light or dark`);
+	return value;
+}
 
 export function parseWidthList(value: unknown): number[] {
 	const items = parseList(value);
-	if (items.length === 0) return [320, 1920];
-	return items.map((item) => {
-		const width = Number(item);
-		if (!Number.isInteger(width) || width < 200 || width > 4000)
-			throw new Error(`--width: ${item} is not a width in px (200 to 4000)`);
-		return width;
-	});
+	if (items.length === 0) return [...DEFAULT_WIDTHS];
+	return items.map((item) => parseWidth(Number(item), `--width: ${item}`));
 }
 
 export function parseModes(value: unknown): string[] {
-	// The values of `prefers-color-scheme`.
 	const modes = parseList(value);
-	const bad = modes.filter((mode) => mode !== "light" && mode !== "dark");
-	if (bad.length > 0)
-		throw new Error(`--mode: ${bad.join(", ")} is not light or dark`);
-	return modes.length === 0 ? ["dark"] : modes;
+	if (modes.length === 0) return [DEFAULT_MODE];
+	return modes.map((mode) => parseMode(mode, `--mode: ${mode}`));
 }
 
 export function parseCookie(
@@ -109,8 +118,25 @@ export function target(flags: Record<string, unknown>, cwd: string): Target {
 	};
 }
 
-// A tab of the app at one width and mode, with the page code in it, the
-// cookie set, and the sign-in link, if any, followed.
+// Follows the sign-in link, if any, in a tab of its own: the session it sets
+// holds for every tab of the context.
+export async function signIn(
+	scope: { tab(): Promise<Tab> },
+	target: Target,
+): Promise<void> {
+	if (!target.signIn) return;
+	const tab = await scope.tab();
+	try {
+		await prepare(tab, target.cwd);
+		await tab.goto(new URL(target.signIn, target.url).href);
+		await settle(tab, target.settle);
+	} finally {
+		await tab.close();
+	}
+}
+
+// A tab of the app at one width and mode, with the page code in it and the
+// cookie set.
 export class Page {
 	findings: string[] = [];
 	// What the run says and does not fail on: a page still busy at the cap.
@@ -134,7 +160,6 @@ export class Page {
 		target: Target,
 		width: number,
 		mode: string,
-		signedIn: { done: boolean },
 	): Promise<Page> {
 		const tab = await scope.tab();
 		await tab.media(mode);
@@ -142,11 +167,6 @@ export class Page {
 		await prepare(tab, target.cwd);
 		const cookie = parseCookie(target.cookie);
 		if (cookie) await tab.cookie(cookie.name, cookie.value, target.url);
-		if (target.signIn && !signedIn.done) {
-			signedIn.done = true;
-			await tab.goto(new URL(target.signIn, target.url).href);
-			await settle(tab, target.settle);
-		}
 		return new Page(tab, target, width, mode);
 	}
 
@@ -248,27 +268,25 @@ export async function shoot(
 	const pages: Page[] = [];
 	await withLease(async (lease) => {
 		const scope = await lease.context();
-		const signedIn = { done: false };
+		await signIn(scope, app);
 		for (const mode of modes) {
 			for (const width of widths) {
-				const page = await Page.open(scope, app, width, mode, signedIn);
+				const page = await Page.open(scope, app, width, mode);
 				pages.push(page);
 				try {
+					// A route that fails is reported and the next one still runs.
 					for (const route of routes) {
-						await page.goto(route);
-						await page.shoot(routeSlug(route));
-						if (open) {
-							try {
+						try {
+							await page.goto(route);
+							await page.shoot(routeSlug(route));
+							if (open) {
 								await page.open(open);
-							} catch (error) {
-								page.report(`--open on ${route}: ${messageOf(error)}`);
-								continue;
+								await page.shoot(routeSlug(route), open);
 							}
-							await page.shoot(routeSlug(route), open);
+						} catch (error) {
+							page.report(`${route}: ${messageOf(error)}`);
 						}
 					}
-				} catch (error) {
-					page.report(messageOf(error));
 				} finally {
 					await page.tab.close();
 				}

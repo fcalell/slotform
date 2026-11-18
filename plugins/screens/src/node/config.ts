@@ -5,6 +5,7 @@ import {
 	type ViteConfigValues,
 } from "@fcalell/plugin-vite/node";
 import type { ScreensConfigValues } from "../types.ts";
+import { TEST_STORYBOOK_DIR, VITE_CONFIG } from "./files.ts";
 import {
 	EXCLUDE_ENV,
 	FULL_ENV,
@@ -159,7 +160,7 @@ import { workspaceTriggers } from "@fcalell/plugin-screens/node";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { chrome, inputCommands } from "@fcalell/plugin-screens/browser";
 import { configDefaults, defineConfig } from "vitest/config";
-import screens from "./screens.vite.config.ts";
+import screens from "./${VITE_CONFIG}";
 
 const list = (value: string | undefined) =>
 	(value ?? "").split(",").filter(Boolean);
@@ -185,7 +186,7 @@ export default defineConfig({
 				extends: true,
 				plugins: [
 					storybookTest({
-						configDir: fileURLToPath(new URL("./screens-test", import.meta.url)),
+						configDir: fileURLToPath(new URL("./${TEST_STORYBOOK_DIR}", import.meta.url)),
 						tags: { exclude },
 					}),
 				],

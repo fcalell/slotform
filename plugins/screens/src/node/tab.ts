@@ -1,5 +1,6 @@
+import { setTimeout as sleep } from "node:timers/promises";
 import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
-import { type Cdp, sleep } from "./chrome.ts";
+import type { Cdp } from "./chrome.ts";
 
 // One tab, driven over CDP: navigation, evaluation, the viewport, real input
 // and screenshots. Every call carries its own timeout (`Cdp.send`).
@@ -66,12 +67,14 @@ export class Tab {
 	private lastNet = 0;
 	// The documents (loader ids) whose load event fired since the last goto.
 	private loaded = new Set<string>();
+	// Removes each of the tab's handlers from the shared connection.
+	private unlisten: (() => void)[] = [];
 
 	readonly cdp: Cdp;
 	readonly sessionId: string;
 	readonly targetId: string;
 
-	constructor(cdp: Cdp, sessionId: string, targetId: string) {
+	private constructor(cdp: Cdp, sessionId: string, targetId: string) {
 		this.cdp = cdp;
 		this.sessionId = sessionId;
 		this.targetId = targetId;
@@ -96,9 +99,11 @@ export class Tab {
 
 	// The caller states the event's type: CDP's are not typed here.
 	private listen<P>(method: string, handler: (params: P) => void): void {
-		this.cdp.on(method, (params: unknown, sessionId) => {
-			if (sessionId === this.sessionId) handler(params as P);
-		});
+		this.unlisten.push(
+			this.cdp.on(method, (params: unknown, sessionId) => {
+				if (sessionId === this.sessionId) handler(params as P);
+			}),
+		);
 	}
 
 	private async init(): Promise<void> {
@@ -343,9 +348,13 @@ export class Tab {
 	}
 
 	async close(): Promise<void> {
-		// The target is gone already when its context or browser closed first.
+		for (const remove of this.unlisten) remove();
+		// The target is gone already when its context or browser closed first,
+		// which detached its session.
 		await this.cdp
 			.send("Target.closeTarget", { targetId: this.targetId })
-			.catch(() => {});
+			.catch((error: unknown) => {
+				if (!this.cdp.closed && !this.cdp.ended(this.sessionId)) throw error;
+			});
 	}
 }

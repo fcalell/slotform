@@ -9,7 +9,13 @@ import {
 } from "node:fs/promises";
 import { dirname, join, relative, sep } from "node:path";
 import type { PreviewGlobal } from "../types.ts";
-import { globalTag, SCREEN_STATES, screenTitle, stateTag } from "./screens.ts";
+import {
+	globalTag,
+	isPathless,
+	SCREEN_STATES,
+	screenTitle,
+	stateTag,
+} from "./screens.ts";
 
 // The folder at the app root holding one story file per screen. It is no dot
 // directory: Storybook's watcher ignores those.
@@ -37,10 +43,11 @@ function lazyRouteId(source: string): string | null {
 	return LAZY_ROUTE.exec(source)?.[2] ?? null;
 }
 
-// Whether a route is a screen: a pathless layout (`/_app`) has no URL of its
-// own and draws only around the routes it holds, which are screens.
+// Whether a route is a screen: a pathless layout (`/_app`) or a group's layout
+// (`/(auth)`) has no URL of its own and draws only around the routes it holds,
+// which are screens.
 function isScreen(routeId: string): boolean {
-	return !routeId.slice(routeId.lastIndexOf("/") + 1).startsWith("_");
+	return !isPathless(routeId.slice(routeId.lastIndexOf("/") + 1));
 }
 
 // The ids of the routes a route draws inside: its path's prefixes, each a
@@ -126,7 +133,6 @@ const pascal = (value: string): string =>
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join("");
 
-// The ids of the app's screens, in route order.
 export async function listScreens(routes: string): Promise<string[]> {
 	return (await scanRoutes(routes)).screens;
 }

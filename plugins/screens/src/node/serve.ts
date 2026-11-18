@@ -10,7 +10,8 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { ServeRun, ServeStep, ServeTarget } from "../types.ts";
+import { FIXTURE_PREFIX } from "../serve/controls.ts";
+import type { ServeEnv, ServeRun, ServeStep, ServeTarget } from "../types.ts";
 import { startServer } from "./serve-process.ts";
 
 // `stack screens serve`: the app's real server on throwaway state, seeded.
@@ -21,13 +22,13 @@ interface ServeInputs {
 	cwd: string;
 	flags: Record<string, unknown>;
 	steps: ServeStep[];
-	envs: Array<(serve: { url: string }) => Record<string, string>>;
+	envs: ServeEnv[];
 	controls: string[];
 	targets: ServeTarget[];
 	// The oRPC prefix the seed's client calls.
 	rpc: string | null;
 	// The vite binary that builds the web client; null without a web client.
-	vite: { bin: string; outDir: string } | null;
+	vite: string | null;
 }
 
 function freePort(): Promise<number> {
@@ -45,14 +46,11 @@ function freePort(): Promise<number> {
 	});
 }
 
-function buildClient(
-	serve: ServeRun,
-	vite: { bin: string; outDir: string },
-): void {
+function buildClient(serve: ServeRun, vite: string): void {
 	const built = spawnSync(
 		process.execPath,
 		[
-			vite.bin,
+			vite,
 			"build",
 			"--config",
 			".stack/vite.config.ts",
@@ -69,14 +67,14 @@ function buildClient(
 		);
 }
 
-// The seed's `client`: the app's API client with the cookie `/fixture/link`
-// sets; with no fixture member (an app without auth) it is unsigned.
+// The seed's `client`: the app's API client with the cookie the `link` control
+// sets, a redirect; with no plugin answering it (an app without auth), a 404,
+// the client is unsigned.
 async function seedContext(serve: ServeRun, rpc: string | null, dir: string) {
-	const answer = await fetch(`${serve.url}/fixture/link`, {
-		redirect: "manual",
-	});
+	const link = `${FIXTURE_PREFIX}/link`;
+	const answer = await fetch(`${serve.url}${link}`, { redirect: "manual" });
 	if (answer.status !== 404 && answer.status !== 302)
-		throw new Error(`/fixture/link answered ${answer.status}`);
+		throw new Error(`${link} answered ${answer.status}`);
 	const cookie = answer.headers
 		.getSetCookie()
 		.map((line) => line.split(";")[0])
@@ -103,14 +101,14 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 	const state = join(dir, "state");
 	mkdirSync(state);
 	let stop: (() => Promise<void>) | null = null;
-	let stopped = false;
-	const cleanup = async () => {
-		if (stopped) return;
-		stopped = true;
-		await stop?.();
-		if (flags.keep === true) console.log(`stack screens serve: kept ${dir}`);
-		else rmSync(dir, { recursive: true, force: true });
-	};
+	// One cleanup, which a second signal or the run's own end waits on.
+	let cleaning: Promise<void> | undefined;
+	const cleanup = () =>
+		(cleaning ??= (async () => {
+			await stop?.();
+			if (flags.keep === true) console.log(`stack screens serve: kept ${dir}`);
+			else rmSync(dir, { recursive: true, force: true });
+		})());
 
 	for (const signal of ["SIGINT", "SIGTERM"] as const)
 		process.on(signal, () =>

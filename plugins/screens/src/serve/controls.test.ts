@@ -106,7 +106,7 @@ test("a fixture control is asked before delay and fail", async () => {
 test("/fixture/link with no control answers 404", async () => {
 	const link = await ask(fixtureControls(app), "/fixture/link");
 	assert.equal(link.status, 404);
-	assert.match(await link.text(), /no plugin signs a fixture member in/);
+	assert.equal(await link.text(), "fixture: no control link");
 });
 
 test("a control reaches the app's own worker through context.app", async () => {

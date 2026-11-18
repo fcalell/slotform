@@ -19,8 +19,8 @@ import type { Tab } from "./tab.ts";
 // Vitest's browser provider over the shared Chrome (`browser.ts`): one browser
 // context per session, a tab in it, reduced
 // motion and a device scale of 1. The run draws and judges the page itself, so
-// the commands it needs are the viewport, a screenshot, and the two inputs
-// `--open` uses.
+// the commands it needs are the viewport, a screenshot, and the inputs the
+// checks send (`inputCommands`).
 
 declare module "vitest/node" {
 	interface BrowserCommandContext {

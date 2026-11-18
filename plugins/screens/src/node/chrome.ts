@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { accessSync, constants, readFileSync } from "node:fs";
 import { delimiter, join } from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 
 // The Chrome process and the CDP client: docs/architecture/plugins/screens.md, "Shared browser".
 
@@ -55,10 +56,6 @@ const CHROME_ARGS = [
 	"--blink-settings=primaryHoverType=2,primaryPointerType=4",
 ];
 
-export const sleep = (ms: number) =>
-	new Promise<void>((resolve) => setTimeout(resolve, ms));
-
-// Whether `error` is a Node system error with this `code`.
 export const hasCode = (error: unknown, code: string): boolean =>
 	error instanceof Error && "code" in error && error.code === code;
 

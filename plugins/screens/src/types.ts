@@ -48,6 +48,10 @@ export interface ScreensConfigValues extends ViteConfigValues {
 	previewGlobals: PreviewGlobal[];
 }
 
+// A `serveEnv` contribution: the variables it adds to the run's environment, from
+// the origin the app is served at.
+export type ServeEnv = (serve: { url: string }) => Record<string, string>;
+
 // One `stack screens serve` run as a target, a step or an env contribution
 // sees it.
 export interface ServeRun {

@@ -29,21 +29,24 @@ test("an event stream or an EventSource never counts", () => {
 });
 
 // A tab over a recording Cdp: the input events it sends, in order.
-function recorded(touch: boolean) {
+async function recorded(touch: boolean) {
 	const sent: { method: string; params: unknown }[] = [];
 	const cdp = {
 		send: async (method: string, params: unknown) => {
 			sent.push({ method, params });
 		},
-		on: () => {},
+		on: () => () => {},
 	};
-	const tab = new Tab(cdp as never, "session", "target");
+	// The fake has only the part of Cdp a Tab calls.
+	const tab = await Tab.open(cdp as never, "session", "target");
 	tab.touch = touch;
+	// Only what the test sends: not the events `open` enables.
+	sent.length = 0;
 	return { tab, sent };
 }
 
 test("rest moves the pointer off the page, so no hover or tooltip carries over a width", async () => {
-	const { tab, sent } = recorded(false);
+	const { tab, sent } = await recorded(false);
 	await tab.click(40, 50);
 	await tab.rest();
 	const last = sent.at(-1);
@@ -52,7 +55,7 @@ test("rest moves the pointer off the page, so no hover or tooltip carries over a
 });
 
 test("rest sends nothing to a touch tab, which has no pointer", async () => {
-	const { tab, sent } = recorded(true);
+	const { tab, sent } = await recorded(true);
 	await tab.rest();
 	assert.equal(sent.length, 0);
 });
@@ -67,7 +70,9 @@ function navigating(reply: object, ended?: string) {
 	const cdp = {
 		send: async (method: string) => (method === "Page.navigate" ? reply : {}),
 		on: (method: string, handler: (p: unknown, s: string) => void) => {
-			handlers.push({ method, handler });
+			const entry = { method, handler };
+			handlers.push(entry);
+			return () => handlers.splice(handlers.indexOf(entry), 1);
 		},
 		ended: () => ended,
 	};
@@ -76,7 +81,7 @@ function navigating(reply: object, ended?: string) {
 			if (entry.method === method) entry.handler(params, "session");
 	};
 	// The fake has only the part of Cdp a Tab calls.
-	return { cdp: cdp as never, fire };
+	return { cdp: cdp as never, fire, handlers };
 }
 
 test("a same-document goto (no loaderId) is done at the reply, with no load event", async () => {
@@ -106,4 +111,12 @@ test("goto on a crashed tab fails at once, naming the crash", async () => {
 	);
 	const tab = await Tab.open(cdp, "session", "target");
 	await assert.rejects(tab.goto("http://x/next", 30_000), /the tab crashed/);
+});
+
+test("a closed tab leaves no handler on the shared connection", async () => {
+	const { cdp, handlers } = navigating({ frameId: "f" });
+	const tab = await Tab.open(cdp, "session", "target");
+	assert.notEqual(handlers.length, 0);
+	await tab.close();
+	assert.equal(handlers.length, 0);
 });

@@ -72,12 +72,6 @@ export function fixtureControls<W extends ServeWorker>(
 			else rules.set(match, value);
 			return new Response(`${name} ${match} ${value}`);
 		}
-		// `stack screens serve` asks every app for `link`, so an app no plugin
-		// answers it for gets a reason, not a bare 404.
-		if (name === "link")
-			return new Response("fixture link: no plugin signs a fixture member in", {
-				status: 404,
-			});
 		return new Response(`fixture: no control ${name}`, { status: 404 });
 	}
 

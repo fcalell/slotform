@@ -2,6 +2,7 @@ import { type ChildProcess, spawn } from "node:child_process";
 import { closeSync, openSync, readFileSync } from "node:fs";
 import { connect } from "node:net";
 import { join } from "node:path";
+import { setTimeout as sleep } from "node:timers/promises";
 import type { ServeRun } from "../types.ts";
 
 // A server a `stack screens serve` run starts: its output goes to `<dir>/<name>.log`,
@@ -20,8 +21,6 @@ function listening(port: number): Promise<boolean> {
 		socket.once("error", () => resolve(false));
 	});
 }
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Runs a command in `serve.cwd` with the run's environment on top of the
 // process's, and resolves once the command's server accepts connections on

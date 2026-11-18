@@ -6,19 +6,18 @@ const plan = (steps: unknown[], each?: unknown[]) =>
 	JSON.stringify({ steps, each });
 
 test("every step kind parses", () => {
-	const parsed = parsePlan(
-		plan([
-			{ goto: "/" },
-			{ open: "Menu" },
-			{ key: "Escape" },
-			{ type: "x" },
-			{ fx: "/code" },
-			{ shot: "a" },
-			{ offline: true },
-			{ scroll: 40, in: "main" },
-		]),
-	);
-	assert.equal(parsed.steps.length, 8);
+	const steps = [
+		{ goto: "/" },
+		{ open: "Menu" },
+		{ key: "Escape" },
+		{ type: "x" },
+		{ fx: "/code" },
+		{ shot: "a" },
+		{ offline: true },
+		{ scroll: 40, in: "main" },
+	];
+	const parsed = parsePlan(plan(steps));
+	assert.deepEqual(parsed.steps, steps);
 	assert.deepEqual(parsed.each, [
 		{ width: 320, mode: "dark" },
 		{ width: 1920, mode: "dark" },
@@ -53,4 +52,17 @@ test("each needs widths and a known mode", () => {
 
 test("{{fx}} is replaced in a step's text", () => {
 	assert.equal(fill("/link/{{fx}}?t={{fx}}", "abc"), "/link/abc?t=abc");
+	assert.equal(fill("/{{fx}}", "a$$b$&"), "/a$$b$&");
+});
+
+test("a plan of the wrong shape fails with the plan's own message", () => {
+	assert.throws(() => parsePlan("null"), /no steps/);
+	assert.throws(
+		() => parsePlan(plan([{ goto: "/" }], [null])),
+		/each: null is not an object/,
+	);
+	assert.throws(
+		() => parsePlan(JSON.stringify({ steps: [{ goto: "/" }], each: {} })),
+		/each: expected a list/,
+	);
 });

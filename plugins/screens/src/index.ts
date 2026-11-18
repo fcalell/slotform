@@ -17,6 +17,12 @@ import {
 } from "./node/config.ts";
 import { drive } from "./node/drive.ts";
 import { exitFailure } from "./node/exit.ts";
+import {
+	STORYBOOK_DIR,
+	TEST_STORYBOOK_DIR,
+	VITE_CONFIG,
+	VITEST_CONFIG,
+} from "./node/files.ts";
 import { SCREEN_STATES } from "./node/screens.ts";
 import {
 	globalExcludes,
@@ -36,7 +42,12 @@ import {
 	storyPath,
 	syncStories,
 } from "./node/stories.ts";
-import type { PreviewGlobal, ServeStep, ServeTarget } from "./types.ts";
+import type {
+	PreviewGlobal,
+	ServeEnv,
+	ServeStep,
+	ServeTarget,
+} from "./types.ts";
 import { HEIGHT, SHOT_MAX_HEIGHT, WIDTHS } from "./widths.ts";
 
 const SOURCE = "screens";
@@ -70,7 +81,7 @@ const serveSteps = slot.list<ServeStep>({
 	uniqueBy: (step) => step.name,
 });
 
-const serveEnv = slot.list<(serve: { url: string }) => Record<string, string>>({
+const serveEnv = slot.list<ServeEnv>({
 	source: SOURCE,
 	name: "serveEnv",
 });
@@ -87,8 +98,6 @@ const serveTargets = slot.list<ServeTarget>({
 	uniqueBy: (target) => target.name,
 });
 
-// The Vite config the screens host runs on, rendered from the app's own slot
-// values; null without a build output or routes to draw.
 const viteConfig = slot.derived({
 	source: SOURCE,
 	name: "viteConfig",
@@ -238,10 +247,10 @@ export const screens = plugin("screens", {
 	},
 
 	contributes: (self) => [
-		emitArtifact(".stack/screens.vite.config.ts", self.slots.viteConfig),
-		emitArtifact(".stack/screens/main.ts", self.slots.storybookMain),
-		emitArtifact(".stack/screens-test/main.ts", self.slots.testMain),
-		emitArtifact(".stack/screens.vitest.config.ts", self.slots.vitestConfig),
+		emitArtifact(`.stack/${VITE_CONFIG}`, self.slots.viteConfig),
+		emitArtifact(`.stack/${STORYBOOK_DIR}/main.ts`, self.slots.storybookMain),
+		emitArtifact(`.stack/${TEST_STORYBOOK_DIR}/main.ts`, self.slots.testMain),
+		emitArtifact(`.stack/${VITEST_CONFIG}`, self.slots.vitestConfig),
 
 		cliSlots.postWrite.contribute(async (ctx) => {
 			const dir = await ctx.resolve(react.slots.routesDir);
@@ -281,7 +290,7 @@ export const screens = plugin("screens", {
 					[
 						"dev",
 						"--config-dir",
-						".stack/screens",
+						`.stack/${STORYBOOK_DIR}`,
 						"--port",
 						String(flags.port),
 						"--ci",
@@ -424,8 +433,7 @@ export const screens = plugin("screens", {
 					controls: await ctx.resolve(serveControls),
 					targets: await ctx.resolve(serveTargets),
 					rpc: await ctx.resolve(api.slots.rpcPrefix),
-					vite:
-						outDir === null ? null : { bin: binOf(ctx.cwd, "vite"), outDir },
+					vite: outDir === null ? null : binOf(ctx.cwd, "vite"),
 				});
 			},
 		},
@@ -537,7 +545,7 @@ export const screens = plugin("screens", {
 						[
 							"run",
 							"--config",
-							".stack/screens.vitest.config.ts",
+							`.stack/${VITEST_CONFIG}`,
 							// A clean tree has nothing to run, which is no failure.
 							"--passWithNoTests",
 							...files,

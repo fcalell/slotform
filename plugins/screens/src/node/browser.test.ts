@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { test } from "node:test";
 import { lockIsStale, parseState, runsProfile, stateDir } from "./browser.ts";
 
@@ -7,7 +9,7 @@ test("the state lives in the runtime dir, else the OS tmp dir", () => {
 		stateDir({ XDG_RUNTIME_DIR: "/run/user/1" }),
 		"/run/user/1/stack",
 	);
-	assert.match(stateDir({}), /stack$/);
+	assert.equal(stateDir({}), join(tmpdir(), "stack"));
 });
 
 test("a state file needs a port and a pid", () => {

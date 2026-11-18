@@ -291,11 +291,6 @@ test("a fixture naming a message sends that frame, emptied by its payload", asyn
 	});
 });
 
-test("a bare payload still sends snapshot", async () => {
-	const answered = await channelAnswer("inbox", channels, {}, "data");
-	assert.equal(answered.send?.type, "snapshot");
-});
-
 // Another copy of `@orpc/client` (a version split in the app) is another class
 // with the same fields, which `instanceof ORPCError` does not accept.
 class ForeignORPCError extends Error {

@@ -8,12 +8,14 @@ import type { Tab } from "./tab.ts";
 
 const packageRoot = fileURLToPath(new URL("../..", import.meta.url));
 
-let bundle: Promise<string> | undefined;
+const bundles = new Map<string, Promise<string>>();
 
 // The injected page code, built by the app's own Vite from this package's
-// sources, once per process.
+// sources, once per app a process judges.
 function pageCode(cwd: string): Promise<string> {
-	bundle ??= (async () => {
+	const cached = bundles.get(cwd);
+	if (cached) return cached;
+	const code = (async () => {
 		const entry = createRequire(join(cwd, "package.json")).resolve("vite");
 		// The app's own Vite, imported by path: its types are this package's.
 		const vite = (await import(
@@ -40,7 +42,8 @@ function pageCode(cwd: string): Promise<string> {
 		}[];
 		return bundle?.output[0]?.code ?? "";
 	})();
-	return bundle;
+	bundles.set(cwd, code);
+	return code;
 }
 
 function axeSource(cwd: string): string {

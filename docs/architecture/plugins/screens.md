@@ -31,8 +31,8 @@ browser.
 | `.` | the plugin |
 | `./vite` | the host's Vite plugins, `screensPlugin` and `storybookHost` |
 | `./storybook` | the Storybook config |
-| `./node` | `writeStorybookConfig` ([Storybook host](#storybook-host)) |
-| `./browser` | Vitest's browser provider over the shared Chrome, `chrome()` |
+| `./node` | `writeStorybookConfig` ([Storybook host](#storybook-host)), `startServer` (a deploy target's server under [serve](#serve)), `workspaceTriggers` ([changed runs](#changed-runs)) |
+| `./browser` | Vitest's browser provider over the shared Chrome, `chrome()`, and the input commands it runs, `inputCommands` |
 | `./serve` | `defineServeSeed`, `fixtureControls`: run in the served app's worker, web APIs only |
 
 As source the host's Vite compiles: `./fixtures`, `./channels`, `./msw` (`HttpResponse`, `http` and
@@ -108,7 +108,8 @@ dependency optimizer. Without it `optimizeDeps` never scans or pre-bundles, a CJ
 defined`), and each dependency found late reloads the page. The plugin pre-bundles a package installed
 under `node_modules`; one linked from a checkout is served as source, since pre-bundling a module of it
 would load a second copy beside the one the app's imports load (react-ui's router binding would bind a
-copy no component reads). One that cannot be resolved is left to the optimizer.
+copy no component reads). A package Node's `require` cannot resolve is pre-bundled too, for the
+optimizer to resolve.
 
 ## Story generation
 
@@ -248,8 +249,9 @@ answer is the one copy the stories set.
 ## Test run
 
 `stack screens test` generates, then runs the app's `vitest run --config
-.stack/screens.vitest.config.ts` (`--changed [<ref>]` unless `--all` or `--screen`,
-`--passWithNoTests`, then the story files `--screen` names). The config spreads
+.stack/screens.vitest.config.ts` (`--passWithNoTests`, the story files `--screen`
+names, and `--changed [<ref>]` as the guide's [narrowing a run](../../../plugins/screens/guide/screens.md#narrowing-a-run)
+sets it). The config spreads
 `.stack/screens.vite.config.ts`, so the run's host is the workbench's, and runs the Storybook test
 plugin on `.stack/screens-test/`, whose `main.ts` adds `./checks`.
 
@@ -342,11 +344,11 @@ so is the move the other way, of a block present while waiting and absent loaded
 
 ### Screenshots
 
-`--shots` names a directory, resolved from the app's root; with the flag absent the run saves none.
-It must lie inside the app: Vitest writes a screenshot only where Vite's `server.fs.allow` reaches, the
-workspace. A story's shot at a width goes to `<dir>/<screen>/<story>-<width>.png`, the screen its
-title without `Screens/` and the story its name in kebab case (`Data, dark` is `data-dark`); the open
-pass adds `-open-<slug>`, the control text in kebab case.
+Where `--shots` puts each file is the guide's
+[screenshots](../../../plugins/screens/guide/screens.md#screenshots). The checks name a file
+(`shotPath`, `src/ui/checks.ts`) from the story's title and name in kebab case (`src/slug.ts`). The
+directory must lie inside the app: Vitest writes a screenshot only where Vite's `server.fs.allow`
+reaches, the workspace.
 
 ### Test run exit
 
@@ -413,17 +415,24 @@ rule. The class lists the exceptions name (in `./walk` and `./shift`) live in re
 
 ## Shared browser
 
-Every screens command on the machine shares one headless Chrome. Its address is `chrome.json`
-(`{ port, pid }`, plus `kept` when `stack screens browser` started it) in `$XDG_RUNTIME_DIR/stack/`
-(the OS tmp dir without it). A `chrome.lock` file taken by exclusive create orders every start and
-every last-one-out check across processes, and a stale `chrome.json` (a dead pid, a port that does
-not answer) is replaced. Its pid is killed only when its command line (`ps -ww -o command=`, the same
-on Linux and macOS) names the shared profile as a whole argument, since a stale pid may since belong to
-another process. Each command opens its own browser context (`Target.createBrowserContext`,
-disposed on detach) with its tabs inside, and disposes it at the end, on failure and on SIGINT or
-SIGTERM. A Chrome a command started closes when `Target.getBrowserContexts` is empty; one
-`stack screens browser` started stays until `stack screens browser stop`. A connect that fails because
-the browser has just closed starts it once more.
+Every screens command on the machine shares one headless Chrome; what a consumer meets of it (the
+state file, `stack screens browser`, one context per command) is the guide's
+[shared browser](../../../plugins/screens/guide/screens.md#the-shared-browser). How it holds:
+
+- `chrome.lock`, taken by exclusive create, holds its owner's pid and orders every start and every
+  last-one-out check across processes. A lock is stale when its owner is gone, or, before its pid is
+  written, when it is older than 10 s. A stale lock is cleared by renaming it to a name of the
+  clearing process's own and judging what moved again: two processes that judged the same stale
+  lock never both take it, and a fresh lock caught by the rename is put back.
+- A stale `chrome.json` (a dead pid, a port that does not answer within 10 s) is replaced. Its pid is
+  killed only when its command line (`ps -ww -o command=`, the same on Linux and macOS) names the
+  shared profile as a whole argument, since a stale pid may since belong to another process.
+- A command connects and creates a context of its own under the lock (`openLease`) and holds it
+  until its release, so another command's last-one-out check (`Target.getBrowserContexts` empty)
+  never closes the browser between a connect and the command's first context. Every context is
+  created with `disposeOnDetach`.
+- A release that fails (a lock timeout, a browser that does not answer) prints one line and does not
+  fail the command that finished.
 
 The DevTools protocol (CDP) client talks to it over Node's own WebSocket. Nothing there waits without a
 limit: every call carries a timeout and rejects, naming its method. A tab that crashes
@@ -433,7 +442,8 @@ with that reason, and every call to it after, so a run says "the tab crashed" in
 `loaderId`); a same-document navigation, such as a fragment on the open page, makes no document and is
 done at the reply. The test run's provider (`src/node/provider.ts` over `browser.ts`) is a Vitest browser
 provider with one context per session, reduced motion, a device scale of 1, and the commands
-`__vitest_viewport`, `__vitest_takeScreenshot`, `press` and `key`.
+`__vitest_viewport`, `__vitest_takeScreenshot`, and `press`, `key` and `rest` (`inputCommands`, which
+the generated Vitest config registers).
 
 ### A press
 
@@ -494,7 +504,8 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/index.ts`: the plugin, its slots and the dependency split.
 - `plugins/screens/src/types.ts`: the toolbar globals.
 - `plugins/screens/src/widths.ts`: the rubric widths.
-- `plugins/screens/src/node/config.ts`: `hosted`, the screens Vite config, the roster config, the Vitest config.
+- `plugins/screens/src/node/config.ts`: `hosted`, the screens Vite config, the Vite config of a Storybook that draws components, the Storybook `main.ts` files, the Vitest config.
+- `plugins/screens/src/node/files.ts`: the names of the files the plugin writes under `.stack/`.
 - `plugins/screens/src/node/storybook-config.ts`: `writeStorybookConfig`.
 - `plugins/screens/src/node/storybook.ts`: the Storybook config of `.stack/screens/` and `.stack/screens-test/`.
 - `plugins/screens/src/node/vite-plugin.ts`: `screensPlugin`, the dependency optimizer start.
@@ -505,7 +516,19 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/node/exit.ts`: a child process's failure.
 - `plugins/screens/src/node/browser.ts`: the shared Chrome.
 - `plugins/screens/src/node/chrome.ts`: the Chrome process and the CDP client.
+- `plugins/screens/src/node/tab.ts`: one tab over CDP: navigation, settling, input, screenshots.
+- `plugins/screens/src/node/provider.ts`: the test run's Vitest browser provider and its commands.
+- `plugins/screens/src/node/shoot.ts`: `shoot`, the `Page` that `drive` shares, the viewport flags.
+- `plugins/screens/src/node/drive.ts`: a plan, its steps and its run.
+- `plugins/screens/src/node/serve.ts`: `serve`'s run, its seed and its cleanup.
+- `plugins/screens/src/node/serve-process.ts`: a server process of a `serve` run.
+- `plugins/screens/src/slug.ts`: a text as a part of a file name, and a shot's open-control part.
 - `plugins/screens/src/node/judge.ts`: what `shoot` and `drive` judge with.
+- `plugins/screens/src/ui/inject.ts`: the page code `shoot` and `drive` inject.
+- `plugins/screens/src/ui/page.ts`: what the test run and `shoot` and `drive` share about a drawn page.
+- `plugins/screens/src/ui/busy.ts`: the reads in flight a run waits for.
+- `plugins/screens/src/ui/globals.ts`: the globals unpinned while the run visits a width.
+- `plugins/screens/src/ui/client.tsx`: the query client of the story on screen.
 - `plugins/screens/src/ui/fixtures.ts`: the fixtures and the example values.
 - `plugins/screens/src/ui/route.ts`: the URL a route is drawn at.
 - `plugins/screens/src/ui/answer.ts`: the answerer, states, unanswered calls, channels.
@@ -517,4 +540,5 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/ui/walk.ts`: the render walk and its exceptions.
 - `plugins/screens/src/ui/walk-checks.ts`: the walk's pure checks.
 - `plugins/screens/src/serve/controls.ts`: the `/fixture/*` controls.
+- `plugins/screens/src/serve/index.ts`: the `./serve` entry, `defineServeSeed` and its context.
 - `plugins/react-ui/src/ui/lib/walk-classes.ts`: the class lists the walk exceptions name.

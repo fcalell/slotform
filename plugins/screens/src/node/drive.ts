@@ -1,30 +1,26 @@
 import { readFileSync } from "node:fs";
+import { setTimeout as sleep } from "node:timers/promises";
 import { withLease } from "./browser.ts";
-import { sleep } from "./chrome.ts";
-import { messageOf, Page, printRun, target } from "./shoot.ts";
+import {
+	DEFAULT_MODE,
+	DEFAULT_WIDTHS,
+	messageOf,
+	Page,
+	parseMode,
+	parseWidth,
+	printRun,
+	signIn,
+	target,
+} from "./shoot.ts";
 
 // `stack screens drive <plan.json> --url <app>`: a plan is a list of steps run
 // in a tab of the app, once for each viewport of `each`.
 
-export type Step =
-	| { goto: string }
-	| { open: string }
-	| { key: string }
-	| { type: string }
-	| { fx: string }
-	| { shot: string }
-	| { offline: boolean }
-	| { scroll: number; in?: string };
-
-export interface Plan {
-	each: { width: number; mode: string }[];
-	steps: Step[];
-}
-
 // A key, typing or a scroll has no event that says the page has reacted.
 const REACT_MS = 150;
 
-const KINDS: Record<string, "string" | "boolean" | "number"> = {
+// Each step kind and the type of its value.
+const KINDS = {
 	goto: "string",
 	open: "string",
 	key: "string",
@@ -33,55 +29,80 @@ const KINDS: Record<string, "string" | "boolean" | "number"> = {
 	shot: "string",
 	offline: "boolean",
 	scroll: "number",
-};
+} as const;
+
+type Kind = keyof typeof KINDS;
+
+interface Values {
+	string: string;
+	boolean: boolean;
+	number: number;
+}
+
+// One kind and its value; a scroll may name the element it scrolls (`in`).
+type Step = {
+	[K in Kind]: { [P in K]: Values[(typeof KINDS)[K]] } & (K extends "scroll"
+		? { in?: string }
+		: unknown);
+}[Kind];
+
+interface Plan {
+	each: { width: number; mode: string }[];
+	steps: Step[];
+}
+
+const isKind = (key: string): key is Kind => key in KINDS;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === "object" && value !== null && !Array.isArray(value);
 
 // Parses a plan. A step of a kind this list does not name, with a value of
 // the wrong type, or with two kinds in one object, fails the whole plan before
 // anything runs.
 export function parsePlan(text: string): Plan {
-	// The file is read field by field below, so its shape is a claim until then.
-	const plan = JSON.parse(text) as {
-		each?: { width?: unknown; mode?: unknown }[];
-		steps?: unknown;
-	};
-	if (!Array.isArray(plan.steps) || plan.steps.length === 0)
+	const plan: unknown = JSON.parse(text);
+	const items = isRecord(plan) ? plan.steps : undefined;
+	if (!Array.isArray(items) || items.length === 0)
 		throw new Error('the plan has no steps: expected { "steps": [...] }');
-	const items: unknown[] = plan.steps;
-	const steps = items.map((raw, index): Step => {
+	const steps = items.map((raw: unknown, index): Step => {
 		const at = `step ${index + 1} ${JSON.stringify(raw)}`;
-		if (typeof raw !== "object" || raw === null || Array.isArray(raw))
-			throw new Error(`${at} is not an object`);
+		if (!isRecord(raw)) throw new Error(`${at} is not an object`);
 		const keys = Object.keys(raw).filter(
 			(key) => !(key === "in" && "scroll" in raw),
 		);
 		const [kind] = keys;
-		if (keys.length !== 1 || !kind || !(kind in KINDS))
+		if (keys.length !== 1 || kind === undefined || !isKind(kind))
 			throw new Error(
 				`${at}: a step has exactly one of ${Object.keys(KINDS).join(", ")}`,
 			);
-		if (typeof Reflect.get(raw, kind) !== KINDS[kind])
+		if (typeof raw[kind] !== KINDS[kind])
 			throw new Error(`${at}: ${kind} takes a ${KINDS[kind]}`);
 		if ("in" in raw && typeof raw.in !== "string")
 			throw new Error(`${at}: in takes a CSS selector`);
 		// Its one kind and that kind's value type are checked above.
 		return raw as Step;
 	});
-	const each = (plan.each ?? [{ width: 320 }, { width: 1920 }]).map((entry) => {
-		const width = entry.width;
-		if (typeof width !== "number" || !Number.isInteger(width) || width < 200)
-			throw new Error(`each: ${JSON.stringify(entry)} needs a width in px`);
-		// The values of `prefers-color-scheme`.
-		const mode = entry.mode ?? "dark";
-		if (mode !== "light" && mode !== "dark")
-			throw new Error(`each: mode is light or dark, not ${String(mode)}`);
-		return { width, mode };
-	});
+	const given = isRecord(plan) ? plan.each : undefined;
+	if (given !== undefined && !Array.isArray(given))
+		throw new Error('each: expected a list of { "width": <px>, "mode": ... }');
+	const each = (given ?? DEFAULT_WIDTHS.map((width) => ({ width }))).map(
+		(entry: unknown) => {
+			if (!isRecord(entry))
+				throw new Error(`each: ${JSON.stringify(entry)} is not an object`);
+			const mode = entry.mode ?? DEFAULT_MODE;
+			return {
+				width: parseWidth(entry.width, `each: width ${String(entry.width)}`),
+				mode: parseMode(mode, `each: mode ${String(mode)}`),
+			};
+		},
+	);
 	return { each, steps };
 }
 
-// `{{fx}}` in a step's text is the last `fx` step's answer.
+// `{{fx}}` in a step's text is the last `fx` step's answer, taken as it is: a
+// `$` in it is no replacement pattern.
 export const fill = (text: string, fx: string): string =>
-	text.replaceAll("{{fx}}", fx);
+	text.replaceAll("{{fx}}", () => fx);
 
 async function run(page: Page, steps: Step[]): Promise<void> {
 	let fx = "";
@@ -128,9 +149,9 @@ export async function drive(
 	const pages: Page[] = [];
 	await withLease(async (lease) => {
 		const scope = await lease.context();
-		const signedIn = { done: false };
+		await signIn(scope, app);
 		for (const { width, mode } of plan.each) {
-			const page = await Page.open(scope, app, width, mode, signedIn);
+			const page = await Page.open(scope, app, width, mode);
 			pages.push(page);
 			try {
 				await run(page, plan.steps);

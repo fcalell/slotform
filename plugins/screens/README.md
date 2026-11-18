@@ -12,17 +12,14 @@ How it is built: [docs/architecture/plugins/screens.md](../../docs/architecture/
 stack add screens
 ```
 
-`stack add screens` writes Storybook, its addons, MSW, Vitest and `@vitest/browser` for the test run
-into the app's `devDependencies`; they are optional peers of this package, so an app that has
-auth or react-ui without `screens()` installs none of them. The oRPC packages the host answers
-with are this package's own dependencies. It requires `react` (the routes) and
-`api` (the procedures).
+`stack add screens` installs the workbench's packages into the app
+([dependencies](../../docs/architecture/plugins/screens.md#dependencies)). It requires `react` (the
+routes) and `api` (the procedures).
 
 ## Guide
 
-Using the workbench lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
-[`screens.md`](./guide/screens.md), the commands (`dev`, `test`, `shoot`, `drive`, `serve`, `browser`), the seeded server, its seed and its `/fixture` controls, a screen's five states, the fixtures in
-`src/app/fixtures.ts`, the test run's checks and the limits.
+Using the workbench lives in [`guide/screens.md`](./guide/screens.md), indexed into a consumer's
+`.stack/guide.md`.
 
 ## License
 
