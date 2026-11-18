@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { parseCommandFlags } from "./command-router.ts";
+import { findPluginCommand, parseCommandFlags } from "./command-router.ts";
 import type { CommandDefinition } from "./create-plugin.ts";
 
 const command: CommandDefinition<unknown, Record<string, unknown>> = {
@@ -76,4 +76,28 @@ test("a boolean flag given a value throws", () => {
 			error.code === "INVALID_FLAG_VALUE" &&
 			error.message === 'Flag "--force" takes no value.',
 	);
+});
+
+test("the global flags pass a plugin command by, a string one with its value", () => {
+	assert.deepEqual(
+		parseCommandFlags(command, ["--config", "other.ts", "--debug", "-h", "-f"]),
+		{ retries: 3, force: true, verbose: false },
+	);
+});
+
+test("an empty number throws", () => {
+	assert.throws(
+		() => parseCommandFlags(command, ["--retries="]),
+		(error: Error & { code?: string }) => error.code === "INVALID_FLAG_VALUE",
+	);
+});
+
+test("a name on Object's prototype is no command", () => {
+	// The router reads only `name` and `commands`.
+	const plugin = {
+		name: "db",
+		commands: { push: command },
+	} as unknown as Parameters<typeof findPluginCommand>[0][number];
+	assert.equal(findPluginCommand([plugin], "db", "constructor"), null);
+	assert.equal(findPluginCommand([plugin], "db", "push")?.command, command);
 });

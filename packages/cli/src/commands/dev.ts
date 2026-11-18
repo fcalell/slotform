@@ -2,8 +2,6 @@ import { existsSync, type FSWatcher, statSync, watch } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { stripVTControlCharacters } from "node:util";
 import { intro } from "@clack/prompts";
-import type { StackConfig } from "../config.ts";
-import { buildGraphFromConfig } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
 import {
@@ -13,42 +11,16 @@ import {
 } from "../lib/dev-view.ts";
 import { type SupervisedProcess, supervise } from "../lib/proc.ts";
 import type { LogContext } from "../lib/slots.ts";
-import type { DevReadyTask, ProcessSpec, WatcherSpec } from "../specs.ts";
+import type { WatcherSpec } from "../specs.ts";
 import { generateFromConfig } from "./generate.ts";
 
 interface DevOptions {
 	config: string;
 }
 
-interface DevPlan {
-	processes: ProcessSpec[];
-	readySetup: DevReadyTask[];
-	watchers: WatcherSpec[];
-}
-
-async function devPlanFromConfig(
-	config: StackConfig,
-	cwd: string,
-	log?: LogContext,
-): Promise<DevPlan> {
-	const { graph } = await buildGraphFromConfig({ config, cwd, log });
-	const [processes, readySetup, watchers] = await Promise.all([
-		graph.resolve(cliSlots.devProcesses),
-		graph.resolve(cliSlots.devReadySetup),
-		graph.resolve(cliSlots.devWatchers),
-	]);
-	return { processes, readySetup, watchers };
-}
-
-// Attach an fs.watch handle for a single WatcherSpec, with debounce state
-// scoped to this watcher only. Each watcher coalesces its own bursts of FS
-// events; concurrent activity on a sibling watcher must not cancel this
-// watcher's pending fire (the previous "single shared timer" implementation
-// had every watcher's closure capture the same variable, so two watchers
-// firing within the debounce window would drop the first handler).
-//
-// Returns an array (possibly empty) so the caller can splat into its
-// FSWatcher list — empty when the watch path doesn't exist.
+// One fs.watch handle per WatcherSpec, with its own debounce, so a sibling
+// watcher's burst never cancels this one's pending fire. Empty when the
+// watched path does not exist.
 function attachWatcher(args: {
 	spec: WatcherSpec;
 	cwd: string;
@@ -83,8 +55,6 @@ function attachWatcher(args: {
 			debounceTimer = null;
 			pendingFilename = null;
 			if (fname === null) return;
-			// Handler may be async; surface rejections instead of swallowing
-			// them as unhandled promise rejections at the runtime level.
 			Promise.resolve(spec.handler(fname, "change")).catch((err) => {
 				log.warn(
 					`[${spec.name}] watcher handler failed: ${
@@ -144,11 +114,6 @@ export async function dev(options: DevOptions): Promise<void> {
 		})();
 		return stopping;
 	};
-	const shutdown = async (exitCode: number) => {
-		await stop();
-		view.close();
-		process.exit(exitCode);
-	};
 	// The screen needs a terminal to draw on and keys to read; CI, an agent or
 	// a pipe gets the prefixed stream. TERM=dumb is a terminal that cannot draw.
 	const screen =
@@ -162,6 +127,11 @@ export async function dev(options: DevOptions): Promise<void> {
 				onRestart: (name) => restarts.get(name)?.(),
 			})
 		: createStreamView();
+	const shutdown = async (exitCode: number) => {
+		await stop();
+		view.close();
+		process.exit(exitCode);
+	};
 	const { log } = view;
 	if (!screen) intro("stack dev");
 	// The processes lead process groups of their own, so the terminal's signals
@@ -174,7 +144,7 @@ export async function dev(options: DevOptions): Promise<void> {
 		// Reload: ESM caches the config module by URL, so a plain import would
 		// regenerate from the config as it was at startup.
 		const config = await loadConfig(options.config, { reload: true });
-		await generateFromConfig(config, cwd, log);
+		return generateFromConfig(config, cwd, log);
 	};
 	// A piped child sees no terminal and prints no colour; the screen draws
 	// colour, so it asks the children for it.
@@ -186,13 +156,12 @@ export async function dev(options: DevOptions): Promise<void> {
 	// The CLI exits on a thrown error without waiting for anything, so a step
 	// that throws stops the processes and gives the terminal back first.
 	try {
-		await regenerate();
-		const config = await loadConfig(options.config);
-		const { processes, readySetup, watchers } = await devPlanFromConfig(
-			config,
-			cwd,
-			log,
-		);
+		const graph = await regenerate();
+		const [processes, readySetup, watchers] = await Promise.all([
+			graph.resolve(cliSlots.devProcesses),
+			graph.resolve(cliSlots.devReadySetup),
+			graph.resolve(cliSlots.devWatchers),
+		]);
 
 		const readyWaits: Array<Promise<boolean>> = [];
 		for (const spec of processes) {

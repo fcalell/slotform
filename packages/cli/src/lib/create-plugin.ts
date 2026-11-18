@@ -5,8 +5,9 @@ import type { ScaffoldSpec } from "../ast/index.ts";
 import type { AppConfig } from "../config.ts";
 import { cliSlots } from "./cli-slots.ts";
 import { StackError } from "./errors.ts";
+import { pluginPackage } from "./first-party.ts";
 import { findPackageInfo } from "./package-info.ts";
-import type { Contribution, Slot } from "./slots.ts";
+import type { Contribution, LogContext, Slot } from "./slots.ts";
 
 // ── Callback marker ────────────────────────────────────────────────
 //
@@ -58,13 +59,6 @@ export const callback: CallbackFactory = Object.assign(
 );
 
 // CommandContext: docs/architecture/commands.md, "Plugin subcommands".
-
-export interface LogContext {
-	info(msg: string): void;
-	warn(msg: string): void;
-	success(msg: string): void;
-	error(msg: string): void;
-}
 
 export interface PromptContext {
 	text(msg: string, opts?: { default?: string }): Promise<string>;
@@ -171,10 +165,8 @@ export interface OneOfRequirement {
 
 // ── Internal CLI-facing descriptor ─────────────────────────────────
 
-// Everything the CLI needs to route subcommands and drive discovery. The
-// factory exposes this as `.cli` so existing call sites that read
-// `plugin.cli.name` / `plugin.cli.commands` keep working; `collect(ctx)` is
-// the new entry point for Phase D command code that builds the slot graph.
+// Everything the CLI needs to route subcommands and drive discovery, exposed
+// on the factory as `.cli`; `collect(ctx)` gives the slot graph its input.
 export interface InternalCliPlugin<TOptions, TSlots, TResolvedOptions> {
 	name: string;
 	label: string;
@@ -215,8 +207,7 @@ export interface CollectCtx<TResolvedOptions> {
 //
 // The returned factory is callable (`db({ dialect: "d1" })` → PluginConfig)
 // and exposes the plugin's metadata. `defineCallbacks` is only present when
-// callbacks were declared — narrowed via the same conditional intersection
-// pattern used before.
+// callbacks were declared.
 
 type InferCallbackPayloads<
 	T extends Record<
@@ -309,7 +300,7 @@ export function plugin<
 	name: TName,
 	definition: PluginDefinition<TOptions, TSlots, TCallbacks, TResolvedOptions>,
 ): PluginFactory<TName, TOptions, TSlots, TCallbacks, TResolvedOptions> {
-	const pkg = definition.package ?? `@fcalell/plugin-${name}`;
+	const pkg = definition.package ?? pluginPackage(name);
 	// Looked up on first use, never on import: docs/architecture/plugin-authoring.md, "Plugin discovery".
 	const packageInfo = () => findPackageInfo(pkg);
 	const hasCallbacks =
@@ -351,9 +342,6 @@ export function plugin<
 	function autoContributions(): Contribution<unknown>[] {
 		const auto: Contribution<unknown>[] = [];
 
-		// Auto-wire dependency declarations into the CLI's init/remove slots.
-		// Plugins can still add extra contributions in `contributes` — nothing
-		// here is exclusive.
 		if (definition.dependencies) {
 			const deps = definition.dependencies;
 			auto.push(cliSlots.initDeps.contribute(() => ({ ...deps })));

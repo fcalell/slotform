@@ -8,12 +8,13 @@ import type {
 	PluginFactory,
 	Requirement,
 } from "./create-plugin.ts";
+import { PLUGIN_NAMES, pluginPackage } from "./first-party.ts";
 import { toCamelCase } from "./naming.ts";
 import type { Slot } from "./slots.ts";
 
 // A loaded plugin tied to its per-config options. `factory` is the
-// `plugin()` result — commands call `factory.cli.collect(ctx)` to gather
-// the plugin's slots + contributions for the graph.
+// `plugin()` result; the graph builder calls its `cli.collect(ctx)` for the
+// plugin's slots and contributions.
 export interface DiscoveredPlugin {
 	name: string;
 	cli: InternalCliPlugin<unknown, Record<string, Slot<unknown>>, unknown>;
@@ -25,28 +26,6 @@ export interface DiscoveredPlugin {
 	>;
 	options: unknown;
 }
-
-// First-party plugins, for pickers before any config exists: docs/architecture/plugin-authoring.md, "Plugin discovery".
-export const FIRST_PARTY_PLUGINS = [
-	{ name: "cloudflare", package: "@fcalell/plugin-cloudflare" },
-	{ name: "db", package: "@fcalell/plugin-db" },
-	{ name: "auth", package: "@fcalell/plugin-auth" },
-	{ name: "api", package: "@fcalell/plugin-api" },
-	{ name: "query", package: "@fcalell/plugin-query" },
-	{ name: "node", package: "@fcalell/plugin-node" },
-	{ name: "vite", package: "@fcalell/plugin-vite" },
-	{ name: "react", package: "@fcalell/plugin-react" },
-	{ name: "react-ui", package: "@fcalell/plugin-react-ui" },
-	{ name: "expo", package: "@fcalell/plugin-expo" },
-	{ name: "native-ui", package: "@fcalell/plugin-native-ui" },
-	{ name: "screens", package: "@fcalell/plugin-screens" },
-] as const satisfies ReadonlyArray<{ name: string; package: string }>;
-
-export type PluginName = (typeof FIRST_PARTY_PLUGINS)[number]["name"];
-
-export const PLUGIN_NAMES: readonly PluginName[] = FIRST_PARTY_PLUGINS.map(
-	(p) => p.name,
-);
 
 async function loadPlugin(
 	name: string,
@@ -99,9 +78,9 @@ export async function loadInstalledPlugins(
 	names: readonly string[],
 ): Promise<DiscoveredPlugin[]> {
 	const results: DiscoveredPlugin[] = [];
-	for (const entry of FIRST_PARTY_PLUGINS) {
-		if (!names.includes(entry.name)) continue;
-		results.push(await loadPlugin(entry.name, entry.package, {}));
+	for (const name of PLUGIN_NAMES) {
+		if (!names.includes(name)) continue;
+		results.push(await loadPlugin(name, pluginPackage(name), {}));
 	}
 	return results;
 }
@@ -156,12 +135,13 @@ export async function discoverPlugins(
 	const plugins: DiscoveredPlugin[] = [];
 
 	for (const pluginConfig of config.plugins) {
-		const name = pluginConfig.__plugin;
-		// Prefer the explicit `__package` stamped by `plugin()` so third-party
-		// plugins published under any npm namespace resolve. Fall back to the
-		// first-party convention for older configs.
-		const packageName = pluginConfig.__package ?? `@fcalell/plugin-${name}`;
-		plugins.push(await loadPlugin(name, packageName, pluginConfig.options));
+		plugins.push(
+			await loadPlugin(
+				pluginConfig.__plugin,
+				pluginConfig.__package,
+				pluginConfig.options,
+			),
+		);
 	}
 
 	validateDependencies(plugins);

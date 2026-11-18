@@ -10,37 +10,33 @@ import { createRequire } from "node:module";
 import { basename, join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { intro, log, note, outro } from "@clack/prompts";
-import {
-	defineConfig,
-	type PluginConfig,
-	type StackConfig,
-} from "../config.ts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import {
 	type ChooseRequirement,
-	type DiscoveredPlugin,
-	FIRST_PARTY_PLUGINS,
 	loadInstalledPlugins,
-	PLUGIN_NAMES,
-	resolveRequiresClosure,
 	validateDependencies,
 } from "../lib/discovery.ts";
-import { MissingPluginError, StackError } from "../lib/errors.ts";
+import { StackError } from "../lib/errors.ts";
 import {
-	installStack,
-	pinnedStackCommit,
-	stackWorkspaceRoot,
-} from "../lib/install.ts";
+	assertKnownPlugins,
+	PLUGIN_NAMES,
+	pluginPackage,
+} from "../lib/first-party.ts";
+import { pinnedStackCommit, stackWorkspaceRoot } from "../lib/install.ts";
 import { TS_MORPH_SPEC } from "../lib/manifest.ts";
-import { pluginDependencies } from "../lib/plugin-dependencies.ts";
-import { ask, choose, createPromptContext, multi } from "../lib/prompt.ts";
+import {
+	applyScaffold,
+	askPrompts,
+	DEFAULT_DOMAIN,
+	installClosure,
+	withOptions,
+} from "../lib/plugin-setup.ts";
+import { ask, choose, multi } from "../lib/prompt.ts";
 import {
 	announceCreated,
-	ensureGitignore,
 	patchPackageJson,
 	writeIfMissingString,
-	writeScaffoldSpecs,
 } from "../lib/scaffold.ts";
 import { stackPluginSpecs } from "../lib/stack-packages.ts";
 import { biomeTemplate } from "../templates/biome.ts";
@@ -53,13 +49,12 @@ import { tsconfigLayout, tsconfigTemplate } from "../templates/tsconfig.ts";
 
 interface InitOptions {
 	plugins?: string[];
-	name?: string;
 	domain?: string;
-	yes?: boolean;
+	yes: boolean;
 	// Scaffold into a directory that already holds a project.
-	force?: boolean;
+	force: boolean;
 	// `dir` was named on the command line rather than defaulted to the cwd.
-	dirGiven?: boolean;
+	dirGiven: boolean;
 }
 
 // Refuses a target `init` would scaffold into by accident: the cwd with no
@@ -87,13 +82,10 @@ export function assertInitTarget(
 	}
 }
 
-export async function init(
-	dir: string,
-	options: InitOptions = {},
-): Promise<void> {
+export async function init(dir: string, options: InitOptions): Promise<void> {
 	assertInitTarget(dir, {
-		dirGiven: options.dirGiven ?? true,
-		force: options.force === true,
+		dirGiven: options.dirGiven,
+		force: options.force,
 		tty: process.stdin.isTTY === true,
 	});
 	if (!existsSync(dir)) {
@@ -125,26 +117,26 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 	const flagDriven =
 		options.plugins !== undefined ||
 		options.domain !== undefined ||
-		options.name !== undefined ||
-		options.yes === true;
+		options.yes;
 	const nonInteractive = flagDriven || !process.stdin.isTTY;
 
 	let picked: string[] = [];
-	let appName = options.name ?? basename(dir);
-	let domain = options.domain ?? "example.com";
+	let appName = basename(dir);
+	let domain = options.domain ?? DEFAULT_DOMAIN;
 
 	if (options.plugins !== undefined) {
-		picked = validatePluginNames(options.plugins);
+		assertKnownPlugins(options.plugins);
+		picked = options.plugins;
 	} else if (!nonInteractive) {
 		picked = await multi(
 			"Which plugins do you want?",
-			FIRST_PARTY_PLUGINS.map((p) => ({
-				label: `${p.name}  (${p.package})`,
-				value: p.name,
+			PLUGIN_NAMES.map((name) => ({
+				label: `${name}  (${pluginPackage(name)})`,
+				value: name,
 			})),
 		);
 		appName = await ask("App name", basename(dir));
-		domain = await ask("Domain", "example.com");
+		domain = await ask("Domain", DEFAULT_DOMAIN);
 	}
 
 	const plugins = await installPlugins(
@@ -164,7 +156,6 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 	await scaffold(dir, { plugins, appName, domain, nonInteractive });
 }
 
-// Install until every required plugin is installed: docs/architecture/commands.md, "Installing the requires closure".
 async function installPlugins(
 	dir: string,
 	picked: string[],
@@ -172,34 +163,33 @@ async function installPlugins(
 ): Promise<string[]> {
 	const ownsManifest = !existsSync("package.json");
 	const workspace = stackWorkspaceRoot(dir) !== null;
-	let plugins = picked;
-	for (;;) {
-		if (ownsManifest) {
-			writeFileSync(
-				"package.json",
-				packageJsonTemplate({ name: basename(dir), plugins, workspace }),
-			);
-		} else {
-			patchPackageJson(dir, {
-				dependencies: stackPluginSpecs(plugins, pinnedStackCommit(dir)),
-				devDependencies: { "ts-morph": TS_MORPH_SPEC },
-			});
-		}
-		installStack(dir);
-		const installed = await loadInstalledPlugins(plugins);
-		const closure = await resolveRequiresClosure(plugins, installed, pick);
-		if (closure.length === plugins.length) {
-			validateDependencies(installed);
-			if (ownsManifest) announceCreated(["package.json"]);
-			return closure;
-		}
-		for (const name of closure) {
-			if (!plugins.includes(name)) {
-				log.warn(`${name} added automatically (required by your selection).`);
+	const { plugins, available } = await installClosure({
+		dir,
+		existing: [],
+		picked,
+		pick,
+		writeManifest: (plugins) => {
+			if (ownsManifest) {
+				writeFileSync(
+					"package.json",
+					packageJsonTemplate({ name: basename(dir), plugins, workspace }),
+				);
+			} else {
+				patchPackageJson(dir, {
+					dependencies: stackPluginSpecs(plugins, pinnedStackCommit(dir)),
+					devDependencies: { "ts-morph": TS_MORPH_SPEC },
+				});
 			}
+		},
+	});
+	for (const name of plugins) {
+		if (!picked.includes(name)) {
+			log.warn(`${name} added automatically (required by your selection).`);
 		}
-		plugins = closure;
 	}
+	validateDependencies(available);
+	if (ownsManifest) announceCreated(["package.json"]);
+	return plugins;
 }
 
 export async function scaffold(
@@ -207,24 +197,17 @@ export async function scaffold(
 	{ plugins: selectedPlugins, appName, domain, nonInteractive }: Selection,
 ): Promise<void> {
 	const available = await loadInstalledPlugins(selectedPlugins);
+	const app = { name: appName, domain };
 
-	// Discovered plugins carry the factory + an `options: {}` placeholder.
-	// We don't yet have per-plugin options — prompts produce them. The
-	// slot graph reads `options` from `discovered`, not from a StackConfig,
-	// so skipping the synthetic factory call here avoids Zod errors for
-	// plugins whose options can't default to `{}` (e.g. db requires a
-	// dialect).
-	const selectedDiscovered = available.filter((p) =>
-		selectedPlugins.includes(p.name),
-	);
-
-	// Tsconfig contributions resolve off the pre-prompt graph: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
+	// The prompts and the tsconfig contributions resolve off a graph whose
+	// options are `{}`, since the prompts produce the options; a plugin whose
+	// schema cannot default `{}` (db's dialect) is never run through its factory
+	// here: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 	const { graph: promptGraph } = buildGraphFromDiscovered({
-		discovered: selectedDiscovered,
-		app: { name: appName, domain },
+		discovered: available,
+		app,
 		cwd: dir,
 	});
-	const promptSpecs = await promptGraph.resolve(cliSlots.initPrompts);
 	const tsconfigPaths = await promptGraph.resolve(cliSlots.tsconfigPaths);
 	const tsconfigTypes = await promptGraph.resolve(cliSlots.tsconfigTypes);
 
@@ -255,22 +238,12 @@ export async function scaffold(
 	const written = [...createdBase];
 	writeClaudeMd();
 
-	const pluginAnswers = new Map<string, Record<string, unknown>>();
-	for (const p of selectedPlugins) pluginAnswers.set(p, {});
+	const pluginAnswers = await askPrompts(
+		promptGraph,
+		selectedPlugins,
+		nonInteractive,
+	);
 
-	const promptAdapter = createPromptContext({ nonInteractive });
-	for (const spec of promptSpecs) {
-		const priors: Record<string, unknown> = {};
-		for (const [plugin, answers] of pluginAnswers.entries()) {
-			priors[plugin] = answers;
-		}
-		// Non-interactive mode resolves every prompt to a default: docs/architecture/commands.md, "Prompts".
-		const answers = await spec.ask({ prompt: promptAdapter }, priors);
-		pluginAnswers.set(spec.plugin, answers);
-	}
-
-	// Render stack.config.ts with the collected answers, then reload so the
-	// second graph pass sees the plugin's real options.
 	const configContent = stackConfigTemplate({
 		name: appName,
 		domain,
@@ -282,45 +255,13 @@ export async function scaffold(
 		written.push("stack.config.ts");
 	}
 
-	// Rebuild graph with the rendered options (each plugin's factory validates
-	// them via Zod) and resolve the init-time scaffold/dep/gitignore slots.
-	const configured = syntheticConfigFromSelection({
-		selectedPlugins,
-		available,
-		app: { name: appName, domain },
-		perPluginOptions: pluginAnswers,
-	});
-	const configuredDiscovered = configured.plugins.map((cfg) => {
-		const avail = available.find((a) => a.name === cfg.__plugin);
-		if (!avail) {
-			throw new StackError(
-				`Selected plugin '${cfg.__plugin}' went missing between passes.`,
-				"INIT_PLUGIN_MISSING",
-			);
-		}
-		return { ...avail, options: cfg.options } satisfies DiscoveredPlugin;
-	});
+	// The second pass runs each factory, which validates the answers.
 	const { graph: initGraph } = buildGraphFromDiscovered({
-		discovered: configuredDiscovered,
-		app: configured.app,
+		discovered: withOptions(available, pluginAnswers),
+		app,
 		cwd: dir,
 	});
-
-	const [scaffolds, dependencies, gitignore, packageJsonFields] =
-		await Promise.all([
-			initGraph.resolve(cliSlots.initScaffolds),
-			pluginDependencies(initGraph, selectedPlugins, pinnedStackCommit(dir)),
-			initGraph.resolve(cliSlots.gitignore),
-			initGraph.resolve(cliSlots.packageJsonFields),
-		]);
-
-	const created = await writeScaffoldSpecs(scaffolds, dir);
-	announceCreated(created);
-	written.push(...created);
-
-	patchPackageJson(dir, { ...dependencies, fields: packageJsonFields });
-	if (gitignore.length > 0) ensureGitignore(...gitignore);
-	installStack(dir);
+	written.push(...(await applyScaffold(initGraph, selectedPlugins, dir)));
 
 	// Generate precedes the format: docs/architecture/commands.md, "`stack init` and `stack add`".
 	try {
@@ -346,39 +287,6 @@ export async function scaffold(
 
 const chooseRequirement: ChooseRequirement = (req, plugin) =>
 	choose(`${plugin} requires exactly one of these plugins`, req.oneOf);
-
-function validatePluginNames(requested: string[]): string[] {
-	const valid = new Set<string>(PLUGIN_NAMES);
-	const unknown = requested.filter((n) => !valid.has(n));
-	if (unknown.length > 0) {
-		throw new MissingPluginError(
-			unknown[0] ?? "",
-			`Unknown plugin(s): ${unknown.join(", ")}. Available: ${PLUGIN_NAMES.join(", ")}`,
-		);
-	}
-	return requested;
-}
-
-// The factory stamps __plugin/__package and validates options against the plugin's schema.
-export function syntheticConfigFromSelection(opts: {
-	selectedPlugins: string[];
-	available: DiscoveredPlugin[];
-	app: { name: string; domain: string };
-	perPluginOptions?: Map<string, Record<string, unknown>>;
-}): StackConfig {
-	const configs: PluginConfig[] = [];
-	for (const name of opts.selectedPlugins) {
-		const info = opts.available.find((p) => p.name === name);
-		if (!info) continue;
-		const pluginOpts = opts.perPluginOptions?.get(name) ?? {};
-		const cfg = info.factory(pluginOpts);
-		configs.push(cfg);
-	}
-	return defineConfig({
-		app: { name: opts.app.name, domain: opts.app.domain },
-		plugins: configs,
-	});
-}
 
 // The templates write plain `JSON.stringify` and unsorted imports; the
 // app's own Biome lays out what init wrote, so its first check changes

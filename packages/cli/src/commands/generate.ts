@@ -2,21 +2,19 @@ import type { StackConfig } from "../config.ts";
 import { buildGraphFromConfig } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
+import type { Graph } from "../lib/graph.ts";
 import { insideProject } from "../lib/inside-project.ts";
 import type { LogContext } from "../lib/slots.ts";
 import { writeArtifact } from "../lib/write-artifact.ts";
 import type { GeneratedFile } from "../specs.ts";
 
-interface GenerateResult {
-	files: GeneratedFile[];
-	postWrite: Array<() => Promise<void>>;
-}
-
+// Writes the config's artifacts and runs the post-write hooks; answers the
+// graph, which the calling command resolves its own slots from.
 export async function generateFromConfig(
 	config: StackConfig,
 	cwd: string,
 	log?: LogContext,
-): Promise<GenerateResult> {
+): Promise<Graph> {
 	const { graph } = await buildGraphFromConfig({ config, cwd, log });
 
 	const rawFiles = await graph.resolve(cliSlots.artifactFiles);
@@ -25,7 +23,7 @@ export async function generateFromConfig(
 	// One content per path: docs/architecture/codegen.md, "Artifact emit".
 	const byPath = new Map<string, GeneratedFile>();
 	for (const raw of rawFiles) {
-		// One trailing newline: docs/architecture/codegen.md, "Artifact emit".
+		// A trailing newline: docs/architecture/codegen.md, "Artifact emit".
 		const file = raw.content.endsWith("\n")
 			? raw
 			: { ...raw, content: `${raw.content}\n` };
@@ -40,11 +38,10 @@ export async function generateFromConfig(
 		}
 		byPath.set(file.path, file);
 	}
-	const files = [...byPath.values()];
 
 	// Every path is checked before the first write, so a bad contribution
 	// leaves the disk as it was.
-	const writes = files.map((file) => ({
+	const writes = [...byPath.values()].map((file) => ({
 		target: insideProject(cwd, file.path),
 		content: file.content,
 	}));
@@ -55,10 +52,7 @@ export async function generateFromConfig(
 		await hook();
 	}
 
-	return {
-		files,
-		postWrite,
-	};
+	return graph;
 }
 
 // `stack generate`, and the `generate` a plugin command's context carries.

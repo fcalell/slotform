@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { log, outro } from "@clack/prompts";
 import { StackError } from "../lib/errors.ts";
 import { stackWorkspaceRoot, toWorkspaceSpecs } from "../lib/install.ts";
@@ -89,39 +89,30 @@ export async function initPlugin(options: InitPluginOptions): Promise<void> {
 	const workspace = stackWorkspaceRoot(targetDir) !== null;
 
 	// The skeleton's paths are relative to the plugin's directory.
-	const original = process.cwd();
-	process.chdir(targetDir);
-
-	try {
-		const created: string[] = [];
-		for (const [path, content] of pluginFiles({
-			name,
-			packageName,
-			workspace,
-		})) {
-			if (writeIfMissingString(path, content)) created.push(path);
-		}
-
-		if (created.length === 0) {
-			log.info(
-				`No files created — ${basename(targetDir)} already contains a plugin.`,
-			);
-			return;
-		}
-
-		log.success(`Scaffolded ${packageName} in ${targetDir}`);
-		log.info(
-			[
-				`Next steps:`,
-				`  cd ${targetDir}`,
-				`  pnpm install`,
-				`  pnpm check`,
-			].join("\n"),
-		);
-		outro(`Done!`);
-	} finally {
-		process.chdir(original);
+	const created: string[] = [];
+	for (const [path, content] of pluginFiles({
+		name,
+		packageName,
+		workspace,
+	})) {
+		if (writeIfMissingString(join(targetDir, path), content))
+			created.push(path);
 	}
+
+	if (created.length === 0) {
+		log.info(
+			`No files created — ${basename(targetDir)} already contains a plugin.`,
+		);
+		return;
+	}
+
+	log.success(`Scaffolded ${packageName} in ${targetDir}`);
+	log.info(
+		[`Next steps:`, `  cd ${targetDir}`, `  pnpm install`, `  pnpm check`].join(
+			"\n",
+		),
+	);
+	outro(`Done!`);
 }
 
 // PascalCase variant for type names derived from a slug ("widget" -> "Widget",

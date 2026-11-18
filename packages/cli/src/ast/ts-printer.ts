@@ -26,7 +26,7 @@ function loadTsMorph(): typeof import("ts-morph") {
 	}
 }
 
-// Reserved identifier names that never need quoting as object/interface keys.
+// A key that is a plain identifier prints unquoted.
 const IDENT_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
 function isIdentifier(name: string): boolean {
@@ -190,6 +190,14 @@ function wrapForMember(writer: CodeBlockWriter, inner: TsExpression): void {
 	writeWrapped(writer, inner, wrap);
 }
 
+// `new` takes its callee up to the first argument list, so a callee holding a
+// call is wrapped: `new (f())()` and `new (f().x)()`, never `new f()()`.
+function wrapForNew(writer: CodeBlockWriter, inner: TsExpression): void {
+	const bare = (e: TsExpression): boolean =>
+		e.kind === "identifier" || (e.kind === "member" && bare(e.object));
+	writeWrapped(writer, inner, !bare(inner));
+}
+
 // Wrap `inner` when used as the operand of an `as` cast.
 function wrapForCast(writer: CodeBlockWriter, inner: TsExpression): void {
 	// `as` is left-associative — `x as A as B` parses as `(x as A) as B`,
@@ -266,7 +274,7 @@ function writeExpression(writer: CodeBlockWriter, expr: TsExpression): void {
 		}
 		case "new": {
 			writer.write("new ");
-			wrapForMember(writer, expr.callee);
+			wrapForNew(writer, expr.callee);
 			writer.write("(");
 			expr.args.forEach((arg, i) => {
 				if (i > 0) writer.write(", ");
@@ -284,7 +292,14 @@ function writeExpression(writer: CodeBlockWriter, expr: TsExpression): void {
 			expr.properties.forEach((prop, i) => {
 				if (i > 0) writer.write(", ");
 				if (prop.shorthand) {
-					// Shorthand only valid when the value is an identifier matching the key.
+					if (
+						prop.value.kind !== "identifier" ||
+						prop.value.name !== prop.key
+					) {
+						throw new Error(
+							`writeExpression: shorthand property '${prop.key}' needs the identifier '${prop.key}' as its value.`,
+						);
+					}
 					writeMemberName(writer, prop.key);
 				} else {
 					writeMemberName(writer, prop.key);
@@ -328,7 +343,8 @@ function writeExpression(writer: CodeBlockWriter, expr: TsExpression): void {
 				});
 				writer.write("}");
 			} else {
-				writeExpression(writer, body);
+				// A bare `{` after `=>` opens a block.
+				writeWrapped(writer, body, body.kind === "object");
 			}
 			return;
 		}
@@ -346,7 +362,12 @@ function writeExpression(writer: CodeBlockWriter, expr: TsExpression): void {
 				writer.write(prop.name);
 				if (prop.value !== undefined) {
 					writer.write("=");
-					if (prop.value.kind === "string") {
+					// A JSX attribute string has no escapes: one holding a quote, a
+					// backslash or a line break goes in braces as a JS string.
+					if (
+						prop.value.kind === "string" &&
+						!/["\\\n\r]/.test(prop.value.value)
+					) {
 						writer.quote(prop.value.value);
 					} else {
 						writer.write("{");
@@ -467,7 +488,8 @@ function writeStatement(writer: CodeBlockWriter, stmt: TsStatement): void {
 			return;
 		}
 		case "expression": {
-			writeExpression(writer, stmt.value);
+			// A statement opening with `{` is a block.
+			writeWrapped(writer, stmt.value, stmt.value.kind === "object");
 			writer.write(";");
 			return;
 		}

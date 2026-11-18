@@ -16,9 +16,12 @@ import { type Contribution, type Slot, slot } from "./slots.ts";
 // CLI-owned slot tokens: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 const SOURCE = "cli";
 
-const phaseOrder = { pre: 0, main: 1, post: 2 } as const;
+const phaseOrder = { pre: 0, main: 1, post: 2 } satisfies Record<
+	BuildStep["phase"],
+	number
+>;
 
-function comparePhaseOrder<T extends { phase: "pre" | "main" | "post" }>(
+function comparePhaseOrder<T extends { phase: BuildStep["phase"] }>(
 	a: T,
 	b: T,
 ): number {
@@ -30,8 +33,6 @@ export const cliSlots = {
 	initScaffolds: slot.list<ScaffoldSpec>({
 		source: SOURCE,
 		name: "initScaffolds",
-		// Two plugins claiming the same target is a programming error — surface
-		// it at compose time rather than waiting for the writer to detect it.
 		uniqueBy: (s) => s.target,
 	}),
 	initDeps: slot.map<string>({ source: SOURCE, name: "initDeps" }),

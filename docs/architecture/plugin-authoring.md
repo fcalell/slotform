@@ -276,7 +276,7 @@ A plugin's npm package name is its `package` option, `@fcalell/plugin-<name>` wh
 first-party plugin omits it; a third-party plugin published under another namespace sets it, so
 discovery can import it. The consumer's config carries it on each entry as `__package`.
 
-The CLI's first-party list (`FIRST_PARTY_PLUGINS`) serves only the commands that offer a picker
+The CLI's first-party names (`PLUGIN_NAMES`, `packages/cli/src/lib/first-party.ts`, each package from `pluginPackage`) serve only the commands that offer a picker
 before any consumer config exists, `stack init` and `stack add`. A third-party plugin appears
 through the consumer's `stack.config.ts` and its `__package`; discovery cannot enumerate it ahead
 of config load.
@@ -311,5 +311,6 @@ named plugins already installed.
 - `packages/cli/src/lib/cli-slots.ts`: `cliSlots`, including `guide`, and `emitArtifact`.
 - `packages/cli/src/specs.ts`: `GuideEntry` and the other spec types.
 - `packages/cli/src/lib/scaffold.ts`: `writeScaffoldSpecs` and the base-file writer.
-- `packages/cli/src/lib/discovery.ts`: `FIRST_PARTY_PLUGINS`, `loadInstalledPlugins`.
+- `packages/cli/src/lib/discovery.ts`: `loadInstalledPlugins`.
+- `packages/cli/src/lib/first-party.ts`: `PLUGIN_NAMES`, `pluginPackage`.
 - `packages/cli/src/config.ts`: `defineConfig`, the config entry with `__package`.

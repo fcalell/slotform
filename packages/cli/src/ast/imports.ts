@@ -4,15 +4,14 @@ import type { TsImportSpec } from "./specs.ts";
 export function dedupeImports(specs: TsImportSpec[]): TsImportSpec[] {
 	interface Accum {
 		source: string;
-		// Tracked as `null` until any contribution lands. After that:
-		// - named imports: every contribution must agree on `typeOnly`.
-		// - default import: every default contribution must agree on `typeOnly`.
-		// They're tracked separately because the printer emits them as separate
-		// statements, so their `typeOnly` intent is independent.
-		namedTypeOnly: boolean | null;
+		// `null` until a default contribution lands; every one after must agree.
 		defaultTypeOnly: boolean | null;
-		// Keyed by local name: docs/architecture/codegen.md, "Import merge".
-		namedByLocal: Map<string, { imported: string; alias: string | null }>;
+		// Keyed by local name: docs/architecture/codegen.md, "Import merge". A
+		// binding any contribution imports as a value is a value.
+		namedByLocal: Map<
+			string,
+			{ imported: string; alias: string | null; typeOnly: boolean }
+		>;
 		// Plain default imports: `import D from "foo"`. At most one distinct `D`
 		// per source — same string from N contributors collapses, different
 		// strings throw.
@@ -28,7 +27,6 @@ export function dedupeImports(specs: TsImportSpec[]): TsImportSpec[] {
 	for (const spec of specs) {
 		const accum: Accum = groups.get(spec.source) ?? {
 			source: spec.source,
-			namedTypeOnly: null,
 			defaultTypeOnly: null,
 			namedByLocal: new Map(),
 			defaultName: null,
@@ -76,16 +74,9 @@ export function dedupeImports(specs: TsImportSpec[]): TsImportSpec[] {
 						`"${imported}". Either rename one alias or reconcile contributors.`,
 				);
 			}
-			if (!existing) {
-				accum.namedByLocal.set(local, { imported, alias });
-			}
+			const typeOnly = spec.typeOnly === true && (existing?.typeOnly ?? true);
+			accum.namedByLocal.set(local, { imported, alias, typeOnly });
 		}
-		accum.namedTypeOnly = reconcileTypeOnly(
-			accum.namedTypeOnly,
-			spec.typeOnly,
-			`conflicting \`typeOnly\` for the named import line from "${spec.source}" ` +
-				`— every contributor must agree (some marked it \`type\`, others didn't).`,
-		);
 	}
 
 	// Cross-source check: namespace alias uniqueness. `import * as NS from "a"`
@@ -120,15 +111,18 @@ export function dedupeImports(specs: TsImportSpec[]): TsImportSpec[] {
 		for (const ns of g.namespaces) {
 			out.push({ source: g.source, namespace: ns });
 		}
-		if (g.namedByLocal.size > 0) {
-			const named = Array.from(g.namedByLocal.values()).map(
-				({ imported, alias }) =>
+		// One line of values, then one of types.
+		for (const typeOnly of [false, true]) {
+			const named = Array.from(g.namedByLocal.values())
+				.filter((b) => b.typeOnly === typeOnly)
+				.map(({ imported, alias }) =>
 					alias === null ? imported : { name: imported, alias },
-			);
+				);
+			if (named.length === 0) continue;
 			out.push({
 				source: g.source,
 				named,
-				...(g.namedTypeOnly ? { typeOnly: true } : {}),
+				...(typeOnly ? { typeOnly: true } : {}),
 			});
 		}
 	}

@@ -30,7 +30,10 @@ fails that first print with the `pnpm add -D ts-morph` it needs.
 ## Import merge
 
 Plugins emit the import statements of a `.stack/*.ts` file independently, and `dedupeImports`
-merges them into one well-formed import line per source. It keys each named import by its local
+merges them into well-formed import lines: per source, one line of named values and one of named
+types (`import type`), beside the default, namespace and side-effect imports. A binding any
+contribution imports as a value is a value, since a value import also carries its type. It keys
+each named import by its local
 name: `named: ["foo"]` binds `foo` to `foo`, `named: [{ name: "bar", alias: "foo" }]` binds `foo` to
 `bar`. Two contributions binding one local name to different exports are a hard conflict and
 throw, so a disagreement between plugins surfaces as an error instead of wrong code at runtime.
@@ -67,10 +70,10 @@ plugin in the error.
 |--------|---------|
 | `cssString` | a CSS `<string>` |
 | `cssUrl` | a URL |
-| `cssIdent` | an `<ident>`: a family name, a layer or token name |
+| `cssIdent`, `isCssIdent` | an `<ident>`: a family name, a layer or token name; `isCssIdent` answers the check without throwing |
 | `cssVarName` | a custom-property name: `--radius-md`, the Tailwind v4 modifier form `--text-h1--line-height`, a namespace reset `--color-*` |
-| `cssTokenValue` | a custom-property or declaration value, unquoted; refuses `;`, `{`, `}`, line breaks, comment delimiters and unbalanced parentheses |
-| `cssSupportsExpression` | an `@supports` or `supports(...)` argument; refuses `;`, `{`, `}` and unbalanced parentheses, and renders the rest verbatim |
+| `cssTokenValue` | a custom-property or declaration value, unquoted; refuses `;`, `{`, `}`, a backslash (`red\` would escape the `;` after it), line breaks, comment delimiters and unbalanced parentheses |
+| `cssSupportsExpression`, `isCssSupportsExpression` | an `@supports` or `supports(...)` argument; refuses `;`, `{`, `}` and unbalanced parentheses, and renders the rest verbatim |
 
 Parentheses are checked per value because a pair fails silently. A single unbalanced value fails
 the CSS parser loudly, but an unclosed `calc(` in one declaration and a stray `)` in a later one fuse
@@ -111,8 +114,8 @@ itself or lies outside it: a `..` segment or an absolute path never reaches the 
 `stack generate` collects every `cliSlots.artifactFiles` contribution and applies three rules at
 the write boundary:
 
-- **One trailing newline.** Every artifact ends with exactly one; renderers emit raw content and
-  the rule is applied once, here.
+- **A trailing newline.** An artifact whose content lacks one gets one; renderers emit raw content
+  and the rule is applied once, here.
 - **One content per path.** Two contributions with identical content for one path are one file
   (several `emitArtifact` helpers can resolve to the same string). Different content for one path
   throws, naming the path: the winner would depend on resolver order, so the conflict is fixed at

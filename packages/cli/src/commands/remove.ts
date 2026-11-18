@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { log, outro } from "@clack/prompts";
-import type { StackConfig } from "../config.ts";
+import type { PluginConfig, StackConfig } from "../config.ts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
@@ -19,13 +19,6 @@ import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import { confirm } from "../lib/prompt.ts";
 
-/**
- * Accepts the kebab-case plugin slug (e.g. `"native-ui"`) and matches against
- * the camelCase callee (`nativeUi`).
- *
- * No-op when the plugin isn't present. Throws `EditConfigError` when the
- * config file shape can't be edited in place.
- */
 async function removePluginCall(
 	path: string,
 	pluginName: string,
@@ -43,15 +36,8 @@ async function removePluginCall(
 	});
 }
 
-// Remove `keys` from `pkg[field]` (when it's a plain object). Returns true if
-// `pkg` was modified at all (any key removal AND/OR a whole-field deletion
-// when pruning empties the object). The caller uses the boolean to decide
-// whether to write package.json back — so it must capture every modification,
-// including the case where the field was already an empty `{}` we cleaned up.
-//
-// Non-object fields are left untouched (we only know how to prune
-// plugin-contributed records of names→strings; lists, scalars, etc. aren't
-// our domain here).
+// Answers whether `pkg` changed: a field the pruning empties is deleted, and
+// an empty field left by another tool counts as a change too.
 function pruneObjectField(
 	pkg: Record<string, unknown>,
 	field: string,
@@ -59,22 +45,29 @@ function pruneObjectField(
 ): boolean {
 	const current = pkg[field];
 	if (!isRecord(current)) return false;
-	const obj = current;
 	let changed = false;
 	for (const key of keys) {
-		if (key in obj) {
-			delete obj[key];
+		if (key in current) {
+			delete current[key];
 			changed = true;
 		}
 	}
-	if (Object.keys(obj).length === 0) {
+	if (Object.keys(current).length === 0) {
 		delete pkg[field];
-		// Whole-field deletion is itself a change worth persisting, even when
-		// no key matched (e.g. a stray empty `"dependencies": {}` left behind
-		// by a previous tool).
 		return true;
 	}
 	return changed;
+}
+
+function configEntry(config: StackConfig, pluginName: string): PluginConfig {
+	const entry = config.plugins.find((p) => p.__plugin === pluginName);
+	if (!entry) {
+		throw new MissingPluginError(
+			pluginName,
+			`Plugin "${pluginName}" is not in your config.`,
+		);
+	}
+	return entry;
 }
 
 export async function remove(
@@ -84,23 +77,9 @@ export async function remove(
 ): Promise<void> {
 	const config = await loadConfig(configPath);
 	const cwd = process.cwd();
+	configEntry(config, pluginName);
 
-	const targetEntry = config.plugins.find((p) => p.__plugin === pluginName);
-	if (!targetEntry) {
-		throw new MissingPluginError(
-			pluginName,
-			`Plugin "${pluginName}" is not in your config.`,
-		);
-	}
-
-	// We try to load every plugin in the config so we can (a) check for
-	// dependents and (b) resolve the target's removeFiles / removeDeps
-	// contributions through the slot graph. Discovery may fail for one of
-	// two reasons: the target itself isn't installed (the user is trying to
-	// remove a broken plugin — should still succeed), or some *other*
-	// plugin isn't installed (a degraded environment we can still remove
-	// from). In both cases we fall back to a "minimal" path that knows only
-	// what the consumer's `stack.config.ts` directly tells us.
+	// A workspace that does not load takes the degraded removal: docs/architecture/commands.md, "Removing a plugin".
 	let discovered: DiscoveredPlugin[] | null = null;
 	try {
 		discovered = await discoverPlugins(config);
@@ -139,19 +118,38 @@ export async function remove(
 		yes: options.yes,
 	});
 
-	// Skip the regenerate pass when we couldn't fully discover the workspace —
-	// `generate` would just hit the same load error and overwrite our useful
-	// log line with a confusing "could not regenerate" warning.
+	// A degraded workspace would fail `generate` on the same load error.
 	if (discovered) {
 		const { generate } = await import("./generate.ts");
 		try {
 			await generate(configPath);
-		} catch {
-			log.warn("Could not regenerate — run `stack generate` manually.");
+		} catch (error) {
+			log.warn(
+				`Could not regenerate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`stack generate\`.`,
+			);
 		}
 	}
 
 	outro(`Removed ${label}`);
+}
+
+// The removals the graph of `plugins` contributes.
+async function removals(
+	plugins: DiscoveredPlugin[],
+	config: StackConfig,
+	cwd: string,
+): Promise<{ files: string[]; deps: string[]; devDeps: string[] }> {
+	const { graph } = buildGraphFromDiscovered({
+		discovered: plugins,
+		app: config.app,
+		cwd,
+	});
+	const [files, deps, devDeps] = await Promise.all([
+		graph.resolve(cliSlots.removeFiles),
+		graph.resolve(cliSlots.removeDeps),
+		graph.resolve(cliSlots.removeDevDeps),
+	]);
+	return { files, deps, devDeps };
 }
 
 // Removes the plugin's files, its dependencies and its config call, and
@@ -176,40 +174,30 @@ export async function uninstall(
 	},
 ): Promise<string> {
 	const plugin = discovered?.find((p) => p.name === pluginName) ?? null;
-	const targetEntry = config.plugins.find((p) => p.__plugin === pluginName);
-
 	// What to remove comes from the graph and `__package`: docs/architecture/commands.md, "Removing a plugin".
-	const packageName =
-		plugin?.cli.package ??
-		targetEntry?.__package ??
-		`@fcalell/plugin-${pluginName}`;
+	const packageName = configEntry(config, pluginName).__package;
 
-	let files: string[] = [];
-	let contributedDeps: string[] = [];
-	let contributedDevDeps: string[] = [];
-
-	if (plugin) {
-		// Build a graph with ONLY the target plugin so removeFiles / removeDeps
-		// are scoped to its contributions. Other plugins can still contribute
-		// removals for OTHER plugins, but the common case is self-scoped.
-		const single = [plugin] satisfies DiscoveredPlugin[];
-		const { graph } = buildGraphFromDiscovered({
-			discovered: single,
-			app: config.app,
-			cwd,
-		});
-
-		[files, contributedDeps, contributedDevDeps] = await Promise.all([
-			graph.resolve(cliSlots.removeFiles),
-			graph.resolve(cliSlots.removeDeps),
-			graph.resolve(cliSlots.removeDevDeps),
-		]);
-	}
+	const own = plugin
+		? await removals([plugin], config, cwd)
+		: { files: [], deps: [], devDeps: [] };
+	// A dependency a remaining plugin also declares stays.
+	const kept = plugin
+		? await removals(
+				(discovered ?? []).filter((p) => p !== plugin),
+				config,
+				cwd,
+			)
+		: { files: [], deps: [], devDeps: [] };
 
 	// Delete files, confined to the project: docs/architecture/commands.md, "Removing a plugin".
-	const targets = files.map((path) => insideProject(cwd, path));
+	const targets = own.files.map((path) => ({
+		path,
+		target: insideProject(cwd, path),
+	}));
 	if (targets.length > 0 && !yes) {
-		const listing = targets.map((t) => `  ${relative(cwd, t)}`).join("\n");
+		const listing = targets
+			.map(({ target }) => `  ${relative(cwd, target)}`)
+			.join("\n");
 		if (!process.stdin.isTTY) {
 			throw new StackError(
 				`Removing "${pluginName}" deletes:\n${listing}\nPass --yes to delete them without a terminal.`,
@@ -224,23 +212,25 @@ export async function uninstall(
 			);
 		}
 	}
-	for (const target of targets) {
+	// A path that cannot be deleted is reported; the package and the config
+	// call still go.
+	const removed: string[] = [];
+	for (const { path, target } of targets) {
 		try {
 			await rm(target, { recursive: true, force: true });
-		} catch {
-			// A path that cannot be deleted must not keep the package and the config call in place.
+			removed.push(path);
+		} catch (error) {
+			log.warn(
+				`Could not delete ${path}: ${error instanceof Error ? error.message : String(error)}`,
+			);
 		}
 	}
-	if (files.length > 0) {
-		log.info(`Removed files: ${files.join(", ")}`);
+	if (removed.length > 0) {
+		log.info(`Removed files: ${removed.join(", ")}`);
 	}
 
-	// Strip package.json dependencies contributed by the plugin in a single
-	// pass per field: gather every key to remove (plugin's contributed
-	// removals + the plugin package itself), prune them, and drop the field
-	// entirely if it ends up empty. The same shape applies to any other
-	// plugin-contributed object on package.json (e.g. `scripts`) — pruning
-	// must always be idempotent and never leave behind empty `{}`.
+	// Prunes `dependencies` and `devDependencies` of the plugin's own and its
+	// package, dropping a field the pruning empties.
 	const pkgPath = join(cwd, "package.json");
 	let manifest: string | null = null;
 	try {
@@ -250,13 +240,15 @@ export async function uninstall(
 	}
 	const pkg: unknown = manifest === null ? null : JSON.parse(manifest);
 	if (isRecord(pkg)) {
-		let changed = false;
+		const prune = (declared: string[], keep: string[]) =>
+			new Set([...declared, packageName].filter((d) => !keep.includes(d)));
 		const removalsByField: Record<string, ReadonlySet<string>> = {
-			dependencies: new Set([...contributedDeps, packageName]),
-			devDependencies: new Set([...contributedDevDeps, packageName]),
+			dependencies: prune(own.deps, kept.deps),
+			devDependencies: prune(own.devDeps, kept.devDeps),
 		};
-		for (const [field, removals] of Object.entries(removalsByField)) {
-			if (pruneObjectField(pkg, field, removals)) changed = true;
+		let changed = false;
+		for (const [field, keys] of Object.entries(removalsByField)) {
+			if (pruneObjectField(pkg, field, keys)) changed = true;
 		}
 		if (changed) {
 			writeFileSync(pkgPath, `${JSON.stringify(pkg, null, "\t")}\n`);

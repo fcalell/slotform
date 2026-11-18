@@ -23,12 +23,12 @@ for an app, and its flags, is the consumer guide page
 
 | Command | Roots resolved, in step order |
 |---------|------------------------------------|
-| `stack init`, `stack add` | write the plugins' packages and `pnpm-workspace.yaml` → `pnpm install` (again until every `requires` is installed) → `cliSlots.initPrompts` → render `stack.config.ts` → `cliSlots.initScaffolds`, `initDeps`, `initDevDeps`, `gitignore` → `pnpm install` → `generate` |
-| `stack generate` | `cliSlots.artifactFiles` → write each `{ path, content }` → resolve `cliSlots.postWrite` → await each |
+| `stack init`, `stack add` | write the plugins' packages and `pnpm-workspace.yaml` → `pnpm install` (again until every `requires` is installed) → `init` only: the base files and `CLAUDE.md` → `cliSlots.initPrompts` → `init` renders `stack.config.ts`, `add` patches it after the install → `cliSlots.initScaffolds`, `initDeps`, `initDevDeps`, `gitignore`, `packageJsonFields` → `pnpm install` → `generate` → `init` only: format |
+| `stack generate` | resolve `cliSlots.artifactFiles` and `cliSlots.postWrite` → write each `{ path, content }` → await each hook |
 | `stack dev` | `generate` → `cliSlots.devProcesses` (spawned together) → `cliSlots.devReadySetup` (after every process is ready) → `cliSlots.devWatchers` (`fs.watch`) |
 | `stack build` | `generate` → `cliSlots.buildSteps`, sorted by `phase` (`pre`, `main`, `post`; equal phases keep contribution order) → run in sequence |
-| `stack deploy` | `build` → `cliSlots.deployChecks` (shown and confirmed) → `cliSlots.deploySteps`, sorted by `phase` → run in sequence |
-| `stack remove` | the target plugin's `cliSlots.removeFiles`, `removeDeps`, `removeDevDeps` → patch the config → `generate` |
+| `stack deploy` | `build` → `cliSlots.deployChecks` (each shown; confirmed when stdin is a terminal, run unasked otherwise; then each check's `action` runs) → `cliSlots.deploySteps`, sorted by `phase` → run in sequence |
+| `stack remove` | the target plugin's `cliSlots.removeFiles`, `removeDeps`, `removeDevDeps` ([removing a plugin](#removing-a-plugin)) → patch the config → `generate` |
 | `stack <plugin> <command>` | the plugin's own `commands[name].handler(ctx)` ([plugin subcommands](#plugin-subcommands)) |
 
 ### `stack init` and `stack add`
@@ -42,16 +42,19 @@ known only once loaded ([installing the requires closure](#installing-the-requir
 The scaffold then runs in the app's installed `@fcalell/cli`, imported from the app's root, which
 need not be the copy that started `init`: slots match by identity, and the installed plugins import
 the app's copy. It writes the CLI-owned base files (the tsconfigs, `biome.json`, `.editorconfig`,
-`.gitignore`, each only when missing), then runs the real `generate` path against the config it
-wrote, the same code `stack generate` runs. `generate` precedes the format, because the app's
-`biome.json` extends the generated `.stack/biome.json`. It then formats what it wrote and makes
-`CLAUDE.md` import `@.stack/guide.md`: the file is created with that line when missing, and the line
-appended when absent ([consumer project](./consumer-project.md#the-guide)).
+`.gitignore`, each only when missing) and makes `CLAUDE.md` import `@.stack/guide.md`: the file is
+created with that line when missing, and the line appended when absent
+([consumer project](./consumer-project.md#the-guide)). After the prompts, the config and the
+plugins' scaffolds it runs the real `generate` path against the config it wrote, the same code
+`stack generate` runs, then formats what it wrote. `generate` precedes the format, because the
+app's `biome.json` extends the generated `.stack/biome.json`. The steps `stack add` shares with it
+(the install loop, the prompts, the scaffold and its dependencies) are one module,
+`lib/plugin-setup.ts`.
 
 ### `stack generate`
 
 `generate` resolves every artifact file, writes it, then runs the `postWrite` hooks. The rules it
-writes each file by (one trailing newline, one content per path, atomic and skip-unchanged) are in
+writes each file by (a trailing newline, one content per path, atomic and skip-unchanged) are in
 [codegen](./codegen.md#artifact-emit). One artifact is the CLI's own, `.stack/guide.md`, rendered
 from `cliSlots.guide` ([consumer project](./consumer-project.md#the-guide)). A `postWrite` hook runs
 after the files land: plugin-cloudflare's runs `wrangler types` once `.stack/wrangler.toml` is
@@ -96,14 +99,7 @@ stdin and stdout are both TTYs (and `TERM` is not `dumb`) it takes the alternate
 turbo's layout: a task list, each process with its state (starting, ready, exited, restarting) and a
 last `stack` row for the CLI's own log, beside the selected task's output. The keys:
 
-| Key | Does |
-|-----|------|
-| `↑`/`↓` (`j`/`k`) | select a task |
-| `u`/`d` (Page Up/Down) | scroll |
-| `g`/`G` (Home/End) | the top, the newest line |
-| `r` | restart the selected process |
-| `o` | open its URL |
-| `q`, Ctrl+C | stop |
+The keys are in the guide's [`commands.md`](../../packages/cli/guide/commands.md).
 
 `r` relaunches the process whatever its `restart` policy, with a fresh restart budget, an exited one
 included; a second `r` before the old child exits sends its group SIGKILL. `o` opens the first URL
@@ -140,8 +136,8 @@ starts from the app's plugins so a one-of the app already meets adds nothing. Th
 the requiring plugin's declaration, so the CLI names no domain. `init` validates the finished
 closure, so a selection meeting a one-of twice fails before the scaffold.
 
-`stack add` of a plugin meeting a one-of the app already meets takes the place of the plugin meeting it
-(`stack add node` on a cloudflare app). It asks first when interactive, and removes the displaced
+`stack add` of a plugin meeting a one-of the app already meets takes the place of the plugin meeting
+it ([`commands.md`](../../packages/cli/guide/commands.md)). It removes the displaced
 plugin through `remove`'s cleanup before installing, so a dependency both bring survives. It never
 runs `remove`'s dependents check, since the added plugin meets the requirement.
 
@@ -173,10 +169,13 @@ the consumer is trusted.
 What it removes comes from two sources. The slot graph, when the plugin loaded, gives its
 contributed `removeFiles`, `removeDeps` and `removeDevDeps`. The plugin's `__package`, always known
 from the consumer's config, is pruned from `package.json` in every case, so the package itself goes.
+A dependency a remaining plugin also names in its `removeDeps` or `removeDevDeps` (two UI plugins
+both bring `@fcalell/ui-core`) stays.
 
 `removeFiles` entries are deleted with `rm -rf` semantics, directories included. Some are the
 consumer's own trees (`src/app/`, `src/migrations/`), so each path must lie inside the project
-([codegen](./codegen.md#path-containment)) and the list is confirmed before anything goes. In the
+([codegen](./codegen.md#path-containment)) and the list is confirmed before anything goes. A path
+that cannot be deleted is reported, and the package and the config call still go. In the
 degraded path the list is empty, and the consumer cleans up by hand once the workspace is fixed.
 
 ## Plugin subcommands
@@ -197,7 +196,11 @@ stack db seed           # Seed the database from src/schema/seed.ts
 A subcommand's flags are parsed by `node:util`'s `parseArgs` from the command's `options`:
 `--name value` and `--name=value`, a one-character `alias` as a short flag (grouped short flags
 work), a longer `alias` as a second long name, and `--` ends the flags. An unknown flag, a missing
-value, a value on a boolean, and a number that does not parse each fail before the handler runs.
+value, a value on a boolean, and a number that does not parse (an empty one included) each fail before the
+handler runs. The global flags (`--config`, `--debug`, `-h`/`--help`) parse beside the command's own
+and never reach the handler, unless the command declares a flag of the same name; `--help` prints
+the command's description and flags. A command name matches only the plugin's own `commands` keys,
+never a name `Object` inherits.
 
 A subcommand runs after the slot graph is built, and its handler receives a `CommandContext`:
 
@@ -243,16 +246,16 @@ app's own Vitest on `.stack/screens.vitest.config.ts`, adding `--changed` (with 
 unless `--all` ([test run](./plugins/screens.md#test-run), [changed runs](./plugins/screens.md#changed-runs)).
 It runs on `.stack/screens-test/`, the same Storybook config plus the checks
 (`@fcalell/plugin-screens/checks`): axe with every rule on (`region` and `target-size` included),
-no horizontal overflow at 320, 1280 and 1920 px (`horizontal overflow at <w>px: scrollWidth <n>`),
-and no `console.error`, `console.warn` or window `error`. A test is a story, named for the screen's
+no horizontal overflow at the widths the guide's
+[test run](../../plugins/screens/guide/screens.md#the-test-run) names, and no `console.error`, `console.warn` or window `error`. A test is a story, named for the screen's
 title, the state and the mode (`Screens/projects/$id`, `Data, dark`). With `--shots`, the checks
 also save a PNG of each story at each width into the directory
 ([screenshots](./plugins/screens.md#screenshots)).
 
 `stack screens test` also takes:
 
-- `--full`: a shot grows the page to all it holds, up to 16384 px; without it a shot is the 800 px
-  viewport.
+- `--full`: a shot grows the page to all it holds
+  ([screenshots](../../plugins/screens/guide/screens.md#screenshots)).
 - `--open <control text>`: after a story draws, the checks press the control with that text or
   accessible name through the provider's `press` command, wait for it to settle, then judge and
   shoot with it open ([screenshots](./plugins/screens.md#screenshots)); a screen with no such
@@ -288,9 +291,10 @@ port (or `--port`). The target serves the worker wrapped in `fixtureControls` of
 `/fixture/link`, prints one line, `stack screens serve: <url>`, writes `{ url, pid }` to
 `<scratch>/serve.json` and stays in the foreground. SIGINT or SIGTERM stops the server and deletes
 the scratch directory unless `--keep`, which prints the directory instead. With `--entry <file>`
-the command still owns the directory, the port and the line, but runs `node <file>` with
-`STACK_SERVE_DIR` and `STACK_SERVE_PORT` (and the env of the steps and contributions) in place of a
-target, and takes the file listening on the port as ready. Any step or seed that throws stops the
+the command still owns the directory, the port and the line, but runs `node <file>` with the
+directory and the port in its env, as the guide's
+[seeded server](../../plugins/screens/guide/screens.md#the-seeded-server) names them, and the env of
+the steps and contributions, in place of a target, and takes the file listening on the port as ready. Any step or seed that throws stops the
 run with its error.
 
 `stack screens browser` starts the shared Chrome and returns, and the Chrome stays until
@@ -303,14 +307,18 @@ off the request, with no header of its own.
 
 ## In the code
 
-- `packages/cli/src/cli.ts`: argument parsing, `stack plugin init`, plugin-subcommand routing.
+- `packages/cli/src/cli.ts`: argument parsing, the core command table, plugin-subcommand routing.
+- `packages/cli/src/lib/command-router.ts`: the global flags and a plugin subcommand's flags.
 - `packages/cli/src/commands/init.ts`: `stack init`, its install loop and scaffold.
 - `packages/cli/src/commands/add.ts`: `stack add`, the one-of replacement.
+- `packages/cli/src/lib/plugin-setup.ts`: the install loop, prompts and scaffold `init` and `add`
+  share.
 - `packages/cli/src/commands/remove.ts`: `stack remove`, the dependents check and cleanup.
 - `packages/cli/src/commands/generate.ts`: `stack generate`.
 - `packages/cli/src/commands/dev.ts`: `stack dev`, the supervisor and the watchers.
 - `packages/cli/src/commands/build.ts`, `packages/cli/src/commands/deploy.ts`: `stack build`,
   `stack deploy`.
+- `packages/cli/src/lib/run-step.ts`: running a build or deploy step.
 - `packages/cli/src/commands/plugin.ts`: the third-party plugin scaffold.
 - `packages/cli/src/lib/dev-view.ts`: the two dev views.
 - `packages/cli/src/lib/proc.ts`: a supervised process, its group and restarts.

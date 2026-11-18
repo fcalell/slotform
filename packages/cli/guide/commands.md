@@ -1,19 +1,20 @@
 # Commands
 
 `stack` runs every step of the app's lifecycle; the plugins in `stack.config.ts` decide what each
-step does. Run a command from the app's root. Every command but `init` takes
-`--config <path>` (default `stack.config.ts`).
+step does. Run a command from the app's root. Every command but `init` and `stack plugin init`
+takes `--config <path>` (default `stack.config.ts`), a plugin's own commands included, and
+`-h`/`--help` prints a command's usage and flags.
 
 | Command | Run it when |
 | --- | --- |
-| `stack init [dir] [--plugins <csv>] [--domain <d>] [-y]` | Starting an app. It writes `package.json` and `pnpm-workspace.yaml`, installs, scaffolds the project, then runs `generate` |
+| `stack init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]` | Starting an app. It writes `package.json` and `pnpm-workspace.yaml`, installs, scaffolds the project, then runs `generate` |
 | `stack add <plugin>` | Adding a plugin: it installs the plugin, asks its questions, writes its files, patches the config and regenerates. A plugin that takes the place of one the app has replaces it: `stack add node` on a cloudflare app switches the server target to node, after asking |
-| `stack remove <plugin>` | Dropping a plugin no other plugin requires: it removes the plugin's files and dependencies, patches the config and regenerates |
+| `stack remove <plugin> [-y]` | Dropping a plugin no other plugin requires: it lists the files it deletes and asks (`-y` skips the question and is required without a terminal), removes them and the dependencies no remaining plugin declares, patches the config and regenerates |
 | `stack generate` | After editing `stack.config.ts`, or when `.stack/` is missing. `dev` and `build` run it first |
-| `stack dev` | Working on the app: every plugin's dev process (the worker, the Node server, Vite) runs in one terminal, and the watchers regenerate as files change. In a terminal it shows a task list beside the selected process's output (`↑`/`↓` select, `r` restarts the selected process, `o` opens its URL, `q` stops); run without one, as an agent's shell runs it, it prints each line prefixed with its process's name. Metro is not one: it runs under `stack expo dev` (`node_modules/@fcalell/plugin-expo/guide/builds.md`) |
+| `stack dev` | Working on the app: every plugin's dev process (the worker, the Node server, Vite) runs in one terminal, and the watchers regenerate as files change. In a terminal it shows a task list beside the selected process's output (`↑`/`↓` or `j`/`k` select, `u`/`d` or Page Up/Down scroll, `g`/`G` or Home/End jump to the top and the newest line, `r` restarts the selected process, `o` opens its URL, `q` or Ctrl+C stops); run without one, as an agent's shell runs it, it prints each line prefixed with its process's name. Metro is not one: it runs under `stack expo dev` (`node_modules/@fcalell/plugin-expo/guide/builds.md`) |
 | `stack screens dev [--port 6006]` | Designing or changing a web screen: it serves every route in each of its query states from `src/app/fixtures.ts`, with no backend (`node_modules/@fcalell/plugin-screens/guide/screens.md`) |
 | `stack build` | Building for production |
-| `stack deploy` | Shipping: it builds, shows each pre-deploy check for confirmation, then deploys |
+| `stack deploy` | Shipping: it builds, shows each pre-deploy check, asks to proceed when run in a terminal, runs each check's action (a migration), then deploys |
 | `stack <plugin> <command>` | A plugin's own command, such as `stack db push` |
 
 The app's `package.json` scripts wrap them (`pnpm dev`, `pnpm build`, `pnpm run deploy`,
@@ -22,19 +23,19 @@ and lints the app. `pnpm check` is the check every change ends with.
 
 ## Updating stack
 
-`pnpm-lock.yaml` pins every `@fcalell/*` package to one commit of stack's repository; the
-specs in `package.json` carry none. `pnpm update "@fcalell/*"` moves them all to stack's latest
-commit together. Never edit a spec or the lockfile by hand.
+`package.json` holds a caret range of one version for every `@fcalell/*` package, and
+`pnpm-lock.yaml` records the version installed. `pnpm update "@fcalell/*"` moves them all to stack's
+latest release together. Never edit a spec or the lockfile by hand.
 
-**Check:** every `@fcalell/*` entry in `pnpm-lock.yaml` names the same commit.
+**Check:** every `@fcalell/*` entry in `pnpm-lock.yaml` names the same version.
 
 ## What `init` writes
 
-- `package.json` and `pnpm-workspace.yaml`, then the install: every `@fcalell/*` package comes
-  from stack's repository, at the commit `pnpm-lock.yaml` records.
+- `package.json` and `pnpm-workspace.yaml`, then the install of every `@fcalell/*` package at the
+  CLI's version.
 - `tsconfig.json` (and, for an app with a worker, `tsconfig.app.json`, `tsconfig.worker.json`
-), `biome.json`, `.gitignore` and `stack.config.ts`, each only when
-  missing. A plugin a picked plugin requires is picked with it. When a plugin needs exactly one
+), `biome.json`, `.editorconfig`, `.gitignore` and `stack.config.ts`, each only when
+  missing, and the line in `CLAUDE.md` that imports `.stack/guide.md`. A plugin a picked plugin requires is picked with it. When a plugin needs exactly one
   of several (the API needs a server target, cloudflare or node), init asks which; init run
   with flags or without a terminal, and `stack add`, take the plugin's default, cloudflare for
   the API.

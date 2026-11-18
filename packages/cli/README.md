@@ -24,12 +24,12 @@ How to build an app on stack lives in `guide/`, and each plugin ships its own pa
 | `@fcalell/cli/cli-slots` | `cliSlots`, the CLI-owned lifecycle slots (`artifactFiles`, `devProcesses`, `buildSteps`, …), and `emitArtifact` |
 | `@fcalell/cli/slots` | `slot.*` builders and the `Slot`, `Contribution`, `ContributionCtx` types (also on the main entry) |
 | `@fcalell/cli/graph` | `buildGraph(plugins, ctxFactory)`, the low-level graph engine |
-| `@fcalell/cli/build-graph` | `buildGraphFromConfig({ config, cwd })`, `buildGraphFromDiscovered()`: validate, discover, collect, then `buildGraph`. The route every command takes to a resolved graph |
-| `@fcalell/cli/css` | CSS escape and validation primitives: `cssString`, `cssUrl`, `cssIdent`, `cssVarName`, `cssTokenValue`, `cssSupportsExpression`. The shared render boundary both UI plugins wrap with their own label |
+| `@fcalell/cli/build-graph` | `buildGraphFromConfig({ config, cwd })`, `buildGraphFromDiscovered()`: validate, discover, collect, then `buildGraph` with the CLI's own contributions. `init`, `add` and `remove` build from the plugins they loaded, every other command from the config |
+| `@fcalell/cli/css` | CSS escape and validation primitives: `cssString`, `cssUrl`, `cssIdent`, `isCssIdent`, `cssVarName`, `cssTokenValue`, `cssSupportsExpression`, `isCssSupportsExpression`. The shared render boundary both UI plugins wrap with their own label |
 | `@fcalell/cli/specs` | Spec types: `GeneratedFile`, `ProcessSpec`, `WatcherSpec`, `BuildStep`, `DeployStep`, `DeployCheck`, `PromptSpec`, `DevReadyTask` |
 | `@fcalell/cli/ast` | TS, TOML and HTML spec types, their printers, `literalToProps` and `dedupeImports` |
 | `@fcalell/cli/write-artifact` | `writeArtifact`, the atomic, skip-unchanged write `generate` uses |
-| `@fcalell/cli/discovery` | `discoverPlugins()`, `loadInstalledPlugins(names)`, `FIRST_PARTY_PLUGINS`, `PLUGIN_NAMES` |
+| `@fcalell/cli/discovery` | `discoverPlugins()`, `loadInstalledPlugins(names)`, `resolveRequiresClosure()`, `validateDependencies()` |
 | `@fcalell/cli/runtime` | `RuntimePlugin<TName, TDeps, TProvides, TRoutes>` |
 | `@fcalell/cli/errors` | `StackError` and its subclasses: `ConfigLoadError`, `ConfigValidationError`, `StepFailedError`, `MissingPluginError` |
 | `@fcalell/cli/compiled-source` | Internal: the React Compiler source filter plugin-react and plugin-expo share |

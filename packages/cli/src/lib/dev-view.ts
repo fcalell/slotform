@@ -200,7 +200,8 @@ const HINTS = pc.dim(
 // The platform's command that opens a URL in the default browser.
 const OPENERS: Partial<Record<NodeJS.Platform, string[]>> = {
 	darwin: ["open"],
-	win32: ["cmd", "/c", "start", ""],
+	// `rundll32` takes the URL as one argument; `cmd /c start` would run a `&` in it.
+	win32: ["rundll32", "url.dll,FileProtocolHandler"],
 };
 
 function openUrl(url: string, log: DevLog): void {

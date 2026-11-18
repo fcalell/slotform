@@ -1,6 +1,5 @@
 // Spec types for the @fcalell/cli/ast surface.
 // These are the typed inputs consumed by the TS/TSX, TOML, and HTML printers.
-// All types are pure declarations — no runtime logic lives in this file.
 
 export type TsImportSpec =
 	| { source: string; default: string; typeOnly?: boolean }
@@ -94,7 +93,6 @@ export type TsStatement =
 export type TsSourceFile = {
 	imports: TsImportSpec[];
 	statements: TsStatement[];
-	// Optional file-level directives / banner comments go here if ever needed.
 };
 
 // ── TOML ────────────────────────────────────────────────────────────

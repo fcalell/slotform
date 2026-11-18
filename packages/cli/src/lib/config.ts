@@ -9,7 +9,7 @@ let reloads = 0;
 // query the cache has not seen; the config's own imports stay cached.
 export function configUrl(configPath: string, reload = false): string {
 	const url = pathToFileURL(resolve(configPath)).href;
-	return reload ? `${url}?t=${Date.now()}-${reloads++}` : url;
+	return reload ? `${url}?t=${reloads++}` : url;
 }
 
 // `reload` re-evaluates the config file instead of answering the cached

@@ -12,8 +12,8 @@ updates its row here in the same commit.
 every value the CLI takes from plugins flows through one of them. The lifecycle is fixed: each
 command resolves a known set of these slots and acts on the values. Plugins contribute files,
 processes and lifecycle hooks here and rarely read them. A slot no plugin owns takes
-`source: "cli"`. The phase-sorted lists (`buildSteps`, `deploySteps`) carry `phase` and `order` on
-each spec, and the slot's `sortBy` orders them at resolution.
+`source: "cli"`. The phase-sorted lists (`buildSteps`, `deploySteps`) carry `phase` on
+each spec, and the slot's `sortBy` orders them at resolution; equal phases keep contribution order.
 
 | Slot | Kind | Purpose |
 |------|------|---------|
@@ -32,7 +32,7 @@ each spec, and the slot's `sortBy` orders them at resolution.
 | `cliSlots.devWatchers` | `list<WatcherSpec>` (`uniqueBy: name`) | Recursive `fs.watch` watchers attached during `stack dev`, each debounced on its own |
 | `cliSlots.devReadySetup` | `list<DevReadyTask>` (`uniqueBy: name`) | One-shot tasks run after processes report ready |
 | `cliSlots.buildSteps` | `list<BuildStep>` (`uniqueBy: name`, phase-sorted) | Build steps in phase order (`pre`, `main`, `post`) |
-| `cliSlots.deployChecks` | `list<DeployCheck>` | Pre-deploy checks displayed and confirmed |
+| `cliSlots.deployChecks` | `list<DeployCheck>` | Pre-deploy checks: shown, confirmed in a terminal, then each `action` runs ([commands](./commands.md#command-steps)) |
 | `cliSlots.deploySteps` | `list<DeployStep>` (`uniqueBy: name`, phase-sorted) | Deploy steps in phase order |
 | `cliSlots.removeFiles` | `list<string>` | Paths removed on `stack remove <plugin>` |
 | `cliSlots.removeDeps` | `list<string>` | npm dependencies removed (auto-wired from `plugin({ dependencies })`) |

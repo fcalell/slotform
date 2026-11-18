@@ -2,6 +2,12 @@
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { log } from "@clack/prompts";
+import {
+	findPluginCommand,
+	flagList,
+	GLOBAL_OPTIONS,
+	parseCommandFlags,
+} from "./lib/command-router.ts";
 import { ConfigValidationError, StackError } from "./lib/errors.ts";
 
 // `strict: false` lets plugin-subcommand flags (e.g. `stack db apply --remote`)
@@ -13,15 +19,13 @@ const { positionals, values } = parseArgs({
 	allowPositionals: true,
 	strict: false,
 	options: {
-		config: { type: "string", default: "stack.config.ts" },
+		...GLOBAL_OPTIONS,
 		plugins: { type: "string" },
 		domain: { type: "string" },
 		package: { type: "string" },
 		dir: { type: "string" },
 		yes: { type: "boolean", short: "y", default: false },
 		force: { type: "boolean", default: false },
-		help: { type: "boolean", short: "h", default: false },
-		debug: { type: "boolean", default: false },
 	},
 });
 
@@ -29,43 +33,129 @@ const command = positionals[0];
 const subcommand = positionals[1];
 const configPath =
 	typeof values.config === "string" ? values.config : "stack.config.ts";
+const string = (value: unknown) =>
+	typeof value === "string" ? value : undefined;
 
-const CORE_COMMANDS = new Set([
-	"init",
-	"add",
-	"remove",
-	"generate",
-	"dev",
-	"build",
-	"deploy",
-]);
+function required(name: string | undefined, usage: string): string {
+	if (name) return name;
+	log.error(`Usage: ${usage}`);
+	process.exit(1);
+}
 
-const COMMAND_USAGE: Record<string, string> = {
-	init: `stack init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]
-  Scaffold a new project in [dir]. Without a terminal, [dir] is required.
-  --force scaffolds into a directory that already has a project.`,
-	add: "stack add <plugin> [-y]\n  Add a plugin. -y replaces a displaced plugin's files without asking.",
-	remove:
-		"stack remove <plugin> [-y]\n  Remove a plugin. Lists the files it deletes and asks; -y skips the\n  question (required without a terminal).",
-	generate: "stack generate\n  Generate .stack/ files",
-	dev: "stack dev\n  Start development",
-	build: "stack build\n  Build for production",
-	deploy: "stack deploy\n  Deploy to production",
-	plugin:
-		"stack plugin init <name> [--package <npm-name>] [--dir <path>]\n  Scaffold a third-party plugin skeleton",
+const PLUGIN_USAGE =
+	"stack plugin init <name> [--package <npm-name>] [--dir <path>]";
+
+interface CoreCommand {
+	usage: string;
+	summary: string;
+	// What `stack <command> --help` adds below the usage; the summary otherwise.
+	help?: string;
+	run(): Promise<void>;
+}
+
+const COMMANDS: Record<string, CoreCommand> = {
+	init: {
+		usage: "stack init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]",
+		summary: "Scaffold a new project",
+		help: "Scaffold a new project in [dir]. Without a terminal, [dir] is required.\n  --force scaffolds into a directory that already has a project.",
+		run: async () => {
+			const { init } = await import("./commands/init.ts");
+			await init(subcommand ? resolve(subcommand) : process.cwd(), {
+				plugins: string(values.plugins)
+					?.split(",")
+					.map((s) => s.trim())
+					.filter((s) => s.length > 0),
+				domain: string(values.domain),
+				yes: values.yes === true,
+				force: values.force === true,
+				dirGiven: subcommand !== undefined,
+			});
+		},
+	},
+	add: {
+		usage: "stack add <plugin> [-y]",
+		summary: "Add a plugin",
+		help: "Add a plugin. -y replaces a displaced plugin's files without asking.",
+		run: async () => {
+			const name = required(subcommand, "stack add <plugin>");
+			const { add } = await import("./commands/add.ts");
+			await add(name, configPath, { yes: values.yes === true });
+		},
+	},
+	remove: {
+		usage: "stack remove <plugin> [-y]",
+		summary: "Remove a plugin",
+		help: "Remove a plugin. Lists the files it deletes and asks; -y skips the\n  question (required without a terminal).",
+		run: async () => {
+			const name = required(subcommand, "stack remove <plugin>");
+			const { remove } = await import("./commands/remove.ts");
+			await remove(name, configPath, { yes: values.yes === true });
+		},
+	},
+	generate: {
+		usage: "stack generate",
+		summary: "Generate .stack/ files",
+		run: async () => {
+			const { generate } = await import("./commands/generate.ts");
+			await generate(configPath);
+		},
+	},
+	dev: {
+		usage: "stack dev",
+		summary: "Start development",
+		run: async () => {
+			const { dev } = await import("./commands/dev.ts");
+			await dev({ config: configPath });
+		},
+	},
+	build: {
+		usage: "stack build",
+		summary: "Build for production",
+		run: async () => {
+			const { build } = await import("./commands/build.ts");
+			await build(configPath);
+		},
+	},
+	deploy: {
+		usage: "stack deploy",
+		summary: "Deploy to production",
+		run: async () => {
+			const { deploy } = await import("./commands/deploy.ts");
+			await deploy({ config: configPath });
+		},
+	},
+	// `stack plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
+	plugin: {
+		usage: PLUGIN_USAGE,
+		summary: "Scaffold a third-party plugin skeleton",
+		run: async () => {
+			if (subcommand !== "init") {
+				log.error(
+					`Unknown plugin command: "${subcommand ?? ""}". Usage: ${PLUGIN_USAGE}`,
+				);
+				process.exit(1);
+			}
+			const name = required(positionals[2], PLUGIN_USAGE);
+			const { initPlugin } = await import("./commands/plugin.ts");
+			await initPlugin({
+				name,
+				package: string(values.package),
+				dir: string(values.dir),
+			});
+		},
+	},
 };
 
+const COLUMN = 40;
 const USAGE = `Usage:
-  stack init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]
-                                        Scaffold a new project
-  stack add <plugin> [-y]               Add a plugin
-  stack remove <plugin> [-y]            Remove a plugin
-  stack generate                        Generate .stack/ files
-  stack dev                             Start development
-  stack build                           Build for production
-  stack deploy                          Deploy to production
-  stack plugin init <name> [--package <npm-name>] [--dir <path>]
-                                        Scaffold a third-party plugin skeleton
+${Object.values(COMMANDS)
+	.map(({ usage, summary }) => {
+		const line = `  ${usage}`;
+		return line.length < COLUMN
+			? line.padEnd(COLUMN) + summary
+			: `${line}\n${" ".repeat(COLUMN)}${summary}`;
+	})
+	.join("\n")}
 
 Flags: -h/--help, --config <path>, --debug (stack traces)`;
 
@@ -75,92 +165,21 @@ function usage(): never {
 }
 
 async function main(): Promise<void> {
-	if (values.help === true) {
-		const text = command ? COMMAND_USAGE[command] : undefined;
-		if (text) {
-			log.info(`Usage:\n  ${text}`);
-			process.exit(0);
-		}
-		// A plugin subcommand's own `--help` is its command's concern.
-		if (!command) {
+	if (!command) {
+		if (values.help === true) {
 			log.info(USAGE);
 			process.exit(0);
 		}
-	}
-	if (!command) usage();
-
-	// `stack plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
-	if (command === "plugin") {
-		if (subcommand !== "init") {
-			log.error(
-				`Unknown plugin command: "${subcommand ?? ""}". Usage: stack plugin init <name>`,
-			);
-			process.exit(1);
-		}
-		const pluginName = positionals[2];
-		if (!pluginName) {
-			log.error(
-				"Usage: stack plugin init <name> [--package <pkg>] [--dir <dir>]",
-			);
-			process.exit(1);
-		}
-		const { initPlugin } = await import("./commands/plugin.ts");
-		await initPlugin({
-			name: pluginName,
-			package: typeof values.package === "string" ? values.package : undefined,
-			dir: typeof values.dir === "string" ? values.dir : undefined,
-		});
-		return;
+		usage();
 	}
 
-	if (CORE_COMMANDS.has(command)) {
-		if (command === "init") {
-			const dir = subcommand ? resolve(subcommand) : process.cwd();
-			const { init } = await import("./commands/init.ts");
-			const pluginsValue = values.plugins;
-			const domainValue = values.domain;
-			const yesValue = values.yes;
-			const pluginsFlag =
-				typeof pluginsValue === "string"
-					? pluginsValue
-							.split(",")
-							.map((s) => s.trim())
-							.filter((s) => s.length > 0)
-					: undefined;
-			await init(dir, {
-				plugins: pluginsFlag,
-				domain: typeof domainValue === "string" ? domainValue : undefined,
-				yes: yesValue === true,
-				force: values.force === true,
-				dirGiven: subcommand !== undefined,
-			});
-		} else if (command === "add") {
-			if (!subcommand) {
-				log.error("Usage: stack add <plugin>");
-				process.exit(1);
-			}
-			const { add } = await import("./commands/add.ts");
-			await add(subcommand, configPath, { yes: values.yes === true });
-		} else if (command === "remove") {
-			if (!subcommand) {
-				log.error("Usage: stack remove <plugin>");
-				process.exit(1);
-			}
-			const { remove } = await import("./commands/remove.ts");
-			await remove(subcommand, configPath, { yes: values.yes === true });
-		} else if (command === "generate") {
-			const { generate } = await import("./commands/generate.ts");
-			await generate(configPath);
-		} else if (command === "dev") {
-			const { dev } = await import("./commands/dev.ts");
-			await dev({ config: configPath });
-		} else if (command === "build") {
-			const { build } = await import("./commands/build.ts");
-			await build(configPath);
-		} else if (command === "deploy") {
-			const { deploy } = await import("./commands/deploy.ts");
-			await deploy({ config: configPath });
+	const core = Object.hasOwn(COMMANDS, command) ? COMMANDS[command] : undefined;
+	if (core) {
+		if (values.help === true) {
+			log.info(`Usage:\n  ${core.usage}\n  ${core.help ?? core.summary}`);
+			process.exit(0);
 		}
+		await core.run();
 		return;
 	}
 
@@ -170,9 +189,6 @@ async function main(): Promise<void> {
 
 	const { loadConfig } = await import("./lib/config.ts");
 	const { buildGraphFromConfig } = await import("./lib/build-graph.ts");
-	const { findPluginCommand, parseCommandFlags } = await import(
-		"./lib/command-router.ts"
-	);
 	const { generate } = await import("./commands/generate.ts");
 	const { createLogContext, createPromptContext } = await import(
 		"./lib/prompt.ts"
@@ -188,8 +204,15 @@ async function main(): Promise<void> {
 	const match = findPluginCommand(pluginClis, pluginName, commandName);
 
 	if (!match) {
-		log.error(`Unknown command: stack ${pluginName} ${commandName ?? ""}`);
+		log.error(`Unknown command: stack ${pluginName} ${commandName}`);
 		usage();
+	}
+
+	if (values.help === true) {
+		log.info(
+			`Usage:\n  stack ${pluginName} ${commandName}\n  ${match.command.description}\n  Flags: ${flagList(match.command)}`,
+		);
+		process.exit(0);
 	}
 
 	const flags = parseCommandFlags(match.command, process.argv.slice(2));

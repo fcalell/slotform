@@ -55,6 +55,7 @@ that needs another names it, and a missing one fails with the plugin to add:
 | `nativeUi()` | `expo()`, `api()`, `query()` |
 | `auth()` | `api()`, `db()` |
 | `db()`, `node()`, `query()` | `api()` |
+| `api()` | one of `cloudflare()` or `node()`, unless its `server` option is set |
 
 Each plugin's options are typed and defaulted; its guide pages list them. Add a
 plugin with `stack add <plugin>` rather than by hand: it also writes the plugin's starter files

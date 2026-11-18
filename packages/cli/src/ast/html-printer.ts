@@ -137,28 +137,25 @@ export async function renderHtml(doc: HtmlDocument): Promise<string> {
 	// duplicate detection survives split contributors.
 	const seenHtmlAttrs = new Map<string, true>();
 
-	for (const injection of doc.head) {
-		if (injection.kind === "html-attr") {
-			if (!htmlEl) {
-				throw new Error(
-					`HTML shell at ${doc.shellSource.toString()} does not contain an <html> element; cannot apply html-attr "${injection.name}".`,
-				);
-			}
-			ensureUniqueHtmlAttr(seenHtmlAttrs, injection);
-			htmlEl.setAttribute(injection.name, escapeAttr(injection.value));
-			continue;
-		}
-		head.appendChild(buildElement(injection));
-	}
-
-	if (doc.bodyEnd.length > 0) {
-		const body = root.querySelector("body");
-		if (!body) {
-			throw new Error(
-				`HTML shell at ${doc.shellSource.toString()} does not contain a <body> element`,
-			);
-		}
-		for (const injection of doc.bodyEnd) {
+	const lists = [
+		{ injections: doc.head, parent: () => head },
+		{
+			injections: doc.bodyEnd,
+			parent: () => {
+				const body = root.querySelector("body");
+				if (!body) {
+					throw new Error(
+						`HTML shell at ${doc.shellSource.toString()} does not contain a <body> element`,
+					);
+				}
+				return body;
+			},
+		},
+	];
+	for (const { injections, parent } of lists) {
+		if (injections.length === 0) continue;
+		const target = parent();
+		for (const injection of injections) {
 			if (injection.kind === "html-attr") {
 				if (!htmlEl) {
 					throw new Error(
@@ -169,7 +166,7 @@ export async function renderHtml(doc: HtmlDocument): Promise<string> {
 				htmlEl.setAttribute(injection.name, escapeAttr(injection.value));
 				continue;
 			}
-			body.appendChild(buildElement(injection));
+			target.appendChild(buildElement(injection));
 		}
 	}
 

@@ -2,11 +2,6 @@ import { stringify } from "smol-toml";
 import { isRecord } from "../lib/is-record.ts";
 import type { TomlDocument, TomlValue } from "./specs.ts";
 
-// Build a nested JS object that smol-toml's stringify can serialize.
-// - `root` entries become top-level keys.
-// - `arrayTables[].path` becomes an array of objects at that path
-//   (e.g. `["unsafe", "bindings"]` → `[[unsafe.bindings]]`).
-
 type MutableTomlTable = { [key: string]: TomlValue };
 
 function ensureObject(parent: MutableTomlTable, key: string): MutableTomlTable {
@@ -59,7 +54,8 @@ function resolveParent(
 }
 
 export function renderToml(doc: TomlDocument): string {
-	const out: MutableTomlTable = { ...doc.root };
+	// A copy, so the array tables never land in the caller's document.
+	const out: MutableTomlTable = structuredClone(doc.root);
 
 	for (const aot of doc.arrayTables) {
 		if (aot.path.length === 0) {

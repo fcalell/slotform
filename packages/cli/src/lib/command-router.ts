@@ -9,11 +9,23 @@ type AnyCliPlugin = InternalCliPlugin<
 	unknown
 >;
 
+type AnyCommand = CommandDefinition<unknown, Record<string, unknown>>;
+
 interface PluginCommandMatch {
 	plugin: AnyCliPlugin;
-	command: CommandDefinition<unknown, Record<string, unknown>>;
+	command: AnyCommand;
 	commandName: string;
 }
+
+// The flags every command takes, a plugin's own included: docs/architecture/commands.md, "Plugin subcommands".
+export const GLOBAL_OPTIONS: Record<
+	"config" | "help" | "debug",
+	ParseArgsOptionDescriptor
+> = {
+	config: { type: "string", default: "stack.config.ts" },
+	help: { type: "boolean", short: "h", default: false },
+	debug: { type: "boolean", default: false },
+};
 
 export function findPluginCommand(
 	plugins: AnyCliPlugin[],
@@ -21,16 +33,24 @@ export function findPluginCommand(
 	commandName: string,
 ): PluginCommandMatch | null {
 	const plugin = plugins.find((p) => p.name === pluginName);
-	if (!plugin) return null;
-
+	if (!plugin || !Object.hasOwn(plugin.commands, commandName)) return null;
 	const command = plugin.commands[commandName];
 	if (!command) return null;
 
 	return { plugin, command, commandName };
 }
 
+// A command's flags, as `--help` and an unknown flag's error list them.
+export function flagList(command: AnyCommand): string {
+	return (
+		Object.entries(command.options ?? {})
+			.map(([k, d]) => (d.alias ? `--${k} (-${d.alias})` : `--${k}`))
+			.join(", ") || "(none)"
+	);
+}
+
 export function parseCommandFlags(
-	command: CommandDefinition<unknown, Record<string, unknown>>,
+	command: AnyCommand,
 	argv: string[],
 ): Record<string, unknown> {
 	const flags: Record<string, unknown> = {};
@@ -56,11 +76,14 @@ export function parseCommandFlags(
 			flags[key] = false;
 		}
 	}
-
-	const availableList =
-		Object.entries(defs)
-			.map(([k, d]) => (d.alias ? `--${k} (-${d.alias})` : `--${k}`))
-			.join(", ") || "(none)";
+	// A global flag parses beside the command's own, so a string one takes its
+	// value; a command flag of the same name or short letter wins.
+	const shorts = new Set(Object.values(options).map((o) => o.short));
+	for (const [name, { type, short }] of Object.entries(GLOBAL_OPTIONS)) {
+		if (name in options) continue;
+		options[name] =
+			short !== undefined && !shorts.has(short) ? { type, short } : { type };
+	}
 
 	const { tokens = [] } = parseArgs({
 		args: argv,
@@ -73,10 +96,12 @@ export function parseCommandFlags(
 	for (const token of tokens) {
 		if (token.kind !== "option") continue;
 		const canonical = canonicalOf.get(token.name);
+		if (canonical === undefined && Object.hasOwn(GLOBAL_OPTIONS, token.name))
+			continue;
 		const def = canonical === undefined ? undefined : defs[canonical];
 		if (canonical === undefined || def === undefined) {
 			throw new StackError(
-				`Unknown flag "${token.rawName}" for command "${command.description}". Available: ${availableList}`,
+				`Unknown flag "${token.rawName}" for command "${command.description}". Available: ${flagList(command)}`,
 				"UNKNOWN_FLAG",
 			);
 		}
@@ -99,7 +124,7 @@ export function parseCommandFlags(
 			);
 		} else if (def.type === "number") {
 			const parsed = Number(value);
-			if (Number.isNaN(parsed)) {
+			if (value.trim() === "" || Number.isNaN(parsed)) {
 				throw new StackError(
 					`Flag "${token.rawName}" expects a number, got "${value}".`,
 					"INVALID_FLAG_VALUE",

@@ -7,7 +7,7 @@ export interface PluginConfig<
 > {
 	readonly __plugin: TName;
 	// `__package` is the npm name discovery imports: docs/architecture/plugin-authoring.md, "Plugin discovery".
-	readonly __package?: string;
+	readonly __package: string;
 	readonly options: TOptions;
 	// Type-only: the caller's literal input, never set at runtime.
 	readonly __input?: TInput;

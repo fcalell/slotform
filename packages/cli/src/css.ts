@@ -49,7 +49,7 @@ export function cssUrl(value: string, label: string): string {
 const IDENT_RE = /^-?[A-Za-z_][A-Za-z0-9_-]*$/;
 
 export function isCssIdent(value: unknown): value is string {
-	return typeof value === "string" && IDENT_RE.test(value) && value !== "-";
+	return typeof value === "string" && IDENT_RE.test(value);
 }
 
 // Validates that `value` is a legal CSS <ident> and returns it unchanged.
@@ -104,10 +104,11 @@ export function cssVarName(value: string, label: string): string {
 // CSS <string> these are raw token streams — `oklch(0.2 0.05 220)`, `4px` — so
 // they must NOT be quoted: spaces, parens and commas are legal. Rejected are
 // the sequences that would let a value escape its declaration: the statement /
-// block terminators, the line breaks that close a declaration, and a comment
-// delimiter, which would swallow the rest of the emitted block. Unbalanced
-// parens are rejected for the reason `parensBalanced` gives above.
-const TOKEN_VALUE_ILLEGAL_RE = /[;{}\n\r\f]|\/\*|\*\//;
+// block terminators, the line breaks that close a declaration, a comment
+// delimiter, which would swallow the rest of the emitted block, and a
+// backslash, which escapes the character after it (`red\` then `;`).
+// Unbalanced parens are rejected for the reason `parensBalanced` gives above.
+const TOKEN_VALUE_ILLEGAL_RE = /[;{}\\\n\r\f]|\/\*|\*\//;
 
 export function cssTokenValue(value: string, label: string): string {
 	if (typeof value !== "string" || value.trim().length === 0) {
