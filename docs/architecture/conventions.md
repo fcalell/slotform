@@ -150,7 +150,7 @@ What `shared.json` configures:
 - **Imports:** organized by the `organizeImports` assist.
 - **VCS:** git, so every `.gitignore` entry is excluded.
 - **Excluded paths:** `dist`, `build`, `node_modules`, `.turbo`, `.wrangler`, `.output`, `.stack`,
-  `.claude/worktrees`, `storybook-static`, `coverage`, `routeTree.gen.ts`, `*.d.ts`.
+  `.claude/worktrees`, `storybook-static`, `coverage`, `*.d.ts`.
 
 A `files.includes` of the extending config's own overrides that list, so it restates `**` and
 `!**/*.d.ts` beside its own exclusions; `.stack/biome.json` skips generated sources with an
