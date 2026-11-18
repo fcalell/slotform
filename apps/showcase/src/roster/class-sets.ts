@@ -4,10 +4,8 @@ import {
 	rosterEntries,
 	type State,
 } from "@fcalell/ui-core/roster";
+import { MODES, type Mode } from "@fcalell/ui-core/tokens";
 import { matrixClasses } from "@fcalell/ui-core/variants";
-
-export const MODES = ["light", "dark"] as const;
-export type ShowcaseMode = (typeof MODES)[number];
 
 export const DENSITIES = ["touch", "desktop"] as const;
 export type ShowcaseDensity = (typeof DENSITIES)[number];
@@ -24,7 +22,7 @@ export interface ShowcaseScene {
 	component: string;
 	classSet: ShowcaseClassSet;
 	state: DrawnState;
-	mode: ShowcaseMode;
+	mode: Mode;
 	density: ShowcaseDensity;
 }
 

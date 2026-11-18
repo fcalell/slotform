@@ -323,7 +323,6 @@ export default defineFixtures<AppRouter>(
 			],
 			shipped: () => ({ count: 14 }),
 			rolledBack: () => ({ count: 2 }),
-			promote: () => undefined,
 		},
 		activity: { weeks: () => WEEKS, hours: () => HOURS },
 		sprints: {
@@ -424,13 +423,6 @@ export default defineFixtures<AppRouter>(
 				...found(MEMBERS.find((each) => each.id === id)),
 				...change,
 			}),
-			// The new owner takes ownership, the old one stays an admin.
-			transfer: ({ id }) =>
-				MEMBERS.map((member): Member => {
-					if (member.id === id) return { ...member, role: "owner" };
-					if (member.role === "owner") return { ...member, role: "admin" };
-					return member;
-				}),
 			invite: () => undefined,
 			revokeInvitation: () => undefined,
 		},

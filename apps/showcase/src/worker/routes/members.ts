@@ -35,13 +35,6 @@ export const members = {
 			throw new ApiError("NOT_FOUND");
 		}),
 
-	// Ownership moves whole: the new owner takes it and the old one stays an
-	// admin, so the answer is every member as it stands after.
-	transfer: procedure({ writes: ["members"] })
-		.input(z.object({ id: z.string() }))
-		.output(z.array(member))
-		.mutation(() => []),
-
 	invite: procedure({ writes: ["members"] })
 		.input(
 			z.object({

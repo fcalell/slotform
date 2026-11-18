@@ -1,4 +1,4 @@
-import { useMore } from "@fcalell/ui-core/react/read";
+import { usePort } from "@fcalell/ui-core/react/port";
 import type { Read } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { HOWS, type MoreState, pagesAt } from "../waiting.ts";
@@ -6,7 +6,7 @@ import { HOWS, type MoreState, pagesAt } from "../waiting.ts";
 // Asks for the next page once it can be asked for, as a viewer pressing "Show
 // more" would, so a scene stands in the state that follows the press.
 function Pressed(props: { read: Read<unknown>; children: ReactNode }) {
-	const { next, fetch } = useMore(props.read);
+	const { next, fetch } = usePort().useNextPage(props.read);
 	const pressed = useRef(false);
 	useEffect(() => {
 		if (next && !pressed.current) {

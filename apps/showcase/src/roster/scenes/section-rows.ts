@@ -223,7 +223,7 @@ export const ENTRIES: Row[] = [
 // A path long enough to wrap at 320, one segment of it a long word.
 const MAIL_PATH =
 	"apps/web/src/routes/settings/billing/invoices/refreshTokenRotationScheduleHandler.ts";
-const OUTSIDE = {
+export const OUTSIDE = {
 	flag: "Globe",
 	label: "Outside content",
 	words: false,

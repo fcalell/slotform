@@ -614,8 +614,7 @@ interface Group {
 	radii: RadiusMeasure[];
 }
 
-// Every finding on the page, the alignment rules (`align-*`) among them;
-// `alignFindings()` returns those alone.
+// Every finding on the page, the alignment rules (`align-*`) among them.
 export function findings(options: WalkOptions = {}): Finding[] {
 	return [...layoutFindings(options), ...alignFindings()];
 }

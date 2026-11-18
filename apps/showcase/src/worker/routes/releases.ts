@@ -49,6 +49,4 @@ export const releases = {
 	rolledBack: procedure({ reads: ["releases"] })
 		.output(z.object({ count: z.number() }))
 		.query(() => ({ count: 0 })),
-
-	promote: procedure({ writes: ["releases"] }).mutation(() => undefined),
 };

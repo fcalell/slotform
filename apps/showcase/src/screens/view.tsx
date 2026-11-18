@@ -1,19 +1,15 @@
 import { cn } from "@fcalell/ui-core/cn";
+import { MODES, type Mode } from "@fcalell/ui-core/tokens";
 import {
 	SEGMENTED_CONTROL,
 	segment,
 	segmentLabel,
 } from "@fcalell/ui-core/variants";
 import { useLayoutEffect, useState } from "react";
-import {
-	DENSITIES,
-	MODES,
-	type ShowcaseDensity,
-	type ShowcaseMode,
-} from "../roster/class-sets.ts";
+import { DENSITIES, type ShowcaseDensity } from "../roster/class-sets.ts";
 
 export interface View {
-	mode: ShowcaseMode;
+	mode: Mode;
 	density: ShowcaseDensity;
 }
 
@@ -26,13 +22,13 @@ function pick<T extends string>(
 }
 
 // The mode the URL's `?mode=` asks, `fallback` without one.
-export function askedMode(fallback: ShowcaseMode): ShowcaseMode {
+export function askedMode(fallback: Mode): Mode {
 	const asked = new URLSearchParams(window.location.search).get("mode");
 	return pick(asked, MODES, fallback);
 }
 
 // The `dark` class exactly as the mode script sets it.
-export function applyMode(mode: ShowcaseMode): void {
+export function applyMode(mode: Mode): void {
 	document.documentElement.classList.toggle("dark", mode === "dark");
 }
 

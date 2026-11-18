@@ -25,7 +25,7 @@ import { StandInList, StandInRows } from "./layout-context.tsx";
 import { TURN, TURNS } from "./message-fixtures.ts";
 import { isPaint } from "./painted.tsx";
 import { ACTIONS, Column, MORE } from "./place.tsx";
-import { act, SERVER } from "./section-rows.ts";
+import { act, OUTSIDE, SERVER } from "./section-rows.ts";
 
 // A Pane that fills (a Canvas, a Thread) needs a Panes with a height of its
 // own: the page's, in the shell, is the viewport's.
@@ -477,7 +477,7 @@ function ShiftHead(props: { form: "waiting" | "loaded" | "bare" }) {
 						overline: loaded ? ["Billing", "Invoices"] : WAITING_OVERLINE,
 						facts: [
 							...(loaded ? SHIFT_LOADED : SHIFT_WAITING),
-							...(props.form === "bare" ? [] : [EDGE_OUTSIDE]),
+							...(props.form === "bare" ? [] : [OUTSIDE]),
 						],
 					}}
 				>
@@ -627,11 +627,6 @@ const EDGE_ADDRESS = [
 	'"Example Enterprise Accounts Payable Notifications" <billing-notifications@accounts.example-enterprise.com>',
 	"6 min",
 ];
-const EDGE_OUTSIDE: RecordFact = {
-	flag: "Globe",
-	label: "Outside content",
-	words: false,
-};
 const EDGE_BRANCH: RecordFact = {
 	code: "acme-web/deploy-8f3a2c71/refreshTokenRotationScheduleHandler",
 };
@@ -682,7 +677,7 @@ function HeadEdges() {
 						title="Land the cover cache change"
 						record={{
 							overline: EDGE_OVERLINE,
-							facts: [{ tone: "waiting", label: "Waiting" }, EDGE_OUTSIDE],
+							facts: [{ tone: "waiting", label: "Waiting" }, OUTSIDE],
 						}}
 					/>
 				</Short>
@@ -713,7 +708,7 @@ function HeadEdges() {
 								{ warning: "Tests failed twice" },
 								{ family: "green", label: "Free" },
 								moving("active"),
-								EDGE_OUTSIDE,
+								OUTSIDE,
 								"Held by the nightly import until the warehouse migration has finished its last table, which is long",
 							],
 						}}
