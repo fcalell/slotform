@@ -12,7 +12,7 @@ import { useHeldDraft } from "../../lib/act.ts";
 import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";
 import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
-import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import { BOX_HOVER } from "./base.tsx";
 import type { ProseProps } from "./index.tsx";
 
@@ -72,7 +72,7 @@ export function ProseBase({
 						BOX,
 						BOX_FOCUS,
 						state.disabled ? BOX_DISABLED : state.valid !== false && BOX_HOVER,
-						painted && cn(PAINT_CONTROL, "*:invisible"),
+						painted && PAINT_CONTROL_HIDDEN,
 					)}
 				>
 					<textarea

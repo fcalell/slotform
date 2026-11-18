@@ -33,7 +33,7 @@ const LABEL = "min-w-0 grow truncate";
 const MARK = "flex shrink-0 text-ink-body";
 const DISABLED = "text-ink-disabled";
 
-/** The menu that shows and hides a table's columns: a check row per column after the leading one (the row's name, always shown), the list staying open as the viewer ticks. and, after a rule, a Reset row that returns the columns to what the table declares, off while they stand so. Outside the package's exports. */
+/** The menu that shows and hides a table's columns: a check row per column after the leading one (the row's name, always shown), the list staying open as the viewer ticks, and, after a rule, a Reset row that returns the columns to what the table declares, off while they stand so. Outside the package's exports. */
 export function ColumnsMenu(props: {
 	columns: readonly TableColumn[];
 	choice: ColumnChoice;

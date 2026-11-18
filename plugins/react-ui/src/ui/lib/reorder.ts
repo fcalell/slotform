@@ -108,7 +108,7 @@ const STEPS: readonly {
 	step: Step;
 	word: "moveUp" | "moveDown" | "moveFirst" | "moveLast";
 	icon: "ArrowUp" | "ArrowDown" | "ChevronsUp" | "ChevronsDown";
-	from: Edge | "none";
+	from: Edge;
 }[] = [
 	{ step: "up", word: "moveUp", icon: "ArrowUp", from: "first" },
 	{ step: "down", word: "moveDown", icon: "ArrowDown", from: "last" },

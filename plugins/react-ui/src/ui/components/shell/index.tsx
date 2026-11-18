@@ -5,6 +5,7 @@ import type {
 	IconName,
 	PlaceSpec,
 } from "@fcalell/ui-core/descriptors";
+import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { ShellHome } from "@fcalell/ui-core/react/frame";
 import {
@@ -242,7 +243,7 @@ export function Shell({
 					<div className={BACK}>
 						<Button
 							glyph
-							icon="ChevronLeft"
+							icon={BACK_GLYPH}
 							label={words.back}
 							onAct={() => setViewed(undefined)}
 						/>
@@ -698,7 +699,6 @@ function GroupPlaces(props: {
 	const waits = paints(drawn);
 	const specs = drawn.painted ? [] : drawn.value;
 	const ended = isEnded(frame.shape);
-	// A group loaded and empty draws no places.
 	if (!(waits || ended) && specs.length === 0) return null;
 	return (
 		<FrameHolds holds={frame.held}>

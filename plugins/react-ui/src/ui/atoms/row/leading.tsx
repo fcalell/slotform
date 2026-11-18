@@ -5,6 +5,7 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily, Words } from "@fcalell/ui-core/tokens";
 import { rowMark, TREE_BLEED, TREE_RAIL } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
+import { NOOP } from "../../lib/noop.ts";
 import { AvatarBase } from "../avatar/base.tsx";
 import { IconButtonBase, Named } from "../button/glyph.tsx";
 import { Icon, IconBase } from "../icon/index.tsx";
@@ -18,7 +19,6 @@ const FIRST_LINE = "flex shrink-0 items-center h-line-body";
 // it stays passive.
 const NAMED_LEADING = "relative pointer-events-auto touch:pointer-events-none";
 const GLYPH = "flex text-ink-meta";
-const NOOP = () => {};
 // A tree row's levels and fold lane stand as one box that runs the row's full
 // height, over its padding, so a level's rail is unbroken from row to row.
 const TREE = "flex shrink-0 self-stretch";

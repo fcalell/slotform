@@ -74,28 +74,30 @@ import type {
 } from "../picker/index.tsx";
 import { PickerListBase } from "../picker/list.tsx";
 import { SegmentsBase } from "../picker/segments.tsx";
-import {
-	ASIDE,
-	ASIDE_LABEL,
-	ASIDE_LINE,
-	END_GROUP,
-	STACKED_ALONE_LINE_AREA,
-	STACKED_ALONE_ROW,
-	STACKED_ALONE_ROW_AREA,
-	STACKED_ALONE_UNDER,
-	STACKED_BOX,
-	STACKED_NAME_AREA,
-	STACKED_OPTIONAL_NAME,
-	STACKED_SPLIT,
-	STACKED_SPLIT_FREE,
-	STACKED_SPLIT_VALUE,
-	VALUE_LINE,
-} from "../row/index.tsx";
+import { ASIDE, ASIDE_LABEL, ASIDE_LINE, STACKED_BOX } from "../row/index.tsx";
 import { SliderBase } from "../slider/base.tsx";
 import type { SliderProps } from "../slider/index.tsx";
 import { SwitchBase } from "../switch/base.tsx";
 import type { SwitchProps } from "../switch/index.tsx";
 
+// A field stands its value under its label as a definition row does: docs/architecture/ui-core/layout.md, "Definition rows".
+const STACKED_OPTIONAL_NAME = "definitions-stacked:pt-0";
+const STACKED_NAME_AREA = "definitions-stacked:mt-0";
+const STACKED_SPLIT =
+	"definitions-stacked:flex-col definitions-stacked:items-stretch";
+const STACKED_SPLIT_VALUE = "definitions-stacked:w-auto";
+const STACKED_SPLIT_FREE = "definitions-stacked:max-w-full";
+const STACKED_ALONE_ROW =
+	"[.rows-host>&]:definitions-stacked:flex [.rows-host>&]:definitions-stacked:flex-col [.rows-host>&]:definitions-stacked:items-stretch";
+const STACKED_ALONE_ROW_AREA =
+	"[.rows-host>&]:definitions-stacked:items-stretch";
+const STACKED_ALONE_LINE_AREA = "[.rows-host>*>&]:definitions-stacked:mt-0";
+const STACKED_ALONE_UNDER = "[.rows-host>*>&]:definitions-stacked:col-start-1";
+// The value line: the change mark, the control and the end group, centred on the line.
+const VALUE_LINE = "flex items-center min-w-0";
+// The end group: on the first line's box at the line's end; a control taller
+// than the line overflows it centred.
+const END_GROUP = "flex shrink-0 items-center ms-auto h-line-body";
 const DISABLED = "text-ink-disabled";
 const SUMMARY = "flex items-center min-w-0";
 const SUMMARY_GLYPH = "flex shrink-0";

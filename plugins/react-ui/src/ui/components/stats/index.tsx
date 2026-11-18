@@ -187,7 +187,7 @@ export function Stats({ items }: StatsProps) {
 							/>
 						</li>
 					) : (
-						<Cell key={item.label} item={item} at={at} />
+						<Cell key={at} item={item} at={at} />
 					),
 				)}
 			</ul>

@@ -7,12 +7,10 @@ export const RECENT = 300;
 
 let gone = Number.NEGATIVE_INFINITY;
 
-/** A tooltip has just gone. */
 export function hid(): void {
 	gone = performance.now();
 }
 
-/** Whether a tooltip went within `RECENT`, so the next shows at once. */
 export function recently(): boolean {
 	return performance.now() - gone < RECENT;
 }

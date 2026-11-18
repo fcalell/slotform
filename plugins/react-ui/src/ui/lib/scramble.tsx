@@ -19,7 +19,9 @@ import {
 import type { LoadingRegion } from "@fcalell/ui-core/tokens";
 import { paint, SCRAMBLE } from "@fcalell/ui-core/variants";
 import { useId, useLayoutEffect, useRef } from "react";
+import { pageLang } from "./lang.ts";
 import { reducedNow } from "./media.ts";
+import { NOOP } from "./noop.ts";
 
 // The `loading` record read from the root: docs/architecture/plugins/react-ui.md, "Mode script and CSP".
 const ATTRIBUTES: Record<LoadingRegion, string> = {
@@ -73,11 +75,7 @@ function Scramble(props: { kind: LoadingRegion; shape: string }) {
 export function ScrambledGlyphs(props: { role: PaintRole; at: number }) {
 	const { role, at } = props;
 	const kind = kindOf(role);
-	const shape = paintShape(
-		role,
-		at,
-		document.documentElement.lang || undefined,
-	);
+	const shape = paintShape(role, at, pageLang());
 	return (
 		<span
 			aria-hidden
@@ -108,7 +106,7 @@ export function Decoding(props: { text: string; onDone: () => void }) {
 		const start = performance.now();
 		let frameId = 0;
 		// Keeps the page's clock running for the tail's characters.
-		const off = ticker.subscribe(() => {});
+		const off = ticker.subscribe(NOOP);
 		// The locks follow the clock frame by frame; the characters not yet locked
 		// change at the page's tick.
 		const draw = () => {

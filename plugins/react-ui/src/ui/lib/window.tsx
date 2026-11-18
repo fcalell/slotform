@@ -47,8 +47,6 @@ export function useScroller<T extends HTMLElement = HTMLElement>(
 // The height a row is taken to have until the first one is measured: the
 // `row` size at the density and size in force.
 const estimate = () => spacing("row");
-// A spacer (`data-spacer`, `aria-hidden`) is out of the accessibility tree
-// and stands for rows outside the window: room by design and no dead box.
 // How long a scroll is taken to run after its last event (ms). Not
 // `scrollend`: it waits for a held finger's release, so a still finger would
 // read as scrolling, and it is Baseline only since December 2025.
@@ -338,6 +336,8 @@ export function Window({
 	}, [on, box]);
 
 	if (!on) return Array.from({ length: count }, (_, index) => row(index));
+	// A spacer (`data-spacer`, `aria-hidden`) is out of the accessibility tree
+	// and stands for rows outside the window: room by design and no dead box.
 	const Space = spacer;
 	return entries.map((entry) => {
 		if ("row" in entry) return row(entry.row);

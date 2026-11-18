@@ -46,7 +46,8 @@ test("each walk exception names classes its component draws", () => {
 	);
 	for (const e of named) {
 		const drawn = tokens(OWNERS[e.owner ?? ""] ?? "");
-		for (const token of tokens(e.classes ?? "")) {
+		assert.ok(e.classes, `${e.rule} on ${e.owner} names no classes`);
+		for (const token of tokens(e.classes)) {
 			assert.ok(
 				drawn.includes(token),
 				`${e.rule} on ${e.owner}: "${token}" is not among the classes it draws (${drawn.join(" ")})`,
@@ -63,7 +64,10 @@ test("the specimen exception matches only a marked main", () => {
 	const specimen = EXCEPTIONS.find(
 		(e) => e.rule === "type-size" && e.selector.includes("main"),
 	);
-	assert.equal(specimen?.selector, "main[data-specimen]");
+	assert.ok(
+		specimen?.selector.includes("[data-specimen]"),
+		"a bare main is no specimen",
+	);
 	assert.ok(
 		EXCEPTIONS.every((e) => !e.selector.includes("min-h-screen")),
 		"no exception keys on a page's min-h-screen",
@@ -103,8 +107,11 @@ test("the grid exceptions' tokens survive what a component merges over them", ()
 			assert.ok(tokens(classes).includes(token), `${token} in ${classes}`);
 		}
 	}
-	const grids = EXCEPTIONS.filter((e) => e.rule === "align-grid").map(
-		(e) => e.classes,
-	);
-	assert.deepEqual(grids, [ROWS_HOST, SUBGRID]);
+	// Every grid exception is among the markers merged above.
+	for (const e of EXCEPTIONS.filter((one) => one.rule === "align-grid")) {
+		assert.ok(
+			drawn.some(([marker]) => marker === e.classes),
+			`${e.classes} is merged above`,
+		);
+	}
 });

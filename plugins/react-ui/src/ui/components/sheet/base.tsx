@@ -22,7 +22,7 @@ import { useAct } from "../../lib/act.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { FIELDS, firstTabbable } from "../../lib/focus.ts";
 import { useTouch } from "../../lib/media.ts";
-import { FrameBody } from "../../lib/read.tsx";
+import { FrameBody, stillOf } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
@@ -219,7 +219,7 @@ export function SheetBase({
 				<div
 					ref={scroll.ref}
 					aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
-					data-still={(frame.holds && frame.shape === "still") || undefined}
+					data-still={stillOf(frame)}
 					className={cn(BODY, DIVIDER)}
 				>
 					<Scroller value={scroll}>{body}</Scroller>

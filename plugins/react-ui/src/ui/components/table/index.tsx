@@ -129,6 +129,7 @@ import type { CellFit } from "../../lib/field.ts";
 import { useTouch } from "../../lib/media.ts";
 import { MoreRow } from "../../lib/more.tsx";
 import { follow, navigate } from "../../lib/navigate.ts";
+import { NOOP } from "../../lib/noop.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import {
@@ -224,7 +225,6 @@ const CELL = "flex items-center gap-gap min-w-0";
 const CELL_END = "justify-end";
 const VALUE = "truncate";
 const WRAP = "break-words hyphens-auto";
-const NOOP = () => {};
 const CHANGE = "flex items-center min-w-0";
 // A change in a column that wraps: its before and its after share the cell's width
 // beside the arrow and wrap at their words, the arrow one item centred on the cell.
@@ -467,7 +467,7 @@ export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 			view
 				.ensure(pagesCovering(indices, view.size, view.total))
 				// A page that failed stands painted; the next scroll asks for it again.
-				.catch(() => {});
+				.catch(NOOP);
 		},
 		[view],
 	);

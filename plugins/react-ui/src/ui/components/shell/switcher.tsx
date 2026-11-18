@@ -24,10 +24,8 @@ import type { IconAct } from "../../lib/act.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { Avatar } from "../avatar/index.tsx";
 import { HeldPicker } from "../picker/base.tsx";
+import { GLYPH, ROW_PRESS } from "./row.ts";
 
-const ROW_PRESS = "hover:bg-wash-hover active:bg-wash-press";
-// The leading region takes a place row glyph's ink: a button resets its colour.
-const GLYPH = "flex shrink-0";
 const END = "flex shrink-0 text-ink-mark";
 // The trigger is a place row: its leading region holds the glyph the caller
 // gives (the app's lockup), else the current option's icon at the row glyph's

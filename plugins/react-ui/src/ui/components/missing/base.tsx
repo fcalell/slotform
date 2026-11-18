@@ -11,7 +11,7 @@ function useBackAct(): LinkAct | undefined {
 	const words = useWords();
 	const screen = use(BackRoute);
 	const place = use(PlaceRoute);
-	const href = screen === false ? undefined : (screen ?? place);
+	const href = screen ?? place;
 	if (href === undefined) return undefined;
 	return { label: words.back, href };
 }

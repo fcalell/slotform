@@ -2,12 +2,11 @@ import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { FrameHolds } from "@fcalell/ui-core/react/read";
 import { NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
 import { type ReactNode, useState } from "react";
-import { useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
-import { type FormProps, useDerivedForm } from "../form/index.tsx";
+import type { FormProps } from "../form/index.tsx";
 import { SheetBase, type SheetSubmit } from "./base.tsx";
-import { SheetForm, useClearOnOpen } from "./form.tsx";
+import { useSheetForm } from "./form.tsx";
 
 export type { Acknowledge, SheetSubmit } from "./base.tsx";
 
@@ -51,11 +50,7 @@ export function Sheet<P extends ProcedureCall>(given: SheetProps<P>) {
 	const { title, description, back, submit, read, empty, form, children } = open
 		? given
 		: shown;
-	// The sheet's form has a bar of its own: one holder keeps the dismissal held
-	// while either the form's act or the sheet's runs.
-	const acting = useAct<number>("line");
-	const derived = useDerivedForm(form, false);
-	useClearOnOpen(open, derived.clear);
+	const { acting, fields } = useSheetForm(form, open, [read]);
 	return (
 		<FrameHolds holds={NO_HOLDS}>
 			<SheetBase
@@ -68,15 +63,7 @@ export function Sheet<P extends ProcedureCall>(given: SheetProps<P>) {
 				submit={submit}
 				read={read}
 				empty={empty}
-				fields={
-					derived.frame ? (
-						<SheetForm
-							form={derived.frame}
-							acting={acting}
-							outer={[read, ...derived.outer]}
-						/>
-					) : undefined
-				}
+				fields={fields}
 			>
 				{children}
 			</SheetBase>

@@ -19,7 +19,7 @@ import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";
 import type { CellFit, InlineFit } from "../../lib/field.ts";
 import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
-import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import type { InputKind, TextInputProps } from "./index.tsx";
 
@@ -183,7 +183,7 @@ export function InputBase({
 						state.disabled
 							? BOX_DISABLED
 							: state.valid !== false && BOX_HOVER_VALUE,
-						painted && cn(PAINT_CONTROL, "*:invisible"),
+						painted && PAINT_CONTROL_HIDDEN,
 					)}
 				>
 					{search ? <Icon name="Search" fit="control" /> : null}

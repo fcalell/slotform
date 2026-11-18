@@ -12,6 +12,7 @@ import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useReach } from "@fcalell/ui-core/react/read";
 import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
+import { isRun, partText } from "@fcalell/ui-core/runs";
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
 	type ComponentProps,
@@ -61,13 +62,14 @@ interface RowsInternal {
 const PAINTED: RowItemData = { key: "", title: "", facts: [""] };
 
 const isList = (item: Row): item is RowItemData => !("path" in item);
-/** A row's key in its sheet: its `key`, else its label's text, else its title's. */
+/** A row's key in its sheet: its `key`, else its label's text, else its title's words. */
 export const keyOf = (item: Row) => {
 	if (item.key !== undefined) return item.key;
 	if (isList(item)) {
 		if (typeof item.label === "string") return item.label;
 		if (item.label) return item.label.code;
-		if (typeof item.title === "string") return item.title;
+		const { title } = item;
+		if (Array.isArray(title) || isRun(title)) return partText(title);
 	}
 	return "";
 };
@@ -97,9 +99,7 @@ export function Rows(props: RowsInternal) {
 	);
 	const own = useRef<HTMLDivElement>(null);
 	const box = props.box ?? own;
-	// The tree's element, which holds its rows.
-	const wrap = useRef<HTMLDivElement>(null);
-	const treeBox = wrap;
+	const treeBox = useRef<HTMLDivElement>(null);
 	// The visible row a key is moving the focus to, by its key; it stands
 	// mounted by then, the window keeping the tab stop's row, and takes the focus.
 	const [wanted, setWanted] = useState<{ key: string }>();
@@ -232,7 +232,6 @@ export function Rows(props: RowsInternal) {
 		if (props.tail) return <ListedRoute value={at}>{rows()}</ListedRoute>;
 		// The more row ends the box, so the rows it paints stand at the box's
 		// rhythm; a tree's box holds treeitems alone, so its row follows it.
-		const sheet = props;
 		const more =
 			props.more && !painted ? (
 				<MoreRow
@@ -242,11 +241,11 @@ export function Rows(props: RowsInternal) {
 					scrolled={reach.reached}
 					paint={() => (
 						<Rows
-							{...sheet}
+							{...props}
 							more={undefined}
 							tail={!nav}
 							// The next page paints in the shape of the rows that stand.
-							paint={sheet.paint ?? items.find(isList)}
+							paint={props.paint ?? items.find(isList)}
 							drawn={{
 								painted: true,
 								phase: "waiting",
@@ -275,7 +274,7 @@ export function Rows(props: RowsInternal) {
 		);
 		const stand: ReactNode = nav ? (
 			<div
-				ref={wrap}
+				ref={treeBox}
 				role="tree"
 				onKeyDown={nav.onKeyDown}
 				onFocus={nav.onFocus}

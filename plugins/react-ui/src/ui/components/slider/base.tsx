@@ -12,7 +12,7 @@ import {
 	SLIDER_TRACK,
 	SLIDER_VALUE,
 } from "@fcalell/ui-core/variants";
-import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import type { VarStyle } from "../../lib/style.ts";
 import type { SliderProps } from "./index.tsx";
 
@@ -64,7 +64,6 @@ export function SliderBase({
 	/** The thumb's value as words (`3:07`), where the number's own is not what a viewer reads. */
 	said?: (value: number) => string;
 }) {
-	// A read that ended leaves the track with no value, blocked.
 	const ended = draft.ended !== undefined;
 	const painted = draft.painted && !ended;
 	// Painted or ended, the thumb rests at the start: the value is the placeholder.
@@ -113,11 +112,7 @@ export function SliderBase({
 				</div>
 			)}
 			<Base.Control
-				className={cn(
-					SLIDER_TRACK,
-					TRACK,
-					painted && cn(PAINT_CONTROL, "*:invisible"),
-				)}
+				className={cn(SLIDER_TRACK, TRACK, painted && PAINT_CONTROL_HIDDEN)}
 				style={track}
 			>
 				<span

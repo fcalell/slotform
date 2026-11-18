@@ -30,7 +30,6 @@ export function SwitchBase({
 	painted?: boolean;
 	disabled?: boolean;
 }) {
-	// A read that ended leaves the track standing with no thumb, blocked.
 	const ended = draft.ended !== undefined;
 	const painted = given || (draft.painted && !ended);
 	const absent = painted || ended;

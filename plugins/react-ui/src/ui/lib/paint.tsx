@@ -34,6 +34,9 @@ export const PAINT_BOX = cn(paint({ kind: "box" }), PULSE);
 /** The paint of a control: its own box filled, its content invisible; the control is also `inert`. */
 export const PAINT_CONTROL = cn(paint({ kind: "control" }), PULSE);
 
+/** The paint of a control whose children stand in its box (a field's text, a pick's options, a slider's track): the control's paint, each child kept in place and not drawn. */
+export const PAINT_CONTROL_HIDDEN = cn(PAINT_CONTROL, "*:invisible");
+
 /** A text region's paint, set inside the region's own text element (no wrapper box): each line box a bar, or, where the theme scrambles the region's kind (`theme.loading`) and the region is one line, the scramble over the same box. It clips where a loaded text ellipsizes (`globals.css`). */
 export function Painted({ role, at = 0 }: { role: PaintRole; at?: number }) {
 	if (scrambled(role)) return <ScrambledGlyphs role={role} at={at} />;

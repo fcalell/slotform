@@ -15,7 +15,7 @@ export const ShellMenu = createContext<IconAct | undefined>(undefined);
 export const PlaceRoute = createContext<string | undefined>(undefined);
 
 // The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
-export const BackRoute = createContext<string | false | undefined>(undefined);
+export const BackRoute = createContext<string | undefined>(undefined);
 
 // The two kinds of Pane a Panes holds, one of each at most: the place's own,
 // and a record's after it.

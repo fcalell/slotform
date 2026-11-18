@@ -60,11 +60,7 @@ export const reducedNow = (): boolean => matchMedia(REDUCED).matches;
 // Whether the viewer asked for reduced motion: a part that moves by script
 // (a Web Animation, which CSS cannot still) reads it here.
 export function useReducedMotion(): boolean {
-	return useSyncExternalStore(
-		reduced.subscribe,
-		() => matchMedia(REDUCED).matches,
-		() => false,
-	);
+	return useSyncExternalStore(reduced.subscribe, reducedNow, () => false);
 }
 
 // A spacing role or a size in pixels at the current density (a popup's

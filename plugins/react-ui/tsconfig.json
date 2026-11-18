@@ -1,7 +1,8 @@
 {
 	"extends": "@fcalell/typescript-config/web-vite.json",
 	"compilerOptions": {
-		// `src/node/` and the tests run under Node.
+		// `src/node/` and the tests run under Node, and the web code reads
+		// `process.env.NODE_ENV`, which the bundler replaces.
 		"types": ["node"]
 	},
 	"include": ["src", "scripts"]

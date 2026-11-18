@@ -168,7 +168,7 @@ const LINE_IN_FLOW = cn(row({ state: "rest" }), "flex flex-wrap items-center");
 // the label beside it shares their centre.
 const LINE_IN_VALUE = "flex flex-wrap items-center gap-gap min-h-control";
 
-/** A frame's busy mark, after its heading: a spinner while a read it holds refetches or retries, faded in after `WAIT_DELAY`. A frame that holds no read and a frame with no heading draw none, and of sibling frames over one read only the first draws it, so one refetch stands as one mark. */
+/** A frame's busy mark, after its heading: a spinner while a read it holds refetches or retries, faded in after `--wait-delay`. A frame that holds no read and a frame with no heading draw none, and of sibling frames over one read only the first draws it, so one refetch stands as one mark. */
 export function BusyMark({ frame }: { frame: Frame }) {
 	if (!(frame.holds && frame.flags && frame.busy)) return null;
 	return (

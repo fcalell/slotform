@@ -153,7 +153,7 @@ export function Stages({ steps, ended }: StagesProps) {
 					);
 				return (
 					<Row
-						key={waits ? at : step.label}
+						key={at}
 						state={step.state}
 						mark={mark}
 						painted={waits}

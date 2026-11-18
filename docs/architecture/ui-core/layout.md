@@ -130,8 +130,8 @@ row that draws no bar, and each Pane a flex column.
 
 - **One Pane of each kind.** A Panes holds the place's Pane and one record's Pane at most. A record
   linked from a record opens in its own place, never as a third Pane, and a place's tabs are one
-  Pane's, never a second. The Panes counts the Panes of each kind and hands each Pane its count,
-  which throws on a second Pane of a kind.
+  Pane's, never a second. The Panes hands each Pane a register for its kind, which throws when a
+  second Pane of that kind registers.
 - **Sharing the row.** The Panes decides how its Panes share the row from each Pane's place among
   its siblings (`:first-of-type`, `:last-of-type`, the structure the route gave by the order it
   rendered them), so a Pane reads none of its siblings. A Pane is a `section`, the only one a Panes
@@ -260,8 +260,7 @@ what stands in it decides its form by (a Table its grid).
 - A `read` that answers not found fills the page with the missing shape: no mark, the sentence in the
   meta ink (worded by `noun`, "Couldn't find this." without one) and the way back to the place's Pane
   as the hairline act with no plus, on the `error` state's class sets. The way back is the route a Pane's
-  back act returns to, handed down by the container; with none it leads to `PlaceRoute`, and `false`
-  says there is no way back at all. How the missing and failed shapes are worded and headed is in
+  back act returns to, handed down by the container; with none it leads to `PlaceRoute`. How the missing and failed shapes are worded and headed is in
   [reads](reads.md#missing-and-failed-shapes).
 - On the phone every Pane scrolls in a keyboard-aware scroll pane. The bar in flow at a Form's end is
   what the keyboard must never cover. A tap on an act in it reaches the act and leaves the keyboard

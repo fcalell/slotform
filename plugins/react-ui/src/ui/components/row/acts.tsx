@@ -22,12 +22,10 @@ import {
 	type MenuEntry,
 	wiringOf,
 } from "../../lib/act.ts";
+import { NOOP } from "../../lib/noop.ts";
 import { ButtonBase } from "../button/base.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { MenuBase } from "../menu/base.tsx";
-
-// An ended act's press: it is blocked, so its reason stands instead.
-const NOOP = () => {};
 
 /** Whether the row has a more act to draw: a selection may still answer none, the box standing meanwhile. */
 export function hasMore(more: Datum<readonly MenuEntry[] | undefined>) {

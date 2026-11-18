@@ -28,16 +28,15 @@ import {
 	useState,
 } from "react";
 import { DIVIDER } from "../../atoms/section/card.tsx";
-import { useAct } from "../../lib/act.ts";
 import type { FootRegionValue } from "../../lib/container.ts";
-import { focusFirst } from "../../lib/focus.ts";
+import { FIELDS, focusFirst } from "../../lib/focus.ts";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import { Button } from "../button/index.tsx";
-import { type FormProps, useDerivedForm } from "../form/index.tsx";
+import type { FormProps } from "../form/index.tsx";
 import { type SheetSubmit, submitAct } from "./base.tsx";
-import { SheetForm, useClearOnOpen } from "./form.tsx";
+import { useSheetForm } from "./form.tsx";
 
 // The sheet fills its foot: the head and the foot keep their height and the
 // body, bounded below, scrolls in what is left. The foot centres what it holds,
@@ -91,11 +90,7 @@ export function SheetDocked<P extends ProcedureCall>({
 	// The sheet docks as a block: it fades in on `base` and the body above takes
 	// its new height; closing it runs in the page's block move, so it fades out on
 	// `fast` as the body takes the room back.
-	// The foot's act and its form's bar share one run: one act pends at a time,
-	// and closing is held while it runs.
-	const acting = useAct<number>("line");
-	const derived = useDerivedForm(form, false);
-	useClearOnOpen(open, derived.clear);
+	const { acting, fields } = useSheetForm(form, open, []);
 	const words = useWords();
 	const titleId = useId();
 	const root = useRef<HTMLElement>(null);
@@ -130,15 +125,15 @@ export function SheetDocked<P extends ProcedureCall>({
 		resize.observe(body);
 		return () => resize.disconnect();
 	}, [body]);
-	// Each page takes focus in its first tabbable once it has settled (a radio
-	// group sets its tab stop after the commit, and no event says it has),
-	// whatever held it: an act that relabels or leaves drops focus to the
-	// document, which a page with nothing tabbable gives to the sheet's first
-	// one.
+	// Each page takes focus in its first field, else its first tabbable, once
+	// it has settled (a radio group sets its tab stop after the commit, and no
+	// event says it has), whatever held it: an act that relabels or leaves
+	// drops focus to the document, which a page with nothing tabbable gives to
+	// the sheet's first one.
 	useEffect(() => {
 		if (!open || !body) return;
 		const frame = requestAnimationFrame(() => {
-			focusFirst(body);
+			if (!focusFirst(body, FIELDS)) focusFirst(body);
 			if (document.activeElement === document.body) focusFirst(root.current);
 		});
 		return () => cancelAnimationFrame(frame);
@@ -210,13 +205,7 @@ export function SheetDocked<P extends ProcedureCall>({
 							{children ? (
 								<div className={cn(SHEET_DOCKED_BODY, CONTENT)}>{children}</div>
 							) : null}
-							{derived.frame ? (
-								<SheetForm
-									form={derived.frame}
-									acting={acting}
-									outer={derived.outer}
-								/>
-							) : null}
+							{fields}
 						</Scroller>
 					</div>
 				</div>

@@ -83,7 +83,7 @@ import { expandedTrigger, rememberOpener } from "../../lib/focus.ts";
 import { useQuietGuards } from "../../lib/guards.ts";
 import { spacing, useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
-import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import { PortalContainer } from "../../lib/portal.ts";
 import { OptionsLine } from "../../lib/read.tsx";
 import { Scroller, useScroller, Window } from "../../lib/window.tsx";
@@ -111,8 +111,6 @@ const FIELD_OPEN =
 // The error edge stands over the accent edge, as on a focused field.
 const OPEN_EDGE = "border-accent";
 const FIELD_VALUE = "min-w-0 grow truncate";
-// Painted, the trigger keeps its loaded box and draws none of its content.
-const PAINTED = cn(PAINT_CONTROL, "*:invisible");
 // A pick of several: the chips wrap in a run, and the trigger that opens the
 // list stands beside it, filling what the run leaves, its chevron at the box's
 // end; the run wraps, so the chevron never takes a line of its own.
@@ -593,7 +591,7 @@ export function PickerBase<V extends string | null = string>(
 					open && FIELD_OPEN,
 					open && !form?.invalid && OPEN_EDGE,
 					states,
-					painted && PAINTED,
+					painted && PAINT_CONTROL_HIDDEN,
 				)}
 				inert={painted || form?.disabled || undefined}
 				aria-disabled={ended || undefined}
@@ -674,7 +672,7 @@ export function PickerBase<V extends string | null = string>(
 						: cn(ITEM_PILL, ITEM_PILL_ACT, open && PILL_OPEN),
 					fact && ITEM_PILL_HEAD,
 					PILL_BOX,
-					painted && PAINTED,
+					painted && PAINT_CONTROL_HIDDEN,
 				)}
 			>
 				{stateful ? <StatusDot tone={stateful} /> : null}
@@ -716,7 +714,7 @@ export function PickerBase<V extends string | null = string>(
 							open && !form?.invalid && OPEN_EDGE,
 							fit === "pill" ? PICKER_PILL : states,
 						),
-				painted && PAINTED,
+				painted && PAINT_CONTROL_HIDDEN,
 			)}
 		>
 			{fit === "pill" && given.state ? <StatusDot tone={given.state} /> : null}

@@ -16,6 +16,19 @@ export function ActSheet<K>({
 	if (!(opened && props)) return null;
 	const { open, close } = opened;
 	const { submit, form } = props;
+	// Closing is the run's resolution: at once for a run that returns nothing,
+	// once its promise resolves, and never on a rejection, which stands in the
+	// sheet's bar.
+	const closing = (ran: unknown) => {
+		if (!isThenable(ran)) {
+			close();
+			return ran;
+		}
+		return Promise.resolve(ran).then((value) => {
+			close();
+			return value;
+		});
+	};
 	return (
 		<Sheet
 			{...props}
@@ -24,35 +37,23 @@ export function ActSheet<K>({
 			form={
 				form && {
 					...form,
-					// Closing is the form's resolution too.
-					onDone: (output: unknown, input: unknown) => {
-						// The procedure is forgotten here, so its input types as `never`.
-						const ran = (
-							form.onDone as
-								| ((output: unknown, input: unknown) => unknown)
-								| undefined
-						)?.(output, input);
-						close();
-						return ran;
-					},
+					onDone: (output: unknown, input: unknown) =>
+						closing(
+							// The procedure is forgotten here, so its input types as `never`.
+							(
+								form.onDone as
+									| ((output: unknown, input: unknown) => unknown)
+									| undefined
+							)?.(output, input),
+						),
 				}
 			}
 			submit={
 				submit?.onAct
 					? {
 							...submit,
-							// Closing is the submit's resolution; its confirm, done and to stand.
-							onAct: () => {
-								const ran = submit.onAct?.();
-								if (!isThenable(ran)) {
-									close();
-									return ran;
-								}
-								return Promise.resolve(ran).then((value) => {
-									close();
-									return value;
-								});
-							},
+							// The submit's confirm, done and to stand as given.
+							onAct: () => closing(submit.onAct?.()),
 						}
 					: submit
 			}

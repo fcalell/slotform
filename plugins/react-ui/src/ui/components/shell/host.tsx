@@ -15,14 +15,14 @@ import { DragLayer } from "./drag.tsx";
 
 // The frame's `main` landmark: it holds the toasts' layer over the page.
 const MAIN = "relative flex flex-col grow min-h-0";
-// The toasts' layer stands over the sheets: docs/architecture/plugins/react-ui.md, "Toast anchor and stacking".
 // The popups' mount: docs/architecture/plugins/react-ui.md, "Popups".
 const PORTAL = "fixed top-0 left-0 size-0 z-(--layer-popover)";
+// The toasts' layer stands over the sheets: docs/architecture/plugins/react-ui.md, "Toast anchor and stacking".
 // A sheet as tall as the viewport leaves the layer no room above it, so the
 // layer keeps its frontmost toast's height and the page inset round it (Base UI's
 // `--toast-frontmost-height` on the viewport) and the toast then stands at the
 // top of the viewport, over the sheet's head, never off the screen.
-export const TOASTS_LAYER =
+const TOASTS_LAYER =
 	"fixed inset-0 bottom-[anchor(--docked-foot_top,0px)] min-h-[calc(var(--toast-frontmost-height,0px)+2*var(--spacing-page))] z-(--layer-toasts) flex flex-col items-end justify-end pointer-events-none touch:items-center";
 
 /** What a root container (the Shell, the Gate) mounts around itself: the `toast()` queue, the `confirm()` decisions, the tooltips' shared window, the one tooltip for cut text, the layer a drag draws on and the modality its rings read. Outside the package's exports. */

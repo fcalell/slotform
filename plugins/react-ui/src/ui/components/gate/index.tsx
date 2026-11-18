@@ -1,8 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { useFrame } from "@fcalell/ui-core/react/read";
-import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { runsOf } from "@fcalell/ui-core/runs";
 import {
 	BLOCK_IN,
@@ -27,8 +25,9 @@ import { useScrolls } from "../../lib/scrolls.ts";
 import { GATE_CENTRED } from "../../lib/walk-classes.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
-import { FormRows, FormShell, useFormBar } from "../form/base.tsx";
-import { type FormProps, useDerivedForm } from "../form/index.tsx";
+import { FormRows, FormShell } from "../form/base.tsx";
+import { useStandingForm } from "../form/derive.tsx";
+import type { FormProps } from "../form/index.tsx";
 import { ContainerHost, ContainerMain } from "../shell/host.tsx";
 import { StepCount } from "../step-count/index.tsx";
 
@@ -93,10 +92,7 @@ function GateStep(props: { fresh: boolean; children: ReactNode }) {
 // The step's form over its procedure, its bar after its card. It stands in
 // the step, so a new step starts it afresh.
 function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
-	const { frame: form, outer } = useDerivedForm(props.form, true);
-	const frame = useFrame(form.read);
-	const [own] = useTouchState();
-	const bar = useFormBar(form.bar, frame, outer);
+	const { form, frame, touch, bar } = useStandingForm(props.form);
 	// A Gate's form over a procedure that asks nothing (an invitation's Accept)
 	// is its bar alone: it holds no field, read or part to draw a card around.
 	const fieldless =
@@ -107,7 +103,7 @@ function GateForm<P extends ProcedureCall>(props: { form: FormProps<P> }) {
 	return (
 		<FormShell
 			frame={frame}
-			touch={own}
+			touch={touch}
 			guards={form.commit !== "field"}
 			edited={form.edited}
 			className={cn(GATE_STEP, FORM)}

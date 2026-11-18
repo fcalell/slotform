@@ -6,12 +6,13 @@ import {
 	use,
 	useSyncExternalStore,
 } from "react";
+import { NOOP } from "./noop.ts";
 
 // The slice of the router that routing in place needs: docs/architecture/plugins/react-ui.md, "Router bindings".
 interface InPlaceRouter {
 	navigate(options: { href: string }): unknown;
 	preloadRoute(options: { href: string }): unknown;
-	subscribe(event: "onResolved", listener: () => void): unknown;
+	subscribe(event: "onResolved", listener: () => void): () => void;
 	state: {
 		location: { href: string };
 		resolvedLocation?: { href: string };
@@ -35,6 +36,8 @@ interface InPlaceRouter {
 
 // One router and one location listener: docs/architecture/plugins/react-ui.md, "Navigation".
 let bound: InPlaceRouter | undefined;
+// The bound router's `onResolved` subscription, ended when another binds.
+let unbind: (() => void) | undefined;
 // Bound, the router resolves a history move and `onResolved` tells the
 // readers, so the window's events are heard only while unbound.
 const changes = createStore(undefined, {
@@ -79,11 +82,12 @@ export function bindRouter(router: InPlaceRouter): void {
 		document.addEventListener("pointerover", wantsRoute);
 		document.addEventListener("focusin", wantsRoute);
 	}
-	router.subscribe("onResolved", changes.emit);
+	unbind?.();
+	unbind = router.subscribe("onResolved", changes.emit);
 	changes.emit();
 }
 
-const unheard = () => () => {};
+const unheard = () => NOOP;
 
 // Set by a Section around its rows: the route it read once, which each row
 // reads instead of subscribing on its own.

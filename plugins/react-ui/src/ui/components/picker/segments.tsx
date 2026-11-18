@@ -15,7 +15,7 @@ import { use, useLayoutEffect, useRef } from "react";
 import { useHeldDraft } from "../../lib/act.ts";
 import { GroupName } from "../../lib/field.ts";
 import { follow, useRoute } from "../../lib/navigate.ts";
-import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import type { PickerSegmentsProps } from "./index.tsx";
 
 // The track keeps natural widths and scrolls: docs/architecture/plugins/react-ui.md, "Picker segments".
@@ -93,11 +93,7 @@ export function SegmentsBase<V extends string = string>({
 			}}
 			inert={painted || undefined}
 			aria-disabled={ended || undefined}
-			className={cn(
-				SEGMENT_TRACK,
-				TRACK,
-				painted && cn(PAINT_CONTROL, "*:invisible"),
-			)}
+			className={cn(SEGMENT_TRACK, TRACK, painted && PAINT_CONTROL_HIDDEN)}
 		>
 			{options.map((option) => {
 				const chosen = option.value === chosenValue;

@@ -119,20 +119,6 @@ const ROW = "relative flex items-center min-h-row";
 // A definition row stands its value under its label: docs/architecture/ui-core/layout.md, "Definition rows".
 export const STACKED_BOX =
 	"definitions-stacked:flex definitions-stacked:flex-col definitions-stacked:items-stretch";
-export const STACKED_OPTIONAL_NAME = "definitions-stacked:pt-0";
-export const STACKED_NAME_AREA = "definitions-stacked:mt-0";
-export const STACKED_SPLIT =
-	"definitions-stacked:flex-col definitions-stacked:items-stretch";
-export const STACKED_SPLIT_VALUE = "definitions-stacked:w-auto";
-export const STACKED_SPLIT_FREE = "definitions-stacked:max-w-full";
-export const STACKED_ALONE_ROW =
-	"[.rows-host>&]:definitions-stacked:flex [.rows-host>&]:definitions-stacked:flex-col [.rows-host>&]:definitions-stacked:items-stretch";
-export const STACKED_ALONE_ROW_AREA =
-	"[.rows-host>&]:definitions-stacked:items-stretch";
-export const STACKED_ALONE_LINE_AREA =
-	"[.rows-host>*>&]:definitions-stacked:mt-0";
-export const STACKED_ALONE_UNDER =
-	"[.rows-host>*>&]:definitions-stacked:col-start-1";
 // A row whose title wraps whole, that holds an entry, or that has a label stands
 // its change mark, tick and tree lane on the first line; its end group stays
 // centred on the row. A label stands on the value's first line too, whatever
@@ -172,10 +158,6 @@ const TEXT_FIRST = "min-h-line-body justify-center";
 // `overflow-wrap: anywhere` would make a letter its floor, so it sets
 // `wrap-normal`.
 const LABEL = "wrap-normal text-start";
-/** The value line of a form field: the change mark, the control and the end group, centred on the line. Outside the package's exports. */
-export const VALUE_LINE = "flex items-center min-w-0";
-/** The end group of a form field: on the first line's box at the line's end; a control taller than the line overflows it centred. Outside the package's exports. */
-export const END_GROUP = "flex shrink-0 items-center ms-auto h-line-body";
 // A row that opens washes under the pointer and the press; the chosen one a
 // step darker under the pointer.
 const PRESS = "hover:bg-wash-hover active:bg-wash-press";

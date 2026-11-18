@@ -47,7 +47,6 @@ function install(): () => void {
 	};
 }
 
-// Whether the viewer last drove the page by keyboard.
 export function keyed(): boolean {
 	return document.documentElement.dataset.modality === "keyboard";
 }

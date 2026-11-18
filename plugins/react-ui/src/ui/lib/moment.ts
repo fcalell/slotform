@@ -1,11 +1,5 @@
 import { momentWords } from "@fcalell/ui-core/format";
-
-// The document's language, or the platform's own where there is no document.
-function pageLang(): string | undefined {
-	return typeof document === "undefined"
-		? undefined
-		: document.documentElement.lang || undefined;
-}
+import { pageLang } from "./lang.ts";
 
 // An ISO moment as a reader reads it, in the document's language
 // (`momentWords`): the time alone today, the day's word and the time a day

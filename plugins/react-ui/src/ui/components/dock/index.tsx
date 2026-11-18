@@ -14,14 +14,12 @@ import {
 import { useEffect } from "react";
 import { useHeldDraft } from "../../lib/act.ts";
 import { useTouch } from "../../lib/media.ts";
+import { NOOP } from "../../lib/noop.ts";
 import { player, usePlayer, usePlayerTime } from "../../lib/player.ts";
 import { Button } from "../button/index.tsx";
 import { PictureTile } from "../image/base.tsx";
 import { SliderBase } from "../slider/base.tsx";
 import { Waveform } from "../waveform/index.tsx";
-
-// The seek acts on commit alone; a slider's `onChange` is required.
-const NOOP = () => {};
 
 // The dock is a column of bars (two on touch) under the place, clear of the
 // bottom safe inset.

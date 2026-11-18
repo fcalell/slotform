@@ -1,10 +1,10 @@
+import { DRAG_DELAY_SLOP } from "@fcalell/ui-core/drag";
 import {
 	eased,
 	mix,
 	position,
 	release,
 	type Sample,
-	SLOP,
 	velocity,
 } from "@fcalell/ui-core/follow";
 import {
@@ -13,6 +13,7 @@ import {
 	useLayoutEffect,
 	useRef,
 } from "react";
+import { NOOP } from "./noop.ts";
 
 // The `base` rung in ms as the page has it now: the root's custom property,
 // which the tuning page writes and reduced motion zeroes.
@@ -39,7 +40,7 @@ export function travel<T extends Record<string, number>>(
 	const duration = base();
 	if (!(duration > 0)) {
 		apply(to);
-		return () => {};
+		return NOOP;
 	}
 	let start: number | undefined;
 	let frame = 0;
@@ -152,7 +153,7 @@ export function useFollow(args: FollowArgs) {
 				? event.clientY - state.from.y
 				: event.clientX - state.from.x;
 		if (!state.held) {
-			if (Math.hypot(along, across) <= SLOP) return;
+			if (Math.hypot(along, across) <= DRAG_DELAY_SLOP) return;
 			// Across first, or against the way it leaves: a scroll or a tap's wobble.
 			if (Math.abs(across) >= Math.abs(along) || position(along, away) === 0) {
 				state.dead = true;
