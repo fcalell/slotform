@@ -5,8 +5,8 @@ import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { STAND_INS, StandInCard } from "./layout-context.tsx";
 import { Column } from "./place.tsx";
+import { act } from "./section-rows.ts";
 
-const act = () => {};
 const BOARD = [
 	{ title: "Todo" },
 	{ title: "In progress" },
@@ -23,7 +23,7 @@ const HEALTH = [
 // The `board` class set: four columns in a scene at the place's content width,
 // inset at the page inset the row bleeds through, so the fourth column meets
 // the edge and the row scrolls sideways. The `half` class set: a project's health
-// in a Panes at the showcase's width, four sections two to a row from the
+// in a Panes at the showcase's width, four sections two to a row from
 // the place's desktop width and stacked below it.
 export function drawColumns(scene: ShowcaseScene) {
 	if (scene.classSet.name === "COLUMNS.fit.half")

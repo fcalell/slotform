@@ -38,7 +38,6 @@ function StandInRow(props: { name: string }) {
 	);
 }
 
-/** The stand-in rows on a `Card`, a part of a Section's body. */
 export function StandInCard() {
 	return (
 		<Card>
@@ -47,7 +46,7 @@ export function StandInCard() {
 	);
 }
 
-/** The stand-in rows on the page: static rows no component owns. */
+// Static rows no component owns.
 export function StandInRows() {
 	return NAMES.map((name) => <StandInRow key={name} name={name} />);
 }

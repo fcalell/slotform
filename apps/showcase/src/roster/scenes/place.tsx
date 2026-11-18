@@ -2,8 +2,8 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { Act } from "@fcalell/ui-core/descriptors";
 import { SHELL_COLUMN } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
+import { act } from "./section-rows.ts";
 
-const act = () => {};
 export const ACTIONS = [
 	{ icon: "ListFilter" as const, label: "Filter", onAct: act },
 	{ icon: "RefreshCw" as const, label: "Refresh", onAct: act },

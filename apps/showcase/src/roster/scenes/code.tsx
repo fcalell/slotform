@@ -68,10 +68,6 @@ function Heads() {
 	);
 }
 
-function Tail(props: { copy?: boolean }) {
-	return <Code text={BUILD_LOG} title="Build log" tail={4} copy={props.copy} />;
-}
-
 // The head forms and the folding tail, painted: the paint class sets draw them
 // beside the loaded ones, the loading state alone.
 function Painted() {
@@ -102,7 +98,7 @@ export function drawCode(scene: ShowcaseScene) {
 	if (classSet === "ICON.fit.meta")
 		return (
 			<Wide>
-				<Tail copy />
+				<Code text={BUILD_LOG} title="Build log" tail={4} copy />
 			</Wide>
 		);
 	return (

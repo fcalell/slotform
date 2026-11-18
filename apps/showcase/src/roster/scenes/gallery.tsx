@@ -5,16 +5,14 @@ import {
 import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
-import { SCREEN } from "./image.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
+import { BROKEN, SCREEN } from "./pictures.ts";
 
 // A phone's page, far taller than wide: its tile holds at three to four and
 // crops from the top, where the page's head is.
 const PHONE = `data:image/svg+xml,${encodeURIComponent(
 	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844" width="390" height="844"><rect width="390" height="844" fill="#f4f6f8"/><rect width="390" height="56" fill="#2f3a45"/><rect x="16" y="18" width="120" height="20" rx="4" fill="#9fb7c9"/><rect x="16" y="88" width="300" height="32" rx="6" fill="#2f3a45"/><rect x="16" y="140" width="358" height="16" rx="4" fill="#9aa5b1"/><rect x="16" y="168" width="320" height="16" rx="4" fill="#9aa5b1"/><rect x="16" y="216" width="358" height="200" rx="12" fill="#dde3e9"/><rect x="16" y="440" width="358" height="200" rx="12" fill="#dde3e9"/><rect x="16" y="760" width="358" height="48" rx="8" fill="#5f7d93"/></svg>',
 )}`;
-// An address that is no picture, so the load fails.
-const BROKEN = "data:image/png;base64,AAAA";
 
 // A wide desktop shot, a phone shot and a long caption, which cuts to its
 // tile's width.

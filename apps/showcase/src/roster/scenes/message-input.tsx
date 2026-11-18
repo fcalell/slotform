@@ -4,12 +4,12 @@ import type {
 	Notice,
 	PickedFile,
 } from "@fcalell/ui-core/descriptors";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
-import { SCREEN } from "./image.tsx";
 import { Wide } from "./layout-context.tsx";
+import { SCREEN } from "./pictures.ts";
+import { act } from "./section-rows.ts";
 
-const act = () => {};
 const PLACEHOLDER = "Ask about this project";
 const ASKED = "Why did the last deploy of api fail?";
 const GROWN = [
@@ -53,6 +53,11 @@ function attachmentOf(file: PickedFile): Attachment {
 	return { id: crypto.randomUUID(), name: file.name, src: file.src };
 }
 
+// A picked file's local address is the consumer's to let go once the file leaves.
+function release(file: Attachment | undefined) {
+	if (file?.src?.startsWith("blob:")) URL.revokeObjectURL(file.src);
+}
+
 // One input as a viewer drives it: typing, sending (which clears the text
 // and works until Stop), attaching (the dialog, a paste, a drop) and
 // detaching.
@@ -61,12 +66,20 @@ function Live(props: {
 	attachments?: Attachment[];
 	notice?: Notice;
 	working?: boolean;
-	stoppable?: boolean;
+	unstoppable?: boolean;
 	disabled?: boolean;
 }) {
 	const [value, setValue] = useState(props.value ?? "");
 	const [working, setWorking] = useState(props.working ?? false);
 	const [files, setFiles] = useState(props.attachments);
+	const held = useRef(files);
+	held.current = files;
+	useEffect(
+		() => () => {
+			for (const file of held.current ?? []) release(file);
+		},
+		[],
+	);
 	return (
 		<Composer
 			value={value}
@@ -77,8 +90,7 @@ function Live(props: {
 			}
 			onDetach={(id) => {
 				setFiles((now) => now?.filter((file) => file.id !== id));
-				const gone = files?.find((file) => file.id === id)?.src;
-				if (gone?.startsWith("blob:")) URL.revokeObjectURL(gone);
+				release(files?.find((file) => file.id === id));
 			}}
 			placeholder={PLACEHOLDER}
 			notice={props.notice}
@@ -87,7 +99,7 @@ function Live(props: {
 				setValue("");
 				setWorking(true);
 			}}
-			onStop={props.stoppable === false ? undefined : () => setWorking(false)}
+			onStop={props.unstoppable ? undefined : () => setWorking(false)}
 			disabled={props.disabled}
 		/>
 	);
@@ -113,7 +125,7 @@ function Rest(props: { classSet: string }) {
 			<>
 				<Live working notice={QUEUED} />
 				<Live working notice={QUEUED} value="Then redeploy web too" />
-				<Live working stoppable={false} />
+				<Live working unstoppable />
 			</>
 		);
 	if (classSet.startsWith("CHIP") || classSet === "ICON.fit.meta")

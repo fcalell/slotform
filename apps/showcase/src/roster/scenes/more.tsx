@@ -17,7 +17,7 @@ function Pressed(props: { read: Read<unknown>; children: ReactNode }) {
 	return props.children;
 }
 
-/** A collection over a pages read in each state of its more row: "Show more" standing, the next page loading (painted rows) and the next page failed (the line with Retry). `draw` is given each form's read and its name. */
+// A collection over a pages read in each state of its more row: "Show more" standing, the next page loading (painted rows) and the next page failed (the line with Retry). `draw` is given each form's read and its name.
 export function Paged<T>(props: {
 	id: string;
 	rows: readonly T[];

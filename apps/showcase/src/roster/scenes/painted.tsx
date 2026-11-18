@@ -5,7 +5,7 @@ import { text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 
-/** Whether the scene draws a `PAINT` class set: an atom's painted shape beside its loaded one. */
+// A `PAINT` class set draws an atom's painted shape beside its loaded one.
 export const isPaint = (scene: ShowcaseScene) =>
 	scene.classSet.name.startsWith("PAINT.");
 

@@ -11,7 +11,7 @@ import { BREAKPOINT_PX, TONES, type Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { WORKFLOW } from "../graphs.ts";
-import { afterFrames, onceStanding } from "../judge.ts";
+import { onceStanding } from "../judge.ts";
 import {
 	type HeldState,
 	isHeld,
@@ -20,15 +20,13 @@ import {
 	waiting,
 	waitingText,
 } from "../waiting.ts";
+import { Judged } from "./judged.tsx";
 import { StandInList, StandInRows } from "./layout-context.tsx";
 import { TURN } from "./message.tsx";
 import { isPaint } from "./painted.tsx";
 import { ACTIONS, Column, MORE } from "./place.tsx";
-import { SERVER } from "./section-rows.ts";
+import { act, SERVER } from "./section-rows.ts";
 import { TURNS } from "./thread.tsx";
-
-const act = () => {};
-const _SEARCH = [{ icon: "Search" as const, label: "Search", onAct: act }];
 
 // A Pane that fills (a Canvas, a Thread) needs a Panes with a height of its
 // own: the page's, in the shell, is the viewport's.
@@ -77,36 +75,41 @@ function One() {
 const LONG_CONTEXT =
 	"Preview of release 14 billing, invoicing and tax reporting changes";
 
+const contextOptions = (long?: boolean): Option[] => [
+	{ value: "production", label: "Production" },
+	{
+		value: "preview",
+		label: long ? LONG_CONTEXT : "Release 14 preview",
+		chip: { family: "amber", label: "Preview" },
+	},
+];
+
 // One Pane whose bar holds a title, the context pick and two acts: docs/architecture/ui-core/layout.md, "Bar".
 // Every form judges its own edge, the `long` one with a label that would take the row.
 function Context(props: { preview?: boolean; long?: boolean }) {
-	const [value, setValue] = useState<string | null>(
-		props.preview || props.long ? "preview" : "production",
-	);
+	const first = props.preview || props.long ? "preview" : "production";
+	const [value, setValue] = useState<string | null>(first);
+	const options = contextOptions(props.long);
+	const chosen = options.find((one) => one.value === first)?.label;
 	const box = useRef<HTMLDivElement>(null);
-	// The scene judges its own edge in each form: the title keeps two fifths of
-	// the bar, the title, the pick and each act stand clear of one another, a
-	// pick in a Pane narrower than `tablet` draws no label text and is named by
-	// its label, and nothing is clipped without an ellipsis.
+	// The scene judges its own edge in each form: docs/architecture/ui-core/layout.md, "Bar", and docs/architecture/ui-core/components.md, "Picker".
 	const form = props.long ? "long" : props.preview ? "preview" : "production";
 	useEffect(() => {
-		let scene = 0;
-		let seen = 0;
 		const read = () => {
 			const bar = box.current?.querySelector("header > div");
 			const title = bar?.querySelector("p, h2");
 			const trigger = bar?.querySelector("span > button[aria-haspopup]");
 			const acts = bar?.lastElementChild;
-			if (
-				!bar ||
-				!title ||
-				!(trigger instanceof HTMLElement) ||
-				!acts ||
-				++seen < SHIFT_SETTLE
-			) {
-				if (seen < SHIFT_WAIT) scene = requestAnimationFrame(read);
-				return;
-			}
+			return bar && title && trigger instanceof HTMLElement && acts
+				? { bar, title, trigger, acts }
+				: undefined;
+		};
+		const judge = ({
+			bar,
+			title,
+			trigger,
+			acts,
+		}: NonNullable<ReturnType<typeof read>>) => {
 			const held = title.getBoundingClientRect().width;
 			const row = bar.getBoundingClientRect().width;
 			if (held < (row * 2) / 5 - 1)
@@ -154,12 +157,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 						`the context pick draws "${shown}" in a Pane of ${Math.round(pane)} px, below tablet (${form} context)`,
 					);
 				const named = trigger.getAttribute("aria-label") ?? "";
-				const chosen = props.long
-					? LONG_CONTEXT
-					: form === "production"
-						? "Production"
-						: "Release 14 preview";
-				if (!named.startsWith(chosen))
+				if (chosen === undefined || !named.startsWith(chosen))
 					console.error(
 						`the context pick's name "${named}" is not its label "${chosen}" (${form} context, ${Math.round(pane)} px Pane)`,
 					);
@@ -188,9 +186,8 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 						);
 			}
 		};
-		scene = requestAnimationFrame(read);
-		return () => cancelAnimationFrame(scene);
-	}, [form, props.long]);
+		return onceStanding(read, SHIFT_WAIT, SHIFT_SETTLE, judge);
+	}, [form, chosen]);
 	return (
 		<div ref={box}>
 			<Panes title="Core data layer">
@@ -201,14 +198,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 						label: "Context",
 						value,
 						onChange: setValue,
-						options: [
-							{ value: "production", label: "Production" },
-							{
-								value: "preview",
-								label: props.long ? LONG_CONTEXT : "Release 14 preview",
-								chip: { family: "amber", label: "Preview" },
-							},
-						],
+						options,
 					}}
 					state={props.preview || props.long ? "attention" : "active"}
 				>
@@ -374,8 +364,6 @@ const HEAD_CLASS_SETS =
 	/^(BLOCK_IN|ITEM_|WORD_ACT|STATUS|SPINNER|COUNT|ICON\.fit\.(meta|body)|IMAGE|PAINT\.)/;
 const MISSING_CLASS_SETS = /^(CARD_PART|BUTTON)/;
 
-const move = () => {};
-
 // The states the record moves between, each drawn as its status.
 const STATES: Option<Tone>[] = [
 	{ value: "waiting", label: "Todo", leading: { tone: "waiting" } },
@@ -397,7 +385,7 @@ const WAITING_FACTS: readonly Selection<RecordFact>[] = [
 	waiting.at((): RecordFact => ({ tone: "done" })),
 	waiting.at(
 		(): RecordFact => ({
-			pick: { label: "Status", options: STATES, onChange: move },
+			pick: { label: "Status", options: STATES, onChange: act },
 		}),
 	),
 	waitingText,
@@ -406,7 +394,7 @@ const WAITING_FACTS: readonly Selection<RecordFact>[] = [
 
 function moving(state: Tone) {
 	return {
-		pick: { label: "Status", options: STATES, value: state, onChange: move },
+		pick: { label: "Status", options: STATES, value: state, onChange: act },
 	};
 }
 
@@ -470,7 +458,7 @@ function HeadWaiting() {
 const SHIFT_WAITING: readonly Selection<RecordFact>[] = [
 	waiting.at(
 		(): RecordFact => ({
-			pick: { label: "Status", options: STATES, onChange: move },
+			pick: { label: "Status", options: STATES, onChange: act },
 		}),
 	),
 	waiting.at((): RecordFact => ({ tone: "done" })),
@@ -558,7 +546,7 @@ function HeadShift() {
 const KINDS_LOADED: Record<"acting" | "plain", readonly RecordFact[]> = {
 	acting: [
 		moving("done"),
-		{ label: "Details", onOpen: move },
+		{ label: "Details", onOpen: act },
 		{ label: "Run", href: "/runs/42" },
 	],
 	plain: [{ tone: "done" }, "Ana", "2 min"],
@@ -744,7 +732,7 @@ function RecordPage() {
 			<Short place={WITHIN}>
 				<Pane
 					title={NAME}
-					acts={[{ icon: "Pencil", label: "Edit", onAct: move }]}
+					acts={[{ icon: "Pencil", label: "Edit", onAct: act }]}
 					record={{
 						overline: OVERLINE,
 						facts: [moving("active"), ...REST],
@@ -756,7 +744,7 @@ function RecordPage() {
 						],
 					}}
 				>
-					<ActionBar acts={[{ label: "Pause the import", onAct: move }]} />
+					<ActionBar acts={[{ label: "Pause the import", onAct: act }]} />
 					<Section title="Stages">
 						<StandInRows />
 					</Section>
@@ -794,7 +782,7 @@ function Heads(scene: ShowcaseScene) {
 			<Head facts={[moving(state), ...REST]} />
 			<Head
 				facts={[
-					{ label: "Outside content", onOpen: move },
+					{ label: "Outside content", onOpen: act },
 					{ label: "Open the run", href: "/runs/42" },
 					{ tone: "done" },
 					...REST,
@@ -933,25 +921,13 @@ function Empty(props: { read: Reads["empty"] }) {
 
 // A scene that logs an error where a heading stands empty: docs/architecture/ui-core/layout.md, "Headings".
 const SETTLE = 30;
-function NoEmptyHeading(props: { children: ReactNode }) {
-	const host = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		return afterFrames(SETTLE, () => {
-			for (const heading of host.current?.querySelectorAll(
-				"h1, h2, h3, h4, h5, h6",
-			) ?? [])
-				if (
-					(heading.textContent ?? "").trim() === "" &&
-					!heading.getAttribute("aria-label")
-				)
-					console.error("an empty heading stands in the page");
-		});
-	}, []);
-	return (
-		<div ref={host} className="min-w-0">
-			{props.children}
-		</div>
-	);
+function judgeHeadings(host: HTMLElement) {
+	for (const heading of host.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+		if (
+			(heading.textContent ?? "").trim() === "" &&
+			!heading.getAttribute("aria-label")
+		)
+			console.error("an empty heading stands in the page");
 }
 
 // A read that answers nothing: the page says so with the Pane's own sentence
@@ -986,7 +962,7 @@ function Emptied(props: {
 				</Short>
 			</Column>
 			<Column>
-				<NoEmptyHeading>
+				<Judged settle={SETTLE} judge={judgeHeadings} className="min-w-0">
 					<Short place="Settings">
 						<Pane
 							title=""
@@ -995,7 +971,7 @@ function Emptied(props: {
 							empty={{ sentence: "This mapping has nothing in it yet." }}
 						/>
 					</Short>
-				</NoEmptyHeading>
+				</Judged>
 			</Column>
 		</>
 	);
@@ -1028,12 +1004,11 @@ function Tasked() {
 // stale and paused states draw a Pane over a read that holds rows, on the title
 // class set. A head class set draws a record's Pane and a missing-form class set the page of
 // a read that answers not found. The title class set draws the Pane's shapes in a Panes:
-// one, two (the place's Pane, then a record's), one holding a Canvas and one
-// holding a Thread. The bar icon act draws one Pane
-// with its more menu open; the body icon act (the touch top bar's) an
-// assistant's home under its search act, its ask field docked at its `foot`,
-// since the foot draws no matrix class set of its own, and a record's Pane before and
-// after its head's name has scrolled up under the bar.
+// one, its context pick in three forms, two (the place's Pane, then a record's),
+// one holding a Canvas and one holding a Thread. The heading class set draws an
+// assistant's Pane, its ask field docked at its `foot` and its task's sheet
+// open, since the foot draws no matrix class set of its own, and a record's Pane
+// before and after its head's name has scrolled up under the bar.
 export function drawPane(scene: ShowcaseScene) {
 	const classSet = scene.classSet.name;
 	const reads = readsAt(scene.id);

@@ -40,11 +40,10 @@ import { Stage } from "./overlay-stage.tsx";
 // The canvas fills its region and has no height of its own. It stands on the
 // page's ground, `surface`, as it does on a Shell column or a Gate, so it steps
 // off what surrounds it: a scene paints `canvas`, the canvas's own ground.
-export const STAGE =
-	"flex flex-col h-[40rem] w-[56rem] max-w-full bg-surface p-page";
+const STAGE = "flex flex-col h-[40rem] w-[56rem] max-w-full bg-surface p-page";
 // A pane narrower than the journey and shorter than it: a phone's, where the
 // zoom stack keeps the corner of the waiting shape.
-export const NARROW_STAGE =
+const NARROW_STAGE =
 	"flex flex-col h-[24rem] w-[28rem] max-w-full bg-surface p-page";
 
 // The narrow pane after a Pane opens beside it, or the window narrows.
@@ -55,30 +54,26 @@ const NARROWER_STAGE =
 // only when its pane is as tall as the drawing, which the layout decides after
 // the scene renders, so a stage is sized to the drawing measured in the touch
 // density (the taller): the workflow is 1258 px and the journey 814 px, each
-// plus the pane's inset on both sides. `ScenesHoldTheirGraph` fails when a
-// graph or a density outgrows its stage.
-export const WORKFLOW_STAGE =
+// plus the pane's inset on both sides.
+const WORKFLOW_STAGE =
 	"flex flex-col h-[86rem] w-[56rem] max-w-full bg-surface p-page";
-export const JOURNEY_STAGE =
+const JOURNEY_STAGE =
 	"flex flex-col h-[58rem] w-[56rem] max-w-full bg-surface p-page";
 // A pane the width of a half-width Pane beside a list: a wide graph opens
 // fitted in it.
 const ENTRY_STAGE =
 	"flex flex-col h-[40rem] w-[42rem] max-w-full bg-surface p-page";
-// The two crowded nodes: a status badge and a long line each, one above the other.
-const CROWDED_STAGE =
-	"flex flex-col h-[24rem] w-[28rem] max-w-full bg-surface p-page";
 // The role scenes' stage: the roles graph's five layers at scale 1, in either density.
-export const ROLES_STAGE =
+const ROLES_STAGE =
 	"flex flex-col h-[52rem] w-[56rem] max-w-full bg-surface p-page";
 // A canvas opens at the text floor (scale 1), so a stage is as tall as the
 // drawing at scale 1 plus the zoom stack under it: a lone group (touch, the
 // taller) with the page insets, a `pair` of air and the stack.
-export const ALONE_STAGE =
+const ALONE_STAGE =
 	"flex flex-col h-[22rem] w-[56rem] max-w-full bg-surface p-page";
 // The placed loop's: its two positioned nodes, the row of empty groups below
 // and the stack under the row's first group.
-export const PLACED_STAGE =
+const PLACED_STAGE =
 	"flex flex-col h-[44rem] w-[56rem] max-w-full bg-surface p-page";
 // A phone's pane and a half-width pane's: the welcome note's two exits side by
 // side (about 500 px) cannot stand in either at the text floor.
@@ -91,7 +86,7 @@ const WORDS_STAGE =
 	"flex flex-col h-[40rem] w-[36rem] max-w-full bg-surface p-page";
 // The overview's: a pane the workflow fits at about two thirds, between the
 // overview floor and the full node, in either density.
-export const OVERVIEW_STAGE =
+const OVERVIEW_STAGE =
 	"flex flex-col h-[60rem] w-[56rem] max-w-full bg-surface p-page";
 
 // Read-only but for the selection, which a click or Escape moves.
@@ -190,20 +185,6 @@ function Overview({
 	const words = useWords();
 	useEffect(() => {
 		let scene = 0;
-		const zoom = () => {
-			const region = host.current?.querySelector("section");
-			if (region && shows(region)) {
-				const button = region.querySelector<HTMLElement>(
-					`button[aria-label="${words.zoomOut}"]`,
-				);
-				for (let press = 0; press < out; press++) button?.click();
-				// The zoom travels on `base`; the graph is then panned to the middle of
-				// the pane, as the reader would, so the whole of it is in view.
-				scene = requestAnimationFrame(() => landed(region, 0, ""));
-				return;
-			}
-			scene = requestAnimationFrame(zoom);
-		};
 		// A wheel takes the view over and ends a travel where it got to, so the
 		// pan waits for the zoom to land: the layer under the text floor and still.
 		const landed = (region: Element, still: number, was: string) => {
@@ -225,8 +206,19 @@ function Overview({
 			}
 			scene = requestAnimationFrame(() => landed(region, held, now));
 		};
-		zoom();
-		return () => cancelAnimationFrame(scene);
+		const stop = onceOpen(host.current, (region) => {
+			const button = region.querySelector<HTMLElement>(
+				`button[aria-label="${words.zoomOut}"]`,
+			);
+			for (let press = 0; press < out; press++) button?.click();
+			// The zoom travels on `base`; the graph is then panned to the middle of
+			// the pane, as the reader would, so the whole of it is in view.
+			scene = requestAnimationFrame(() => landed(region, 0, ""));
+		});
+		return () => {
+			stop();
+			cancelAnimationFrame(scene);
+		};
 	}, [words.zoomOut, out, judge]);
 	return (
 		<div ref={host}>
@@ -252,19 +244,7 @@ function Edited({
 }) {
 	const host = useRef<HTMLDivElement>(null);
 	const [graph, setGraph] = useState(before);
-	useEffect(() => {
-		let scene = 0;
-		const edit = () => {
-			const region = host.current?.querySelector("section");
-			if (region && shows(region)) {
-				setGraph(after);
-				return;
-			}
-			scene = requestAnimationFrame(edit);
-		};
-		edit();
-		return () => cancelAnimationFrame(scene);
-	}, [after]);
+	useEffect(() => onceOpen(host.current, () => setGraph(after)), [after]);
 	return (
 		<div ref={host}>
 			<Selectable label={label} graph={graph} stage={stage} />
@@ -290,9 +270,8 @@ function drawn(node: HTMLElement): DOMRect {
 	return (node.querySelector("[data-shape]") ?? node).getBoundingClientRect();
 }
 
-// The faults of a canvas's opening view: a node cut by the pane's side (part in,
-// part out; one wholly out is the viewer's to pan to), or standing under the zoom
-// stack.
+// The faults of a canvas's opening view: plugins/react-ui/guide/canvas.md, "Moving around".
+// A node wholly out of the pane is the viewer's to pan to.
 function openingFaults(region: Element): string[] {
 	const pane = region.getBoundingClientRect();
 	const stack = region
@@ -383,9 +362,8 @@ function centreFaults(region: Element): string[] {
 		: [];
 }
 
-// A graph in a pane, and a canvas that judges how it opens: every node whole
-// across the pane (or wholly beyond it) and none under the zoom stack; with
-// `centred`, a graph at its words standing across the pane as well.
+// A graph in a pane, and a canvas that judges how it opens (`openingFaults`);
+// with `centred`, a graph at its words standing across the pane as well.
 function Opened({
 	label,
 	graph,
@@ -436,56 +414,52 @@ function Swapped({
 	const [graph, setGraph] = useState(before);
 	useEffect(() => {
 		let scene = 0;
-		let waited = 0;
-		let view = "";
-		let swapped = false;
 		let since = 0;
 		const layer = () =>
 			host.current?.querySelector<HTMLElement>("[data-layer]");
-		const watch = () => {
+		// The new set is drawn, and has stood while the layout ran and the view
+		// opened on it.
+		const watch = (view: string) => {
 			const region = host.current?.querySelector("section");
-			if (!swapped) {
-				if (region && shows(region)) {
-					// The viewer's pan: a plain wheel.
-					if (panned)
-						region.dispatchEvent(
-							new WheelEvent("wheel", {
-								deltaX: 48,
-								deltaY: 0,
-								bubbles: true,
-								cancelable: true,
-							}),
+			const count = region?.querySelectorAll(NODES).length;
+			since = count === after.nodes.length ? since + 1 : 0;
+			if (region && since >= SWAP_WAIT) {
+				if (panned) {
+					// The new set's lowest zoom may sit over the scale the viewer left
+					// (`limit`), and the view then lands at the lowest at once: that is
+					// the canvas's own move, not an opening.
+					const now = layer()?.style.transform ?? "";
+					if (scaleOf(now) === scaleOf(view) && now !== view)
+						console.error(
+							`${label}: a canvas the viewer moved opened again on its new nodes`,
 						);
-					view = layer()?.style.transform ?? "";
-					swapped = true;
-					setGraph(after);
-				} else if (++waited >= SHOW_WAIT) return;
-			} else if (region) {
-				// The new set is drawn, and has stood while the layout ran and the view
-				// opened on it.
-				const count = region.querySelectorAll(NODES).length;
-				since = count === after.nodes.length ? since + 1 : 0;
-				if (since >= SWAP_WAIT) {
-					if (panned) {
-						// The new set's lowest zoom may sit over the scale the viewer left
-						// (`limit`), and the view then lands at the lowest at once: that is
-						// the canvas's own move, not an opening.
-						const now = layer()?.style.transform ?? "";
-						if (scaleOf(now) === scaleOf(view) && now !== view)
-							console.error(
-								`${label}: a canvas the viewer moved opened again on its new nodes`,
-							);
-					} else {
-						for (const fault of openingFaults(region))
-							console.error(`${label}: after its nodes changed, ${fault}`);
-					}
-					return;
+				} else {
+					for (const fault of openingFaults(region))
+						console.error(`${label}: after its nodes changed, ${fault}`);
 				}
+				return;
 			}
-			scene = requestAnimationFrame(watch);
+			scene = requestAnimationFrame(() => watch(view));
 		};
-		scene = requestAnimationFrame(watch);
-		return () => cancelAnimationFrame(scene);
+		const stop = onceOpen(host.current, (region) => {
+			// The viewer's pan: a plain wheel.
+			if (panned)
+				region.dispatchEvent(
+					new WheelEvent("wheel", {
+						deltaX: 48,
+						deltaY: 0,
+						bubbles: true,
+						cancelable: true,
+					}),
+				);
+			const view = layer()?.style.transform ?? "";
+			setGraph(after);
+			scene = requestAnimationFrame(() => watch(view));
+		});
+		return () => {
+			stop();
+			cancelAnimationFrame(scene);
+		};
 	}, [label, after, panned]);
 	return (
 		<div ref={host}>
@@ -604,7 +578,8 @@ const EDGE_HOLD = 20;
 // card dragged to the pane's start and held there pans the view toward that
 // edge, the card staying under the pointer, and the drop is reported at whole
 // pixels left of where it stood, after which the view stands still.
-function Moved({ label, graph }: { label: string; graph: Graph }) {
+function Moved() {
+	const label = "Moved";
 	const host = useRef<HTMLDivElement>(null);
 	const [places, setPlaces] = useState(() => new Map<string, CanvasPoint>());
 	const reported = useRef(new Map<string, CanvasPoint>());
@@ -711,17 +686,17 @@ function Moved({ label, graph }: { label: string; graph: Graph }) {
 			cancelAnimationFrame(scene);
 		};
 	}, [label]);
-	const nodes = graph.nodes.map((node) => ({
+	const nodes = CROWDED.nodes.map((node) => ({
 		...node,
 		position: places.get(node.id) ?? node.position,
 	}));
 	return (
 		<div ref={host}>
-			<div className={CROWDED_STAGE}>
+			<div className={NARROW_STAGE}>
 				<Canvas
 					label={label}
 					nodes={nodes}
-					edges={graph.edges}
+					edges={CROWDED.edges}
 					onMove={onMove}
 				/>
 			</div>
@@ -763,6 +738,14 @@ function UnderSheet() {
 // the journey is selected in the `selected` scene of the first.
 // Nodes that never arrive: a canvas given them stays painted.
 const waitingNodes = waiting.at((): readonly CanvasNode[] => []);
+
+// The last part of a class set's name: the tone or state its scene judges.
+const toneOf = (name: string) => name.slice(name.lastIndexOf(".") + 1);
+const ROLES_BY_TONE: Record<string, Graph> = {
+	off: ROLES_OFF,
+	dimmed: ROLES_RUN,
+};
+const WORKFLOW_BY_TONE: Record<string, Graph> = { off: OFF, dimmed: RUN };
 
 const DRAWN: Record<string, { label: string; graph: Graph }> = {
 	"CANVAS_NODE.state.warning": { label: "Warning", graph: WARNING },
@@ -813,16 +796,12 @@ export function drawCanvas(scene: ShowcaseScene) {
 	}
 	if (/^CANVAS_NODE(_INK)?\.(role|tone)\./.test(name)) {
 		if (scene.state !== "rest") return undefined;
-		const tone = name.slice(name.lastIndexOf(".") + 1);
-		const graph =
-			tone === "off" ? ROLES_OFF : tone === "dimmed" ? ROLES_RUN : ROLES;
+		const graph = ROLES_BY_TONE[toneOf(name)] ?? ROLES;
 		return <Selectable label="Roles" graph={graph} stage={ROLES_STAGE} />;
 	}
 	if (/^CANVAS_NODE_GLYPH\.(role|tone)\./.test(name)) {
 		if (scene.state !== "rest") return undefined;
-		const tone = name.slice(name.lastIndexOf(".") + 1);
-		const graph =
-			tone === "off" ? ROLES_OFF : tone === "dimmed" ? ROLES_RUN : ROLES;
+		const graph = ROLES_BY_TONE[toneOf(name)] ?? ROLES;
 		return <Overview graph={graph} stage={ROLES_STAGE} />;
 	}
 	if (name.startsWith("CANVAS_NODE_MARK.")) {
@@ -831,7 +810,7 @@ export function drawCanvas(scene: ShowcaseScene) {
 	}
 	if (name.startsWith("CANVAS_NODE_GLYPH.state.")) {
 		if (scene.state !== "rest") return undefined;
-		const state = name.slice(name.lastIndexOf(".") + 1);
+		const state = toneOf(name);
 		return (
 			<Overview
 				graph={state === "warning" ? WARNING : WORKFLOW}
@@ -841,8 +820,7 @@ export function drawCanvas(scene: ShowcaseScene) {
 	}
 	if (name.startsWith("CANVAS_NODE_NAME.tone.")) {
 		if (scene.state !== "rest") return undefined;
-		const tone = name.slice(name.lastIndexOf(".") + 1);
-		const graph = tone === "off" ? OFF : tone === "dimmed" ? RUN : WORKFLOW;
+		const graph = WORKFLOW_BY_TONE[toneOf(name)] ?? WORKFLOW;
 		return <Overview graph={graph} stage={OVERVIEW_STAGE} out={NAMED} />;
 	}
 	if (name.startsWith("CANVAS_GROUP.state.")) {
@@ -905,7 +883,7 @@ export function drawCanvas(scene: ShowcaseScene) {
 					stage={ROLES_STAGE}
 				/>
 				{/* A status is a badge under the title; a long line is plain text under it. */}
-				<Selectable label="Crowded" graph={CROWDED} stage={CROWDED_STAGE} />
+				<Selectable label="Crowded" graph={CROWDED} stage={NARROW_STAGE} />
 				{/* A wide graph opens fitted in the pane it stands in, edge labels, the answer's arrow and its band's label in view. */}
 				<Selectable label="Entry" graph={ENTRY} stage={ENTRY_STAGE} />
 				{/* A graph wider than its pane opens as the overview with every glyph whole and clear of the zoom stack; from a pane a pair wider than its cards, at its words. Each judges its own opening. */}
@@ -949,7 +927,7 @@ export function drawCanvas(scene: ShowcaseScene) {
 					id="step-8"
 				/>
 				{/* A canvas that moves its nodes: an arrow moves a focused node, and a node held at the pane's edge pans the view. It judges both. */}
-				<Moved label="Moved" graph={CROWDED} />
+				<Moved />
 				<UnderSheet />
 			</>
 		);

@@ -3,18 +3,18 @@ import { Gate } from "@fcalell/plugin-react-ui/components/gate";
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import type { Option } from "@fcalell/ui-core/descriptors";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { ago } from "../ago.ts";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
-import { afterFrames } from "../judge.ts";
 import { endedAt, itemsAt, waiting } from "../waiting.ts";
-import { FILLED, GIVEN, SAVED } from "./form.tsx";
+import { GIVEN_ALL, SAVED } from "./form.tsx";
+import { Judged } from "./judged.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { beside } from "./painted.tsx";
 import { drawList, FailedLists } from "./picker-list.tsx";
 import { drawSegments } from "./picker-segments.tsx";
+import { act } from "./section-rows.ts";
 
-const change = () => {};
 const ROLES = [
 	{
 		value: "owner",
@@ -81,7 +81,7 @@ function Members() {
 					label: `${member.name}'s role`,
 					options: [...ROLES],
 					value: member.role,
-					onChange: change,
+					onChange: act,
 				},
 			}))}
 		/>
@@ -115,7 +115,7 @@ function Rooms() {
 						label: "Bathroom light",
 						options: POWER,
 						value: "on",
-						onChange: change,
+						onChange: act,
 					},
 				},
 				{
@@ -127,7 +127,7 @@ function Rooms() {
 						label: "Hall light",
 						options: POWER,
 						value: "off",
-						onChange: change,
+						onChange: act,
 					},
 				},
 				{
@@ -139,7 +139,7 @@ function Rooms() {
 						label: "Invoice reminder schedule",
 						options: MODES,
 						value: "comfort",
-						onChange: change,
+						onChange: act,
 					},
 				},
 			]}
@@ -150,26 +150,21 @@ function Rooms() {
 function Triggers() {
 	return (
 		<div className="flex flex-wrap items-start gap-section">
-			<Picker
-				label="Role"
-				options={[...ROLES]}
-				value="admin"
-				onChange={change}
-			/>
-			<Picker label="Owner" options={OWNERS} value={null} onChange={change} />
-			<Picker label="Reviewer" options={OWNERS.slice(1)} onChange={change} />
-			<Picker label="Role" options={[...ROLES]} onChange={change} fit="row" />
+			<Picker label="Role" options={[...ROLES]} value="admin" onChange={act} />
+			<Picker label="Owner" options={OWNERS} value={null} onChange={act} />
+			<Picker label="Reviewer" options={OWNERS.slice(1)} onChange={act} />
+			<Picker label="Role" options={[...ROLES]} onChange={act} fit="row" />
 			<Picker
 				label="Context"
 				options={CONTEXTS}
 				value="billing"
-				onChange={change}
+				onChange={act}
 			/>
 			<Picker
 				label="Context"
 				options={CONTEXTS}
 				value="billing"
-				onChange={change}
+				onChange={act}
 				fit="row"
 			/>
 		</div>
@@ -207,20 +202,8 @@ function chipFaults(host: Element): string[] {
 	}
 	return faults;
 }
-function ChipsJudged({ children }: { children: ReactNode }) {
-	const host = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		return afterFrames(SETTLE, () => {
-			if (host.current)
-				for (const fault of chipFaults(host.current))
-					console.error(`Picker: ${fault}`);
-		});
-	}, []);
-	return (
-		<div ref={host} className="min-w-0">
-			{children}
-		</div>
-	);
+function judgeChips(host: HTMLElement) {
+	for (const fault of chipFaults(host)) console.error(`Picker: ${fault}`);
 }
 
 // The bar fit fills its column: a pick, and a pick of several holding its
@@ -232,13 +215,13 @@ function Bars() {
 	// chosen one.
 	const [approvers, setApprovers] = useState<(string | null)[]>(["dana"]);
 	return (
-		<ChipsJudged>
+		<Judged settle={SETTLE} judge={judgeChips} className="min-w-0">
 			<div className="flex w-popover max-w-full flex-col gap-gap">
 				<Picker
 					label="Role"
 					options={[...ROLES]}
 					value="admin"
-					onChange={change}
+					onChange={act}
 				/>
 				<Picker
 					label="Roles"
@@ -259,7 +242,7 @@ function Bars() {
 					onChange={setApprovers}
 				/>
 			</div>
-		</ChipsJudged>
+		</Judged>
 	);
 }
 
@@ -270,17 +253,18 @@ function Bars() {
 function Fielded(props: { invalid?: boolean; only?: boolean }) {
 	const { invalid, only } = props;
 	const [roles, setRoles] = useState<Role[]>(["admin", "member"]);
-	const [none, setNone] = useState<Role[]>([]);
+	const [blocked, setBlocked] = useState<Role[]>([]);
+	const [helpers, setHelpers] = useState<Role[]>([]);
 	const error = invalid ? "Pick a role." : undefined;
 	return (
-		<ChipsJudged>
+		<Judged settle={SETTLE} judge={judgeChips} className="min-w-0">
 			<div className="flex w-popover max-w-full flex-col gap-stack">
 				<Picker
 					label="Default role"
 					description="Given to anyone who joins."
 					error={error}
 					value="admin"
-					onChange={change}
+					onChange={act}
 					options={[...ROLES]}
 					placeholder="Choose a role"
 				/>
@@ -289,7 +273,7 @@ function Fielded(props: { invalid?: boolean; only?: boolean }) {
 						<Picker
 							label="Fallback role"
 							error={error}
-							onChange={change}
+							onChange={act}
 							options={[...ROLES]}
 							placeholder="Choose a role"
 						/>
@@ -304,8 +288,8 @@ function Fielded(props: { invalid?: boolean; only?: boolean }) {
 						<Picker
 							label="Blocked roles"
 							error={error}
-							value={none}
-							onChange={setNone}
+							value={blocked}
+							onChange={setBlocked}
 							options={[...ROLES]}
 							placeholder="Choose roles"
 						/>
@@ -313,14 +297,14 @@ function Fielded(props: { invalid?: boolean; only?: boolean }) {
 							label="Helpers"
 							description="Each runs with the read tools alone."
 							error={error}
-							value={none}
-							onChange={setNone}
+							value={helpers}
+							onChange={setHelpers}
 							options={[...ROLES]}
 						/>
 					</>
 				)}
 			</div>
-		</ChipsJudged>
+		</Judged>
 	);
 }
 
@@ -330,11 +314,11 @@ function Fielded(props: { invalid?: boolean; only?: boolean }) {
 function Locked() {
 	const locked = "Set by your organisation.";
 	return (
-		<ChipsJudged>
+		<Judged settle={SETTLE} judge={judgeChips} className="min-w-0">
 			<div className="flex w-popover max-w-full flex-col">
 				<Form
 					act={SAVED}
-					given={{ ...GIVEN, ...FILLED }}
+					given={GIVEN_ALL}
 					commit="field"
 					values={{ owner: "admin", channels: ["email", "slack"] }}
 					fields={{
@@ -344,7 +328,7 @@ function Locked() {
 					}}
 				/>
 			</div>
-		</ChipsJudged>
+		</Judged>
 	);
 }
 
@@ -413,13 +397,13 @@ export function drawPicker(scene: ShowcaseScene) {
 						label="Role"
 						options={[...ROLES]}
 						value="admin"
-						onChange={change}
+						onChange={act}
 					/>
 					<Picker
 						label="Role"
 						options={[...ROLES]}
 						value={waiting.at((): Role => "admin")}
-						onChange={change}
+						onChange={act}
 					/>
 				</div>
 				{drawList(scene)}
@@ -435,7 +419,7 @@ export function drawPicker(scene: ShowcaseScene) {
 				label="Role"
 				options={itemsAt(scene.id, "loading", [...ROLES])}
 				value="admin"
-				onChange={change}
+				onChange={act}
 			/>
 		);
 	// The error state, on the first class set, adds the picker over options that fail
@@ -451,7 +435,7 @@ export function drawPicker(scene: ShowcaseScene) {
 								label={title}
 								options={items}
 								value="admin"
-								onChange={change}
+								onChange={act}
 							/>
 						))
 					: null}
@@ -498,8 +482,8 @@ function opened(row: boolean, bar: boolean, fielded: boolean) {
 			label="Owner"
 			options={OWNERS}
 			value={null}
-			onChange={change}
-			act={{ icon: "Plus", label: "Add an owner", onAct: change }}
+			onChange={act}
+			act={{ icon: "Plus", label: "Add an owner", onAct: act }}
 		/>
 	);
 }

@@ -1,9 +1,9 @@
 import { Rules } from "@fcalell/plugin-react-ui/components/rules";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
 import type { EitherValue, Option, Rule } from "@fcalell/ui-core/descriptors";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
-import { afterFrames } from "../judge.ts";
+import { Judged } from "./judged.tsx";
 import { Wide } from "./layout-context.tsx";
 
 const FIELDS: Option[] = [
@@ -55,6 +55,7 @@ function mappings(unpaired: boolean): Mapping[] {
 
 function MappingRules(props: { unpaired: boolean }) {
 	const [rows, setRows] = useState(() => mappings(props.unpaired));
+	const added = useRef(0);
 	const edit = (id: string, change: Partial<Mapping>) =>
 		setRows((all) =>
 			all.map((row) => (row.id === id ? { ...row, ...change } : row)),
@@ -87,11 +88,10 @@ function MappingRules(props: { unpaired: boolean }) {
 			rules={rules}
 			add={{
 				label: "Add mapping",
-				onAct: () =>
-					setRows((all) => [
-						...all,
-						{ id: `n${all.length}`, from: {}, to: undefined },
-					]),
+				onAct: () => {
+					const id = `n${++added.current}`;
+					setRows((all) => [...all, { id, from: {}, to: undefined }]);
+				},
 			}}
 		/>
 	);
@@ -114,6 +114,7 @@ function FilterRules() {
 		},
 		{ id: "b", field: "order.currency", operator: "is", values: ["eur"] },
 	]);
+	const added = useRef(0);
 	const edit = (id: string, change: Partial<Condition>) =>
 		setRows((all) =>
 			all.map((row) => (row.id === id ? { ...row, ...change } : row)),
@@ -125,7 +126,8 @@ function FilterRules() {
 				label: "Field",
 				options: FIELDS,
 				value: row.field,
-				onChange: (field) => edit(row.id, { field }),
+				// The values are the old field's options, none of the new one's.
+				onChange: (field) => edit(row.id, { field, values: [] }),
 			},
 			operator: row.operator,
 			value: {
@@ -144,16 +146,13 @@ function FilterRules() {
 			rules={rules}
 			add={{
 				label: "Add condition",
-				onAct: () =>
+				onAct: () => {
+					const id = `n${++added.current}`;
 					setRows((all) => [
 						...all,
-						{
-							id: `n${all.length}`,
-							field: "page.type",
-							operator: "in",
-							values: [],
-						},
-					]),
+						{ id, field: "page.type", operator: "in", values: [] },
+					]);
+				},
 			}}
 		/>
 	);
@@ -173,34 +172,28 @@ const CURRENCIES: Option[] = [
 // a term's trigger reads its label.
 const SETTLE = 60;
 const LABELS = ["Source", "Variable", "Field", "Values"];
-function TermsJudged({ children }: { children: ReactNode }) {
-	const host = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		return afterFrames(SETTLE, () => {
-			for (const button of host.current?.querySelectorAll("button") ?? []) {
-				const said = button.textContent?.trim() ?? "";
-				const label = LABELS.find((one) => said.startsWith(`${one}:`));
-				if (label)
-					console.error(
-						`Rules: a term reads its label: "${said}", where its value alone stands`,
-					);
-			}
-		});
-	}, []);
-	return <div ref={host}>{children}</div>;
+function judgeTerms(host: HTMLElement) {
+	for (const button of host.querySelectorAll("button")) {
+		const said = button.textContent?.trim() ?? "";
+		const label = LABELS.find((one) => said.startsWith(`${one}:`));
+		if (label)
+			console.error(
+				`Rules: a term reads its label: "${said}", where its value alone stands`,
+			);
+	}
 }
 
 export function drawRules(scene: ShowcaseScene) {
 	return (
 		<Wide>
-			<TermsJudged>
+			<Judged settle={SETTLE} judge={judgeTerms}>
 				<Section title="Mapping">
 					<MappingRules unpaired={scene.classSet.name.endsWith(".unset")} />
 				</Section>
 				<Section title="Filter">
 					<FilterRules />
 				</Section>
-			</TermsJudged>
+			</Judged>
 		</Wide>
 	);
 }

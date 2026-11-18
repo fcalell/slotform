@@ -1,12 +1,11 @@
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { ListedRoute } from "@fcalell/plugin-react-ui/lib/navigate";
-import { type ReactNode, useEffect, useRef } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
-import { afterFrames } from "../judge.ts";
 import { waitingText } from "../waiting.ts";
+import { Judged } from "./judged.tsx";
 import { beside, isPaint } from "./painted.tsx";
+import { act } from "./section-rows.ts";
 
-const change = () => {};
 const PERIODS = [
 	{ value: "day", label: "Day" },
 	{ value: "week", label: "Week" },
@@ -53,9 +52,8 @@ const RANGES = [
 
 // The scenes below judge their tracks' scroll and log an error where it breaks: docs/architecture/ui-core/components.md, "Segments".
 const SETTLE = 30;
-const FADES =
-	typeof CSS !== "undefined" && CSS.supports("animation-timeline: scroll()");
 function trackFaults(host: Element): string[] {
+	const fades = CSS.supports("animation-timeline: scroll()");
 	const faults: string[] = [];
 	for (const track of host.querySelectorAll<HTMLElement>(
 		'[class*="scroll-fade-x"]',
@@ -82,7 +80,7 @@ function trackFaults(host: Element): string[] {
 					`${name} is scrolled ${Math.round(track.scrollLeft)} px past its start, where its chosen segment stands whole without it`,
 				);
 		}
-		if (!FADES) continue;
+		if (!fades) continue;
 		const fade = (edge: string) =>
 			Number.parseFloat(getComputedStyle(track).getPropertyValue(edge));
 		if (track.scrollLeft > 1 && !(fade("--fade-start") > 0))
@@ -95,20 +93,8 @@ function trackFaults(host: Element): string[] {
 }
 
 // Frames the tracks stand in, judged once they have stood still for a while.
-function Judged({ children }: { children: ReactNode }) {
-	const host = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		return afterFrames(SETTLE, () => {
-			if (host.current)
-				for (const fault of trackFaults(host.current))
-					console.error(`Segments: ${fault}`);
-		});
-	}, []);
-	return (
-		<div ref={host} className="min-w-0">
-			{children}
-		</div>
-	);
+function judgeTracks(host: HTMLElement) {
+	for (const fault of trackFaults(host)) console.error(`Segments: ${fault}`);
 }
 
 // Board 41's four periods, Week chosen; the scene's state forces every
@@ -128,25 +114,25 @@ export function drawSegments(scene: ShowcaseScene) {
 				label="Period"
 				options={PERIODS}
 				value="week"
-				onChange={change}
+				onChange={act}
 			/>,
 			<Picker
 				fit="segments"
 				label="Period"
 				options={PERIODS}
 				value={waitingText}
-				onChange={change}
+				onChange={act}
 			/>,
 		);
 	return (
-		<Judged>
+		<Judged settle={SETTLE} judge={judgeTracks} className="min-w-0">
 			<div className="flex flex-col items-stretch gap-section min-w-0">
 				<Picker
 					fit="segments"
 					label="Period"
 					options={PERIODS}
 					value={scene.state === "loading" ? waitingText : "week"}
-					onChange={change}
+					onChange={act}
 				/>
 				<Picker fit="segments" options={SECTIONS} />
 				<Picker fit="segments" options={MANY} />
@@ -158,7 +144,7 @@ export function drawSegments(scene: ShowcaseScene) {
 					label="State"
 					options={STATES}
 					value="unplanned"
-					onChange={change}
+					onChange={act}
 				/>
 				<Picker
 					fit="segments"
@@ -166,7 +152,7 @@ export function drawSegments(scene: ShowcaseScene) {
 					description="API calls by day."
 					options={RANGES}
 					value="30d"
-					onChange={change}
+					onChange={act}
 				/>
 			</div>
 		</Judged>

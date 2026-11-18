@@ -11,29 +11,28 @@ import { text } from "@fcalell/ui-core/variants";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
-import { FILLED, GIVEN, refusing, SAVED, Submitted } from "./form.tsx";
+import { GIVEN_ALL, refusing, SAVED, Submitted } from "./form.tsx";
 import { drawFormField } from "./form-field.tsx";
 import { beside, isPaint, labelled } from "./painted.tsx";
 import { hang } from "./pending.tsx";
 import { Column } from "./place.tsx";
+import { act } from "./section-rows.ts";
 
-const change = () => {};
+// The kinds the scene draws a value in.
+type Drawn = Extract<InputKind, "text" | "source" | "search" | "number">;
 
-const KINDS: Partial<Record<string, InputKind>> = {
+const KINDS: Partial<Record<string, Drawn>> = {
 	"FIELD_VALUE.kind.text": "text",
 	"FIELD_VALUE.kind.code": "source",
 	"FIELD_VALUE.kind.search": "search",
 	"FIELD.trailing.act": "source",
 };
 
-const VALUES: Record<InputKind, string> = {
+const VALUES: Record<Drawn, string> = {
 	text: "acme-inc",
 	source: "whsec_8b1f4e2a9c7d3f06",
 	search: "deploy failed",
-	secret: "",
 	number: "250",
-	email: "",
-	date: "2026-03-14",
 };
 
 // A command wider than a phone, in a source field with its run act: it wraps
@@ -83,12 +82,8 @@ function drawLine(scene: ShowcaseScene) {
 	if (isPaint(scene))
 		return beside(
 			scene,
-			labelled(
-				<Input label="Workspace" value={VALUES.text} onChange={change} />,
-			),
-			labelled(
-				<Input label="Workspace" value={waitingText} onChange={change} />,
-			),
+			labelled(<Input label="Workspace" value={VALUES.text} onChange={act} />),
+			labelled(<Input label="Workspace" value={waitingText} onChange={act} />),
 		);
 	const name = scene.classSet.name;
 	if (
@@ -118,11 +113,11 @@ function drawLine(scene: ShowcaseScene) {
 					label="Workspace URL"
 					kind={kind}
 					value={VALUES[kind]}
-					onChange={change}
+					onChange={act}
 					unit={unit ? "ms" : undefined}
 					act={
 						name === "FIELD.trailing.act"
-							? { icon: "Copy", label: "Copy", onAct: change }
+							? { icon: "Copy", label: "Copy", onAct: act }
 							: undefined
 					}
 				/>
@@ -139,8 +134,8 @@ function drawLine(scene: ShowcaseScene) {
 						label="Check command"
 						kind="source"
 						value={COMMAND}
-						onChange={change}
-						act={{ icon: "Play", label: "Run now", onAct: change }}
+						onChange={act}
+						act={{ icon: "Play", label: "Run now", onAct: act }}
 					/>
 				</Field.Root>
 			) : null}
@@ -164,19 +159,14 @@ function drawProse(scene: ShowcaseScene) {
 		return scene.state === "rest" ? (
 			<div className="flex flex-col gap-section">
 				{labelled(
-					<Input
-						label="Workspace"
-						kind="prose"
-						value={SHORT}
-						onChange={change}
-					/>,
+					<Input label="Workspace" kind="prose" value={SHORT} onChange={act} />,
 				)}
 				{labelled(
 					<Input
 						label="Workspace"
 						kind="prose"
 						value={waitingText}
-						onChange={change}
+						onChange={act}
 					/>,
 				)}
 			</div>
@@ -201,7 +191,7 @@ function drawProse(scene: ShowcaseScene) {
 						<Pane>
 							<Form
 								act={scene.state === "error" ? REFUSED_SOURCE : SAVED}
-								given={{ ...GIVEN, ...FILLED }}
+								given={GIVEN_ALL}
 								values={{ why: SOURCE }}
 								fields={{
 									why: {
@@ -213,7 +203,7 @@ function drawProse(scene: ShowcaseScene) {
 												: undefined,
 									},
 								}}
-								acts={[{ label: "Discard", onAct: change }]}
+								acts={[{ label: "Discard", onAct: act }]}
 								submit={{ label: "Save" }}
 							/>
 						</Pane>
@@ -237,7 +227,7 @@ function drawProse(scene: ShowcaseScene) {
 					label="Description"
 					kind="prose"
 					value={over ? LONG : SHORT}
-					onChange={change}
+					onChange={act}
 					budget={over ? 20 : 200}
 				/>
 			</Field.Root>
@@ -310,7 +300,7 @@ function drawCode(scene: ShowcaseScene) {
 						kind="code"
 						length={6}
 						value="481"
-						onChange={change}
+						onChange={act}
 					/>
 				)}
 			</Field.Root>
@@ -353,7 +343,7 @@ function drawFile(scene: ShowcaseScene) {
 		return (
 			<Form
 				act={SAVED}
-				given={{ ...GIVEN, ...FILLED }}
+				given={GIVEN_ALL}
 				commit="field"
 				fields={{
 					directory: {
@@ -370,7 +360,7 @@ function drawFile(scene: ShowcaseScene) {
 			label="Invoices file"
 			kind="file"
 			value={empty ? null : CHOSEN}
-			onChange={change}
+			onChange={act}
 			accept={ACCEPT}
 			error={error ? "Choose a CSV or HAR file." : undefined}
 		/>
@@ -401,16 +391,16 @@ function drawPath(scene: ShowcaseScene) {
 			<Input
 				label="Upload folder"
 				value={PATH}
-				onChange={change}
+				onChange={act}
 				error={[{ code: PATH }, " is not a directory."]}
 			/>
 			<Input
 				label="Address"
 				value="ftp://ha.lan"
-				onChange={change}
+				onChange={act}
 				error={ADDRESS}
 			/>
-			<Input label="Host key" value="" onChange={change} error={SHOWN} />
+			<Input label="Host key" value="" onChange={act} error={SHOWN} />
 		</>
 	);
 }

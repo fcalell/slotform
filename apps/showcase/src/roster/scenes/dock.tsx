@@ -4,11 +4,8 @@ import type { Engine } from "@fcalell/ui-core/player";
 import { useEffect } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { MADE_DURATION, madePeaks, silence } from "../peaks.ts";
-import { SCREEN } from "./image.tsx";
+import { BROKEN, SCREEN } from "./pictures.ts";
 import { Column } from "./place.tsx";
-
-// An address that is no picture, so the load fails.
-const BROKEN = "data:image/png;base64,AAAA";
 
 // A sound that holds nothing, which fails when it is told to play if `failing`.
 const still =
@@ -28,7 +25,7 @@ const still =
 		apply: () => {},
 	});
 
-/** A track is loaded, paused a third in (`failing`: told to play and failed), for a dock to stand with; the player is the page's, so the scene puts it away when it goes. */
+// A track is loaded, paused a third in (`failing`: told to play and failed), for a dock to stand with; the player is the page's, so the scene puts it away when it goes.
 export function useLoadedTrack(options: { image?: string; failing?: boolean }) {
 	const { image, failing = false } = options;
 	useEffect(() => {
@@ -55,7 +52,7 @@ export function useLoadedTrack(options: { image?: string; failing?: boolean }) {
 	}, [image, failing]);
 }
 
-/** A dock under a place's column, its track loaded with `image` (`failing`: told to play and failed). */
+// A dock under a place's column, its track loaded with `image` (`failing`: told to play and failed).
 export function Standing(props: { image?: string; failing?: boolean }) {
 	useLoadedTrack(props);
 	return (

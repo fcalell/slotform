@@ -44,8 +44,7 @@ const DESCRIPTION = `Moves the billing webhooks off the legacy queue. Each event
 
 Rollout is behind \`billing.queue_v2\`; see [the runbook](#runbook) before turning it on for an enterprise workspace.`;
 
-/** A one-line text, loaded and painted, in a Section each. */
-export function Sentence(props: { loading?: boolean }) {
+function Sentence(props: { loading?: boolean }) {
 	return (
 		<Section title="Why it waits">
 			<Prose markdown={props.loading ? waitingText : SENTENCE} />

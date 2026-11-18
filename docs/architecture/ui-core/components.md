@@ -169,7 +169,7 @@ disabled in a list) until it is in the value.
 `value` an array makes it a pick of several: the rows tick and the list stays open, and the box holds
 one removable neutral chip per value. The chips are pills inset in their box, never edge to edge:
 the roster scenes that hold one judge every chip run and log an error where a chip stands as tall as
-its box or off its centre. The scenes' class sets mount as they are read, so that judge waits well past
+its box or closer than the inset to its top or bottom edge. The scenes' class sets mount as they are read, so that judge waits well past
 the first paint.
 
 ### Reads

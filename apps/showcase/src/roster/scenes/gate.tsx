@@ -10,7 +10,7 @@ import { confirm } from "@fcalell/ui-core/react/confirm";
 import { text } from "@fcalell/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { readsAt } from "../waiting.ts";
-import { FILLED, GIVEN, KIND, SAVED } from "./form.tsx";
+import { FILLED, GIVEN_BUT_KIND, KIND, SAVED } from "./form.tsx";
 import { StandInCard } from "./layout-context.tsx";
 import { act } from "./section-rows.ts";
 
@@ -31,14 +31,14 @@ const BROKEN: AppLockup = { src: "data:image/svg+xml,<", name: MARK.name };
 // The scene draws the page as the Shell's scenes draw theirs, a viewport tall.
 const BOX = "flex flex-col gap-gap";
 
-// The held class sets the scene names: the page, the column, the step and the mark; each case adds what it draws.
-const CLASS_SETS =
-	"GATE · GATE_COLUMN · GATE_STEP · GATE_LOCKUP · GATE_LOCKUP_ROW";
-// What a class set's case adds, by class set.
+// The class sets that add a case to the gate, and what each adds.
+const FAILED_LOGO = "TEXT_STRONG.role.body";
+const RAISES = "TEXT.role.meta";
+const LABELLED_PICKS = "TEXT.role.title";
 const CASES: Record<string, string> = {
-	"TEXT_STRONG.role.body": "a mark whose logo fails: its name alone",
-	"TEXT.role.meta": "toast() and confirm() from inside the gate",
-	"TEXT.role.title":
+	[FAILED_LOGO]: "a mark whose logo fails: its name alone",
+	[RAISES]: "toast() and confirm() from inside the gate",
+	[LABELLED_PICKS]:
 		"labelled picks in the gate's cards, loaded, painted and failed",
 };
 
@@ -113,14 +113,12 @@ function Picks(props: { id: string }) {
 // raise a toast and a decision, which the gate's own host draws.
 export function drawGate(scene: ShowcaseScene) {
 	const classSet = scene.classSet.name;
-	const raises = classSet === "TEXT.role.meta";
-	const named = classSet === "TEXT_STRONG.role.body";
+	const raises = classSet === RAISES;
+	const named = classSet === FAILED_LOGO;
 	const note = CASES[classSet];
 	return (
 		<div className={BOX}>
-			<p className={text({ role: "caption" })}>
-				{note ? `${CLASS_SETS} · ${note}` : CLASS_SETS}
-			</p>
+			{note ? <p className={text({ role: "caption" })}>{note}</p> : null}
 			<LockupProvider lockup={named ? BROKEN : MARK}>
 				<Gate
 					step={{ at: 1, of: 2 }}
@@ -131,12 +129,7 @@ export function drawGate(scene: ShowcaseScene) {
 					}
 					form={{
 						act: SAVED,
-						given: {
-							...GIVEN,
-							title: FILLED.title,
-							seats: FILLED.seats,
-							urgent: FILLED.urgent,
-						},
+						given: GIVEN_BUT_KIND,
 						values: { kind: FILLED.kind },
 						fields: { kind: KIND },
 						submit: { label: "Continue" },
@@ -149,7 +142,7 @@ export function drawGate(scene: ShowcaseScene) {
 					}}
 				>
 					<StandInCard />
-					{classSet === "TEXT.role.title" ? <Picks id={scene.id} /> : null}
+					{classSet === LABELLED_PICKS ? <Picks id={scene.id} /> : null}
 				</Gate>
 			</LockupProvider>
 		</div>

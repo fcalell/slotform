@@ -10,11 +10,10 @@ import type {
 import type { ReactNode } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
-import { SCREEN } from "./image.tsx";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
-
-const act = () => {};
+import { SCREEN } from "./pictures.ts";
+import { act } from "./section-rows.ts";
 
 // A moment today at a board's time, as an ISO string the Message formats.
 export function today(time: string): string {
@@ -27,7 +26,6 @@ export function today(time: string): string {
 export const REPLY =
 	"The build failed on step 4. The migration `0042_add_invoices` reads a column the production database does not have yet.\n\nRun the pending migration against production, then redeploy.";
 
-// What came with a message: a picture and a file.
 export const ATTACHED: Attachment[] = [
 	{ id: "shot", name: "Checkout page after the failed payment", src: SCREEN },
 	{ id: "log", name: "deploy-api-4f2c.log" },
@@ -38,9 +36,7 @@ export interface Turn {
 	author: "you" | "other" | "system";
 	body: string;
 	at?: string;
-	// A system line that opens what it names.
 	opens?: boolean;
-	// What stands under a system line.
 	detail?: MessageDetail;
 	// What came with a turn, and where it came from.
 	attachments?: Attachment[];

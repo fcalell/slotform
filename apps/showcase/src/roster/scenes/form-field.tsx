@@ -1,13 +1,21 @@
 import { Form } from "@fcalell/plugin-react-ui/components/form";
 import { Input } from "@fcalell/plugin-react-ui/components/input";
+import { useWords } from "@fcalell/ui-core/react/words";
 import { useEffect, useRef } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { endedAt, waitingText } from "../waiting.ts";
-import { FILLED, GIVEN, refusing, SAVED, Submitted } from "./form.tsx";
+import {
+	FILLED,
+	GIVEN,
+	GIVEN_ALL,
+	refusing,
+	SAVED,
+	Submitted,
+} from "./form.tsx";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
+import { act } from "./section-rows.ts";
 
-const change = () => {};
 const REGIONS = [
 	{ value: "eu-central-1", label: "Frankfurt, eu-central-1" },
 	{ value: "us-east-1", label: "N. Virginia, us-east-1" },
@@ -26,7 +34,9 @@ const LOCKED = "Set by your organisation's SSO.";
 // edge: the sentence and Retry share a centre, and the label's start is the column's.
 function Unread(props: { id: string }) {
 	const host = useRef<HTMLDivElement>(null);
+	const words = useWords();
 	useEffect(() => {
+		const said = [words.readFailed, words.retry];
 		const timer = setTimeout(() => {
 			const field = host.current;
 			if (!field) return;
@@ -36,8 +46,7 @@ function Unread(props: { id: string }) {
 				.filter(
 					(part) =>
 						part.children.length === 0 &&
-						part.textContent &&
-						/didn.t load|Retry/.test(part.textContent),
+						said.some((word) => part.textContent?.includes(word)),
 				)
 				.map((part) => {
 					const box = part.getBoundingClientRect();
@@ -49,13 +58,13 @@ function Unread(props: { id: string }) {
 				);
 		}, 300);
 		return () => clearTimeout(timer);
-	}, []);
+	}, [words.readFailed, words.retry]);
 	const [failed] = endedAt<{ value: string; label: string }>(props.id, "error");
 	return (
 		<div ref={host} className="contents">
 			<Form
 				act={SAVED}
-				given={{ ...UNSHOWN, title: FILLED.title, urgent: FILLED.urgent }}
+				given={GIVEN_ALL}
 				commit="field"
 				fields={{
 					owner: { label: "Default region", options: failed?.items ?? REGIONS },
@@ -79,13 +88,13 @@ export function drawFormField(scene: ShowcaseScene) {
 					label="Workspace URL"
 					description="Changing it breaks links."
 					value="acme-inc"
-					onChange={change}
+					onChange={act}
 				/>
 				<Input
 					label="Workspace URL"
 					description="Changing it breaks links."
 					value={waitingText}
-					onChange={change}
+					onChange={act}
 				/>
 			</Wide>
 		) : undefined;

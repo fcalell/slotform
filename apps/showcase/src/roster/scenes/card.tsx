@@ -6,11 +6,10 @@ import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Slider } from "@fcalell/plugin-react-ui/components/slider";
 import { Stats } from "@fcalell/plugin-react-ui/components/stats";
 import { Wide } from "./layout-context.tsx";
+import { act } from "./section-rows.ts";
 
 const NOTE =
 	"Every pull request gets its own preview URL, torn down when the branch merges.";
-const change = () => {};
-
 // A usage window: its meter is a Stats and the reserve a part that is no row, in a Card beside it: docs/architecture/ui-core/layout.md, "Cards".
 const WINDOW = [
 	{
@@ -39,13 +38,13 @@ export function drawCard() {
 						kind="prose"
 						value=""
 						placeholder="/home/you/mail"
-						onChange={change}
+						onChange={act}
 					/>
 				</Card>
 			</Section>
 			<Section title="Fields">
 				<Card>
-					<Input label="Address" value="db.internal:5432" onChange={change} />
+					<Input label="Address" value="db.internal:5432" onChange={act} />
 					<Picker
 						label="Projects"
 						description="Each runs in the same session."
@@ -54,20 +53,14 @@ export function drawCard() {
 							{ value: "retro", label: "Retro" },
 						]}
 						value={[]}
-						onChange={change}
+						onChange={act}
 					/>
 				</Card>
 			</Section>
 			<Section title="Five hours">
 				<Stats items={WINDOW} />
 				<Card>
-					<Slider
-						label="Reserve"
-						value={0}
-						min={0}
-						max={100}
-						onChange={change}
-					/>
+					<Slider label="Reserve" value={0} min={0} max={100} onChange={act} />
 				</Card>
 			</Section>
 		</Wide>

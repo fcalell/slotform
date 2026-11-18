@@ -6,6 +6,7 @@ import type { ShowcaseScene } from "../class-sets.ts";
 import { endedAt, itemsAt, waitingText } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";
 import { beside, isPaint } from "./painted.tsx";
+import { act } from "./section-rows.ts";
 
 interface Topic {
 	id: string;
@@ -15,7 +16,6 @@ interface Topic {
 	suggested?: boolean;
 }
 
-const change = () => {};
 const TOPICS: Topic[] = [
 	{
 		id: "mentions",
@@ -135,13 +135,13 @@ function Approaches(props: { checked: boolean; painted?: boolean }) {
 					recommended: (approach) => approach.suggested,
 				}}
 				value={props.painted ? waitingText : props.checked ? "ask" : null}
-				onChange={change}
+				onChange={act}
 			>
 				<Input
 					label="Note"
 					kind="prose"
 					value=""
-					onChange={change}
+					onChange={act}
 					placeholder="Anything the agent should know"
 				/>
 			</Picker>
@@ -173,7 +173,7 @@ function Headed() {
 						line: `Deploys to ${one.label.toLowerCase()} land on their own, ${at === 0 ? "even on the long-weekend-release-freeze-calendar-rotation" : "the same"}`,
 					}))}
 					value={["production"]}
-					onChange={change}
+					onChange={act}
 				/>
 			</Section>
 		</Wide>
@@ -212,13 +212,13 @@ function Topics(props: {
 					group: part.grouped ? (topic) => topic.kind : undefined,
 				}}
 				value={[...part.chosen]}
-				onChange={change}
+				onChange={act}
 			>
 				{part.opens ? (
 					<Picker
 						label="Only for"
 						value="production"
-						onChange={change}
+						onChange={act}
 						options={ENVIRONMENTS}
 					/>
 				) : null}
@@ -243,7 +243,7 @@ export function FailedLists(props: { id: string }) {
 						label: (topic) => topic.name,
 					}}
 					value={[]}
-					onChange={change}
+					onChange={act}
 				/>
 			))}
 		</Wide>
