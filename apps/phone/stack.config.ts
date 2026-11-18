@@ -34,6 +34,7 @@ export default defineConfig({
 				prefix: "phone",
 			},
 			organization: false,
+			expo: true,
 		}),
 		nativeUi(),
 		cloudflare(),

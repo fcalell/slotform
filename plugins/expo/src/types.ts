@@ -8,16 +8,15 @@ import { z } from "zod";
 // `name` is the config-plugin id (usually the package name), `options` are
 // passed through verbatim, and `dependencies` are merged into the consumer's
 // package.json so the native module is installed alongside its config plugin.
-const configPluginSchema = z.object({
+const expoConfigPluginSchema = z.object({
 	name: z.string().min(1),
 	options: z.record(z.string(), z.unknown()).optional(),
+});
+const configPluginSchema = expoConfigPluginSchema.extend({
 	dependencies: z.record(z.string(), z.string()).optional(),
 });
 
-// Per-platform native build floor. A
-// missing platform floors at 0 (dormant — every build of that platform
-// passes); this is a product decision bumped by hand alongside a breaking
-// native-facing API change, never inferred.
+// Per-platform native build floor: plugins/expo/guide/version-gate.md.
 const minNativeBuildSchema = z.object({
 	ios: z.number().int().min(0).optional(),
 	android: z.number().int().min(0).optional(),
@@ -89,10 +88,7 @@ export interface CodegenMetroPayload {
 // The app config is assembled as a string and emitted as .cjs: docs/architecture/plugins/expo.md, "Config files are .cjs".
 //
 // A config plugin is an object, not a tuple: docs/architecture/slot-catalog.md, "`expo.slots.*` (plugin-expo)".
-export interface ExpoConfigPlugin {
-	name: string;
-	options?: Record<string, unknown>;
-}
+export type ExpoConfigPlugin = z.infer<typeof expoConfigPluginSchema>;
 
 export interface CodegenExpoConfigPayload {
 	name: string;

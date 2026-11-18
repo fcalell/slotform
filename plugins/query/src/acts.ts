@@ -62,10 +62,11 @@ export function refusal(error: unknown): string | undefined {
 	if ([401, 403, 404, 429].includes(status)) return undefined;
 	const [first] = issues(error);
 	if (first) return first.message;
-	if (!message || message === fallbackORPCErrorMessage(code, undefined)) {
+	const text = message.trim();
+	if (text === "" || text === fallbackORPCErrorMessage(code, undefined)) {
 		return undefined;
 	}
-	return asSentence(message);
+	return asSentence(text);
 }
 
 // `retries`: docs/architecture/plugins/query.md, "Acts".
@@ -77,28 +78,20 @@ export function retries(error: unknown): boolean {
 	return status < 400 || status >= 500;
 }
 
-// A registry: `heldAct` runs from the port's `act` with no cache in hand, so it looks in the caches `watchActs` was given.
-const watched = new Set<MutationCache>();
-
 // An act's `onAct`, called. In dev it names a mutation the call started
 // without returning a promise: `mutate()` in place of `return mutateAsync()`,
 // so the act could not hold it and would read as done at once. A mutation is
 // built in the cache synchronously, so one added during the call is the act's.
-export function heldAct(onAct: () => unknown): unknown {
-	if (!dev() || watched.size === 0) return onAct();
-	const before = [...watched].map((cache) => ({
-		cache,
-		seen: new Set(cache.getAll()),
-	}));
+export function heldAct(cache: MutationCache, onAct: () => unknown): unknown {
+	if (!dev()) return onAct();
+	const seen = new Set(cache.getAll());
 	const result = onAct();
 	if (isThenable(result)) return result;
-	for (const { cache, seen } of before) {
-		for (const mutation of cache.getAll()) {
-			if (seen.has(mutation)) continue;
-			console.error(
-				`The act started the mutation ${nameOf(mutation)} and returned no promise. Return mutateAsync's promise so the act holds it.`,
-			);
-		}
+	for (const mutation of cache.getAll()) {
+		if (seen.has(mutation)) continue;
+		console.error(
+			`The act started the mutation ${nameOf(mutation)} and returned no promise. Return mutateAsync's promise so the act holds it.`,
+		);
 	}
 	return result;
 }
@@ -114,8 +107,7 @@ function nameOf(mutation: { options: { mutationKey?: readonly unknown[] } }) {
 // `QueryProvider` runs this in dev, over the mutation cache.
 export function watchActs(cache: MutationCache): () => void {
 	if (!dev()) return () => {};
-	watched.add(cache);
-	const stop = cache.subscribe((event) => {
+	return cache.subscribe((event) => {
 		if (event.type !== "updated" || event.action.type !== "error") return;
 		if (event.mutation.options.onError !== undefined) return;
 		const error = event.action.error;
@@ -126,10 +118,6 @@ export function watchActs(cache: MutationCache): () => void {
 			);
 		}, 0);
 	});
-	return () => {
-		watched.delete(cache);
-		stop();
-	};
 }
 
 // The query cache's fetches of these reads are over. A save's invalidation

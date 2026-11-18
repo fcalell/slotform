@@ -130,10 +130,8 @@ fallback targets the local worker during development.
 
 ## Phone app
 
-The phone app (`apps/phone/src/lib/api.ts`) imports the emitted worker's router type type-only, so
-no worker code (or its Node or Workers-only dependencies) enters the app bundle. The app's
-type-check reads it from the worker project's declarations (`.stack/types/`), so no worker source
-enters that either ([Client](./api.md#client)).
+The phone app (`apps/phone/src/lib/api.ts`) builds its client as the
+[API client guide](../../../plugins/expo/guide/api-client.md) states.
 
 ## Type-checking
 

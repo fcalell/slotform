@@ -2,22 +2,12 @@
 
 `src/lib/api.ts` is the phone app's typed client for the worker's procedures. `stack init` (or
 `stack add expo`) writes it once and it is yours from then on; queries, mutations and cache
-invalidation work as on the web (`node_modules/@fcalell/plugin-api/guide/client.md`).
-
-```ts
-// src/lib/api.ts
-import { createClient } from "@fcalell/plugin-api/client";
-import { createApiQueryUtils } from "@fcalell/plugin-query/tanstack-query";
-import { createVersionGatedFetch } from "@fcalell/plugin-expo/client";
-import type { AppRouter } from "../../.stack/worker";
-
-const client = createClient<AppRouter>({
-  url: `${process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8787"}/rpc`,
-  fetch: createVersionGatedFetch(),
-});
-
-export const orpc = createApiQueryUtils(client);
-```
+invalidation work as on the web (`node_modules/@fcalell/plugin-api/guide/client.md`). The
+starter it is written from is `node_modules/@fcalell/plugin-expo/templates/lib-api.ts`: a
+`createClient<AppRouter>` whose `fetch` is `createVersionGatedFetch()`, wrapped as
+`orpc = createApiQueryUtils(client)`. It imports `AppRouter` from `.stack/worker` type-only, so no
+worker code (or its Node or Workers dependencies) enters the app bundle; the app's type-check
+reads the type from the worker project's declarations (`.stack/types/`).
 
 A screen imports `orpc` from it:
 
@@ -49,8 +39,7 @@ release. `@fcalell/plugin-expo/client` exports:
 
 | Export | What it does |
 | --- | --- |
-| `versionHeaders()` | The two headers, read from `expo-application`'s `nativeBuildVersion` and `Platform.OS`; `{}` when either is unknown. Never throws. |
-| `createVersionGatedFetch(base?)` | Wraps `fetch` (the global unless given): merges the headers into each request's own and signals `onUpdateRequired` subscribers on a `426`. |
+| `createVersionGatedFetch(base?)` | Wraps `fetch` (the global unless given): merges the two headers, read from `expo-application`'s `nativeBuildVersion` and `Platform.OS` and left out when either is unknown, into each request's own, and signals `onUpdateRequired` subscribers on a `426`. |
 | `onUpdateRequired(cb)` | Subscribes to the `426` signal; returns the unsubscribe function. |
 
 The update wall itself is the app's screen: subscribe with `onUpdateRequired` where the app

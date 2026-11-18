@@ -26,6 +26,7 @@ import {
 	skipToken,
 	experimental_streamedQuery as streamedQuery,
 } from "@tanstack/react-query";
+import { READ_KEYS, type ReadKey } from "./read-keys.ts";
 
 // The TanStack half of a read: docs/architecture/plugins/query.md, "Reads".
 
@@ -334,6 +335,9 @@ function queryOfInput(input: unknown): unknown {
 
 type Sort = { column: string; direction: "asc" | "desc" } | undefined;
 
+const isReadKey = (key: string | symbol): key is ReadKey =>
+	(READ_KEYS as readonly (string | symbol)[]).includes(key);
+
 // oRPC's utils are a proxy that makes a child on every string key, and a
 // procedure's `queryOptions` is a function whose own keys are the child's. The
 // wrapper follows the same shape: `read`, `pages` and `window` are functions
@@ -359,10 +363,7 @@ function readsAt(
 	const columns = sortColumns(schema, path);
 	// A read of the procedure over `input`. A procedure that declares `sort`
 	// gives the read its `sorting`: the same read with the sort in its input.
-	const build = (
-		key: "read" | "pages" | "window",
-		input: unknown,
-	): Read<unknown> => {
+	const build = (key: ReadKey, input: unknown): Read<unknown> => {
 		const how: ReadHow<unknown, unknown> =
 			key === "read"
 				? {}
@@ -397,11 +398,10 @@ function readsAt(
 		}
 		return windowRead(target, input, how);
 	};
-	const make = (key: "read" | "pages" | "window") => (input?: unknown) =>
-		build(key, input);
+	const make = (key: ReadKey) => (input?: unknown) => build(key, input);
 	return new Proxy(target, {
 		get(_, key) {
-			if (key === "read" || key === "pages" || key === "window") {
+			if (isReadKey(key)) {
 				const child = readsAt(Reflect.get(target, key), schema, [...path, key]);
 				return new Proxy(make(key), { get: (_, k) => Reflect.get(child, k) });
 			}

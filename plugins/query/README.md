@@ -31,7 +31,7 @@ Drawing the api's reads lives in `guide/`, indexed into a consumer's `.stack/gui
 | `@fcalell/plugin-query/read` | `read()`, `streamRead()`, `StreamRead`, `withRead()`, `ensurePages()`, `holdOf()`, `withHold()`, `retryOnce()`, `isStreamQuery()`, `watchUnheld()` |
 | `@fcalell/plugin-query/acts` | `issues()`, `refusal()`, `retries()`, `heldAct()`, `watchActs()`, `whenSettled()`, `guardReach()`, `Reach` |
 | `@fcalell/plugin-query/scope` | `withScope()`, `scoped()`: the registered scope merged into the utils' inputs |
-| `@fcalell/plugin-query/ability-client` | `ability()`, `orgRules()`, `composeAbility()`, `fetchOrgRules()`, `ORG_RULES_QUERY_KEY`, `orgRulesQueryKey()`, `PackedRulesLike` |
+| `@fcalell/plugin-query/ability-client` | `ability()`, `orgRules()`, `composeAbility()`, `PackedRulesLike` |
 | `@fcalell/plugin-query/listen` | `listenQueries()`: TanStack's online and focus managers on the platform's listeners |
 | `@fcalell/plugin-query/preload` | `preload()`: a route's reads warmed before it mounts |
 | `@fcalell/plugin-query/net` | `listen`: the phone's network (`expo-network`) and foreground (`AppState`) for `QueryProvider listen` (source, for the bundler) |

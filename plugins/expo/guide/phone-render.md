@@ -75,9 +75,8 @@ The animation scales at 0 are the system's reduced motion, which the app reads w
 Reanimated answers with a development warning and its toast, which a flow dismisses. Metro's
 "installing React Native DevTools" error is the host's, never the app's.
 
-The emulator's `localhost` is its own: `adb reverse` carries its port 8787 to the worker
-`stack dev` serves, so the API client's localhost fallback reaches it with no
-`EXPO_PUBLIC_API_URL`. Without it every query fails. The worker's port is fixed, so one
+`adb reverse` is what lets the API client's localhost fallback reach the worker
+([the URL](./api-client.md#the-url)); without it every query fails. The worker's port is fixed, so one
 `stack dev` runs on the machine at a time.
 
 ## Shut down

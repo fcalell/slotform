@@ -4,6 +4,7 @@ import {
 	type ScopeIds,
 	type ScopeSchema,
 } from "@fcalell/ui-core/scope";
+import { READ_KEYS } from "./read-keys.ts";
 
 // The route's scope set on oRPC's query utils: docs/architecture/plugins/query.md, "Scope".
 
@@ -24,6 +25,8 @@ const OPTIONS = new Set([
 	"experimental_streamedOptions",
 	"experimental_liveOptions",
 ]);
+// The methods that take the input as their first argument.
+const FIRST_INPUT = new Set<string>(["call", ...READ_KEYS]);
 
 type Fn = (...args: unknown[]) => unknown;
 
@@ -108,8 +111,7 @@ function methodOf(
 				...rest,
 			);
 	}
-	// These take the input as their first argument.
-	if (key === "call" || key === "read" || key === "pages") {
+	if (FIRST_INPUT.has(key)) {
 		return (input, ...rest) => value(merge(input), ...rest);
 	}
 	if (key === "mutationOptions") {

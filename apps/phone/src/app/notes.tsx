@@ -4,7 +4,6 @@ import { Sheet } from "@fcalell/plugin-native-ui/components/sheet";
 import { age } from "@fcalell/plugin-native-ui/lib/age";
 import { preload as start } from "@fcalell/plugin-query/preload";
 import { useMutation } from "@fcalell/plugin-query/tanstack-query";
-import type { Act } from "@fcalell/ui-core/descriptors";
 import { confirm } from "@fcalell/ui-core/react/confirm";
 import type { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -21,7 +20,6 @@ export default function Notes() {
 	const notes = notesRead();
 	const remove = useMutation(orpc.notes.remove.mutationOptions());
 	const [open, setOpen] = useState(false);
-	const newNote: Act = { label: "New note", onAct: () => setOpen(true) };
 	const ask = (note: { id: string; title: string }) =>
 		confirm({
 			title: "Delete note",
@@ -33,7 +31,9 @@ export default function Notes() {
 			},
 		});
 	return (
-		<Pane acts={[{ icon: "Plus", label: newNote.label, onAct: newNote.onAct }]}>
+		<Pane
+			acts={[{ icon: "Plus", label: "New note", onAct: () => setOpen(true) }]}
+		>
 			<Section
 				title="Recent"
 				items={notes.at((rows) =>

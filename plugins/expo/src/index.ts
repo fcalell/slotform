@@ -20,6 +20,12 @@ import {
 	aggregateMetroConfig,
 } from "./node/codegen.ts";
 import {
+	appSlug,
+	buildBundleId,
+	deepLinkScheme,
+	versionGateDataset,
+} from "./node/names.ts";
+import {
 	hasNotFoundRoute,
 	NOT_FOUND_FILE,
 	notFoundRouteSource,
@@ -50,8 +56,7 @@ const sdkModules = z
 	.record(z.string(), z.string())
 	.parse(require("expo/bundledNativeModules.json"));
 
-// The versions of `names` the installed Expo SDK is built against, the
-// specifiers `expo install` writes.
+/** The installed Expo SDK's version of each module in `names`. */
 export function sdkVersions(names: readonly string[]): Record<string, string> {
 	return Object.fromEntries(
 		names.map((name) => {
@@ -62,17 +67,6 @@ export function sdkVersions(names: readonly string[]): Record<string, string> {
 			return [name, version];
 		}),
 	);
-}
-
-// The dataset name carries the app slug: dataset names are account-global, and
-// two apps sharing one would mix their canaries.
-function versionGateDataset(appName: string): string {
-	const slug = appName
-		.toLowerCase()
-		.replace(/[^a-z0-9_]+/g, "_")
-		.replace(/^_+|_+$/g, "")
-		.replace(/_{2,}/g, "_");
-	return `${slug || "stack_app"}_version_gate`;
 }
 
 // The gate is active only when a floor is configured; a dormant gate must
@@ -99,58 +93,6 @@ const EXPO_ENV_ARTIFACT = ".stack/expo-env.d.ts";
 const ROUTES_ARTIFACT = ".stack/routes.d.ts";
 const EXPO_ENV_DTS = '/// <reference types="expo/types" />\n';
 
-// ── Identifier helpers ─────────────────────────────────────────────
-
-function slugify(name: string): string {
-	return (
-		name
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, "-")
-			.replace(/^-+|-+$/g, "") || "app"
-	);
-}
-
-// The deep-link scheme the app config registers and api's `nativeScheme`
-// carries to its readers: the `scheme` option, else the app name's slug.
-function deepLinkScheme(ctx: {
-	options: ExpoOptions;
-	app: { name: string };
-}): string {
-	return ctx.options.scheme ?? slugify(ctx.app.name);
-}
-
-// Make a string a legal Java/Android package segment: alphanumerics only, and —
-// since a segment must start with a letter — prefix a leading digit with `a`
-// (e.g. "1foo" → "a1foo"). Empty input falls back to "app".
-function packageSegment(raw: string): string {
-	const cleaned = raw.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-	if (cleaned.length === 0) return "app";
-	return /^[0-9]/.test(cleaned) ? `a${cleaned}` : cleaned;
-}
-
-// Reverse a domain into a bundle-id prefix: "wenauti.app" → "app.wenauti".
-function reverseDomain(domain: string): string {
-	const segments = domain
-		.split(".")
-		.map((s) => s.replace(/[^a-zA-Z0-9]/g, ""))
-		.filter((s) => s.length > 0)
-		.map(packageSegment);
-	return segments.length > 0 ? segments.reverse().join(".") : "app";
-}
-
-// Compose the bundle identifier from the reversed domain + app leaf, collapsing
-// a doubled leaf when the domain's last label already equals the slug (e.g.
-// domain "wenauti.app" + slug "wenauti" → "app.wenauti", not the redundant
-// "app.wenauti.wenauti"). Generic domains ("example.com" → "com.example.myapp")
-// keep the leaf.
-function buildBundleId(domain: string, slug: string): string {
-	const prefix = reverseDomain(domain);
-	const leaf = packageSegment(slug);
-	const labels = prefix.split(".");
-	if (labels[labels.length - 1] === leaf) return prefix;
-	return `${prefix}.${leaf}`;
-}
-
 // ── Slot declarations ──────────────────────────────────────────────
 //
 // plugin-expo owns the native bootstrap the way plugin-vite and the web
@@ -162,7 +104,6 @@ function buildBundleId(domain: string, slug: string): string {
 const metroConfigImports = slot.list<MetroRequireSpec>({
 	source: SOURCE,
 	name: "metroConfigImports",
-	sortBy: (a, b) => a.module.localeCompare(b.module),
 });
 
 const metroPluginCalls = slot.list<MetroWrapperSpec>({
@@ -205,17 +146,13 @@ const devServerPort = slot.value<number, ExpoOptions>({
 	},
 });
 
-// null disables expo-router wiring: docs/architecture/plugins/expo.md, "Slots and contributions".
+// null with `routes: false`: docs/architecture/slot-catalog.md, "`expo.slots.*` (plugin-expo)".
 const routesPagesDir = slot.derived({
 	source: SOURCE,
 	name: "routesPagesDir",
 	compute: (_inputs, ctx: ContributionCtx<ExpoOptions>): string | null => {
-		const opts = ctx.options;
-		if (opts.routes === false) return null;
-		if (opts.routes && typeof opts.routes === "object") {
-			return opts.routes.appDir ?? DEFAULT_APP_DIR;
-		}
-		return DEFAULT_APP_DIR;
+		const { routes } = ctx.options;
+		return routes === false ? null : (routes?.appDir ?? DEFAULT_APP_DIR);
 	},
 });
 
@@ -227,10 +164,7 @@ const notFoundRoute = slot.value<string | null>({
 	seed: () => null,
 });
 
-// The route file generate writes for an unmatched address, in the app's routes
-// directory where expo-router reads it: null without a page, with routing off,
-// or while the app has a route there, whether its own or this one from an
-// earlier generate.
+// The route file for an unmatched address: docs/architecture/plugins/expo.md, "Routes".
 const notFoundFile = slot.derived({
 	source: SOURCE,
 	name: "notFoundFile",
@@ -278,8 +212,7 @@ const expoConfig = slot.derived({
 	name: "expoConfig",
 	inputs: { plugins: expoConfigPlugins, pagesDir: routesPagesDir },
 	compute: (inp, ctx: ContributionCtx<ExpoOptions>): string | null => {
-		const slug = slugify(ctx.app.name);
-		const _opts = ctx.options;
+		const slug = appSlug(ctx.app.name);
 		const routesEnabled = inp.pagesDir !== null;
 		const bundleId = buildBundleId(ctx.app.domain, slug);
 		// expo-router is listed as a config plugin so its native deep-link setup
@@ -326,8 +259,12 @@ interface RunResult {
 	ok: boolean;
 }
 
-function runInherit(args: string[], cwd: string): RunResult {
-	const result = spawnSync("npx", args, { cwd, stdio: "inherit" });
+function runInherit(
+	args: string[],
+	cwd: string,
+	env: NodeJS.ProcessEnv = process.env,
+): RunResult {
+	const result = spawnSync("npx", args, { cwd, stdio: "inherit", env });
 	return { ok: !result.error && result.status === 0 };
 }
 
@@ -446,14 +383,11 @@ export const expo = plugin("expo", {
 				if (flags.clear) args.push("--clear");
 				// Expo's TypeScript setup rewrites the generated tsconfig.json
 				// (`extends`, `include`), which stack owns.
-				const result = spawnSync("npx", args, {
-					cwd: ctx.cwd,
-					stdio: "inherit",
-					env: { ...process.env, EXPO_NO_TYPESCRIPT_SETUP: "1" },
+				const { ok } = runInherit(args, ctx.cwd, {
+					...process.env,
+					EXPO_NO_TYPESCRIPT_SETUP: "1",
 				});
-				if (result.error || result.status !== 0) {
-					throw new Error("expo start failed");
-				}
+				if (!ok) throw new Error("expo start failed");
 			},
 		},
 		prebuild: {
@@ -610,8 +544,7 @@ export const expo = plugin("expo", {
 		emitArtifact(ENTRY_ARTIFACT, self.slots.entrySource),
 		emitArtifact(ROUTES_ARTIFACT, self.slots.routesDtsSource),
 
-		// The page for an unmatched address: written once into the app's routes
-		// directory, never over a route of the app's.
+		// The page for an unmatched address: docs/architecture/plugins/expo.md, "Routes".
 		cliSlots.artifactFiles.contribute(
 			async (ctx) => (await ctx.resolve(self.slots.notFoundFile)) ?? undefined,
 		),
@@ -634,8 +567,7 @@ export const expo = plugin("expo", {
 			};
 		}),
 
-		// Consumer config plugins merge into the app config: docs/architecture/plugins/expo.md, "Dependencies".
-		// Their npm dependencies go to `cliSlots.initDeps`, which `stack init` and `stack add` write.
+		// Consumer config plugins and their npm dependencies: docs/architecture/plugins/expo.md, "Dependencies".
 		self.slots.expoConfigPlugins.contribute(() =>
 			(self.options.configPlugins ?? []).map((p) => ({
 				name: p.name,

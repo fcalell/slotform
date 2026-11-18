@@ -14,21 +14,8 @@ since a phone client is always cross-site. The scheme is the one the app config 
 ## The client
 
 `nativeUi()` scaffolds `src/lib/auth.ts` once, and the generated entry wraps the app in
-`AuthProvider` with it:
-
-```ts
-// src/lib/auth.ts
-import { type AuthClient, createAuthClient } from "@fcalell/plugin-auth/expo";
-import * as SecureStore from "expo-secure-store";
-import { cookiePrefix, scheme } from "../../.stack/native-auth";
-
-export const authClient: AuthClient = createAuthClient({
-  baseURL: process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:8787",
-  scheme,
-  cookiePrefix,
-  storage: SecureStore,
-});
-```
+`AuthProvider` with it, from `node_modules/@fcalell/plugin-native-ui/templates/lib-auth.ts`: a
+`createAuthClient` from `@fcalell/plugin-auth/expo` over `expo-secure-store`.
 
 Keep `scheme` and `cookiePrefix` imported from `.stack/native-auth.ts`: it holds the scheme the app
 config carries and the prefix the worker sets its cookies under. The client keeps only the

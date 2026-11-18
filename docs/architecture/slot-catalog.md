@@ -154,12 +154,12 @@ db's contributions to other plugins' slots are on its page ([slots and contribut
 | `metroConfigImports` | `list<MetroRequireSpec>` | Requires for the generated `.stack/metro.config.cjs` |
 | `metroPluginCalls` | `list<MetroWrapperSpec>` | Wrapper calls composed around the Metro config (order-sorted) |
 | `expoConfigPlugins` | `list<ExpoConfigPlugin>` | Expo config plugins baked into `.stack/app.config.cjs`'s `plugins` array, each rendered as `"name"` or `["name", { …options }]`. An entry is an object, not a `[name, options]` tuple, so one contribution is one item: the list compositor would spread a tuple into two |
-| `providers` | `list<ProviderSpec>` | JSX providers composed around `<ExpoRoot>` in `.stack/entry.tsx` (lower order = outer) |
+| `providers` | `list<ProviderSpec>` | JSX providers composed around `<ExpoRoot>` in `.stack/entry.tsx`, ordered as [plugin-expo](plugins/expo.md#slots-and-contributions) states |
 | `entryImports` | `list<TsImportSpec>` | Extra imports for `.stack/entry.tsx` |
 | `devServerPort` | `value<number>` | Metro dev-server port (`options.port` ?? default); also drives the localhost CORS origin contributed to plugin-api |
 | `routesPagesDir` | `derived<string \| null>` | expo-router pages dir; null when `routes: false` |
 | `notFoundRoute` | `value<string \| null>` (`override`) | The module whose default export is the page for an address no route serves; null seeded, contributed by a design system (native-ui: `@fcalell/plugin-native-ui/lib/not-found`) |
-| `notFoundFile` | `derived<GeneratedFile \| null>` | The route file generate writes into the routes directory for it, `+not-found.tsx` re-exporting `notFoundRoute`'s module; null without a module, with routing off, or while the routes directory's root holds a `+not-found.*` (the app's own, or this one from an earlier generate). expo-router reads that route from no other place, so unlike `.stack/` files it lands in the app's tree, once. expo contributes it to `cliSlots.artifactFiles` |
+| `notFoundFile` | `derived<GeneratedFile \| null>` | The route file for an address no route serves ([plugin-expo, Routes](plugins/expo.md#routes)); expo contributes it to `cliSlots.artifactFiles` |
 | `easBuildProfiles` | `value<string[]>` | EAS build profile names the `expo build` command validates against |
 | `easUpdateChannel` | `value<string>` | Default EAS Update channel |
 | `metroConfig` | `derived<string \| null>` | Final `.stack/metro.config.cjs` source; it also resolves plugin-api's `virtual:stack-procedure` and `virtual:stack-schema` to their files under `.stack/` through Metro's `resolveRequest`, chained after any wrapper's |

@@ -14,7 +14,7 @@ function currentPlatform(): "ios" | "android" | null {
 }
 
 // versionHeaders never throws, the gate fails open: docs/architecture/plugins/expo.md, "Version gate".
-export function versionHeaders(): Record<string, string> {
+function versionHeaders(): Record<string, string> {
 	const build = Application.nativeBuildVersion;
 	const platform = currentPlatform();
 	if (!build || !platform) return {};
@@ -32,8 +32,6 @@ export function onUpdateRequired(cb: () => void): () => void {
 	return updateRequired.subscribe(cb);
 }
 
-// Wraps `fetch` (defaulting to the global) to stamp the version headers on
-// every request and translate a 426 response into the update-wall signal.
 // `input` may already be a `Request` carrying its own headers (the oRPC link
 // used by `@fcalell/plugin-api/client` constructs one), so this merges
 // rather than replaces, keeping Content-Type and any caller-supplied

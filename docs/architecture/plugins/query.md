@@ -92,15 +92,14 @@ save logic the hooks wrap is `@fcalell/ui-core/acts`.
   socket lost), the mutation fails before any fetch with `Unreached`, so it never pauses and never
   fires later. `createQueryClient` runs it; a caller-supplied `mutationCache` must call it too.
 - **`retries`** says whether a failed act is worth running again as it stands. A server that
-  answered with a refusal (a 4xx: the input, the record's state, sign-in or permission) answers the
-  same way to the same act, so its toast offers no Retry. A timeout (408), a rate limit (429), a
-  fault on the server (5xx) or a request that never got an answer may go through the next time. A
-  connection known to be out (`Unreached`) is the offline banner's to say, so it is no retry.
-- **`refusal`** is a refusal the server worded for the viewer: a 4xx whose message the procedure
-  chose, or, for an input its schema refused, the schema's first issue (its other issues are
-  `issues`, each for its field). It answers nothing for 401, 403, 404 and 429: sign-in, permission, a
-  missing record and a rate limit have their own screens or words. It answers nothing for a code's
-  stock text either, which says nothing the act's own sentence does not.
+  answered with a refusal answers the same way to the same act, so its toast offers no Retry; a
+  timeout, a rate limit, a fault on the server or a request that never got an answer may go through
+  the next time. A connection known to be out (`Unreached`) is the offline banner's to say. The
+  statuses are the guide's [acts](../../../plugins/query/guide/acts.md).
+- **`refusal`** is a refusal the server worded for the viewer ([acts](../../../plugins/query/guide/acts.md)).
+  It leaves out sign-in, permission, a missing record and a rate limit, which have their own screens
+  or words, and a code's stock text or a blank message, which say nothing the act's own sentence does
+  not.
 
 ## Abilities
 
@@ -108,8 +107,8 @@ save logic the hooks wrap is `@fcalell/ui-core/acts`.
 CASL `MongoAbility`. The org rules arrive as CASL's packed-rules arrays, opaque JSON at this layer
 ([ability wire format](./auth.md#ability-wire-format)).
 
-- **Org rules.** `fetchOrgRules(organizationId)` reads the caller's rules in one organization: their
-  role there, never the session's active organization. `orgRules` caches them per organization with
+- **Org rules.** `orgRules(organizationId)` reads the caller's rules in one organization: their
+  role there, never the session's active organization. It caches them per organization with
   `staleTime: Infinity`, so a missing client throws rather than caching a false deny-all forever; the
   query's error state (retries, deny-all meanwhile) surfaces it. `NOT_FOUND` means no org layer (the
   route exists only with organizations on) or no membership of the organization: both deny
@@ -118,14 +117,12 @@ CASL `MongoAbility`. The org rules arrive as CASL's packed-rules arrays, opaque 
   organization yet, `orgRules` answers `[]` at once (deny-all, no request), so what it gates never
   stays painted. The read is ambient: no frame holds it, so a failure leaves what it gates painted and
   inert, never a false yes.
-- **Key.** `orgRulesQueryKey(id)` is shaped like `@orpc/tanstack-query`'s operation keys
+- **Key.** The read's key is shaped like `@orpc/tanstack-query`'s operation keys
   (`[path, { input }]`), so the entity registry (`@fcalell/plugin-api/query-invalidation`), which
   matches on the path, recognizes it: `auth.orgRules` declares `reads: ["member"]`, so a mutation that
   declares `writes` on an org subject (a role change writing `member`) invalidates every
   organization's rules, as for any other oRPC-backed query. `member` is a legal entity because auth
-  contributes it to `api.slots.entities` ([entities](./api.md#entities)). The bare path,
-  `ORG_RULES_QUERY_KEY`, is the prefix for explicit invalidation of all of them:
-  `queryClient.invalidateQueries({ queryKey: ORG_RULES_QUERY_KEY })`.
+  contributes it to `api.slots.entities` ([entities](./api.md#entities)).
 - **Compose.** `composeAbility` is deny-all when both layers are absent (rules not loaded, no record
   layer); otherwise it concatenates org and record rules into one ability. The concatenation is safe
   because the subject namespaces cannot collide: org subjects are framework-owned lowercase resource

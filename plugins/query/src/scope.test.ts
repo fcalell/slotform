@@ -8,6 +8,7 @@ import {
 	type ScopeSchema,
 } from "@fcalell/ui-core/scope";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import { withRead } from "./read.ts";
 import { scoped, withScope } from "./scope.ts";
 
 // A client that answers with the input it was called with.
@@ -131,6 +132,25 @@ test("scoped() fixes the scope for a loader, outside any boundary", () => {
 	});
 	assert.deepEqual(nested.pages.list.queryOptions().queryKey[1].input, {
 		projectId: "p-l",
+	});
+});
+
+test("scoped() fixes the scope of a read, a pages read and a window read", () => {
+	registerScope({});
+	const loader = scoped(
+		withRead(utils, {}),
+		{ organizationId: "org-l" },
+		schema,
+	);
+	assert.deepEqual(loader.projects.list.read({}).options.queryKey[1].input, {
+		organizationId: "org-l",
+	});
+	assert.deepEqual(loader.projects.list.pages({}).options.queryKey[1].input, {
+		organizationId: "org-l",
+		cursor: undefined,
+	});
+	assert.deepEqual(loader.projects.list.window({}).options.queryKey[1].input, {
+		organizationId: "org-l",
 	});
 });
 

@@ -19,9 +19,8 @@ floors at `0`, so every build of it passes. Without `minNativeBuild`, or with bo
 | `x-stack-client-build` | The native build number, digits only |
 | `x-stack-client-platform` | `ios` or `android` |
 
-The scaffolded client stamps both on every request ([the API client](./api-client.md)). The names
-are exported as `CLIENT_BUILD_HEADER` and `CLIENT_PLATFORM_HEADER` from
-`@fcalell/plugin-expo/version-gate`. A build that stamps other names is invisible to the gate and
+The scaffolded client stamps both on every request ([the API client](./api-client.md)). A build
+that stamps other names is invisible to the gate and
 never walled, so ship a release that stamps these before raising a floor.
 
 ## What it walls

@@ -38,7 +38,7 @@ config plugin takes a new native build.
 ## What the app config holds
 
 `.stack/app.config.cjs` carries `app.name` as the name, its slug, the scheme, version `1.0.0`,
-portrait orientation, `userInterfaceStyle: "automatic"`, the new architecture, phone-only iOS
+portrait orientation, `userInterfaceStyle: "automatic"` and phone-only iOS
 (`supportsTablet: false`). The iOS bundle
 identifier and the Android package are `app.domain` reversed plus the slug (`example.com` and
 `my-app` give `com.example.myapp`); when the domain's last label already is the slug, the slug is

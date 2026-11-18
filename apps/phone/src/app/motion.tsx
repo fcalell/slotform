@@ -31,13 +31,15 @@ import {
 import { useMemo, useState, useSyncExternalStore } from "react";
 
 // The dev tuning page for the phone's motion: docs/architecture/ui-core/motion.md, "Tuning record".
-const GROUPS: { title: string; names: MotionKnob["name"][] }[] = [
-	{ title: "Rungs", names: ["instant", "fast", "base", "slow"] },
-	{ title: "Loop and pulse", names: ["loop", "pulse"] },
-	{ title: "Tick", names: ["tick"] },
-	{ title: "Scales", names: ["press", "lift"] },
-	{ title: "Follow", names: ["fling", "reach"] },
-	{ title: "Waits", names: ["waitDelay", "actDelay", "waitMin"] },
+const knobs = (...names: MotionKnob["name"][]): readonly MotionKnob[] =>
+	MOTION_KNOBS.filter((knob) => names.includes(knob.name));
+const GROUPS: { title: string; knobs: readonly MotionKnob[] }[] = [
+	{ title: "Rungs", knobs: knobs("instant", "fast", "base", "slow") },
+	{ title: "Loop and pulse", knobs: knobs("loop", "pulse") },
+	{ title: "Tick", knobs: knobs("tick") },
+	{ title: "Scales", knobs: knobs("press", "lift") },
+	{ title: "Follow", knobs: knobs("fling", "reach") },
+	{ title: "Waits", knobs: knobs("waitDelay", "actDelay", "waitMin") },
 ];
 
 // The changed knobs, `{ "<knob name>": number }`, as the write-back reads
@@ -263,9 +265,8 @@ export default function Motion() {
 		<Pane>
 			{GROUPS.map((group) => (
 				<Section key={group.title} title={group.title}>
-					{group.names.map((name) => {
-						const knob = MOTION_KNOBS.find((each) => each.name === name);
-						if (!knob) return null;
+					{group.knobs.map((knob) => {
+						const { name } = knob;
 						return (
 							<Slider
 								key={name}

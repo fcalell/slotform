@@ -5,10 +5,12 @@ import {
 	isSelection,
 	isStandIn,
 	lift,
+	type Read,
 	sampleOf,
+	type WindowState,
 } from "@fcalell/ui-core/read";
-import { replaceEqualDeep } from "@tanstack/react-query";
-import { isStreamQuery, read } from "./read.ts";
+import { QueryClient, replaceEqualDeep } from "@tanstack/react-query";
+import { ensurePages, holdOf, isStreamQuery, read, withHold } from "./read.ts";
 
 const one = read({ queryKey: ["one"], queryFn: async () => 1 });
 
@@ -202,4 +204,58 @@ test("lift leaves a value with no selection, or a selection, as it is", () => {
 	assert.equal(lift(plain, ["label", "blocked"]), plain);
 	assert.equal(lift(one, ["label"]), one);
 	assert.equal(lift(undefined, ["label"]), undefined);
+});
+
+test("a window loads each missing page once into its query, and refetches when the total moved", async () => {
+	const client = new QueryClient();
+	const queryKey = ["w"];
+	client.setQueryData(queryKey, {
+		total: 6,
+		size: 2,
+		pages: { 0: ["a", "b"] },
+	});
+	let total = 6;
+	const asked: number[] = [];
+	const page = async (offset: number) => {
+		asked.push(offset);
+		return { data: [`r${offset}`, `r${offset + 1}`], total, offset };
+	};
+	const window = {
+		options: { queryKey },
+		key: "w",
+		page,
+	} as unknown as Read<unknown>;
+	await Promise.all([
+		ensurePages(client, window, [1, 2, 3]),
+		ensurePages(client, window, [1]),
+	]);
+	// Page 3 starts past the total; page 1 is asked for once by both.
+	assert.deepEqual(asked, [2, 4]);
+	assert.deepEqual(client.getQueryData<WindowState>(queryKey)?.pages, {
+		0: ["a", "b"],
+		1: ["r2", "r3"],
+		2: ["r4", "r5"],
+	});
+	// The data moved under the window: the page is not written, the query is refetched.
+	client.setQueryData(queryKey, {
+		total: 6,
+		size: 2,
+		pages: { 0: ["a", "b"] },
+	});
+	total = 8;
+	await ensurePages(client, window, [1]);
+	assert.equal(client.getQueryData<WindowState>(queryKey)?.pages[1], undefined);
+	assert.equal(client.getQueryState(queryKey)?.isInvalidated, true);
+});
+
+test("withHold sets the hold beside the client's own defaults", () => {
+	const client = new QueryClient({
+		defaultOptions: { queries: { staleTime: 5, meta: { reads: ["a"] } } },
+	});
+	const hold = (elapsed: number) => 100 - elapsed;
+	withHold(client, hold);
+	assert.equal(client.getDefaultOptions().queries?.staleTime, 5);
+	assert.deepEqual(client.getDefaultOptions().queries?.meta?.reads, ["a"]);
+	assert.equal(holdOf(client, 40), 60);
+	assert.equal(holdOf(new QueryClient(), 40), 0);
 });

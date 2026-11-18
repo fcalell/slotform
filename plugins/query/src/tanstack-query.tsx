@@ -98,10 +98,10 @@ declare module "@tanstack/react-query" {
 	}
 }
 
-// Mobile-friendly defaults: a single retry of a failure that may pass (flaky
-// cellular shouldn't hammer the worker) and a short freshness window so navigating between screens doesn't
-// refetch on every mount.
-const NATIVE_DEFAULTS: QueryClientConfig = {
+// The defaults on every platform: a single retry of a failure that may pass (a
+// flaky connection should not hammer the worker) and a 30 s freshness window,
+// so moving between screens does not refetch on every mount.
+const DEFAULTS: QueryClientConfig = {
 	defaultOptions: {
 		queries: {
 			retry: retryOnce,
@@ -125,13 +125,13 @@ function createAutoInvalidationMutationCache(
 
 export function createQueryClient(config?: QueryClientConfig): QueryClient {
 	const queryClient: QueryClient = new QueryClient({
-		...NATIVE_DEFAULTS,
+		...DEFAULTS,
 		...config,
 		defaultOptions: {
-			...NATIVE_DEFAULTS.defaultOptions,
+			...DEFAULTS.defaultOptions,
 			...config?.defaultOptions,
 			queries: {
-				...NATIVE_DEFAULTS.defaultOptions?.queries,
+				...DEFAULTS.defaultOptions?.queries,
 				...config?.defaultOptions?.queries,
 			},
 		},
@@ -186,10 +186,7 @@ export function createApiQueryUtils<TRouter>(
 	) as ApiQueryUtils<TRouter>;
 }
 
-/**
- * The utils with `scope` fixed, for a call made outside any boundary: a route
- * `loader` runs before the boundary renders, so it names the ids it resolved.
- */
+/** `scoped` from `@fcalell/plugin-query/scope`, over the app's schema. */
 export function scoped<U>(utils: U, scope: ScopeIds): U {
 	return scopedBy(utils, scope, SCHEMA);
 }
@@ -267,7 +264,7 @@ function readPort(client: QueryClient): ReadPort {
 			return whenSettled(client.getQueryCache(), reads);
 		},
 		act(onAct) {
-			return heldAct(onAct);
+			return heldAct(client.getMutationCache(), onAct);
 		},
 		carry(children) {
 			return (
@@ -319,13 +316,7 @@ export interface QueryProviderProps {
 // The provider the app root is wrapped with: docs/architecture/plugins/query.md, "Contributions".
 export function QueryProvider(props: QueryProviderProps) {
 	const [client] = useState(() =>
-		withHold(
-			props.client ??
-				createQueryClient({
-					defaultOptions: { queries: { meta: { hold: props.hold } } },
-				}),
-			props.hold,
-		),
+		withHold(props.client ?? createQueryClient(), props.hold),
 	);
 	const [port] = useState(() => readPort(client));
 	const { listen } = props;

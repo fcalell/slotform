@@ -9,7 +9,7 @@ How a consumer builds the phone app is the plugin's guide (`plugins/expo/guide/`
 
 ## Slots and contributions
 
-Every owned slot is listed in the [slot catalog](../slot-catalog.md#exposlots-plugin-expo). Three
+Every owned slot is listed in the [slot catalog](../slot-catalog.md#exposlots-plugin-expo). Two
 of them carry an ordering rule:
 
 - `expoConfigPlugins`, the entries for the app config's `plugins` array (config plugins like
@@ -18,8 +18,9 @@ of them carry an ordering rule:
 - `providers`, wrapped around the expo-router root in `.stack/entry.tsx`, is sorted ascending by
   `order`, so a lower-order provider is an outer wrapper. native-ui contributes its words, the query
   provider and auth here ([native-ui's provider order](native-ui.md#provider-order)).
-- `routesPagesDir` is the resolved routes directory; `null` (`routes: false`) turns expo-router
-  wiring off. It drives the entry's `require.context` path and the expo-router config plugin.
+
+`routesPagesDir` drives the entry's `require.context` path and the expo-router config plugin, so its
+`null` turns expo-router wiring off.
 
 | Target slot | Behaviour |
 | --- | --- |
@@ -127,20 +128,16 @@ reader, exported so native-ui takes its native modules from the same SDK.
 `minNativeBuild` floor ([API client](#api-client)).
 
 The `configPlugins` option is the path for native modules (apple-authentication, google-signin,
-camera, notifications) to reach the generated app: each entry is merged into the app config's
-`plugins` array, and its npm `dependencies` go to `cliSlots.initDeps`, which `stack init` and
-`stack add` write into the consumer's `package.json` ([options](../../../plugins/expo/guide/options.md#options)).
+camera, notifications) to reach the generated app: its entries go to `expoConfigPlugins`, their npm
+`dependencies` to `cliSlots.initDeps` ([options](../../../plugins/expo/guide/options.md#options)).
 
 ## API client
 
 `stack init` scaffolds `src/lib/api.ts` from `templates/lib-api.ts`: a typed oRPC client whose
 `fetch` is `createVersionGatedFetch()`, stamping the version-gate headers on every request. It is
 copy-once, an editable starter, as native-ui's `lib-query.ts` and `lib-auth.ts` are
-([native clients in src/lib](native-ui.md#native-clients-in-srclib)). It imports the emitted worker's
-router type type-only, so no worker code (or its Node or Workers dependencies) enters the app bundle;
-the app's type-check reads it from the worker project's declarations (`.stack/types/`), so no worker
-source enters that either. The consumer's half is the guide's
-[API client](../../../plugins/expo/guide/api-client.md).
+([native clients in src/lib](native-ui.md#native-clients-in-srclib)). The consumer's half, the type-only
+router import among it, is the guide's [API client](../../../plugins/expo/guide/api-client.md).
 
 ## Version gate
 
@@ -151,20 +148,18 @@ consumer's half is the guide's [version gate](../../../plugins/expo/guide/versio
   build number and the platform; `CLIENT_BUILD_HEADER` and `CLIENT_PLATFORM_HEADER` live in
   `src/version-gate-shared.ts`, outside both `src/worker/` and `src/client/`, which may not import
   each other ([plugin folder structure](../conventions.md#plugin-folder-structure)).
-  `@fcalell/plugin-expo/version-gate` re-exports them.
-- **The build number.** `versionHeaders()` reads `Application.nativeBuildVersion` from
+- **The build number.** The client reads `Application.nativeBuildVersion` from
   `expo-application`: the compiled binary's build number (iOS `CFBundleVersion`, Android
   `versionCode`), straight off the native module at run time. `expo-constants`' `expoConfig` reflects
   the app config the JS bundle shipped with and can drift from the store build. The value is `null` on
   web and whenever the native module cannot resolve it (Expo Go on some platforms).
-- **Fail open.** The wall is a UX nudge, not a security control. `versionHeaders()` never throws and
-  returns `{}` when the build number or platform cannot be read; the worker middleware lets through
-  anything it cannot confidently read as a stale native client (a missing header, a non-integer build,
-  an unknown platform), as an ungated path. An undetectable build degrades to unwalled rather than
-  breaking every request. The client only carries the signal: `onUpdateRequired` lets the app draw an
+- **Fail open.** The wall is a UX nudge, not a security control. The client stamps no header it
+  cannot read and never throws over one, and the middleware lets through anything it cannot read as a
+  stale native client ([what it walls](../../../plugins/expo/guide/version-gate.md#what-it-walls)). An
+  undetectable build degrades to unwalled rather than breaking every request. The client only carries the signal: `onUpdateRequired` lets the app draw an
   update wall.
-- **Dormant.** With `minNativeBuild` absent, or both platforms at the floor default of 0, the plugin
-  contributes nothing, and the gate does not appear in the emitted worker at all.
+- **Dormant.** Without a floor above 0 the plugin contributes neither the middleware nor the binding,
+  so the gate is absent from the emitted worker.
 - **Order.** The middleware is `after-cors`, `order: 0`, so it runs before any other middleware, a
   rate-limit guard in particular: a walled client's retry storm sees 426, never a 429
   ([api's rate limiting](api.md#rate-limiting)).
@@ -186,7 +181,8 @@ consumer's half is the guide's [version gate](../../../plugins/expo/guide/versio
 - `plugins/expo/src/node/not-found.ts`: the `+not-found` route file.
 - `plugins/expo/src/version-gate-shared.ts`: the gate's header names and binding name.
 - `plugins/expo/src/worker/version-gate.ts`: the gate middleware.
-- `plugins/expo/src/client/index.ts`: `versionHeaders()`, `createVersionGatedFetch()`, `onUpdateRequired()`.
+- `plugins/expo/src/client/index.ts`: `createVersionGatedFetch()`, `onUpdateRequired()`.
+- `plugins/expo/src/node/names.ts`: the slug, the deep-link scheme, the bundle id and the gate's dataset name.
 - `plugins/expo/templates/lib-api.ts`: the scaffolded API client.
 - `apps/phone/app.config.ts`: a consumer's root app-config shim.
 - `apps/phone/src/lib/api.ts`: a consumer's API client.

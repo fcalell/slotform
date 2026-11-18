@@ -5,9 +5,6 @@ import {
 	VERSION_GATE_METRICS_BINDING,
 } from "../version-gate-shared.ts";
 
-// The wire contract, re-exported from the shared module: docs/architecture/plugins/expo.md, "Version gate".
-export { CLIENT_BUILD_HEADER, CLIENT_PLATFORM_HEADER };
-
 // EAS build numbers are integers. `Number("")` is 0 and `parseInt("1.2.3")`
 // is 1 — both would mis-gate a malformed/absent header — so the whole string
 // must be digits before it's trusted.
@@ -27,7 +24,7 @@ function isGatedPath(pathname: string, prefixes: string[]): boolean {
 	return prefixes.some((prefix) => isWithin(pathname, prefix));
 }
 
-export interface VersionGateOptions {
+interface VersionGateOptions {
 	ios: number;
 	android: number;
 	// Only paths inside the worker's prefixes are walled: docs/architecture/plugins/expo.md, "Version gate".

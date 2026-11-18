@@ -17,10 +17,6 @@ import {
 } from "@fcalell/ui-core/read";
 import { read } from "./read.ts";
 
-// The core behind `useAbility()` and `ability` on every platform
-// (`./tanstack-query.tsx`): the caller's org rules as a read, and the ability
-// composed from them.
-
 // Packed rules are opaque JSON here: docs/architecture/plugins/auth.md, "Ability wire format".
 export type PackedRulesLike = readonly unknown[];
 
@@ -50,9 +46,7 @@ function registeredRoute(
 }
 
 // The caller's rules in one organization: docs/architecture/plugins/query.md, "Abilities".
-export async function fetchOrgRules(
-	organizationId: string,
-): Promise<PackedRulesLike> {
+async function fetchOrgRules(organizationId: string): Promise<PackedRulesLike> {
 	const route = registeredRoute(ORG_RULES_PATH, "useAbility()");
 	try {
 		const response = (await route({ organizationId })) as {
@@ -105,9 +99,7 @@ export function composeAbility(
 }
 
 // The key matches the entity registry's path: docs/architecture/plugins/query.md, "Abilities".
-export const ORG_RULES_QUERY_KEY = [ORG_RULES_PATH] as const;
-
-export function orgRulesQueryKey(organizationId: string) {
+function orgRulesQueryKey(organizationId: string) {
 	return [ORG_RULES_PATH, { input: { organizationId } }] as const;
 }
 

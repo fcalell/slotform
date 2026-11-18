@@ -30,9 +30,9 @@ options and the root files; [`builds.md`](./guide/builds.md), the commands and `
 
 | Subpath | Purpose |
 |---------|---------|
-| `@fcalell/plugin-expo` | `expo()`, `ExpoOptions` |
-| `@fcalell/plugin-expo/client` | `versionHeaders()`, `createVersionGatedFetch()`, `onUpdateRequired()` |
-| `@fcalell/plugin-expo/version-gate` | `versionGate()`, `VersionGateOptions`, `CLIENT_BUILD_HEADER`, `CLIENT_PLATFORM_HEADER` |
+| `@fcalell/plugin-expo` | `expo()`, `ExpoOptions`, `sdkVersions()` |
+| `@fcalell/plugin-expo/client` | `createVersionGatedFetch()`, `onUpdateRequired()` |
+| `@fcalell/plugin-expo/version-gate` | `versionGate()` |
 
 ## License
 

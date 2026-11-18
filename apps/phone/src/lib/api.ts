@@ -1,7 +1,7 @@
 import { createClient } from "@fcalell/plugin-api/client";
 import { createVersionGatedFetch } from "@fcalell/plugin-expo/client";
 import { createApiQueryUtils } from "@fcalell/plugin-query/tanstack-query";
-// The emitted worker's router type, imported type-only: docs/architecture/plugins/native-ui.md, "Phone app".
+// The emitted worker's router type, imported type-only: plugins/expo/guide/api-client.md.
 import type { AppRouter } from "../../.stack/worker";
 
 // The typed RPC client wired into the app. The one app-specific value is `url`, the deployed API

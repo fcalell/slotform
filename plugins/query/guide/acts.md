@@ -17,7 +17,7 @@ const add = {
   429) and an out connection (`Unreached`) have none, as the same act would fail the same way.
 - The sentence is `refusal(error)` from `@fcalell/plugin-query/acts`, else the
   generic one; an act has no sentence of its own. `refusal` is an `ORPCError`'s own message, capitalised and stopped, for a 4xx
-  other than 401, 403, 404 and 429 whose message is not the code's stock text
+  other than 401, 403, 404 and 429 whose message is neither blank nor the code's stock text
   (`new ApiError("BAD_REQUEST", { message: "That name is taken" })` reads "That name is taken.");
   anything else is `undefined`.
 - An input the procedure's zod schema refused keeps the schema's sentences. `refusal` is the first
