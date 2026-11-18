@@ -42,3 +42,10 @@ export function onceStanding<T>(
 	frame = requestAnimationFrame(watch);
 	return () => cancelAnimationFrame(frame);
 }
+
+// Whether two boxes overlap by more than `slack` on each axis.
+export const meets = (a: DOMRect, b: DOMRect, slack = 0) =>
+	a.left < b.right - slack &&
+	b.left < a.right - slack &&
+	a.top < b.bottom - slack &&
+	b.top < a.bottom - slack;

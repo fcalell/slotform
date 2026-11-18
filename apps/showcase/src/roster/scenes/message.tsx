@@ -1,62 +1,11 @@
-import {
-	type MessageRegions,
-	Thread,
-} from "@fcalell/plugin-react-ui/components/thread";
-import type {
-	Attachment,
-	MessageDetail,
-	Run,
-} from "@fcalell/ui-core/descriptors";
+import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import type { ReactNode } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";
+import { ATTACHED, REPLY, TURN, type Turn, today } from "./message-fixtures.ts";
 import { isPaint } from "./painted.tsx";
-import { SCREEN } from "./pictures.ts";
 import { act } from "./section-rows.ts";
-
-// A moment today at a board's time, as an ISO string the Message formats.
-export function today(time: string): string {
-	const [hours = 0, minutes = 0] = time.split(":").map(Number);
-	const at = new Date();
-	at.setHours(hours, minutes, 0, 0);
-	return at.toISOString();
-}
-
-export const REPLY =
-	"The build failed on step 4. The migration `0042_add_invoices` reads a column the production database does not have yet.\n\nRun the pending migration against production, then redeploy.";
-
-export const ATTACHED: Attachment[] = [
-	{ id: "shot", name: "Checkout page after the failed payment", src: SCREEN },
-	{ id: "log", name: "deploy-api-4f2c.log" },
-];
-
-export interface Turn {
-	id: string;
-	author: "you" | "other" | "system";
-	body: string;
-	at?: string;
-	opens?: boolean;
-	detail?: MessageDetail;
-	// What came with a turn, and where it came from.
-	attachments?: Attachment[];
-	from?: Run[];
-}
-
-const NAME = { you: "You", other: "Assistant" } as const;
-
-// The Message regions every turn fills.
-export const TURN: MessageRegions<Turn> = {
-	key: (turn) => turn.id,
-	author: (turn) => turn.author,
-	name: (turn) => (turn.author === "system" ? undefined : NAME[turn.author]),
-	body: (turn) => turn.body,
-	at: (turn) => turn.at,
-	onOpen: (turn) => (turn.opens ? act : undefined),
-	detail: (turn) => turn.detail,
-	attachments: (turn) => turn.attachments,
-	from: (turn) => turn.from,
-};
 
 // Board 53's context: a thread's pane, the surface a thread stands on.
 function Pane(props: { children: ReactNode }) {

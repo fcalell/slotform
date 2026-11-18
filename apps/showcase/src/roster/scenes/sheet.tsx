@@ -15,13 +15,12 @@ import { SHELL_BANNER, SHELL_COLUMN } from "@fcalell/ui-core/variants";
 import { useEffect, useRef, useState } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { isHeld, readsAt } from "../waiting.ts";
+import { JOIN, JOINING } from "./join.ts";
 import { StandInRows } from "./layout-context.tsx";
-import { TURN } from "./message.tsx";
+import { TURN, TURNS } from "./message-fixtures.ts";
 import { press, Stage } from "./overlay-stage.tsx";
 import { fail, hang } from "./pending.tsx";
-import { TURNS } from "./thread.tsx";
-
-const act = () => {};
+import { act } from "./section-rows.ts";
 
 interface Question {
 	title: string;
@@ -229,12 +228,7 @@ function readOf(scene: ShowcaseScene) {
 	}
 }
 
-// The submit pressed: the act runs its work.
-const pressSave = (stage: HTMLElement) => pressNamed(stage, "Save");
-
 // A set of codes shown once, which the viewer acknowledges.
-const JOIN = "https://app.example.com/join?code=7k2m-9xq4-4tpw-h8nz";
-
 const CODES = `7k2m-9xq4
 4tpw-h8nz
 c3vd-2rfj
@@ -254,8 +248,6 @@ c3vd-2rfj
 export function drawSheet(scene: ShowcaseScene) {
 	const classSet = scene.classSet.name;
 	const { state } = scene;
-	// The desktop card is a plain class constant, which no class set of its own keys:
-	// the first class set the Sheet draws carries it, the form and the read's.
 	const desktop = isFirstClassSet(scene);
 	const reading = desktop && state !== "disabled" && state !== "pending";
 	const forming = desktop && !isHeld(state);
@@ -269,7 +261,7 @@ export function drawSheet(scene: ShowcaseScene) {
 							state === "disabled"
 								? pressSubmit
 								: state === "pending" || state === "error"
-									? pressSave
+									? (stage) => pressNamed(stage, "Save")
 									: undefined
 						}
 					>
@@ -291,12 +283,7 @@ export function drawSheet(scene: ShowcaseScene) {
 					// banner that waits for the device, which ends the body.
 					<Stage contain>
 						<Gate title="Projects">
-							<Sheet
-								open
-								onClose={act}
-								title="Add a device"
-								description="Scan the code with the device, or open the address on it."
-							>
+							<Sheet open onClose={act} {...JOINING}>
 								<QrCode value={JOIN} label="A code that adds a device" />
 								<Code text={JOIN} copy />
 								<Banner

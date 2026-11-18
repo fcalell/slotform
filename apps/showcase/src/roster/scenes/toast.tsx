@@ -7,11 +7,12 @@ import { Shell } from "@fcalell/plugin-react-ui/components/shell";
 import { type ToastData, toast } from "@fcalell/plugin-react-ui/lib/toast";
 import { useEffect, useRef } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
-import { onceStanding } from "../judge.ts";
+import { meets, onceStanding } from "../judge.ts";
+import { JOIN, JOINING } from "./join.ts";
 import { StandInList } from "./layout-context.tsx";
 import { Stage } from "./overlay-stage.tsx";
+import { act } from "./section-rows.ts";
 
-const act = () => {};
 const STACK: ToastData[] = [
 	{
 		sentence: "Deployment started",
@@ -31,7 +32,6 @@ const STACK: ToastData[] = [
 // the layer to be laid out.
 const WAIT = 120;
 const SETTLE = 4;
-const JOIN = "https://app.example.com/join?code=7k2m-9xq4-4tpw-h8nz";
 
 // A Gate with a bottom sheet open, the Gate's toasts' layer over it, so the
 // scene reads both boxes and logs an error when a toast overlaps the sheet.
@@ -54,14 +54,8 @@ function OverSheet() {
 			WAIT,
 			SETTLE,
 			({ sheet, toast }) => {
-				const over = sheet.getBoundingClientRect();
-				const on = toast.getBoundingClientRect();
-				const apart =
-					on.bottom <= over.top ||
-					on.top >= over.bottom ||
-					on.right <= over.left ||
-					on.left >= over.right;
-				if (!apart) console.error("the toast stands over the open sheet");
+				if (meets(toast.getBoundingClientRect(), sheet.getBoundingClientRect()))
+					console.error("the toast stands over the open sheet");
 			},
 		);
 	}, []);
@@ -69,12 +63,7 @@ function OverSheet() {
 		<div ref={stage}>
 			<Stage contain>
 				<Gate title="Devices">
-					<Sheet
-						open
-						onClose={act}
-						title="Add a device"
-						description="Scan the code with the device, or open the address on it."
-					>
+					<Sheet open onClose={act} {...JOINING}>
 						<Code text={JOIN} copy />
 					</Sheet>
 				</Gate>

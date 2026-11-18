@@ -11,7 +11,7 @@ import { BREAKPOINT_PX, TONES, type Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { WORKFLOW } from "../graphs.ts";
-import { onceStanding } from "../judge.ts";
+import { meets, onceStanding } from "../judge.ts";
 import {
 	type HeldState,
 	isHeld,
@@ -22,11 +22,10 @@ import {
 } from "../waiting.ts";
 import { Judged } from "./judged.tsx";
 import { StandInList, StandInRows } from "./layout-context.tsx";
-import { TURN } from "./message.tsx";
+import { TURN, TURNS } from "./message-fixtures.ts";
 import { isPaint } from "./painted.tsx";
 import { ACTIONS, Column, MORE } from "./place.tsx";
 import { act, SERVER } from "./section-rows.ts";
-import { TURNS } from "./thread.tsx";
 
 // A Pane that fills (a Canvas, a Thread) needs a Panes with a height of its
 // own: the page's, in the shell, is the viewport's.
@@ -125,14 +124,15 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 					one,
 				]),
 			];
-			const meet = (x: DOMRect, y: DOMRect) =>
-				x.left < y.right - 0.5 &&
-				y.left < x.right - 0.5 &&
-				x.top < y.bottom - 0.5 &&
-				y.top < x.bottom - 0.5;
 			for (const [at, [one, left]] of parts.entries())
 				for (const [two, right] of parts.slice(at + 1))
-					if (meet(left.getBoundingClientRect(), right.getBoundingClientRect()))
+					if (
+						meets(
+							left.getBoundingClientRect(),
+							right.getBoundingClientRect(),
+							0.5,
+						)
+					)
 						console.error(
 							`the bar's ${one} overlaps its ${two} (${form} context, ${Math.round(row)} px row)`,
 						);
@@ -180,7 +180,7 @@ function Context(props: { preview?: boolean; long?: boolean }) {
 						`the context pick's ${name} spills past its scene (${form} context, ${Math.round(row)} px row)`,
 					);
 				for (const [two, act] of parts.slice(2))
-					if (meet(at, act.getBoundingClientRect()))
+					if (meets(at, act.getBoundingClientRect(), 0.5))
 						console.error(
 							`the context pick's ${name} overlaps the bar's ${two} (${form} context, ${Math.round(row)} px row)`,
 						);

@@ -1,4 +1,3 @@
-import { ApiError } from "@fcalell/plugin-api/error";
 import {
 	Form as Derived,
 	type FormProps,
@@ -6,36 +5,22 @@ import {
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import type { Can, FormFields } from "@fcalell/ui-core/form";
 import type { Selection } from "@fcalell/ui-core/read";
-import { type ReactNode, useEffect, useRef } from "react";
-import type { AppRouter } from "../../../.stack/worker";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { isHeld, readsAt, ready, waiting } from "../waiting.ts";
+import {
+	FILLED,
+	GIVEN,
+	GIVEN_ALL,
+	GIVEN_BUT_KIND,
+	KIND,
+	NEVER,
+	type Request,
+	refusing,
+	SAVED,
+	Submitted,
+} from "./form-fixtures.tsx";
 import { Judged } from "./judged.tsx";
 import { isPaint } from "./painted.tsx";
-
-// The input of the showcase's `forms.submit` procedure: a form over it derives
-// every control.
-type Request = AppRouter["forms"]["submit"]["__input"];
-
-// `forms.submit` as the client hands it, running `run` in place of the wire.
-function procedure(run: () => Promise<{ id: string }>) {
-	const key = [["forms", "submit"], { type: "mutation" }] as const;
-	return {
-		call: (_input: Request) => run(),
-		mutationKey: () => key,
-		mutationOptions: () => ({ mutationKey: key, mutationFn: () => run() }),
-	};
-}
-const NEVER = procedure(() => new Promise<{ id: string }>(() => {}));
-
-// `forms.submit` refused by the server's schema: each issue stands under the field its path names.
-export function refusing(
-	issues: { path: (keyof Request)[]; message: string }[],
-) {
-	return procedure(() =>
-		Promise.reject(new ApiError("BAD_REQUEST", { data: { issues } })),
-	);
-}
 
 // The server refuses the directory, quoting its path between backticks.
 const REFUSED = refusing([
@@ -44,17 +29,11 @@ const REFUSED = refusing([
 		message: "no project stands under `/srv/acme/billing-digest`",
 	},
 ]);
-export const SAVED = procedure(() => Promise.resolve({ id: "request-1" }));
 
 const OWNERS = [
 	{ value: "ana", label: "Ana Ruiz" },
 	{ value: "ben", label: "Ben Kaya" },
 ];
-const KINDS = [
-	{ value: "change", label: "A change" },
-	{ value: "measurement", label: "A measurement" },
-	{ value: "question", label: "A question" },
-] as const;
 
 const TITLE = { label: "What should change?" };
 const WHY = {
@@ -62,7 +41,6 @@ const WHY = {
 	description: "What this is for, in a few words.",
 	control: "prose",
 } as const;
-export const KIND = { label: "Kind of request", options: KINDS };
 const PRIORITY = { label: "Priority" };
 const SEATS = { label: "Seats" };
 const BUDGET = { label: "Budget", description: "In euros." };
@@ -91,26 +69,6 @@ const ALL: FormFields<Request> = {
 	channels: CHANNELS,
 	owner: OWNER,
 	directory: DIRECTORY,
-};
-
-// What a request holds once it is filled in: the required fields of
-// `forms.submit`.
-export const FILLED = {
-	title: "Add the checkout event",
-	kind: "change",
-	seats: 3,
-	urgent: false,
-} as const;
-
-export const GIVEN = { workspaceId: "acme" };
-// Every required key of `forms.submit`, for a form that shows none of them.
-export const GIVEN_ALL = { ...GIVEN, ...FILLED };
-// Every required key but the kind, for a form that shows its kind pick.
-export const GIVEN_BUT_KIND = {
-	...GIVEN,
-	title: FILLED.title,
-	seats: FILLED.seats,
-	urgent: FILLED.urgent,
 };
 
 // The required keys the two forms below give, every one but the title, which
@@ -205,21 +163,6 @@ function judgeControls(host: HTMLElement) {
 				);
 		}
 	}
-}
-
-// Presses its form's submit act once mounted, so the scene holds what the press leaves: an act that never settles pending, a refusal under its fields.
-export function Submitted(props: { children: ReactNode }) {
-	const scene = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		scene.current
-			?.querySelector<HTMLButtonElement>("button[type=submit]")
-			?.click();
-	}, []);
-	return (
-		<div ref={scene} className="flex flex-col">
-			{props.children}
-		</div>
-	);
 }
 
 function Flat(props: {

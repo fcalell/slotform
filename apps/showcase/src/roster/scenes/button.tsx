@@ -10,7 +10,7 @@ import { TouchedContext } from "@fcalell/ui-core/react/touched";
 import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
-import { FILLED, GIVEN, SAVED } from "./form.tsx";
+import { FILLED, GIVEN, SAVED } from "./form-fixtures.tsx";
 import { STAND_INS, Wide } from "./layout-context.tsx";
 import { beside, isPaint } from "./painted.tsx";
 import { hang, Pressed } from "./pending.tsx";

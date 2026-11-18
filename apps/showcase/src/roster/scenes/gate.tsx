@@ -10,21 +10,11 @@ import { confirm } from "@fcalell/ui-core/react/confirm";
 import { text } from "@fcalell/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { readsAt } from "../waiting.ts";
-import { FILLED, GIVEN_BUT_KIND, KIND, SAVED } from "./form.tsx";
+import { FILLED, GIVEN_BUT_KIND, KIND, SAVED } from "./form-fixtures.tsx";
 import { StandInCard } from "./layout-context.tsx";
+import { MARK } from "./lockup.ts";
 import { act } from "./section-rows.ts";
 
-// The app's lockup as the generated providers mount it, inline so the scene
-// needs no asset pipeline: a logo for each mode.
-const logo = (ground: string, ink: string) =>
-	`data:image/svg+xml,${encodeURIComponent(
-		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64"><rect width="64" height="64" rx="14" fill="${ground}"/><path d="M14 46 32 14l18 32h-9l-9-17-9 17z" fill="${ink}"/></svg>`,
-	)}`;
-export const MARK: AppLockup = {
-	src: logo("#2f3a45", "#9fb7c9"),
-	dark: logo("#9fb7c9", "#2f3a45"),
-	name: "Acme",
-};
 // A logo that fails to load: the name stands alone.
 const BROKEN: AppLockup = { src: "data:image/svg+xml,<", name: MARK.name };
 

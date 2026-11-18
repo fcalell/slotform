@@ -15,8 +15,6 @@
 	},
 	"include": [
 		"src/worker",
-		"src/schema",
-		"src/shared",
 		".stack/worker.ts",
 		".stack/procedure.ts",
 		".stack/worker-configuration.d.ts"

@@ -33,7 +33,7 @@ import {
 	WELCOME_NOTE,
 	WORKFLOW,
 } from "../graphs.ts";
-import { onceStanding } from "../judge.ts";
+import { meets, onceStanding } from "../judge.ts";
 import { endedAt, waiting } from "../waiting.ts";
 import { Stage } from "./overlay-stage.tsx";
 
@@ -261,9 +261,6 @@ const NODES = "[data-layer] button[data-focus]:not([aria-hidden=true])";
 
 // The scale a layer's transform draws at.
 const scaleOf = (transform: string) => /scale\(([^)]+)\)/.exec(transform)?.[1];
-
-const meets = (a: DOMRect, b: DOMRect) =>
-	a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
 // What of a node shows: its glyph's box where it is a glyph, else its card.
 function drawn(node: HTMLElement): DOMRect {

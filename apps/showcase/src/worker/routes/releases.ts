@@ -2,10 +2,12 @@ import { procedure } from "virtual:stack-procedure";
 import { z } from "@fcalell/plugin-api/schema";
 import { status } from "../schemas.ts";
 
+const stage = z.enum(["review", "staging", "production"]);
+
 const release = z.object({
 	id: z.string(),
 	name: z.string(),
-	stage: z.enum(["review", "staging", "production"]),
+	stage,
 	state: status,
 	// The ISO moment it was cut.
 	age: z.string(),
@@ -15,7 +17,7 @@ export const releases = {
 	list: procedure({ reads: ["releases"] })
 		.input(
 			z.object({
-				stage: z.enum(["review", "staging", "production"]).optional(),
+				stage: stage.optional(),
 			}),
 		)
 		.output(z.array(release))
@@ -31,7 +33,7 @@ export const releases = {
 		.output(
 			z.array(
 				z.object({
-					value: z.enum(["review", "staging", "production"]),
+					value: stage,
 					label: z.string(),
 					count: z.number(),
 				}),

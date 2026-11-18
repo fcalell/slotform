@@ -11,7 +11,7 @@ import {
 	refusing,
 	SAVED,
 	Submitted,
-} from "./form.tsx";
+} from "./form-fixtures.tsx";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
 import { act } from "./section-rows.ts";

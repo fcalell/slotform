@@ -3,10 +3,10 @@ import { Section } from "@fcalell/plugin-react-ui/components/section";
 import { Switch } from "@fcalell/plugin-react-ui/components/switch";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
-import { FILLED, GIVEN, SAVED } from "./form.tsx";
+import { FILLED, GIVEN, SAVED } from "./form-fixtures.tsx";
 import { beside, isPaint } from "./painted.tsx";
+import { act } from "./section-rows.ts";
 
-const change = () => {};
 // A value that never arrives: a switch given it paints.
 const waitingOn = waiting.at(() => true);
 
@@ -21,14 +21,12 @@ export function drawSwitch(scene: ShowcaseScene) {
 	if (isPaint(scene))
 		return beside(
 			scene,
-			<Switch checked onChange={change} label="Weekly summary" />,
-			<Switch checked={waitingOn} onChange={change} label="Weekly summary" />,
+			<Switch checked onChange={act} label="Weekly summary" />,
+			<Switch checked={waitingOn} onChange={act} label="Weekly summary" />,
 		);
 	const on = scene.classSet.name.endsWith(".on");
 	if (scene.state === "selected" && !on) return undefined;
-	const control = (
-		<Switch checked={on} onChange={change} label="Weekly summary" />
-	);
+	const control = <Switch checked={on} onChange={act} label="Weekly summary" />;
 	// A row, as a settings row holds it, so the hit box keeps its own width.
 	if (scene.state === "disabled")
 		return (
@@ -52,7 +50,7 @@ export function drawSwitch(scene: ShowcaseScene) {
 							key: "retro",
 							label: "Retro",
 							facts: ["Runs when you start it"],
-							switch: { checked: on, onChange: change },
+							switch: { checked: on, onChange: act },
 							lock: "Retro's model is not picked yet.",
 						},
 					]}

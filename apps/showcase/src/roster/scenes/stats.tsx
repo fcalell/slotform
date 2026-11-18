@@ -3,9 +3,9 @@ import {
 	type StatsItem,
 } from "@fcalell/plugin-react-ui/components/stats";
 import type { StatSpec } from "@fcalell/ui-core/descriptors";
-import { useEffect, useRef } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { readsAt, waiting } from "../waiting.ts";
+import { Judged } from "./judged.tsx";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
 
@@ -148,37 +148,29 @@ function Failed(props: { id: string }) {
 	return <Stats items={cells} />;
 }
 
-// The rest scene judges its own edges: a cell's label wraps at its words and is
-// never cut (no child of a cell is wider than its box), and a cell that opens
-// draws its chevron, at the end of the label's first line.
-function Judged(props: { children: React.ReactNode }) {
-	const root = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		for (const cell of root.current?.querySelectorAll("li") ?? []) {
-			for (const part of cell.querySelectorAll("*")) {
-				if (part.scrollWidth > part.clientWidth + 1 && part.clientWidth > 0)
-					console.error(`Stats: the label "${part.textContent}" is cut`);
-			}
-			// The cell's own hit is its direct child; a count link inside is no cell link.
-			if (cell.querySelector(":scope > a[href]") && !cell.querySelector("svg"))
-				console.error("Stats: a cell that opens draws no chevron");
-			// The chevron stands on the label's first line: it ends above the label's
-			// second line, which starts one line under the label's top.
-			const glyph = cell.querySelector("svg")?.getBoundingClientRect();
-			const labelPart = cell.querySelector("span > span");
-			if (glyph && labelPart) {
-				const label = labelPart.getBoundingClientRect();
-				const line = Number.parseFloat(getComputedStyle(labelPart).lineHeight);
-				if (glyph.top < label.top - 1 || glyph.bottom > label.top + line + 1)
-					console.error("Stats: the chevron is off the label's first line");
-			}
+// The loaded scenes judge their own edges: a cell's label wraps at its words
+// and is never cut (no child of a cell is wider than its box), and a cell that
+// opens draws its chevron, at the end of the label's first line.
+function judgeCells(host: HTMLElement) {
+	for (const cell of host.querySelectorAll("li")) {
+		for (const part of cell.querySelectorAll("*")) {
+			if (part.scrollWidth > part.clientWidth + 1 && part.clientWidth > 0)
+				console.error(`Stats: the label "${part.textContent}" is cut`);
 		}
-	}, []);
-	return (
-		<div ref={root} className="contents">
-			{props.children}
-		</div>
-	);
+		// The cell's own hit is its direct child; a count link inside is no cell link.
+		if (cell.querySelector(":scope > a[href]") && !cell.querySelector("svg"))
+			console.error("Stats: a cell that opens draws no chevron");
+		// The chevron stands on the label's first line: it ends above the label's
+		// second line, which starts one line under the label's top.
+		const glyph = cell.querySelector("svg")?.getBoundingClientRect();
+		const labelPart = cell.querySelector("span > span");
+		if (glyph && labelPart) {
+			const label = labelPart.getBoundingClientRect();
+			const line = Number.parseFloat(getComputedStyle(labelPart).lineHeight);
+			if (glyph.top < label.top - 1 || glyph.bottom > label.top + line + 1)
+				console.error("Stats: the chevron is off the label's first line");
+		}
+	}
 }
 
 // A `METER_FILL.level` cell draws the shares at that level, every other cell
@@ -212,7 +204,7 @@ export function drawStats(scene: ShowcaseScene) {
 		);
 	return (
 		<Wide>
-			<Judged>
+			<Judged settle={2} judge={judgeCells} className="contents">
 				<Stats items={HOME} />
 				<Stats items={THREE} />
 				<Stats items={usage} />

@@ -5,6 +5,7 @@ import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Stats } from "@fcalell/plugin-react-ui/components/stats";
 import type { RowMark, StatSpec } from "@fcalell/ui-core/descriptors";
 import { useLayoutEffect } from "react";
+import { applyMode, askedMode } from "./view.tsx";
 
 const TODAY: readonly StatSpec[] = [
 	{ label: "Deployed", value: 14 },
@@ -23,10 +24,7 @@ const URGENT: readonly StatSpec[] = [{ label: "Urgent", value: 3 }];
 
 // A room screen is dark unless the URL asks `?mode=light`.
 function useDarkUnlessAsked() {
-	useLayoutEffect(() => {
-		const light = new URLSearchParams(location.search).get("mode") === "light";
-		document.documentElement.classList.toggle("dark", !light);
-	}, []);
+	useLayoutEffect(() => applyMode(askedMode("dark")), []);
 }
 
 // A screen read from across a room: docs/architecture/ui-core/showcase.md, "The app".
@@ -77,8 +75,6 @@ const OUTSIDE: RowMark = {
 const BOARD: Row[] = Array.from({ length: 30 }, (_, at): Row => {
 	const waiting = at % 3 === 0;
 	const asks = at % 5 === 4;
-	// The second row has no status and only the outside-content mark, a glyph
-	// in the end group: one line at 1920 as its neighbours are.
 	const quiet = at === 1;
 	return {
 		key: `work-${at}`,

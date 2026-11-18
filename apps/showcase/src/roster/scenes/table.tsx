@@ -11,6 +11,7 @@ import type {
 	TableChoice,
 	TableColumn,
 } from "@fcalell/ui-core/descriptors";
+import { nextSort, type Sort } from "@fcalell/ui-core/list-state";
 import type { Read } from "@fcalell/ui-core/read";
 import {
 	type ReactNode,
@@ -28,8 +29,7 @@ import { key } from "./overlay-stage.tsx";
 import { isPaint } from "./painted.tsx";
 import { hang, Pressed } from "./pending.tsx";
 import { Column } from "./place.tsx";
-
-const act = () => {};
+import { act } from "./section-rows.ts";
 
 interface Task {
 	id: string;
@@ -364,29 +364,28 @@ function Driven(props: {
 	);
 }
 
-// A header's presses turn its column's sort through this cycle.
-const SORT_CYCLE = ["none", "descending", "ascending"];
-
-// The header pressed, at once, as many times as its column's sort cycle
-// needs to sort the way asked: each press queues the Table's next sort on
-// the last, so one drive lands in one commit. The header keeps a mark, so a
-// drive run twice (StrictMode) presses once.
-function sortBy(
-	scene: HTMLElement,
-	label: string,
-	direction: "ascending" | "descending",
-) {
+// The header of the column under `key` pressed, at once, as many times as
+// the Table's own sort order (`nextSort`) needs to sort the way asked: each
+// press queues the Table's next sort on the last, so one drive lands in one
+// commit. The header keeps a mark, so a drive run twice (StrictMode) presses
+// once.
+function sortBy(scene: HTMLElement, key: string, direction: Sort["direction"]) {
+	const column = COLUMNS.find((one) => one.key === key);
 	const head = [...scene.querySelectorAll<HTMLElement>("th button")].find(
-		(button) => button.textContent === label,
+		(button) => button.textContent === column?.label,
 	);
-	const column = head?.closest("th");
-	if (!head || !column || head.dataset.driven !== undefined) return;
+	const header = head?.closest("th");
+	if (!column || !head || !header || head.dataset.driven !== undefined) return;
 	head.dataset.driven = "";
-	const at = SORT_CYCLE.indexOf(column.getAttribute("aria-sort") ?? "none");
-	const presses =
-		(SORT_CYCLE.indexOf(direction) - at + SORT_CYCLE.length) %
-		SORT_CYCLE.length;
-	for (let press = 0; press < presses; press++) head.click();
+	const standing = header.getAttribute("aria-sort");
+	let sort: Sort | undefined =
+		standing === "ascending" || standing === "descending"
+			? { key, direction: standing }
+			: undefined;
+	while (sort?.direction !== direction) {
+		sort = nextSort(sort, column);
+		head.click();
+	}
 }
 
 // The cursor on a cell, its edit opened by Enter.
@@ -398,8 +397,8 @@ function editAt(scene: HTMLElement, row: number, column: number) {
 	key(cell, "Enter");
 }
 
-const newest = (scene: HTMLElement) => sortBy(scene, "Updated", "descending");
-const byRetries = (scene: HTMLElement) => sortBy(scene, "Retries", "ascending");
+const newest = (scene: HTMLElement) => sortBy(scene, "updated", "descending");
+const byRetries = (scene: HTMLElement) => sortBy(scene, "retries", "ascending");
 
 // A part: the leading column and the ones named, over the rows named.
 function only(
@@ -924,12 +923,12 @@ function Comparisons(props: { id: string; state: ShowcaseScene["state"] }) {
 	const change = at("change", CHANGE);
 	const plans = at("plans", PLANS);
 	const layer = at("layer", LAYER);
-	const checks = itemsAt(`${props.id}/checks`, props.state, CHECKS);
-	const variables = itemsAt(`${props.id}/variables`, props.state, VARIABLES);
-	const mappings = itemsAt(`${props.id}/mappings`, props.state, MAPPINGS);
-	const edits = itemsAt(`${props.id}/edits`, props.state, EDITS);
-	const logged = itemsAt(`${props.id}/logged`, props.state, LOGGED);
-	const reworded = itemsAt(`${props.id}/reworded`, props.state, REWORDED);
+	const checks = at("checks", CHECKS);
+	const variables = at("variables", VARIABLES);
+	const mappings = at("mappings", MAPPINGS);
+	const edits = at("edits", EDITS);
+	const logged = at("logged", LOGGED);
+	const reworded = at("reworded", REWORDED);
 	const kinds = useRef<HTMLDivElement>(null);
 	const changes = useRef<HTMLDivElement>(null);
 	const host = useRef<HTMLDivElement>(null);
@@ -1010,7 +1009,7 @@ function Comparisons(props: { id: string; state: ShowcaseScene["state"] }) {
 								columns={REWORDED_COLUMNS}
 								items={reworded}
 								row={{ id: (entry: Reworded) => entry.id }}
-								choose={{ chosen: ["stale"], onChange: () => {} }}
+								choose={{ chosen: ["stale"], onChange: act }}
 							/>
 						</div>
 					</Section>

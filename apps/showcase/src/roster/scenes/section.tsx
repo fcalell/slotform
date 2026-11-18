@@ -7,13 +7,7 @@ import { createLeave } from "@fcalell/ui-core/leave";
 import { rowOneLine } from "@fcalell/ui-core/overflow";
 import { setLoading } from "@fcalell/ui-core/paint";
 import { TouchedContext } from "@fcalell/ui-core/react/touched";
-import {
-	type ReactNode,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from "react";
+import { type ReactNode, useEffect, useLayoutEffect, useState } from "react";
 import { ago } from "../ago.ts";
 import type { ShowcaseScene } from "../class-sets.ts";
 import {
@@ -24,7 +18,8 @@ import {
 	type Reads,
 	readsAt,
 } from "../waiting.ts";
-import { StandInCard, Wide } from "./layout-context.tsx";
+import { Judged } from "./judged.tsx";
+import { STAND_INS, StandInCard, Wide } from "./layout-context.tsx";
 import { Paged } from "./more.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { isPaint } from "./painted.tsx";
@@ -53,22 +48,19 @@ import {
 	NOTES,
 	ONE_LINE,
 	openFiles,
-	PEOPLE,
 	REVIEW,
 	rowOf,
 	SERVER,
+	SETTINGS,
 	SHAPES,
 	SOURCES,
 	STAGES,
 	STEPS,
-	settings,
 	TICKS,
 	WORKSPACES,
 } from "./section-rows.ts";
 
 const INVITE = { icon: "UserPlus" as const, label: "Invite", onAct: act };
-// An icon act carries no reason: the blocked scene draws the act as it stands.
-const BLOCKED = { ...INVITE };
 // A touched form, so a blocked act shows its reason.
 const TOUCHED = { touched: true, touch: act, leave: createLeave() };
 const DESCRIPTION = "People who can open this workspace.";
@@ -269,48 +261,30 @@ function Progressing() {
 const LONG_NAME = `${"Quarterly invoice export for the platform billing team ".repeat(4)}final`;
 const LONG_QUOTED = `\u201C${LONG_NAME}\u201D`;
 
+function judgeQuoted(host: HTMLElement) {
+	const text = [...host.querySelectorAll("*")].find(
+		(el) => el.textContent === LONG_QUOTED && el.children.length === 0,
+	);
+	if (!text) {
+		console.error("the quoted name is not drawn as one text");
+		return;
+	}
+	let cut: Element | null = text;
+	while (cut && cut !== host) {
+		if (getComputedStyle(cut).textOverflow === "ellipsis") break;
+		cut = cut.parentElement;
+	}
+	if (!cut || cut === host)
+		console.error("the quoted name's box does not cut with an ellipsis");
+	else if (
+		cut.getBoundingClientRect().right > host.getBoundingClientRect().right
+	)
+		console.error("the quoted name's box reaches past the row");
+}
+
 function LongQuoted() {
-	const edge = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		let scene = 0;
-		let waited = 0;
-		const read = () => {
-			const box = edge.current;
-			const text = box
-				? [...box.querySelectorAll("*")]
-						.filter(
-							(el) =>
-								el.textContent === LONG_QUOTED && el.children.length === 0,
-						)
-						.at(0)
-				: undefined;
-			if (!box || !text) {
-				if (++waited < 30) scene = requestAnimationFrame(read);
-				return;
-			}
-			let cut: Element | null = text;
-			while (cut && box.contains(cut) && cut !== box) {
-				if (getComputedStyle(cut).textOverflow === "ellipsis") break;
-				cut = cut.parentElement;
-			}
-			if (
-				!cut ||
-				cut === box ||
-				getComputedStyle(cut).textOverflow !== "ellipsis"
-			)
-				console.error("the quoted name's box does not cut with an ellipsis");
-			else if (
-				cut.getBoundingClientRect().right > box.getBoundingClientRect().right
-			)
-				console.error("the quoted name's box reaches past the row");
-		};
-		scene = requestAnimationFrame(() => {
-			scene = requestAnimationFrame(read);
-		});
-		return () => cancelAnimationFrame(scene);
-	}, []);
 	return (
-		<div ref={edge} className="contents">
+		<Judged settle={2} judge={judgeQuoted}>
 			<Section
 				title="Long quoted name"
 				items={[
@@ -321,7 +295,7 @@ function LongQuoted() {
 					},
 				]}
 			/>
-		</div>
+		</Judged>
 	);
 }
 
@@ -351,13 +325,9 @@ function Scrambling() {
 	) : null;
 }
 
-function Members(props: { blocked?: boolean }) {
+function Members() {
 	return (
-		<Section
-			title="Members"
-			description={DESCRIPTION}
-			act={props.blocked ? BLOCKED : INVITE}
-		>
+		<Section title="Members" description={DESCRIPTION} act={INVITE}>
 			<StandInCard />
 		</Section>
 	);
@@ -418,7 +388,7 @@ function FailedFacts(props: { id: string }) {
 					act: {
 						label: "Change the branch",
 						icon: "GitBranch",
-						onAct: () => {},
+						onAct: act,
 					},
 				},
 			]}
@@ -539,7 +509,8 @@ function Library(props: { scene: ShowcaseScene }) {
 // sets the paint against what it stands in for), the first row current when
 // selected.
 interface Part {
-	rows: () => Row[];
+	// The rows, given the page's own path, which a current row links to.
+	rows: (here: string) => Row[];
 	// The label of the act the part holds pending: pressed once drawn, into an
 	// act that never settles.
 	pressed?: string;
@@ -562,7 +533,7 @@ const PARTS = {
 	lines: { rows: () => LINES },
 	imports: { rows: () => IMPORTS, pressed: "Import" },
 	notes: { rows: () => NOTES },
-	settings: { rows: () => settings("done") },
+	settings: { rows: () => SETTINGS },
 	factChanges: { rows: () => FACT_CHANGES },
 	files: { rows: () => FILES },
 } satisfies Record<string, Part>;
@@ -609,7 +580,9 @@ function drawPart(scene: ShowcaseScene, name: PartName, pair: boolean) {
 	const part: Part = PARTS[name];
 	const { state } = scene;
 	const all =
-		name === "files" && state === "selected" ? openFiles() : part.rows();
+		name === "files" && state === "selected"
+			? openFiles(location.pathname)
+			: part.rows(location.pathname);
 	const held = (drawn: ReactNode) =>
 		part.pressed === undefined ? (
 			drawn
@@ -736,11 +709,13 @@ export function drawSection(scene: ShowcaseScene) {
 				</>
 			);
 		if (state === "disabled")
+			// An icon act carries no reason: the blocked scene draws the act as
+			// it stands, untouched and touched.
 			return (
 				<Wide>
-					<Members blocked />
+					<Members />
 					<TouchedContext value={TOUCHED}>
-						<Members blocked />
+						<Members />
 					</TouchedContext>
 				</Wide>
 			);
@@ -755,7 +730,7 @@ export function drawSection(scene: ShowcaseScene) {
 				<Section title="Memory" description="What the workspace remembers.">
 					<StandInCard />
 				</Section>
-				<Section title="People" items={PEOPLE} />
+				<Section title="People" items={STAND_INS} />
 				<Starting />
 				<Progressing />
 				<Scrambling />
@@ -775,7 +750,7 @@ export function drawSection(scene: ShowcaseScene) {
 		return state === "rest" ? (
 			<Stage contain={scene.density === "touch"} ready={openMore}>
 				<Gate title="Members">
-					<Section title="People" more={MENU} items={PEOPLE} />
+					<Section title="People" more={MENU} items={STAND_INS} />
 				</Gate>
 			</Stage>
 		) : undefined;
@@ -796,10 +771,9 @@ export function drawSection(scene: ShowcaseScene) {
 	)?.[1] ?? ["issues" as const];
 	const folds = classSet === "ICON.fit.body";
 	const destructive = classSet.endsWith(".act.destructive");
-	// The badges class set adds a one-line row on a list of its own, 52rem
-	// wide at the desktop: past the row's one-line width (765 px), so its badges
-	// follow the title on its line; below the desktop it fills the scene, as every
-	// list does, and its badges stand under the title.
+	// The badges class set adds a one-line row on a list of its own, as wide as
+	// the row's one-line width (`rowOneLine`), so its badges follow the title on
+	// its line.
 	const oneLine = names.includes("badges") && state !== "loading";
 	return (
 		<>
@@ -818,7 +792,7 @@ export function drawSection(scene: ShowcaseScene) {
 							onAct: act,
 							destructive: true,
 						}}
-						items={PEOPLE}
+						items={STAND_INS}
 					/>
 				) : null}
 				{state === "rest" && folds ? (
@@ -827,13 +801,13 @@ export function drawSection(scene: ShowcaseScene) {
 							title="In progress"
 							folded={false}
 							act={{ icon: "Plus", label: "Add", onAct: act }}
-							items={PEOPLE}
+							items={STAND_INS}
 						/>
 						<Section
 							title="Done"
 							folded
 							act={{ icon: "Plus", label: "Add", onAct: act }}
-							items={PEOPLE}
+							items={STAND_INS}
 						/>
 						{/* A folding title that wraps on a phone: its count stays with its
 					last word and its description stands under it. */}
@@ -841,13 +815,13 @@ export function drawSection(scene: ShowcaseScene) {
 							title="Allowed hosts · the sites a build may fetch"
 							description="The sites a build may fetch on its own."
 							folded
-							items={PEOPLE}
+							items={STAND_INS}
 						/>
 						{/* A name of hyphens wider than a phone: it breaks after a hyphen,
 					never before one, so no line starts on a hyphen. */}
 						<Section
 							title="A-repository-with-a-name-long-enough-to-wrap"
-							items={PEOPLE}
+							items={STAND_INS}
 						/>
 					</>
 				) : null}

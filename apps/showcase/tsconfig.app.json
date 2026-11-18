@@ -1,7 +1,7 @@
 {
 	"extends": "@fcalell/typescript-config/web-vite.json",
 	"compilerOptions": {
-		// `.storybook/` and `vitest.config.ts` run under Node.
+		// `.storybook/` runs under Node.
 		"types": ["node"],
 		"noEmit": true,
 		"declaration": false,
@@ -9,13 +9,7 @@
 		"disableSourceOfProjectReferenceRedirect": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
 	},
-	"include": [
-		"src",
-		"stories",
-		".stack/routes.d.ts",
-		".storybook",
-		"vitest.config.ts"
-	],
+	"include": ["src", "stories", ".stack/routes.d.ts", ".storybook"],
 	"exclude": ["src/worker"],
 	"references": [{ "path": "./tsconfig.worker.json" }]
 }

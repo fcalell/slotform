@@ -4,8 +4,7 @@ import { Slider } from "@fcalell/plugin-react-ui/components/slider";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
 import { beside, isPaint } from "./painted.tsx";
-
-const change = () => {};
+import { act } from "./section-rows.ts";
 
 const never = waiting.at(() => 0);
 
@@ -14,7 +13,7 @@ function at(value: number | typeof never) {
 		<Slider
 			label="Lock after idle"
 			value={value}
-			onChange={change}
+			onChange={act}
 			min={0}
 			max={60}
 			step={5}

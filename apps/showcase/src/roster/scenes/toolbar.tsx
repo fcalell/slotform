@@ -2,8 +2,8 @@ import { Button } from "@fcalell/plugin-react-ui/components/button";
 import { Picker } from "@fcalell/plugin-react-ui/components/picker";
 import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
 import { useEffect, useRef } from "react";
+import { act } from "./section-rows.ts";
 
-const change = () => {};
 const REGIONS = [
 	{ value: "fra", label: "Frankfurt" },
 	{ value: "iad", label: "Virginia" },
@@ -82,17 +82,17 @@ function Folded() {
 	return (
 		<div ref={host}>
 			<Toolbar
-				search={{ value: "", onChange: change, placeholder: "Search" }}
+				search={{ value: "", onChange: act, placeholder: "Search" }}
 				filters={[
-					{ label: "Region", options: REGIONS, value: "fra", onChange: change },
-					{ label: "Owner", options: OWNERS, onChange: change },
-					{ label: "Kind", options: KINDS, value: null, onChange: change },
+					{ label: "Region", options: REGIONS, value: "fra", onChange: act },
+					{ label: "Owner", options: OWNERS, onChange: act },
+					{ label: "Kind", options: KINDS, value: null, onChange: act },
 					{
 						label: "Projects",
 						options: PROJECTS,
 						several: true,
 						value: ["shop", "docs", "app"],
-						onChange: change,
+						onChange: act,
 					},
 				]}
 			/>
@@ -104,10 +104,10 @@ export function drawToolbar() {
 	return (
 		<div className="flex flex-col gap-section">
 			<Toolbar
-				search={{ value: "deploy", onChange: change }}
+				search={{ value: "deploy", onChange: act }}
 				chips={[
-					{ family: "neutral", label: "Region: Frankfurt", onRemove: change },
-					{ family: "neutral", label: "Owner: Ana Ruiz", onRemove: change },
+					{ family: "neutral", label: "Region: Frankfurt", onRemove: act },
+					{ family: "neutral", label: "Owner: Ana Ruiz", onRemove: act },
 				]}
 			>
 				<Button
@@ -115,31 +115,21 @@ export function drawToolbar() {
 					icon="ListFilter"
 					label="Filter"
 					count={2}
-					onAct={change}
+					onAct={act}
 				/>
-				<Button
-					act="secondary"
-					icon="ArrowUpDown"
-					label="Sort"
-					onAct={change}
-				/>
-				<Button glyph icon="SlidersHorizontal" label="Display" onAct={change} />
+				<Button act="secondary" icon="ArrowUpDown" label="Sort" onAct={act} />
+				<Button glyph icon="SlidersHorizontal" label="Display" onAct={act} />
 			</Toolbar>
 			<Toolbar
 				filters={[
-					{ label: "Region", options: REGIONS, value: "fra", onChange: change },
-					{ label: "Owner", options: OWNERS, value: "ana", onChange: change },
+					{ label: "Region", options: REGIONS, value: "fra", onChange: act },
+					{ label: "Owner", options: OWNERS, value: "ana", onChange: act },
 				]}
 			/>
 			<Folded />
 			<div className="flex w-popover max-w-full flex-col">
 				<Toolbar>
-					<Picker
-						label="Scope"
-						options={SCOPES}
-						value="long"
-						onChange={change}
-					/>
+					<Picker label="Scope" options={SCOPES} value="long" onChange={act} />
 				</Toolbar>
 			</div>
 		</div>

@@ -3,10 +3,10 @@ import { Image } from "@fcalell/plugin-react-ui/components/image";
 import type { ImageFit, ImageState } from "@fcalell/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
-import { Standing } from "./dock.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { isPaint } from "./painted.tsx";
 import { BROKEN, SCREEN } from "./pictures.ts";
+import { Standing } from "./track.tsx";
 
 // The captured page's width over its height.
 const SCREEN_ASPECT = 1280 / 800;

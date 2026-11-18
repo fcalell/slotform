@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ago } from "../ago.ts";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { endedAt, itemsAt, waiting } from "../waiting.ts";
-import { GIVEN_ALL, SAVED } from "./form.tsx";
+import { GIVEN_ALL, SAVED } from "./form-fixtures.tsx";
 import { Judged } from "./judged.tsx";
 import { press, Stage } from "./overlay-stage.tsx";
 import { beside } from "./painted.tsx";

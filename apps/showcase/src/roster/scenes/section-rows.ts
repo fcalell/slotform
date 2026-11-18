@@ -75,9 +75,9 @@ export const DEPLOYS: Row[] = [
 	},
 ];
 
-// Board 40's issues in a list Pane: the first row current (its href is the
-// page's own path), the others at their own.
-export function issues(): Row[] {
+// Board 40's issues in a list Pane: the first row current (its href is `here`,
+// the page's own path), the others at their own.
+export function issues(here: string): Row[] {
 	return [
 		{
 			key: "acm-142",
@@ -85,7 +85,7 @@ export function issues(): Row[] {
 			title: "Fix invoice rounding",
 			facts: [{ tone: "active", label: "In progress" }, "ACM-142", "Billing"],
 			trailing: { age: ago(120) },
-			href: location.pathname,
+			href: here,
 		},
 		{
 			key: "acm-139",
@@ -512,7 +512,7 @@ export const LINES: Row[] = [
 // The records `MARKS`' first row stands on, as a feed of items gives them: the
 // waiting shape takes its shape from the one row such a mapping gives a sample
 // record, whose status is a region with nothing in it.
-export interface Item {
+interface Item {
 	id: string;
 	title: string;
 	parts: string[];
@@ -900,75 +900,61 @@ export const FACTS: Row[] = [
 // link, a status under a description, a row with neither act nor link, a value
 // of words, a sentence label beside a switch, two locked values, their
 // reason a link to the request that holds one, and a described pick.
-export function settings(
-	status:
-		| "done"
-		| "waiting"
-		| "active"
-		| "attention"
-		| "failed"
-		| "idle"
-		| "running",
-): Row[] {
-	return [
-		{
-			label: "Workspace name",
-			title: "Acme",
-			act: { icon: "Pencil", label: "Rename", onAct: act },
-		},
-		{
-			label: "Workspace ID",
-			line: "The API and the CLI address the workspace by it.",
-			title: { code: "ws_7f3k9q2m4x", copy: true },
-		},
-		{ label: "Region", title: "Frankfurt (eu-central-1)", href: "#region" },
-		{
-			label: "Custom domain",
-			line: "Mail and links go out from it.",
-			title: {
-				tone: status,
-				label: status === "done" ? "Verified" : undefined,
-			},
-			href: "#domain",
-		},
-		{
-			label: "Plan",
-			line: "Your organisation manages it.",
-			title: "Business",
-		},
-		{
-			label: "Retention",
-			line: "How long a deleted workspace, its members, its history and every file it held stay recoverable before they are removed for good; after that date nothing can bring them back.",
-			title: "30 days",
-		},
-		{
-			label: "Contract end",
-			title: "31 Dec 2026",
-			lock: { reason: "Held by CR-12, Ana", href: "#cr-12" },
-		},
-		{
-			label: "Contract renewal",
-			line: "Renewal opens sixty days before the contract ends and closes a week after.",
-			title: "1 Nov 2026",
-			lock: { reason: "Held by CR-12, Ana", href: "/requests/cr-12" },
-		},
-		{
-			label: "Billing contact",
-			title: "ana@acme.test",
-			lock: { reason: "Set by your organisation" },
-		},
-		{ label: "Expected spend", title: "No history yet" },
-		{
-			label: "Only what changed since you last looked",
-			switch: { checked: true, onChange: act },
-		},
-		{
-			label: "Billing cycle",
-			line: "When the invoice is drawn and the card charged.",
-			pick: CYCLE,
-		},
-	];
-}
+export const SETTINGS: Row[] = [
+	{
+		label: "Workspace name",
+		title: "Acme",
+		act: { icon: "Pencil", label: "Rename", onAct: act },
+	},
+	{
+		label: "Workspace ID",
+		line: "The API and the CLI address the workspace by it.",
+		title: { code: "ws_7f3k9q2m4x", copy: true },
+	},
+	{ label: "Region", title: "Frankfurt (eu-central-1)", href: "#region" },
+	{
+		label: "Custom domain",
+		line: "Mail and links go out from it.",
+		title: { tone: "done", label: "Verified" },
+		href: "#domain",
+	},
+	{
+		label: "Plan",
+		line: "Your organisation manages it.",
+		title: "Business",
+	},
+	{
+		label: "Retention",
+		line: "How long a deleted workspace, its members, its history and every file it held stay recoverable before they are removed for good; after that date nothing can bring them back.",
+		title: "30 days",
+	},
+	{
+		label: "Contract end",
+		title: "31 Dec 2026",
+		lock: { reason: "Held by CR-12, Ana", href: "#cr-12" },
+	},
+	{
+		label: "Contract renewal",
+		line: "Renewal opens sixty days before the contract ends and closes a week after.",
+		title: "1 Nov 2026",
+		lock: { reason: "Held by CR-12, Ana", href: "/requests/cr-12" },
+	},
+	{
+		label: "Billing contact",
+		title: "ana@acme.test",
+		lock: { reason: "Set by your organisation" },
+	},
+	{ label: "Expected spend", title: "No history yet" },
+	{
+		label: "Only what changed since you last looked",
+		switch: { checked: true, onChange: act },
+	},
+	{
+		label: "Billing cycle",
+		line: "When the invoice is drawn and the card charged.",
+		pick: CYCLE,
+	},
+];
 
 // A change set's facts, one of every kind.
 export const FACT_CHANGES: Row[] = [
@@ -986,36 +972,38 @@ export const FACT_CHANGES: Row[] = [
 
 const LONG = "docs/billing/payment-terms-and-late-invoices.md";
 
-// Board 51's review list at a list Pane's width, the long path cut.
 const file = (item: Omit<FileItem, "key">, prefix = ""): Row => ({
 	key: prefix + item.path,
 	...item,
 });
 
+const INVOICE = {
+	path: "src/billing/invoice.ts",
+	added: 4,
+	removed: 2,
+	href: "#invoice",
+};
+const TERMS = {
+	path: "src/billing/terms.ts",
+	added: 7,
+	removed: 0,
+	href: "#terms",
+};
+const INVOICE_TEST = {
+	path: "src/billing/invoice.test.ts",
+	added: 18,
+	removed: 3,
+	href: "#invoice-test",
+};
+const DOCS = { path: LONG, added: 2, removed: 1, href: "#docs" };
+
+// Board 51's review list at a list Pane's width, the long path cut.
 export const REVIEW: Row[] = (
 	[
-		{
-			path: "src/billing/invoice.ts",
-			added: 4,
-			removed: 2,
-			seen: true,
-			href: "#invoice",
-		},
-		{
-			path: "src/billing/terms.ts",
-			added: 7,
-			removed: 0,
-			seen: false,
-			href: "#terms",
-		},
-		{
-			path: "src/billing/invoice.test.ts",
-			added: 18,
-			removed: 3,
-			seen: false,
-			href: "#invoice-test",
-		},
-		{ path: LONG, added: 2, removed: 1, seen: false, href: "#docs" },
+		{ ...INVOICE, seen: true },
+		{ ...TERMS, seen: false },
+		{ ...INVOICE_TEST, seen: false },
+		{ ...DOCS, seen: false },
 	] satisfies Omit<FileItem, "key">[]
 ).map((item) => file(item));
 
@@ -1054,56 +1042,21 @@ export const CHIPPED: Row[] = (
 // The seen marks given, then absent (the file glyph).
 export const FILES: Row[] = (
 	[
-		{
-			path: "src/billing/terms.ts",
-			added: 7,
-			removed: 0,
-			seen: false,
-			href: "#terms",
-		},
-		{
-			path: "src/billing/invoice.ts",
-			added: 4,
-			removed: 2,
-			seen: true,
-			href: "#invoice",
-		},
-		{
-			path: "src/billing/invoice.test.ts",
-			added: 18,
-			removed: 3,
-			href: "#invoice-test",
-		},
-		{ path: LONG, added: 2, removed: 1, href: "#docs" },
+		{ ...TERMS, seen: false },
+		{ ...INVOICE, seen: true },
+		INVOICE_TEST,
+		DOCS,
 	] satisfies Omit<FileItem, "key">[]
 ).map((item) => file(item));
 
-// The open file's row current (its href is the page's own path) between two
-// that open elsewhere.
-export function openFiles(): Row[] {
+// The open file's row current (its href is `here`, the page's own path)
+// between two that open elsewhere.
+export function openFiles(here: string): Row[] {
 	return (
 		[
-			{
-				path: "src/billing/invoice.ts",
-				added: 4,
-				removed: 2,
-				seen: true,
-				href: "#invoice",
-			},
-			{
-				path: "src/billing/terms.ts",
-				added: 7,
-				removed: 0,
-				seen: true,
-				href: location.pathname,
-			},
-			{
-				path: "src/billing/invoice.test.ts",
-				added: 18,
-				removed: 3,
-				seen: false,
-				href: "#invoice-test",
-			},
+			{ ...INVOICE, seen: true },
+			{ ...TERMS, seen: true, href: here },
+			{ ...INVOICE_TEST, seen: false },
 		] satisfies Omit<FileItem, "key">[]
 	).map((item) => file(item));
 }
@@ -1166,10 +1119,4 @@ export const WORKSPACES: Row[] = [
 	{ key: "w1", title: "Production" },
 	{ key: "w2", title: "Staging" },
 	{ key: "w3", title: "Previews" },
-];
-
-export const PEOPLE: Row[] = [
-	{ key: "Ana Ruiz", title: "Ana Ruiz" },
-	{ key: "Ben Kaya", title: "Ben Kaya" },
-	{ key: "Ema Okafor", title: "Ema Okafor" },
 ];

@@ -28,7 +28,8 @@ export type HeldState = "busy" | "stale" | "paused";
 export const isHeld = (state: string): state is HeldState =>
 	state === "busy" || state === "stale" || state === "paused";
 
-const ROWS: readonly string[] = ["Ana Ruiz", "Ben Kaya", "Ema Okafor"];
+// The names a read answers and a stand-in row draws.
+export const ROWS: readonly string[] = ["Ana Ruiz", "Ben Kaya", "Ema Okafor"];
 
 const made = new Map<string, Reads>();
 
@@ -97,7 +98,7 @@ export function readsAt(key: string): Reads {
 	return reads;
 }
 
-export const { waiting, failing, missing, empty, ready } = readsAt("");
+export const { waiting, ready } = readsAt("");
 
 /** A text that never arrives: a leaf given it stays painted. */
 export const waitingText = waiting.at(() => "");

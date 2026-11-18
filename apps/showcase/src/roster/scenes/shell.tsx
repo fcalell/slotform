@@ -9,20 +9,19 @@ import type {
 	PlaceSpec,
 } from "@fcalell/ui-core/descriptors";
 import type { ShowcaseScene } from "../class-sets.ts";
-import { useLoadedTrack } from "./dock.tsx";
-import { MARK } from "./gate.tsx";
 import { StandInList } from "./layout-context.tsx";
+import { MARK } from "./lockup.ts";
 import { ACTIONS, Column, MORE } from "./place.tsx";
+import { act } from "./section-rows.ts";
+import { useLoadedTrack } from "./track.tsx";
 
-const act = () => {};
-
-// The selected place is the page the showcase stands on. It stands under
+// The selected place is the page the showcase stands on (`here`). It stands under
 // Projects, a branch open on the path to it, three levels deep, its middle
 // place's long label cut; the boards' folder is folded,
 // as a branch the viewer has not opened is. Grouped, the Project and Boards
 // places stand in their groups beside the ungrouped ones; ungrouped, in one
 // sidebar.
-function places(grouped: boolean): PlaceSpec[] {
+function places(grouped: boolean, here: string): PlaceSpec[] {
 	return [
 		{ route: "/activity", label: "Activity", icon: "Activity", count: 44 },
 		{
@@ -36,7 +35,7 @@ function places(grouped: boolean): PlaceSpec[] {
 					icon: "Server",
 					children: [
 						{
-							route: location.pathname,
+							route: here,
 							label: "Deploys",
 							icon: "Rocket",
 							count: 2,
@@ -113,7 +112,7 @@ const SWITCHER: OptionPick = {
 	act: { label: "New workspace", icon: "Plus", onAct: act },
 };
 
-// The banner stands over the page's head, so the scene judges the gap under it.
+// The banner stands over the page's head.
 const BANNER = (
 	<Banner
 		tone="failed"
@@ -131,7 +130,7 @@ function Scene({ grouped }: { grouped: boolean }) {
 		<Column>
 			<LockupProvider lockup={MARK}>
 				<Shell
-					places={places(grouped)}
+					places={places(grouped, location.pathname)}
 					groups={grouped ? GROUPS : undefined}
 					banner={BANNER}
 					switcher={SWITCHER}
@@ -155,12 +154,10 @@ function Scene({ grouped }: { grouped: boolean }) {
 	);
 }
 
-// The Shell holding a Panes, one scene per state on the resting row glyph
-// (the rail and the group column, and on touch the places layer's, drawn
-// open) and on the selected one the same Shell with no groups (the one
-// sidebar); the body name class set at rest draws the switcher's pick open. The
-// tab cells are the native shell's and draw no web scene. The other class sets are
-// drawn inside those scenes.
+// The Shell holding a Panes: on the resting row glyph with its groups (the
+// rail and the group column), on the selected one with none (the one sidebar).
+// The tab cells are the native shell's and draw no web scene. The other class
+// sets are drawn inside those scenes.
 export function drawShell(scene: ShowcaseScene) {
 	const classSet = scene.classSet.name;
 	if (classSet === "PLACE_ROW_GLYPH.state.rest") return <Scene grouped />;

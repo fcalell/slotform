@@ -25,6 +25,17 @@ function pick<T extends string>(
 	return options.find((option) => option === value) ?? fallback;
 }
 
+// The mode the URL's `?mode=` asks, `fallback` without one.
+export function askedMode(fallback: ShowcaseMode): ShowcaseMode {
+	const asked = new URLSearchParams(window.location.search).get("mode");
+	return pick(asked, MODES, fallback);
+}
+
+// The `dark` class exactly as the mode script sets it.
+export function applyMode(mode: ShowcaseMode): void {
+	document.documentElement.classList.toggle("dark", mode === "dark");
+}
+
 // The URL decides; without a `mode` the page keeps what the mode script set,
 // and without a `density` it draws the desktop set.
 function readView(): View {
@@ -33,17 +44,16 @@ function readView(): View {
 		? "dark"
 		: "light";
 	return {
-		mode: pick(params.get("mode"), MODES, current),
+		mode: askedMode(current),
 		density: pick(params.get("density"), DENSITIES, "desktop"),
 	};
 }
 
-// The `dark` class exactly as the mode script sets it, and the density pinned
-// on the root. Nothing is stored: the URL holds the view.
+// The mode, and the density pinned on the root. Nothing is stored: the URL
+// holds the view.
 function applyView(view: View): void {
-	const root = document.documentElement;
-	root.classList.toggle("dark", view.mode === "dark");
-	root.dataset.density = view.density;
+	applyMode(view.mode);
+	document.documentElement.dataset.density = view.density;
 }
 
 // The page's own parameters stay.
