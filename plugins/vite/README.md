@@ -26,7 +26,9 @@ there.
 | Subpath | Purpose |
 |---------|---------|
 | `@fcalell/plugin-vite` | `vite()`, `ViteOptions`, `AppPlugin`, `ServerProxyEntry` |
-| `@fcalell/plugin-vite/preset` | `providersPlugin()`, `ProvidersPluginOptions`, `schemaPlugin()`, `SchemaPluginOptions`, `excludedImportsPlugin()` |
+| `@fcalell/plugin-vite/preset` | `providersPlugin()`, `schemaPlugin()`, `excludedImportsPlugin()` |
+| `@fcalell/plugin-vite/node` | `renderViteConfig()`, `ViteConfigValues`, `ServerProxyEntry` |
+| `@fcalell/plugin-vite/csp` | `scriptHash()`, `allowScript()`, `mergeCsp()`, `mergeClientHeader()`, `headerKey()` |
 
 ## License
 

@@ -1,6 +1,6 @@
 # Publishing
 
-The owner's runbook for publishing a release of the sixteen packages to npm. What is published, the
+The owner's runbook for publishing a release of the public packages to npm. What is published, the
 version rule and the check it runs are in [releasing](../architecture/releasing.md).
 
 ## Once per machine
@@ -16,7 +16,7 @@ pnpm install --frozen-lockfile
 pnpm version-packages                            # only after a first release; commit the bump
 pnpm turbo run build                             # JavaScript and .d.ts into every dist/: the one build
 pnpm check                                       # the check
-pnpm release:check                               # tarballs, three consumers, the dry run
+pnpm release:check                               # tarballs, the consumers, the dry run
 pnpm -r publish --dry-run                        # the dry run alone, with the git checks on
 pnpm release                                     # the build again (cached), then pnpm -r publish --access public
 git tag "v$(node -p "require('./packages/cli/package.json').version")"

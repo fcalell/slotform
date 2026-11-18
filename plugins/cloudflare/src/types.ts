@@ -3,8 +3,6 @@ import { z } from "zod";
 
 export const cloudflareOptionsSchema = z.object({}).optional();
 
-export type CloudflareOptions = z.input<typeof cloudflareOptionsSchema>;
-
 export type WranglerBindingSpec =
 	| {
 			kind: "d1";
@@ -33,16 +31,8 @@ export type WranglerBindingSpec =
 	  }
 	| { kind: "var"; name: string; value: string };
 
-export type WranglerRouteSpec = {
-	pattern: string;
-	zone?: string;
-	customDomain?: boolean;
-};
-
 export interface CodegenWranglerPayload {
 	bindings: WranglerBindingSpec[];
-	routes: WranglerRouteSpec[];
-	vars: Record<string, string>;
 	secrets: EnvSpec[];
 	compatibilityDate: string;
 	compatibilityFlags: string[];
@@ -54,7 +44,13 @@ export interface CodegenWranglerPayload {
 	// file's `[[queues.consumers]]` and `[triggers] crons` are checked against them.
 	queueHandler: boolean;
 	scheduledHandler: boolean;
-	// A `stack screens serve` run's config: its own entry, its own copy of the
-	// client build (absolute), and the `/fixture` controls on the worker's paths.
-	serve?: { main: string; clientDir: string };
+	serve?: ServeConfig;
+}
+
+// A `stack screens serve` run's config: its own entry, its own copy of the
+// client build (absolute, null without a web client), and the `/fixture`
+// controls on the worker's paths.
+export interface ServeConfig {
+	main: string;
+	clientDir: string | null;
 }

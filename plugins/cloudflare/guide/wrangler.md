@@ -10,10 +10,10 @@ own go in a root `wrangler.toml`, which generate merges in.
 | Section | Merge |
 | --- | --- |
 | `[[d1_databases]]`, `[[kv_namespaces]]`, `[[analytics_engine_datasets]]`, `[[unsafe.bindings]]`, `compatibility_flags`, `[assets]` | Owned by the plugins: generate fails when the root file has one |
-| `[[routes]]`, `[[r2_buckets]]`, `[[queues.producers]]`, `[[queues.consumers]]` | Yours merge beside the plugins'. A route pattern, a binding name or a consumed queue both sides declare fails generate. The plugins' own queue is one producer `QUEUE` and its consumer, on a queue named `app.name`, present when `src/worker/queue.ts` exists; a root consumer without that file fails generate |
+| `[[routes]]`, `[[r2_buckets]]`, `[[queues.producers]]`, `[[queues.consumers]]` | Yours merge beside the plugins'. A route pattern, a binding name or a consumed queue both sides declare fails generate. The plugins' own queue is one producer `QUEUE` and its consumer, on the queue named after `app.name` (lowercased, every other character run a `-`), present when `src/worker/queue.ts` exists; a root consumer without that file fails generate |
 | `[triggers]` | Copied, and checked against `src/worker/scheduled.ts`: `crons` without the file, or the file with no cron, fails generate |
 | `[browser]` | Copied as written: `binding = "BROWSER"` types `env.BROWSER` |
-| `name`, `compatibility_date`, `main` | Yours win; otherwise `app.name`, the plugin's pinned date and the generated worker |
+| `name`, `compatibility_date`, `main` | Yours win; otherwise `app.name` (lowercased, every other character run a `-`), the plugin's pinned date and the generated worker |
 | `[vars]` | Yours merge with the plugins'; a key both declare fails generate |
 | Anything else (`account_id`, `observability`) | Copied as written |
 

@@ -260,6 +260,5 @@ export function renderViteConfig(values: ViteConfigValues): string {
 		],
 	};
 
-	const rendered = renderTsSourceFile(spec);
-	return rendered;
+	return renderTsSourceFile(spec);
 }

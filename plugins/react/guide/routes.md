@@ -66,8 +66,8 @@ export const Route = createFileRoute("/projects/$projectId")({
 });
 ```
 
-Hovering (50 ms), focusing or touching a link to a route runs its loader and fetches its code,
-so the open that follows is often a cache hit; the query cache's `staleTime` decides whether a
+With `reactUi()` in the config, a pointer or focus resting 50 ms on a link to a route runs its
+loader and fetches its code, so the open that follows is often a cache hit; the query cache's `staleTime` decides whether a
 request goes out.
 Streams, idle reads and reads that take their input from another read's data are not preloaded.
 A search-driven input goes in the route's `loaderDeps`.

@@ -13,8 +13,8 @@ optimizer. The consumer-facing options are plugin-react's guide
 
 `vite.slots.configImports` and `vite.slots.pluginCalls` are the contribution surfaces: a framework
 plugin injects its Vite plugins by contributing into them, and `vite.slots.viteConfig`, a derived
-slot, aggregates everything into `.stack/vite.config.ts`. It is null with no plugin call and no
-import, so a config without Vite never writes an empty file. plugin-vite then contributes a
+slot, aggregates everything into `.stack/vite.config.ts`. It is null without an `outDir`, or with
+no plugin call, import or app-only call, so a config without Vite never writes an empty file. plugin-vite then contributes a
 `vite dev` process and a `vite build` step ([Lifecycle contributions](#lifecycle-contributions)).
 
 Contributions are typed AST specs, `TsImportSpec` for imports and `TsExpression` for plugin calls
@@ -53,7 +53,8 @@ import its expression needs, and the renderer merges them by source
 
 The consumer declares `vite` (the plugin's `devDependencies`) and its generated config imports it,
 so the one Vite that runs is the consumer's, resolved from its own directory: no PATH or registry
-lookup stands in. The bin is not an exported subpath, so it is read from the package's manifest.
+lookup stands in, and `stack dev` and `stack build` fail with the install step when the consumer has
+none. The bin is not an exported subpath, so it is read from the package's manifest.
 
 ## App-only plugin calls
 
@@ -144,14 +145,16 @@ allowed by hash are [Mode script and CSP](./react-ui.md#mode-script-and-csp) and
 
 ## Preset
 
-The `./preset` subpath exports the node-side Vite plugins the generated config runs:
+The `./preset` subpath exports the node-side Vite plugins the generated config runs. The two
+virtual modules resolve their file against the working directory, the consumer root every `stack`
+command runs Vite from:
 
-- `providersPlugin(opts?)` resolves `virtual:stack-providers` to the generated
+- `providersPlugin()` resolves `virtual:stack-providers` to the generated
   `.stack/virtual-providers.tsx` when plugins have contributed providers, or to a pass-through stub
   otherwise. plugin-vite is framework-agnostic, so the stub imports no framework runtime: the
   consumer's JSX transform compiles `props.children` with whatever pragma is active (React,
   Preact).
-- `schemaPlugin(opts?)` resolves `virtual:stack-schema` to the generated `.stack/schema.ts`: each
+- `schemaPlugin()` resolves `virtual:stack-schema` to the generated `.stack/schema.ts`: each
   procedure's input as JSON Schema, written by `stack generate`, which a `Form` derives its fields
   from ([Schema](./api.md#schema)). Before the first generate, or without plugin-api, it is an empty
   record.
@@ -172,7 +175,7 @@ The `./preset` subpath exports the node-side Vite plugins the generated config r
 - **Include.** The optimizer's scan stops at a package in `optimizeDeps.exclude`, so what that
   package imports is found when a page first loads it, bundled then, and the page reloads (a screens
   run fails on "Vite unexpectedly reloaded a test"). `excludedImportsPlugin` adds those imports to
-  `optimizeDeps.include` by reading the packages: from each one's raw source exports (`./src/*.ts(x)`,
+  `optimizeDeps.include` by reading the packages: from each one's raw source exports (`./src/*` JavaScript or TypeScript,
   the reason it is served raw), through the files they import, to the bare specifiers they reach, so
   the list cannot go stale.
 - **UI source.** Stack's UI subpaths export `.tsx` source, and Vite's dev optimizer pre-bundles only

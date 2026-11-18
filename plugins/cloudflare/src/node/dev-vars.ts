@@ -16,7 +16,12 @@ function escapeRegExp(text: string): string {
 	return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-// Whether a `.dev.vars` file already assigns `name` on a line of its own.
+// Whether a `.dev.vars` file already assigns `name` on a line of its own, in
+// any form wrangler's dotenv parser reads: `export ` before it, blanks
+// around `=`, or `NAME: value`.
 export function declaresDevVar(content: string, name: string): boolean {
-	return new RegExp(`^${escapeRegExp(name)}=`, "m").test(content);
+	return new RegExp(
+		`^[ \\t]*(?:export[ \\t]+)?${escapeRegExp(name)}(?:[ \\t]*=|:[ \\t])`,
+		"m",
+	).test(content);
 }

@@ -23,8 +23,8 @@
 			"default": "./dist/index.js"
 		},
 		"./codegen": {
-			"types": "./dist/node/codegen.d.ts",
-			"default": "./dist/node/codegen.js"
+			"types": "./dist/node/router-plugin.d.ts",
+			"default": "./dist/node/router-plugin.js"
 		},
 		"./node/refresh": {
 			"types": "./dist/node/refresh.d.ts",

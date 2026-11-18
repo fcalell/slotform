@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { plugin, slot } from "@fcalell/cli";
 import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
 import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
+import { StackError } from "@fcalell/cli/errors";
 import { api } from "@fcalell/plugin-api";
 import { z } from "zod";
 import { renderViteConfig } from "./node/codegen.ts";
@@ -20,19 +21,24 @@ const viteManifestSchema = z.object({ bin: z.object({ vite: z.string() }) });
 
 // The consumer's own vite: docs/architecture/plugins/vite.md, "How it works".
 function viteBin(cwd: string): string {
-	const own = createRequire(import.meta.url);
 	const consumer = createRequire(join(cwd, "package.json"));
 	let manifest: string;
 	try {
 		manifest = consumer.resolve("vite/package.json");
-	} catch {
-		// A consumer that has not installed its vite yet, or a graph built
-		// with no consumer directory, runs the plugin's own.
-		manifest = own.resolve("vite/package.json");
+	} catch (err) {
+		if (
+			!(err instanceof Error && "code" in err) ||
+			err.code !== "MODULE_NOT_FOUND"
+		)
+			throw err;
+		throw new StackError(
+			"vite is not installed in this app: run `pnpm install` (vite is in its devDependencies), then retry.",
+			"VITE_NOT_INSTALLED",
+		);
 	}
 	return join(
 		dirname(manifest),
-		viteManifestSchema.parse(own(manifest)).bin.vite,
+		viteManifestSchema.parse(consumer(manifest)).bin.vite,
 	);
 }
 
@@ -132,8 +138,8 @@ const clientHeaders = slot.map<string>({
 	merge: mergeClientHeader,
 });
 
-// Null with no plugin call and no import, so a vite-less config never writes an
-// empty file.
+// Null without an `outDir`, or with no plugin call, import or app-only call,
+// so a vite-less config never writes an empty file.
 const viteConfig = slot.derived({
 	source: SOURCE,
 	name: "viteConfig",

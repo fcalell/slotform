@@ -12,7 +12,7 @@ and route conventions are the guide (`plugins/react/guide/`), and the slots are 
 
 | File | Slot | Content |
 |------|------|---------|
-| `.stack/entry.tsx` | `react.slots.entrySource` | `createRouter({ routeTree })` mounted as `<StrictMode><Providers><RouterProvider /></Providers></StrictMode>` |
+| `.stack/entry.tsx` | `react.slots.entrySource` | `createRouter({ routeTree, defaultPreloadStaleTime: 0 })` with a stand-in query client in its context, mounted as `<StrictMode><Providers><App /></Providers></StrictMode>`, where `App` hands `RouterProvider` the query client `Providers` made |
 | `.stack/index.html` | `react.slots.htmlSource` | The shell with the `<head>` injections and the entry script |
 | `.stack/virtual-providers.tsx` | `react.slots.providersSource` | The contributed providers, served as `virtual:stack-providers` |
 | `.stack/routes.d.ts` | `react.slots.routesDtsSource` | The router's `Register` declaration |
@@ -113,11 +113,12 @@ compiler's and React Refresh's reach by default, and `OTHER_DEPENDENCY` and `COM
 (`@fcalell/cli/compiled-source`) widen each to let `@fcalell` packages through while every other
 dependency stays out:
 
-- `react()` leaves every `/node_modules/` path out of React Refresh (`exclude`).
-- `babel()` leaves every `/node_modules/` path out of Babel (`exclude`, which also keeps Rolldown's
-  runtime helper module out, as the plugin's default `exclude` does).
-- The compiler skips any filename holding `node_modules` (`sources`, a positive test, so it is the
-  same pattern wrapped in a negative lookahead).
+- `react()`'s default `exclude` leaves every `/node_modules/` path out of React Refresh; stack's is
+  `OTHER_DEPENDENCY`.
+- `babel()`'s default `exclude` leaves every `/node_modules/` path out of Babel; stack's is
+  `OTHER_DEPENDENCY` and Rolldown's runtime helper module, which the default also keeps out.
+- The compiler's default skips any filename holding `node_modules`; stack's `sources` is
+  `COMPILED_SOURCE`, a positive test, so it is the same pattern wrapped in a negative lookahead.
 
 plugin-react's Vite config and plugin-expo's `babel.config.cjs` both read it, so the web and the
 phone compile the same code ([Config files are .cjs](./expo.md#config-files-are-cjs)). It is
@@ -126,7 +127,8 @@ internal, not a documented surface.
 ## In the code
 
 - `plugins/react/src/index.ts`: the plugin, its slots and contributions.
-- `plugins/react/src/node/codegen.ts`: the providers module and the router plugin call.
+- `plugins/react/src/node/codegen.ts`: the entry and the providers module.
+- `plugins/react/src/node/router-plugin.ts`: the router plugin call, `@fcalell/plugin-react/codegen`.
 - `plugins/react/src/node/routes.ts`: `.stack/routes.d.ts` and the route segments.
 - `plugins/react/src/node/refresh.ts`: `refreshPolicyPlugin`.
 - `packages/cli/src/lib/compiled-source.ts`: `COMPILED_SOURCE`, the React Compiler's filters.

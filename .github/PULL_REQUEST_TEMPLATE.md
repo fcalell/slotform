@@ -5,5 +5,5 @@
 ## Checklist
 
 - [ ] `pnpm check` passes
-- [ ] A slot added, renamed, removed or reshaped updates `docs/architecture/slot-catalog.md`
+- [ ] Every rule in `CLAUDE.md`'s Rules holds
 - [ ] A user-facing change has a changeset (`pnpm changeset`)

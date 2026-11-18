@@ -1,11 +1,12 @@
 import type { ContributionCtx } from "@fcalell/cli";
 import { plugin, slot } from "@fcalell/cli";
-import type {
-	HtmlInjection,
-	ProviderSpec,
-	ScaffoldSpec,
-	TsExpression,
-	TsImportSpec,
+import {
+	type HtmlInjection,
+	type ProviderSpec,
+	renderHtml,
+	type ScaffoldSpec,
+	type TsExpression,
+	type TsImportSpec,
 } from "@fcalell/cli/ast";
 import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
 import {
@@ -13,12 +14,8 @@ import {
 	OTHER_DEPENDENCY,
 } from "@fcalell/cli/compiled-source";
 import { type AppPlugin, vite } from "@fcalell/plugin-vite";
-import {
-	aggregateEntry,
-	aggregateHtml,
-	aggregateProviders,
-	routerPluginFor,
-} from "./node/codegen.ts";
+import { aggregateEntry, aggregateProviders } from "./node/codegen.ts";
+import { routerPluginFor } from "./node/router-plugin.ts";
 import {
 	generateRouteTree,
 	ROUTES_DTS,
@@ -81,7 +78,6 @@ const mountExpression = slot.value<Mount | null>({
 	seed: () => null,
 });
 
-// The HTML shell template file; override lets a peer swap the shell.
 const htmlShell = slot.value<URL | null>({
 	source: SOURCE,
 	name: "htmlShell",
@@ -155,24 +151,29 @@ const entrySource = slot.derived({
 	source: SOURCE,
 	name: "entrySource",
 	inputs: { imports: entryImports, mount: mountExpression },
-	compute: (inp): string | null =>
-		aggregateEntry({ imports: inp.imports, mount: inp.mount }),
+	compute: (inp): string | null => aggregateEntry(inp),
 });
 
 const htmlSource = slot.derived({
 	source: SOURCE,
 	name: "htmlSource",
 	inputs: { shell: htmlShell, head: htmlHead, bodyEnd: htmlBodyEnd },
-	compute: (inp): Promise<string | null> =>
-		aggregateHtml({ shell: inp.shell, head: inp.head, bodyEnd: inp.bodyEnd }),
+	// Null when no plugin claims a shell.
+	compute: async (inp): Promise<string | null> =>
+		inp.shell === null
+			? null
+			: renderHtml({
+					shellSource: inp.shell,
+					head: inp.head,
+					bodyEnd: inp.bodyEnd,
+				}),
 });
 
 const providersSource = slot.derived({
 	source: SOURCE,
 	name: "providersSource",
 	inputs: { providers },
-	compute: (inp): string | null =>
-		aggregateProviders({ providers: inp.providers }),
+	compute: (inp): string | null => aggregateProviders(inp.providers),
 });
 
 const routesDtsSource = slot.derived({
@@ -516,4 +517,4 @@ export const react = plugin("react", {
 	],
 });
 
-export type { AppIcon, Mount, ReactOptions, RouterOptions } from "./types.ts";
+export type { Mount, RouterOptions } from "./types.ts";

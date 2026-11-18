@@ -54,11 +54,21 @@ const { values } = parseArgs({
 	},
 });
 
+const only = values.only?.split(",");
+const unknown = only?.filter((name) => !CONSUMERS.some((c) => c.name === name));
+if (unknown && unknown.length > 0) {
+	throw new Error(
+		`--only names no consumer: ${unknown.join(", ")} (the consumers: ${CONSUMERS.map((c) => c.name).join(", ")})`,
+	);
+}
+
 const out = resolve(
 	values.out ?? mkdtempSync(join(tmpdir(), "stack-release-check-")),
 );
 const tarballs = join(out, "tarballs");
 const logs = join(out, "logs");
+// A reused `--out` keeps no tarball of an earlier version or a removed package.
+rmSync(tarballs, { recursive: true, force: true });
 mkdirSync(tarballs, { recursive: true });
 mkdirSync(logs, { recursive: true });
 
@@ -215,7 +225,6 @@ function copies(lockfile: string): Map<string, number> {
 	return counts;
 }
 
-const only = values.only?.split(",");
 const cli = join(root, "packages/cli/dist/cli.js");
 const consumersDir = join(out, "consumers");
 for (const consumer of CONSUMERS) {

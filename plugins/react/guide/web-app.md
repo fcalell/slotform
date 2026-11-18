@@ -52,8 +52,8 @@ in production. The API client and the auth client therefore take no `baseURL` an
 
 A stack app is never framed. In dev, on Cloudflare and on node, every document and asset carries
 `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options: DENY`, and there is no
-option to allow embedding. On Cloudflare a `public/_headers` fails the build, because stack writes
-the file itself.
+option to allow embedding. A `public/_headers` on Cloudflare: cloudflare's deploy page
+(`node_modules/@fcalell/plugin-cloudflare/guide/deploy.md`).
 
 ## Files the app owns
 

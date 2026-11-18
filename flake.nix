@@ -15,9 +15,9 @@
 
         default = pkgs.mkShell {
           packages = [
-            # engines.node is ">=24.14.0" (`path.matchesGlob` is stable from 22.20).
+            # The Node line `engines.node` in package.json allows.
             pkgs.nodejs_24
-            # Provides the `pnpm` shim that honours packageManager (pnpm@11.28.4).
+            # Provides the `pnpm` shim that honours package.json's packageManager.
             pkgs.corepack
 
             # turbo runs check-types across the workspace (root `pnpm check`).

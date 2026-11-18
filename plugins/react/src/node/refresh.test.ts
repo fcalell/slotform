@@ -4,8 +4,10 @@ import { scriptHash } from "@fcalell/plugin-vite/csp";
 import type { UserConfig } from "vite";
 import { refreshPolicyPlugin } from "./refresh.ts";
 
+// A second placeholder: @vitejs/plugin-react fills only the first, and the hash
+// must be of the preamble it serves.
 const PREAMBLE = `import { injectIntoGlobalHook } from "__BASE__@react-refresh";
-injectIntoGlobalHook(window);`;
+injectIntoGlobalHook(window); // __BASE__`;
 
 // The hook reads neither `this` nor its `env` argument.
 const configHook = refreshPolicyPlugin(PREAMBLE).config as unknown as (
@@ -18,7 +20,9 @@ const withPolicy = (policy: string, base?: string): UserConfig => ({
 });
 
 test("the dev server's script-src allows the preamble the page carries", () => {
-	const hash = scriptHash(PREAMBLE.replace("__BASE__", "/"));
+	const hash =
+		scriptHash(`import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window); // __BASE__`);
 	assert.deepEqual(
 		configHook(withPolicy("frame-ancestors 'none'; script-src 'self'")),
 		{
@@ -32,7 +36,9 @@ test("the dev server's script-src allows the preamble the page carries", () => {
 });
 
 test("the preamble is hashed with the config's base", () => {
-	const hash = scriptHash(PREAMBLE.replace("__BASE__", "/app/"));
+	const hash =
+		scriptHash(`import { injectIntoGlobalHook } from "/app/@react-refresh";
+injectIntoGlobalHook(window); // __BASE__`);
 	assert.equal(
 		configHook(withPolicy("script-src 'self'", "/app/"))?.server?.headers?.[
 			"Content-Security-Policy"

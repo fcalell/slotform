@@ -84,20 +84,15 @@ export function aggregateWrangler(opts: {
 		entries: Record<string, TomlValue>;
 	}> = [];
 
-	// (3) Consumer pass-through — copy every consumer key that isn't a
-	// framework-managed list. Framework-defaulted scalars survive this step
-	// (consumer wins) and are filled in by step (2) only when missing.
+	// Every other consumer key passes through, `[vars]` too: the var bindings
+	// overlay it below.
 	for (const [k, v] of Object.entries(consumerParsed)) {
 		if (FRAMEWORK_MANAGED.has(k)) continue;
 		if (CONSUMER_MERGED_LISTS.has(k)) continue;
-		// `vars` is special: consumer keys pass through here, framework keys
-		// will overlay below with collision checks.
 		root[k] = v;
 	}
 
-	// (2) Framework defaults — fill any framework-defaulted scalar the consumer
-	// didn't set. The bug fix lives here: previously `compatibility_date` and
-	// `name` were only populated when no consumer file existed at all.
+	// The framework-defaulted scalars the consumer did not set.
 	const fallbackName = sanitizeWranglerName(opts.name ?? "stack-app");
 	if (root.name === undefined) {
 		root.name = fallbackName;
@@ -129,13 +124,9 @@ export function aggregateWrangler(opts: {
 	}
 	if (opts.payload.serve) root.main = opts.payload.serve.main;
 
-	// (1) Framework-managed list overlay — push every binding/route/flag the
-	// plugins contributed. Consumer-side versions of these sections were
-	// rejected upstream by `rejectFrameworkManagedSections`, so we own these
-	// arrays. `compatibility_flags` is a flat array (not an array-of-tables),
-	// so it's assigned onto `root` directly rather than via `arrayTables`.
-	// Deduped + sorted so output is deterministic regardless of contribution
-	// order; omitted entirely when nothing was contributed.
+	// The framework-managed sections, which the consumer's file cannot hold
+	// (`rejectFrameworkManagedSections`). `compatibility_flags` is a flat
+	// array, deduped and sorted, omitted when nothing was contributed.
 	if (opts.payload.compatibilityFlags.length > 0) {
 		root.compatibility_flags = [
 			...new Set(opts.payload.compatibilityFlags),
@@ -143,8 +134,8 @@ export function aggregateWrangler(opts: {
 	}
 
 	// The web client's build, served for every path the worker does not own.
-	// `directory` resolves against `.stack/`, where the config lands.
-	if (opts.payload.clientDir !== null) {
+	const assetsDir = assetsDirectory(opts.payload);
+	if (assetsDir !== null) {
 		// Each prefix bare and with `/*`: `/mcp/*` alone misses `/mcp`, which
 		// the web client's fallback would answer.
 		const runWorkerFirst = [
@@ -156,9 +147,7 @@ export function aggregateWrangler(opts: {
 			),
 		].sort();
 		root.assets = {
-			directory:
-				opts.payload.serve?.clientDir ??
-				posix.join("..", posix.normalize(opts.payload.clientDir)),
+			directory: assetsDir,
 			not_found_handling: "single-page-application",
 			...(runWorkerFirst.length > 0 && { run_worker_first: runWorkerFirst }),
 		};
@@ -181,46 +170,30 @@ export function aggregateWrangler(opts: {
 		arrayTables.push({ path: ["queues", "consumers"], entries: entry });
 	}
 
-	const seenRoutePatterns = new Map<string, string>();
-	const pushRoute = (
-		entry: Record<string, TomlValue>,
-		originOf: string,
-	): void => {
-		const pattern = String(entry.pattern);
-		const prior = seenRoutePatterns.get(pattern);
-		if (prior) {
-			throw new Error(
-				`Duplicate wrangler route pattern "${pattern}" (${prior} vs ${originOf}). Remove one side.`,
-			);
-		}
-		seenRoutePatterns.set(pattern, originOf);
-		arrayTables.push({ path: ["routes"], entries: entry });
-	};
-
-	for (const route of opts.payload.routes) {
-		if (typeof route.pattern !== "string" || route.pattern.length === 0) {
-			throw new Error(
-				`Invalid wrangler route: pattern is required and must be a non-empty string (got ${JSON.stringify(
-					route.pattern,
-				)}).`,
-			);
-		}
-		const entry: Record<string, TomlValue> = { pattern: route.pattern };
-		if (route.zone !== undefined) entry.zone = route.zone;
-		if (route.customDomain !== undefined)
-			entry.custom_domain = route.customDomain;
-		pushRoute(entry, "plugin contribution");
-	}
-
+	const routePatterns = new Set<string>();
 	for (const entry of consumerRoutes) {
-		pushRoute(entry, "consumer wrangler.toml");
+		const pattern = String(entry.pattern);
+		if (routePatterns.has(pattern)) {
+			throw new Error(
+				`Duplicate wrangler route pattern "${pattern}" in wrangler.toml. Remove one.`,
+			);
+		}
+		routePatterns.add(pattern);
+		arrayTables.push({ path: ["routes"], entries: entry });
 	}
 
 	overlayVars(root, opts.payload);
 
 	const doc: TomlDocument = { root, arrayTables };
-	const out = renderToml(doc);
-	return out;
+	return renderToml(doc);
+}
+
+// `[assets] directory`, which resolves against `.stack/`, where the config
+// lands; a serve run names its own copy of the client build.
+function assetsDirectory(payload: CodegenWranglerPayload): string | null {
+	if (payload.serve) return payload.serve.clientDir;
+	if (payload.clientDir === null) return null;
+	return posix.join("..", posix.normalize(payload.clientDir));
 }
 
 function parseConsumerWrangler(
@@ -453,49 +426,22 @@ function assertNoConsumerQueueCollisions(
 	}
 }
 
+// `[vars]`: the consumer's keys and the var bindings, each key from one source.
 function overlayVars(
 	root: Record<string, TomlValue>,
 	payload: CodegenWranglerPayload,
 ): void {
-	const consumerVarsRaw = root.vars;
-	const consumerVars: Record<string, TomlValue> =
-		consumerVarsRaw &&
-		typeof consumerVarsRaw === "object" &&
-		!Array.isArray(consumerVarsRaw)
-			? { ...consumerVarsRaw }
-			: {};
-
-	const frameworkVarBindings = payload.bindings.filter(
+	const raw = root.vars ?? {};
+	if (typeof raw !== "object" || Array.isArray(raw)) {
+		throw new Error("Invalid wrangler.toml: `vars` must be a table.");
+	}
+	const varBindings = payload.bindings.filter(
 		(b): b is Extract<WranglerBindingSpec, { kind: "var" }> => b.kind === "var",
 	);
-	const frameworkExtraVars = payload.vars;
-	const frameworkSecrets = payload.secrets;
-
-	const hasFrameworkVars =
-		frameworkVarBindings.length > 0 ||
-		Object.keys(frameworkExtraVars).length > 0;
-
-	if (!hasFrameworkVars && Object.keys(consumerVars).length === 0) {
-		if (consumerVarsRaw === undefined) return;
-		root.vars = consumerVars;
-		return;
-	}
-
-	// Detect collisions between consumer-supplied vars and framework keys.
-	const collisions: Array<{
-		key: string;
-		consumer: string;
-		framework: string;
-	}> = [];
-	const recordCollision = (key: string, framework: string) => {
-		if (key in consumerVars) {
-			collisions.push({ key, consumer: "consumer var", framework });
-		}
-	};
-	for (const v of frameworkVarBindings) recordCollision(v.name, "var binding");
-	for (const k of Object.keys(frameworkExtraVars))
-		recordCollision(k, "extra var");
-	for (const s of frameworkSecrets) recordCollision(s.name, "secret");
+	const collisions = [
+		...varBindings.map((v) => ({ key: v.name, framework: "var binding" })),
+		...payload.secrets.map((s) => ({ key: s.name, framework: "secret" })),
+	].filter((c) => c.key in raw);
 	if (collisions.length > 0) {
 		const lines = collisions.map(
 			(c) => `  - "${c.key}" (consumer wrangler.toml [vars] vs ${c.framework})`,
@@ -506,15 +452,11 @@ function overlayVars(
 			)}\nRemove the consumer-side entry or rename the contributor.`,
 		);
 	}
-
-	const merged: Record<string, TomlValue> = { ...consumerVars };
-	for (const [k, v] of Object.entries(frameworkExtraVars)) {
-		merged[k] = v;
-	}
-	for (const v of frameworkVarBindings) {
-		merged[v.name] = v.value;
-	}
-	root.vars = merged;
+	if (varBindings.length === 0) return;
+	root.vars = {
+		...raw,
+		...Object.fromEntries(varBindings.map((v) => [v.name, v.value])),
+	};
 }
 
 // ── Namespace collision detection ────────────────────────────────────
@@ -530,8 +472,7 @@ type NamespaceKind =
 	| "analytics_engine dataset"
 	| "rate_limiter binding"
 	| "var"
-	| "secret"
-	| "extra var";
+	| "secret";
 
 interface NamespaceEntry {
 	kind: NamespaceKind;
@@ -579,8 +520,6 @@ function assertNoNamespaceCollisions(
 	for (const b of consumerQueueBindings)
 		push(b, { kind: "queue producer (consumer wrangler.toml)" });
 	for (const s of payload.secrets) push(s.name, { kind: "secret" });
-	for (const name of Object.keys(payload.vars))
-		push(name, { kind: "extra var" });
 
 	const conflicts: Array<{ id: string; entries: NamespaceEntry[] }> = [];
 	for (const [id, entries] of seen) {
@@ -616,11 +555,9 @@ function appendBindingsToTables(
 	workerName: string,
 ): void {
 	// Canonical order: docs/architecture/plugins/cloudflare.md, "wrangler.toml determinism".
-	const bindings = [...rawBindings].sort((a, b) => {
-		const nameOf = (x: WranglerBindingSpec) =>
-			x.kind === "var" ? x.name : x.binding;
-		return nameOf(a).localeCompare(nameOf(b));
-	});
+	const bindings = [...rawBindings].sort((a, b) =>
+		idFor(a).localeCompare(idFor(b)),
+	);
 	for (const b of bindings) {
 		if (b.kind !== "d1") continue;
 		const entry: Record<string, TomlValue> = {
@@ -692,14 +629,9 @@ function appendBindingsToTables(
 	for (const b of bindings) {
 		if (b.kind !== "rate_limiter") continue;
 		const { limit, period } = b.simple;
-		if (
-			!Number.isInteger(limit) ||
-			limit <= 0 ||
-			!Number.isInteger(period) ||
-			period <= 0
-		) {
+		if (!Number.isInteger(limit) || limit <= 0) {
 			throw new Error(
-				`Invalid rate_limiter "${b.binding}": limit and period must be positive integers (got limit=${limit}, period=${period}).`,
+				`Invalid rate_limiter "${b.binding}": limit must be a positive integer (got limit=${limit}).`,
 			);
 		}
 		// Cloudflare rate-limiter bindings only accept period 10 or 60 (seconds).

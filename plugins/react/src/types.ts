@@ -1,9 +1,4 @@
-import type {
-	HtmlInjection,
-	ProviderSpec,
-	TsExpression,
-	TsImportSpec,
-} from "@fcalell/cli/ast";
+import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
 import { z } from "zod";
 
 export const reactOptionsSchema = z.object({
@@ -68,16 +63,4 @@ export interface CodegenEntryPayload {
 	imports: TsImportSpec[];
 	// The mount, or null to skip entry.tsx.
 	mount: Mount | null;
-}
-
-export interface CodegenHtmlPayload {
-	shell: URL | null;
-	head: HtmlInjection[];
-	bodyEnd: HtmlInjection[];
-}
-
-// ── Composition payload types (owned by plugin-react) ───────────────
-
-export interface CompositionProvidersPayload {
-	providers: ProviderSpec[];
 }

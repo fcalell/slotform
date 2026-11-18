@@ -18,8 +18,7 @@
 			"!**/.stack",
 			"!**/.claude/worktrees",
 			"!**/storybook-static",
-			"!**/coverage",
-			"!**/routeTree.gen.ts"
+			"!**/coverage"
 		]
 	},
 	"formatter": {

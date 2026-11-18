@@ -44,7 +44,7 @@ const project = (id: string) => orpc.projects.get.read({ id });
 
 Warm it in the route's `loader` with `preload` from `@fcalell/plugin-query/preload`, giving it
 the query client the loader finds in `context`, and build the component's read through the same
-function. Hovering or focusing a link to the route
+function. With `reactUi()`, a pointer or focus resting on a link to the route
 then preloads it. Page: [routes](./routes.md), preloading.
 
 ```tsx

@@ -8,7 +8,7 @@ a version is [consumer version move](../procedures/consumer-version-move.md).
 
 ## What is published
 
-Sixteen packages, all `@fcalell/*`, all at one version:
+The packages below, all `@fcalell/*`, all at one version:
 
 | Package | Directory | A consumer installs it because |
 |---------|-----------|--------------------------------|
@@ -45,7 +45,7 @@ holds each entry to the package's own manifest.
 ## The version rule
 
 - **One version for every public package** (`fixed` in `.changeset/config.json`). A release
-  publishes all sixteen or none, never a subset.
+  publishes all of them or none, never a subset.
 - **Stack-to-stack ranges are carets of that version.** A package depends on another with
   `workspace:^`, which `pnpm pack` and `pnpm publish` write as `^<version>`. On `0.x` a caret holds
   the minor (`^0.1.0` is `>=0.1.0 <0.2.0`), so a breaking change bumps the minor and everything
@@ -110,26 +110,26 @@ builds. There is no `prepublishOnly`.
 it publishes nothing.
 
 1. It builds every package (`turbo run build`; `--no-build` skips it when they are built).
-2. It packs the sixteen public packages and checks each tarball: MIT, a LICENSE, a
+2. It packs every public package and checks each tarball: not `private`, MIT, a LICENSE, a
    `repository.directory`, `publishConfig.access: public`, no `workspace:` range left, no test
-   file, every `exports` and `bin` target present.
-3. It makes three consumers with `stack init`, each installing **only** from the tarballs
-   (`overrides` to `file:` tarballs in the consumer's `pnpm-workspace.yaml`, which is what the
-   registry will serve), so no workspace link and no registry copy of a stack package stands in
-   for a tarball:
-   - `web`: cloudflare, db, auth, api, query, vite, react, react-ui, screens;
-   - `node`: node, db, auth, api, query, vite, react, react-ui, screens;
-   - `native`: expo, native-ui, db, auth, api, query, cloudflare.
-4. On each it runs `stack generate`, `stack build` (not on `native`) and `tsc -b`, and counts the
-   copies of each stack package in the lockfile.
+   file, every `exports` and `bin` target present. Across them: one version, and every plugin
+   installed by at least one consumer, since a plugin none installs is never generated or
+   type-checked.
+3. It makes the consumers `CONSUMERS` in the script lists, each with its plugins, with
+   `stack init`, each installing **only** from the tarballs (`overrides` to `file:` tarballs in
+   the consumer's `pnpm-workspace.yaml`, which is what the registry will serve), so no workspace
+   link and no registry copy of a stack package stands in for a tarball.
+4. On each it runs `stack generate`, `stack build` and `tsc -b` where its entry says so, and counts
+   the copies of each stack package in the lockfile.
 5. It ends with `pnpm -r publish --dry-run`.
 
 `node scripts/release-check.ts [--out <dir>] [--only web,node,native] [--keep] [--no-build]`:
 `--out` is where the tarballs, the consumers and the logs go (a fresh directory under the system
-temp directory by default, printed); `--only` narrows the consumers; `--keep` keeps each consumer's
+temp directory by default, printed; a reused one has its tarballs emptied first); `--only` narrows
+the consumers, and a name that is no consumer fails at once; `--keep` keeps each consumer's
 `node_modules`, which are otherwise removed after the consumer is checked, to spare the disk.
 
-All three consumers type-check, the native one included: `plugin-auth`'s `src/expo.tsx` ships as
+Every consumer type-checks, the native one included: `plugin-auth`'s `src/expo.tsx` ships as
 source, so an app's `tsc` reads it, and it names no type from `expo-apple-authentication` or
 `@react-native-google-signin/google-signin`, optional peers that an app signing in by the browser
 installs neither of. It declares the little it uses of each and casts the dynamic import to it.

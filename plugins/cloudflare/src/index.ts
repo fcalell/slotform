@@ -1,11 +1,5 @@
 import { spawnSync } from "node:child_process";
-import {
-	existsSync,
-	mkdirSync,
-	readFileSync,
-	rmSync,
-	writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { type ContributionCtx, plugin, type Slot, slot } from "@fcalell/cli";
@@ -24,8 +18,8 @@ import {
 import { assertEnvName, declaresDevVar } from "./node/dev-vars.ts";
 import {
 	cloudflareOptionsSchema,
+	type ServeConfig,
 	type WranglerBindingSpec,
-	type WranglerRouteSpec,
 } from "./types.ts";
 
 const SOURCE = "cloudflare";
@@ -36,27 +30,21 @@ const DEFAULT_COMPATIBILITY_DATE = "2025-01-01";
 // `wrangler dev`'s listen port, passed explicitly so the dev process and the
 // worker's dev origin agree.
 const WRANGLER_DEV_PORT = 8787;
+const DEV_ORIGIN = `http://localhost:${WRANGLER_DEV_PORT}`;
+
+const WRANGLER_CONFIG = ".stack/wrangler.toml";
+const WORKER_TYPES = ".stack/worker-configuration.d.ts";
 
 // Miniflare's state dir, shared with plugin-db: docs/architecture/plugins/cloudflare.md, "Local state".
 export const LOCAL_PERSIST = ".wrangler/state";
 
 // ── Slot declarations ──────────────────────────────────────────────
 //
-// Bindings and vars compose into wranglerToml: docs/architecture/plugins/cloudflare.md, "Slots and contributions".
+// Bindings compose into wranglerToml: docs/architecture/plugins/cloudflare.md, "Slots and contributions".
 
 const bindings = slot.list<WranglerBindingSpec>({
 	source: SOURCE,
 	name: "bindings",
-});
-
-const routes = slot.list<WranglerRouteSpec>({
-	source: SOURCE,
-	name: "routes",
-});
-
-const vars = slot.map<string>({
-	source: SOURCE,
-	name: "vars",
 });
 
 const compatibilityFlags = slot.list<string>({
@@ -74,8 +62,6 @@ const compatibilityDate = slot.value<string>({
 // The final wrangler.toml source, a pure derivation: docs/architecture/plugins/cloudflare.md, "Slots and contributions".
 const wranglerInputs = {
 	bindings,
-	routes,
-	vars,
 	env: api.slots.env,
 	compatibilityDate,
 	compatibilityFlags,
@@ -93,21 +79,23 @@ type WranglerInputs = {
 		: never;
 };
 
+// The consumer's root `wrangler.toml`, or null without one.
+async function consumerWrangler(ctx: ContributionCtx): Promise<string | null> {
+	return (await ctx.fileExists("wrangler.toml"))
+		? ctx.readFile("wrangler.toml")
+		: null;
+}
+
 function renderWrangler(
 	inp: WranglerInputs,
 	ctx: ContributionCtx,
-	serve: { main: string; clientDir: string } | undefined,
+	consumer: string | null,
+	serve: ServeConfig | undefined,
 ): string {
-	const consumerWranglerPath = join(ctx.cwd, "wrangler.toml");
-	const consumerWrangler = existsSync(consumerWranglerPath)
-		? readFileSync(consumerWranglerPath, "utf-8")
-		: null;
 	return aggregateWrangler({
-		consumerWrangler,
+		consumerWrangler: consumer,
 		payload: {
 			bindings: inp.bindings,
-			routes: inp.routes,
-			vars: inp.vars,
 			secrets: inp.env,
 			compatibilityDate: inp.compatibilityDate,
 			compatibilityFlags: inp.compatibilityFlags,
@@ -126,7 +114,8 @@ const wranglerToml = slot.derived({
 	source: SOURCE,
 	name: "wranglerToml",
 	inputs: wranglerInputs,
-	compute: (inp, ctx) => renderWrangler(inp, ctx, undefined),
+	compute: async (inp, ctx) =>
+		renderWrangler(inp, ctx, await consumerWrangler(ctx), undefined),
 });
 
 // The config of a `stack screens serve` run: the same toml with the run's own
@@ -135,19 +124,41 @@ const serveWranglerToml = slot.derived({
 	source: SOURCE,
 	name: "serveWranglerToml",
 	inputs: wranglerInputs,
-	compute: (inp, ctx) => (serve: { main: string; clientDir: string }) =>
-		renderWrangler(inp, ctx, serve),
+	compute: async (inp, ctx) => {
+		const consumer = await consumerWrangler(ctx);
+		return (serve: ServeConfig) => renderWrangler(inp, ctx, consumer, serve);
+	},
 });
 
 // The --config and --tsconfig every bundling command reads: docs/architecture/plugins/cloudflare.md, "Wrangler invocation".
 async function wranglerConfigArgs(ctx: ContributionCtx): Promise<string[]> {
 	const tsconfig = await ctx.resolve(cliSlots.workerTsconfig);
-	return [
-		"--config",
-		".stack/wrangler.toml",
-		"--tsconfig",
-		join(ctx.cwd, tsconfig),
-	];
+	return ["--config", WRANGLER_CONFIG, "--tsconfig", join(ctx.cwd, tsconfig)];
+}
+
+const STACK_DEV_LINE =
+	"# STACK_DEV marks local dev; never set in production.\nSTACK_DEV=1\n";
+
+// The dev values, and whether the root `.dev.vars` is written: docs/architecture/plugins/cloudflare.md, ".dev.vars".
+async function devVars(
+	ctx: ContributionCtx,
+): Promise<{ content: string; write: boolean }> {
+	const env = await ctx.resolve(api.slots.env);
+	for (const e of env) assertEnvName(e.name);
+	if (!(await ctx.fileExists(".dev.vars"))) {
+		return {
+			content: `${STACK_DEV_LINE}${aggregateDevVars(env) ?? ""}`,
+			write: true,
+		};
+	}
+	const existing = await ctx.readFile(".dev.vars");
+	const declared = (name: string) => declaresDevVar(existing, name);
+	const missing = `${declared("STACK_DEV") ? "" : STACK_DEV_LINE}${
+		aggregateDevVars(env.filter((e) => !declared(e.name))) ?? ""
+	}`;
+	if (!missing) return { content: existing, write: false };
+	const separator = existing === "" || existing.endsWith("\n") ? "" : "\n";
+	return { content: `${existing}${separator}${missing}`, write: true };
 }
 
 export const cloudflare = plugin("cloudflare", {
@@ -171,8 +182,6 @@ export const cloudflare = plugin("cloudflare", {
 
 	slots: {
 		bindings,
-		routes,
-		vars,
 		compatibilityDate,
 		compatibilityFlags,
 		wranglerToml,
@@ -180,7 +189,7 @@ export const cloudflare = plugin("cloudflare", {
 	},
 
 	contributes: (self) => [
-		emitArtifact(".stack/wrangler.toml", self.slots.wranglerToml),
+		emitArtifact(WRANGLER_CONFIG, self.slots.wranglerToml),
 
 		// The blanket per-IP volume limiter: docs/architecture/plugins/api.md, "Rate limiting".
 		self.slots.bindings.contribute(async (ctx) => {
@@ -209,34 +218,14 @@ export const cloudflare = plugin("cloudflare", {
 
 		// Emit .dev.vars and mirror it into .stack/: docs/architecture/plugins/cloudflare.md, ".dev.vars".
 		cliSlots.artifactFiles.contribute(async (ctx) => {
-			const stackDevLine =
-				"# STACK_DEV marks local dev; never set in production.\nSTACK_DEV=1\n";
-			const env = await ctx.resolve(api.slots.env);
-			for (const e of env) assertEnvName(e.name);
-			const files: Array<{ path: string; content: string }> = [];
-			let content: string;
-			if (await ctx.fileExists(".dev.vars")) {
-				const existing = await ctx.readFile(".dev.vars");
-				const declared = (name: string) => declaresDevVar(existing, name);
-				const missing = `${declared("STACK_DEV") ? "" : stackDevLine}${
-					aggregateDevVars(env.filter((e) => !declared(e.name))) ?? ""
-				}`;
-				content = existing;
-				if (missing) {
-					const separator =
-						existing === "" || existing.endsWith("\n") ? "" : "\n";
-					content = `${existing}${separator}${missing}`;
-					files.push({ path: ".dev.vars", content });
-				}
-			} else {
-				content = `${stackDevLine}${aggregateDevVars(env) ?? ""}`;
-				files.push({ path: ".dev.vars", content });
-			}
-			files.push({
-				path: ".stack/.dev.vars",
-				content: `# Generated mirror of ../.dev.vars — edit that file, then re-run stack generate.\n${content}`,
-			});
-			return files;
+			const { content, write } = await devVars(ctx);
+			return [
+				...(write ? [{ path: ".dev.vars", content }] : []),
+				{
+					path: ".stack/.dev.vars",
+					content: `# Generated mirror of ../.dev.vars — edit that file, then re-run stack generate.\n${content}`,
+				},
+			];
 		}),
 
 		// The global `Env` `wrangler types` declares types the worker's `env`:
@@ -247,16 +236,13 @@ export const cloudflare = plugin("cloudflare", {
 
 		// The worker's own dev origin: docs/architecture/plugins/api.md, "Local and dev origins".
 		api.slots.devTargetOrigins.contribute((ctx) =>
-			ctx.app.origins !== undefined
-				? undefined
-				: `http://localhost:${WRANGLER_DEV_PORT}`,
+			ctx.app.origins !== undefined ? undefined : DEV_ORIGIN,
 		),
 
 		// Same-origin dev proxy, inert without vite: docs/architecture/plugins/vite.md, "Dev server proxy, file access and watching".
 		vite.slots.serverProxy.contribute(async (ctx) => {
 			const prefixes = await ctx.resolve(api.slots.routePrefixes);
-			const target = `http://localhost:${WRANGLER_DEV_PORT}`;
-			return prefixes.map((path) => ({ path, target }));
+			return prefixes.map((path) => ({ path, target: DEV_ORIGIN }));
 		}),
 
 		// Ignore .stack/.wrangler so Vite never reloads on it: docs/architecture/plugins/cloudflare.md, "Dev and Vite root".
@@ -287,13 +273,11 @@ export const cloudflare = plugin("cloudflare", {
 			}
 			const render = await ctx.resolve(self.slots.serveWranglerToml);
 			// The run's entry sits outside the app, so it names the controls by path.
-			const controls = createRequire(join(ctx.cwd, "package.json")).resolve(
-				"@fcalell/plugin-screens/serve",
-			);
+			const require = createRequire(join(ctx.cwd, "package.json"));
+			const controls = require.resolve("@fcalell/plugin-screens/serve");
 			const named = await ctx.resolve(screens.slots.serveControls);
-			const extra = named.map((spec) =>
-				createRequire(join(ctx.cwd, "package.json")).resolve(spec),
-			);
+			const extra = named.map((spec) => require.resolve(spec));
+			const { content: devValues } = await devVars(ctx);
 			const tsconfig = join(
 				ctx.cwd,
 				await ctx.resolve(cliSlots.workerTsconfig),
@@ -315,16 +299,13 @@ export const cloudflare = plugin("cloudflare", {
 						].join("\n"),
 					);
 					const config = join(serve.dir, "wrangler.toml");
-					writeFileSync(
-						config,
-						render({ main, clientDir: serve.client ?? "" }),
-					);
+					writeFileSync(config, render({ main, clientDir: serve.client }));
 					const overrides = Object.entries(serve.env)
 						.map(([name, value]) => `${name}=${escapeDevVarValue(value)}`)
 						.join("\n");
 					writeFileSync(
 						join(serve.dir, ".dev.vars"),
-						`${readFileSync(join(ctx.cwd, ".stack/.dev.vars"), "utf-8")}\n${overrides}\n`,
+						`${devValues}\n${overrides}\n`,
 					);
 					return startServer(serve, "wrangler", "npx", [
 						"wrangler",
@@ -387,37 +368,22 @@ export const cloudflare = plugin("cloudflare", {
 
 		// wrangler types after the toml is written, non-fatal: docs/architecture/plugins/cloudflare.md, "Wrangler invocation".
 		cliSlots.postWrite.contribute((ctx) => async () => {
-			const dtsPath = join(ctx.cwd, ".stack/worker-configuration.d.ts");
+			// A failed removal (a locked file) is a warning of its own, so it
+			// never masks the wrangler error being reported.
 			const removeStaleDts = () => {
 				try {
-					rmSync(dtsPath, { force: true });
-				} catch {
-					/* a failed removal (a locked file) must not mask the wrangler error being reported */
+					rmSync(join(ctx.cwd, WORKER_TYPES), { force: true });
+				} catch (err) {
+					const detail = err instanceof Error ? err.message : String(err);
+					ctx.log.warn(`${WORKER_TYPES} could not be removed: ${detail}`);
 				}
 			};
 
-			let result: ReturnType<typeof spawnSync>;
-			try {
-				result = spawnSync(
-					"npx",
-					[
-						"wrangler",
-						"types",
-						".stack/worker-configuration.d.ts",
-						"-c",
-						".stack/wrangler.toml",
-					],
-					{ cwd: ctx.cwd, stdio: "pipe" },
-				);
-			} catch (err) {
-				removeStaleDts();
-				const detail = err instanceof Error ? err.message : String(err);
-				ctx.log.warn(
-					`wrangler types could not run (Env typings removed to surface the failure): ${detail}. ` +
-						"Install wrangler (e.g. `pnpm add -D wrangler`) and re-run `stack generate`.",
-				);
-				return;
-			}
+			const result = spawnSync(
+				"npx",
+				["wrangler", "types", WORKER_TYPES, "-c", WRANGLER_CONFIG],
+				{ cwd: ctx.cwd, stdio: "pipe" },
+			);
 			if (result.error) {
 				removeStaleDts();
 				const err = result.error;
@@ -435,16 +401,11 @@ export const cloudflare = plugin("cloudflare", {
 				const stderr = result.stderr?.toString().trim() ?? "";
 				ctx.log.warn(
 					`wrangler types failed (Env typings removed to surface the failure)${stderr ? `: ${stderr}` : ""}. ` +
-						"Run `pnpm exec wrangler types .stack/worker-configuration.d.ts -c .stack/wrangler.toml` manually to see the full error.",
+						`Run \`pnpm exec wrangler types ${WORKER_TYPES} -c ${WRANGLER_CONFIG}\` manually to see the full error.`,
 				);
 			}
 		}),
 	],
 });
 
-export type {
-	CloudflareOptions,
-	CodegenWranglerPayload,
-	WranglerBindingSpec,
-	WranglerRouteSpec,
-} from "./types.ts";
+export type { WranglerBindingSpec } from "./types.ts";

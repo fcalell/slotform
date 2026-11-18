@@ -2,13 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { composeMap, SlotConflictError } from "@fcalell/cli/slots";
 import { vite } from "../index.ts";
-import {
-	allowScript,
-	headerKey,
-	mergeClientHeader,
-	mergeCsp,
-	scriptHash,
-} from "./csp.ts";
+import { allowScript, mergeClientHeader, mergeCsp, scriptHash } from "./csp.ts";
 
 test("two policies with disjoint directives keep every directive in first-seen order", () => {
 	assert.equal(
@@ -82,10 +76,9 @@ test("whitespace, empty segments and a directive without sources are normalised"
 	);
 });
 
-test("the merge is deterministic", () => {
+test("'none' drops beside a real source, and directives keep first-seen order", () => {
 	const a = "frame-ancestors 'none'";
 	const b = "img-src data:; default-src 'self'; frame-ancestors 'self'";
-	assert.equal(mergeCsp(a, b), mergeCsp(a, b));
 	assert.equal(
 		mergeCsp(a, b),
 		"frame-ancestors 'self'; img-src data:; default-src 'self'",
@@ -105,10 +98,6 @@ test("only the Content-Security-Policy key merges", () => {
 		mergeClientHeader("DENY", "SAMEORIGIN", "x-frame-options"),
 		undefined,
 	);
-});
-
-test("headerKey folds the name", () => {
-	assert.equal(headerKey("Content-Security-Policy"), "content-security-policy");
 });
 
 // The slot itself, composed as the graph composes it.

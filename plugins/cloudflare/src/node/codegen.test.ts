@@ -15,8 +15,6 @@ function payload(
 ): CodegenWranglerPayload {
 	return {
 		bindings: [],
-		routes: [],
-		vars: {},
 		secrets: [],
 		compatibilityDate: "2025-01-01",
 		compatibilityFlags: [],
@@ -143,4 +141,35 @@ test("no crons and no handler is fine", () => {
 test("[browser] is copied as written", () => {
 	const out = render('[browser]\nbinding = "BROWSER"\n');
 	assert.match(out, /\[browser\]\nbinding = "BROWSER"/);
+});
+
+test("a root `vars` that is not a table fails", () => {
+	assert.throws(() => render('vars = "x"\n'), /`vars` must be a table/);
+});
+
+test("a root var named like a declared env var fails", () => {
+	assert.throws(
+		() =>
+			render('[vars]\nAUTH_SECRET = "x"\n', {
+				secrets: [{ name: "AUTH_SECRET", devDefault: "dev" }],
+			}),
+		/"AUTH_SECRET" \(consumer wrangler.toml \[vars\] vs secret\)/,
+	);
+});
+
+test("a serve run without a web client renders no [assets]", () => {
+	const toml = render(null, {
+		clientDir: "dist/client",
+		serve: { main: "/run/worker.ts", clientDir: null },
+	});
+	assert.doesNotMatch(toml, /\[assets\]/);
+	assert.match(toml, /main = "\/run\/worker.ts"/);
+});
+
+test("a serve run serves its own client build", () => {
+	const toml = render(null, {
+		clientDir: "dist/client",
+		serve: { main: "/run/worker.ts", clientDir: "/run/client" },
+	});
+	assert.match(toml, /directory = "\/run\/client"/);
 });
