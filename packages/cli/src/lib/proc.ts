@@ -4,11 +4,11 @@ import type { ProcessExit, ProcessSpec } from "../specs.ts";
 
 // ── supervise() ────────────────────────────────────────────────────────────
 
-// A port conflict on stderr and its port, named after the keyword
+// A port conflict on stderr and its port when it names one, named after the keyword
 // ("EADDRINUSE: address already in use :::3000") or before it
 // ("Error: Port 3000 is already in use", "Port 8787 is unavailable").
 const PORT_CONFLICT =
-	/(?:EADDRINUSE|already in use|unavailable).*?(?::|port\s+)(\d{2,5})|port\s+(\d{2,5})\s+is\s+(?:already in use|unavailable)/i;
+	/(?:EADDRINUSE|already in use|unavailable)(?:.*?(?::|port\s+)(\d{2,5}))?|port\s+(\d{2,5})\s+is\s+(?:already in use|unavailable)/i;
 
 const DEFAULT_MAX_RESTARTS = 3;
 const STDERR_TAIL_BYTES = 4 * 1024;
@@ -138,10 +138,16 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 					? stderrText.slice(-STDERR_TAIL_BYTES)
 					: stderrText;
 
-			// One of the two groups matched: each alternative captures the port.
+			// Each alternative captures the port; a line that names none reports the spec's default.
 			const match = PORT_CONFLICT.exec(stderrTail);
 			const portInUse = match !== null;
-			const detectedPort = match === null ? null : Number(match[1] ?? match[2]);
+			const portNamed = match?.[1] ?? match?.[2];
+			const detectedPort =
+				portNamed !== undefined
+					? Number(portNamed)
+					: match === null
+						? null
+						: (spec.defaultPort ?? null);
 
 			const event: ProcessExit = {
 				code,

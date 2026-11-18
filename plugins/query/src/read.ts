@@ -335,6 +335,7 @@ function queryOfInput(input: unknown): unknown {
 
 type Sort = { column: string; direction: "asc" | "desc" } | undefined;
 
+// The cast only widens: `READ_KEYS` is a tuple of strings, and `includes` takes a wider key.
 const isReadKey = (key: string | symbol): key is ReadKey =>
 	(READ_KEYS as readonly (string | symbol)[]).includes(key);
 

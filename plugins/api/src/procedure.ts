@@ -248,17 +248,11 @@ type OutputTerminals<
 	) => Procedure<TInput["client"], TOutput["client"], TInput["scope"]>
 >;
 
-type ProcedureWithInputOutput<
-	TContext,
-	TInput extends AnySides,
-	TOutput extends AnySides,
-> = OutputTerminals<TContext, TInput, TOutput>;
-
 interface ProcedureWithInput<TContext, TInput extends AnySides>
 	extends Terminals<TContext, TInput> {
 	output<TSchema extends z.ZodType>(
 		schema: TSchema,
-	): ProcedureWithInputOutput<TContext, TInput, OutputSides<TSchema>>;
+	): OutputTerminals<TContext, TInput, OutputSides<TSchema>>;
 }
 
 interface ProcedureWithOutput<
@@ -268,11 +262,7 @@ interface ProcedureWithOutput<
 > extends OutputTerminals<TContext, TBaseInput, TOutput> {
 	input<TSchema extends z.ZodType>(
 		schema: TSchema,
-	): ProcedureWithInputOutput<
-		TContext,
-		MergedInput<TBaseInput, TSchema>,
-		TOutput
-	>;
+	): OutputTerminals<TContext, MergedInput<TBaseInput, TSchema>, TOutput>;
 }
 
 export interface ProcedureBuilder<

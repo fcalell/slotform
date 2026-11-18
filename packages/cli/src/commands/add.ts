@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { resolve } from "node:path";
 import { log, outro } from "@clack/prompts";
 import { builders } from "magicast";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
@@ -53,11 +53,11 @@ export async function add(
 	assertKnownPlugins([pluginName]);
 
 	const cwd = process.cwd();
-	const fullConfigPath = join(cwd, configPath);
+	const fullConfigPath = resolve(cwd, configPath);
 	// No config file yet is an app with no plugins; a config that fails to
 	// load stops here.
 	const existingConfig = existsSync(fullConfigPath)
-		? await loadConfig(configPath)
+		? await loadConfig(fullConfigPath)
 		: null;
 
 	const configuredNames = existingConfig

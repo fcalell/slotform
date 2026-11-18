@@ -110,7 +110,9 @@ top-level routes, which it would shadow. A frontend plugin contributes its route
 answers at `/mcp`; auth never reads a frontend's routes. Codegen bakes the combined list
 with organizations on, and the runtime refuses its slugs on organization create and update. A
 refused slug answers a code and a field error: a form reads `fieldErrors` off the answer, as it reads
-an API procedure's refusal, and shows it under the field that made the slug.
+an API procedure's refusal, and shows it under the field that made the slug. A name with no letter
+or digit derives no slug: `organization.create` without a `slug` then refuses with
+`ORGANIZATION_SLUG_REQUIRED` and a `slug` field error, and the caller names one.
 
 ### Callbacks
 
@@ -448,7 +450,9 @@ imported: the Node target names the same channel, as it names auth's path.
 `auth({ devices: true })` is a bearer credential for a machine with no browser, built from
 `@better-auth/api-key`'s `apiKey()` configured, not wrapped. A key is `stk_` plus 48 random letters,
 stored as a SHA-256, made by a signed-in member through the `auth.devices.*` procedures and shown
-once. The plugin's `customAPIKeyGetter` reads only an `Authorization: Bearer stk_…` header; any other
+once. A member holds 25 live keys at most: `auth.devices.create` makes the key, counts the live ones and,
+when the count passes 25, deletes the new key and refuses with `DEVICE_LIMIT`, so the 26th key is
+created, counted, then deleted and refused. The plugin's `customAPIKeyGetter` reads only an `Authorization: Bearer stk_…` header; any other
 bearer (an expo session token, an OAuth access token) is never taken for a key.
 `enableSessionForAPIKeys` makes the validated key stand in for the member's session on every call
 that carries it, with `session.id` the key's id. One credential so reaches every door that asks

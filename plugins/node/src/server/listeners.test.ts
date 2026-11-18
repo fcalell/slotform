@@ -13,6 +13,7 @@ import {
 	mainAdmits,
 	originOf,
 } from "./listeners.ts";
+import { READY_LINE } from "./log.ts";
 import type { NodeWorker } from "./worker.ts";
 
 test("hostOf normalises a Host header for its scheme and refuses junk", () => {
@@ -281,4 +282,37 @@ test("the main listener under STACK_DEV admits a loopback name", async () => {
 	} finally {
 		await stop();
 	}
+});
+
+test("only the main listener's line matches the ready pattern", async () => {
+	const lines: string[] = [];
+	const server = createNodeServer({
+		port: 0,
+		host: "127.0.0.1",
+		origins: ["http://127.0.0.1:8788"],
+		listeners: {
+			network: { port: 0, host: "127.0.0.1", originVar: "NET_ORIGIN" },
+		},
+		worker: echoWorker(),
+		workerPaths: ["/rpc"],
+		staticRoot: mkdtempSync(join(tmpdir(), "stack-node-")),
+		env: {},
+		log: {
+			info(message) {
+				lines.push(message);
+			},
+			error() {},
+		},
+	});
+	await server.start();
+	await server.stop();
+	// The pattern the node plugin hands the dev supervisor.
+	const ready = new RegExp(READY_LINE);
+	const main = lines.filter((line) => !/ network listening/.test(line));
+	assert.equal(lines.filter((line) => ready.test(line)).length, 1);
+	assert.equal(main.filter((line) => ready.test(line)).length, 1);
+	assert.equal(
+		ready.test(lines.find((l) => /network listening/.test(l)) ?? ""),
+		false,
+	);
 });

@@ -47,7 +47,7 @@ sees the stand-in:
   says it holds any and `holds` is their hashes with the enclosing frames' (publish it with
   `<FrameHolds holds={holds}>` around the body). Pass a module-level `derive`, whose identity is
   the combine's.
-- `useDraft(datum, failed?)` is a field's value: it follows its selection until the viewer edits it,
+- `useDraft(datum, failed)` is a field's value: it follows its selection until the viewer edits it,
   then holds the edit; a selection over another read drops the edit. A constant passes through
   unchanged: the app owns it, and a value it changes shows. `ended` is `"failed"` or `"missing"` while the value's own read has ended (`painted` is then still
   true, its value the stand-in): a control stands with no value and refuses its changes. Saving a change is on

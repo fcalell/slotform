@@ -124,15 +124,38 @@ export async function signIn(
 	scope: { tab(): Promise<Tab> },
 	target: Target,
 ): Promise<void> {
-	if (!target.signIn) return;
+	const link = target.signIn;
+	if (!link) return;
 	const tab = await scope.tab();
-	try {
+	await closeAfter(tab, async () => {
+		await setCookie(tab, target);
 		await prepare(tab, target.cwd);
-		await tab.goto(new URL(target.signIn, target.url).href);
+		await tab.goto(new URL(link, target.url).href);
 		await settle(tab, target.settle);
-	} finally {
-		await tab.close();
+	});
+}
+
+async function setCookie(tab: Tab, target: Target): Promise<void> {
+	const cookie = parseCookie(target.cookie);
+	if (cookie) await tab.cookie(cookie.name, cookie.value, target.url);
+}
+
+// Runs a tab's work and closes the tab. A close that fails after the work
+// failed is printed, so the work's own error is the one that surfaces; after
+// the work succeeded it fails the command.
+export async function closeAfter(
+	tab: Tab,
+	work: () => Promise<void>,
+): Promise<void> {
+	try {
+		await work();
+	} catch (error) {
+		await tab.close().catch((closeError: unknown) => {
+			console.error(`closing the tab failed: ${messageOf(closeError)}`);
+		});
+		throw error;
 	}
+	await tab.close();
 }
 
 // A tab of the app at one width and mode, with the page code in it and the
@@ -165,8 +188,7 @@ export class Page {
 		await tab.media(mode);
 		await tab.device(width, HEIGHT);
 		await prepare(tab, target.cwd);
-		const cookie = parseCookie(target.cookie);
-		if (cookie) await tab.cookie(cookie.name, cookie.value, target.url);
+		await setCookie(tab, target);
 		return new Page(tab, target, width, mode);
 	}
 
@@ -273,7 +295,7 @@ export async function shoot(
 			for (const width of widths) {
 				const page = await Page.open(scope, app, width, mode);
 				pages.push(page);
-				try {
+				await closeAfter(page.tab, async () => {
 					// A route that fails is reported and the next one still runs.
 					for (const route of routes) {
 						try {
@@ -287,9 +309,7 @@ export async function shoot(
 							page.report(`${route}: ${messageOf(error)}`);
 						}
 					}
-				} finally {
-					await page.tab.close();
-				}
+				});
 			}
 		}
 	});

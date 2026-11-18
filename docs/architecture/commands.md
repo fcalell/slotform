@@ -321,6 +321,7 @@ off the request, with no header of its own.
 - `packages/cli/src/lib/run-step.ts`: running a build or deploy step.
 - `packages/cli/src/commands/plugin.ts`: the third-party plugin scaffold.
 - `packages/cli/src/lib/dev-view.ts`: the two dev views.
+- `packages/cli/src/lib/core-plugin.ts`: the CLI's own contributions.
 - `packages/cli/src/lib/proc.ts`: a supervised process, its group and restarts.
 - `packages/cli/src/lib/discovery.ts`: `resolveRequiresClosure`.
 - `packages/cli/src/lib/prompt.ts`: the prompt adapter.

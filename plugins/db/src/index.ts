@@ -9,6 +9,7 @@ import { api } from "@fcalell/plugin-api";
 import { cloudflare, LOCAL_PERSIST } from "@fcalell/plugin-cloudflare";
 import { node } from "@fcalell/plugin-node";
 import { screens } from "@fcalell/plugin-screens";
+import { coalesce } from "./node/coalesce.ts";
 import {
 	assertDeployableDatabaseId,
 	createD1Database,
@@ -61,26 +62,8 @@ interface InitPromptCtx {
 	};
 }
 
-// The coalescing latch for local schema pushes: docs/architecture/plugins/db.md, "Local dev push".
-// At most one run in flight and one queued; a call while one is queued joins it.
-// The queued run starts once the one in flight settles, fulfilled or rejected.
-function coalesce(op: () => Promise<void>): () => Promise<void> {
-	let current: Promise<void> | null = null;
-	let queued: Promise<void> | null = null;
-	const start = (): Promise<void> => {
-		queued = null;
-		current = op().finally(() => {
-			current = null;
-		});
-		return current;
-	};
-	return () => {
-		if (queued) return queued;
-		if (!current) return start();
-		queued = current.then(start, start);
-		return queued;
-	};
-}
+const d1Only = (command: string): string =>
+	`\`stack db ${command}\` only applies to the d1 dialect.`;
 
 export const db = plugin("db", {
 	label: "Database",
@@ -217,7 +200,7 @@ export const db = plugin("db", {
 			description: "Reset local database (all data will be lost)",
 			handler: async (ctx) => {
 				if (ctx.options.dialect !== "d1") {
-					ctx.log.error("`stack db reset` only applies to the d1 dialect.");
+					ctx.log.error(d1Only("reset"));
 					return;
 				}
 				if (process.stdin.isTTY) {
@@ -249,7 +232,7 @@ export const db = plugin("db", {
 			},
 			handler: async (ctx, flags) => {
 				if (ctx.options.dialect !== "d1") {
-					ctx.log.error("`stack db create` only applies to the d1 dialect.");
+					ctx.log.error(d1Only("create"));
 					return;
 				}
 				const name =
@@ -322,7 +305,7 @@ export const db = plugin("db", {
 		// Read when a slot resolves: the init prompt graph runs contributes over unparsed `{}` options.
 		const migrationsPath = () =>
 			posix.normalize(self.options.migrations).replace(/\/$/, "");
-		const d1 = self.options.dialect === "d1";
+		const d1 = () => self.options.dialect === "d1";
 
 		return [
 			cliSlots.initPrompts.contribute(() => ({
@@ -360,7 +343,7 @@ export const db = plugin("db", {
 
 			// The D1 binding, d1 only, with a required migrationsDir: docs/architecture/plugins/db.md, "Slots and contributions".
 			cloudflare.slots.bindings.contribute(() => {
-				if (!d1) return undefined;
+				if (!d1()) return undefined;
 				const databaseId = self.options.databaseId;
 				if (!databaseId) return undefined;
 				return {
@@ -567,76 +550,80 @@ export const db = plugin("db", {
 				},
 			})),
 
-			// The deploy contributions, d1 only: docs/architecture/plugins/db.md, "Deploy checks".
-			...(d1
-				? [
-						cliSlots.deployChecks.contribute(() => {
-							assertDeployableDatabaseId(self.options.databaseId);
-							return undefined;
-						}),
+			// The deploy contributions, d1 only (each reads the dialect when it resolves): docs/architecture/plugins/db.md, "Deploy checks".
+			...[
+				cliSlots.deployChecks.contribute(() => {
+					if (!d1()) return undefined;
+					assertDeployableDatabaseId(self.options.databaseId);
+					return undefined;
+				}),
 
-						// `stack db check`'s checks, each refusing the deploy before the
-						// build or any migration touches the cloud.
-						...MIGRATION_CHECKS.map((check) =>
-							cliSlots.deployChecks.contribute((ctx) => {
-								const problem = check.run(ctx.cwd, self.options);
-								if (problem) throw new StackError(problem, check.code);
-								return undefined;
-							}),
-						),
+				// `stack db check`'s checks, each refusing the deploy before the
+				// build or any migration touches the cloud.
+				...MIGRATION_CHECKS.map((check) =>
+					cliSlots.deployChecks.contribute((ctx) => {
+						if (!d1()) return undefined;
+						const problem = check.run(ctx.cwd, self.options);
+						if (problem) throw new StackError(problem, check.code);
+						return undefined;
+					}),
+				),
 
-						// Lists the committed migrations for the deploy plan; the
-						// "Database migrations" step below applies the ones still pending
-						// remotely (wrangler's journal decides), so the action does nothing.
-						cliSlots.deployChecks.contribute((ctx) => {
-							const files = migrationFiles(
-								migrationsDir(ctx.cwd, self.options),
-							);
-							if (files.length === 0) return undefined;
-							return {
-								plugin: "db",
-								description: `${files.length} committed migration(s); pending ones apply before the worker deploys`,
-								items: files.map((name) => ({ label: name })),
-								action: async () => {},
-							};
-						}),
+				// Lists the committed migrations for the deploy plan; the
+				// "Database migrations" step below applies the ones still pending
+				// remotely (wrangler's journal decides), so the action does nothing.
+				cliSlots.deployChecks.contribute((ctx) => {
+					if (!d1()) return undefined;
+					const files = migrationFiles(migrationsDir(ctx.cwd, self.options));
+					if (files.length === 0) return undefined;
+					return {
+						plugin: "db",
+						description: `${files.length} committed migration(s); pending ones apply before the worker deploys`,
+						items: files.map((name) => ({ label: name })),
+						action: async () => {},
+					};
+				}),
 
-						cliSlots.deploySteps.contribute((ctx) => ({
-							name: "Database migrations",
-							phase: "pre",
-							run: () => applyMigrationsRemote(ctx.cwd, self.options),
-						})),
-
-						// Lists the seeded tables and what the remote seed does to rows
-						// outside the seed, so the deploy plan (printed even where no
-						// confirm runs) states it. The "Database seed" step owns the run.
-						cliSlots.deployChecks.contribute(async (ctx) => {
-							const seed = await loadSeed(ctx.cwd);
-							if (seed === null || seed.specs.length === 0) return undefined;
-							return {
-								plugin: "db",
-								description: seed.prune
-									? "Database seed: `prune` is set in src/schema/seed.ts, so the remote database DELETES every row of these tables that is not in the seed"
-									: "Database seed upserts these tables and keeps every other row (`export const prune = true` in src/schema/seed.ts deletes them)",
-								items: describeSeed(seed.specs, { prune: seed.prune }),
-								action: async () => {},
-							};
-						}),
-
-						// The deploy-time seed: docs/architecture/plugins/db.md, "Seed".
-						cliSlots.deploySteps.contribute(async (ctx) => {
-							if (!(await ctx.fileExists("src/schema/seed.ts")))
-								return undefined;
-							return {
-								name: "Database seed",
+				cliSlots.deploySteps.contribute((ctx) =>
+					d1()
+						? {
+								name: "Database migrations",
 								phase: "pre",
-								run: async () => {
-									await applySeed(ctx.cwd, self.options, { remote: true });
-								},
-							};
-						}),
-					]
-				: []),
+								run: () => applyMigrationsRemote(ctx.cwd, self.options),
+							}
+						: undefined,
+				),
+
+				// Lists the seeded tables and what the remote seed does to rows
+				// outside the seed, so the deploy plan (printed even where no
+				// confirm runs) states it. The "Database seed" step owns the run.
+				cliSlots.deployChecks.contribute(async (ctx) => {
+					if (!d1()) return undefined;
+					const seed = await loadSeed(ctx.cwd);
+					if (seed === null || seed.specs.length === 0) return undefined;
+					return {
+						plugin: "db",
+						description: seed.prune
+							? "Database seed: `prune` is set in src/schema/seed.ts, so the remote database DELETES every row of these tables that is not in the seed"
+							: "Database seed upserts these tables and keeps every other row (`export const prune = true` in src/schema/seed.ts deletes them)",
+						items: describeSeed(seed.specs, { prune: seed.prune }),
+						action: async () => {},
+					};
+				}),
+
+				// The deploy-time seed: docs/architecture/plugins/db.md, "Seed".
+				cliSlots.deploySteps.contribute(async (ctx) => {
+					if (!d1() || !(await ctx.fileExists("src/schema/seed.ts")))
+						return undefined;
+					return {
+						name: "Database seed",
+						phase: "pre",
+						run: async () => {
+							await applySeed(ctx.cwd, self.options, { remote: true });
+						},
+					};
+				}),
+			],
 
 			cliSlots.removeFiles.contribute(() => ["src/schema/", migrationsPath()]),
 

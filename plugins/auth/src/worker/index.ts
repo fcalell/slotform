@@ -642,7 +642,13 @@ function consumerMembership(
 	// A predicate exported under two names is one predicate.
 	const distinct = [...new Set(declared.map(([, membership]) => membership))];
 	if (distinct.length > 1) {
-		const names = declared.map(([name]) => `"${name}"`).join(", ");
+		// One export name for each distinct predicate.
+		const names = distinct
+			.map((membership) => {
+				const [name] = declared.find(([, found]) => found === membership) ?? [];
+				return `"${name}"`;
+			})
+			.join(", ");
 		throw new Error(
 			`plugin-auth: the scopes module exports ${distinct.length} memberships (${names}); export one defineMembership.`,
 		);

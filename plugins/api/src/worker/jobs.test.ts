@@ -54,6 +54,23 @@ test("a queue batch gets the plugin context without the request", async () => {
 	assert.deepEqual(waited, [done]);
 });
 
+test("a job never runs a plugin's fetch", async () => {
+	let ran = true;
+	const worker = createWorker()
+		.use(db)
+		.handler(
+			{},
+			{
+				queue: async () => {
+					ran = true;
+				},
+			},
+		);
+	assert.ok(worker.queue);
+	await worker.queue(batch(), {}, { waitUntil() {} });
+	assert.equal(ran, true);
+});
+
 test("a cron event gets the same context", async () => {
 	let seen: Record<string, unknown> | undefined;
 	let given: JobScheduledEvent | undefined;

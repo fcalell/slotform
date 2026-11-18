@@ -17,12 +17,14 @@ interface PluginCommandMatch {
 	commandName: string;
 }
 
+export const DEFAULT_CONFIG = "stack.config.ts";
+
 // The flags every command takes, a plugin's own included: docs/architecture/commands.md, "Plugin subcommands".
 export const GLOBAL_OPTIONS: Record<
 	"config" | "help" | "debug",
 	ParseArgsOptionDescriptor
 > = {
-	config: { type: "string", default: "stack.config.ts" },
+	config: { type: "string", default: DEFAULT_CONFIG },
 	help: { type: "boolean", short: "h", default: false },
 	debug: { type: "boolean", default: false },
 };

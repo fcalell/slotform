@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { log } from "@clack/prompts";
 import {
+	DEFAULT_CONFIG,
 	findPluginCommand,
 	flagList,
 	GLOBAL_OPTIONS,
@@ -31,10 +32,9 @@ const { positionals, values } = parseArgs({
 
 const command = positionals[0];
 const subcommand = positionals[1];
-const configPath =
-	typeof values.config === "string" ? values.config : "stack.config.ts";
 const string = (value: unknown) =>
 	typeof value === "string" ? value : undefined;
+const configPath = string(values.config) ?? DEFAULT_CONFIG;
 
 function required(name: string | undefined, usage: string): string {
 	if (name) return name;

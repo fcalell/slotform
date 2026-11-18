@@ -56,7 +56,7 @@ promise, the newest attempt counting alone.
 
 ## A value that saves as it changes
 
-`useDraft(datum, failed?)` (`@fcalell/ui-core/react/acts`, [reads](./reads.md)) saves through `change(next, save)`, a `save` that
+`useDraft(datum, failed)` (`@fcalell/ui-core/react/acts`, [reads](./reads.md)) saves through `change(next, save)`, a `save` that
 returns a promise:
 
 ```tsx

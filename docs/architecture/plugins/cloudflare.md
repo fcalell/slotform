@@ -136,7 +136,7 @@ Miniflare keeps the local worker's state (D1, KV, caches, traces) in wrangler's 
 at the consumer root, exported as `LOCAL_PERSIST`. It stays outside `.stack/`, which is Vite's root:
 every request writes it, and each write Vite sees is a full reload. Every local wrangler invocation
 (`wrangler dev`, plugin-db's `migrations apply` and `d1 execute`) passes the same `--config` and
-`--persist-to` (plugin-db's `localD1Flags()`), so schema pushes, seeds and the running worker share
+`--persist-to` (plugin-db builds both for every one, from `LOCAL_PERSIST`), so schema pushes, seeds and the running worker share
 one miniflare D1. The consumer's half is the guide's
 [local state](../../../plugins/cloudflare/guide/wrangler.md#local-state).
 
@@ -183,4 +183,4 @@ All of it lives in the run's scratch directory.
 - `plugins/cloudflare/src/node/codegen.ts`: `aggregateWrangler`, the merge contract, the namespace check, canonical order, rate-limiter ids.
 - `plugins/cloudflare/src/node/dev-vars.ts`: `.dev.vars`, its top-up and the env-name rule.
 - `plugins/db/src/node/push.ts`: the miniflare D1 filename and the local d1 push.
-- `plugins/db/src/node/wrangler.ts`: `localD1Flags()`, the shared `--config` and `--persist-to`.
+- `plugins/db/src/node/wrangler.ts`: plugin-db's wrangler calls, the shared `--config` and `--persist-to`.

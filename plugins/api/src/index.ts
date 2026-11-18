@@ -101,9 +101,10 @@ const CONTEXT_MIDDLEWARE_FILE = "src/worker/middleware.context.ts";
 // The consumer files `.stack/procedure.ts` leaves out: each imports it back,
 // the MCP definition to type itself against the routes and a job handler for
 // `defineQueue`, as the route barrel does.
-const WORKER_ONLY_IMPORTS = new Set(
-	[ROUTES_BARREL, MCP_FILE, QUEUE_FILE, SCHEDULED_FILE].map(importSource),
-);
+const WORKER_ONLY_IMPORTS = new Set([
+	ROUTES_BARREL_IMPORT_SOURCE,
+	...[MCP_FILE, QUEUE_FILE, SCHEDULED_FILE].map(importSource),
+]);
 
 // Sort imports by source so the emitted worker file is independent of
 // `config.plugins` array order. dedupeImports preserves insertion order

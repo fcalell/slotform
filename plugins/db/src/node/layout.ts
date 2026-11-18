@@ -18,7 +18,7 @@ export function migrationFiles(dir: string): string[] {
 		.sort();
 }
 
-export interface JournalEntry {
+interface JournalEntry {
 	idx: number;
 	tag: string;
 }

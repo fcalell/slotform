@@ -98,7 +98,6 @@ export function composeAbility(
 	return ability;
 }
 
-// The key matches the entity registry's path: docs/architecture/plugins/query.md, "Abilities".
 function orgRulesQueryKey(organizationId: string) {
 	return [ORG_RULES_PATH, { input: { organizationId } }] as const;
 }

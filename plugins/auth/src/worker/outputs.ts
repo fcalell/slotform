@@ -63,6 +63,9 @@ export interface ActiveOrganization {
 // expo session token, an OAuth access token) is never mistaken for one.
 export const DEVICE_KEY_PREFIX = "stk_";
 
+// The random characters after the prefix: 48 letters, about 285 bits.
+export const DEVICE_KEY_LENGTH = 48;
+
 // A device credential as the member sees it. The key is never listed: it is
 // shown once, in the answer of `auth.devices.create`.
 export interface Device {

@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import { withLease } from "./browser.ts";
 import {
+	closeAfter,
 	DEFAULT_MODE,
 	DEFAULT_WIDTHS,
 	messageOf,
@@ -153,13 +154,13 @@ export async function drive(
 		for (const { width, mode } of plan.each) {
 			const page = await Page.open(scope, app, width, mode);
 			pages.push(page);
-			try {
-				await run(page, plan.steps);
-			} catch (error) {
-				page.report(messageOf(error));
-			} finally {
-				await page.tab.close();
-			}
+			await closeAfter(page.tab, async () => {
+				try {
+					await run(page, plan.steps);
+				} catch (error) {
+					page.report(messageOf(error));
+				}
+			});
 		}
 	});
 	printRun("stack screens drive", pages);

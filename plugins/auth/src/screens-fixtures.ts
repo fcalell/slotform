@@ -1,6 +1,7 @@
 import type { Fixtures } from "@fcalell/plugin-screens/fixtures";
 import { session, user } from "./screens-session.ts";
 import {
+	DEVICE_KEY_LENGTH,
 	DEVICE_KEY_PREFIX,
 	type Device,
 	type OAuthGrant,
@@ -130,7 +131,7 @@ const fixtures = {
 					expiresAt: null,
 					lastUsedAt: null,
 				},
-				key: `${DEVICE_KEY_PREFIX}screens0123456789abcdefghijklmnopqrstuvwxyzABCDEF`,
+				key: `${DEVICE_KEY_PREFIX}${"screens".padEnd(DEVICE_KEY_LENGTH, "0123456789abcdef")}`,
 			}),
 			revoke: () => ({ success: true }),
 		},

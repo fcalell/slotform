@@ -161,3 +161,21 @@ test("stderr that names no port conflict flags none", async () => {
 	assert.equal(exit.portInUse, false);
 	assert.equal(exit.detectedPort, null);
 });
+
+test("a port conflict line that names no port reports the spec's default port", async () => {
+	const proc = supervise({
+		spec: {
+			name: "taken",
+			command: process.execPath,
+			args: [
+				"-e",
+				"console.error('Error: address already in use'); process.exit(1)",
+			],
+			defaultPort: 4321,
+		},
+		onOutput: () => {},
+	});
+	const exit = await proc.done;
+	assert.equal(exit.portInUse, true);
+	assert.equal(exit.detectedPort, 4321);
+});

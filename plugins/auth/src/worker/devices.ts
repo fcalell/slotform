@@ -1,12 +1,9 @@
 import { apiKey } from "@better-auth/api-key";
 import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
-import { DEVICE_KEY_PREFIX } from "./outputs.ts";
+import { DEVICE_KEY_LENGTH, DEVICE_KEY_PREFIX } from "./outputs.ts";
 
 // Device credentials: docs/architecture/plugins/auth.md, "Devices".
-
-// The random characters after the prefix: 48 letters, about 285 bits.
-const KEY_LENGTH = 48;
 
 // Calls one key may make in a window, enforced in the database row, so it
 // holds on Node as on Cloudflare. Pinned, not options: a daemon that batches
@@ -68,7 +65,7 @@ export function devicePlugins(): BetterAuthPlugin[] {
 		guard,
 		apiKey({
 			defaultPrefix: DEVICE_KEY_PREFIX,
-			defaultKeyLength: KEY_LENGTH,
+			defaultKeyLength: DEVICE_KEY_LENGTH,
 			requireName: true,
 			maximumNameLength: DEVICE_NAME_MAX,
 			enableMetadata: false,
