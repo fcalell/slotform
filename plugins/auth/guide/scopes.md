@@ -79,7 +79,7 @@ typed by the scope: `ScopeContext<typeof scope> | null`.
   slug.
 - Export each scope's table from `src/schema/index.ts` under its SQL name (`project` for the table
   `project`), so its entity matches the lookup's reads.
-- A scope name is never a key the procedure context already carries (`env`, `httpRequest`, `reqHeaders`, `resHeaders`, `executionCtx`, `_devMode`, `db`, `auth`, `tenancy`, `_rateLimiter`, `user`, `session`, `organization`, `member`): `defineScope` throws on one. Every scope name is unique.
+- A scope name is never a key the procedure context already carries (`env`, `httpRequest`, `reqHeaders`, `resHeaders`, `executionCtx`, `_devMode`, `db`, `auth`, `tenancy`, `_rateLimiter`, `_trustedOrigins`, `user`, `session`, `organization`, `member`, `_caller`, `oauth`): `defineScope` throws on one. Every scope name is unique.
 - The parent column references the parent's `id` with `onDelete: "cascade"`, so a deleted
   organization takes its scopes with it.
 - Never resolve a tenancy tier by hand in a handler: declare the scope.

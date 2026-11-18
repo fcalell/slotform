@@ -9,19 +9,13 @@ export function createAccessControl<
 		statements,
 		newRole(
 			permissions: {
-				[K in keyof T]?: T[K][number][];
+				[K in keyof T]?: readonly T[K][number][];
 			},
 		): Role {
-			// `T[K][number][]` is a list of action names, which `Role` spells as `readonly string[]`.
+			// Each key holds a list of action names, which `Role` spells as `readonly string[]`.
 			return permissions as Role;
 		},
 	};
-}
-
-export function getStatements(
-	ac: { statements?: Record<string, readonly string[]> } | undefined,
-): Record<string, readonly string[]> | undefined {
-	return ac?.statements;
 }
 
 // Default organization statements: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
@@ -35,12 +29,7 @@ export const defaultOrgStatements = {
 const orgAc = createAccessControl(defaultOrgStatements);
 
 export const defaultOrgRoles = {
-	owner: orgAc.newRole({
-		organization: ["update", "delete"],
-		member: ["create", "update", "delete"],
-		invitation: ["create", "cancel"],
-		team: ["create", "update", "delete"],
-	}),
+	owner: orgAc.newRole(defaultOrgStatements),
 	admin: orgAc.newRole({
 		organization: ["update"],
 		member: ["create", "update", "delete"],

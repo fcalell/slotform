@@ -14,8 +14,8 @@ export * from "@fcalell/plugin-auth/schema/oauth"; // the grant and signing-key 
 ```
 
 The worker serves the discovery documents (`/.well-known/oauth-authorization-server`,
-`/.well-known/oauth-protected-resource`) and binds `RATE_LIMITER_AGENT` (120 calls per 60 s per
-grant, `rateLimiter.agent`). On Cloudflare with a web build, the worker answers each prefix bare and
+`/.well-known/oauth-protected-resource`) and binds `RATE_LIMITER_AGENT`, one bucket per grant
+(`rateLimiter.agent`, its limit in [config](./config.md)). On Cloudflare with a web build, the worker answers each prefix bare and
 under `/*`, so `/.well-known/oauth-protected-resource` and `/mcp` reach it before the static
 assets. The scopes are `mcp` (the whole tool list) and
 `offline_access` (the refresh token); a request without a `resource` gets a token the verifier

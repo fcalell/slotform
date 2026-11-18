@@ -1,12 +1,9 @@
 import { apiKey } from "@better-auth/api-key";
 import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware } from "better-auth/api";
+import { DEVICE_KEY_PREFIX } from "./outputs.ts";
 
 // Device credentials: docs/architecture/plugins/auth.md, "Devices".
-
-// Every key starts with this, so a bearer that is not a device key (an
-// expo session token, an OAuth access token) is never mistaken for one.
-const DEVICE_KEY_PREFIX = "stk_";
 
 // The random characters after the prefix: 48 letters, about 285 bits.
 const KEY_LENGTH = 48;

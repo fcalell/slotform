@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { listenerOrigin } from "@fcalell/plugin-api/wire";
 import { appUrlOf, passkeyFor } from "./listener.ts";
 
 const BAKED = {
@@ -22,8 +21,10 @@ test("the listener's origin stands before the app's URL var", () => {
 		),
 		"https://a.example",
 	);
-	assert.equal(listenerOrigin({ STACK_ORIGIN: "" }), null);
-	assert.equal(listenerOrigin({}), null);
+	assert.equal(
+		appUrlOf({ APP_URL: "http://127.0.0.1:8788", STACK_ORIGIN: "" }, "APP_URL"),
+		"http://127.0.0.1:8788",
+	);
 });
 
 test("passkeys keep the baked options with no listener origin, and swap in dev", () => {

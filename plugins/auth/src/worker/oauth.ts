@@ -13,6 +13,7 @@ import {
 	createResourceServerChallenge,
 	getOAuthProviderState,
 } from "@better-auth/oauth-provider";
+import type { RateLimitBinding } from "@fcalell/plugin-api/procedure";
 import {
 	and,
 	desc,
@@ -37,10 +38,15 @@ import {
 	type Membership,
 	organization as organizationScope,
 } from "../scope.ts";
-import { AUTH_PREFIX } from "../types.ts";
+import { AUTH_PREFIX, CLIENT_IP_HEADER } from "../types.ts";
 import { fetchClientMetadataResource } from "./cimd-transport.ts";
 import type { OAuthGrant } from "./outputs.ts";
-import { createTenancy, listOrganizations, type Tenancy } from "./tenancy.ts";
+import {
+	createTenancy,
+	type DbClient,
+	listOrganizations,
+	type Tenancy,
+} from "./tenancy.ts";
 
 // The protected resource and the login pages are pinned: docs/architecture/plugins/auth.md, "MCP OAuth".
 const MCP_RESOURCE_PATH = "/mcp";
@@ -52,11 +58,6 @@ const MCP_CONSENT_PAGE = "/connect/consent";
 // `offline_access` the refresh token.
 const MCP_SCOPE = "mcp";
 const MCP_SCOPES = [MCP_SCOPE, "offline_access"] as const;
-
-// Structural match with plugin-api's `RateLimitBinding` (procedure.ts).
-export interface RateLimitBinding {
-	limit(opts: { key: string }): Promise<{ success: boolean }>;
-}
 
 export function tooManyRequests(): Response {
 	return new Response(JSON.stringify({ code: "TOO_MANY_REQUESTS" }), {
@@ -77,9 +78,8 @@ function organizationNotResolved(): APIError {
 	});
 }
 
-// The grant lifetimes: an authorization code of 10 minutes, a 1-hour access
-// token, a rotating 30-day refresh token reusable for 30 seconds after its
-// rotation. Pinned, not options, so a dependency bump never moves them.
+// The grant lifetimes in seconds, the refresh token's reuse window after its
+// rotation last. Pinned, not options, so a dependency bump never moves them.
 const CODE_EXPIRES_IN = 600;
 const ACCESS_TOKEN_EXPIRES_IN = 3600;
 const REFRESH_TOKEN_EXPIRES_IN = 2592000;
@@ -194,42 +194,6 @@ export interface OAuth {
 	listGrants(userId: string): Promise<OAuthGrant[]>;
 }
 
-// The drizzle surface the grant read uses. `db` is `unknown` across the
-// plugin boundary and `get()` answers `unknown`, so each read casts to the
-// row it selects.
-interface GrantClient {
-	select(fields: Record<string, unknown>): {
-		from(table: unknown): {
-			innerJoin(
-				table: unknown,
-				on: unknown,
-			): {
-				innerJoin(
-					table: unknown,
-					on: unknown,
-				): { where(condition: unknown): { get(): unknown } };
-			};
-		};
-	};
-}
-
-// The drizzle surface the grant list uses; `all()` answers `unknown`, as
-// `GrantClient`'s `get()` does.
-interface GrantListClient {
-	select(fields: Record<string, unknown>): {
-		from(table: unknown): {
-			innerJoin(
-				table: unknown,
-				on: unknown,
-			): {
-				where(condition: unknown): {
-					orderBy(order: unknown): { all(): unknown[] };
-				};
-			};
-		};
-	};
-}
-
 // The auth context members the capability reads; `OAuthDeps.auth.$context`
 // is `Promise<unknown>`, so the read casts to this.
 interface AuthContextLike {
@@ -275,7 +239,7 @@ function unauthorized(message: string): APIError {
 export function createOAuth(deps: OAuthDeps): OAuth {
 	const resource = mcpResource(deps.appUrl);
 	const issuer = mcpIssuer(deps.appUrl);
-	const client = deps.db as GrantClient;
+	const client = deps.db as DbClient;
 	let cacheKey = jwksCacheKeys.get(deps.auth);
 	if (!cacheKey) {
 		cacheKey = {};
@@ -408,7 +372,7 @@ export function createOAuth(deps: OAuthDeps): OAuth {
 					createdAt: issuedAt,
 					updatedAt: issuedAt,
 					expiresAt: new Date(payload.exp * 1000),
-					ipAddress: request.headers.get("cf-connecting-ip"),
+					ipAddress: request.headers.get(CLIENT_IP_HEADER),
 					userAgent: request.headers.get("user-agent"),
 				},
 				member: row.member,
@@ -431,7 +395,7 @@ export function createOAuth(deps: OAuthDeps): OAuth {
 	}
 
 	async function listGrants(userId: string): Promise<OAuthGrant[]> {
-		const rows = (deps.db as GrantListClient)
+		const rows = (deps.db as DbClient)
 			.select({
 				id: oauthConsent.id,
 				clientId: oauthClient.clientId,

@@ -95,7 +95,7 @@ await orpc.auth.signOut.call();
 | `auth.user.update` | always, session | `{ name?, image? }` | `{ status }`; writes `session`, `member` |
 | `auth.signIn.sendOtp` | `emailOtp` | `{ email }` | `{ success }` |
 | `auth.signIn.verifyOtp` | `emailOtp` | `{ email, otp (six digits), name?, image?, oauthQuery? }` | `{ token, user }`, or `{ redirect: true, url }` inside an MCP authorization; writes `session` |
-| `auth.signIn.magicLink` | `magicLink` | `{ email, name?, callbackURL?, newUserCallbackURL?, errorCallbackURL?, oauthQuery? }` | `{ status }` |
+| `auth.signIn.magicLink` | `magicLink` | `{ email, name?, callbackURL?, newUserCallbackURL?, errorCallbackURL?, metadata?, oauthQuery? }` | `{ status }` |
 
 Both sends take the per-email limit (`TOO_MANY_REQUESTS` when it refuses). A refusal is an
 `ORPCError` whose `code` is the endpoint's (`BAD_REQUEST` for a wrong code or an invalid email) and

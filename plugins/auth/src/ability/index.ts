@@ -22,7 +22,7 @@ import { ORPCError } from "@orpc/server";
 // subject maps to `never` — the bottom type is assignable to any field
 // record, so `never` satisfies this constraint while making conditions on
 // that subject impossible to type (see `ConditionsTail` below).
-export type AbilitySubjects = Record<string, Record<string, unknown>>;
+type AbilitySubjects = Record<string, Record<string, unknown>>;
 
 // The subject union CASL's ability actually checks against: an abstract
 // subject stays a bare string; an instance subject is either the bare
@@ -34,7 +34,7 @@ type SubjectUnion<Subjects extends AbilitySubjects> = {
 		: K | (Subjects[K] & ForcedSubject<K>);
 }[keyof Subjects & string];
 
-export type AbilityFor<
+type AbilityFor<
 	Subjects extends AbilitySubjects,
 	Actions extends string = string,
 > = MongoAbility<[Actions, SubjectUnion<Subjects>]>;
@@ -78,9 +78,6 @@ export function defineAbility<
 	};
 }
 
-// Row tagging for instance checks: `subject("Expense", row)` marks `row` as
-// an `Expense` so `ability.can("update", subject("Expense", row))` matches
-// the rules declared for that subject type.
 export function subject<
 	Fields extends Record<string, unknown>,
 	TSubjectType extends string,
@@ -122,7 +119,7 @@ export type PackedRules<TAbility extends AnyMongoAbility = AnyMongoAbility> =
 type PackedConditions = Record<string, unknown> | 0 | undefined;
 
 // Packed rules written out for any subject: docs/architecture/plugins/auth.md, "Ability wire format".
-export type PackedRule =
+type PackedRule =
 	| [string, string]
 	| [string, string, PackedConditions]
 	| [string, string, PackedConditions, 1]

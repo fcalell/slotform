@@ -18,8 +18,8 @@ owns it and api's codegen splices it in, so a consumer passing it in options wou
 
 ### Runtime options
 
-**`runtimeOptions`** is a derived slot over `api.slots.cors`, `api.slots.devCorsOrigins` and
-`api.slots.devTargetOrigins`, so the [slot graph](../slot-graph.md) resolves every origin
+**`runtimeOptions`** is a derived slot over `api.slots.cors`, `api.slots.devCorsOrigins`,
+`api.slots.devTargetOrigins`, `api.slots.nativeScheme` and `auth.slots.reservedSlugs`, so the [slot graph](../slot-graph.md) resolves every origin
 contribution (vite's localhost included) before the derivation runs. There is no payload to mutate
 and no handler order: the auth CORS ordering is dataflow. The worker runtime entry resolves
 `runtimeOptions` inside its contribution, so the emitted `authRuntime(...)` call carries baked
@@ -94,8 +94,7 @@ itself and never read at request time. The schema defaults guarantee every bindi
 still allows one quick resend) and, baked with `mcp` only, `RATE_LIMITER_AGENT` (120 per 60 s).
 Cloudflare rate-limiter bindings accept a `period` of 10 or 60 seconds only
 ([Cloudflare docs](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)).
-The runtime's binding type matches plugin-api's `RateLimitBinding` structurally, since plugin-api
-exposes it on no public subpath; both sides rely only on its shape.
+The runtime types each binding with plugin-api's `RateLimitBinding` (`@fcalell/plugin-api/procedure`).
 
 The `fetch` handler applies the per-email limit to the two emailing endpoints (the OTP send and
 `/sign-in/magic-link`, one bucket, one `emailKey`). The `auth.signIn.sendOtp` and
@@ -107,7 +106,8 @@ when it refuses. The limit runs in production only and is skipped when no email 
 An organization is served at `/<slug>`, so its slug may not take plugin-api's `RESERVED_SLUGS` (the
 addresses every stack app serves or a router reads as an act) nor a first segment of the app's own
 top-level routes, which it would shadow. A frontend plugin contributes its routes' first segments to
-`auth.slots.reservedSlugs`; auth never reads a frontend's routes. Codegen bakes the combined list
+`auth.slots.reservedSlugs`, and auth itself contributes `mcp` with `mcp` on, since the MCP endpoint
+answers at `/mcp`; auth never reads a frontend's routes. Codegen bakes the combined list
 with organizations on, and the runtime refuses its slugs on organization create and update. A
 refused slug answers a code and a field error: a form reads `fieldErrors` off the answer, as it reads
 an API procedure's refusal, and shows it under the field that made the slug.
@@ -119,9 +119,9 @@ plugin declaration (`callback.optional<AuthCallbackPayloads[...]>()` in `index.t
 runtime's `AuthCallbacks` type (from `./runtime`) both derive their payloads from it, so
 `defineCallbacks`'s inferred type and `AuthCallbacks` never drift apart. Every callback is optional in
 the type, each gated on the option that turns its feature on; at runtime `sendOTP` is required while
-`emailOtp` (on by default) is, and `sendMagicLink` while `magicLink` is, and the runtime refuses to
-build Better Auth without them, naming the missing one. `emailOtp: false` without `magicLink`
-requires neither. Every payload carries `env`, so a callback reaches per-request bindings (an email
+`emailOtp` (on by default) is, `sendMagicLink` while `magicLink` is and `sendInvitation` while
+`organization` is, and the runtime refuses to build Better Auth without them, naming the missing one
+(`requiredCallbacks` in `callback-stubs.ts` is the list). With none of the three on, none is required. Every payload carries `env`, so a callback reaches per-request bindings (an email
 send binding, a queue) instead of module scope; the consumer types it as its worker's `Env`
 (`AuthCallbacks<Env>`). `AuthCallbacks` uses method syntax throughout, which keeps the payload
 parameter bivariant, so a consumer who narrows the env still satisfies the `AuthCallbacks` the runtime
@@ -130,10 +130,11 @@ input declares. The framework is the only caller and always passes the real env.
 The callback file lives at `src/worker/plugins/auth.ts`, exposed on **`auth.slots.callbackFile`**, a
 value slot with that seed default, the one place that keeps path and existence checks in sync; a
 consumer who restructures the repo overrides it with `override: true`. Codegen wires the file onto
-the auth runtime entry whenever it exists. With `emailOtp` or `magicLink` on, a missing file throws at
-generate: that beats a worker that refuses its first request. The import source strips the `src/`
-prefix, since the generated worker sits at `.stack/worker.ts` and imports relative to itself, so an
-overriding `callbackFile` must stay under `src/`, which codegen enforces.
+the auth runtime entry whenever it exists. While a callback is required, a missing file throws at
+generate: that beats a worker that refuses its first request. The import source is the path relative
+to `.stack/` (`../src/...`, extension kept), since the generated worker sits at `.stack/worker.ts` and
+imports relative to itself, so an overriding `callbackFile` must stay under `src/`, which codegen
+enforces.
 
 `stack init` scaffolds the file from `templates/callbacks.ts`. Each stub logs its code in dev and
 throws anywhere else, since a code in Workers Logs is a leaked sign-in, and carries a `// TODO` marker.
@@ -199,9 +200,9 @@ row read through it is `any`.
 
 `drizzleAdapter`'s schema map starts from the drizzle client's full schema (the consumer's
 `src/schema`) and then maps Better Auth's models to the framework's tables explicitly, so resolution
-never depends on the consumer's export names. The organization, passkey, OAuth and `apikey` tables
-enter the map only when their Better Auth plugin is registered, since the consumer migrates them only
-then. The consumer's schema coming first lets a model a `callbacks.plugins` entry declares resolve to
+never depends on the consumer's export names. Each table set enters the map only with its option on,
+since the consumer migrates it only then. One list of the sets (`schema/sets.ts`) feeds the map, the
+`api.slots.entities` names and the `db.slots.schemaModules` subpaths. The consumer's schema coming first lets a model a `callbacks.plugins` entry declares resolve to
 the consumer's table of that name.
 
 ### Slot contributions
@@ -214,14 +215,18 @@ configuration contributes the flag.
 | Target slot | Behaviour |
 | --- | --- |
 | `cloudflare.slots.compatibilityFlags` | `nodejs_compat` |
-| `cloudflare.slots.bindings` | The IP and email rate limiters, and with `mcp` the agent one (`RATE_LIMITER_AGENT`, 120 per 60 s) |
+| `cloudflare.slots.bindings` | The IP and email rate limiters, and with `mcp` the agent one ([rate limiting](#rate-limiting)) |
 | `api.slots.env` | `AUTH_SECRET` (`minLength: 32`), `APP_URL` (`url`, `devLocalhost`), and a client id and secret per OAuth provider |
 | `api.slots.routePrefixes` | `/api/auth`, and with `mcp` the two `/.well-known/oauth-*` discovery prefixes |
 | `api.slots.workerImports` | `src/shared/scopes.ts` as a namespace, with organizations on and the file present |
 | `api.slots.pluginRuntimes` | `authRuntime(...)` from `runtimeOptions` |
-| `api.slots.callbacks` | The callback file, whenever it exists; its absence throws while `emailOtp` or `magicLink` is on |
+| `api.slots.callbacks` | The callback file, whenever it exists; its absence throws while a callback is required ([callbacks](#callbacks)) |
 | `api.slots.rbacStatements` | `ac`'s statements, else the default organization statements |
 | `api.slots.entities` | The auth tables' export names (`account`, `session`, `user`, `verification`), and the organization, passkey, OAuth (`mcp`) and device key (`apikey`, with `devices`) tables when enabled; the `auth.*` procedures declare their `reads` and `writes` over them |
+| `api.slots.serverAuth` | `true`: a client app of this server reads it from the manifest api writes |
+| `api.slots.mcpAuth` | `true` with `mcp`: the MCP endpoint authenticates through this provider |
+| `auth.slots.reservedSlugs` | `mcp` with `mcp` on ([reserved slugs](#reserved-slugs)) |
+| `auth.slots.clientFlags` | The web client's flags from the options ([web client](#web-client)) |
 | `db.slots.schemaModules` | The [schema tables](#schema-tables)' subpaths, each when its option is on, so they migrate with the app's own |
 | `screens.slots.serveEnv` | The app URL variable set to the run's origin, and with email codes the fixture address and code ([screens](#screens)) |
 | `screens.slots.serveControls` | `@fcalell/plugin-auth/serve`, the `/fixture/link` control, with email codes on ([screens](#screens)) |
@@ -242,7 +247,7 @@ reads `upstream.db` (the drizzle client `dbRuntime` provides), and it declares t
 Env presence and value checks are the generated worker's `envChecks` assertion, fed by the plugin's
 `api.slots.env` contribution, never a per-request check.
 
-The runtime builds Better Auth once per `env` (a `WeakMap`), with `session.cookieCache` at 5 minutes
+Each `authRuntime(...)` builds Better Auth once per `env` (a `WeakMap` of its own), with `session.cookieCache` at 5 minutes
 (off for a native consumer, see [native client](#native-client)) and `cf-connecting-ip` as the client IP
 header. The signed session cache skips a D1 read on most authenticated `getSession` calls. Every
 session row Better Auth deletes is announced ([session end](#session-end)), and a sign-up policy,
@@ -412,7 +417,7 @@ nothing ([screens plugin](./screens.md)).
   `orpc.auth.session` reads, so a screen behind the session guard draws its signed-in form; the
   device keys of `devices: true` (`auth.devices.list`, `create`, `revoke`); and the steps a shipped
   page calls: sign-in and sign-out, `user.update`, the organization list, create, delete,
-  `setActive` and invitations, and with `mcp: true` the connect pages' `oauth.client`,
+  `setActive` and `invitations.create`, and with `mcp: true` the connect pages' `oauth.client`,
   `oauth.consent` and `organization.setActive` and the grants (`oauth.grants.list`, `revoke`). A
   procedure the app's auth config leaves off is never called, so its fixture is inert. The app
   overrides any of them in `src/app/fixtures.ts`, starting from this answer when it only adds to it.
@@ -454,7 +459,8 @@ forwards `Authorization`; a headless client sends no `Origin`), and a service ro
 The plugin validates a key on every call that carries one, and each validation reads and writes its
 row (the per-key limiter, `lastRequest`), so a revoked, disabled or expired key stops working on its
 next request; revocation is immediate for requests and not for an open socket. The row-level limiter
-is on and pinned at 600 per 60 s per key, so a procedure that also calls an auth endpoint spends two.
+is on and pinned per key ([devices guide](../../../plugins/auth/guide/devices.md)), so a procedure that also calls an
+auth endpoint spends two.
 
 The `device-guard` plugin registers ahead of the key plugin, so it refuses before a key is spent. It
 refuses a key at every auth endpoint outside a closed list with `FORBIDDEN`
@@ -552,8 +558,8 @@ route. The protected resource a token is bound to and the pages the authorizatio
 to are pinned, not options, since the screens that serve them are the app's, built to these
 addresses. The pins: the login, organization-choice and consent pages (`/sign-in`,
 `/connect/organization`, `/connect/consent`), the resource `${APP_URL}/mcp`, scopes `mcp` and
-`offline_access`, the authorization-code and refresh grants only, a 600 s code, a 3600 s access JWT,
-a 30-day refresh token reusable for 30 s, dynamic registration off, and `clientPrivileges` refusing
+`offline_access`, the authorization-code and refresh grants only, a 600 s code, the access and
+refresh token lifetimes the [mcp-oauth guide](../../../plugins/auth/guide/mcp-oauth.md) states, dynamic registration off, and `clientPrivileges` refusing
 every action (clients come from metadata documents, never a session).
 
 The guards force `prompt=consent` on every external authorization, since CIMD clients share a
@@ -590,6 +596,8 @@ accepted.
 ## In the code
 
 - `plugins/auth/src/index.ts`: the plugin, its slots (`runtimeOptions`, `appUrlDevDefault`, `reservedSlugs`, `callbackFile`, `cookiePrefix`, `clientFlags`) and contributions
+- `plugins/auth/src/access.ts`: `createAccessControl` and the default organization statements and roles
+- `plugins/auth/src/infer.ts`: the session types the client and the runtime derive from the options
 - `plugins/auth/src/types.ts`: the options schema, `AuthCallbackPayloads`, rate-limit defaults, provider normalization, discovery prefixes
 - `plugins/auth/src/callback-stubs.ts`: the deploy check over the scaffold's `// TODO` markers
 - `plugins/auth/templates/callbacks.ts`: the scaffolded callback file
@@ -602,9 +610,14 @@ accepted.
 - `plugins/auth/src/schema/passkey.ts`: the passkey table
 - `plugins/auth/src/schema/oauth.ts`: the OAuth provider tables
 - `plugins/auth/src/schema/devices.ts`: the device key table
+- `plugins/auth/src/schema/sets.ts`: the table set each option turns on
 - `plugins/auth/src/worker/index.ts`: `authRuntime`, `buildAuth`, the `fetch` handler, the re-exported Better Auth helpers
-- `plugins/auth/src/worker/procedures.ts`: the `auth.*` procedures and their limits
-- `plugins/auth/src/worker/outputs.ts`: the written-out procedure output types
+- `plugins/auth/src/worker/procedures.ts`: the `auth.*` procedures, `orgRules` and the scope lookups included, and their limits
+- `plugins/auth/src/worker/sign-up-policy.ts`: the [sign-up policy](#sign-up-policy)
+- `plugins/auth/src/worker/reserved-slugs.ts`: the [reserved slug](#reserved-slugs) refusal
+- `plugins/auth/src/worker/rate-limit.ts`: the `fetch` handler's IP and per-email limits
+- `plugins/auth/src/worker/email-key.ts`: the per-email limiter's key
+- `plugins/auth/src/worker/outputs.ts`: the written-out procedure output types and the device key prefix
 - `plugins/auth/src/worker/callback-url.ts`: the magic-link redirect check
 - `plugins/auth/src/worker/listener.ts`: the base URL and `passkeyFor` per listener
 - `plugins/auth/src/worker/tenancy.ts`: the tenancy capability
@@ -614,4 +627,5 @@ accepted.
 - `plugins/auth/src/worker/session-ended.ts`: the session-ended channel
 - `plugins/auth/src/screens.ts`: the workbench's `get-session` handlers
 - `plugins/auth/src/screens-fixtures.ts`: the workbench's `auth.*` fixtures
+- `plugins/auth/src/screens-session.ts`: the signed-in user and session both workbench modules answer
 - `plugins/auth/src/serve.ts`: the `/fixture/link` control for `stack screens serve`

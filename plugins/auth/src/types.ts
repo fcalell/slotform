@@ -10,50 +10,46 @@ export const OAUTH_DISCOVERY_PREFIXES = [
 	"/.well-known/oauth-protected-resource",
 ] as const;
 
-const rateLimiterIpSchema = z
-	.object({
-		binding: z.string().default("RATE_LIMITER_IP"),
-		limit: z
-			.number()
-			.positive({ error: "auth: rateLimiter.limit must be a positive number" })
-			.default(100),
-		period: z
-			.number()
-			.positive({ error: "auth: rateLimiter.period must be a positive number" })
-			.default(60),
-	})
-	.default({ binding: "RATE_LIMITER_IP", limit: 100, period: 60 });
+// The header Cloudflare sets to the client's address. It is unspoofable behind
+// the edge, which `X-Forwarded-For` is not.
+export const CLIENT_IP_HEADER = "cf-connecting-ip";
 
-// Email limiter defaults and the 10 or 60 s period: docs/architecture/plugins/auth.md, "Rate limiting".
-const rateLimiterEmailSchema = z
-	.object({
-		binding: z.string().default("RATE_LIMITER_EMAIL"),
-		limit: z
-			.number()
-			.positive({ error: "auth: rateLimiter.limit must be a positive number" })
-			.default(3),
-		period: z
-			.number()
-			.positive({ error: "auth: rateLimiter.period must be a positive number" })
-			.default(60),
-	})
-	.default({ binding: "RATE_LIMITER_EMAIL", limit: 3, period: 60 });
+interface RateLimiterConfig {
+	binding: string;
+	limit: number;
+	period: number;
+}
 
-// Per-grant limit on agent calls, one bucket per grant, the same Cloudflare
-// rate-limiter shape. Bound only while `mcp` is on.
-const rateLimiterAgentSchema = z
-	.object({
-		binding: z.string().default("RATE_LIMITER_AGENT"),
-		limit: z
-			.number()
-			.positive({ error: "auth: rateLimiter.limit must be a positive number" })
-			.default(120),
-		period: z
-			.number()
-			.positive({ error: "auth: rateLimiter.period must be a positive number" })
-			.default(60),
-	})
-	.default({ binding: "RATE_LIMITER_AGENT", limit: 120, period: 60 });
+// Limiter defaults and the 10 or 60 s period: docs/architecture/plugins/auth.md, "Rate limiting".
+// The agent limiter is one bucket per grant, bound only while `mcp` is on.
+const RATE_LIMITER_DEFAULTS: Record<
+	"ip" | "email" | "agent",
+	RateLimiterConfig
+> = {
+	ip: { binding: "RATE_LIMITER_IP", limit: 100, period: 60 },
+	email: { binding: "RATE_LIMITER_EMAIL", limit: 3, period: 60 },
+	agent: { binding: "RATE_LIMITER_AGENT", limit: 120, period: 60 },
+};
+
+function rateLimiterSchema(defaults: RateLimiterConfig) {
+	return z
+		.object({
+			binding: z.string().default(defaults.binding),
+			limit: z
+				.number()
+				.positive({
+					error: "auth: rateLimiter.limit must be a positive number",
+				})
+				.default(defaults.limit),
+			period: z
+				.number()
+				.positive({
+					error: "auth: rateLimiter.period must be a positive number",
+				})
+				.default(defaults.period),
+		})
+		.default(defaults);
+}
 
 const organizationObjectSchema = z.object({
 	ac: z.unknown().optional(),
@@ -107,9 +103,6 @@ export const authOptionsSchema = z
 			.optional(),
 		session: z
 			.object({
-				// `positive` emits a "too_small" issue whose path is
-				// ["session", "expiresIn"] — the path substring satisfies the
-				// `.toThrow("expiresIn")` assertion.
 				expiresIn: z
 					.number()
 					.positive({
@@ -131,7 +124,6 @@ export const authOptionsSchema = z
 					.optional(),
 			})
 			.optional(),
-		// Identity tables carry no consumer columns: docs/architecture/plugins/auth.md, "Schema tables".
 		user: z
 			.object({
 				// Account deletion (App Store 5.1.1(v) requires it for a native app).
@@ -189,15 +181,11 @@ export const authOptionsSchema = z
 		appUrlVar: z.string().default("APP_URL"),
 		rateLimiter: z
 			.object({
-				ip: rateLimiterIpSchema,
-				email: rateLimiterEmailSchema,
-				agent: rateLimiterAgentSchema,
+				ip: rateLimiterSchema(RATE_LIMITER_DEFAULTS.ip),
+				email: rateLimiterSchema(RATE_LIMITER_DEFAULTS.email),
+				agent: rateLimiterSchema(RATE_LIMITER_DEFAULTS.agent),
 			})
-			.default({
-				ip: { binding: "RATE_LIMITER_IP", limit: 100, period: 60 },
-				email: { binding: "RATE_LIMITER_EMAIL", limit: 3, period: 60 },
-				agent: { binding: "RATE_LIMITER_AGENT", limit: 120, period: 60 },
-			}),
+			.default(RATE_LIMITER_DEFAULTS),
 	})
 	.refine((options) => options.signUp === "open" || options.organization, {
 		error:

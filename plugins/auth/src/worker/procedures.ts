@@ -1,7 +1,10 @@
 import type { apiKey } from "@better-auth/api-key";
 import type { oauthProvider } from "@better-auth/oauth-provider";
-import type { ProcedureFactory } from "@fcalell/plugin-api/procedure";
+import { createMongoAbility } from "@casl/ability";
+import { noSuch, type ProcedureFactory } from "@fcalell/plugin-api/procedure";
 import { z } from "@fcalell/plugin-api/schema";
+import type { Procedure } from "@fcalell/plugin-api/types";
+import { getTableName } from "@fcalell/plugin-db/orm";
 import { ORPCError } from "@orpc/server";
 import { isAPIError } from "better-auth/api";
 import type { betterAuth } from "better-auth/minimal";
@@ -9,6 +12,16 @@ import type { role as buildAcRole } from "better-auth/plugins/access";
 import type { emailOTP } from "better-auth/plugins/email-otp";
 import type { magicLink } from "better-auth/plugins/magic-link";
 import type { DefaultOrganizationPlugin } from "better-auth/plugins/organization";
+import {
+	compileStatements,
+	type PackedRuleSet,
+	packAbility,
+} from "../ability/index.ts";
+import {
+	organization as organizationScope,
+	type Scope,
+	type ScopeContext,
+} from "../scope.ts";
 import { type RedirectInput, unsafeCallbackField } from "./callback-url.ts";
 import { DEVICE_EXPIRES_MAX_DAYS, DEVICE_NAME_MAX } from "./devices.ts";
 import { emailKey } from "./email-key.ts";
@@ -23,7 +36,8 @@ import type {
 	OAuthGrant,
 	RejectedInvitation,
 } from "./outputs.ts";
-import type { Tenancy } from "./tenancy.ts";
+import type { AuthRateLimiter } from "./rate-limit.ts";
+import { resolveGrants, type Tenancy } from "./tenancy.ts";
 
 // The most devices one member holds at once.
 const DEVICES_MAX = 25;
@@ -32,11 +46,6 @@ const DEVICES_MAX = 25;
 // so the app never imports better-auth's client. Each runs the endpoint on
 // the server API with the request's headers, copies the cookies it sets onto
 // the response and answers the endpoint's body.
-
-// Structural match with plugin-api's `RateLimitBinding` (see `index.ts`).
-interface RateLimitBinding {
-	limit(opts: { key: string }): Promise<{ success: boolean }>;
-}
 
 // The server API of an instance with every plugin a procedure here calls
 // into. `roles` is `Record<string, ...>` so a role is a `string`, as the
@@ -65,7 +74,7 @@ export type AuthProcedureFactory = ProcedureFactory<
 		reqHeaders: Headers;
 		resHeaders: Headers;
 		auth: { api: FullApi };
-		_rateLimiter?: { ip?: RateLimitBinding; email?: RateLimitBinding };
+		_rateLimiter?: AuthRateLimiter;
 		_devMode?: boolean;
 		_trustedOrigins?: readonly string[];
 	},
@@ -131,7 +140,7 @@ async function callAuth<R>(
 // The per-email limit shared with the `fetch` handler: docs/architecture/plugins/auth.md, "Rate limiting".
 async function limitEmail(
 	context: {
-		_rateLimiter?: { email?: RateLimitBinding };
+		_rateLimiter?: AuthRateLimiter;
 		_devMode?: boolean;
 	},
 	email: string,
@@ -230,6 +239,13 @@ export function sessionProcedures(factory: AuthProcedureFactory) {
 // The code's digits, which the plugin pins to the same length.
 export const OTP_LENGTH = 6;
 
+const VERIFY_OTP_INPUT = z.object({
+	email: EMAIL,
+	otp: z.string().length(OTP_LENGTH),
+	name: z.string().optional(),
+	image: z.string().optional(),
+});
+
 export function emailOtpProcedures(factory: AuthProcedureFactory) {
 	return {
 		sendOtp: factory()
@@ -244,14 +260,7 @@ export function emailOtpProcedures(factory: AuthProcedureFactory) {
 				);
 			}),
 		verifyOtp: factory({ writes: ["session"] })
-			.input(
-				z.object({
-					email: EMAIL,
-					otp: z.string().length(OTP_LENGTH),
-					name: z.string().optional(),
-					image: z.string().optional(),
-				}),
-			)
+			.input(VERIFY_OTP_INPUT)
 			.mutation(({ input, context }) =>
 				callAuth(context, (options) =>
 					context.auth.api.signInEmailOTP({ ...options, body: input }),
@@ -266,15 +275,7 @@ export function emailOtpOauthProcedures(factory: AuthProcedureFactory) {
 	return {
 		...emailOtpProcedures(factory),
 		verifyOtp: factory({ writes: ["session"] })
-			.input(
-				z.object({
-					email: EMAIL,
-					otp: z.string().length(OTP_LENGTH),
-					name: z.string().optional(),
-					image: z.string().optional(),
-					oauthQuery: OAUTH_QUERY,
-				}),
-			)
+			.input(VERIFY_OTP_INPUT.extend({ oauthQuery: OAUTH_QUERY }))
 			.mutation(({ input: { oauthQuery, ...input }, context }) =>
 				callAuth<
 					Awaited<ReturnType<FullApi["signInEmailOTP"]>> | OAuthRedirect
@@ -290,19 +291,19 @@ export function emailOtpOauthProcedures(factory: AuthProcedureFactory) {
 
 // ---------- magicLink ----------
 
+const MAGIC_LINK_INPUT = z.object({
+	email: EMAIL,
+	name: z.string().optional(),
+	callbackURL: z.string().optional(),
+	newUserCallbackURL: z.string().optional(),
+	errorCallbackURL: z.string().optional(),
+	metadata: METADATA.optional(),
+});
+
 export function magicLinkProcedures(factory: AuthProcedureFactory) {
 	return {
 		magicLink: factory()
-			.input(
-				z.object({
-					email: EMAIL,
-					name: z.string().optional(),
-					callbackURL: z.string().optional(),
-					newUserCallbackURL: z.string().optional(),
-					errorCallbackURL: z.string().optional(),
-					metadata: METADATA.optional(),
-				}),
-			)
+			.input(MAGIC_LINK_INPUT)
 			.mutation(async ({ input, context }) => {
 				assertRedirects(context, input);
 				await limitEmail(context, input.email);
@@ -317,17 +318,7 @@ export function magicLinkProcedures(factory: AuthProcedureFactory) {
 export function magicLinkOauthProcedures(factory: AuthProcedureFactory) {
 	return {
 		magicLink: factory()
-			.input(
-				z.object({
-					email: EMAIL,
-					name: z.string().optional(),
-					callbackURL: z.string().optional(),
-					newUserCallbackURL: z.string().optional(),
-					errorCallbackURL: z.string().optional(),
-					metadata: METADATA.optional(),
-					oauthQuery: OAUTH_QUERY,
-				}),
-			)
+			.input(MAGIC_LINK_INPUT.extend({ oauthQuery: OAUTH_QUERY }))
 			.mutation(async ({ input: { oauthQuery, ...input }, context }) => {
 				assertRedirects(context, input);
 				await limitEmail(context, input.email);
@@ -357,6 +348,22 @@ function slugOf(name: string): string {
 		.replace(/^-+|-+$/g, "");
 }
 
+// A name with no letter or digit derives no slug, and the caller names one.
+function slugFor(input: { name: string; slug?: string }): string {
+	const slug = input.slug ?? slugOf(input.name);
+	if (slug === "") {
+		const message = "Choose an address: the name gives none.";
+		throw new ORPCError("BAD_REQUEST", {
+			message,
+			data: {
+				code: "ORGANIZATION_SLUG_REQUIRED",
+				fieldErrors: { slug: message },
+			},
+		});
+	}
+	return slug;
+}
+
 const ORGANIZATION_FIELDS = {
 	name: z.string().min(1),
 	slug: z.string().min(1),
@@ -364,8 +371,14 @@ const ORGANIZATION_FIELDS = {
 	metadata: METADATA.optional(),
 };
 
+const ORGANIZATION_ID = z.string().min(1);
+
+const SET_ACTIVE_INPUT = z.object({
+	organizationId: ORGANIZATION_ID.nullable().optional(),
+	organizationSlug: z.string().min(1).optional(),
+});
+
 export function organizationProcedures(factory: AuthProcedureFactory) {
-	const organizationId = z.string().min(1);
 	return {
 		organization: {
 			list: factory({ auth: true, reads: ["organization", "member"] }).query(
@@ -391,7 +404,7 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 					callAuth(context, (options) =>
 						context.auth.api.createOrganization({
 							...options,
-							body: { ...input, slug: input.slug ?? slugOf(input.name) },
+							body: { ...input, slug: slugFor(input) },
 						}),
 					),
 				),
@@ -402,7 +415,7 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 						slug: ORGANIZATION_FIELDS.slug.optional(),
 						logo: ORGANIZATION_FIELDS.logo,
 						metadata: ORGANIZATION_FIELDS.metadata,
-						organizationId: organizationId.optional(),
+						organizationId: ORGANIZATION_ID.optional(),
 					}),
 				)
 				.mutation(({ input: { organizationId, ...data }, context }) =>
@@ -417,19 +430,14 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 				auth: true,
 				writes: ["organization", "member", "session"],
 			})
-				.input(z.object({ organizationId }))
+				.input(z.object({ organizationId: ORGANIZATION_ID }))
 				.mutation(({ input, context }) =>
 					callAuth(context, (options) =>
 						context.auth.api.deleteOrganization({ ...options, body: input }),
 					),
 				),
 			setActive: factory({ auth: true, writes: ["session"] })
-				.input(
-					z.object({
-						organizationId: organizationId.nullable().optional(),
-						organizationSlug: z.string().min(1).optional(),
-					}),
-				)
+				.input(SET_ACTIVE_INPUT)
 				.mutation(({ input, context }) =>
 					callAuth<ActiveOrganization | null>(context, (options) =>
 						context.auth.api.setActiveOrganization({ ...options, body: input }),
@@ -447,7 +455,7 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 						z.object({
 							memberId: z.string().min(1),
 							role: z.string().min(1),
-							organizationId: organizationId.optional(),
+							organizationId: ORGANIZATION_ID.optional(),
 						}),
 					)
 					.mutation(({ input, context }) =>
@@ -459,7 +467,7 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 					.input(
 						z.object({
 							memberIdOrEmail: z.string().min(1),
-							organizationId: organizationId.optional(),
+							organizationId: ORGANIZATION_ID.optional(),
 						}),
 					)
 					.mutation(({ input, context }) =>
@@ -474,7 +482,7 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 						z.object({
 							email: EMAIL,
 							role: z.string().min(1),
-							organizationId: organizationId.optional(),
+							organizationId: ORGANIZATION_ID.optional(),
 							resend: z.boolean().optional(),
 						}),
 					)
@@ -517,13 +525,7 @@ export function organizationProcedures(factory: AuthProcedureFactory) {
 // that resumes it.
 export function setActiveOauthProcedure(factory: AuthProcedureFactory) {
 	return factory({ auth: true, writes: ["session"] })
-		.input(
-			z.object({
-				organizationId: z.string().min(1).nullable().optional(),
-				organizationSlug: z.string().min(1).optional(),
-				oauthQuery: OAUTH_QUERY,
-			}),
-		)
+		.input(SET_ACTIVE_INPUT.extend({ oauthQuery: OAUTH_QUERY }))
 		.mutation(({ input: { oauthQuery, ...input }, context }) =>
 			callAuth<ActiveOrganization | null | OAuthRedirect>(context, (options) =>
 				context.auth.api.setActiveOrganization({
@@ -532,6 +534,73 @@ export function setActiveOauthProcedure(factory: AuthProcedureFactory) {
 				}),
 			),
 		);
+}
+
+// ---------- auth.orgRules and auth.scope.<name>.bySlug ----------
+
+// A slug names the organization on its own; below it, a slug is unique only
+// within its parent, whose id comes along.
+const ORGANIZATION_LOOKUP = z.object({ slug: z.string().min(1) });
+const SCOPE_LOOKUP = z.object({
+	slug: z.string().min(1),
+	parentId: z.string().min(1),
+});
+
+// The entities a scope's lookup reads: each table of its chain by its SQL
+// name, which is its entity when the schema exports the table under that
+// name, and the membership the organization tier resolves.
+function scopeReads(scope: Scope): string[] {
+	const reads = ["member"];
+	for (let level: Scope | undefined = scope; level; level = level.parent?.[0]) {
+		reads.push(getTableName(level.table));
+	}
+	return reads.sort();
+}
+
+// `orgRules` reads `member`: docs/architecture/plugins/query.md, "Abilities".
+export function orgRulesProcedure(
+	factory: AuthProcedureFactory,
+	roles: Record<string, unknown>,
+) {
+	return factory({
+		auth: true,
+		scope: organizationScope,
+		reads: ["member"],
+	}).query(async ({ context }): Promise<{ rules: PackedRuleSet }> => {
+		const grants = resolveGrants(context.member.role, roles);
+		const ability = createMongoAbility(compileStatements(grants));
+		return { rules: packAbility(ability) };
+	});
+}
+
+// A scope's lookup: the slug within its parent, answered by the chain's rows
+// and the caller's `member`.
+export type ScopeLookup<S extends Scope> = Procedure<
+	{ slug: string } | { slug: string; parentId: string },
+	ScopeContext<S>
+>;
+
+// A scope lookup is invalidated by writes on its chain: docs/architecture/plugins/auth.md, "Scopes".
+export function bySlugProcedure<S extends Scope>(
+	factory: AuthProcedureFactory,
+	scope: S,
+): ScopeLookup<S> {
+	return factory({ auth: true, reads: scopeReads(scope) })
+		.input(scope.parent ? SCOPE_LOOKUP : ORGANIZATION_LOOKUP)
+		.query(async ({ input, context }) => {
+			const found = await context.tenancy.bySlug(
+				scope,
+				input.slug,
+				"parentId" in input && typeof input.parentId === "string"
+					? input.parentId
+					: undefined,
+				context.user.id,
+			);
+			if (!found) {
+				throw noSuch(scope);
+			}
+			return found;
+		});
 }
 
 // ---------- mcp ----------
@@ -638,20 +707,10 @@ export function deviceProcedures(factory: AuthProcedureFactory) {
 							.optional(),
 					}),
 				)
+				// The limit is counted after the key is made, so two creates that
+				// race past it both see the other's key; one over the limit is
+				// deleted before it is answered.
 				.mutation(async ({ input, context }): Promise<CreatedDevice> => {
-					const { apiKeys } = await callAuth(context, (options) =>
-						context.auth.api.listApiKeys(options),
-					);
-					const now = Date.now();
-					const live = apiKeys.filter(
-						(row) => !row.expiresAt || row.expiresAt.getTime() > now,
-					);
-					if (live.length >= DEVICES_MAX) {
-						throw new ORPCError("BAD_REQUEST", {
-							message: `At most ${DEVICES_MAX} devices at once. Revoke one first.`,
-							data: { code: "DEVICE_LIMIT" },
-						});
-					}
 					const created = await callAuth(context, (options) =>
 						context.auth.api.createApiKey({
 							...options,
@@ -663,6 +722,25 @@ export function deviceProcedures(factory: AuthProcedureFactory) {
 							},
 						}),
 					);
+					const { apiKeys } = await callAuth(context, (options) =>
+						context.auth.api.listApiKeys(options),
+					);
+					const now = Date.now();
+					const live = apiKeys.filter(
+						(row) => !row.expiresAt || row.expiresAt.getTime() > now,
+					);
+					if (live.length > DEVICES_MAX) {
+						await callAuth(context, (options) =>
+							context.auth.api.deleteApiKey({
+								...options,
+								body: { keyId: created.id },
+							}),
+						);
+						throw new ORPCError("BAD_REQUEST", {
+							message: `At most ${DEVICES_MAX} devices at once. Revoke one first.`,
+							data: { code: "DEVICE_LIMIT" },
+						});
+					}
 					return { device: deviceOf(created), key: created.key };
 				}),
 			revoke: factory({ auth: true, writes: ["apikey"] })

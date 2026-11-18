@@ -1,6 +1,10 @@
 import type { Fixtures } from "@fcalell/plugin-screens/fixtures";
 import { session, user } from "./screens-session.ts";
-import type { Device, OAuthGrant } from "./worker/outputs.ts";
+import {
+	DEVICE_KEY_PREFIX,
+	type Device,
+	type OAuthGrant,
+} from "./worker/outputs.ts";
 import type {
 	deviceProcedures,
 	emailOtpProcedures,
@@ -37,7 +41,7 @@ const devices: Device[] = [
 	{
 		id: "device_studio",
 		name: "Studio laptop",
-		start: "sk_stud",
+		start: `${DEVICE_KEY_PREFIX}stud`,
 		createdAt: new Date("2026-02-10T09:00:00.000Z"),
 		expiresAt: null,
 		lastUsedAt: new Date("2026-02-28T18:30:00.000Z"),
@@ -45,7 +49,7 @@ const devices: Device[] = [
 	{
 		id: "device_booth",
 		name: "Booth laptop",
-		start: "sk_boot",
+		start: `${DEVICE_KEY_PREFIX}boot`,
 		createdAt: new Date("2026-02-20T09:00:00.000Z"),
 		expiresAt: new Date("2099-01-01T00:00:00.000Z"),
 		lastUsedAt: null,
@@ -53,7 +57,7 @@ const devices: Device[] = [
 	{
 		id: "device_old",
 		name: "Old desktop",
-		start: "sk_oldd",
+		start: `${DEVICE_KEY_PREFIX}oldd`,
 		createdAt: new Date("2025-06-01T09:00:00.000Z"),
 		expiresAt: new Date("2025-12-01T09:00:00.000Z"),
 		lastUsedAt: new Date("2025-11-30T12:00:00.000Z"),
@@ -121,12 +125,12 @@ const fixtures = {
 				device: {
 					id: "device_new",
 					name,
-					start: "sk_scre",
+					start: `${DEVICE_KEY_PREFIX}scre`,
 					createdAt: new Date("2026-03-01T09:00:00.000Z"),
 					expiresAt: null,
 					lastUsedAt: null,
 				},
-				key: "sk_screens_0123456789abcdefghijklmnopqrstuvwxyz",
+				key: `${DEVICE_KEY_PREFIX}screens0123456789abcdefghijklmnopqrstuvwxyzABCDEF`,
 			}),
 			revoke: () => ({ success: true }),
 		},

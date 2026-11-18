@@ -26,20 +26,22 @@ export interface Tenancy {
 	can(role: string, permissions: Record<string, readonly string[]>): boolean;
 }
 
-// The surface of the drizzle client this module reads: one-row selects. The
-// sqlite and D1 clients both answer `get()`, one synchronously, one with a
-// promise, and `await` reads both. `db` is `unknown` across the plugin
-// boundary and `get()` answers `unknown`, so each read casts to the row it
-// selects.
-interface SelectClient {
+// The surface of the drizzle client the auth reads use: selects, joined,
+// filtered and ordered. The sqlite and D1 clients both answer `get()` and
+// `all()`, one synchronously, one with a promise, and `await` reads both.
+// `db` is `unknown` across the plugin boundary and the answers are
+// `unknown`, so each read casts to the rows it selects.
+interface SelectQuery {
+	innerJoin(table: unknown, on: unknown): SelectQuery;
+	where(condition: unknown): SelectQuery;
+	orderBy(order: unknown): SelectQuery;
+	get(): unknown;
+	all(): unknown;
+}
+
+export interface DbClient {
 	select(fields: Record<string, unknown>): {
-		from(table: unknown): {
-			innerJoin(
-				table: unknown,
-				on: unknown,
-			): { where(condition: unknown): { get(): unknown } };
-			where(condition: unknown): { get(): unknown };
-		};
+		from(table: unknown): SelectQuery;
 	};
 }
 
@@ -50,7 +52,7 @@ export function createTenancy(
 	membership: Membership | null = null,
 	pin?: string,
 ): Tenancy {
-	const client = db as SelectClient;
+	const client = db as DbClient;
 
 	// The organization matching `where` and the caller's membership of it, in
 	// one join; the consumer's membership predicate decides whether the
@@ -176,15 +178,7 @@ export async function listOrganizations(
 	membership: Membership | null,
 	userId: string,
 ): Promise<string[]> {
-	const rows = (await (
-		db as {
-			select(fields: Record<string, unknown>): {
-				from(table: unknown): {
-					where(condition: unknown): { all(): unknown };
-				};
-			};
-		}
-	)
+	const rows = (await (db as DbClient)
 		.select({ id: member.organizationId })
 		.from(member)
 		.where(

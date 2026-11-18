@@ -79,8 +79,8 @@ type BetterAuthClient<O extends AuthClientOptions> = ReactAuthClient<{
 	plugins: ClientPlugins<O>;
 }>;
 
-// Rebuilt through better-auth's own access control, as the worker rebuilds
-// it: the client checks a role's permissions through `.authorize()`.
+// The client checks a role's permissions through `.authorize()`, which the
+// baked records do not carry.
 function organizationPlugin(access: true | OrganizationAccess) {
 	if (access === true) return organizationClient();
 	return organizationClient({

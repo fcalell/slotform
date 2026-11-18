@@ -157,6 +157,7 @@ function authWorker(options: Partial<AuthRuntimeInput> = {}, db = database()) {
 				trustedOrigins: [LOOPBACK],
 				...options,
 				callbacks: {
+					sendInvitation: () => {},
 					...options.callbacks,
 					plugins: [testSignIn(), ...(options.callbacks?.plugins ?? [])],
 				},
@@ -448,7 +449,7 @@ test("auth.oauth.grants.list answers the caller's grants, newest first, with the
 		uri: null,
 		organizationId: "org_a",
 		scopes: ["mcp", "offline_access"],
-		createdAt: json[0]?.createdAt,
+		createdAt: new Date(2_000).toISOString(),
 	});
 	assert.equal(json[1]?.name, "Claude");
 	assert.equal(json[1]?.uri, "https://claude.example");

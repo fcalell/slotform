@@ -97,8 +97,7 @@ export interface SocialSignInOptions {
 	callbackURL?: string;
 }
 
-// WeNauti (and any OAuth-only native consumer) signs in exclusively through
-// Apple + Google; these wrap `signIn.social` so screens don't repeat the
+// An OAuth-only native consumer signs in through Apple and Google; these wrap `signIn.social` so screens don't repeat the
 // provider string. The server decides which providers are actually configured.
 export function signInWithApple(
 	client: AuthClient,

@@ -3,6 +3,7 @@ import {
 	FIXTURE_PREFIX,
 } from "@fcalell/plugin-screens/serve";
 import { AUTH_PREFIX } from "./types.ts";
+import { isSafeCallbackURL } from "./worker/callback-url.ts";
 
 // The served app's `/fixture/link`: docs/architecture/plugins/auth.md, "Screens".
 export default async function link(
@@ -42,7 +43,8 @@ export default async function link(
 		});
 	const to = url.searchParams.get("to") ?? "/";
 	const headers = new Headers({
-		location: to.startsWith("/") && !to.startsWith("//") ? to : "/",
+		// A path on the app only, as a sign-in link's redirect is held to.
+		location: isSafeCallbackURL(to, []) ? to : "/",
 	});
 	for (const cookie of signed.headers.getSetCookie())
 		headers.append("set-cookie", cookie);

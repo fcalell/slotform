@@ -43,6 +43,11 @@ import { ac, roles } from "./src/shared/access.ts";
 auth({ organization: { ac, roles } }),
 
 // src/app/lib/auth.ts
+import { createAuthClient } from "@fcalell/plugin-auth/client";
+import { ac, roles } from "#/shared/access.ts";
+export const authClient = createAuthClient({
+  organization: { statements: ac.statements, roles },
+});
 ```
 
 `roles` replaces the default roles. Its statements name what `procedure({ can })` autocompletes.
@@ -79,7 +84,7 @@ needs a session, and a mutation invalidates the queries that read what it writes
 | Procedure | Input | Answers |
 | --- | --- | --- |
 | `list` (query) | none | the caller's organizations; reads `organization`, `member` |
-| `create` | `{ name, slug?, logo?, metadata?, keepCurrentActiveOrganization? }`; a missing `slug` is the name's lowercase words joined by hyphens | the organization; writes `organization`, `member`, `session` |
+| `create` | `{ name, slug?, logo?, metadata?, keepCurrentActiveOrganization? }`; a missing `slug` is the name's lowercase words joined by hyphens, and a name with no letter or digit needs one (`BAD_REQUEST` `ORGANIZATION_SLUG_REQUIRED`, `fieldErrors: { slug }`) | the organization; writes `organization`, `member`, `session` |
 | `update` | `{ name?, slug?, logo?, metadata?, organizationId? }` | the organization; writes `organization` |
 | `delete` | `{ organizationId }` | writes `organization`, `member`, `session` |
 | `setActive` | `{ organizationId?, organizationSlug? }` | the organization with its members and invitations; writes `session` |

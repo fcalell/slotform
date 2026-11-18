@@ -1,17 +1,14 @@
 import { expo } from "@better-auth/expo";
 import { passkey } from "@better-auth/passkey";
-import { createMongoAbility } from "@casl/ability";
 import type { RuntimePlugin } from "@fcalell/cli/runtime";
 import {
-	noSuch,
 	ORG_RULES_PATH,
+	type RateLimitBinding,
 	SCOPE_ROUTES_PATH,
 } from "@fcalell/plugin-api/procedure";
-import type { Procedure } from "@fcalell/plugin-api/types";
-import { getTableName, type SQLiteColumn } from "@fcalell/plugin-db/orm";
+import type { SQLiteColumn } from "@fcalell/plugin-db/orm";
 import type { BetterAuthPlugin } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { APIError, createAuthMiddleware } from "better-auth/api";
 import { type BetterAuthOptions, betterAuth } from "better-auth/minimal";
 import {
 	role as buildAcRole,
@@ -20,27 +17,13 @@ import {
 import { emailOTP } from "better-auth/plugins/email-otp";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { organization } from "better-auth/plugins/organization";
-import { z } from "zod";
-import {
-	compileStatements,
-	type PackedRuleSet,
-	packAbility,
-} from "../ability/index.ts";
 import { defaultOrgRoles } from "../access.ts";
 import type { SessionOf, SessionUser } from "../infer.ts";
-import { apikey as apikeyTable } from "../schema/devices.ts";
-import { account, session, user, verification } from "../schema/index.ts";
-import {
-	invitation,
-	member,
-	organization as organizationTable,
-} from "../schema/organization.ts";
-import { passkey as passkeyTable } from "../schema/passkey.ts";
+import { tableSetsOf } from "../schema/sets.ts";
 import {
 	type Membership,
 	organization as organizationScope,
 	type Scope,
-	type ScopeContext,
 } from "../scope.ts";
 import type {
 	AuthCallbackPayloads,
@@ -49,9 +32,12 @@ import type {
 	ResolvedSocialProvider,
 	SocialProviderName,
 } from "../types.ts";
-import { AUTH_PREFIX, OAUTH_DISCOVERY_PREFIXES } from "../types.ts";
+import {
+	AUTH_PREFIX,
+	CLIENT_IP_HEADER,
+	OAUTH_DISCOVERY_PREFIXES,
+} from "../types.ts";
 import { devicePlugins } from "./devices.ts";
-import { emailKey } from "./email-key.ts";
 import {
 	appUrlOf,
 	type BakedPasskey,
@@ -63,10 +49,10 @@ import {
 	type GrantAdapter,
 	mcpPlugins,
 	type OAuth,
-	tooManyRequests,
 } from "./oauth.ts";
 import {
 	type AuthProcedureFactory,
+	bySlugProcedure,
 	deviceProcedures,
 	emailOtpOauthProcedures,
 	emailOtpProcedures,
@@ -75,16 +61,16 @@ import {
 	OTP_LENGTH,
 	oauthProcedures,
 	organizationProcedures,
+	orgRulesProcedure,
+	type ScopeLookup,
 	sessionProcedures,
 	setActiveOauthProcedure,
 } from "./procedures.ts";
+import { type AuthRateLimiter, checkRateLimit } from "./rate-limit.ts";
+import { refuseReservedSlug, reservedSlugCheck } from "./reserved-slugs.ts";
 import { publishSessionEnded } from "./session-ended.ts";
-import { createTenancy, resolveGrants, type Tenancy } from "./tenancy.ts";
-
-// The sign-up refusal code and sentence: docs/architecture/plugins/auth.md, "Sign-up policy".
-const SIGN_UP_CLOSED = "SIGN_UP_CLOSED";
-const SIGN_UP_CLOSED_MESSAGE =
-	"Sign-up is closed. Ask for an invitation to join.";
+import { type PolicyAdapter, signUpPolicy } from "./sign-up-policy.ts";
+import { createTenancy, type Tenancy } from "./tenancy.ts";
 
 // Routes `devices` takes off HTTP: docs/architecture/plugins/auth.md, "Devices".
 const DEVICE_DISABLED_PATHS = [
@@ -121,7 +107,6 @@ export { setSessionCookie } from "better-auth/cookies";
 export { customSession } from "better-auth/plugins/custom-session";
 
 export type { OtpType } from "../types.ts";
-export type { BakedPasskey } from "./listener.ts";
 export type { OAuth, VerifiedAgent } from "./oauth.ts";
 // The `auth.*` procedures' types name these, so a declaration emit of the
 // consumer's generated `.stack/worker.ts` names them through this subpath.
@@ -141,11 +126,6 @@ export type { AuthProcedureFactory, OAuthRedirect } from "./procedures.ts";
 // The request context carries a `Tenancy`, so a declaration emit of the
 // consumer's generated `.stack/procedure.ts` names it through this subpath.
 export type { Tenancy } from "./tenancy.ts";
-
-// Structural match with plugin-api's `RateLimitBinding`: docs/architecture/plugins/auth.md, "Rate limiting".
-export interface RateLimitBinding {
-	limit(opts: { key: string }): Promise<{ success: boolean }>;
-}
 
 // Consumer-implemented hooks: docs/architecture/plugins/auth.md, "Callbacks".
 export interface AuthCallbacks<TEnv = unknown> {
@@ -256,8 +236,6 @@ export type AuthApi = {
 	} | null>;
 };
 
-// The tenancy capability exists only with organizations on, so a `scope`
-// procedure type-checks only against a config that can resolve it.
 type TenancyContext<TOptions> = TOptions extends { organization: infer O }
 	? O extends undefined | false
 		? object
@@ -283,15 +261,6 @@ export interface AuthInstance<
 	};
 }
 
-// Per-env cache: Workers hand the same `env` object reference across
-// requests within a worker instance, so a WeakMap keyed on it lets us
-// initialize better-auth exactly once per isolate. Typed off `buildAuth`'s
-// own inferred return (whatever better-auth infers from the literal built
-// below) — internal plumbing never needs the honest `AuthInstance<TOptions>`
-// contract above; only the value handed into `context()` does (see the cast
-// there).
-const cache = new WeakMap<object, ReturnType<typeof buildAuth>>();
-
 function appOrigin(url: unknown): string[] {
 	try {
 		return typeof url === "string" ? [new URL(url).origin] : [];
@@ -316,140 +285,11 @@ function trustedOriginsOf(
 	];
 }
 
-// Code and field error of a reserved organization slug: docs/architecture/plugins/auth.md, "Reserved slugs".
-const ORGANIZATION_SLUG_RESERVED = "ORGANIZATION_SLUG_RESERVED";
-
-function refuseReservedSlug(
-	reserved: ReadonlySet<string>,
-	slug: unknown,
-): void {
-	if (typeof slug !== "string" || !reserved.has(slug)) return;
-	const message = `The address /${slug} is reserved. Choose another.`;
-	throw new APIError("BAD_REQUEST", {
-		code: ORGANIZATION_SLUG_RESERVED,
-		message,
-		fieldErrors: { slug: message },
-	});
-}
-
-// better-auth's `/organization/check-slug` answers only whether an
-// organization holds the slug, so a reserved one would read as free until
-// the create refused it: this refuses it there first, with the same answer.
-function reservedSlugCheck(reserved: ReadonlySet<string>): BetterAuthPlugin {
-	return {
-		id: "reserved-slugs",
-		hooks: {
-			before: [
-				{
-					matcher: (ctx) => ctx.path === "/organization/check-slug",
-					handler: createAuthMiddleware(async (ctx) =>
-						refuseReservedSlug(reserved, ctx.body?.slug),
-					),
-				},
-			],
-		},
-	};
-}
-
-// The adapter calls the sign-up policy reads.
-interface PolicyAdapter {
-	count(args: { model: string }): Promise<number>;
-	findMany<T>(args: {
-		model: string;
-		where: { field: string; value: unknown }[];
-	}): Promise<T[]>;
-}
-
-// Whether `email` may create an account under `mode`. An invitation is open
-// while pending and unexpired; `first` also lets the app's first account in.
-async function maySignUp(
-	adapter: PolicyAdapter,
-	mode: "invite" | "first",
-	email: string,
-): Promise<boolean> {
-	if (mode === "first" && (await adapter.count({ model: "user" })) === 0) {
-		return true;
-	}
-	const invitations = await adapter.findMany<{ expiresAt: Date | number }>({
-		model: "invitation",
-		where: [
-			{ field: "email", value: email.toLowerCase() },
-			{ field: "status", value: "pending" },
-		],
-	});
-	return invitations.some((i) => new Date(i.expiresAt).getTime() > Date.now());
-}
-
-function signUpClosed(): APIError {
-	return new APIError("FORBIDDEN", {
-		code: SIGN_UP_CLOSED,
-		message: SIGN_UP_CLOSED_MESSAGE,
-	});
-}
-
-// A closed sign-up, refused where the account is made (every method, OAuth
-// and the code or link verification included) and where a code or link would
-// be sent to an address that could not use it. An existing account passes.
-// Passkey registration needs a session, so it makes no account.
-function signUpPolicy(
-	mode: "invite" | "first",
-	adapterOf: () => Promise<PolicyAdapter>,
-): {
-	plugin: BetterAuthPlugin;
-	beforeCreate: (user: { email: string }) => Promise<void>;
-} {
-	const refuse = async (email: unknown): Promise<void> => {
-		if (typeof email !== "string") return;
-		const adapter = await adapterOf();
-		const existing = await adapter.findMany<{ id: string }>({
-			model: "user",
-			where: [{ field: "email", value: email.toLowerCase() }],
-		});
-		if (existing.length > 0) return;
-		if (!(await maySignUp(adapter, mode, email))) throw signUpClosed();
-	};
-	return {
-		beforeCreate: async (user) => {
-			const adapter = await adapterOf();
-			if (!(await maySignUp(adapter, mode, user.email))) throw signUpClosed();
-		},
-		plugin: {
-			id: "sign-up-policy",
-			hooks: {
-				before: [
-					{
-						matcher: (ctx) =>
-							(ctx.path === "/email-otp/send-verification-otp" &&
-								ctx.body?.type === "sign-in") ||
-							ctx.path === "/sign-in/magic-link",
-						handler: createAuthMiddleware(async (ctx) =>
-							refuse(ctx.body?.email),
-						),
-					},
-				],
-			},
-		},
-	};
-}
-
-class MissingSendOtpError extends Error {
-	constructor() {
-		super(
-			"plugin-auth: `emailOtp` is on but the callbacks file defines no `sendOTP`. " +
-				"Implement `sendOTP` in src/worker/plugins/auth.ts, or set `emailOtp: false`.",
-		);
-		this.name = "MissingSendOtpError";
-	}
-}
-
-class MissingSendMagicLinkError extends Error {
-	constructor() {
-		super(
-			"plugin-auth: `magicLink` is on but the callbacks file defines no `sendMagicLink`. " +
-				"Implement `sendMagicLink` in src/worker/plugins/auth.ts, or set `magicLink: false`.",
-		);
-		this.name = "MissingSendMagicLinkError";
-	}
+// A callback an option on requires: the runtime refuses to build without it.
+function missingCallback(callback: string, option: string, off: string): Error {
+	return new Error(
+		`plugin-auth: \`${option}\` is on but the callbacks file defines no \`${callback}\`. Implement \`${callback}\` in the auth callbacks file (\`auth.slots.callbackFile\`), or set \`${off}\`.`,
+	);
 }
 
 // The grants the roles table resolves: the consumer's, else better-auth's own.
@@ -464,12 +304,9 @@ function buildAuth(
 	db: unknown,
 	options: AuthRuntimeInput,
 ) {
+	// The options schema refuses `mcp` and a closed `signUp` without
+	// `organization`, so the baked options never hold either alone.
 	const plugins: BetterAuthPlugin[] = [];
-	if (options.mcp && !options.organization) {
-		throw new Error(
-			"plugin-auth: `mcp` needs `organization`: a grant is to one organization.",
-		);
-	}
 	// The grant deletions of the organization hooks run without an endpoint
 	// context, so they reach the instance through this once it exists.
 	let authContext: Promise<{ adapter: GrantAdapter }> | undefined;
@@ -494,18 +331,12 @@ function buildAuth(
 					async () => (await authContext)?.adapter as unknown as PolicyAdapter,
 				)
 			: undefined;
-	if (policy) {
-		if (!options.organization) {
-			throw new Error(
-				`plugin-auth: \`signUp: "${options.signUp}"\` needs \`organization\`: the invitations are its.`,
-			);
-		}
-		plugins.push(policy.plugin);
-	}
+	if (policy) plugins.push(policy.plugin);
 
 	if (options.emailOtp !== false) {
 		const sendOTP = options.callbacks?.sendOTP;
-		if (!sendOTP) throw new MissingSendOtpError();
+		if (!sendOTP)
+			throw missingCallback("sendOTP", "emailOtp", "emailOtp: false");
 		// The fixture member's code under `stack screens serve` (which sets
 		// `STACK_DEV`): the one address's code is fixed, every other's is its own.
 		const serveCode =
@@ -547,7 +378,8 @@ function buildAuth(
 
 	if (options.magicLink) {
 		const sendMagicLink = options.callbacks?.sendMagicLink;
-		if (!sendMagicLink) throw new MissingSendMagicLinkError();
+		if (!sendMagicLink)
+			throw missingCallback("sendMagicLink", "magicLink", "magicLink: false");
 		plugins.push(
 			magicLink({
 				sendMagicLink: async ({ email, url, token }) => {
@@ -564,6 +396,13 @@ function buildAuth(
 	}
 
 	if (options.organization) {
+		const sendInvitation = options.callbacks?.sendInvitation;
+		if (!sendInvitation)
+			throw missingCallback(
+				"sendInvitation",
+				"organization",
+				"organization: false",
+			);
 		const orgConfig =
 			typeof options.organization === "object" ? options.organization : {};
 		// better-auth's org plugin reads `.authorize()`/`.statements` off each
@@ -602,7 +441,7 @@ function buildAuth(
 					// biome-ignore lint/suspicious/noExplicitAny: roles shape is user-provided.
 				) as any,
 				async sendInvitationEmail(data) {
-					await options.callbacks?.sendInvitation?.({
+					await sendInvitation({
 						invitationId: data.id,
 						email: data.email,
 						role: data.role,
@@ -623,9 +462,6 @@ function buildAuth(
 		);
 	}
 
-	// Native client support: Better Auth's server-side expo() plugin is
-	// required for the @better-auth/expo client (deep-link redirect, cookie
-	// handling, native origin trust). Contributes no database tables.
 	if (options.expo) {
 		plugins.push(expo());
 	}
@@ -676,19 +512,11 @@ function buildAuth(
 		database: drizzleAdapter(db as any, {
 			provider: "sqlite",
 			// The Drizzle adapter's schema map: docs/architecture/plugins/auth.md, "Schema tables".
-			schema: {
-				...(db as { _?: { fullSchema?: Record<string, unknown> } })._
-					?.fullSchema,
-				user,
-				session,
-				account,
-				verification,
-				...(options.organization
-					? { organization: organizationTable, member, invitation }
-					: {}),
-				...(options.passkey ? { passkey: passkeyTable } : {}),
-				...(options.devices ? { apikey: apikeyTable } : {}),
-			},
+			schema: Object.assign(
+				{},
+				(db as { _?: { fullSchema?: Record<string, unknown> } })._?.fullSchema,
+				...tableSetsOf(options).map((set) => set.tables),
+			),
 		}),
 		advanced: {
 			cookiePrefix: options.cookies?.prefix,
@@ -701,9 +529,8 @@ function buildAuth(
 						secure: sameSite === "none",
 					}
 				: undefined,
-			// Cloudflare sets the canonical client IP here; without it
-			// session.ipAddress is wrong behind the CF edge.
-			ipAddress: { ipAddressHeaders: ["cf-connecting-ip"] },
+			// Without it session.ipAddress is wrong behind the CF edge.
+			ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
 		},
 		session: {
 			expiresIn: options.session?.expiresIn,
@@ -777,99 +604,11 @@ function buildAuth(
 	return instance;
 }
 
-function getOrInitAuth(
-	env: Record<string, unknown>,
-	db: unknown,
-	options: AuthRuntimeInput,
-): ReturnType<typeof buildAuth> {
-	let auth = cache.get(env);
-	if (!auth) {
-		auth = buildAuth(env, db, options);
-		cache.set(env, auth);
-	}
-	return auth;
-}
-
-// The sends are the email-bombing amplifiers — the only auth routes that get
-// a per-email limit on top of the blanket per-IP one. Both share the email's
-// bucket. The magic-link verify is a GET with no body: per-IP only.
-const EMAIL_SEND_SUFFIXES = [
-	"/email-otp/send-verification-otp",
-	"/sign-in/magic-link",
-];
-
-// Reads `email` off a cloned request body — the original must still reach
-// Better Auth unconsumed. A body that fails to parse, or carries no
-// non-empty string `email`, isn't an error here: the per-email check is
-// simply skipped (the per-IP limit still applies).
-async function readRequestEmail(request: Request): Promise<string | null> {
-	try {
-		const body: unknown = await request.clone().json();
-		if (body && typeof body === "object" && "email" in body) {
-			const email = body.email;
-			if (typeof email === "string" && email.length > 0) return email;
-		}
-	} catch {
-		// not JSON / no body — skip the per-email check
-	}
-	return null;
-}
-
-async function checkRateLimit(
-	request: Request,
-	url: URL,
-	rateLimiter: { ip?: RateLimitBinding; email?: RateLimitBinding } | undefined,
-): Promise<Response | null> {
-	if (!rateLimiter) return null;
-
-	if (rateLimiter.ip) {
-		// Cloudflare-set and unspoofable — deliberately not X-Forwarded-For.
-		const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
-		const result = await rateLimiter.ip.limit({ key: ip });
-		if (!result.success) return tooManyRequests();
-	}
-
-	if (
-		rateLimiter.email &&
-		EMAIL_SEND_SUFFIXES.some((suffix) => url.pathname.endsWith(suffix))
-	) {
-		const email = await readRequestEmail(request);
-		if (email) {
-			const result = await rateLimiter.email.limit({ key: emailKey(email) });
-			if (!result.success) return tooManyRequests();
-		}
-	}
-
-	return null;
-}
-
-// ---------- auth.orgRules and auth.scope.<name>.bySlug ----------
-//
-// `routes(procedure)` takes the factory as `unknown`: docs/architecture/plugins/auth.md, "Worker runtime".
-
-// A slug names the organization on its own; below it, a slug is unique only
-// within its parent, whose id comes along.
-const ORGANIZATION_LOOKUP = z.object({ slug: z.string().min(1) });
-const SCOPE_LOOKUP = z.object({
-	slug: z.string().min(1),
-	parentId: z.string().min(1),
-});
-
-// The entities a scope's lookup reads: each table of its chain by its SQL
-// name, which is its entity when the schema exports the table under that
-// name, and the membership the organization tier resolves.
-function scopeReads(scope: Scope): string[] {
-	const reads = ["member"];
-	for (let level: Scope | undefined = scope; level; level = level.parent?.[0]) {
-		reads.push(getTableName(level.table));
-	}
-	return reads.sort();
-}
-
 // The scope descriptors a consumer's `src/shared/scopes.ts` exports, read off
-// the module namespace codegen hands over.
+// the module namespace codegen hands over. A descriptor exported under two
+// names is one scope.
 function consumerScopes(module: Record<string, unknown> | undefined): Scope[] {
-	const scopes = Object.values(module ?? {}).filter(
+	const scopes = [...new Set(Object.values(module ?? {}))].filter(
 		(value): value is Scope =>
 			typeof value === "object" &&
 			value !== null &&
@@ -900,60 +639,16 @@ function consumerMembership(
 			"kind" in entry[1] &&
 			entry[1].kind === "membership",
 	);
-	if (declared.length > 1) {
+	// A predicate exported under two names is one predicate.
+	const distinct = [...new Set(declared.map(([, membership]) => membership))];
+	if (distinct.length > 1) {
 		const names = declared.map(([name]) => `"${name}"`).join(", ");
 		throw new Error(
-			`plugin-auth: the scopes module exports ${declared.length} memberships (${names}); export one defineMembership.`,
+			`plugin-auth: the scopes module exports ${distinct.length} memberships (${names}); export one defineMembership.`,
 		);
 	}
-	return declared[0]?.[1] ?? null;
+	return distinct[0] ?? null;
 }
-
-// `orgRules` reads `member`: docs/architecture/plugins/query.md, "Abilities".
-function orgRulesProcedure(
-	factory: AuthProcedureFactory,
-	roles: Record<string, unknown>,
-) {
-	return factory({
-		auth: true,
-		scope: organizationScope,
-		reads: ["member"],
-	}).query(async ({ context }): Promise<{ rules: PackedRuleSet }> => {
-		const grants = resolveGrants(context.member.role, roles);
-		const ability = createMongoAbility(compileStatements(grants));
-		return { rules: packAbility(ability) };
-	});
-}
-
-// A scope lookup is invalidated by writes on its chain: docs/architecture/plugins/auth.md, "Scopes".
-function bySlugProcedure<S extends Scope>(
-	factory: AuthProcedureFactory,
-	scope: S,
-): ScopeLookup<S> {
-	return factory({ auth: true, reads: scopeReads(scope) })
-		.input(scope.parent ? SCOPE_LOOKUP : ORGANIZATION_LOOKUP)
-		.query(async ({ input, context }) => {
-			const found = await context.tenancy.bySlug(
-				scope,
-				input.slug,
-				"parentId" in input && typeof input.parentId === "string"
-					? input.parentId
-					: undefined,
-				context.user.id,
-			);
-			if (!found) {
-				throw noSuch(scope);
-			}
-			return found;
-		});
-}
-
-// A scope's lookup: the slug within its parent, answered by the chain's rows
-// and the caller's `member`.
-type ScopeLookup<S extends Scope> = Procedure<
-	{ slug: string } | { slug: string; parentId: string },
-	ScopeContext<S>
->;
 
 // The scopes a module exports that have a lookup: those whose `slug` is a
 // column, keyed by name, plus the organization root.
@@ -1059,12 +754,16 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 	object,
 	{
 		auth: AuthInstance<TOptions>;
-		_rateLimiter?: { ip?: RateLimitBinding; email?: RateLimitBinding };
+		_rateLimiter?: AuthRateLimiter;
 	} & TenancyContext<TOptions> &
 		OAuthContext<TOptions>,
 	AuthRoutes<TOptions>
 > {
 	const roles = organizationRoles(options);
+	// One instance per `env` of this runtime: Workers hand the same `env`
+	// object to every request of an isolate, so a `WeakMap` on it builds
+	// Better Auth once per isolate, with this runtime's options.
+	const instances = new WeakMap<object, ReturnType<typeof buildAuth>>();
 	const scopes = consumerScopes(options.scopes);
 	const membership = consumerMembership(options.scopes);
 
@@ -1147,8 +846,7 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 			const u = upstream as { db: unknown };
 			const e = env as Record<string, unknown>;
 
-			const rateLimiter: { ip?: RateLimitBinding; email?: RateLimitBinding } =
-				{};
+			const rateLimiter: AuthRateLimiter = {};
 			// A rate-limiter binding is a Wrangler binding `Env` does not type.
 			const agentBinding = options.rateLimiter?.agent?.binding;
 			const agentLimiter =
@@ -1164,9 +862,13 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 				rateLimiter.email = e[emailBinding] as RateLimitBinding;
 			}
 
-			const auth = getOrInitAuth(e, u.db, options);
+			let auth = instances.get(e);
+			if (!auth) {
+				auth = buildAuth(e, u.db, options);
+				instances.set(e, auth);
+			}
 			return {
-				// `getOrInitAuth` returns whatever better-auth infers from the
+				// `buildAuth` returns whatever better-auth infers from the
 				// literal built inside `buildAuth`; it structurally satisfies
 				// `AuthApi` at runtime. This cast is the one place the
 				// hand-declared `AuthInstance<TOptions>` contract stands in for
@@ -1199,7 +901,7 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 				],
 			} as {
 				auth: AuthInstance<TOptions>;
-				_rateLimiter?: { ip?: RateLimitBinding; email?: RateLimitBinding };
+				_rateLimiter?: AuthRateLimiter;
 				_trustedOrigins?: readonly string[];
 			} & TenancyContext<TOptions> &
 				OAuthContext<TOptions>;
@@ -1209,7 +911,8 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 			// With `mcp`, the discovery documents are Better Auth's too, behind
 			// the same limiter.
 			const served =
-				url.pathname.startsWith(AUTH_PREFIX) ||
+				url.pathname === AUTH_PREFIX ||
+				url.pathname.startsWith(`${AUTH_PREFIX}/`) ||
 				(options.mcp &&
 					OAUTH_DISCOVERY_PREFIXES.some(
 						(prefix) =>
@@ -1218,7 +921,7 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 			if (!served) return null;
 			const u = upstream as {
 				auth: AuthInstance<TOptions>;
-				_rateLimiter?: { ip?: RateLimitBinding; email?: RateLimitBinding };
+				_rateLimiter?: AuthRateLimiter;
 				_devMode?: boolean;
 			};
 			if (!u._devMode) {

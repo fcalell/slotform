@@ -10,13 +10,14 @@ import { RESERVED_SLUGS } from "@fcalell/plugin-api/lib/slugify";
 import { cloudflare } from "@fcalell/plugin-cloudflare";
 import { db } from "@fcalell/plugin-db";
 import { screens } from "@fcalell/plugin-screens";
-import { defaultOrgStatements, getStatements } from "./access.ts";
+import { defaultOrgStatements } from "./access.ts";
 import {
 	pendingCallbacks,
 	requiredCallbacks,
 	stubbedCallbacksMessage,
 } from "./callback-stubs.ts";
 import type { AuthClientOptions, OrganizationAccess } from "./client.ts";
+import { tableSetsOf } from "./schema/sets.ts";
 import {
 	AUTH_PREFIX,
 	type AuthCallbackPayloads,
@@ -28,19 +29,6 @@ import {
 
 const SOURCE = "auth";
 
-// The tables `@fcalell/plugin-auth/schema/oauth` exports, by export name, the
-// entity vocabulary `mcp` adds.
-const OAUTH_ENTITIES = [
-	"jwks",
-	"oauthAccessToken",
-	"oauthClient",
-	"oauthClientAssertion",
-	"oauthClientResource",
-	"oauthConsent",
-	"oauthRefreshToken",
-	"oauthResource",
-];
-
 // Canonical path of the callback file: docs/architecture/plugins/auth.md, "Callbacks".
 const CALLBACK_FILE = "src/worker/plugins/auth.ts";
 
@@ -48,16 +36,23 @@ const CALLBACK_FILE = "src/worker/plugins/auth.ts";
 const SCOPES_FILE = "src/shared/scopes.ts";
 const SCOPES_IDENTIFIER = "scopes";
 
+// The statements of the consumer's `ac`. `ac` and `roles` are `unknown` in the
+// options schema (an `ac` is a function-bearing object no schema can hold).
+function statementsOf(
+	org: ResolvedAuthOptions["organization"],
+): Record<string, readonly string[]> | undefined {
+	if (typeof org !== "object") return undefined;
+	return (
+		org.ac as { statements?: Record<string, readonly string[]> } | undefined
+	)?.statements;
+}
+
 // Access control as generated code holds it: docs/architecture/plugins/auth.md, "Access control".
 function organizationAccess(
 	org: ResolvedAuthOptions["organization"],
 ): OrganizationAccess | boolean {
 	if (typeof org !== "object") return Boolean(org);
-	// `ac` and `roles` are `unknown` in the options schema (an `ac` is a
-	// function-bearing object no schema can hold).
-	const statements = getStatements(
-		org.ac as { statements?: Record<string, readonly string[]> } | undefined,
-	);
+	const statements = statementsOf(org);
 	return {
 		...(statements ? { statements } : {}),
 		...(org.roles
@@ -136,8 +131,6 @@ const runtimeOptions = slot.derived({
 		}
 		// Baked only when on, as `mcp` is.
 		if (!ctx.options.devices) delete rawOptions.devices;
-		// Native (Expo) consumer: the runtime enables Better Auth's server-side
-		// expo() plugin. The deep-link scheme is consumed below.
 		const expoEnabled = Boolean(ctx.options.expo);
 		// The runtime reads a flag; the scheme is baked into `trustedOrigins`.
 		if (expoEnabled) rawOptions.expo = true;
@@ -400,8 +393,6 @@ export const auth = plugin("auth", {
 				: []),
 		]),
 
-		// APP_URL's devDefault comes from `appUrlDevDefault`, the first
-		// frontend dev origin, else the deploy target's.
 		api.slots.env.contribute(async (ctx) => {
 			const devAppUrl = await ctx.resolve(self.slots.appUrlDevDefault);
 			// One client-id + client-secret entry per enabled OAuth provider, so
@@ -516,14 +507,10 @@ export const auth = plugin("auth", {
 			const path = await ctx.resolve(self.slots.callbackFile);
 			const exists = await ctx.fileExists(path);
 			if (!exists) {
-				// Without a code or link sign-in no callback is required: skip
-				// wiring instead of forcing a dead file.
-				if (self.options.emailOtp === false && !self.options.magicLink)
-					return undefined;
-				const needs = [
-					...(self.options.emailOtp === false ? [] : ["`sendOTP`"]),
-					...(self.options.magicLink ? ["`sendMagicLink`"] : []),
-				].join(" and ");
+				// With no callback required, no file is wired.
+				const required = requiredCallbacks(self.options);
+				if (required.length === 0) return undefined;
+				const needs = required.map((name) => `\`${name}\``).join(" and ");
 				throw new Error(
 					`plugin-auth: callback file \`${path}\` is missing. ` +
 						`The consumer implements ${needs} there. ` +
@@ -531,7 +518,7 @@ export const auth = plugin("auth", {
 						"or turn the sign-in that needs it off.",
 				);
 			}
-			// The import source strips `src/`: docs/architecture/plugins/auth.md, "Callbacks".
+			// The callback file stays under `src/`: docs/architecture/plugins/auth.md, "Callbacks".
 			if (!path.startsWith("src/")) {
 				throw new Error(
 					`plugin-auth: \`auth.slots.callbackFile\` must live under \`src/\` ` +
@@ -572,47 +559,19 @@ export const auth = plugin("auth", {
 		api.slots.rbacStatements.contribute(() => {
 			const org = self.options.organization;
 			if (!org) return undefined;
-			const customStatements =
-				typeof org === "object"
-					? getStatements(
-							org.ac as
-								| { statements?: Record<string, readonly string[]> }
-								| undefined,
-						)
-					: undefined;
-			return customStatements ?? defaultOrgStatements;
+			return statementsOf(org) ?? defaultOrgStatements;
 		}),
 
 		// Entity vocabulary handoff: docs/architecture/plugins/db.md, "Entity vocabulary".
-		api.slots.entities.contribute(() => {
-			const names = ["account", "session", "user", "verification"];
-			if (self.options.organization) {
-				names.push("invitation", "member", "organization");
-			}
-			if (self.options.passkey) names.push("passkey");
-			if (self.options.devices) names.push("apikey");
-			if (self.options.mcp) names.push(...OAUTH_ENTITIES);
-			return names;
-		}),
+		api.slots.entities.contribute(() =>
+			tableSetsOf(self.options).flatMap((set) => Object.keys(set.tables)),
+		),
 
 		// The scaffolded schema re-exports auth's tables, so they migrate with
 		// the app's own.
-		db.slots.schemaModules.contribute(() => {
-			const modules = ["@fcalell/plugin-auth/schema"];
-			if (self.options.organization) {
-				modules.push("@fcalell/plugin-auth/schema/organization");
-			}
-			if (self.options.passkey) {
-				modules.push("@fcalell/plugin-auth/schema/passkey");
-			}
-			if (self.options.mcp) {
-				modules.push("@fcalell/plugin-auth/schema/oauth");
-			}
-			if (self.options.devices) {
-				modules.push("@fcalell/plugin-auth/schema/devices");
-			}
-			return modules;
-		}),
+		db.slots.schemaModules.contribute(() =>
+			tableSetsOf(self.options).map((set) => set.module),
+		),
 	],
 });
 
