@@ -8,9 +8,8 @@ and guide index, and how a consumer designs its screens within stack.
 
 `defineConfig` in `stack.config.ts` is the one entry point for project configuration
 (`packages/cli/guide/config.md`). It takes a required top-level `app` field with cross-cutting
-identity, plus the `plugins` array. **`app`** holds only values more than one plugin consumes;
-anything that matters to one plugin's domain (HTML metadata, typography) lives on that plugin's
-options.
+identity, plus the `plugins` array; what `app` holds is in
+[product](../product.md#features-live-in-the-plugin-that-owns-the-domain-core-stays-domain-agnostic).
 
 ```ts
 // stack.config.ts

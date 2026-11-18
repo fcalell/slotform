@@ -21,9 +21,6 @@ plugin, not core**; the rationale is in [philosophy](../product.md).
 - **Cross-plugin coordination** goes through the slot graph, never through shared core state
   ([contribute, don't coordinate](./plugin-authoring.md#design-paradigm)).
 
-Quick test: if removing the feature would require changes to `@fcalell/cli`, the feature is in the
-wrong place.
-
 ## Package conventions
 
 Each package is small, single-purpose and independently consumable.
