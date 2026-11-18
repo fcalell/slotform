@@ -2,11 +2,11 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import ELK from "elkjs/lib/elk.bundled.js";
 import type { ElkNode } from "elkjs/lib/elk-api.js";
+import { DESKTOP, type Density, TOUCH } from "./__fixtures__/density.ts";
 import {
 	type ElkInput,
 	elkGraph,
 	fromElk,
-	graphKey,
 	layerGap,
 	wrapParts,
 } from "./elk.ts";
@@ -17,6 +17,7 @@ import {
 	routeEdges,
 	verticalLegs,
 } from "./geometry.ts";
+import { runKey } from "./layout.ts";
 
 // ELK's row of three top parts: two groups of one page each, side by side, and
 // a loose node an edge links to the second group's page.
@@ -68,39 +69,27 @@ test("one part, however wide, keeps ELK's places", () => {
 // A gate's fan, laid out by ELK as the canvas lays it out: the gate (Ready)
 // answers Approve to Land and Request changes to Changes note, then a third
 // answer, Revise, goes on to what follows the gate. Each density's sizes are
-// the showcase's measured ones: a card, Land's and the gate's two lines, and
-// each answer's chip.
-interface Density {
-	pair: number;
-	pad: number;
-	card: number;
-	tall: number;
-	chips: Record<string, { width: number; height: number }>;
-}
-const DESKTOP: Density = {
-	pair: 6,
-	pad: 12,
-	card: 70,
-	tall: 88,
-	chips: {
-		"ready>land:approve": { width: 69, height: 30 },
-		"ready>note:request changes": { width: 115, height: 30 },
-		"ready>landed:revise": { width: 57, height: 30 },
-	},
-};
-const TOUCH: Density = {
-	pair: 8,
-	pad: 16,
-	card: 86,
-	tall: 108,
-	chips: {
-		"ready>land:approve": { width: 88, height: 38 },
-		"ready>note:request changes": { width: 145, height: 38 },
-		"ready>landed:revise": { width: 73, height: 38 },
-	},
-};
+// the showcase's measured ones (`Density`), and each answer's chip.
+const CHIPS = new Map<Density, Record<string, number>>([
+	[
+		DESKTOP,
+		{
+			"ready>land:approve": 69,
+			"ready>note:request changes": 115,
+			"ready>landed:revise": 57,
+		},
+	],
+	[
+		TOUCH,
+		{
+			"ready>land:approve": 88,
+			"ready>note:request changes": 145,
+			"ready>landed:revise": 73,
+		},
+	],
+]);
 const fan = (density: Density, answers: number, gate: number): ElkInput => {
-	const { pair, pad, card, tall, chips } = density;
+	const { pair, pad, card, tall, chip } = density;
 	const nodes = ["verdict", "ready", "land", "landed-as", "note", "landed"];
 	const edges = [
 		{ id: "verdict>ready:", from: "verdict", to: "ready" },
@@ -113,7 +102,6 @@ const fan = (density: Density, answers: number, gate: number): ElkInput => {
 			? [{ id: "ready>landed:revise", from: "ready", to: "landed" }]
 			: []),
 	];
-	const chip = Math.max(...Object.values(chips).map((each) => each.height));
 	const height = (id: string) =>
 		id === "ready" ? gate : id === "land" ? tall : card;
 	return {
@@ -129,16 +117,16 @@ const fan = (density: Density, answers: number, gate: number): ElkInput => {
 	};
 };
 
-// The canvas's rule: ELK runs when its input's key moves, and the graph is
-// drawn at the sizes measured last.
+// The canvas's rule: ELK runs when its input's key moves (`runKey`), and the
+// graph is drawn at the sizes measured last.
 async function drawn(density: Density, inputs: readonly ElkInput[]) {
 	const elk = new ELK();
-	let key: string | undefined;
+	let ran: string | null = null;
 	let positions = new Map<string, { x: number; y: number }>();
 	for (const input of inputs) {
-		const next = graphKey(input);
-		if (next === key) continue;
-		key = next;
+		const due = runKey(ran, input);
+		if (due === null) continue;
+		ran = due;
 		positions = fromElk(await elk.layout(elkGraph(input)));
 	}
 	const last = inputs.at(-1);
@@ -155,7 +143,9 @@ async function drawn(density: Density, inputs: readonly ElkInput[]) {
 		back: [],
 		groups: [],
 		labels: new Map(
-			Object.entries(density.chips).filter(([id]) => ids.has(id)),
+			Object.entries(CHIPS.get(density) ?? {})
+				.filter(([id]) => ids.has(id))
+				.map(([id, width]) => [id, { width, height: density.chip }]),
 		),
 		head: last.head,
 		pad: last.pad,

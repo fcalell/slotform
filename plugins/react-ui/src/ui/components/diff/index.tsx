@@ -33,9 +33,9 @@ import type { Closed } from "../../lib/closed.ts";
 import { useTouch } from "../../lib/media.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
+import { CODE_FRAME } from "../code/frame.ts";
 import { WordDiff } from "./word.tsx";
 
-const BOX = "flex flex-col shrink-0 min-w-0 overflow-hidden";
 const TABLE = "w-full border-collapse";
 // A line stands its indent and then the rest beside it (`indented`), so a
 // wrapped line hangs one inset under its first visual line at its own indent,
@@ -193,7 +193,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 			data-wide=""
 			inert
 			data-still={stillOf(frame)}
-			className={cn(CARD, BOX)}
+			className={cn(CARD, CODE_FRAME)}
 		>
 			<table className={TABLE}>
 				<tbody>
@@ -213,7 +213,7 @@ function LineDiff({ label, hunks, before, after }: DiffProps) {
 			</table>
 		</div>
 	) : (
-		<div data-wide="" className={cn(CARD, BOX)}>
+		<div data-wide="" className={cn(CARD, CODE_FRAME)}>
 			<table aria-label={label} className={TABLE}>
 				<tbody>
 					{shown.map((hunk, at) => (

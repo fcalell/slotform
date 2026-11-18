@@ -4,7 +4,6 @@ import type { ChipFamily } from "@fcalell/ui-core/tokens";
 import { ChipBase } from "../../atoms/chip/base.tsx";
 import type { Closed } from "../../lib/closed.ts";
 
-/** A data value's tag: an outlined pill with a dot in its family's hue; a neutral one is its word on a soft ground, no edge and no dot. */
 interface ChipProps extends Closed {
 	/** The value (a word; truncates past the short measure, 20 characters). A selection paints the pill, and the Chip is inert, until its read lands. */
 	label: Datum<string>;

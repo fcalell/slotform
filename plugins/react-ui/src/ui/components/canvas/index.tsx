@@ -29,14 +29,12 @@ import {
 } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { useTouch } from "../../lib/media.ts";
+import { spacing, textSize, useTouch } from "../../lib/media.ts";
 import { FrameBody, FrameLine } from "../../lib/read.tsx";
 import { ConnectionLine } from "./connection.tsx";
 import { EdgeLayer } from "./edges.tsx";
 import {
 	belowFloor,
-	glyphSize,
-	minZoomFor,
 	nameCap,
 	overviewFloorFor,
 	TEXT_FLOOR,
@@ -180,9 +178,15 @@ function CanvasGraph({
 		to: CanvasPoint;
 		target: string | null;
 	} | null>(null);
+	// A glyph's size on screen, and the widest a name stands beside it, at the
+	// density in force.
+	const glyph = spacing("control");
+	const names = nameCap(textSize("meta"));
 	const {
+		minZoom,
 		boxes,
 		drawn,
+		standing,
 		about,
 		routed,
 		space,
@@ -206,33 +210,27 @@ function CanvasGraph({
 		landed,
 		onMove,
 		ports: Boolean(onConnect),
-		glyph: glyphSize(),
-		names: nameCap(touch),
+		glyph,
+		names,
 		selected,
 	});
 
 	// The zoom under which a node is its glyph alone: the overview's floor, raised
 	// until no two overview forms (glyph, a `pair`, the name at its cap) overlap
 	// with a stretch between them for an edge; 1 for a graph with no overview.
-	const overview = useMemo(() => {
-		const glyph = glyphSize();
-		return overviewFloorFor(
-			[...boxes.values()],
-			glyph,
-			glyph + space.pair + nameCap(touch),
-			2 * space.pair,
-		);
-	}, [boxes, touch, space.pair]);
+	const overview = useMemo(
+		() =>
+			overviewFloorFor(
+				[...boxes.values()],
+				glyph,
+				glyph + space.pair + names,
+				2 * space.pair,
+			),
+		[boxes, glyph, names, space.pair],
+	);
 	// The second flag, beside `below`: true while the canvas is under that floor.
 	const bare = useViewportValue(viewport, (view) => view.k < overview);
 
-	// The lowest zoom at which no two glyphs stand closer than the gap the edges
-	// between them need.
-	const minZoom = useMemo(
-		() => minZoomFor([...boxes.values()], glyphSize(), space.pair),
-		[boxes, space.pair],
-	);
-	useEffect(() => viewport.limit(minZoom), [viewport, minZoom]);
 	// The glyph and a port's hit hold their size on screen at any zoom through
 	// this variable, set by script so a pinch renders nothing.
 	useEffect(() => {
@@ -322,7 +320,7 @@ function CanvasGraph({
 	}, []);
 
 	const reveal = (id: string) => {
-		const box = drawn.get(id) ?? routed.frames.get(id);
+		const box = standing(id);
 		if (box) viewport.centreOn(box);
 	};
 	// A selection from outside brings its node into view; one the pointer made

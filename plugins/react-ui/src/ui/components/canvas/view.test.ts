@@ -11,7 +11,6 @@ import {
 	keyStep,
 	OPEN_UNDER,
 	overviewTransform,
-	PITCH,
 	solveScale,
 	standIn,
 	standsIn,
@@ -53,7 +52,7 @@ test("the opening view clears whole nodes where the start node allows it", () =>
 	assert.ok(low.x + view.x >= stack.left, "the low node stands past the stack");
 });
 
-test("a framed view stands its start node on the room's middle, whatever its group heads", () => {
+test("a framed view stands its start node on the room's middle", () => {
 	const pane = { width: 422, height: 900 };
 	// A graph that runs past the room on both sides of its start node.
 	const across: Box = { x: -400, y: 0, width: 1040, height: 584 };
@@ -88,7 +87,9 @@ test("Fit, under the text floor, frames the whole graph", () => {
 
 test("a graph that fits at its own size opens centred at scale 1", () => {
 	const pane = { width: 1200, height: 900 };
-	const view = fitTransform(bounds, pane, inset, NO_STACK, start);
+	const view = fitTransform(bounds, pane, inset, NO_STACK, start, {
+		nodes: [start, low, branch],
+	});
 	assert.equal(view.k, 1);
 	assert.ok(inside(bounds, view, pane, inset));
 	// Centred: the margins on either side of the graph are equal on both axes.
@@ -127,23 +128,23 @@ test("an overview opens at the highest scale its drawing holds across the room, 
 	// takes a constant of 40 px and the centres' 300 flow units at the scale.
 	const taken = (k: number) => 40 + 300 * k;
 	const space = phone.width - inset - stack.left;
-	const { k, whole } = solveScale(taken, 300, space, 0.5);
-	assert.ok(whole && k >= 0.5 && k < OPEN_UNDER);
+	const k = solveScale(taken, 300, space, 0.5);
+	assert.ok(k >= 0.5 && k < OPEN_UNDER);
 	assert.ok(taken(k) <= space + 1e-6, "it holds in the room");
 	assert.ok(taken(k + 0.02) > space, "and nothing higher does");
 	// A drawing the room holds at the cap opens at the cap, just under the text floor.
-	assert.equal(solveScale(() => 40, 300, space, 0.5).k, OPEN_UNDER);
-	// One it holds only under `lowest` opens at `lowest`, not whole.
-	assert.deepEqual(
+	assert.equal(
+		solveScale(() => 40, 300, space, 0.5),
+		OPEN_UNDER,
+	);
+	// One it holds only under `lowest` opens at `lowest`.
+	assert.equal(
 		solveScale((at) => 400 + 300 * at, 300, space, 0.5),
-		{
-			k: 0.5,
-			whole: false,
-		},
+		0.5,
 	);
 	// Frames that grow in steps as the zoom moves are measured at the scale asked.
 	const stepped = (at: number) => 40 + 300 * at + (at > 0.7 ? 30 : 0);
-	assert.ok(stepped(solveScale(stepped, 300, space, 0.5).k) <= space + 1e-6);
+	assert.ok(stepped(solveScale(stepped, 300, space, 0.5)) <= space + 1e-6);
 });
 
 test("an overview stands clear of the zoom stack, whole where it holds and against the room's start where it does not", () => {
@@ -158,6 +159,7 @@ test("an overview stands clear of the zoom stack, whole where it holds and again
 		inset,
 		stack,
 		first,
+		[],
 	);
 	// 150 px across: centred in the room past the stack.
 	assert.equal(held.x, stack.left + (space - 150) / 2);
@@ -168,6 +170,7 @@ test("an overview stands clear of the zoom stack, whole where it holds and again
 		inset,
 		stack,
 		first,
+		[],
 	);
 	// 400 px across: its start at the room's start, so the leftmost node is whole
 	// and past the stack, and the first node is in the pane.
@@ -185,6 +188,7 @@ test("an overview moves back only as far as its anchor needs, and its anchor sta
 		inset,
 		stack,
 		far,
+		[],
 	);
 	assert.ok(inside(far, view, phone, inset), "the anchor stands whole");
 	// And one deep in the pane's foot is lifted past the stack's rows.
@@ -196,6 +200,7 @@ test("an overview moves back only as far as its anchor needs, and its anchor sta
 		inset,
 		stack,
 		deep,
+		[],
 	);
 	assert.ok(inside(deep, lowered, phone, inset));
 	assert.ok(
@@ -288,8 +293,8 @@ test("a drop at zoom 1.2 reports whole pixels, so the stored node draws its bord
 });
 
 test("an arrow moves a quarter pitch, Shift a whole pitch; another key nothing", () => {
-	assert.deepEqual(keyStep("ArrowRight", false), { x: PITCH / 4, y: 0 });
-	assert.deepEqual(keyStep("ArrowUp", true), { x: 0, y: -PITCH });
+	assert.deepEqual(keyStep("ArrowRight", false), { x: 4, y: 0 });
+	assert.deepEqual(keyStep("ArrowUp", true), { x: 0, y: -16 });
 	assert.equal(keyStep("Enter", false), undefined);
 });
 

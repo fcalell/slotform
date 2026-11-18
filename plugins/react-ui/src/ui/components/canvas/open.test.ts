@@ -6,7 +6,9 @@ import type {
 	CanvasGroup,
 	CanvasNode,
 } from "@fcalell/ui-core/descriptors";
+import { BODY_SIZE, TYPE_SCALE } from "@fcalell/ui-core/tokens";
 import ELK from "elkjs/lib/elk.bundled.js";
+import { DESKTOP, type Density, TOUCH } from "./__fixtures__/density.ts";
 import * as graphs from "./__fixtures__/graphs.ts";
 import {
 	type ElkInput,
@@ -15,54 +17,11 @@ import {
 	layerGap,
 	wrapParts,
 } from "./elk.ts";
-import { glyphTier, nameCap } from "./floor.ts";
-import {
-	type Box,
-	emptyGroups,
-	leftPads,
-	routeEdges,
-	type Size,
-} from "./geometry.ts";
+import { nameCap, routeSide } from "./floor.ts";
+import { type Box, emptyGroups, leftPads, type Size } from "./geometry.ts";
+import { tiers } from "./layout.ts";
 import { type Opening, openingView } from "./open.ts";
 import { FIT_FLOOR, type Transform } from "./view.ts";
-
-// A density's sizes, as the showcase measures them (elk.test.ts).
-interface Density {
-	touch: boolean;
-	pair: number;
-	pad: number;
-	page: number;
-	control: number;
-	card: number;
-	tall: number;
-	chip: Size;
-	head: number;
-	port: number;
-}
-const DESKTOP: Density = {
-	touch: false,
-	pair: 6,
-	pad: 12,
-	page: 24,
-	control: 28,
-	card: 70,
-	tall: 88,
-	chip: { width: 69, height: 30 },
-	head: 32,
-	port: 12,
-};
-const TOUCH: Density = {
-	touch: true,
-	pair: 8,
-	pad: 16,
-	page: 16,
-	control: 44,
-	card: 86,
-	tall: 108,
-	chip: { width: 88, height: 38 },
-	head: 44,
-	port: 12,
-};
 
 type Graph = {
 	nodes: readonly CanvasNode[];
@@ -86,7 +45,8 @@ const WELCOME: Graph = {
 };
 
 // The graph laid out as the canvas lays it out (ELK, the unlinked parts wrapped
-// to the room) and its opening drawn from the same closures `useLayout` builds.
+// to the room) and its opening drawn at a routing side as `useLayout` draws it
+// (`tiers`).
 async function opening(
 	graph: Graph,
 	density: Density,
@@ -111,7 +71,6 @@ async function opening(
 		]),
 	);
 	const labelled = graph.edges.filter((edge) => edge.label);
-	const chip = density.chip.height;
 	const input: ElkInput = {
 		nodes,
 		edges: graph.edges,
@@ -121,7 +80,7 @@ async function opening(
 		width: 240,
 		head,
 		pad,
-		gaps: { node: pad, layer: layerGap(24, chip, pair), page },
+		gaps: { node: pad, layer: layerGap(24, density.chip, pair), page },
 	};
 	const out = await new ELK().layout(elkGraph(input));
 	const space = pane.width - page - (page + control + pair);
@@ -144,17 +103,14 @@ async function opening(
 			edge.id,
 			{
 				width: Math.min(160, 16 + 7 * (edge.label?.length ?? 0)),
-				height: density.chip.height,
+				height: density.chip,
 			},
 		]),
 	);
-	const back = backEdges(order, graph.edges);
-	const lefts = leftPads(
-		groups,
-		new Map(groups.map((group) => [group.id, 7 * group.head.length])),
-		{ pad, pair, width: 240 },
-	);
 	const glyph = control;
+	const meta = Math.round(
+		BODY_SIZE[density.touch ? "touch" : "desktop"] * TYPE_SCALE.meta.size,
+	);
 	const o: Opening = {
 		pane,
 		inset: page,
@@ -166,31 +122,28 @@ async function opening(
 		icon: { start: pad, end: pad + control },
 		glyph,
 		pair,
-		names: nameCap(density.touch),
+		names: nameCap(meta),
 		boxes,
 		anchor: anchor ?? order[0],
-		tierAt: (side) =>
-			glyphTier(boxes, holes, groups, {
-				side,
-				glyph,
-				head,
-				pad,
-				left: lefts,
-			}),
-		routeTier: (_side, tier) =>
-			routeEdges({
-				boxes: tier.boxes,
-				edges: graph.edges,
-				back,
+		...tiers({
+			boxes,
+			holes,
+			groups,
+			edges: graph.edges,
+			back: backEdges(order, graph.edges),
+			labels,
+			glyph,
+			head,
+			pad,
+			left: leftPads(
 				groups,
-				labels,
-				head: tier.head,
-				pad: tier.pad,
-				left: lefts,
-				pair,
-				ports: false,
-				port: density.port,
-			}),
+				new Map(groups.map((group) => [group.id, 7 * group.head.length])),
+				{ pad, pair, width: 240 },
+			),
+			pair,
+			ports: false,
+			port: density.port,
+		}),
 	};
 	return { o, view: openingView(o), boxes };
 }
@@ -312,7 +265,11 @@ test("the words open centred across the pane where no node stands in the stack's
 			const pane = { width, height: 640 };
 			const { o, view } = await opening(WELCOME, density, pane);
 			const nodes = [...shown(o, view, density).values()];
-			if (nodes.some((box) => underStack(box, o))) continue;
+			for (const box of nodes)
+				assert.ok(
+					!underStack(box, o),
+					`${density.touch} ${width}: a node stands in the stack's rows`,
+				);
 			const left = Math.min(...nodes.map((box) => box.x));
 			const right = width - Math.max(...nodes.map((box) => box.x + box.width));
 			assert.ok(
@@ -346,8 +303,7 @@ test("an overview holds its loops' bands across the pane too", async () => {
 	const pane = { width: 700, height: 640 };
 	const { o, view } = await opening(graphs.LOOPS, DESKTOP, pane);
 	assert.ok(view.k < FIT_FLOOR);
-	const side =
-		Math.ceil(DESKTOP.control / view.k / DESKTOP.pair) * DESKTOP.pair;
+	const side = routeSide(view.k, DESKTOP.control, DESKTOP.pair);
 	const tier = o.tierAt(side);
 	const { frames } = o.routeTier(side, tier);
 	for (const [id, frame] of frames) {

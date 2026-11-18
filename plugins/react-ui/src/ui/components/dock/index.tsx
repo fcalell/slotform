@@ -34,7 +34,6 @@ const ZONE = "flex items-center gap-gap grow basis-0 min-w-0";
 const TEXT = "flex flex-col grow basis-0 min-w-0";
 const LINE = "truncate";
 const FAILED = "text-danger";
-const PROGRESS = "flex items-center gap-gap grow basis-0 min-w-0";
 const SEEK = "grow basis-0 min-w-0";
 const TIME = "shrink-0";
 const ELAPSED = "text-end";
@@ -137,7 +136,7 @@ export function Dock() {
 	if (!track) return null;
 
 	const transport = (
-		<div className={cn(TRANSPORT)}>
+		<div className={TRANSPORT}>
 			{state.queued ? (
 				<Button
 					glyph
@@ -223,7 +222,7 @@ function Progress({ track }: { track: Track }) {
 	const { time, duration } = usePlayerTime();
 	const length = duration > 0 ? duration : (track.duration ?? 0);
 	return (
-		<div className={cn(PROGRESS)}>
+		<div className={ZONE}>
 			<span className={cn(DOCK_TIME, TIME, ELAPSED)}>{trackTime(time)}</span>
 			<div className={SEEK}>
 				{track.peaks && length > 0 ? (

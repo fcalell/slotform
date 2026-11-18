@@ -14,6 +14,12 @@ type Surface =
 	| "off"
 	| "dimmed";
 
+// A selectable part's hover edge and its keyboard focus ring: a node's card or
+// glyph, a group's head.
+export const HOVERED = "hover:border-edge-hover";
+export const FOCUSED =
+	"in-data-[modality=keyboard]:focus-visible:outline-2 focus-visible:outline-ring";
+
 // The tone each role draws at rest.
 const ROLE_SURFACE: Record<CanvasRole, Surface> = {
 	step: "plain",

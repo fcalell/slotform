@@ -98,7 +98,7 @@ function Path(props: { path: string }) {
 }
 
 /** A changed file: its seen mark leading, its path in mono (the directory in the meta ink, the name at 500) cut to the room its chip leaves, its chip, its added and removed counts each in its own lane. A row that opens is one hit, current (the selection wash) at its `href`, named by the path; it washes under the pointer and the press. At the card's inset and the row radius. */
-export function FileRowBase({
+function FileRowBase({
 	path,
 	added,
 	removed,

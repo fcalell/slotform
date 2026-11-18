@@ -58,6 +58,7 @@ import {
 	useState,
 } from "react";
 import type { Closed } from "../../lib/closed.ts";
+import { textSize } from "../../lib/media.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/region.tsx";
@@ -165,9 +166,7 @@ function usePlotWidth(
 		const node = ref.current;
 		if (!on || !node) return;
 		const measure = () => {
-			const meta = Number.parseFloat(
-				getComputedStyle(node).getPropertyValue("--text-meta"),
-			);
+			const meta = textSize("meta", node);
 			setMeasured({
 				width: node.clientWidth,
 				meta: Number.isFinite(meta) ? meta : undefined,

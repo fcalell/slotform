@@ -420,7 +420,7 @@ and a reader draws again.
   its own size on screen through it: a coordinate of the layer, known at run time, written outside
   React.
 - **Whole pixels.** A 1 px stroke at a whole coordinate straddles two pixel columns at half
-  intensity, so the layer stands at a whole translate (`fitTransform`, `openTransform`) and a stroke
+  intensity, so the layer stands at a whole translate (`fitTransform`, `overviewTransform`) and a stroke
   at `n + 0.5` (`crisp`) is one solid column at scale 1, as are a node's border and a dot of the grid.
   The viewport applies it to every transform the canvas sets itself, and the canvas's `drop` to every
   position a viewer's move reports (a drag, a lift, an arrow key), so a stored node draws its border on

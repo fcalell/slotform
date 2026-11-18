@@ -10,10 +10,6 @@ import {
 } from "react";
 import type { Viewport } from "./viewport.ts";
 
-// A node lifts after the drag long press: docs/architecture/plugins/react-ui.md, "Canvas".
-export const LIFT_MS = DRAG_DELAY;
-export const SLOP = DRAG_DELAY_SLOP;
-
 // Where a held node stands with the pointer at `point` (client pixels):
 // `grab` (flow pixels) from the node's corner to where it was taken, under
 // the pointer as the view stands now, so a pan under a still pointer carries
@@ -77,14 +73,16 @@ function starving(on: boolean) {
 	}
 }
 
-// Ends a press's timer and the listeners it holds.
 function unhook(state: Press) {
 	window.clearTimeout(state.timer);
 	document.removeEventListener("pointerdown", state.other, true);
 	if (state.hold) starving(false);
 }
 
-const client = (event: { clientX: number; clientY: number }): CanvasPoint => ({
+export const client = (event: {
+	clientX: number;
+	clientY: number;
+}): CanvasPoint => ({
 	x: event.clientX,
 	y: event.clientY,
 });
@@ -161,7 +159,8 @@ export function useLift(args: {
 			now: client(event),
 			moved: false,
 			timer: undefined,
-			due: event.timeStamp + LIFT_MS,
+			// A node lifts after the drag long press: docs/architecture/plugins/react-ui.md, "Canvas".
+			due: event.timeStamp + DRAG_DELAY,
 			hold: null,
 			point: client(event),
 			dropped: false,
@@ -187,7 +186,7 @@ export function useLift(args: {
 			starving(true);
 			at(id, start);
 			setLifted(true);
-		}, LIFT_MS);
+		}, DRAG_DELAY);
 	};
 
 	const move = (event: PointerEvent<HTMLElement>) => {
@@ -196,7 +195,8 @@ export function useLift(args: {
 		const point = client(event);
 		if (
 			event.timeStamp < state.due &&
-			Math.hypot(point.x - state.from.x, point.y - state.from.y) > SLOP
+			Math.hypot(point.x - state.from.x, point.y - state.from.y) >
+				DRAG_DELAY_SLOP
 		)
 			unlift(state);
 		if (state.hold) {
@@ -209,7 +209,10 @@ export function useLift(args: {
 			return;
 		}
 		state.now = point;
-		if (Math.hypot(point.x - state.from.x, point.y - state.from.y) > SLOP) {
+		if (
+			Math.hypot(point.x - state.from.x, point.y - state.from.y) >
+			DRAG_DELAY_SLOP
+		) {
 			state.moved = true;
 			window.clearTimeout(state.timer);
 		}

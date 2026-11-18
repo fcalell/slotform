@@ -211,10 +211,14 @@ export interface Layout {
 	// Where each node draws at the zoom in force: as placed above the text
 	// floor, spread under it by the group heads' growth (`glyphTier`).
 	drawn: ReadonlyMap<string, Box>;
+	// The box a node or a group's frame stands in at the zoom in force, by its id.
+	standing: (id: string | undefined) => Box | undefined;
 	// Where a node stands at a scale, which a zoom about it holds it by.
 	about: (id: string) => About;
 	routed: Routes;
 	space: Space;
+	// The lowest scale the pan and zoom allow (`minZoomFor`).
+	minZoom: number;
 	// The graph is placed and the first view set, so it may show.
 	ready: boolean;
 	// The Fit act's view: the whole graph in the room the pane leaves, at the
@@ -229,6 +233,40 @@ export interface Layout {
 	clearLeft: number;
 	// How far the stack reaches up the pane, from its foot.
 	clearStack: number;
+}
+
+// ELK runs for an input only when its key (`graphKey`) moves from the last run's:
+// the key to run for, or `null` while the last run holds this input.
+export function runKey(last: string | null, input: ElkInput): string | null {
+	const key = graphKey(input);
+	return key === last ? null : key;
+}
+
+// What a graph draws, routes to and frames at a routing side: the cards' boxes
+// above the floor (side 0), the glyphs' squares under it, where a group's head
+// draws at its own size on screen, so the band it covers and the padding round
+// the glyphs grow by what the zoom takes (the side's step over the glyph) and the
+// nodes spread by that growth (`glyphTier`). A glyph draws no port.
+export function tiers(
+	graph: Omit<Parameters<typeof routeEdges>[0], "boxes"> & {
+		boxes: ReadonlyMap<string, Box>;
+		holes: ReadonlyMap<string, Box>;
+		glyph: number;
+	},
+): Pick<Opening, "tierAt" | "routeTier"> {
+	const { boxes, holes, groups, glyph, head, pad, left, ports } = graph;
+	return {
+		tierAt: (side) =>
+			glyphTier(boxes, holes, groups, { side, glyph, head, pad, left }),
+		routeTier: (side, tier) =>
+			routeEdges({
+				...graph,
+				boxes: tier.boxes,
+				head: tier.head,
+				pad: tier.pad,
+				ports: ports && side === 0,
+			}),
+	};
 }
 
 // Measures, decides, runs, reports, routes and opens the first view. ELK
@@ -262,32 +300,58 @@ export function useLayout({
 	const width = nodeWidth();
 	const read = useMeasures(probe);
 	const measures = probed ? read : NONE;
+	const chip = Math.max(
+		0,
+		...[...(measures?.labels.values() ?? [])].map((s) => s.height),
+	);
+	const space = spaces(chip);
+	const { pad, pair, port } = space;
+	const { node: across, layer: down, page } = space.gaps;
+	const reach = measures?.reach;
+	const lefts = useMemo(
+		() => leftPads(groups, reach ?? NONE.reach, { pad, pair, width }),
+		[groups, reach, pad, pair, width],
+	);
 	// What ELK reads: sizes, never positions, so any run of the same input is the
 	// same layout. A node's height is its measured one, so a node that grows
 	// after a run (a gate whose answers' words gain a line) runs it again.
-	const input = useMemo((): ElkInput | null => {
-		if (!measures) return null;
-		const chip = Math.max(
-			0,
-			...[...measures.labels.values()].map((s) => s.height),
-		);
-		const { pad, pair, gaps } = spaces(chip);
-		return {
+	const input = useMemo(
+		(): ElkInput | null =>
+			measures
+				? {
+						nodes,
+						edges,
+						groups,
+						order,
+						sizes,
+						width,
+						head: measures.head,
+						pad,
+						left: lefts,
+						gaps: { node: across, layer: down, page },
+					}
+				: null,
+		[
+			measures,
 			nodes,
 			edges,
 			groups,
 			order,
 			sizes,
 			width,
-			head: measures.head,
 			pad,
-			left: leftPads(groups, measures.reach, { pad, pair, width }),
-			gaps,
-		};
-	}, [measures, nodes, edges, groups, order, sizes, width]);
+			lefts,
+			across,
+			down,
+			page,
+		],
+	);
 	const key = useMemo(() => (input ? graphKey(input) : null), [input]);
 	const [laid, setLaid] = useState<Laid | null>(null);
 	const [ready, setReady] = useState(false);
+	// A run that failed (its chunk did not load, or ELK threw) is thrown where the
+	// canvas renders, for the error boundary above it.
+	const [failure, setFailure] = useState<{ error: unknown } | null>(null);
 	const current = useRef(key);
 	const ran = useRef<string | null>(null);
 	// A run is in flight from its request to its result.
@@ -303,20 +367,28 @@ export function useLayout({
 		flight.current = true;
 		const graph = elkGraph(given);
 		const set = setOf(given.order);
-		void import("@fcalell/plugin-react-ui/lib/canvas-layout")
+		import("@fcalell/plugin-react-ui/lib/canvas-layout")
 			.then(({ layoutElk }) => layoutElk(graph))
-			.then((output) => {
-				flight.current = false;
-				if (current.current === at)
-					setLaid({ positions: fromElk(output), output, arranged, set });
-			});
+			.then(
+				(output) => {
+					flight.current = false;
+					if (current.current === at)
+						setLaid({ positions: fromElk(output), output, arranged, set });
+				},
+				(error: unknown) => {
+					flight.current = false;
+					setFailure({ error });
+				},
+			);
 	}, []);
 
 	useEffect(() => {
-		if (!placing || !measured || !input || !key || ran.current === key) return;
-		ran.current = key;
-		run(input, key, false);
-	}, [placing, measured, input, key, run]);
+		if (!placing || !measured || !input) return;
+		const due = runKey(ran.current, input);
+		if (due === null) return;
+		ran.current = due;
+		run(input, due, false);
+	}, [placing, measured, input, run]);
 
 	const arrange = () => {
 		if (flight.current || !measured || !input || !key) return;
@@ -336,7 +408,7 @@ export function useLayout({
 		const read = () => {
 			const inset = spacing("page");
 			const clear = clearanceOf(element);
-			setWrapSpace(element.clientWidth - inset - Math.max(inset, clear.left));
+			setWrapSpace(viewport.size().width - inset - Math.max(inset, clear.left));
 			setClearLeft(clear.left);
 			setClearStack(clear.stack);
 		};
@@ -344,13 +416,7 @@ export function useLayout({
 		const watch = new ResizeObserver(read);
 		watch.observe(element);
 		return () => watch.disconnect();
-	}, [region]);
-	const chip = Math.max(
-		0,
-		...[...(measures?.labels.values() ?? [])].map((s) => s.height),
-	);
-	const space = spaces(chip);
-	const { node: across, layer: down } = space.gaps;
+	}, [region, viewport]);
 	const computed = useMemo(
 		() =>
 			laid
@@ -385,7 +451,6 @@ export function useLayout({
 		[nodes, live, landed, computed, sizes],
 	);
 	const back = useMemo(() => backEdges(order, edges), [order, edges]);
-	const { pad, pair, port } = space;
 	const head = measures?.head ?? 0;
 	// An empty group stands where the layout put it, at the size of its head and
 	// padding. Where no layout ran (every node has a position) the ones left
@@ -412,47 +477,41 @@ export function useLayout({
 	// side moves in steps of a `pair`, which bounds how often the routes are
 	// drawn while the zoom moves.
 	const side = useViewportValue(viewport, (view) =>
-		routeSide(view.k, glyph, spacing("gap")),
+		routeSide(view.k, glyph, pair),
 	);
-	const labels = measures?.labels;
-	const reach = measures?.reach;
-	const lefts = useMemo(
-		() => leftPads(groups, reach ?? NONE.reach, { pad, pair, width }),
-		[groups, reach, pad, pair, width],
-	);
-	// What a graph draws, routes to and frames at a routing side: the cards'
-	// boxes above the floor (side 0), the glyphs' squares under it, where a
-	// group's head draws at its own size on screen, so the band it covers and
-	// the padding round the glyphs grow by what the zoom takes (the side's step
-	// over the glyph) and the nodes spread by that growth (`glyphTier`).
-	const tierAt = useCallback(
-		(at: number) =>
-			glyphTier(boxes, holes, groups, {
-				side: at,
+	const labels = measures?.labels ?? NONE.labels;
+	const { tierAt, routeTier } = useMemo(
+		() =>
+			tiers({
+				boxes,
+				holes,
+				groups,
+				edges,
+				back,
+				labels,
 				glyph,
 				head,
 				pad,
 				left: lefts,
-			}),
-		[boxes, holes, groups, glyph, head, pad, lefts],
-	);
-	const routeTier = useCallback(
-		(at: number, tier: ReturnType<typeof glyphTier>) =>
-			routeEdges({
-				boxes: tier.boxes,
-				edges,
-				back,
-				groups,
-				labels: labels ?? NONE.labels,
-				head: tier.head,
-				pad: tier.pad,
-				left: lefts,
 				pair,
-				// A glyph draws no port.
-				ports: ports && at === 0,
+				ports,
 				port,
 			}),
-		[edges, back, groups, labels, lefts, pair, ports, port],
+		[
+			boxes,
+			holes,
+			groups,
+			edges,
+			back,
+			labels,
+			glyph,
+			head,
+			pad,
+			lefts,
+			pair,
+			ports,
+			port,
+		],
 	);
 	const tier = useMemo(() => tierAt(side), [tierAt, side]);
 	const drawn = tier.cards;
@@ -460,8 +519,8 @@ export function useLayout({
 	const about = useCallback(
 		(id: string): About =>
 			(k: number) =>
-				tierAt(routeSide(k, glyph, spacing("gap"))).cards.get(id),
-		[tierAt, glyph],
+				tierAt(routeSide(k, glyph, pair)).cards.get(id),
+		[tierAt, glyph, pair],
 	);
 
 	// The node the opening view stands on: the first one that is running or has
@@ -478,50 +537,45 @@ export function useLayout({
 	// What the views that hold the whole graph (`openingView`, `fitView`) take:
 	// the pane, the chrome and the density are read here, off the page.
 	const opening = useCallback((): Opening | null => {
-		const element = region.current;
-		if (!element) return null;
+		if (!region.current) return null;
 		// A node's icon stands past its inline padding, in a box no wider than a
 		// control (a decision's diamond).
 		const inline = spacing("pad");
 		return {
-			pane: { width: element.clientWidth, height: element.clientHeight },
+			pane: viewport.size(),
 			inset: spacing("page"),
 			clear: viewport.clearance(),
 			icon: { start: inline, end: inline + spacing("control") },
 			glyph,
-			pair: space.pair,
+			pair,
 			names,
 			boxes,
 			anchor,
 			tierAt,
 			routeTier,
 		};
-	}, [
-		region,
-		viewport,
-		tierAt,
-		routeTier,
-		glyph,
-		names,
-		space.pair,
-		boxes,
-		anchor,
-	]);
+	}, [region, viewport, tierAt, routeTier, glyph, names, pair, boxes, anchor]);
+	// The lowest zoom at which no two glyphs stand closer than the gap the edges
+	// between them need: the lowest scale the pan and zoom allow, set as the boxes
+	// move, and by a fit before its view, which must not meet the last graph's.
+	const minZoom = useMemo(
+		() => minZoomFor([...boxes.values()], glyph, pair),
+		[boxes, glyph, pair],
+	);
+	useEffect(() => {
+		viewport.limit(minZoom);
+	}, [viewport, minZoom]);
 	const fitTo = useCallback(
 		(whole: boolean) => {
-			// The lowest scale is the one these boxes allow, which the canvas sets after
-			// it renders: a view set before it (the opening one) must not meet the last
-			// graph's.
-			const lowest = minZoomFor([...boxes.values()], glyph, spacing("gap"));
 			const o = opening();
 			if (!o) return;
-			const view = whole ? fitView(o, lowest) : openingView(o);
-			viewport.limit(lowest);
+			const view = whole ? fitView(o, minZoom) : openingView(o);
+			viewport.limit(minZoom);
 			viewport[whole ? "go" : "set"](view);
 			// The view is the canvas's own again, until the viewer moves it.
 			viewport.settle();
 		},
-		[opening, viewport, boxes, glyph],
+		[opening, viewport, minZoom],
 	);
 	// The opening view and the one an Arrange fits to land at once, as the nodes
 	// they follow do; the Fit act is the viewer's, fits the whole graph and travels.
@@ -583,21 +637,25 @@ export function useLayout({
 	useLayoutEffect(() => {
 		chosen.current = standing(selected);
 	}, [selected, standing]);
+	// The view opens again in the room it now has, or pans to the chosen box.
+	const refit = useCallback(() => {
+		const box = chosen.current;
+		if (box) viewport.centreOn(box);
+		else latest.current?.();
+	}, [viewport]);
 	useEffect(() => {
 		const element = region.current;
 		if (!ready || !element) return;
-		let last = { width: element.clientWidth, height: element.clientHeight };
+		let last = viewport.size();
 		const watch = new ResizeObserver(() => {
-			const size = { width: element.clientWidth, height: element.clientHeight };
+			const size = viewport.size();
 			if (size.width === last.width && size.height === last.height) return;
 			last = size;
-			const box = chosen.current;
-			if (box) viewport.centreOn(box);
-			else latest.current?.();
+			refit();
 		});
 		watch.observe(element);
 		return () => watch.disconnect();
-	}, [ready, region, viewport]);
+	}, [ready, region, viewport, refit]);
 	// Parts wrapped again for a resized room stand elsewhere: the graph opens
 	// again on their boxes once they are drawn, or pans to the chosen node's new
 	// place. A new layout is not this: its first view is the opening one, or
@@ -614,12 +672,10 @@ export function useLayout({
 		const wrap = `${wrapSpace}|${across}|${down}`;
 		const was = wrappedFor.current;
 		if (was && was.laid === laid && was.wrapSpace !== wrap) {
-			const box = chosen.current;
-			if (box) viewport.centreOn(box);
-			else latest.current?.();
+			refit();
 		}
 		wrappedFor.current = { laid, wrapSpace: wrap };
-	}, [ready, computed, laid, wrapSpace, across, down, viewport]);
+	}, [ready, computed, laid, wrapSpace, across, down, refit]);
 
 	// A new set of nodes is a new graph: once the layout has placed it, the view
 	// opens on it again (or pans to the chosen node, as a resize does), unless the
@@ -635,10 +691,8 @@ export function useLayout({
 		if (!measured || laid?.set !== set) return;
 		opened.current = set;
 		if (viewport.moved()) return;
-		const box = chosen.current;
-		if (box) viewport.centreOn(box);
-		else latest.current?.();
-	}, [ready, set, placing, measured, laid, viewport]);
+		refit();
+	}, [ready, set, placing, measured, laid, viewport, refit]);
 
 	// What the view was opened on: the layout and the nodes' sizes. A late font
 	// or a node that grows after the first view moves the boxes the view was set
@@ -655,14 +709,15 @@ export function useLayout({
 		// An Arrange fits the view itself, once it is reported.
 		if (laid?.arranged && was.laid !== laid) return;
 		if (!measured || viewport.moved()) return;
-		const box = chosen.current;
-		if (box) viewport.centreOn(box);
-		else latest.current?.();
-	}, [ready, laid, sizes, measured, viewport]);
+		refit();
+	}, [ready, laid, sizes, measured, viewport, refit]);
 
+	if (failure) throw failure.error;
 	return {
+		minZoom,
 		boxes,
 		drawn,
+		standing,
 		about,
 		routed,
 		space,

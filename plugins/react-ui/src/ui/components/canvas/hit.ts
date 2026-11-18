@@ -1,4 +1,5 @@
 import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
+import type { FocusEvent } from "react";
 
 // The region's ground and its parts: docs/architecture/plugins/react-ui.md, "Canvas".
 export function isGround(element: Element, region: Element): boolean {
@@ -28,3 +29,12 @@ export function hit(
 		ground: top !== undefined && isGround(top, region),
 	};
 }
+
+// A focus handler that pans to the part only on a keyboard focus: a press
+// focuses the button too, and panning then would move the part out from under
+// the pointer.
+export const keyboardFocus =
+	(id: string, pan: (id: string) => void) =>
+	(event: FocusEvent<HTMLElement>): void => {
+		if (event.currentTarget.matches(":focus-visible")) pan(id);
+	};

@@ -1,10 +1,11 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { CANVAS_GROUP_HEAD, canvasGroup } from "@fcalell/ui-core/variants";
-import type { FocusEvent } from "react";
 import { spacing } from "../../lib/media.ts";
 import { UNZOOM, UNZOOM_VAR } from "./floor.ts";
 import type { Box } from "./geometry.ts";
-import type { Transform } from "./view.ts";
+import { keyboardFocus } from "./hit.ts";
+import { FOCUSED, HOVERED } from "./look.ts";
+import { inStackRows, type Transform } from "./view.ts";
 import { useViewportValue, type Viewport } from "./viewport.ts";
 
 const BOX = "absolute flex flex-col pointer-events-none";
@@ -42,7 +43,7 @@ function headShift(
 	const pad = spacing("pad");
 	const top = box.y * view.k + view.y;
 	const band = spacing("control") * (below ? 1 : view.k);
-	const stood = top + band > pane.height - clear.stack && top < pane.height;
+	const stood = inStackRows(top, top + band, pane, clear.stack);
 	const past = ((stood ? clear.left : 0) - view.x) / view.k - box.x;
 	const most = box.width - (4 * pad) / (below ? view.k : 1);
 	const flow = Math.max(0, Math.min(past, most));
@@ -74,9 +75,6 @@ interface Clear {
 	left: number;
 	stack: number;
 }
-const HOVERED = "hover:border-edge-hover";
-const FOCUSED =
-	"in-data-[modality=keyboard]:focus-visible:outline-2 focus-visible:outline-ring";
 
 // A group's dashed frame and its head, standing in flow coordinates around
 // the nodes it holds. The frame takes no pointer, so a drag that starts on it
@@ -125,11 +123,6 @@ export function GroupBox({
 			: undefined),
 	};
 	const classes = cn(CANVAS_GROUP_HEAD, HEAD, below && UNZOOMED);
-	// A press focuses the button too, and panning then would move the frame out
-	// from under the pointer: only a keyboard focus pans.
-	const focused = (event: FocusEvent<HTMLButtonElement>) => {
-		if (event.currentTarget.matches(":focus-visible")) onFocusVisible(id);
-	};
 	return (
 		// The frame's rectangle is a coordinate of the flow, known at run time.
 		<div
@@ -149,7 +142,7 @@ export function GroupBox({
 				<button
 					type="button"
 					onClick={() => onSelect(id)}
-					onFocus={focused}
+					onFocus={keyboardFocus(id, onFocusVisible)}
 					style={style}
 					className={cn(classes, CONTROL, HOVERED, FOCUSED)}
 				>

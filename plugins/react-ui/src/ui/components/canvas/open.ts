@@ -8,8 +8,10 @@ import {
 import { type Box, type Routes, type Size, union } from "./geometry.ts";
 import {
 	type Clearance,
+	centreOf,
 	FIT_FLOOR,
 	fitTransform,
+	inStackRows,
 	overviewTransform,
 	solveScale,
 	space,
@@ -33,7 +35,7 @@ export interface Opening {
 	glyph: number;
 	pair: number;
 	names: number;
-	// The nodes' boxes as placed, and the graph's nodes in path order.
+	// The nodes' boxes as placed.
 	boxes: ReadonlyMap<string, Box>;
 	// The node the view stands on: the running or failed one, else the first.
 	anchor?: string;
@@ -44,8 +46,7 @@ export interface Opening {
 // The centres' span of the cards, across and down.
 function spreadOf(cards: readonly Box[]): { across: number; down: number } {
 	const centres = cards.map((box) => ({
-		x: box.x + box.width / 2,
-		y: box.y + box.height / 2,
+		...centreOf(box),
 		width: 0,
 		height: 0,
 	}));
@@ -53,11 +54,13 @@ function spreadOf(cards: readonly Box[]): { across: number; down: number } {
 	return { across: span.width, down: span.height };
 }
 
-// The whole graph in the room, down to `floor`. Under the text floor the frames
-// and the routes follow the zoom (a head and a padding keep their size on
+// The view Fit goes to: the whole graph in the room, down to `floor`, the lowest
+// scale the boxes allow; the opening view takes it at `FIT_FLOOR`, `bounds` the
+// drawing it frames where that is not the routed bounds. Under the text floor the
+// frames and the routes follow the zoom (a head and a padding keep their size on
 // screen), so the bounds depend on the scale they are fitted to: the fit is taken
 // again at the scale it gave, down until the bounds at that scale fit it.
-function settledView(
+export function fitView(
 	o: Opening,
 	floor: number,
 	bounds?: (routed: Routes) => Box,
@@ -85,12 +88,6 @@ function settledView(
 	return at;
 }
 
-// The view Fit goes to: the whole graph in the room, down to `floor`, the lowest
-// scale the boxes allow.
-export function fitView(o: Opening, floor: number): Transform {
-	return settledView(o, floor);
-}
-
 // The view a graph opens at: the graph at its own size (the text floor,
 // `FIT_FLOOR`), where its words stand, when that shows every node whole across
 // the pane and clear of the zoom stack: centred where its drawing (cards, routes
@@ -107,7 +104,7 @@ export function openingView(o: Opening): Transform {
 	// the graph allows above it.
 	const lowest = Math.max(OVERVIEW_FLOOR, minZoomFor(all, glyph, pair));
 
-	if (lowest >= FIT_FLOOR) return settledView(o, FIT_FLOOR);
+	if (lowest >= FIT_FLOOR) return fitView(o, FIT_FLOOR);
 
 	// What the graph's nodes and frames take at the text floor, and the box its
 	// drawing takes with the routes and chips.
@@ -129,7 +126,7 @@ export function openingView(o: Opening): Transform {
 	]);
 	// A drawing the pane holds with its chips is framed with them; one it holds
 	// only without them is framed without, and its chips may be cut.
-	const framed = settledView(
+	const framed = fitView(
 		o,
 		FIT_FLOOR,
 		chipped.width <= pane.width - 2 * inset ? undefined : () => bodies,
@@ -148,8 +145,12 @@ export function openingView(o: Opening): Transform {
 	const stackTop = pane.height - clear.stack + pair;
 	const stacked = (box: Box, view: Transform) =>
 		box.x * view.k + view.x < clear.left - pair &&
-		(box.y + box.height) * view.k + view.y > stackTop &&
-		box.y * view.k + view.y < pane.height;
+		inStackRows(
+			box.y * view.k + view.y,
+			(box.y + box.height) * view.k + view.y,
+			pane,
+			clear.stack - pair,
+		);
 	// A graph the pane holds from top to foot moves up out of the stack's rows
 	// where a node under the stack's column would stand in them.
 	const area = space(pane, inset, clear);
@@ -226,9 +227,9 @@ function overview(o: Opening, lowest: number): Transform {
 		spread.down,
 		area.height,
 		lowest,
-		across.k,
+		across,
 	);
-	const k = Math.max(Math.min(across.k, heightFloor), down.k);
+	const k = Math.max(Math.min(across, heightFloor), down);
 	const { tier, box } = at(k);
 	return overviewTransform(
 		withNames(box, pair + names, k),

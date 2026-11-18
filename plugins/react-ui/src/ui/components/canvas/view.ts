@@ -27,7 +27,6 @@ export function place(
 	);
 }
 
-// The position whose box of `size` is centred on `centre`.
 export function landAt(centre: CanvasPoint, size: Size): CanvasPoint {
 	return { x: centre.x - size.width / 2, y: centre.y - size.height / 2 };
 }
@@ -120,7 +119,6 @@ export const EXTENT: readonly [number, number] = [0.1, 2];
 // floor's threshold.
 export const ZOOM_TO_NODE = 1;
 
-// Where a flow point stands in the pane under the transform.
 export const paneOf = (
 	point: CanvasPoint,
 	{ x, y, k }: Transform,
@@ -129,7 +127,6 @@ export const paneOf = (
 	y: point.y * k + y,
 });
 
-// The box's centre, a flow point.
 export const centreOf = (box: Box): CanvasPoint => ({
 	x: box.x + box.width / 2,
 	y: box.y + box.height / 2,
@@ -179,10 +176,11 @@ export function shiftInto(
 
 // The transform that puts the box's centre on the pane's centre at scale `k`.
 function centredTransform(box: Box, k: number, pane: Size): Transform {
+	const centre = centreOf(box);
 	return {
 		k,
-		x: pane.width / 2 - (box.x + box.width / 2) * k,
-		y: pane.height / 2 - (box.y + box.height / 2) * k,
+		x: pane.width / 2 - centre.x * k,
+		y: pane.height / 2 - centre.y * k,
 	};
 }
 
@@ -196,6 +194,15 @@ export interface Clearance {
 }
 
 export const NO_CLEARANCE: Clearance = { left: 0, bottom: 0, stack: 0 };
+
+// Whether a span down the pane, `top` to `bottom` in pane pixels, stands in the
+// rows the zoom stack reaches up the pane (`stack`, from its foot).
+export const inStackRows = (
+	top: number,
+	bottom: number,
+	pane: Size,
+	stack: number,
+): boolean => bottom > pane.height - stack && top < pane.height;
 
 // The transform moved, at its scale, so the box (a box of the flow) stands
 // clear of the zoom stack's corner (the columns `clear.left` reaches across,
@@ -290,25 +297,32 @@ export const OPEN_UNDER = 0.99;
 // everything else (a glyph, a frame's padding, a head, the last name) keeps its
 // size on screen, so the extent is a constant plus `spread * k` and each step
 // solves that line, measured again at the scale it gave (the frames grow in
-// steps as the zoom moves). `whole` says the graph holds in the room at the
-// scale returned; a graph that does not at `lowest` opens at `lowest` anyway.
+// steps as the zoom moves). A graph that does not hold in the room at `lowest`
+// opens at `lowest` anyway.
 export function solveScale(
 	extent: (k: number) => number,
 	spread: number,
 	space: number,
 	lowest: number,
 	from: number = OPEN_UNDER,
-): { k: number; whole: boolean } {
+): number {
 	let k = Math.max(lowest, from);
 	for (let step = 0; step < 6; step++) {
 		const taken = extent(k);
-		if (taken <= space + 1e-6) return { k, whole: true };
+		if (taken <= space + 1e-6) return k;
 		if (k <= lowest || spread <= 0) break;
 		const next = (space - (taken - spread * k)) / spread;
 		k = Math.max(lowest, Math.min(next, k - 1e-3));
 	}
-	return { k, whole: extent(k) <= space + 1e-6 };
+	return k;
 }
+
+// The offset that centres a span in the room on its axis, at scale `k`.
+const centred = (
+	span: { start: number; size: number },
+	space: { origin: number; extent: number },
+	k: number,
+): number => space.origin + (space.extent - span.size * k) / 2 - span.start * k;
 
 // Where a span of `size` stands on one axis of a room of `extent` from `origin`,
 // as the offset the transform adds: centred when it fits, else its start
@@ -321,9 +335,7 @@ function framed(
 	k: number,
 	centre?: number,
 ): number {
-	const size = span.size * k;
-	if (size <= space.extent)
-		return space.origin + (space.extent - size) / 2 - span.start * k;
+	if (span.size * k <= space.extent) return centred(span, space, k);
 	const first = space.origin - span.start * k;
 	if (centre === undefined) return first;
 	const wanted = space.origin + space.extent / 2 - centre * k;
@@ -382,10 +394,13 @@ function kept(
 		at = Math.min(hi, Math.max(lo, x));
 	}
 	// The nodes in the rows the stack reaches up the pane.
-	const top = pane.height - clear.stack;
-	const rows = parts.nodes.filter(
-		(node) =>
-			(node.y + node.height) * k + y > top && pane.height > node.y * k + y,
+	const rows = parts.nodes.filter((node) =>
+		inStackRows(
+			node.y * k + y,
+			(node.y + node.height) * k + y,
+			pane,
+			clear.stack,
+		),
 	);
 	// The offsets that put a node's part (its whole box, or the span `part` from
 	// its left edge) in the stack's columns.
@@ -437,15 +452,15 @@ function raised(
 // that holds only under the floor is framed at its start instead, its top at
 // the room's top and `start` (the box of the graph's first node), when it is
 // wider than the room, at the room's middle, so a graph narrower than the room
-// stays centred across. With the graph's `parts`, a framed view also keeps the
+// stays centred across. A framed view also keeps the
 // start node whole and no node under the zoom stack's corner (`kept`).
 export function fitTransform(
 	bounds: Box,
 	pane: Size,
 	inset: number,
-	clear: Clearance = NO_CLEARANCE,
-	start?: Box,
-	parts?: Parts,
+	clear: Clearance,
+	start: Box | undefined,
+	parts: Parts,
 	floor: number = FIT_FLOOR,
 ): Transform {
 	const area = space(pane, inset, clear);
@@ -485,7 +500,6 @@ export function fitTransform(
 		k,
 		start && start.x + start.width / 2,
 	);
-	if (!parts) return { k, x, y };
 	return {
 		k,
 		x: kept(
@@ -523,9 +537,7 @@ function opened(
 	anchor: { start: number; size: number } | undefined,
 	window: { lo: number; hi: number },
 ): number {
-	const size = span.size * k;
-	if (size <= space.extent)
-		return space.origin + (space.extent - size) / 2 - span.start * k;
+	if (span.size * k <= space.extent) return centred(span, space, k);
 	let offset = space.origin - span.start * k;
 	if (anchor) {
 		const end = (anchor.start + anchor.size) * k + offset;
@@ -552,8 +564,8 @@ export function overviewTransform(
 	pane: Size,
 	inset: number,
 	clear: Clearance,
-	anchor?: Box,
-	nodes: readonly Box[] = [],
+	anchor: Box | undefined,
+	nodes: readonly Box[],
 ): Transform {
 	const area = space(pane, inset, clear);
 	const view: Transform = {
@@ -592,12 +604,12 @@ function pastStack(
 	anchor?: Box,
 ): Transform {
 	const { k } = view;
-	const top = pane.height - clear.stack;
 	let by = 0;
 	for (const box of nodes) {
 		const left = box.x * k + view.x;
+		const top = box.y * k + view.y;
 		const bottom = (box.y + box.height) * k + view.y;
-		if (left < clear.left && bottom > top && box.y * k + view.y < pane.height)
+		if (left < clear.left && inStackRows(top, bottom, pane, clear.stack))
 			by = Math.max(by, clear.left - left);
 	}
 	if (anchor)

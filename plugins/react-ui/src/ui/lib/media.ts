@@ -76,3 +76,14 @@ export function spacing(role: SpacingRole | Size): number {
 		),
 	);
 }
+
+// A type role's size in pixels at the current density, read off `node` (the
+// root by default) so the theme's size knob moves it.
+export function textSize(
+	role: "meta",
+	node: Element = document.documentElement,
+): number {
+	return Number.parseFloat(
+		getComputedStyle(node).getPropertyValue(`--text-${role}`),
+	);
+}

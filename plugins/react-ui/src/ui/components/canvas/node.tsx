@@ -16,7 +16,6 @@ import {
 	PATH_TONE,
 } from "@fcalell/ui-core/variants";
 import {
-	type FocusEvent,
 	type KeyboardEvent,
 	type MouseEvent,
 	type PointerEvent,
@@ -33,14 +32,12 @@ import { StatusDot } from "../../atoms/status/dot.tsx";
 import { Count } from "../count/index.tsx";
 import { UNZOOM } from "./floor.ts";
 import type { Size } from "./geometry.ts";
-import { hit } from "./hit.ts";
-import { heldAt, useLift } from "./lift.ts";
-import type { NodeLook } from "./look.ts";
+import { hit, keyboardFocus } from "./hit.ts";
+import { client, heldAt, useLift } from "./lift.ts";
+import { FOCUSED, HOVERED, type NodeLook } from "./look.ts";
 import { keyStep } from "./view.ts";
 import type { About, Viewport } from "./viewport.ts";
 
-// The node's icon draws in the node's own ink (`canvasNodeInk`): it would else
-// take the ink the page resolved before the mode scope it stands in.
 const BOX = "absolute flex items-center text-start select-none";
 // A call node's card leaves its end to the open act, which stands over it: the
 // act's size, the inset from the edge and a pair of air.
@@ -57,9 +54,6 @@ const MARK_BOX =
 // A node held by a long press draws the selection's colour at the focus ring's
 // width; its lift (`LIFT`, in the node's cell) is marked by `data-lifted`.
 const HELD = "outline-2 outline-selected-outline";
-const HOVERED = "hover:border-edge-hover";
-const FOCUSED =
-	"in-data-[modality=keyboard]:focus-visible:outline-2 focus-visible:outline-ring";
 const GRAB = "cursor-grab active:cursor-grabbing";
 // The card of a node that has not landed: it keeps its box, so the layout does
 // not move, and draws nothing until it lands. The card whose glyph stands in
@@ -103,11 +97,11 @@ const GLYPH_BOX =
 	"absolute flex items-center justify-center pointer-events-none";
 const GLYPH =
 	"relative flex items-center justify-center size-control pointer-events-auto select-none";
+// The off node's slash, over its icon in the glyph's box.
+const OFF_MARK = "absolute inset-0 flex items-center justify-center";
 // The overview's name, at the glyph's inline end and centred on it. It stands a
 // gap out, clear of the marks seated at the glyph's end (`CANVAS_NODE_MARK`),
 // and scales with the glyph, so it keeps the floor size on screen at any zoom.
-// The off node's slash, over its icon in the glyph's box.
-const OFF_MARK = "absolute inset-0 flex items-center justify-center";
 const NAME = "absolute start-full top-1/2 -translate-y-1/2 ms-gap";
 // Reports the element's layout size: the border box, which the layer's scale
 // does not change. The callback only records it, so it cannot loop.
@@ -127,11 +121,6 @@ function useSize(
 	}, [element, id, report]);
 	return [element, setElement];
 }
-
-const client = (event: PointerEvent): CanvasPoint => ({
-	x: event.clientX,
-	y: event.clientY,
-});
 
 // Where a node stands, and how large once it is measured.
 interface Placed {
@@ -297,6 +286,8 @@ export function NodeView({
 	const opens = look.role === "call" && node.href !== undefined;
 	const movable = draggable || liftable;
 	const focusable = onSelect !== undefined || movable;
+	// The node's icon draws in the node's own ink (`canvasNodeInk`): it would else
+	// take the ink the page resolved before the mode scope it stands in.
 	const classes = cn(
 		canvasNode({ state: look.state, role: look.role, tone: look.surface }),
 		canvasNodeInk({ tone: look.surface }),
@@ -543,11 +534,7 @@ export function NodeView({
 			{connectors}
 		</>
 	);
-	// A press focuses the button too, and panning then would move a node out from
-	// under the pointer: only a keyboard focus pans.
-	const focused = (event: FocusEvent<HTMLButtonElement>) => {
-		if (event.currentTarget.matches(":focus-visible")) onFocusVisible(id);
-	};
+	const focused = keyboardFocus(id, onFocusVisible);
 	// An arrow moves a movable node by a step (`keyStep`), as a drop does.
 	const nudge = (event: KeyboardEvent<HTMLButtonElement>) => {
 		const by = keyStep(event.key, event.shiftKey);

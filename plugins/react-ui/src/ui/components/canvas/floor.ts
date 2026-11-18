@@ -5,7 +5,6 @@ import {
 	SANS_ADVANCE,
 	TYPE_SCALE,
 } from "@fcalell/ui-core/tokens";
-import { spacing } from "../../lib/media.ts";
 import { type Box, spreadBoxes } from "./geometry.ts";
 import { EXTENT } from "./view.ts";
 
@@ -26,12 +25,6 @@ export const UNZOOM = { scale: `var(${UNZOOM_VAR})` };
 
 export function belowFloor(zoom: number, text: number, floor: number): boolean {
 	return zoom * text < floor;
-}
-
-// A glyph's size on screen: the `control` size at the current density, read
-// off the root.
-export function glyphSize(): number {
-	return spacing("control");
 }
 
 // The lowest zoom at which no two glyphs of `glyph` px stand closer than `2 * pair`
@@ -63,23 +56,11 @@ export function minZoomFor(
 	return Math.min(1, Math.max(lowest, (glyph + 2 * pair) / space));
 }
 
-// The widest a node's name stands on screen at the density: the short measure in
-// characters of the name's own role (meta), at the sans advance. It is the cap,
-// not the name's own width, so the floor a graph needs does not move with its
-// words. The meta size is the page's own, read off the root as the glyph is, so
-// the theme's size knob moves it; with no page (a test), the default theme's.
-export function nameCap(touch: boolean): number {
-	const drawn =
-		typeof document === "undefined"
-			? Number.NaN
-			: Number.parseFloat(
-					getComputedStyle(document.documentElement).getPropertyValue(
-						"--text-meta",
-					),
-				);
-	const meta = Number.isFinite(drawn)
-		? drawn
-		: Math.round(BODY_SIZE[touch ? "touch" : "desktop"] * TYPE_SCALE.meta.size);
+// The widest a node's name stands on screen at the `meta` text size (px): the
+// short measure in characters of the name's own role, at the sans advance. It is
+// the cap, not the name's own width, so the floor a graph needs does not move
+// with its words.
+export function nameCap(meta: number): number {
 	return Math.ceil(MEASURE_CHARACTERS["measure-short"] * SANS_ADVANCE * meta);
 }
 

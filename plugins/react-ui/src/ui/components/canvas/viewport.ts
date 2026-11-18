@@ -193,6 +193,10 @@ function make(region: RefObject<HTMLElement | null>) {
 		width: region.current?.clientWidth ?? 0,
 		height: region.current?.clientHeight ?? 0,
 	});
+	const middle = (): CanvasPoint => {
+		const size = pane();
+		return { x: size.width / 2, y: size.height / 2 };
+	};
 
 	// The view that travels, if one does, and where it is headed; whatever sets
 	// the view or takes the pointer ends it. A step asked for while one travels
@@ -212,15 +216,12 @@ function make(region: RefObject<HTMLElement | null>) {
 	// glyph's press is the viewer's move.
 	const zoomTo = (target: number, about?: About) => {
 		const [low, high] = behaviour.scaleExtent();
-		const size = pane();
 		const k = Math.min(high, Math.max(low, target));
 		moved = true;
 		const from = about?.(base().k);
 		const to = about?.(k);
 		if (!from || !to) {
-			viewport.go(
-				zoomAbout(base(), { x: size.width / 2, y: size.height / 2 }, k),
-			);
+			viewport.go(zoomAbout(base(), middle(), k));
 			return;
 		}
 		// The box's centre stays where it stands in the pane, at its place at `k`.
@@ -228,6 +229,7 @@ function make(region: RefObject<HTMLElement | null>) {
 		const centre = centreOf(to);
 		const zoomed = { k, x: at.x - centre.x * k, y: at.y - centre.y * k };
 		const inset = spacing("page");
+		const size = pane();
 		const into = shiftInto(to, zoomed, size, inset);
 		viewport.go(
 			clearOfStack(to, into, size, inset, clearanceOf(region.current)),
@@ -327,14 +329,7 @@ function make(region: RefObject<HTMLElement | null>) {
 			// A clamp of the scale is no move: it lands at once, about the pane's
 			// centre.
 			if (k < lowest) {
-				const size = pane();
-				viewport.set(
-					zoomAbout(
-						base(),
-						{ x: size.width / 2, y: size.height / 2 },
-						Math.min(EXTENT[1], lowest),
-					),
-				);
+				viewport.set(zoomAbout(base(), middle(), Math.min(EXTENT[1], lowest)));
 			}
 		},
 		screenToFlow(point) {

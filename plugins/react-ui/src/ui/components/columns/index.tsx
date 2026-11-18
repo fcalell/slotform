@@ -30,9 +30,8 @@ export interface ColumnsProps extends Closed {
 /** At `board`, each child in a column at its width, the row scrolling sideways from the page inset. At `half`, the children two to a row filling the body from the desktop width, stacked below it. */
 export function Columns({ fit, children }: ColumnsProps) {
 	const title = use(PageTitle);
-	const place = fit ?? "board";
-	if (place === "half")
-		return <div className={cn(columns({ fit: place }), HALF)}>{children}</div>;
+	if (fit === "half")
+		return <div className={cn(columns({ fit }), HALF)}>{children}</div>;
 	// The row scrolls, so it takes focus for the keyboard to scroll it even
 	// when its columns hold nothing focusable, named by its Pane's title as a
 	// group, not a second region of that name.
@@ -44,7 +43,7 @@ export function Columns({ fit, children }: ColumnsProps) {
 			aria-labelledby={title}
 			// biome-ignore lint/a11y/noNoninteractiveTabindex: a scrolling region is reached by the keyboard (WCAG 2.1.1, axe scrollable-region-focusable)
 			tabIndex={0}
-			className={cn(columns({ fit: place }), BOARD)}
+			className={cn(columns({ fit }), BOARD)}
 		>
 			{children}
 		</div>
