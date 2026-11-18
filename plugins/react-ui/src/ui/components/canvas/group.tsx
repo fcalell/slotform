@@ -1,6 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { CANVAS_GROUP_HEAD, canvasGroup } from "@fcalell/ui-core/variants";
 import { spacing } from "../../lib/media.ts";
+import { GROUP_HEAD } from "../../lib/walk-classes.ts";
 import { UNZOOM, UNZOOM_VAR } from "./floor.ts";
 import type { Box } from "./geometry.ts";
 import { keyboardFocus } from "./hit.ts";
@@ -9,9 +10,6 @@ import { inStackRows, type Transform } from "./view.ts";
 import { useViewportValue, type Viewport } from "./viewport.ts";
 
 const BOX = "absolute flex flex-col pointer-events-none";
-// The head band stands over the edges that cross it into the frame, so no
-// edge strikes through its words: the band's ground covers them.
-const HEAD = "relative z-1 flex items-center";
 const HEAD_TEXT = "min-w-0 truncate";
 // Under the text floor the head keeps its size on screen: the layer's scale is
 // taken back (`UNZOOM`) about the frame's top left, and its width is the
@@ -122,7 +120,7 @@ export function GroupBox({
 			? { paddingInlineEnd: `calc(var(--spacing-pad) + ${stop}px)` }
 			: undefined),
 	};
-	const classes = cn(CANVAS_GROUP_HEAD, HEAD, below && UNZOOMED);
+	const classes = cn(CANVAS_GROUP_HEAD, GROUP_HEAD, below && UNZOOMED);
 	return (
 		// The frame's rectangle is a coordinate of the flow, known at run time.
 		<div

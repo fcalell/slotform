@@ -18,13 +18,16 @@ import { useAct, useHeldDraft } from "../../lib/act.ts";
 import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";
 import type { CellFit, InlineFit } from "../../lib/field.ts";
-import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
+import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import { ActSheet } from "../sheet/act.tsx";
 import type { InputKind, TextInputProps } from "./index.tsx";
 
 // The box draws the field's states: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 export const BOX = "flex items-center";
+// A focused field takes the accent edge, under the pointer and the keyboard
+// alike (the keyboard adds the ring); the hover edge yields to it.
+const FOCUS_EDGE = "has-focus-visible:border-accent";
 export const BOX_HOVER = `not-has-focus-visible:hover:border-edge-hover ${FOCUS_EDGE}`;
 // The in-field act answers its own pointer, so the box keeps its edge under it.
 export const BOX_HOVER_VALUE = `not-has-[button:hover]:not-has-focus-visible:hover:border-edge-hover ${FOCUS_EDGE}`;

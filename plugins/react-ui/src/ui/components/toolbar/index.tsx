@@ -41,7 +41,7 @@ export interface ToolbarProps extends Closed {
 	tabs?: readonly LinkSegment[];
 	/** The search box: its value, what it hears and its hint. Absent, the strip has none. */
 	search?: ToolbarSearch;
-	/** The filters, each a `Picker`'s own props (its `label`, `options` as a list or a read, `value` and `onChange`; a `value` that is an array picks several). On touch every filter folds; on the desktop two or fewer stand beside the acts as picks and three or more fold, all of them, behind one Filters act that opens them as labelled picks (a popover, a sheet on touch) and shows the count of those set, a removable chip for each one set in the chips row. */
+	/** The filters, each a `Picker`'s own props (its `label`, which names it and no other filter, `options` as a list or a read, `value` and `onChange`; a `value` that is an array picks several). On touch every filter folds; on the desktop two or fewer stand beside the acts as picks and three or more fold, all of them, behind one Filters act that opens them as labelled picks (a popover, a sheet on touch) and shows the count of those set, a removable chip for each one set in the chips row. */
 	filters?: readonly FilterProp[];
 	/** The applied filters of the app's own, each a removable `Chip`, in a row under the search and the acts, after the filters' chips. */
 	chips?: readonly ToolbarChip[];
@@ -57,12 +57,12 @@ export function Toolbar({
 	chips,
 	children,
 }: ToolbarProps) {
-	// The chips row is a block of the page: the viewer's filter bringing the first
-	// chip or removing the last moves what follows.
 	const words = useWords();
 	const touch = useTouch();
 	const folded = filtersFold(filters.length, touch);
 	const set = filters.filter(filterSet);
+	// The chips row is a block of the page: the viewer's filter bringing the first
+	// chip or removing the last moves what follows.
 	const applied = (folded ? set.length : 0) + (chips?.length ?? 0);
 	return (
 		<div className={STRIP}>

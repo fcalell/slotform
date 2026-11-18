@@ -40,7 +40,7 @@ export type IconAct = Act & { icon: IconName };
 export type MenuEntry = Act | LinkAct;
 
 /** The wiring an act carries beside its `onAct`, which a host hands to the control that draws it. */
-export interface Wiring {
+interface Wiring {
 	confirm?: Decision;
 	done?: string;
 	to?: string;

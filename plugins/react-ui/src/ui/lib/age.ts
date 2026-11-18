@@ -4,17 +4,14 @@ import {
 	ageShort as shortOf,
 } from "@fcalell/ui-core/clock";
 import { formatterFor } from "@fcalell/ui-core/format";
+import { pageLang } from "./lang.ts";
 
 // An ISO moment as its age from `now` ("2 minutes ago", "yesterday"), in the
 // document's language through the platform's own relative-time words, so
 // no word of it lives in `words`. A part that draws one reads `now` from
 // the shared clock (`useClock`), so the age ticks on its own.
 export function age(moment: string, now = Date.now()): string {
-	const format = formatterFor(
-		"relative",
-		document.documentElement.lang || undefined,
-		{ numeric: "auto" },
-	);
+	const format = formatterFor("relative", pageLang(), { numeric: "auto" });
 	return ageWords(moment, now, format);
 }
 
@@ -22,7 +19,7 @@ export function age(moment: string, now = Date.now()): string {
 // trailing age and an item header's meta read in; a moment after `now` keeps
 // the long form.
 export function ageShort(moment: string, now = Date.now()): string {
-	const lang = document.documentElement.lang || undefined;
+	const lang = pageLang();
 	return shortOf(
 		moment,
 		now,
@@ -42,13 +39,11 @@ const longest = new Map<string, number>();
 // ago"), found once per language from the words themselves: an age column
 // stands at this width.
 export function ageWidest(): number {
-	const lang = document.documentElement.lang;
-	let known = longest.get(lang);
+	const lang = pageLang();
+	let known = longest.get(lang ?? "");
 	if (known === undefined) {
-		known = ageLongest(
-			formatterFor("relative", lang || undefined, { numeric: "auto" }),
-		);
-		longest.set(lang, known);
+		known = ageLongest(formatterFor("relative", lang, { numeric: "auto" }));
+		longest.set(lang ?? "", known);
 	}
 	return known;
 }

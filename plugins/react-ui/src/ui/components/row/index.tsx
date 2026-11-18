@@ -8,7 +8,6 @@ import {
 	isChipFact,
 	isCopy,
 	isMarkFact,
-	isStatus,
 	isStatusFact,
 	isWarningFact,
 	splitFacts,
@@ -737,7 +736,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			oneLine && hasMeta && INLINE_TITLE,
 		);
 		if (waitsTitle) {
-			if (isStatus(shape))
+			if (isStatusFact(shape))
 				titleLine = (
 					<span className={VALUE_STATUS}>
 						<StatusBase painted />
@@ -762,7 +761,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 			titleLine = (
 				<span className={cn(box, DEFINITION_ABSENT)}>{plain.absent}</span>
 			);
-		} else if (isStatus(plain)) {
+		} else if (isStatusFact(plain)) {
 			titleLine = (
 				<span className={VALUE_STATUS}>
 					<StatusValue status={plain} />

@@ -31,7 +31,7 @@ import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { useLeaveGuard } from "../../lib/leave.ts";
-import { BusyMark, FrameBody, FrameLine } from "../../lib/read.tsx";
+import { BusyMark, FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import type { ActionBarProps } from "../action-bar/index.tsx";
 import { Text } from "../text/index.tsx";
@@ -110,7 +110,7 @@ function GroupBox(props: { group: FormGroup; arrived: boolean }) {
 			role="group"
 			aria-labelledby={group.title ? id : undefined}
 			aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
-			data-still={(frame.holds && frame.shape === "still") || undefined}
+			data-still={stillOf(frame)}
 			className={cn(FORM_GROUP, DIVIDER, fades && BLOCK_IN)}
 		>
 			{group.title || group.description ? (
@@ -223,7 +223,7 @@ export function FormShell(props: {
 				onSubmit={(event) => event.preventDefault()}
 				onChange={touch.touch}
 				aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
-				data-still={(frame.holds && frame.shape === "still") || undefined}
+				data-still={stillOf(frame)}
 				className={props.className}
 			>
 				{props.children}

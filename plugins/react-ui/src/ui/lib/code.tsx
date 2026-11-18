@@ -57,7 +57,7 @@ export function Soft({ text }: { text: string }): ReactNode {
 }
 
 /** A text whose leading hyphens bind to the word after them (`--bg` never breaks after its hyphens); a hyphen inside a word breaks after it, as a browser's does, and a line never starts on one. Adds no character to a copy or a selection. Outside the package's exports. */
-export function CodeBound(props: { code: string; wraps?: boolean }) {
+function CodeBound(props: { code: string; wraps?: boolean }) {
 	return boundPieces(props.code).map((part, at) =>
 		at % 2 === 1 ? (
 			<span key={at} className={PIECE}>

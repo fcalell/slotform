@@ -40,7 +40,7 @@ import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { DEEPER, HeadingContext } from "../../lib/heading.ts";
-import { FrameBody, FrameLine, StateLine } from "../../lib/read.tsx";
+import { FrameBody, FrameLine, StateLine, stillOf } from "../../lib/read.tsx";
 import { useMovable } from "../../lib/reorder.ts";
 import { SectionHead } from "./head.tsx";
 import { keyOf, Rows } from "./rows.tsx";
@@ -379,7 +379,7 @@ function Titled(
 				onToggle?.(next);
 			}}
 			aria-busy={(frame.holds && frame.shape === "waiting") || undefined}
-			data-still={(frame.holds && frame.shape === "still") || undefined}
+			data-still={stillOf(frame)}
 			className={cn(SECTION, ROWS, BOX)}
 		>
 			<SectionHead

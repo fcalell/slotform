@@ -20,6 +20,7 @@ import {
 import {
 	BAR_CHART_BODY,
 	GATE_CENTRED,
+	GROUP_HEAD,
 	IMAGE_BOX,
 	SHEET_BACKDROP,
 } from "./lib/walk-classes.ts";
@@ -97,10 +98,7 @@ test("the grid exceptions' tokens survive what a component merges over them", ()
 		[ROWS_HOST, cn(CARD, ROWS)],
 		[ROWS_HOST, cn(ROWS_MEASURED)],
 		// A group's head, as the canvas lays it out: the walk names it by its role.
-		[
-			CANVAS_GROUP_HEAD,
-			cn(CANVAS_GROUP_HEAD, "relative z-1 flex items-center"),
-		],
+		[CANVAS_GROUP_HEAD, cn(CANVAS_GROUP_HEAD, GROUP_HEAD)],
 	];
 	for (const [marker, classes] of drawn) {
 		for (const token of tokens(marker)) {

@@ -1,41 +1,42 @@
-import { createStore } from "@fcalell/ui-core/store";
 import { useCallback, useSyncExternalStore } from "react";
+import { saveChoice, savedChoice, subscribeSaved } from "./saved.ts";
 
-// The viewer's open and folded branches of the sidebar are theirs from one
-// visit to the next: a convenience, so a store that is blocked or empty
-// leaves the choice for the visit alone. What was read or written stands
-// here, the one source every tree of the page reads. A choice is by the
+// The viewer's open and folded branches of the sidebar are a saved choice
+// (`./saved.ts`), one for every tree of the page. A choice is by the
 // branch's route; a branch never chosen is left to the Shell (open on the
 // current place's path, else folded). The sidebar's column folds away the same
 // way, under a key no route can be.
 const KEY = "stack:places:open";
 
-let held: Readonly<Record<string, boolean>> | undefined;
-const changes = createStore(undefined);
+// The parse of the last raw choice read, so the snapshot stays the same object
+// until the choice changes.
+let last: { raw: string | null; open: Readonly<Record<string, boolean>> } = {
+	raw: null,
+	open: {},
+};
 
 function read(): Readonly<Record<string, boolean>> {
-	if (held) return held;
-	let saved: Record<string, boolean> = {};
+	const raw = savedChoice(KEY);
+	if (raw !== last.raw) last = { raw, open: parse(raw) };
+	return last.open;
+}
+
+function parse(raw: string | null): Readonly<Record<string, boolean>> {
 	try {
-		const parsed: unknown = JSON.parse(localStorage.getItem(KEY) ?? "{}");
+		const parsed: unknown = JSON.parse(raw ?? "{}");
 		if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-			saved = Object.fromEntries(
+			return Object.fromEntries(
 				Object.entries(parsed).filter(
 					(entry): entry is [string, boolean] => typeof entry[1] === "boolean",
 				),
 			);
 		}
 	} catch {}
-	held = saved;
-	return held;
+	return {};
 }
 
 function write(route: string, open: boolean): void {
-	held = { ...read(), [route]: open };
-	try {
-		localStorage.setItem(KEY, JSON.stringify(held));
-	} catch {}
-	changes.emit();
+	saveChoice(KEY, JSON.stringify({ ...read(), [route]: open }));
 }
 
 const NONE: Readonly<Record<string, boolean>> = {};
@@ -45,7 +46,7 @@ export function useFolds(): {
 	chosen: Readonly<Record<string, boolean>>;
 	choose: (route: string, open: boolean) => void;
 } {
-	const chosen = useSyncExternalStore(changes.subscribe, read, () => NONE);
+	const chosen = useSyncExternalStore(subscribeSaved, read, () => NONE);
 	const choose = useCallback(
 		(route: string, open: boolean) => write(route, open),
 		[],

@@ -11,7 +11,7 @@ import { Button } from "../button/index.tsx";
 // height, a pair above the foot, and the focus ring around it), so the query
 // below reads it as `1em`.
 const LAYER =
-	"absolute inset-0 flex flex-col items-center justify-end pointer-events-none [container-type:size] [font-size:calc(var(--spacing-control)+var(--spacing-gap)+var(--focus-ring)+var(--focus-ring-offset))] touch:[font-size:calc(var(--spacing-control)+var(--spacing-gap)+var(--focus-ring)+var(--focus-ring-offset))]";
+	"absolute inset-0 flex flex-col items-center justify-end pointer-events-none [container-type:size] [font-size:calc(var(--spacing-control)+var(--spacing-gap)+var(--focus-ring)+var(--focus-ring-offset))]";
 // The act is reachable only while its whole box (and the focus ring around
 // it) stands inside the region the log shows: a region shorter than that
 // clips it, so it keeps its place but leaves the tab order and the tree.
@@ -31,10 +31,7 @@ export function Latest(props: { shown: boolean; onBack: () => void }) {
 			(one) => one.finished,
 		);
 		// A cancelled leave rejects `finished`: the act is gone either way.
-		Promise.all(going).then(
-			() => live && setMounted(false),
-			() => live && setMounted(false),
-		);
+		Promise.allSettled(going).then(() => live && setMounted(false));
 		return () => {
 			live = false;
 		};

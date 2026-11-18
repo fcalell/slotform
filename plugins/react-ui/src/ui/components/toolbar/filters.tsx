@@ -93,7 +93,7 @@ function Fields(props: { filters: readonly FilterProp[]; set: number }) {
 	);
 }
 
-/** The one act a toolbar of three or more filters draws, "Filters" and the count of those set: it opens the filters as labelled picks, in a popover under it on the desktop and a sheet on touch. Escape and a press outside close it and focus returns to the act. Outside the package's exports. */
+/** The one act a toolbar draws for its filters where they fold (three or more on the desktop, any on touch), "Filters" and the count of those set: it opens the filters as labelled picks, in a popover under it on the desktop and a sheet on touch. Escape and a press outside close it and focus returns to the act. Outside the package's exports. */
 export function FiltersAct(props: {
 	filters: readonly FilterProp[];
 	set: number;

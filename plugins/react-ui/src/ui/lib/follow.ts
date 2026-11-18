@@ -67,7 +67,8 @@ export function travel<T extends Record<string, number>>(
 	return () => cancelAnimationFrame(frame);
 }
 
-// A press on one of these is the part's own, never the start of a drag.
+// A press on one of these is the part's own, never the start of a drag. A
+// button is not among them, so a toast or a sheet head swipes from any spot.
 const OWN = "input,textarea,select,[contenteditable='true']";
 
 /** What a drag along one axis is for: the element it carries, and the way it leaves. */

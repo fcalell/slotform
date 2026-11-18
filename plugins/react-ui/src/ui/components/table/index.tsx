@@ -4,6 +4,7 @@ import type {
 	CellValue,
 	ChangeKind,
 	ChoiceRegions,
+	ColumnWidth,
 	Dragged,
 	DragSource,
 	Fact,
@@ -37,7 +38,7 @@ import {
 	isChangeCell,
 	isEnd,
 	isPick,
-	isStatusCell,
+	isStatusFact,
 	isTouchSplit,
 	moveCursor,
 	nextSort,
@@ -153,7 +154,6 @@ import { ColumnsMenu } from "./columns.tsx";
 // The table fills what its column leaves. Where the density is desktop the grid
 // stands; on touch the rows are a list under the sort's pick. Only the live form
 // mounts, chosen by the density (`useTouch`).
-const ROOT = "flex flex-col grow";
 const FORM = "flex flex-col grow";
 // The grid is its own stacking context, so its frozen column stands over its
 // cells alone, never over a sheet.
@@ -252,18 +252,17 @@ const ROW_CHOSEN_ACTIVE = "has-[:focus-visible]:bg-wash-selected-hover";
 const FROZEN_ACTIVE = "group-has-[:focus-visible]/row:bg-wash-hover";
 const FROZEN_CHOSEN_ACTIVE =
 	"group-has-[:focus-visible]/row:bg-wash-selected-hover";
-// The columns menu stands at the end of a bar over the grid.
 // The bar over the grid: the read's total, formatted, in the meta ink at its start
 // (a windowed read says how many rows it holds, the grid's scroll being the
-// only other sign), the columns menu at its end.
-const COLUMNS_BAR = "flex items-center justify-end";
+// only other sign), the columns menu at its end. The sort's pick over the
+// touch list stands at the same end.
+const BAR = "flex items-center justify-end";
 const COUNT = "me-auto tabular-nums";
 const TOTAL = formatterFor("number");
-const SORT_BAR = "flex items-center justify-end";
 
 // A column's width: its measure, its share, or what the others leave (never
 // less than the short measure, by the grid's floor).
-const WIDTH: Record<NonNullable<TableColumn["width"]>, string> = {
+const WIDTH: Record<ColumnWidth, string> = {
 	"measure-short": "w-measure-short",
 	"1/4": "w-1/4",
 };
@@ -544,12 +543,12 @@ export function Table<T, Q = unknown>(props: TableProps<T, Q>) {
 			ref={rootBox}
 			data-wide=""
 			data-still={stillOf(frame)}
-			className={ROOT}
+			className={FORM}
 		>
 			<FrameBody frame={frame} empty={props.empty}>
 				<FrameLine frame={frame} />
 				{wide && (hideable(props.columns) || total !== undefined) ? (
-					<div className={COLUMNS_BAR}>
+					<div className={BAR}>
 						{total === undefined ? null : (
 							<span className={cn(text({ role: "meta" }), COUNT)}>
 								{TOTAL.format(total)}
@@ -587,12 +586,14 @@ function placed<T>(
 ): (TableRecord | undefined)[] {
 	const at: number[] = [];
 	const items: T[] = [];
+	// `rows` is sparse and `forEach` skips its holes, so `at` holds each
+	// loaded row's place.
 	rows.forEach((item, index) => {
 		at.push(index);
 		items.push(item);
 	});
 	const records = new Array<TableRecord | undefined>(total);
-	// `tableRecords` makes one record per item, so `at` holds each one's place.
+	// `tableRecords` makes one record per item, in the order of `items`.
 	tableRecords(items, columns, row, choose).forEach((record, k) => {
 		records[at[k] as number] = record;
 	});
@@ -1660,9 +1661,7 @@ function HeadCell(props: {
 				<div
 					className={cn(TABLE_CELL, HEAD_FLOOR, edge, HEAD, end && CELL_END)}
 				>
-					<span className={cn(tableHeadLabel({ sort: "none" }), LABEL)}>
-						{column.label}
-					</span>
+					{label}
 					{lock}
 				</div>
 			)}
@@ -2007,7 +2006,7 @@ function Phone(props: {
 	const sortedBy = sortable.find((column) => column.key === sort?.key);
 	const arrow = sort?.direction === "ascending" ? "ArrowUp" : "ArrowDown";
 	const pick = sortable.length ? (
-		<div className={SORT_BAR}>
+		<div className={BAR}>
 			<HeldPicker<string>
 				label={words.sort}
 				options={sortable.map((column) => ({
@@ -2047,7 +2046,7 @@ function Phone(props: {
 			const state = region((one) => {
 				if (painted) return { tone: "done" as const, label: "" };
 				const cellOf = cell(one, status);
-				if (!isStatusCell(cellOf)) return undefined;
+				if (!isStatusFact(cellOf)) return undefined;
 				const word = cellOf.label ?? words[cellOf.tone];
 				return {
 					tone: cellOf.tone,
@@ -2076,7 +2075,7 @@ function Phone(props: {
 						const at = cell(one, column);
 						if (column.kind === "number" && at !== null && at !== undefined)
 							return `${column.label} ${at}`;
-						const word = isStatusCell(at)
+						const word = isStatusFact(at)
 							? (at.label ?? words[at.tone])
 							: shown(column, at);
 						return named.has(column.key) && word !== ""

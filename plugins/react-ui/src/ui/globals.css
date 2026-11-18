@@ -354,12 +354,12 @@
 }
 
 /* A track that scrolls sideways with no scrollbar says so at the edge that has
-   more: it fades there by the control's height, from the scroll position alone
+   more: it fades there over `--spacing-control`, from the scroll position alone
    (a scroll-driven animation of the two fade lengths, which the mask reads), so
    no script measures anything. The start fades once it has scrolled, the end
    until it has scrolled to the end, each in proportion to the content that side
-   hides up to the full fade (24px of it, ranges in lengths, never
-   shares of the range): a track whose content overflows by a rounding stands
+   hides up to the full fade (ranges in lengths, never shares of the
+   range): a track whose content overflows by a rounding stands
    with no visible fade on either side, and one that fits scrolls nowhere, its
    timeline is inactive and no fade stands. Where the browser draws no
    scroll-driven animation the track keeps its cut label as the cue. Like
@@ -414,7 +414,7 @@
 			);
 		}
 		--fade-animation: fade-start linear both, fade-end linear both;
-		/* The fade is a control's width at each end (`--spacing-control`), as the keyframes grow it. */
+		/* The fade is `--spacing-control` long at each end, as the keyframes grow it. */
 		--fade-range:
 			0px var(--spacing-control), calc(100% - var(--spacing-control)) 100%;
 		/* biome-ignore lint/complexity/noImportantStyles: the animation carries state, not motion; a layered important declaration beats a setup's unlayered `animation: none !important` */

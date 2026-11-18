@@ -11,3 +11,6 @@ export const BAR_CHART_BODY = "flex items-start pt-[calc(1lh/2)]";
 
 /** The Gate's column, centred by an auto margin. */
 export const GATE_CENTRED = "flex flex-col my-auto";
+
+/** A canvas group's head band: it stands over the edges that cross it into the frame, so no edge strikes through its words. */
+export const GROUP_HEAD = "relative z-1 flex items-center";

@@ -26,7 +26,7 @@ import { type Act, useAct } from "./act.ts";
 // Drag and drop on pointer events: docs/architecture/ui-core/drag.md, "Web drag".
 
 /** What a press on a row hands the store, once it becomes a drag. */
-export interface Source {
+interface Source {
 	/** What is dragged to a drop; none for a row that is only reordered. */
 	drag?: Dragged;
 	/** What the label that follows the pointer reads: the row's name, or the count dragged. */
@@ -47,14 +47,14 @@ interface Reordering {
 }
 
 /** Where the line that marks the landing is, in the viewport. */
-export interface Line {
+interface Line {
 	left: number;
 	top: number;
 	width: number;
 }
 
 /** What a drag in progress looks like, for the layer that draws it. */
-export interface View {
+interface View {
 	label: string;
 	x: number;
 	y: number;
@@ -93,7 +93,7 @@ interface Listing {
 }
 
 /** A branch a drag opens by holding over it. */
-export interface Hold {
+interface Hold {
 	wants: (kind: string) => boolean;
 	open: () => void;
 }
@@ -104,10 +104,6 @@ const holds = new Map<string, Hold>();
 const store = createStore<View | undefined>(undefined);
 // Counts every change to the drops standing, so what lists them draws again.
 let version = 0;
-
-function show(next: View | undefined) {
-	store.set(next);
-}
 
 function same(a: View | undefined, b: View | undefined): boolean {
 	if (!a || !b) return a === b;
@@ -303,7 +299,7 @@ export function press(
 			over: live.over,
 			line: live.line,
 		};
-		if (!same(store.get(), next)) show(next);
+		if (!same(store.get(), next)) store.set(next);
 	};
 
 	const begin = () => {
@@ -366,7 +362,7 @@ export function press(
 		const done = live;
 		live = undefined;
 		if (!done) return;
-		show(undefined);
+		store.set(undefined);
 		swallowClick();
 		if (!commit) return;
 		const { over, moved, source } = done;

@@ -67,6 +67,3 @@ export function useModality() {
 // A field box's ring: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 export const BOX_FOCUS =
 	"not-has-[button:focus-visible]:in-data-[modality=keyboard]:has-focus-visible:outline-2 not-has-[button:focus-visible]:in-data-[modality=keyboard]:has-focus-visible:outline-offset-(--focus-ring-edge-offset) not-has-[button:focus-visible]:in-data-[modality=keyboard]:has-focus-visible:outline-ring";
-// A focused field takes the accent edge, under the pointer and the keyboard
-// alike (the keyboard adds the ring); the hover edge yields to it.
-export const FOCUS_EDGE = "has-focus-visible:border-accent";

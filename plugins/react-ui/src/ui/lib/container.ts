@@ -42,16 +42,19 @@ export interface FootRegionValue {
 	logFloor: number;
 }
 
+const BLOCK_PADDING = ["paddingTop", "paddingBottom"] as const;
 const BLOCK_SIDES = [
-	"paddingTop",
-	"paddingBottom",
+	...BLOCK_PADDING,
 	"borderTopWidth",
 	"borderBottomWidth",
 ] as const;
 
-function sides(style: CSSStyleDeclaration): number {
-	return BLOCK_SIDES.reduce(
-		(sum, side) => sum + Number.parseFloat(style[side]),
+function sum(
+	style: CSSStyleDeclaration,
+	sides: readonly (typeof BLOCK_SIDES)[number][],
+): number {
+	return sides.reduce(
+		(total, side) => total + Number.parseFloat(style[side]),
 		0,
 	);
 }
@@ -60,11 +63,7 @@ function sides(style: CSSStyleDeclaration): number {
 // region less it, so the body's insets stand even where the foot takes the
 // rest.
 function overPadding(node: HTMLElement | null | undefined): number {
-	if (!node) return 0;
-	const style = getComputedStyle(node);
-	return (
-		Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom)
-	);
+	return node ? sum(getComputedStyle(node), BLOCK_PADDING) : 0;
 }
 
 /** The region's measured value and the ref to put on it. `docked` is whether a docked sheet stands in the foot, the one reader of the value: the region is measured only while it does, so a region that grows with its content (a Thread among sections, a message landing) does not commit its owner a second time per update. `dock` is the foot's own node, which shares the region with a log; `over` is the body standing over the foot, whose block padding never gives way to it. */
@@ -87,7 +86,8 @@ export function useFootRegion(
 			const style = dock.current ? getComputedStyle(dock.current) : null;
 			const next = {
 				height: Math.round(node.getBoundingClientRect().height),
-				chrome: (style ? sides(style) : 0) + overPadding(over?.current),
+				chrome:
+					(style ? sum(style, BLOCK_SIDES) : 0) + overPadding(over?.current),
 				logFloor: style
 					? DOCKED_LOG_FLOOR_ROWS *
 						Number.parseFloat(style.getPropertyValue("--spacing-row"))

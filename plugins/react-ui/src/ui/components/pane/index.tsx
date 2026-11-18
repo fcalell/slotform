@@ -45,7 +45,7 @@ import { useFootFocus, usePaneFocus } from "../../lib/focus.ts";
 import { HeadingContext } from "../../lib/heading.ts";
 import { DistanceContext } from "../../lib/media.ts";
 import { useParentRoute, useReturnRoute } from "../../lib/navigate.ts";
-import { FrameBody } from "../../lib/read.tsx";
+import { FrameBody, stillOf } from "../../lib/read.tsx";
 import { useScrolls } from "../../lib/scrolls.ts";
 import { Scroller, useScroller } from "../../lib/window.tsx";
 import { ItemHeaderBase, type ItemHeaderParts } from "../item-header/base.tsx";
@@ -240,7 +240,7 @@ export function Pane<
 							aria-busy={
 								(frame.holds && frame.shape === "waiting") || undefined
 							}
-							data-still={(frame.holds && frame.shape === "still") || undefined}
+							data-still={stillOf(frame)}
 							data-page=""
 							data-expanded={expanded ? "" : undefined}
 							data-fill={fill ? "" : undefined}

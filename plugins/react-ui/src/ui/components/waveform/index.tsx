@@ -33,7 +33,7 @@ export interface WaveformProps extends Closed {
 	duration: number;
 	/** The playhead's place in seconds: the played part up to it stands in the accent, the rest in the edge. */
 	at: number;
-	/** Hears the second the viewer lets the playhead go at. A drag holds the pointer as the playhead and seeks once, on release (a plain press is a drag that does not move); Left and Right move it five seconds (Shift: one), Page Up and Page Down thirty, Home and End to the ends, each a seek at once. Return the seek's promise and the playhead holds while it pends; a refusal puts it back, with its reason. The playhead only moves when `at` does. */
+	/** Hears the second the viewer lets the playhead go at. A drag holds the pointer as the playhead and seeks once, on release (a plain press is a drag that does not move); Left and Down move it back five seconds, Right and Up forward (Shift: one), Page Up and Page Down thirty, Home and End to the ends, each a seek at once. Return the seek's promise and the playhead holds while it pends; a refusal puts it back, with its reason. The playhead only moves when `at` does. */
 	onSeek: (seconds: number) => unknown;
 	/** `bar` stands at the control's height (a bar, the player dock); `record`, the default, at the waveform size. */
 	fit?: WaveformFit;
