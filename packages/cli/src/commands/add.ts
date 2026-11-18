@@ -72,7 +72,7 @@ export async function add(
 	const nonInteractive = !process.stdin.isTTY;
 
 	// A plugin meeting a one-of the app already meets replaces the one meeting it: docs/architecture/commands.md, "Installing the requires closure".
-	let configured = await loadInstalledPlugins(configuredNames);
+	let configured = await loadInstalledPlugins(configuredNames, cwd);
 	const displaced = displacedBy(pluginName, configured);
 	if (existingConfig && displaced.length > 0) {
 		if (

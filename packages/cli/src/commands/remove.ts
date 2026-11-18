@@ -82,7 +82,7 @@ export async function remove(
 	// A workspace that does not load takes the degraded removal: docs/architecture/commands.md, "Removing a plugin".
 	let discovered: DiscoveredPlugin[] | null = null;
 	try {
-		discovered = await discoverPlugins(config);
+		discovered = await discoverPlugins(config, cwd);
 	} catch (err) {
 		log.warn(
 			`Could not load all plugins for dependency check: ${

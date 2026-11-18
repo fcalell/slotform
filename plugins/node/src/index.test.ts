@@ -21,12 +21,13 @@ async function serverSource(files: Record<string, string>) {
 			node: {},
 		};
 		const plugins = [
-			{ name: "api", ...api.cli.collect({ app, options: options.api }) },
+			{ name: "api", ...api.cli.collect({ app, options: options.api, cwd }) },
 			{
 				name: "node",
 				...node.cli.collect({
 					app,
 					options: node.cli.schema?.parse({}) as never,
+					cwd,
 				}),
 			},
 		];

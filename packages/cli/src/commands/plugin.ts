@@ -51,7 +51,7 @@ function pluginFiles(options: PluginFilesOptions): Array<[string, string]> {
 			pnpmWorkspaceTemplate(
 				null,
 				["@fcalell/cli", "@fcalell/typescript-config"],
-				stackSpecMode(),
+				stackSpecMode() === "github",
 				null,
 			),
 		]);

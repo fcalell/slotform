@@ -263,7 +263,6 @@ export const cloudflare = plugin("cloudflare", {
 			],
 			defaultPort: WRANGLER_DEV_PORT,
 			readyPattern: /Ready on/,
-			color: "yellow",
 		})),
 
 		// The screens serve target: docs/architecture/plugins/cloudflare.md, "Screens serve".

@@ -26,6 +26,7 @@ export const cliManifest = z
 		devDependencies: z.looseObject({
 			typescript: z.string(),
 			"@types/node": z.string(),
+			"@biomejs/biome": z.string(),
 		}),
 	})
 	.parse(
@@ -42,3 +43,5 @@ export const TS_MORPH_SPEC = cliManifest.peerDependencies["ts-morph"];
 // own sources, which an app's `tsc` also reads, are checked with.
 export const TYPESCRIPT_SPEC = cliManifest.devDependencies.typescript;
 export const TYPES_NODE_SPEC = cliManifest.devDependencies["@types/node"];
+// The Biome binary a consumer outside stack's workspace lints with.
+export const BIOME_SPEC = cliManifest.devDependencies["@biomejs/biome"];

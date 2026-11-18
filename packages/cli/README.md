@@ -29,7 +29,7 @@ How to build an app on stack lives in `guide/`, and each plugin ships its own pa
 | `@fcalell/cli/specs` | Spec types: `GeneratedFile`, `ProcessSpec`, `WatcherSpec`, `BuildStep`, `DeployStep`, `DeployCheck`, `PromptSpec`, `DevReadyTask` |
 | `@fcalell/cli/ast` | TS, TOML and HTML spec types, their printers, `literalToProps` and `dedupeImports` |
 | `@fcalell/cli/write-artifact` | `writeArtifact`, the atomic, skip-unchanged write `generate` uses |
-| `@fcalell/cli/discovery` | `discoverPlugins()`, `loadInstalledPlugins(names)`, `resolveRequiresClosure()`, `validateDependencies()` |
+| `@fcalell/cli/discovery` | `discoverPlugins(config, cwd)`, `loadInstalledPlugins(names, cwd)`, `resolveRequiresClosure()`, `validateDependencies()` |
 | `@fcalell/cli/runtime` | `RuntimePlugin<TName, TDeps, TProvides, TRoutes>` |
 | `@fcalell/cli/errors` | `StackError` and its subclasses: `ConfigLoadError`, `ConfigValidationError`, `StepFailedError`, `MissingPluginError` |
 | `@fcalell/cli/compiled-source` | Internal: the React Compiler source filter plugin-react and plugin-expo share |

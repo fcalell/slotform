@@ -26,7 +26,6 @@ export const api = plugin("api", {
   // One server target, cloudflare by default; a client of another app's server runs none.
   requires: (options) =>
     options.server === undefined ? [{ oneOf: ["cloudflare", "node"] }] : [],
-  gitignore: [".stack"],
   slots: { workerImports, pluginRuntimes, /* ... */ workerSource },
   contributes: (self) => [
     emitArtifact(".stack/worker.ts", self.slots.workerSource),

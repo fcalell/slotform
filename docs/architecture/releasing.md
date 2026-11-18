@@ -55,8 +55,8 @@ holds each entry to the package's own manifest.
   checkout takes the git spec instead ([consumer project](./consumer-project.md#installing-stack)).
 - **The CLI reads its own manifest at run time.** `packages/cli/src/lib/manifest.ts` parses the
   packed `package.json` when the CLI starts: `version` for `stackSpec`, the `ts-morph` peer for
-  `TS_MORPH_SPEC`, and the `typescript` and `@types/node` devDependencies for `TYPESCRIPT_SPEC` and
-  `TYPES_NODE_SPEC`, the ranges a scaffold writes. The published manifest keeps its
+  `TS_MORPH_SPEC`, and the `typescript`, `@types/node` and `@biomejs/biome` devDependencies for `TYPESCRIPT_SPEC`,
+  `TYPES_NODE_SPEC` and `BIOME_SPEC`, the ranges a scaffold writes. The published manifest keeps its
   `devDependencies`; a CLI whose manifest lacks one fails at start.
 - **The bump goes through changesets.** `pnpm changeset` goes with each user-facing change; at
   release time `pnpm version-packages` applies the pending ones (versions and changelogs), and the

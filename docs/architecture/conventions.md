@@ -112,12 +112,14 @@ new ones.
   `allowImportingTsExtensions`.
 - **`build.json`**, the emit overlay a package's `tsconfig.build.json` layers on its own
   `tsconfig.json`. It extends nothing, so the package keeps its `lib` and `jsx`.
-  - `rootDir: src`, `outDir: dist`, `include: src`; `src/ui`, `.tsx`, test files and `__fixtures__`
+  - `rootDir: src`, `include: src`; `src/ui`, `.tsx`, test files and `__fixtures__`
     stay out (bundlers compile the first two from source).
   - `module: nodenext`, `moduleResolution: nodenext`: an extensionless relative import fails the
     build.
   - `rewriteRelativeImportExtensions`: sources import with `.ts`, output imports `.js`.
-  - `declaration`, `declarationMap`, `sourceMap`, `verbatimModuleSyntax`, `isolatedModules`.
+  - `sourceMap`, `verbatimModuleSyntax`.
+  - `outDir: dist`, `declaration`, `declarationMap` and `isolatedModules` come from `base.json`,
+    which the package's `tsconfig.json` extends.
   - `incremental: false`: a build always emits, so a removed `dist` comes back whatever the build
     info says.
 

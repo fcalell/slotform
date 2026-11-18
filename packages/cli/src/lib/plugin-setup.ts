@@ -41,7 +41,10 @@ export async function installClosure({
 	for (;;) {
 		writeManifest(plugins);
 		installStack(dir);
-		const available = await loadInstalledPlugins([...existing, ...plugins]);
+		const available = await loadInstalledPlugins(
+			[...existing, ...plugins],
+			dir,
+		);
 		const closure = (
 			await resolveRequiresClosure([...existing, ...plugins], available, pick)
 		).filter((n) => !existing.includes(n));

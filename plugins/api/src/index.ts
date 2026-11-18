@@ -545,7 +545,6 @@ export const api = plugin("api", {
 	// A worker runs on exactly one server target, cloudflare by default; a client of another app's server (`server`) runs none.
 	requires: (options) =>
 		options.server === undefined ? [{ oneOf: ["cloudflare", "node"] }] : [],
-	gitignore: [".stack"],
 
 	guide: [
 		{

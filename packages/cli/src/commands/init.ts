@@ -12,6 +12,7 @@ import { pathToFileURL } from "node:url";
 import { intro, log, note, outro } from "@clack/prompts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
+import { loadConfig } from "../lib/config.ts";
 import {
 	type ChooseRequirement,
 	loadInstalledPlugins,
@@ -92,16 +93,7 @@ export async function init(dir: string, options: InitOptions): Promise<void> {
 		mkdirSync(dir, { recursive: true });
 	}
 
-	// The project is the cwd: package resolution (plugin discovery, a plugin's
-	// package info) and `generate` read it.
-	const original = process.cwd();
-	process.chdir(dir);
-
-	try {
-		await run(dir, options);
-	} finally {
-		process.chdir(original);
-	}
+	await run(dir, options);
 }
 
 interface Selection {
@@ -197,7 +189,7 @@ export async function scaffold(
 	dir: string,
 	{ plugins: selectedPlugins, appName, domain, nonInteractive }: Selection,
 ): Promise<void> {
-	const available = await loadInstalledPlugins(selectedPlugins);
+	const available = await loadInstalledPlugins(selectedPlugins, dir);
 	const app = { name: appName, domain };
 
 	// The prompts and the tsconfig contributions resolve off a graph whose
@@ -266,8 +258,11 @@ export async function scaffold(
 
 	// Generate precedes the format: docs/architecture/commands.md, "`stack init` and `stack add`".
 	try {
-		const { generate } = await import("./generate.ts");
-		await generate("stack.config.ts");
+		const { generateFromConfig } = await import("./generate.ts");
+		await generateFromConfig(
+			await loadConfig(join(dir, "stack.config.ts")),
+			dir,
+		);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
 		log.info(

@@ -368,7 +368,6 @@ export const node = plugin("node", {
 				args: ["--watch", ".stack/server.ts"],
 				defaultPort: port,
 				readyPattern: new RegExp(READY_LINE),
-				color: "green",
 				env,
 			};
 		}),

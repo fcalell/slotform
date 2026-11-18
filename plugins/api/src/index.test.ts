@@ -17,6 +17,7 @@ function project(files: Record<string, string>) {
 	const { slots, contributes } = api.cli.collect({
 		app,
 		options: { prefix: "/rpc", env: [], entities: [] },
+		cwd,
 	});
 	const graph = buildGraph([{ name: "api", slots, contributes }], {
 		app,

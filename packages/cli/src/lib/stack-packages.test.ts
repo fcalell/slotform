@@ -57,7 +57,7 @@ test("the npm workspace template carries only the third-party verdicts", () => {
 	const yaml = pnpmWorkspaceTemplate(
 		null,
 		["@fcalell/plugin-auth", "@fcalell/plugin-react-ui"],
-		"npm",
+		false,
 		null,
 	);
 	assert.doesNotMatch(yaml, /overrides/);
@@ -68,23 +68,13 @@ test("the npm workspace template carries only the third-party verdicts", () => {
 	assert.match(yaml, /esbuild: true/);
 	assert.match(yaml, /better-sqlite3: true/);
 	assert.match(yaml, /"@prisma\/client": false/);
-	// The link mode takes the same verdicts.
-	assert.equal(
-		yaml,
-		pnpmWorkspaceTemplate(
-			null,
-			["@fcalell/plugin-auth", "@fcalell/plugin-react-ui"],
-			"link",
-			null,
-		),
-	);
 });
 
 test("the github workspace template overrides each package and approves its prepare", () => {
 	const yaml = pnpmWorkspaceTemplate(
 		null,
 		["@fcalell/plugin-vite"],
-		"github",
+		true,
 		null,
 	);
 	assert.match(yaml, /overrides/);

@@ -64,7 +64,7 @@ export function installStack(cwd: string): void {
 			pnpmWorkspaceTemplate(
 				existsSync(workspacePath) ? readFileSync(workspacePath, "utf8") : null,
 				names,
-				checkout ? "link" : stackSpecMode(),
+				!checkout && stackSpecMode() === "github",
 				pinnedCommit({ ...pkg.dependencies, ...pkg.devDependencies }),
 			),
 		);

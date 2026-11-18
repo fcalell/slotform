@@ -263,7 +263,6 @@ export const vite = plugin("vite", {
 				args: [viteBin(ctx.cwd), "dev", "--config", ".stack/vite.config.ts"],
 				defaultPort: port,
 				readyPattern: /Local:/,
-				color: "cyan",
 				// Default `restart: "never"` — Vite handles HMR; auto-restart
 				// on crash usually hides the real failure. Consumer can opt in.
 				restart: opts.restart ?? "never",

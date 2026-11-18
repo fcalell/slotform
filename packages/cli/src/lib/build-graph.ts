@@ -27,7 +27,7 @@ export async function buildGraphFromConfig(
 	const validation = opts.config.validate();
 	if (!validation.valid) throw new ConfigValidationError(validation.errors);
 
-	const discovered = await discoverPlugins(opts.config);
+	const discovered = await discoverPlugins(opts.config, opts.cwd);
 	return buildGraphFromDiscovered({
 		discovered,
 		app: opts.config.app,
@@ -50,7 +50,7 @@ export function buildGraphFromDiscovered(
 	const { cwd } = opts;
 	const plugins = opts.discovered.map((d) => ({
 		name: d.name,
-		...d.cli.collect({ app: opts.app, options: d.options }),
+		...d.cli.collect({ app: opts.app, options: d.options, cwd }),
 	}));
 
 	const graph = buildGraph(
@@ -78,8 +78,12 @@ export function buildGraphFromDiscovered(
 						}
 					},
 					readFile: async (path: string) => readFile(join(cwd, path), "utf-8"),
-					template: plugin ? plugin.cli.template : noTemplates,
-					scaffold: plugin ? plugin.cli.scaffold : noTemplates,
+					template: plugin
+						? (name) => plugin.cli.template(name, cwd)
+						: noTemplates,
+					scaffold: plugin
+						? (name, target) => plugin.cli.scaffold(name, target, cwd)
+						: noTemplates,
 				};
 			},
 		},

@@ -1,4 +1,5 @@
 import {
+	BIOME_SPEC,
 	TS_MORPH_SPEC,
 	TYPES_NODE_SPEC,
 	TYPESCRIPT_SPEC,
@@ -34,7 +35,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 		devDeps["@fcalell/biome-config"] = stackSpec("@fcalell/biome-config");
 		// biome-config only carries config; the `lint`/`check` scripts need the
 		// Biome binary itself on the consumer's PATH.
-		devDeps["@biomejs/biome"] = "^2.6.8";
+		devDeps["@biomejs/biome"] = BIOME_SPEC;
 	}
 
 	const layout = tsconfigLayout(options.plugins);

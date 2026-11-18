@@ -185,8 +185,9 @@ export interface InternalCliPlugin<TOptions, TSlots, TResolvedOptions> {
 	gitignore: readonly string[];
 	schema?: z.ZodType<TResolvedOptions, TOptions>;
 	// Plugin-scoped template and scaffold resolvers: docs/architecture/plugin-authoring.md, "Templates".
-	template(name: string): URL;
-	scaffold(name: string, target: string): ScaffoldSpec;
+	// `cwd` is the app the plugin's package resolves from.
+	template(name: string, cwd: string): URL;
+	scaffold(name: string, target: string, cwd: string): ScaffoldSpec;
 	// Per-config invocation: resolve the plugin's slots + contributions
 	// against the validated options carried by the plugin's `PluginConfig`.
 	// Returns the shape `buildGraph` consumes.
@@ -201,6 +202,7 @@ export interface InternalCliPlugin<TOptions, TSlots, TResolvedOptions> {
 export interface CollectCtx<TResolvedOptions> {
 	app: AppConfig;
 	options: TResolvedOptions;
+	cwd: string;
 }
 
 // ── Plugin factory type ────────────────────────────────────────────
@@ -302,7 +304,7 @@ export function plugin<
 ): PluginFactory<TName, TOptions, TSlots, TCallbacks, TResolvedOptions> {
 	const pkg = definition.package ?? pluginPackage(name);
 	// Looked up on first use, never on import: docs/architecture/plugin-authoring.md, "Plugin discovery".
-	const packageInfo = () => findPackageInfo(pkg);
+	const packageInfo = (cwd: string) => findPackageInfo(pkg, cwd);
 	const hasCallbacks =
 		definition.callbacks !== undefined &&
 		Object.keys(definition.callbacks).length > 0;
@@ -319,8 +321,8 @@ export function plugin<
 		);
 	};
 
-	const template = (templateName: string): URL => {
-		const root = packageInfo()?.root;
+	const template = (templateName: string, cwd: string): URL => {
+		const root = packageInfo(cwd)?.root;
 		if (!root) {
 			throw new StackError(
 				`Plugin "${name}" attempted to resolve template ${JSON.stringify(templateName)} but its package "${pkg}" could not be located. Ensure it is installed in the consumer workspace.`,
@@ -330,8 +332,12 @@ export function plugin<
 		return new URL(templateName, pathToFileURL(`${join(root, "templates")}/`));
 	};
 
-	const _scaffold = (templateName: string, target: string): ScaffoldSpec => ({
-		source: template(templateName),
+	const _scaffold = (
+		templateName: string,
+		target: string,
+		cwd: string,
+	): ScaffoldSpec => ({
+		source: template(templateName, cwd),
 		target,
 		plugin: name,
 	});
@@ -339,7 +345,7 @@ export function plugin<
 	// `{}` stands in for TSlots' default, `Record<string, never>`, which the compiler cannot match to the omitted case.
 	const slots = (definition.slots ?? {}) as TSlots;
 
-	function autoContributions(): Contribution<unknown>[] {
+	function autoContributions(cwd: string): Contribution<unknown>[] {
 		const auto: Contribution<unknown>[] = [];
 
 		if (definition.dependencies) {
@@ -366,12 +372,12 @@ export function plugin<
 		}
 
 		// Auto-scaffolded callback file: docs/architecture/plugin-authoring.md, "Typed callbacks".
-		const packageExports = packageInfo()?.exports;
+		const packageExports = packageInfo(cwd)?.exports;
 		if (hasCallbacks && packageExports && "./runtime" in packageExports) {
 			auto.push(
 				cliSlots.initScaffolds.contribute(
 					(): ScaffoldSpec => ({
-						source: template("callbacks.ts"),
+						source: template("callbacks.ts", cwd),
 						target: callbackTarget,
 						plugin: name,
 					}),
@@ -399,10 +405,12 @@ export function plugin<
 		// `collect()` runs once per owning plugin, so the stamp is the owner's name: docs/architecture/plugin-authoring.md, "Options via `schema`".
 		return {
 			slots,
-			contributes: [...userContribs, ...autoContributions()].map((c) => ({
-				...c,
-				plugin: name,
-			})),
+			contributes: [...userContribs, ...autoContributions(ctx.cwd)].map(
+				(c) => ({
+					...c,
+					plugin: name,
+				}),
+			),
 		};
 	}
 

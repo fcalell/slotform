@@ -30,14 +30,13 @@ const THROTTLE: Record<string, number> = {
 export function pnpmWorkspaceTemplate(
 	existing: string | null,
 	packages: Iterable<StackPackage>,
-	source: "github" | "link" | "npm",
+	git: boolean,
 	commit: string | null,
 ): string {
 	const doc = parseDocument(existing ?? "");
 	const setMissing = (path: string[], value: unknown): void => {
 		if (!doc.hasIn(path)) doc.setIn(path, value);
 	};
-	const git = source === "github";
 	if (git) {
 		for (const name of stackClosure(packages)) {
 			setMissing(["overrides", name], stackGitSpec(name, commit));

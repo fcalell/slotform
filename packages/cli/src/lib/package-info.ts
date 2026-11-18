@@ -20,11 +20,13 @@ export function resolveFromApp(pkg: string, dir: string): string {
 // in the same process (`stack init` installs, then loads).
 const cache = new Map<string, PackageInfo>();
 
-export function findPackageInfo(pkg: string): PackageInfo | null {
-	const cached = cache.get(pkg);
+// `pkg` as the app at `cwd` resolves it, else as the CLI does.
+export function findPackageInfo(pkg: string, cwd: string): PackageInfo | null {
+	const key = `${cwd}\0${pkg}`;
+	const cached = cache.get(key);
 	if (cached !== undefined) return cached;
 	for (const resolvePkg of [
-		() => resolveFromApp(pkg, process.cwd()),
+		() => resolveFromApp(pkg, cwd),
 		() => createRequire(import.meta.url).resolve(pkg),
 	]) {
 		let mainPath: string;
@@ -38,7 +40,7 @@ export function findPackageInfo(pkg: string): PackageInfo | null {
 		}
 		const info = walkUpToPackageJson(mainPath, pkg);
 		if (info) {
-			cache.set(pkg, info);
+			cache.set(key, info);
 			return info;
 		}
 	}

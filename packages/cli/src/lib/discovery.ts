@@ -30,6 +30,7 @@ async function loadPlugin(
 	name: string,
 	packageName: string,
 	options: unknown,
+	cwd: string,
 ): Promise<DiscoveredPlugin> {
 	let mod: Record<string, unknown>;
 	try {
@@ -41,7 +42,7 @@ async function loadPlugin(
 		// `node_modules` (not the CLI's), the primary import fails. Retrying
 		// via `createRequire(cwd)` follows the consumer's resolution tree.
 		try {
-			const resolved = resolveFromApp(packageName, process.cwd());
+			const resolved = resolveFromApp(packageName, cwd);
 			mod = await import(pathToFileURL(resolved).href);
 		} catch {
 			const detail = cause instanceof Error ? cause.message : String(cause);
@@ -74,11 +75,12 @@ async function loadPlugin(
 // Never load an absent plugin: docs/architecture/plugin-authoring.md, "Plugin discovery".
 export async function loadInstalledPlugins(
 	names: readonly string[],
+	cwd: string,
 ): Promise<DiscoveredPlugin[]> {
 	const results: DiscoveredPlugin[] = [];
 	for (const name of PLUGIN_NAMES) {
 		if (!names.includes(name)) continue;
-		results.push(await loadPlugin(name, pluginPackage(name), {}));
+		results.push(await loadPlugin(name, pluginPackage(name), {}, cwd));
 	}
 	return results;
 }
@@ -129,6 +131,7 @@ export async function resolveRequiresClosure(
 
 export async function discoverPlugins(
 	config: StackConfig,
+	cwd: string,
 ): Promise<DiscoveredPlugin[]> {
 	const plugins: DiscoveredPlugin[] = [];
 
@@ -138,6 +141,7 @@ export async function discoverPlugins(
 				pluginConfig.__plugin,
 				pluginConfig.__package,
 				pluginConfig.options,
+				cwd,
 			),
 		);
 	}

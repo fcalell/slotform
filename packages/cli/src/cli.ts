@@ -8,7 +8,7 @@ import {
 	GLOBAL_OPTIONS,
 	parseCommandFlags,
 } from "./lib/command-router.ts";
-import { ConfigValidationError, StackError } from "./lib/errors.ts";
+import { ConfigValidationError } from "./lib/errors.ts";
 
 // `strict: false` lets plugin-subcommand flags (e.g. `stack db apply --remote`)
 // pass through top-level parsing without an "unknown option" error; the
@@ -243,10 +243,6 @@ try {
 				`[${err.plugin}] ${err.message}${err.fix ? ` — ${err.fix}` : ""}`,
 			);
 		}
-		process.exit(1);
-	}
-	if (error instanceof StackError) {
-		log.error(error.message);
 		process.exit(1);
 	}
 	if (error instanceof Error) {

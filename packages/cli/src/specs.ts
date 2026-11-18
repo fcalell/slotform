@@ -29,7 +29,6 @@ export interface ProcessSpec {
 	// The port the process serves on, shown as its URL: docs/architecture/commands.md, "`stack dev`".
 	defaultPort?: number;
 	readyPattern?: RegExp;
-	color?: string;
 	// Extra environment variables merged over the parent process env at
 	// spawn. The generic carrier for per-process dev signals (e.g. a Node
 	// target's STACK_DEV=1, which has no `.dev.vars` equivalent).

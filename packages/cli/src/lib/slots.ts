@@ -1,5 +1,6 @@
 import type { ScaffoldSpec } from "../ast/index.ts";
 import type { AppConfig } from "../config.ts";
+import { StackError } from "./errors.ts";
 
 // ── Slot identity and kinds ─────────────────────────────────────────
 
@@ -99,11 +100,9 @@ export interface ContributionCtx<TOptions = unknown> {
 
 // ── Errors ──────────────────────────────────────────────────────────
 
-export class SlotError extends Error {
-	readonly code: string;
+export class SlotError extends StackError {
 	constructor(message: string, code: string) {
-		super(message);
-		this.code = code;
+		super(message, code);
 		this.name = "SlotError";
 	}
 }
