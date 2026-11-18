@@ -362,7 +362,8 @@ A file control's `accept` entries are a MIME type (`text/csv`), a MIME family (`
 extension with its dot (`.har`). A file matches when any entry does (`accepts`); no entries accept
 every file. The web's file dialog narrows itself by `accept`, but a dropped file and the phone's
 document picker can still bring any, so the control checks every file it is handed. A refused
-file never reaches `onChange` and is drawn in the field's own error line.
+file never reaches `onChange` and is drawn in the field's own error line. The refusal names the accepted kinds (`kindsOf`): an extension or a MIME subtype by
+its letters in capitals, except the closed list `KIND_NAMES` (`webp` reads `WebP`).
 
 The phone's document picker filters by MIME type alone, and an extension would hide files it
 matches, so `pickerTypes` asks it for the MIME types when `accept` names nothing else, and for every

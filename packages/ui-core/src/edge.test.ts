@@ -1,48 +1,35 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { deriveTheme } from "./derive.ts";
 import {
-	contrastRatio,
-	luminance,
-	type Oklch,
-	veiledLuminance,
-} from "./oklch.ts";
-import { COLORS, SOFT_GROUNDS } from "./tokens.ts";
-
-const parse = (value: string): Oklch => {
-	const match = /oklch\(([\d.]+) ([\d.]+) ([\d.]+)/.exec(value);
-	assert.ok(match, value);
-	return { l: Number(match[1]), c: Number(match[2]), h: Number(match[3]) };
-};
+	GROUNDS,
+	measured,
+	painted,
+	parse,
+	veiled,
+} from "./__fixtures__/painted.ts";
+import { deriveTheme } from "./derive.ts";
+import { contrastRatio } from "./oklch.ts";
+import { MODES, SOFT_GROUNDS } from "./tokens.ts";
 
 // The strong edge on every soft ground: docs/architecture/ui-core/tokens.md, "Edges".
-for (const mode of ["light", "dark"] as const) {
-	test(`the strong edge holds 3:1 on every soft ground in ${mode}`, () => {
-		const colors = deriveTheme().colors[mode];
-		const edge = parse(colors["edge-strong"]);
-		const edgeLuminance = luminance(edge.l, edge.c, edge.h);
-		for (const ground of SOFT_GROUNDS) {
-			let declared = COLORS[ground];
-			while ("alias" in declared) declared = COLORS[declared.alias];
-			const grounds =
-				"veil" in declared
-					? (["canvas", "surface", "group"] as const).map((under) =>
-							veiledLuminance(
-								parse(colors[declared.veil]),
-								declared.alpha,
-								parse(colors[under]),
-							),
-						)
-					: [luminance(...tuple(parse(colors[ground])))];
-			for (const luminanceOf of grounds)
-				assert.ok(
-					contrastRatio(edgeLuminance, luminanceOf) >= 3,
-					`${mode} ${ground}`,
-				);
+test("the strong edge holds 3:1 on every painted soft ground, a veiled one over each ground, at every hue", () => {
+	const short: string[] = [];
+	for (let hue = 0; hue < 360; hue += 15) {
+		const theme = deriveTheme({ hue: { accent: hue, cast: hue } });
+		for (const mode of MODES) {
+			const colors = theme.colors[mode];
+			const edge = measured(painted(parse(colors["edge-strong"])));
+			for (const ground of SOFT_GROUNDS) {
+				const soft = parse(colors[ground]);
+				const paints =
+					soft.alpha < 1
+						? GROUNDS.map((under) => veiled(soft, parse(colors[under])))
+						: [painted(soft)];
+				for (const paint of paints)
+					if (contrastRatio(edge, measured(paint)) < 3)
+						short.push(`${mode} ${ground} at hue ${hue}`);
+			}
 		}
-	});
-}
-
-function tuple(color: Oklch): [number, number, number] {
-	return [color.l, color.c, color.h];
-}
+	}
+	assert.deepEqual(short, []);
+});

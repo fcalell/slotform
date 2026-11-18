@@ -1,5 +1,5 @@
-// Writes the tuning page's values into the contract: reads the JSON its
-// "Copy values" button (or the phone's dump) gives, `{ "<knob>": number }`,
+// Writes the phone's `/motion` values into the contract: reads the JSON its
+// "Changed values" dump gives, `{ "<knob>": number }`,
 // checks every key is a `MOTION_KNOBS` name and every value inside its bounds
 // and on its step, rewrites those defaults in `src/tokens.ts` and regenerates
 // DESIGN.md. Any miss refuses the whole file, naming each.
@@ -31,7 +31,7 @@ const SITES: Record<MotionKnobName, string> = {
 };
 
 // The values a JSON text holds, or every reason it is refused.
-export function parseValues(text: string): Map<MotionKnobName, number> {
+function parseValues(text: string): Map<MotionKnobName, number> {
 	const refused: string[] = [];
 	let parsed: unknown;
 	try {
@@ -66,7 +66,7 @@ export function parseValues(text: string): Map<MotionKnobName, number> {
 }
 
 // `tokens.ts`'s source with the given defaults in place of its own.
-export function applyValues(
+function applyValues(
 	source: string,
 	values: ReadonlyMap<MotionKnobName, number>,
 ): string {

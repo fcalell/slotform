@@ -62,7 +62,7 @@ goes through `tune` so readers are told; a reader that must follow a change read
 paint per glyph region the same way.
 
 The phone app's `/motion` route (development only) generates one slider per knob, written to
-`tuned` so the next animation played takes it, and a "Copy values" text dump of the changed knobs. `pnpm --filter @fcalell/ui-core motion:apply <file>` validates the keys and ranges,
+`tuned` so the next animation played takes it, and a "Changed values" dump of the changed knobs. `pnpm --filter @fcalell/ui-core motion:apply <file>` validates the keys and ranges,
 refusing the whole file otherwise, rewrites only the default literals in `tokens.ts` and regenerates
 `DESIGN.md`. A default changes only by that pass.
 

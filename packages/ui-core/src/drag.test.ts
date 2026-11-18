@@ -3,8 +3,6 @@ import { test } from "node:test";
 import {
 	accepts,
 	bandAt,
-	DRAG_DELAY_SLOP,
-	DRAG_SLOP,
 	edgeDepth,
 	edgeSpeed,
 	movedTo,
@@ -12,8 +10,6 @@ import {
 	moveOf,
 	pressed,
 	SCROLL_EDGE,
-	SCROLL_RAMP,
-	SCROLL_SPEED,
 	sideOf,
 	stepOf,
 } from "./drag.ts";
@@ -21,11 +17,12 @@ import {
 const ids = ["a", "b", "c", "d"];
 
 test("a mouse press is a drag past the slop, a finger after its hold", () => {
-	assert.equal(pressed("mouse", DRAG_SLOP - 1, false), "wait");
-	assert.equal(pressed("mouse", DRAG_SLOP, false), "drag");
-	assert.equal(pressed("pen", DRAG_SLOP, false), "drag");
+	assert.equal(pressed("mouse", 3, false), "wait");
+	assert.equal(pressed("mouse", 4, false), "drag");
+	assert.equal(pressed("pen", 4, false), "drag");
 	assert.equal(pressed("touch", 0, false), "wait");
-	assert.equal(pressed("touch", DRAG_DELAY_SLOP + 1, false), "cancel");
+	assert.equal(pressed("touch", 8, false), "wait");
+	assert.equal(pressed("touch", 9, false), "cancel");
 	assert.equal(pressed("touch", 2, true), "drag");
 });
 
@@ -135,20 +132,18 @@ test("a scroller is carried near its edges and not in the middle", () => {
 });
 
 test("a scroller is carried at one speed a second whatever the frame rate, ramping up from entry", () => {
-	const ramped = SCROLL_RAMP;
+	// The ramp is 400 ms and the speed 1440 px a second.
+	const ramped = 400;
 	// 60 Hz and 144 Hz carry it the same distance a second.
 	const at60 = edgeSpeed(1, 1000 / 60, ramped) * 60;
 	const at144 = edgeSpeed(1, 1000 / 144, ramped) * 144;
-	assert.equal(at60, SCROLL_SPEED);
-	assert.ok(Math.abs(at144 - SCROLL_SPEED) <= 144 / 2);
+	assert.equal(at60, 1440);
+	assert.ok(Math.abs(at144 - 1440) <= 144 / 2);
 	// A frame that ran long carries it no further than one at 60 Hz.
 	assert.equal(edgeSpeed(-1, 250, ramped), edgeSpeed(-1, 1000 / 60, ramped));
 	// On entry it does not move; halfway through the ramp it is at half speed.
 	assert.equal(edgeSpeed(1, 1000 / 60, 0), 0);
-	assert.equal(
-		edgeSpeed(1, 1000 / 60, SCROLL_RAMP / 2),
-		Math.round(SCROLL_SPEED / 120),
-	);
+	assert.equal(edgeSpeed(1, 1000 / 60, 200), 12);
 	assert.equal(edgeSpeed(0, 1000 / 60, ramped), 0);
 });
 

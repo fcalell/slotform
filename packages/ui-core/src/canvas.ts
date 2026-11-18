@@ -4,8 +4,6 @@ import type { CanvasEdge, CanvasNode, IconName } from "./descriptors.ts";
 
 export const HANDOFF_GLYPH: IconName = "ArrowRightLeft";
 
-// The edges between known nodes, as indices into `edges`, grouped by source
-// in array order, with each node's in-edge count.
 function link(
 	ids: readonly string[],
 	edges: readonly { from: string; to: string }[],

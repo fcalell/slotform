@@ -2700,16 +2700,16 @@ One closed token contract, the approved foundations sheet, drawn by two UI plugi
 
 ## Colors
 
-Colors are OKLCH, named by the place they draw. Neutrals cast on one hue at a fixed chroma per role (the cast knob moves the hue, never the chroma, so no contrast moves), one accent hue (its chroma is held inside sRGB at any hue), three status hues, six hued chip families and a neutral one (`fill-neutral` under `ink-body`, no mark), seven chart fills (the six hues and a grey), eight avatar steps. A wash is the body ink at an alpha, so it sits on any surface as one more step. Inside a group or a lifted layer the container re-points `edge` to `edge-raised`, and on a soft ground (any `-soft` tint) to `edge-strong`, so a part never picks between them.
+Colors are OKLCH, named by the place they draw. Neutrals cast on one hue at a fixed chroma per role (the cast knob moves the hue, never the chroma, so no contrast moves), one accent hue (its chroma is held inside sRGB at any hue), three status hues, six hued chip families and a neutral one (`fill-neutral` under `ink-body`, no mark), 7 chart fills (the chip hues and a grey), 8 avatar steps. A wash is the body ink at an alpha, so it sits on any surface as one more step.
 
 | Role | Light | Dark | Draws |
 | --- | --- | --- | --- |
 | `canvas` | `oklch(0.974 0.002 264)` | `oklch(0.16 0.005 264)` | the page |
 | `surface` | `oklch(1 0 0)` | `oklch(0.207 0.006 264)` | a card, a field, a row |
 | `group` | `oklch(0.947 0.004 264)` | `oklch(0.25 0.007 264)` | a filled tile, a chip ground |
-| `band` | `oklch(1 0 0)` | `oklch(0.207 0.006 264)` |  |
+| `band` | `oklch(1 0 0)` | `oklch(0.207 0.006 264)` | a list's group band and a section band |
 | `raised` | `oklch(1 0 0)` | `oklch(0.25 0.007 264)` | a popover, a dialog, a sheet, a toast |
-| `edge` | `oklch(0.915 0.004 264)` | `oklch(0.298 0.008 264)` | the hairline over canvas and surface; inside a group or a lifted layer the container re-points it to `edge-raised`, on a soft ground (any `-soft` tint) to `edge-strong` |
+| `edge` | `oklch(0.915 0.004 264)` | `oklch(0.298 0.008 264)` | the hairline over canvas and surface; on a raised ground (`group`, `raised`) the container re-points it to `edge-raised`, on a soft ground (`accent-soft`, `ok-soft`, `warn-soft`, `danger-soft`, `chip-neutral-soft`) to `edge-strong`, so a part never picks between them |
 | `edge-raised` | `oklch(0.915 0.004 264)` | `oklch(0.332 0.008 264)` | the hairline inside a group and on a lifted layer |
 | `edge-strong` | `oklch(0.59 0.012 264)` | `oklch(0.585 0.01 264)` | a control's boundary, at 3:1, held on every soft ground |
 | `grid` | `oklch(0.843 0.004 264)` | `oklch(0.315 0.008 264)` | the canvas's dot grid, at 1.5:1 on `canvas` |
@@ -2721,16 +2721,16 @@ Colors are OKLCH, named by the place they draw. Neutrals cast on one hue at a fi
 | `on-accent` | `oklch(1 0 0)` | `oklch(1 0 0)` | text on `accent` |
 | `accent-soft` | `oklch(0.95 0.023 264)` | `oklch(0.29 0.06 264)` | a tinted tile |
 | `accent-ink` | `oklch(0.505 0.19 264)` | `oklch(0.72 0.13 264)` | a link, the focus ring, a selection outline |
-| `accent-edge` | `oklch(0.728 0.107 264)` | `oklch(0.505 0.095 264)` |  |
+| `accent-edge` | `oklch(0.728 0.107 264)` | `oklch(0.505 0.095 264)` | an `active` or `running` state pill's outline |
 | `ok` | `oklch(0.49 0.129 150)` | `oklch(0.66 0.17 150)` | the `done` mark, an added line's ink |
 | `ok-soft` | `oklch(0.965 0.04 150)` | `oklch(0.28 0.05 150)` | the ground under an `ok` mark, an added line |
-| `ok-edge` | `oklch(0.728 0.085 150)` | `oklch(0.47 0.11 150)` |  |
+| `ok-edge` | `oklch(0.728 0.085 150)` | `oklch(0.47 0.11 150)` | a `done` state pill's outline |
 | `warn` | `oklch(0.48 0.099 70)` | `oklch(0.75 0.15 80)` | a caution's ink: a banner's glyph and act, a change mark |
 | `warn-soft` | `oklch(0.965 0.036 85)` | `oklch(0.25 0.035 75)` | the ground under a `warn` mark |
-| `warn-edge` | `oklch(0.722 0.067 73.984)` | `oklch(0.5 0.092 79.055)` |  |
+| `warn-edge` | `oklch(0.722 0.067 73.984)` | `oklch(0.5 0.092 79.055)` | an `attention` state pill's outline |
 | `danger` | `oklch(0.515 0.19 25)` | `oklch(0.71 0.178 25)` | the `failed` mark, a destructive act's label, an error ring, the filled destructive act |
 | `danger-soft` | `oklch(0.965 0.016 20)` | `oklch(0.25 0.04 25)` | the ground under a `danger` mark, a removed line |
-| `danger-edge` | `oklch(0.74 0.103 24.612)` | `oklch(0.48 0.109 25)` |  |
+| `danger-edge` | `oklch(0.74 0.103 24.612)` | `oklch(0.48 0.109 25)` | a `failed` state pill's outline |
 | `neutral-soft` | `oklch(0.92 0.012 264)` | `oklch(0.33 0.012 264)` | the ground of a `waiting` or `idle` state pill, opaque, apart from a disabled act's fill and from an outlined pill's sheet |
 | `chip-red` | `oklch(0.56 0.2 25)` | `oklch(0.75 0.147 25)` | a `Chip`'s family: the mark (a dot, an attention status), the soft ground, the ink on the soft |
 | `chip-red-soft` | `oklch(0.945 0.026 25)` | `oklch(0.3 0.05 25)` | a `Chip`'s family: the mark (a dot, an attention status), the soft ground, the ink on the soft |
@@ -2809,11 +2809,11 @@ Colors are OKLCH, named by the place they draw. Neutrals cast on one hue at a fi
 
 Status colors: `active` is `accent-ink`, `running` is `accent-ink` drawn as a spinner in the dot's place, `waiting` and `idle` are `ink-meta`, `done` is `ok`, `attention` is `chip-amber`, `failed` is `danger`.
 
-A chart's series take the chart fills in order: `chart-teal`, `chart-violet`, `chart-amber`, `chart-pink`, `chart-green`, `chart-red`, `chart-neutral`; one series takes the first, a seventh the grey. A meter at or above 0.9 of its max is near, and above its max is over.
+A chart's series take the chart fills in order: `chart-teal`, `chart-violet`, `chart-amber`, `chart-pink`, `chart-green`, `chart-red`, `chart-neutral`; one series takes the first, and the last is the grey. A meter at or above 0.9 of its max is near, and above its max is over.
 
 ## Typography
 
-8 roles, named by place. Two rules decide the role: size follows structure, never emphasis (the primary line of anything is `body`, a secondary line is `meta`, emphasis inside a line is weight 500, never a size change); and a size role names a place once (`title` a page's or a record's name, once per page or record; `heading` a section's or a card's name, never inside a row; `caption` text inside a small component, never a sentence; `code` what a machine reads; `figure` a count's number in a strip of them). There is no label role: a field label and a row's leading cell are `body` at 500, a table header is `meta` at 500. The scale moves with density (desktop body 13, touch body 16, room body 16 canvas units); nothing else moves it, except that in the room `display` stands five times the body (a glanceable figure, not a stat inside a page).
+8 roles, named by place. Two rules decide the role: size follows structure, never emphasis (the primary line of anything is `body`, a secondary line is `meta`, emphasis inside a line is weight 500, never a size change); and a size role names a place once (the Place column below). There is no label role: a field label and a row's leading cell are `body` at 500, a table header is `meta` at 500. The scale moves with density (desktop body 13, touch body 16, room body 16 canvas units); nothing else moves it, except that in the room `display` stands 5 times the body (a glanceable figure, not a stat inside a page).
 
 | Role | Desktop | Touch | Room | Weight | Ink | Place |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -2830,7 +2830,7 @@ Tracking: `display` -0.02em, `title` -0.01em, `caption` 0.01em, and `label` 0.07
 
 ## Layout
 
-Spacing roles are multiples of a 4 px base, picked per density, named by what they separate:
+Spacing roles are multiples of a 4 px base at the default `size`, picked per density, named by what they separate:
 
 | Role | Desktop | Touch | Room | Separates |
 | --- | --- | --- | --- | --- |
@@ -2841,7 +2841,7 @@ Spacing roles are multiples of a 4 px base, picked per density, named by what th
 | `section` | 24px | 24px | 24 | between the blocks of a page |
 | `page` | 24px | 16px | 48 | the page inset |
 
-Sizes are heights and squares in the same namespace, every one a formula over the body size but the target, which is declared per density; a component's own measure is a multiple of one of them in its recipe (a text area's three body lines), never a size of its own. Density is a theme and never a knob: the web draws the desktop set where the primary pointer is fine and the viewport is at least `tablet` wide (768px) and the touch set everywhere else, native draws the touch set, and a `data-density` attribute on the web root pins either (the supported answer for a desktop window narrower than `tablet`, a browser extension popup: `data-density="desktop"` on the root, on a page that does not use the Shell). A molecule whose structure follows density (an action bar at natural width on the desktop, full width on touch) reads it through the web's `touch:` variant, the same rule (a `data-density="touch"` pin, or no `desktop` pin where the pointer is not fine or the viewport is narrower than `tablet`); native is the touch set, so its molecules draw the touch structure with no variant. The room is the one set a screen declares (`Place`'s `distance`), since no query detects how far a screen is read from: the touch set drawn on a 960 × 540 canvas, so the Room columns are canvas units, each multiplied by the room unit `u = max(1px, min(100vw / 960, 100dvh / 540))` (native computes it from the window's size), 2 px at 1920 × 1080. The room's `page` is 48 all round (the ten-foot safe area), its radii, fixed widths, hairline and ring scale by `u` too, and its structure is the touch one (`touch:` matches inside it). A room page holds one column and never splits, because breakpoints stay px while its widths scale, and it holds no menu, picker or sheet, whose layers open outside it. It keeps the app's mode, and a screen read from across a room runs dark. Two limits: `vw` sizes ignore browser zoom, and a scaled size is fractional, outside the even-pixel rule. Every touch target is at least 44px; on the desktop every interactive part keeps a 28px hit area whatever it draws.
+Sizes are heights and squares in the same namespace, every one a formula over the body size but the target, which is declared per density; a component's own measure is a multiple of one of them in its recipe (a text area's three body lines), never a size of its own. Density is a theme and never a knob: the web draws the desktop set where the primary pointer is fine and the viewport is at least `tablet` wide (768px) and the touch set everywhere else, native draws the touch set, and a `data-density` attribute on the web root pins either (the supported answer for a desktop window narrower than `tablet`, a browser extension popup: `data-density="desktop"` on the root, on a page that does not use the Shell). A molecule whose structure follows density (an action bar at natural width on the desktop, full width on touch) reads it through the web's `touch:` variant, the same rule (a `data-density="touch"` pin, or no `desktop` pin where the pointer is not fine or the viewport is narrower than `tablet`); native is the touch set, so its molecules draw the touch structure with no variant. The room is the one set a screen declares (`Panes`'s `distance`), since no query detects how far a screen is read from: the touch set drawn on a 960 × 540 canvas, so the Room columns are canvas units, each multiplied by the room unit `u = max(1px, min(100vw / 960, 100dvh / 540))` (native computes it from the window's size), 2 px at 1920 × 1080. The room's `page` is 48 all round (the ten-foot safe area), its radii, fixed widths, hairline and ring scale by `u` too, and its structure is the touch one (`touch:` matches inside it). A room page holds one column and never splits, because breakpoints stay px while its widths scale, and it holds no menu, picker or sheet, whose layers open outside it. It keeps the app's mode, and a screen read from across a room runs dark. Two limits: `vw` sizes ignore browser zoom, and a scaled size is fractional, outside the even-pixel rule. Every touch target is at least 44px; on the desktop every interactive part keeps a 28px hit area whatever it draws.
 
 | Size | Desktop | Touch | Room | Is |
 | --- | --- | --- | --- | --- |
@@ -2859,7 +2859,7 @@ Sizes are heights and squares in the same namespace, every one a formula over th
 
 An icon's stroke is a weight on Lucide's 24-unit grid, so it scales with the icon: `line` 2, an icon's own, and `mark` 3.5, a mark that carries meaning at the meta size (a checkbox's tick and dash, a change mark's glyph), which at 14px draws 2.0416666666666665 px where `line` draws 1 px across two pixel rows at half coverage. No component spells a stroke number.
 
-Widths of lifted layers, never stretched to their container, and of a frame's fixed regions, each a count of the 4 px space base (the sidebar is 55 of them) so no font moves it: `popover` 240px, `toast` 360px, `dialog` 520px, `sheet` 640px, `sidebar` 220px, `list` 520px, `region-min` 340px, `reading` 720px, `column` 300px, `auth` 400px, `empty` 320px, `node` 240px. The short label's measure is characters: `measure-short` 20ch (native 192px, at the body size, so the size of the text it is read in is lost there). Breakpoints: `tablet` 768px, `desktop` 1024px; they are the only responsive variants, of the viewport (`tablet:`) and, on the web, of a Pane's width (`page-tablet:`, `page-max-tablet:`) and of a Place's (`place-max-tablet:`), by which a Place stands its last Pane alone, one of a list row's (`row-two-line:`, below `rowOneLine`, 765 px), by which a row stands its meta under its title, and one of a rules list's (`rules-stacked:`, below `rulesOneRow`, 394 px), by which a rule stacks its terms, and one of a Pane's (`definitions-stacked:`, below `definitionsOneRow`, 376 px), by which a definition row stands its value under its label as touch does, and one of an action bar's (`acts-stacked:`, up to `actsStackedMax`, 400 px), by which its acts stack one per row across the block it closes.
+Widths of lifted layers, never stretched to their container, and of a frame's fixed regions, each a count of the space base (the sidebar is 55 of them) so no font moves it: `popover` 240px, `toast` 360px, `dialog` 520px, `sheet` 640px, `sidebar` 220px, `list` 520px, `region-min` 340px, `reading` 720px, `column` 300px, `auth` 400px, `empty` 320px, `node` 240px. The short label's measure is characters: `measure-short` 20ch (native 192px, at the body size, so the size of the text it is read in is lost there). Breakpoints: `tablet` 768px, `desktop` 1024px; they are the only responsive variants, of the viewport (`tablet:`) and, on the web, of a Pane's width (`page-tablet:`, `page-max-tablet:`) and of a Place's (`place-max-tablet:`), by which a Place stands its last Pane alone, one of a list row's (`row-two-line:`, below `rowOneLine`, 765 px), by which a row stands its meta under its title, and one of a rules list's (`rules-stacked:`, below `rulesOneRow`, 394 px), by which a rule stacks its terms, and one of a Pane's (`definitions-stacked:`, below `definitionsOneRow`, 376 px), by which a definition row stands its value under its label as touch does, and one of an action bar's (`acts-stacked:`, up to `actsStackedMax`, 400 px), by which its acts stack one per row across the block it closes.
 
 ## Elevation & Depth
 
@@ -2876,7 +2876,7 @@ A card at rest has a hairline and no shadow. Two elevations lift a layer, each p
 | `card` | 8px | a card, a toast |
 | `popover` | 8px | a popover, a menu |
 | `sheet` | 8px | a sheet's leading corners, a centred sheet |
-| `full` | 9999px | a dot, an avatar, the pill chip or status, a switch |
+| `full` | 9999px | a dot, an avatar, a switch, a spinner, a slider's track and thumb, a ring mark, a remove act's hit |
 
 ## Components
 

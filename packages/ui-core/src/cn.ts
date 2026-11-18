@@ -11,7 +11,6 @@ import {
 } from "./tokens.ts";
 
 // The contract's scales in the merge: docs/architecture/ui-core/tokens.md, "Composing with cn".
-// tailwind-merge 3.5.0 conflicts `font-size` with `leading` alone, so the config below adds `tracking-`.
 const twMerge = extendTailwindMerge({
 	extend: {
 		theme: {
@@ -28,8 +27,7 @@ const twMerge = extendTailwindMerge({
 	},
 });
 
-// That conflict runs one way: a role composed *after* a `leading-` or
-// `tracking-` class deletes it. Compose the role first. See the README.
+// A role composed after a `leading-` or `tracking-` class deletes it: docs/architecture/ui-core/tokens.md, "Composing with cn".
 export function cn(...inputs: ClassValue[]): string {
 	return twMerge(clsx(inputs));
 }

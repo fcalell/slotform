@@ -24,26 +24,19 @@ The subpaths:
 - `@fcalell/ui-core/schema`: the zod `themeSchema` and `wordsSchema`, and the `Theme` input type.
 - `@fcalell/ui-core/derive`: `deriveTheme(theme)` resolves the knobs into final values, one string
   per token, plus the motion scale as numbers.
-- `@fcalell/ui-core/emit`: the records a plugin renders. `themeTokens` is the `@theme` block: the
-  eleven reset namespaces, the touch density set, tracking, radii, widths, breakpoints, the two font
-  stacks, the durations and curves, and the light colors. `rootTokens` is what sits on the root
-  outside `@theme`: the hairline, the focus ring's width and offset, the layers' order
-  (`--layer-<layer>`) and the light shadows. `modeTokens` is one mode's colors and its two shadows.
-  `densityTokens` is one density's type scale, spacing roles and sizes (the room's in canvas units);
-  `roomTokens` and `roomScope` are the room set scaled. `nativeMeasureTokens` is native's short
-  measure in px over `themeTokens`' `ch`. `reducedMotionTokens` is every duration at 0ms.
-  `shadowUtilities` is the declaration of each `shadow-*` utility, reading its mode's variable.
-  `raisedGroundTokens` is what a raised ground (`RAISED_GROUNDS`: `group`, `raised`) declares for
-  everything inside it, the hairline read through `edge-raised`; `softGroundTokens` is the same for a
-  soft ground (`SOFT_GROUNDS`, every `-soft` tint; native wraps only a banner in it), the hairline read through `edge-strong`.
-- `@fcalell/ui-core/cn`: `cn()`, the class merger, taught the contract's six scales.
+- `@fcalell/ui-core/emit`: the token records a plugin renders, `themeTokens`, `rootTokens`,
+  `modeTokens`, `densityTokens`, `roomTokens`, `roomScope`, `roomMeasureTokens`, `roomUnitFor`,
+  `nativeMeasureTokens`, `reducedMotionTokens`, `shadowUtilities`, `raisedGroundTokens` and
+  `softGroundTokens` ([Emit](../../docs/architecture/ui-core/tokens.md#emit)).
+- `@fcalell/ui-core/cn`: `cn()`, the class merger, taught the contract's scales
+  ([Composing with cn](../../docs/architecture/ui-core/tokens.md#composing-with-cn)).
 - `@fcalell/ui-core/variants`: the platform-invariant variant matrices, each a cva built from a
   table, the single-class-set constants beside them, and `MATRIX_GROUPS`, every matrix by name with its axes,
   which `matrixClasses` enumerates into class sets; the prop types a component shares across plugins
   with them (`ContentTone`, a glyph's ink; `IconFit`, the `ICON` matrix's `meta`, `body` or
   `control`, what an icon sits beside, which picks `icon-meta`, `icon` or `icon-control`;
   `ButtonFit`, `IconButtonFit` and `LinkFit`, what an act sits in, read off each matrix's `fit`
-  axis; `ActionBarFit`, where a native action bar stands, `end` or `full`, off `ACTION_BAR`'s;
+  axis; `ActionBarFit`, where a native action bar stands, `end` or `full`;
   `TextRole`, the `body` and `meta` roles `Text` draws).
 - `@fcalell/ui-core/descriptors`: `IconName`, `Act`, `LinkAct`, `IconAct`, `Run`, `Runs`, `StatusMark`, `ChipMark`, `RowMark`, `Fact`, `RecordFact`,
   `Option`, `OptionLeading`, `OptionGroup`, `OptionPick`, `MultiPick`, `Row` (`RowItem`, `FileItem`), `Band`, `PlaceSpec`, `Hunk`, `FieldBinding`, `Confirmation`, `Decision`,
@@ -64,7 +57,7 @@ The subpaths:
   throw painting the region), `WAIT_DELAY`, `PAINT_ROWS` and `PAINT_TURNS`, and `timings` (the live `waitDelay`,
   `actDelay` and `waitMin` a bench tunes, with `paintWait`, the minimum hold on a first load).
 - `@fcalell/ui-core/arrive`: `arrivals`, the keys a collection did not hold when it first drew,
-  which fade in on their own (`BLOCK_IN`, `blockIn`).
+  which fade in on their own.
 - `@fcalell/ui-core/list-state`: what a collection decides before it draws, free of any framework:
   a table's records,
   sort and tick logic (`tableRecords`, `sorted`, `tickable`), a tree's visible rows (`treeRows`),
@@ -76,7 +69,9 @@ The subpaths:
   title's reading (`isAbsent`, `isCopy`, `titleWords`), a record fact's key (`factKey`) and a file
   row's glyph and path split (`glyph`, `split`).
 - `@fcalell/ui-core/file`: `accepts(file, accept)`, whether a picked file matches a control's
-  `accept` list, and `pickerTypes(accept)`, the MIME types a platform's picker filters by.
+  `accept` list, `kindsOf(accept, words)`, the kinds that list names in the viewer's words,
+  `pickerTypes(accept)`, the MIME types a platform's picker filters by, and `fileSize(bytes)`, a
+  file's size in the viewer's language.
 - `@fcalell/ui-core/commit`: `commitMoment()`, when a typing control's value is final: on
   leaving the field or Enter, only when it changed since focus, Escape restoring the value at
   focus, and ending the edit. Both plugins' `Input` drive their `onCommit` with it.

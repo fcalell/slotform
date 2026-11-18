@@ -19,6 +19,7 @@ import {
 	MEASURES,
 	MOTION_KNOBS,
 	type Mode,
+	type MotionKnobName,
 	type PixelDensity,
 	PULSE_LOW,
 	PX_WIDTHS,
@@ -35,6 +36,7 @@ import {
 	STACK_ORDER,
 	TRACKED_ROLES,
 	TYPE_ROLES,
+	type TypeRole,
 	WIDTHS,
 	ZEROED_NAMESPACES,
 } from "./tokens.ts";
@@ -89,9 +91,7 @@ export function themeTokens(resolved: ResolvedTheme): Record<string, string> {
 export function rootTokens(resolved: ResolvedTheme): Record<string, string> {
 	const tokens: Record<string, string> = {
 		"--hairline": `${HAIRLINE_PX}px`,
-		"--focus-ring": `${RING_PX}px`,
-		"--focus-ring-offset": `${RING_OFFSET_PX}px`,
-		"--focus-ring-edge-offset": `${RING_EDGE_OFFSET_PX}px`,
+		...ringTokens((px) => `${px}px`),
 		// The fill's share at the pulse's low (`PULSE`'s keyframes mix it).
 		"--pulse-low": `${Math.round(PULSE_LOW * 100)}%`,
 	};
@@ -112,11 +112,7 @@ export function densityTokens(
 	const tokens: Record<string, string> = {};
 	for (const role of TYPE_ROLES) {
 		const { size, leading } = resolved.type[density][role];
-		tokens[`--text-${role}`] = size;
-		tokens[`--text-${role}--line-height`] = leading;
-	}
-	for (const role of TYPE_ROLES) {
-		tokens[`--leading-${role}`] = resolved.type[density][role].leading;
+		Object.assign(tokens, typeTokens(role, size, leading));
 	}
 	for (const role of SPACING_ROLES) {
 		tokens[`--spacing-${role}`] = resolved.spacing[density][role];
@@ -125,6 +121,25 @@ export function densityTokens(
 		tokens[`--spacing-${size}`] = resolved.sizes[density][size];
 	}
 	return tokens;
+}
+
+// A type role's size and leading, as the Tailwind v4 modifier and the
+// standalone namespace: docs/architecture/ui-core/tokens.md, "Emit".
+function typeTokens<T>(role: TypeRole, size: T, leading: T): Record<string, T> {
+	return {
+		[`--text-${role}`]: size,
+		[`--text-${role}--line-height`]: leading,
+		[`--leading-${role}`]: leading,
+	};
+}
+
+// The focus ring's width and offsets, each px through `scale`.
+function ringTokens<T>(scale: (px: number) => T): Record<string, T> {
+	return {
+		"--focus-ring": scale(RING_PX),
+		"--focus-ring-offset": scale(RING_OFFSET_PX),
+		"--focus-ring-edge-offset": scale(RING_EDGE_OFFSET_PX),
+	};
 }
 
 // ── The room set ────────────────────────────────────────────────────
@@ -154,11 +169,11 @@ export function roomTokens<T>(
 ): Record<string, T> {
 	const tokens: Record<string, T> = {};
 	for (const role of TYPE_ROLES) {
-		tokens[`--text-${role}`] = scale(sizeOf("room", role, size));
-		tokens[`--text-${role}--line-height`] = scale(
-			leadingOf("room", role, size),
+		const leading = scale(leadingOf("room", role, size));
+		Object.assign(
+			tokens,
+			typeTokens(role, scale(sizeOf("room", role, size)), leading),
 		);
-		tokens[`--leading-${role}`] = scale(leadingOf("room", role, size));
 	}
 	for (const role of SPACING_ROLES) {
 		tokens[`--spacing-${role}`] = scale(spacingOf("room", role, size));
@@ -167,8 +182,7 @@ export function roomTokens<T>(
 		tokens[`--spacing-${name}`] = scale(sizePx("room", name, size));
 	}
 	for (const role of RADIUS_ROLES) {
-		if (role !== "full")
-			tokens[`--radius-${role}`] = scale(radiusPx(role, radius));
+		tokens[`--radius-${role}`] = scale(radiusPx(role, radius));
 	}
 	for (const width of PX_WIDTHS) {
 		tokens[`--container-${width}`] = scale(widthPx(width, size));
@@ -198,17 +212,17 @@ export function roomScope(
 	return {
 		[ROOM_UNIT]: roomUnit(),
 		...roomTokens(scale, radius, size),
-		"--focus-ring": scale(RING_PX),
-		"--focus-ring-offset": scale(RING_OFFSET_PX),
-		"--focus-ring-edge-offset": scale(RING_EDGE_OFFSET_PX),
+		...ringTokens(scale),
 	};
 }
 
-// Every duration rung at 0: docs/architecture/ui-core/motion.md, "Reduced motion".
+// Every duration rung and the tick at 0: docs/architecture/ui-core/motion.md, "Reduced motion".
+const STILLED: readonly MotionKnobName[] = [...DURATIONS, "tick"];
 export function reducedMotionTokens(): Record<string, string> {
 	const tokens: Record<string, string> = {};
-	for (const rung of DURATIONS) tokens[`--transition-duration-${rung}`] = "0ms";
-	tokens["--tick"] = "0ms";
+	for (const knob of MOTION_KNOBS) {
+		if (STILLED.includes(knob.name)) tokens[knob.cssVar] = `0${knob.unit}`;
+	}
 	return tokens;
 }
 

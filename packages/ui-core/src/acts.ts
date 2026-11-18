@@ -3,7 +3,6 @@ import type { Act } from "./descriptors.ts";
 import {
 	type Datum,
 	type Drawn,
-	dev,
 	endedReason,
 	type Fielded,
 	lift,
@@ -33,7 +32,7 @@ export function isThenable(v: unknown): v is PromiseLike<unknown> {
 const drawn = new WeakSet<object>();
 
 export function drew(error: unknown): void {
-	if (dev() && typeof error === "object" && error !== null) drawn.add(error);
+	if (typeof error === "object" && error !== null) drawn.add(error);
 }
 
 // Whether a host marked this rejection with `drew`.

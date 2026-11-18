@@ -42,16 +42,12 @@ export function chartScale(
 	figures: readonly number[] = peaks,
 ): ChartScale {
 	const peak = Math.max(0, ...peaks);
-	const step = peak <= 0 ? 1 : stepOf(peak);
+	const step = peak <= 0 ? 1 : niceOf(peak / BANDS);
 	if (step < 1 && figures.every(Number.isInteger)) {
 		const bands = Math.max(1, Math.ceil(peak));
 		return { step: 1, bands, top: bands, floor: 0 };
 	}
 	return { step, bands: BANDS, top: step * BANDS, floor: 0 };
-}
-
-function stepOf(peak: number): number {
-	return niceOf(peak / BANDS);
 }
 
 const magnitudeOf = (value: number) => 10 ** Math.floor(Math.log10(value));
@@ -77,7 +73,10 @@ function roundOf(raw: number): number {
 }
 
 // The axis of a level: docs/architecture/ui-core/components.md, "Axis".
-export function levelScale(figures: readonly number[]): ChartScale {
+// A reading that is not finite stands on no axis, and would keep the step
+// growing without end.
+export function levelScale(readings: readonly number[]): ChartScale {
+	const figures = readings.filter(Number.isFinite);
 	if (figures.length === 0) return chartScale([]);
 	const low = Math.min(...figures);
 	const high = Math.max(...figures);
@@ -110,7 +109,6 @@ export function chartShare(
 
 // The strides a time line labels its bars at: docs/architecture/ui-core/components.md, "Time labels".
 const TIME_STRIDES = [1, 2, 6, 12];
-const TIME_STRIDE_LAST = 12;
 
 // A time stands where its room holds this many of the longest time's width:
 // itself and a time's width clear, so no two times touch and a time next to
@@ -127,8 +125,7 @@ export function timeSpace(index: number, count: number): number | undefined {
 	if (index <= 0 || index >= count - 1) return undefined;
 	let stride = 1;
 	for (let at = 1; ; at += 1) {
-		const past = at - TIME_STRIDES.length + 1;
-		const next = TIME_STRIDES[at] ?? TIME_STRIDE_LAST * 2 ** past;
+		const next = TIME_STRIDES[at] ?? stride * 2;
 		if (next > index || index % next !== 0) break;
 		stride = next;
 	}

@@ -4,7 +4,7 @@ import type { Moved } from "./descriptors.ts";
 
 // The distance (px) a mouse or pen moves with the button down before the press
 // is a drag; below it the press is a click.
-export const DRAG_SLOP = 4;
+const DRAG_SLOP = 4;
 
 // A finger holds this long (ms) on a row, without moving past `DRAG_DELAY_SLOP`
 // (px), before the press is a drag: a finger that moves sooner is scrolling
@@ -17,8 +17,8 @@ export const DRAG_DELAY_SLOP = 8;
 // (ms) the speed ramps up over from the pointer's entry into the band, so a
 // row picked up inside the band does not scroll away at once.
 export const SCROLL_EDGE = 48;
-export const SCROLL_SPEED = 1440;
-export const SCROLL_RAMP = 400;
+const SCROLL_SPEED = 1440;
+const SCROLL_RAMP = 400;
 
 // The longest frame (ms) a step is measured over: a frame that ran long (a
 // stalled tab) carries the scroller no further than one at 60 Hz.
@@ -26,8 +26,6 @@ const SCROLL_FRAME = 1000 / 60;
 
 // An accepted drag held this long (ms) over a folded branch opens it.
 export const DROP_HOLD = 600;
-
-export type Pointer = "mouse" | "pen" | "touch";
 
 /** What a press that has moved `distance` px is: still a press (`wait`), a drag, or a scroll the page keeps (`cancel`, a finger that moved before it was held). `held` is whether the finger's hold has run. */
 export function pressed(

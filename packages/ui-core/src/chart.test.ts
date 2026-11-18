@@ -30,6 +30,11 @@ test("no reading stands on the floor or the top", () => {
 	}
 });
 
+test("a reading that is not finite stands on no axis", () => {
+	assert.deepEqual(bands([NaN]), bands([]));
+	assert.deepEqual(bands([18.3, Infinity, 21.4, NaN]), bands([18.3, 21.4]));
+});
+
 test("readings never under zero keep a floor at zero or over it", () => {
 	assert.ok(levelScale([0.2, 1.4, 2.1]).floor >= 0);
 });

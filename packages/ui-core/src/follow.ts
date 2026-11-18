@@ -1,4 +1,4 @@
-// The follow, pure so the web and the phone give one answer: docs/architecture/ui-core/drag.md, "Follow".
+// The follow, one module so the web and the phone give one answer: docs/architecture/ui-core/drag.md, "Follow".
 import { tuned } from "./paint.ts";
 import { EASING, type Easing } from "./tokens.ts";
 
@@ -18,7 +18,7 @@ export function position(delta: number, away: 1 | -1): number {
 	return Math.max(0, delta * away);
 }
 
-// The speed toward `away` in px per ms over the stretch of `samples` (oldest first) within the last 100 ms before `now`, the release's time; negative going back, 0 with too little to read (a finger that stopped before it lifted left none).
+// The speed toward `away` in px per ms over the stretch of `samples` (oldest first) within the speed window (`WINDOW`) before `now`, the release's time; negative going back, 0 with too little to read (a finger that stopped before it lifted left none).
 export function velocity(
 	samples: readonly Sample[],
 	away: 1 | -1,

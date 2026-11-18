@@ -9,7 +9,7 @@ the observed value, the expected value from the rule, a one-line fix, and its se
 as The verdict defines, else `minor`). A `yes` names the one place that was checked. No item is
 skipped; an item that cannot be answered says why.
 
-The rules are `voice.md` (V#), `structure.md` (S#) and `../../../plugins/screens/guide/screens.md`.
+The rules are `voice.md` (V#), `structure.md` (S#) and `node_modules/@fcalell/plugin-screens/guide/screens.md`.
 
 ## 1. One shape per pattern
 
@@ -100,7 +100,7 @@ The rules are `voice.md` (V#), `structure.md` (S#) and `../../../plugins/screens
   place, a pulse where values will land, no second layout? (S15) Text above the first Section
   that wraps to more lines once it lands (a record head's name, facts or description, or prose)
   moves what stands under it by what it grew: the loading-shift floor accepts that move
-  (`plugins/screens/guide/screens.md`), so it is no finding, at any width.
+  (`node_modules/@fcalell/plugin-screens/guide/screens.md`), so it is no finding, at any width.
 - 8b. Does the empty shot read as the data shot with the rows gone, the toolbar and bands still
   standing where they do in data?
 - 8c. Do the not-found shot and the error shot each read as the frame's one shape (one sentence

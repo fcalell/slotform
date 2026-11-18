@@ -28,7 +28,7 @@ how much a row carries and where things stand, never for colour, type, corners o
 2. **Sidebar.** The `sidebar` is 55 units of the space base wide (220 px at the default `size`). Its first row is a bar as the page's (the same height, the same line): the
    app's lockup in the glyph region, then the switcher (name at 500, an up-down glyph), so the
    organization's name and the page title stand on one line. Items are `control` rows (32 px at the default `size`) at the body
-   size; groups carry an uppercase label at 500 at the `caption` size (12 px at the default `size`), tracked 0.07 em, in the meta ink; a group
+   size; groups carry a section label (decision 7); a group
    that is a scope (the project) carries its own switcher as the row under its label, its places
    following the pick; the places scroll between the bar and the footer group, which stay in
    place, so none is ever clipped; settings and exits stand in the footer group. The current place carries the

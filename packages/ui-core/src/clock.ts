@@ -120,7 +120,7 @@ export function stampsTime(
 	return Number.isNaN(now) || now !== was;
 }
 
-const TICK_MS = 1000;
+const CLOCK_TICK_MS = 1000;
 
 /** The one coarse clock every live pending bar and age reads: it ticks once a second while a reader holds it, each reader leaving once now passes its `until`, and stops when none is left. */
 export function createClock(): {
@@ -129,7 +129,7 @@ export function createClock(): {
 } {
 	const clock = createStore(Date.now(), {
 		source: (store) => {
-			const timer = setInterval(() => store.set(Date.now()), TICK_MS);
+			const timer = setInterval(() => store.set(Date.now()), CLOCK_TICK_MS);
 			return () => clearInterval(timer);
 		},
 	});
@@ -146,7 +146,7 @@ export function createClock(): {
 		// Idle, the clock reads the time afresh at most once a tick, so a render's
 		// reads agree.
 		now() {
-			if (clock.size === 0 && Date.now() - clock.get() >= TICK_MS) {
+			if (clock.size === 0 && Date.now() - clock.get() >= CLOCK_TICK_MS) {
 				clock.set(Date.now());
 			}
 			return clock.get();

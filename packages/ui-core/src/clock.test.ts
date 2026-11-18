@@ -37,6 +37,13 @@ test("the clock ticks while a reader holds it, each reader leaving at its until"
 	t.mock.timers.tick(1000);
 	t.mock.timers.tick(1000);
 	assert.deepEqual([short, long], [2, 3]);
+	for (let second = 4; second <= 10; second++) t.mock.timers.tick(1000);
+	assert.equal(long, 10);
+	// With no reader left the tick has stopped: idle, `now` reads the time
+	// afresh, where a running tick would still read 11000.
+	t.mock.timers.tick(1000);
+	t.mock.timers.tick(500);
+	assert.deepEqual([long, clock.now()], [10, 11_500]);
 });
 
 test("a reader past its until never holds the clock", (t) => {

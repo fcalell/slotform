@@ -24,7 +24,7 @@ primary fill is a theme decision, never a call-site value.
 | --- | --- | --- |
 | `hue.accent` | 264 | the accent-bound roles: `accent`, `accent-soft`, `accent-ink`, `accent-edge`, `ring`, `selected-outline`, `act-accent` with `act-accent-hover`, `act-accent-press` and `act-accent-pending`, `toggle-on` and `toggle-on-hover`. The three status hues, the hued chip families and the avatars are fixed |
 | `hue.cast` | `hue.accent` | the hue every neutral carries: `canvas`, `surface`, `group`, `band`, `raised`, the three hairlines, `scrim`, the three inks, the washes, `skeleton`, `switch-off`, `fill-disabled`, `fill-neutral` with the neutral chip's soft and ink, and the light shadows. It never reaches the accent, the status trio, the hued chip families or the avatars |
-| `radius` | 3 | the control's corner radius in px, 0 to 12; the layers derive theirs from it (`radiusPx`, [radius](#radius-hairline-and-focus-ring)) |
+| `radius` | 6 | the control's corner radius in px, 0 to 12; the layers derive theirs from it (`radiusPx`, [radius](#radius-hairline-and-focus-ring)) |
 | `fonts` | `sans` "IBM Plex Sans", `mono` "IBM Plex Mono" | the two families as `--font-sans` and `--font-mono` ([fonts](#fonts-and-advances)) |
 | `size` | 13 | the desktop body in px, 12 to 18, the one base every scale derives from: the type roles, the spacing roles and the sizes follow it at every density (`bodyOf`), so a denser or a roomier interface is one number |
 | `defaultMode` | unset | the mode a viewer with no stored choice starts in, ahead of the system preference; unset, the system decides |
@@ -79,8 +79,8 @@ painted colour at every hue of either knob (`derive.test.ts` sweeps both knobs o
 The conversions are Björn Ottosson's reference matrices for OKLCH, OKLab and sRGB (`oklch.ts`,
 internal, no subpath). The derivation mixes in OKLab (a hover fill toward black, a pending fill
 toward its label), clamps a re-hued accent's chroma into the sRGB gamut, and converts the shadows to
-sRGB because React Native's `boxShadow` parses no oklch. The verify script measures the contrast
-contracts through the same matrices.
+sRGB because React Native's `boxShadow` parses no oklch. `derive.test.ts` measures the contrast
+contracts on the painted colour through the same matrices, with a luminance of its own.
 
 `deriveTheme().motion` carries the motion scale as numbers ([one table of numbers](motion.md#one-table-of-numbers)).
 
@@ -158,13 +158,14 @@ hairlines:
 
 - A raised ground (`RAISED_GROUNDS`: `group`, `raised`) re-points the hairline for everything inside
   it to `edge-raised` (`raisedGroundTokens`).
-- A soft ground (`SOFT_GROUNDS`, every `-soft` tint, a banner's tone) is no edge for a hairline (a
+- A soft ground (`SOFT_GROUNDS`: `accent-soft`, `ok-soft`, `warn-soft`, `danger-soft`,
+  `chip-neutral-soft`, the tones a banner and a state pill stand on) is no edge for a hairline (a
   tenth or a soft tint from the canvas), so it re-points it to `edge-strong`, the one boundary that
   holds 3:1 on every one of them (`softGroundTokens`). A quiet act on a banner is then an edge.
   `edge.test.ts` holds the strong edge at 3:1 on every soft ground, in both modes, a veiled ground
   over each ground it can lie on.
 
-The web scopes both by class on the grounds' fill classes (every `.bg-*-soft`), after the mode
+The web scopes both by class on the grounds' fill classes (`.bg-<ground>` for each listed ground), after the mode
 scopes, so a ground that is also a mode scope still re-points. Native wraps a raised surface's
 content in `RaisedGround` and only a banner's in `SoftGround`, uniwind `ScopedVariables` resolving
 each `var()` in the mode, since they take a value and never a `var()`.
@@ -210,8 +211,8 @@ sizes of `densityTokens`, plus what is a constant at the other densities and sca
 the radii (the `radius` knob's, in canvas units), the fixed widths and the hairline. Each value is the
 canvas units its token holds and `scale` turns them into the platform's value: on the web a `calc`
 over `--room-unit`, on native the number times the unit. The type, the space and the sizes follow the
-`size` knob. A `full` radius and the `ch` measures stay as they are. In the room only, `display` is 5
-times the body and `page` is 48 canvas units all round ([spacing](#spacing)).
+`size` knob. The `ch` measures stay as they are. In the room only, `display` is 5
+times the body and `page` is the ten-foot safe area ([spacing](#spacing)).
 
 Breakpoints stay px, so a room place holds one structure: it draws its last Pane alone and holds one
 column of `Columns` and `Stats`. Focus is the ring, scaled, with no scale transform. A room app runs
@@ -336,7 +337,7 @@ Sizes counted in figures are px at an advance, never `ch`, since native has no `
 The radius is spent by role: chip, control and row at the `radius` knob; badge one under it (a soft
 box inside a line of text); card (a sheet on the canvas), popover and sheet (a centred sheet too) a
 third more, rounded up (3 → 4, 6 → 8, 9 → 12), so a layer stays rounder than what stands on it;
-`full` only on dots and avatars. A radius is density-invariant: it names the role, not the size.
+`full` on round parts only (DESIGN.md's Shapes table names them). A radius is density-invariant: it names the role, not the size.
 
 One hairline width serves region edges, row splits and field boundaries. The focus ring is `ring`,
 drawn outside the box at an offset so it never covers the control's own edge; inside a list it is
@@ -375,8 +376,8 @@ hairline, so the shadow is pure black at a higher opacity.
 
 Eleven theme namespaces reset to `initial`, so an off-contract utility compiles to nothing:
 `--color-*`, `--radius-*`, `--text-*`, `--leading-*`, `--tracking-*`, `--shadow-*`, `--font-*`,
-`--container-*`, `--breakpoint-*`, `--transition-duration-*`, `--ease-*`. `tablet:`, `desktop:` and
-`wide:` are the only viewport variants.
+`--container-*`, `--breakpoint-*`, `--transition-duration-*`, `--ease-*`. `tablet:` and `desktop:`
+are the only viewport variants.
 
 The reset leaves three things live:
 
@@ -403,7 +404,7 @@ standing. Native's `cn` is the same function; uniwind compiles the merged `class
 hand-written one, so it costs nothing at runtime.
 
 A type role owns its size, its leading and its tracking, so a later role clears all three: the config
-declares `font-size` as conflicting with both `leading-` and `tracking-`. tailwind-merge 3.5.0
+declares `font-size` as conflicting with both `leading-` and `tracking-`. tailwind-merge alone
 conflicts `font-size` with `leading` alone, which leaves a stale `tracking-title` riding body text.
 **Compose the type role before any later size class, never after.** The conflict runs one way, so
 `cn("leading-title", "text-body")` returns `text-body` alone.
