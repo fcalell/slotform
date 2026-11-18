@@ -7,6 +7,7 @@ import { plugin, slot } from "@fcalell/cli";
 import type {
 	MiddlewareSpec,
 	ProviderSpec,
+	ScaffoldSpec,
 	TsImportSpec,
 } from "@fcalell/cli/ast";
 import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
@@ -44,7 +45,15 @@ const SOURCE = "expo";
 
 const DEFAULT_PORT = 8081;
 const DEFAULT_APP_DIR = "src/app";
-const DEFAULT_EAS_PROFILES = ["development", "preview", "production"];
+// The `eas.json` `stack init` writes: the build profiles by name, the eas-cli floor its `cli.version` and
+// the `eas-cli` devDependency share.
+const EAS_CLI_FLOOR = "27.10.0";
+const DEFAULT_EAS_BUILD = {
+	development: { developmentClient: true, distribution: "internal" },
+	preview: { distribution: "internal" },
+	production: { autoIncrement: true },
+};
+const DEFAULT_EAS_PROFILES = Object.keys(DEFAULT_EAS_BUILD);
 const DEFAULT_UPDATE_CHANNEL = "production";
 
 // Why expo is a dependency and which react it pins: docs/architecture/plugins/expo.md, "Dependencies".
@@ -294,7 +303,7 @@ export const expo = plugin("expo", {
 		]),
 	},
 	devDependencies: {
-		"eas-cli": "^27.10.0",
+		"eas-cli": `^${EAS_CLI_FLOOR}`,
 		// React's types back the app's JSX (`react/jsx-runtime`); without it a
 		// consumer's `tsconfig.app.json` can't resolve the automatic runtime.
 		"@types/react": "^19.3.0",
@@ -607,8 +616,20 @@ export const expo = plugin("expo", {
 		cliSlots.initScaffolds.contribute((ctx) =>
 			ctx.scaffold("babel.config.cjs.template", "babel.config.cjs"),
 		),
-		cliSlots.initScaffolds.contribute((ctx) =>
-			ctx.scaffold("eas.json.template", "eas.json"),
+		cliSlots.initScaffolds.contribute(
+			(): ScaffoldSpec => ({
+				content: `${JSON.stringify(
+					{
+						cli: { version: `>= ${EAS_CLI_FLOOR}`, appVersionSource: "remote" },
+						build: DEFAULT_EAS_BUILD,
+						submit: { production: {} },
+					},
+					null,
+					"\t",
+				)}\n`,
+				target: "eas.json",
+				plugin: SOURCE,
+			}),
 		),
 
 		// The scaffolded native API client: docs/architecture/plugins/expo.md, "API client".

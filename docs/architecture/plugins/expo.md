@@ -64,7 +64,10 @@ as a string from structured specs (`metroConfigImports`, `metroPluginCalls`), be
 
 The root files are the consumer's: the `metro.config.js` and `app.config.ts` shims re-export from
 `.stack/`, and `babel.config.cjs` and `eas.json` are real consumer-edited files
-([the root files](../../../plugins/expo/guide/options.md#the-root-files)).
+([the root files](../../../plugins/expo/guide/options.md#the-root-files)). `eas.json` is written from
+code, not a template: its build profiles are `DEFAULT_EAS_BUILD` (whose keys are the default
+`easProfiles`) and its `cli.version` floor is `EAS_CLI_FLOOR`, which the `eas-cli` devDependency
+shares.
 
 ### Config files are .cjs
 
