@@ -14,14 +14,13 @@ import { useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
+import { NOOP } from "../../lib/noop";
 import { player, usePlayer, usePlayerTime } from "../../lib/player";
 import { Press } from "../../lib/press";
 import { Button } from "../button";
 import { PictureTile } from "../image/base";
 import { Sheet } from "../sheet";
 import { SliderBase } from "../slider/base";
-
-const NOOP = () => {};
 
 // The dock is one bar above the tab bar, which keeps the home indicator clear:
 // the picture and the name (a press on them opens the full player), play or

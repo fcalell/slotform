@@ -51,6 +51,15 @@ const TAB_LABEL = "max-w-full";
 // A tab bar holds five tabs at most: past five places, four and More.
 const TAB_SPACE = 5;
 
+// The places the tab bar draws as tabs, and the rest, which the More page holds.
+function tabsOf(places: readonly PlaceSpec[]) {
+	if (places.length <= TAB_SPACE) return { shown: places, rest: [] };
+	return {
+		shown: places.slice(0, TAB_SPACE - 1),
+		rest: places.slice(TAB_SPACE - 1),
+	};
+}
+
 // The tab's glyph ink is its cell's content tone: the label repeats it, since
 // a native Text inherits none.
 const TAB_INK: Record<PlaceTabState, ContentTone> = {
@@ -92,7 +101,7 @@ export function Shell({
 	const name = more
 		? words.more
 		: places.find((spec) => spec.route === route)?.label;
-	const rest = places.length > TAB_SPACE ? places.slice(TAB_SPACE - 1) : [];
+	const split = useMemo(() => tabsOf(places), [places]);
 	// A place that is a spot on its page (`#activity`) leads nowhere from an
 	// address nothing serves, so home is the first place that is a route.
 	const first = places.find((spec) => isRoute(spec.route));
@@ -104,7 +113,7 @@ export function Shell({
 			<>
 				{foot}
 				<TabBar
-					places={places}
+					{...split}
 					route={route}
 					more={more}
 					onMore={() => setMoreAt(pathname)}
@@ -112,7 +121,7 @@ export function Shell({
 				/>
 			</>
 		),
-		[places, route, pathname, more, foot],
+		[split, route, pathname, more, foot],
 	);
 	return (
 		<ContainerHost>
@@ -129,7 +138,7 @@ export function Shell({
 									<PlaceName.Provider value={name}>
 										<Panes>
 											{more ? (
-												<MorePage places={rest} groups={groups} />
+												<MorePage places={split.rest} groups={groups} />
 											) : (
 												children
 											)}
@@ -181,19 +190,21 @@ function MorePage({
 }
 
 // The places: glyph over label, the count a badge on the glyph's top-right
-// corner, its start at the glyph box's edge, on the bar's ground; past five
-// places, four and a More tab, selected while its page stands or the current
-// place is among the rest.
+// corner, its start at the glyph box's edge, on the bar's ground; then, with
+// places past the tabs, the More tab, selected while its page stands or the
+// current place is among the rest.
 // A tab holds its label ahead of its glyph and stacks them reversed, and
 // takes no label of its own, so it reads the label then the count.
 function TabBar({
-	places,
+	shown,
+	rest,
 	route,
 	more,
 	onMore,
 	onPlace,
 }: {
-	places: readonly PlaceSpec[];
+	shown: readonly PlaceSpec[];
+	rest: readonly PlaceSpec[];
 	route: string | undefined;
 	more: boolean;
 	onMore: () => void;
@@ -201,9 +212,6 @@ function TabBar({
 }) {
 	const insets = useSafeAreaInsets();
 	const words = useWords();
-	const fits = places.length <= TAB_SPACE;
-	const shown = fits ? places : places.slice(0, TAB_SPACE - 1);
-	const rest = fits ? [] : places.slice(TAB_SPACE - 1);
 	return (
 		<View
 			role="navigation"

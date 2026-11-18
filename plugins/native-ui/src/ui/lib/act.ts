@@ -11,8 +11,6 @@ import type { ActSheetProps } from "../components/sheet";
 import { navigate, open } from "./navigate";
 import { toast } from "./toast";
 
-export type { ActSheetProps };
-
 /** A sheet for an act's `sheet`, typed by the procedure its form submits: `P` is read off the form's `act`, so `onDone` hears that procedure's output and the fields are checked against its input. An act's region holds acts of different procedures, which a type cannot follow, so the sheet leaves here as the procedure-less `ActSheetProps` the region takes. */
 export function sheetOf<P extends ProcedureCall>(
 	sheet: ActSheetProps<P>,
@@ -42,7 +40,7 @@ export type Sheeted<T> = T extends readonly (infer E)[]
 		: T;
 
 /** The wiring an act carries beside its `onAct`, which a host hands to the control that draws it. */
-export interface Wiring {
+interface Wiring {
 	confirm?: Decision;
 	done?: string;
 	to?: string;

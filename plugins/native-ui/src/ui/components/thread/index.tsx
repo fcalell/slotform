@@ -39,7 +39,7 @@ import { cn } from "../../lib/cn";
 import { FootReturn, useFootRegion } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
 import { FILL, Lifted, List, type ListRef } from "../../lib/hosts";
-import { FadingView, streamIn } from "../../lib/motion";
+import { FadingView, riseIn } from "../../lib/motion";
 import { FrameBody, FrameLine, StateLine } from "../../lib/read";
 import { MessageBase } from "../message/base";
 import { MessageInput, type MessageInputProps } from "../message-input";
@@ -217,7 +217,9 @@ function ReplyTurn<T>(props: {
 	return (
 		<View className={THREAD}>
 			{form === "waiting" ? (
-				<FadingView entering={begun.has("replying") ? streamIn() : undefined}>
+				<FadingView
+					entering={begun.has("replying") ? riseIn("base") : undefined}
+				>
 					<WaitingReply />
 				</FadingView>
 			) : null}
@@ -385,7 +387,9 @@ function Log<T>(props: {
 				keyExtractor={(child) => String(child.key)}
 				renderItem={({ item }) => (
 					<FadingView
-						entering={arrived.has(String(item.key)) ? streamIn() : undefined}
+						entering={
+							arrived.has(String(item.key)) ? riseIn("base") : undefined
+						}
 					>
 						{item}
 					</FadingView>

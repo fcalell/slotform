@@ -813,8 +813,8 @@ your own to a fill, a figure or a mark, and every rung follows the system's redu
 A push and a pop are the consumer's `Stack` (the expo guide's root layout draws one, its place
 screens with no animation of their own); a place's root fades in on `fast` as it mounts
 (`placeIn`). A message that
-arrives at the end of a log rises a `gap` as it fades in on `base` (`streamIn`), the Latest act
-rising in on `fast` (`latestIn`) and falling out (`latestOut`).
+arrives at the end of a log rises a `gap` as it fades in on `base` (`riseIn("base")`), the Latest act
+rising in on `fast` (`riseIn("fast")`) and falling out (`sinkOut("fast")`).
 
 What a finger carries follows it 1:1, with no easing, and only its release eases. A `Toast` follows
 a swipe toward the inline end (`useSwipe` in `lib/follow`, a pan from `react-native-gesture-handler`

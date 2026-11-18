@@ -50,8 +50,8 @@ export function FilterChip({ filter }: { filter: FilterProp }) {
 	);
 }
 
-// The one act a toolbar of three or more filters draws, "Filters" and the
-// count of those set: it opens the filters as labelled picks in a bottom
+// The one act a toolbar's filters fold behind, "Filters" and the count of
+// those set: it opens the filters as labelled picks in a bottom
 // sheet, each applying at once as the viewer picks, "Clear filters" at its end
 // while any is set. Outside the package's exports.
 export function FiltersAct(props: {
@@ -67,7 +67,6 @@ export function FiltersAct(props: {
 				icon="ListFilter"
 				label={words.filters}
 				count={props.set > 0 ? props.set : undefined}
-				pending={false}
 				onAct={() => setOpen(true)}
 			/>
 			<Sheet open={open} onClose={() => setOpen(false)} title={words.filters}>

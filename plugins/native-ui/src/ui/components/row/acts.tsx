@@ -13,11 +13,10 @@ import { IconButtonBase } from "../../atoms/button/glyph";
 import type { Act, IconAct, MenuEntry } from "../../lib/act";
 import { asIconAct, wiringOf } from "../../lib/act";
 import { FadingText, flowIn } from "../../lib/motion";
+import { NOOP } from "../../lib/noop";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
 import { MenuBase } from "../menu/base";
-
-const NOOP = () => {};
 
 // A blocked act's reason draws on the row's own line, so the act keeps its
 // place; the act is handed the host.

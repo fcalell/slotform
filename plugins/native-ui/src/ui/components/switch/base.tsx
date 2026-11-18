@@ -3,15 +3,13 @@ import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { switchThumb, switchTrack } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { Pressable } from "react-native";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
-import { withUniwind } from "uniwind";
+import { useAnimatedStyle } from "react-native-reanimated";
 import { useHeldDraft } from "../../lib/act";
 import { cn } from "../../lib/cn";
-import { tokenPx } from "../../lib/container";
-import { usePress, useToggle } from "../../lib/motion";
+import { useTokenPx } from "../../lib/container";
+import { FadingView, usePress, useToggle } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { Wash } from "../../lib/press";
-import { useCSSVariable } from "../../lib/theme";
 import type { SwitchProps } from "./index";
 
 // The press draws the hover fill: a toggle has no press step. It is an overlay
@@ -20,9 +18,6 @@ const PRESSED = {
 	off: "rounded-full bg-switch-off-hover",
 	on: "rounded-full bg-toggle-on-hover",
 };
-
-// The thumb travels by transform over `fast`, in and out.
-const Thumb = withUniwind(Animated.View);
 
 // The track and thumb every Switch renders, on the `draft` its host holds: a
 // field hosts the draft of its switch and draws a rejection in its own line.
@@ -49,8 +44,9 @@ export function SwitchBase({
 	const on = draft.value && !absent;
 	const state = on ? "on" : "off";
 	const press = usePress();
-	// The knob travels its own width, the meta icon (`SWITCH_THUMB`).
-	const travel = tokenPx(useCSSVariable("--spacing-icon-meta"));
+	// The knob travels its own width, the meta icon (`SWITCH_THUMB`), by
+	// transform over `fast`, in and out.
+	const travel = useTokenPx("--spacing-icon-meta");
 	const slide = useToggle(on);
 	const thumb = useAnimatedStyle(() => ({
 		transform: [{ translateX: slide.value * travel }],
@@ -81,7 +77,7 @@ export function SwitchBase({
 				{disabled || painted ? null : (
 					<Wash className={PRESSED[state]} style={press.wash} />
 				)}
-				<Thumb
+				<FadingView
 					className={cn(
 						switchThumb({ state }),
 						disabled && "bg-ink-disabled",

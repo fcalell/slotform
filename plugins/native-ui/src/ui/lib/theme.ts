@@ -4,7 +4,7 @@ export { useCSSVariable };
 
 // The active theme name accepted by `Uniwind.setTheme`. The generated
 // `uniwind-types.d.ts` pins it to exactly `light` / `dark` / `system`.
-export type ThemeName = Parameters<typeof Uniwind.setTheme>[0];
+type ThemeName = Parameters<typeof Uniwind.setTheme>[0];
 
 // Switch the active design-system theme: docs/architecture/plugins/native-ui.md, "Theme startup".
 export function setTheme(name: ThemeName): void {

@@ -9,10 +9,9 @@ import { useTokenColor } from "./theme";
 // package lacks a name ui-core's `lucide` carries.
 export const GLYPHS: Record<IconName, lucide.LucideIcon> = lucide;
 
-// The glyphs stack draws on its own (back, close, more, a tick, a ring), in
-// a content tone resolved against the active theme. Sized to the `icon` role
-// (`--spacing-icon`), the body text's icon, unless the caller gives a size.
-
+// A Lucide glyph in a content tone resolved against the active theme, sized to
+// the `icon` role (`--spacing-icon`), the body text's icon, unless the caller
+// gives a size: every `Icon` and the glyphs stack draws on its own.
 export function Glyph({
 	icon: Icon,
 	tone = "ink-body",

@@ -188,7 +188,7 @@ it (the banner, the place, the foot), since the container, the column and `main`
 
 A message that arrives at the end of a log after the first draw (the viewer's own or another's)
 rises a `pair` as it fades in on `base` `out`, and pushes nothing but the end of the log, which
-follows it. The web plays `stream-in`; the phone rises it in Reanimated (`streamIn`) from a `pair`
+follows it. The web plays `stream-in`; the phone rises it in Reanimated (`riseIn("base")`) from a `pair`
 below its place. The act back to the newest message fades in rising a `pair` on `fast` `out` as
 the reader scrolls away (its starting style), and leaves on `fast` `in` the same way back
 (`data-leaving`); it stays mounted until it has gone.
@@ -205,7 +205,7 @@ curve.
 
 native-ui's `lib/motion` is the contract in Reanimated: one of the three curves, and a rung's
 duration on a curve, read from the live `tuned` record at the call, so the tuning page's change
-reaches the next animation played. Each entering animation (`flowIn`, `streamIn`, the place fade, the
+reaches the next animation played. Each entering animation (`flowIn`, `riseIn`, the place fade, the
 checkbox mark) is built where it mounts, so a tuned rung is the next one's.
 
 ## Judging motion
@@ -226,6 +226,6 @@ design critique's motion pass is the run with motion on.
 - `packages/ui-core/src/roll.ts`: how a changing figure moves.
 - `packages/ui-core/src/scramble.ts`: the scramble and decode.
 - `plugins/react-ui/src/node/theme.ts`: the web's keyframe animation tokens.
-- `plugins/native-ui/src/ui/lib/motion.ts`: the contract in Reanimated (`usePress`, `flowIn`, `streamIn`, the fills).
+- `plugins/native-ui/src/ui/lib/motion.ts`: the contract in Reanimated (`usePress`, `flowIn`, `riseIn`, `sinkOut`, the fills).
 - `plugins/native-ui/src/ui/atoms/spinner/index.tsx`: the phone's spinner and busy glyph.
 - `apps/phone/src/app/motion.tsx`: the phone's tuning page.

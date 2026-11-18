@@ -15,9 +15,8 @@ import { useContext, useRef, useState } from "react";
 import { PanResponder, Text as RNText, View } from "react-native";
 import { useResolveClassNames } from "uniwind";
 import { cn } from "../../lib/cn";
-import { tokenPx } from "../../lib/container";
+import { useTokenPx } from "../../lib/container";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
-import { useCSSVariable } from "../../lib/theme";
 import type { SliderProps } from "./index";
 
 /** The label, value and track every Slider renders, on the `draft` its host holds: a field hosts the draft of its slider and draws a rejection in its own line. Painted, the label stands and the value and the track are filled, at the same height. Outside the package's exports. */
@@ -55,15 +54,14 @@ export function SliderBase({
 	// above and below, reaching over the gap and the inset and taking no room.
 	const slop = Math.max(
 		0,
-		(tokenPx(useCSSVariable("--spacing-target")) -
-			tokenPx(useCSSVariable("--spacing-line-body"))) /
-			2,
+		(useTokenPx("--spacing-target") - useTokenPx("--spacing-line-body")) / 2,
 	);
 	const quantum = step ?? 1;
 	const reached = useRef<number>(undefined);
 
+	// The steps count from `min`; `raw` is never under it.
 	function settle(raw: number): number {
-		return Math.min(max, Math.max(min, Math.round(raw / quantum) * quantum));
+		return Math.min(max, min + Math.round((raw - min) / quantum) * quantum);
 	}
 
 	// The thumb sits in the row between the fill and the rest, so its centre

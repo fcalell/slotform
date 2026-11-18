@@ -1,14 +1,14 @@
 import { memo } from "react";
-import { ToastEntry, useToasts } from "../../lib/toast";
+import { type ToastEntry, ToastId, useToasts } from "../../lib/toast";
 import { Toast } from "./index";
 
 // A queued toast, which renders again only when its own entry changes: a
 // second toast raised leaves the first as it is.
 const Queued = memo(function Queued({ entry }: { entry: ToastEntry }) {
 	return (
-		<ToastEntry.Provider value={entry.id}>
+		<ToastId.Provider value={entry.id}>
 			<Toast sentence={entry.sentence} tone={entry.tone} act={entry.act} />
-		</ToastEntry.Provider>
+		</ToastId.Provider>
 	);
 });
 

@@ -7,13 +7,16 @@ test("a hyphen that leads a word binds to it", () => {
 	assert.equal(codeBound("a - b"), "a - b");
 });
 
-test("a URL breaks after its separators, never inside a run of them", () => {
-	const out = codeWhole("https://app.example.com/auth/webauthn-3");
-	assert.ok(out.includes("//\u200Bapp"));
-	assert.ok(out.includes("/\u200Bauth/\u200Bwebauthn"));
-	assert.ok(!out.includes("/\u200B/"));
+test("a URL breaks after each run of its separators, never inside one", () => {
 	// A hyphen inside a word is the platform's own: "webauthn-3" is untouched.
-	assert.ok(out.endsWith("webauthn-3"));
+	assert.equal(
+		codeWhole("https://a.io/auth/webauthn-3?x=1&y=2#top"),
+		"https://\u200Ba.io/\u200Bauth/\u200Bwebauthn-3?\u200Bx=\u200B1&\u200By=\u200B2#\u200Btop",
+	);
+});
+
+test("a path breaks after its `../` run, never before a space", () => {
+	assert.equal(codeWhole("../src/a / b"), "../\u200Bsrc/\u200Ba / b");
 });
 
 test("a flag's hyphen after a word is no leading one", () => {

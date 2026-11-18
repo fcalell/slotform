@@ -1,4 +1,4 @@
-import { timings } from "@fcalell/ui-core/paint";
+import { tuned } from "@fcalell/ui-core/paint";
 import {
 	type Frame,
 	FrameHolds,
@@ -46,7 +46,7 @@ export function FailedMark({ label }: { label?: string }) {
 
 // What a failed row draws at its end: docs/architecture/ui-core/reads.md, "What a frame draws". Pressing the row retries.
 export function RetryMark({ busy }: { busy: boolean }) {
-	const spinning = useShown(busy, timings.actDelay);
+	const spinning = useShown(busy, tuned.actDelay);
 	return (
 		<View pointerEvents="none" className={cn(ROW_RETRY, RETRY_MARK)}>
 			<Ink.Provider value="ink-meta">
@@ -98,8 +98,7 @@ export function FrameBody(props: {
 	noun?: string;
 	// The sentence a missing read says, in place of the noun's (a Pane's).
 	missing?: string;
-	// The empty shape stands in a hairline frame even for a sentence alone (a
-	// Section's).
+	// The body, drawn once the read is here.
 	children?: ReactNode;
 }) {
 	const { frame, fit, empty, noun, missing, children } = props;

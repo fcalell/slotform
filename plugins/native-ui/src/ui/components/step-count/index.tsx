@@ -22,9 +22,8 @@ interface StepCountProps extends Closed {
 	of: number;
 }
 
-// One segment per step at the meter's height, the steps up to the current one
-// in the meta ink and the later ones a wash, over "Step n of m" at meta. An
-// accessible view is one element, so its label is the sentence its words draw.
+// An accessible view is one element, so its label is the sentence its words
+// draw.
 export function StepCount({ at, of }: StepCountProps) {
 	const words = useWords();
 	const sentence = filled(words.stepOf, { at: String(at), of: String(of) });

@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
+import { NOOP } from "../../lib/noop";
 import { AvatarBase } from "../avatar/base";
 import { IconButtonBase } from "../button/glyph";
 import { Icon, IconBase } from "../icon";
@@ -19,7 +20,6 @@ const FIRST_LINE = "flex-row shrink-0 items-center h-line-body";
 // its padding, so a level's rail is unbroken from row to row. A press on it
 // falls through to the row's hit.
 const TREE = "flex-row shrink-0 self-stretch";
-const NOOP = () => {};
 
 /** A row of a tree Section: its depth (the roots 0) and, for a branch, whether its children are drawn and how to fold them. */
 export interface RowTree {

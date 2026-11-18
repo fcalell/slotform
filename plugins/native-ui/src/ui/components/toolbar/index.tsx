@@ -11,8 +11,6 @@ import { cn } from "../../lib/cn";
 import { blockIn, FadingView } from "../../lib/motion";
 import { Chip } from "../chip";
 import { Input } from "../input";
-import type { PickerMenuProps } from "../picker";
-import { HeldPicker } from "../picker/base";
 import { FilterChip, type FilterProp, FiltersAct } from "./filters";
 
 const ROW = "flex-row flex-wrap items-center";
@@ -41,9 +39,10 @@ export function Toolbar({
 	children,
 }: ToolbarProps) {
 	const words = useWords();
+	// The phone is touch.
 	const folded = filtersFold(filters.length, true);
 	const set = filters.filter(filterSet);
-	const applied = (folded ? set.length : 0) + (chips?.length ?? 0);
+	const applied = set.length + (chips?.length ?? 0);
 	return (
 		<View className={TOOLBAR}>
 			<View className={cn(TOOLBAR_ROW, ROW)}>
@@ -60,19 +59,7 @@ export function Toolbar({
 				) : null}
 				{filters.length > 0 || children ? (
 					<View className={cn(TOOLBAR_ROW, ROW)}>
-						{folded ? (
-							<FiltersAct filters={filters} set={set.length} />
-						) : (
-							filters.map((filter) => (
-								<HeldPicker
-									key={filter.label}
-									// A filter over `string` draws as a pick over `string | null`,
-									// whose `onChange` its own cannot take; the pick hands back only
-									// the values the filter offers.
-									{...(filter as PickerMenuProps<string | null>)}
-								/>
-							))
-						)}
+						{folded ? <FiltersAct filters={filters} set={set.length} /> : null}
 						{/* The strip names the controls in its acts: each reads its label as its name. */}
 						<FieldOwned.Provider value>{children}</FieldOwned.Provider>
 					</View>
@@ -84,11 +71,9 @@ export function Toolbar({
 					entering={blockIn()}
 					className={cn(TOOLBAR_CHIPS, ROW, CHIP_LINES)}
 				>
-					{folded
-						? set.map((filter) => (
-								<FilterChip key={filter.label} filter={filter} />
-							))
-						: null}
+					{set.map((filter) => (
+						<FilterChip key={filter.label} filter={filter} />
+					))}
 					{chips?.map((chip) => (
 						<Chip
 							key={`${chip.family}:${chip.label}`}

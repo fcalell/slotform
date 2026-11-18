@@ -1,5 +1,4 @@
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
@@ -16,7 +15,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { Icon } from "../../atoms/icon";
@@ -26,7 +25,7 @@ import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { useCopy } from "../../lib/copy";
 import { Ink } from "../../lib/ink";
-import { inertProps, Painted, PaintText } from "../../lib/paint";
+import { inertProps, PaintedLines, PaintText } from "../../lib/paint";
 import { toast } from "../../lib/toast";
 
 const BOX = "min-w-0 overflow-hidden";
@@ -168,14 +167,7 @@ export function Code({
 			)}
 		>
 			<PaintText painted={painted} className={text({ role: "code" })}>
-				{painted
-					? Array.from({ length: PAINT_ROWS }, (_, at) => (
-							<Fragment key={at}>
-								{at > 0 ? "\n" : null}
-								<Painted role="sentence" at={at} />
-							</Fragment>
-						))
-					: codeWhole(shown.join("\n"))}
+				{painted ? <PaintedLines /> : codeWhole(shown.join("\n"))}
 			</PaintText>
 		</View>
 	);

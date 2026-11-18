@@ -1,4 +1,5 @@
-import { position, release, SLOP } from "@fcalell/ui-core/follow";
+import { DRAG_DELAY_SLOP } from "@fcalell/ui-core/drag";
+import { position, release } from "@fcalell/ui-core/follow";
 import { I18nManager, useWindowDimensions } from "react-native";
 import { usePanGesture } from "react-native-gesture-handler";
 import {
@@ -25,8 +26,8 @@ export function useSwipe(onAway: () => void) {
 		// The decision is the pure follow's, which runs on the JS thread.
 		runOnJS: true,
 		// Along the line first: a vertical pan is the screen's.
-		activeOffsetX: [-SLOP, SLOP],
-		failOffsetY: [-SLOP, SLOP],
+		activeOffsetX: [-DRAG_DELAY_SLOP, DRAG_DELAY_SLOP],
+		failOffsetY: [-DRAG_DELAY_SLOP, DRAG_DELAY_SLOP],
 		onUpdate: (event) => {
 			x.value = position(event.translationX, away) * away;
 		},

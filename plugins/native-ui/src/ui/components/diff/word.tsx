@@ -1,4 +1,3 @@
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
@@ -9,10 +8,10 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { diffWords } from "diff";
-import { Fragment, type ReactNode, useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
 import { cn } from "../../lib/cn";
-import { inertProps, Painted, PaintText } from "../../lib/paint";
+import { inertProps, PaintedLines, PaintText } from "../../lib/paint";
 
 const BOX = "min-w-0 overflow-hidden";
 
@@ -80,12 +79,7 @@ export function WordDiff(props: {
 						painted
 						className={cn(text({ role: "body" }), PROSE_DIFF_TEXT)}
 					>
-						{Array.from({ length: PAINT_ROWS }, (_, at) => (
-							<Fragment key={at}>
-								{at > 0 ? "\n" : null}
-								<Painted role="sentence" at={at} />
-							</Fragment>
-						))}
+						<PaintedLines />
 					</PaintText>
 				</View>
 			</View>

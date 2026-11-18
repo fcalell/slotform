@@ -4,8 +4,9 @@ import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { ButtonLink } from "../../atoms/button/link";
-import { type ActSheetProps, useAct } from "../../lib/act";
+import { useAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
+import type { ActSheetProps } from "../sheet";
 import { ActSheet } from "../sheet/act";
 import { ButtonBase } from "./base";
 

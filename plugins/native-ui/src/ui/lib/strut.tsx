@@ -1,8 +1,7 @@
 import { lineBox } from "@fcalell/ui-core/variants";
 import { Text as RNText } from "react-native";
 
-// The zero-width space the strut draws: a line with no glyph in it.
-const ZERO_WIDTH = "​";
+const ZERO_WIDTH = "\u200B";
 
 type StrutRole = NonNullable<
 	NonNullable<Parameters<typeof lineBox>[0]>["role"]

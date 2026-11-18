@@ -61,6 +61,7 @@ import { FieldError } from "../../lib/field";
 import { blockIn, FadingText, FadingView, flowIn } from "../../lib/motion";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
+import { HIT } from "../../lib/press";
 import { FailedMark, RetryMark } from "../../lib/read";
 import { HeldInput } from "../input/base";
 import { MenuBase } from "../menu/base";
@@ -99,9 +100,8 @@ const LINE = "flex-row min-w-0";
 const LINE_WRAPS = "flex-wrap gap-y-gap";
 const TEXT_READS = "basis-measure-short";
 const END_WRAPS = "ms-auto";
-// The hit covers the row under its text, its pick and its acts, and takes the
-// press wash; the text lets a press through to it.
-const HIT = "absolute inset-0 active:bg-wash-press";
+// The hit (`HIT`) covers the row under its text, its pick and its acts; the
+// text lets a press through to it.
 // A tree's child washes from its rail (`RailWash`), the indent before it its
 // parent's ground: its selected wash a layer under its parts, and its press
 // wash a layer in its hit, which still covers the row.

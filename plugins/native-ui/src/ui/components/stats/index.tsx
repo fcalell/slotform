@@ -25,6 +25,7 @@ import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { navigate, useWarm } from "../../lib/navigate";
 import { inertProps } from "../../lib/paint";
+import { HIT } from "../../lib/press";
 import { FailedMark, RetryMark } from "../../lib/read";
 import { Decoded } from "../../lib/region";
 
@@ -34,7 +35,6 @@ const CLIP = "overflow-hidden";
 const CELLS = "flex-row flex-wrap";
 // Two to a row.
 const CELL = "min-w-0 grow basis-1/2";
-const HIT = "absolute inset-0 active:bg-wash-press";
 // The label and, where the cell opens, its chevron at the end of the label's
 // first line.
 const LABEL_LINE = "flex-row items-start gap-gap";
@@ -178,7 +178,7 @@ export function Stats({ items }: StatsProps) {
 							/>
 						</View>
 					) : (
-						<Cell key={item.label} item={item} at={at} />
+						<Cell key={at} item={item} at={at} />
 					),
 				)}
 			</View>

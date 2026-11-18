@@ -5,7 +5,7 @@ import {
 	setAudioModeAsync,
 } from "expo-audio";
 
-const NOOP = () => {};
+import { NOOP } from "../lib/noop";
 
 /**
  * `expo-audio` as the player's sound: one audio player, made when the first track loads and kept, so the sound goes on through navigation, in the background and on the lock screen (play, pause and seek; `expo-audio` does not report the system's Next and Previous). Pass it to `connectOutput` once: `connectOutput(audioOutput())`. The app adds `expo-audio` and its config plugin itself.

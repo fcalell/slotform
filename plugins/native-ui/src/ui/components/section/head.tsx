@@ -28,15 +28,13 @@ import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { useTokenPx } from "../../lib/container";
 import { Ink } from "../../lib/ink";
+import { NOOP } from "../../lib/noop";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { BusyMark, FrameLine } from "../../lib/read";
 import { Button } from "../button";
 import { Count } from "../count";
 import { MenuBase } from "../menu/base";
 import { Text } from "../text";
-
-// An ended act's press: it is blocked, so its reason stands instead.
-const NOOP = () => {};
 
 const HEAD_ROW = "flex-row items-center";
 // The title keeps its floor (`PAGE_TITLE_FLOOR`) and wraps whole, and the act

@@ -1,9 +1,8 @@
-import { scrambled, tuned } from "@fcalell/ui-core/paint";
+import { tuned } from "@fcalell/ui-core/paint";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Text as RNText, type TextProps } from "react-native";
-import { reducedNow } from "./motion";
 import { clipWhen, Painted, PaintText } from "./paint";
-import { Decoding } from "./scramble";
+import { Decoding, scramblesNow } from "./scramble";
 import { Roll } from "./swap";
 
 // A figure or id of a read, in both its forms: docs/architecture/ui-core/reads.md, "Waiting paint".
@@ -32,7 +31,7 @@ export function Decoded(props: {
 			since.current !== undefined &&
 			Date.now() - since.current >= tuned.waitDelay;
 		since.current = undefined;
-		if (waited && scrambled(role) && !reducedNow()) setDecoding(true);
+		if (waited && scramblesNow(role)) setDecoding(true);
 	}, [painted, role]);
 	const done = useCallback(() => setDecoding(false), []);
 	if (painted)

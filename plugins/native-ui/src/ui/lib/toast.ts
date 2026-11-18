@@ -41,4 +41,4 @@ export function useToasts(): ToastEntry[] {
 
 // The queued toast a `Toast` stands for: the layer hands each its id, which it
 // dismisses itself by.
-export const ToastEntry = createContext<number | undefined>(undefined);
+export const ToastId = createContext<number | undefined>(undefined);

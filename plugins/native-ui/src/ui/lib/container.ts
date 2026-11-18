@@ -54,7 +54,7 @@ export function useToastBox() {
 export const PlaceRoute = createContext<Route | undefined>(undefined);
 
 // The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
-export const BackRoute = createContext<Route | false | undefined>(undefined);
+export const BackRoute = createContext<Route | undefined>(undefined);
 
 // The name of the Shell's current place (the tab's label, "More" on the More
 // page), which titles the place's Pane and stands in a record's bar.
@@ -81,10 +81,9 @@ export function useFootRegion(logged: boolean) {
 	const [height, setHeight] = useState(0);
 	const onLayout = (event: LayoutChangeEvent) =>
 		setHeight(event.nativeEvent.layout.height);
-	const acts = tokenPx(useCSSVariable("--spacing-gap"));
-	const hairline = tokenPx(useCSSVariable("--spacing-hairline"));
-	const logFloor =
-		DOCKED_LOG_FLOOR_ROWS * tokenPx(useCSSVariable("--spacing-row"));
+	const acts = useTokenPx("--spacing-gap");
+	const hairline = useTokenPx("--spacing-hairline");
+	const logFloor = DOCKED_LOG_FLOOR_ROWS * useTokenPx("--spacing-row");
 	const value = useMemo(
 		() => ({
 			height,

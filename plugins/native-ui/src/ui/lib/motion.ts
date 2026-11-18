@@ -148,8 +148,9 @@ export const blockIn = () =>
 	FadeIn.duration(tuned.base)
 		.easing(curve("out"))
 		.reduceMotion(ReduceMotion.System);
-// The views that take `flowIn` and `blockIn` as their `entering`, with a
-// `className` as any view has.
+// The Animated text and view with a `className` as any view has (Animated passes
+// through uniwind unwrapped): what takes `flowIn` and `blockIn` as its
+// `entering`, and every other animated part.
 export const FadingText = withUniwind(Animated.Text);
 export const FadingView = withUniwind(Animated.View);
 
@@ -206,30 +207,22 @@ export const placeIn = () =>
 		.easing(curve("out"))
 		.reduceMotion(ReduceMotion.System);
 
-// A message that arrives at the end of a log rises as it fades in: docs/architecture/ui-core/motion.md, "Navigate and stream".
-// It starts a pair below its place.
+// What arrives on its own rises a pair as it fades in, on the `out` curve, and
+// leaves sinking it as it fades out, on the `in` curve, over `rung`: a message
+// at the end of a log (`base`), the act back to the newest message (`fast`), a
+// toast (`base`). docs/architecture/ui-core/motion.md, "Navigate and stream".
 const PAIR = SPACE_BASE * SPACING_RATIO.touch.gap;
-export const streamIn = () =>
+export const riseIn = (rung: Duration) =>
 	new Keyframe({
 		0: { opacity: 0, transform: [{ translateY: PAIR }] },
 		100: { opacity: 1, transform: [{ translateY: 0 }], easing: curve("out") },
 	})
-		.duration(tuned.base)
+		.duration(tuned[rung])
 		.reduceMotion(ReduceMotion.System);
-
-// The act back to the newest message rises in on `fast` `out` and leaves
-// falling back on `fast` `in`.
-export const latestIn = () =>
-	new Keyframe({
-		0: { opacity: 0, transform: [{ translateY: PAIR }] },
-		100: { opacity: 1, transform: [{ translateY: 0 }], easing: curve("out") },
-	})
-		.duration(tuned.fast)
-		.reduceMotion(ReduceMotion.System);
-export const latestOut = () =>
+export const sinkOut = (rung: Duration) =>
 	new Keyframe({
 		0: { opacity: 1, transform: [{ translateY: 0 }] },
 		100: { opacity: 0, transform: [{ translateY: PAIR }], easing: curve("in") },
 	})
-		.duration(tuned.fast)
+		.duration(tuned[rung])
 		.reduceMotion(ReduceMotion.System);

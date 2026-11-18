@@ -1,17 +1,22 @@
-import { type PaintRole, paintText, timings } from "@fcalell/ui-core/paint";
+import {
+	PAINT_ROWS,
+	type PaintRole,
+	paintText,
+	tuned,
+} from "@fcalell/ui-core/paint";
 import { paint } from "@fcalell/ui-core/variants";
-import { type ComponentProps, useEffect, useState } from "react";
+import { type ComponentProps, Fragment, useEffect, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import Animated from "react-native-reanimated";
 import { withUniwind } from "uniwind";
-import { usePaintStyle } from "./motion";
+import { FadingText, FadingView, usePaintStyle } from "./motion";
 import { ScrambledText, scramblesNow } from "./scramble";
 
 /**
  * Whether a paint shows yet, for what is not painted but follows the same delay (a busy mark):
  * docs/architecture/ui-core/reads.md, "Timing".
  */
-export function useShown(on = true, delay = timings.waitDelay): boolean {
+export function useShown(on = true, delay = tuned.waitDelay): boolean {
 	const [shown, setShown] = useState(false);
 	useEffect(() => {
 		if (!on) {
@@ -25,11 +30,9 @@ export function useShown(on = true, delay = timings.waitDelay): boolean {
 }
 
 // A painted part is its host with the fill and the breath on its opacity: docs/architecture/ui-core/reads.md, "One breath".
-const BreathingView = withUniwind(Animated.View);
 const BreathingPressable = withUniwind(
 	Animated.createAnimatedComponent(Pressable),
 );
-const BreathingText = withUniwind(Animated.Text);
 
 type Painting = { painted?: boolean };
 
@@ -48,7 +51,7 @@ export function PaintView({
 
 function Breathing({ style, ...props }: ComponentProps<typeof View>) {
 	const breath = usePaintStyle();
-	return <BreathingView {...props} style={[style, breath]} />;
+	return <FadingView {...props} style={[style, breath]} />;
 }
 
 /** A `Pressable` that, while `painted`, fades in after the read's delay and breathes. */
@@ -93,7 +96,7 @@ function TextBreathing({
 	...props
 }: ComponentProps<typeof RNText> & { breathes: boolean }) {
 	const breath = usePaintStyle(breathes);
-	return <BreathingText {...props} style={[style, breath]} />;
+	return <FadingText {...props} style={[style, breath]} />;
 }
 
 /** A text region's paint, set inside the region's own `PaintText`: each line a bar, or, where the theme scrambles the region's kind (`theme.loading`) and the region is one line, the scramble in the text's own ink. */
@@ -102,6 +105,16 @@ export function Painted({ role, at = 0 }: { role: PaintRole; at?: number }) {
 	return (
 		<RNText className={paint({ kind: "glyphs" })}>{paintText(role, at)}</RNText>
 	);
+}
+
+/** A text's paint of `PAINT_ROWS` lines of sentence filler, set inside the text's own `PaintText`. */
+export function PaintedLines() {
+	return Array.from({ length: PAINT_ROWS }, (_, at) => (
+		<Fragment key={at}>
+			{at > 0 ? "\n" : null}
+			<Painted role="sentence" at={at} />
+		</Fragment>
+	));
 }
 
 /**

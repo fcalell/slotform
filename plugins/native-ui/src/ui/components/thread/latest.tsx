@@ -1,7 +1,7 @@
 import { useWords } from "@fcalell/ui-core/react/words";
 import { THREAD_LATEST } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { FadingView, latestIn, latestOut } from "../../lib/motion";
+import { FadingView, riseIn, sinkOut } from "../../lib/motion";
 import { Button } from "../button";
 
 // The layer covers the region over the docked foot, so the act centres on it
@@ -16,8 +16,8 @@ export function Latest({ onBack }: { onBack: (() => void) | null }) {
 	return (
 		<View pointerEvents="box-none" className={LAYER}>
 			<FadingView
-				entering={latestIn()}
-				exiting={latestOut()}
+				entering={riseIn("fast")}
+				exiting={sinkOut("fast")}
 				className={THREAD_LATEST}
 			>
 				<Button

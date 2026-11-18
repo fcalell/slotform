@@ -6,13 +6,12 @@ import { BackRoute, PlaceRoute } from "../../lib/container";
 import { EmptyBase, type EmptyFit } from "../../lib/empty";
 
 // The Back link of a Pane's read that answers not found: to the Pane's back,
-// else the place's route; none with neither, and none where the Pane's `back`
-// is `false`.
+// else the place's route; none with neither.
 function useBackAct(): LinkAct | undefined {
 	const words = useWords();
 	const pane = useContext(BackRoute);
 	const place = useContext(PlaceRoute);
-	const href = pane === false ? undefined : (pane ?? place);
+	const href = pane ?? place;
 	if (href === undefined) return undefined;
 	return { label: words.back, href };
 }

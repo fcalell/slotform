@@ -98,6 +98,7 @@ import { FILL } from "../../lib/hosts";
 import { Ink } from "../../lib/ink";
 import { MoreRow } from "../../lib/more";
 import { navigate, useWarm } from "../../lib/navigate";
+import { NOOP } from "../../lib/noop";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { FrameBody, FrameLine } from "../../lib/read";
 import { Chip } from "../chip";
@@ -137,7 +138,6 @@ const GLYPH = "shrink-0";
 const CELL = "flex-row items-center gap-gap min-w-0";
 const CELL_END = "justify-end";
 const VALUE = "shrink";
-const NOOP = () => {};
 // A Chip hugs its top edge in a row, so it stands centred in a region of its own.
 const CHIP = "shrink min-w-0";
 // An edit fills the cell it stands in.

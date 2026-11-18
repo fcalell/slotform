@@ -19,10 +19,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { withUniwind } from "uniwind";
 import { cn } from "../../lib/cn";
-import { useInk } from "../../lib/ink";
+import { useInkColor } from "../../lib/ink";
 import { useTuned } from "../../lib/motion";
 import { BusyGlyphs, busyScrambles } from "../../lib/scramble";
-import { useTokenColor } from "../../lib/theme";
 
 const LAYER = "absolute inset-0";
 
@@ -37,7 +36,7 @@ export function Spinner() {
 
 // The busy glyph where the theme scrambles its text: docs/architecture/ui-core/motion.md, "Spinner".
 function Glyphs() {
-	const color = useTokenColor(`--color-${useInk() ?? "ink-meta"}`);
+	const color = useInkColor();
 	return (
 		<Turning entering={FadeIn.duration(tuned.fast)} className="shrink-0">
 			<BusyGlyphs className={BUSY_GLYPHS} style={{ color }} />
@@ -46,7 +45,7 @@ function Glyphs() {
 }
 
 function Ring() {
-	const borderColor = useTokenColor(`--color-${useInk() ?? "ink-meta"}`);
+	const borderColor = useInkColor();
 	const loop = useTuned("loop");
 	const turn = useSharedValue(0);
 	useEffect(() => {

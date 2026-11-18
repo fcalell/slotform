@@ -29,6 +29,7 @@ import {
 	PaintText,
 	PaintView,
 } from "../../lib/paint";
+import { HIT } from "../../lib/press";
 import { FailedMark, RetryMark } from "../../lib/read";
 import { Decoded } from "../../lib/region";
 import { CountLinks } from "./count-links";
@@ -39,9 +40,6 @@ const STACK = "relative min-w-0";
 const FIGURE = "flex-row items-baseline";
 // The failure marks stand in the figure's place, a target tall.
 const FAILED_FIGURE = "flex-row items-center min-h-target";
-// A failed meter is one hit over all of it, after its content, taking the
-// press wash.
-const HIT = "absolute inset-0 active:bg-wash-press";
 const BAR = "relative";
 const TRACK = "overflow-hidden";
 const TICK = "absolute";
@@ -227,6 +225,7 @@ export function Meter({
 					{painted ? <Painted role="phrase" at={at} /> : line}
 				</PaintText>
 			) : null}
+			{/* A failed meter is one hit over all of it, after its content. */}
 			{held === "failed" ? (
 				<Pressable
 					accessibilityRole="button"

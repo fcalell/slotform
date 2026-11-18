@@ -6,17 +6,18 @@ import {
 } from "react-native";
 import type { AnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
-import { withUniwind } from "uniwind";
 import { cn } from "./cn";
-import { usePress } from "./motion";
+import { FadingView, usePress } from "./motion";
 import { PaintPressable } from "./paint";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const Overlay = withUniwind(Animated.View);
 
 // The overlay is the pressed look: it fills what it stands in and carries
 // that box's radius.
 const FILL = "absolute inset-0";
+
+// The hit of a row or a cell: it fills the box it stands in and takes the press wash.
+export const HIT = "absolute inset-0 active:bg-wash-press";
 
 /** The pressed look of a control: `className` is its fill and radius, `style` the opacity `usePress` gives it. For a control whose pressed look is a box inside the Pressable (a switch's track), not the Pressable itself. */
 export function Wash(props: {
@@ -24,7 +25,7 @@ export function Wash(props: {
 	style: AnimatedStyle<object>;
 }) {
 	return (
-		<Overlay
+		<FadingView
 			pointerEvents="none"
 			className={cn(FILL, props.className)}
 			style={props.style}
