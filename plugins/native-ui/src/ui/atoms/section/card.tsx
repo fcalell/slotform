@@ -1,8 +1,8 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { CARD } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
-import { cn } from "../../lib/cn";
 import { between } from "../../lib/group";
 import { blockIn, FadingView } from "../../lib/motion";
 

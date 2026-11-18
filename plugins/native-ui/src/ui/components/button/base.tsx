@@ -1,4 +1,5 @@
-import { timings } from "@fcalell/ui-core/paint";
+import { cn } from "@fcalell/ui-core/cn";
+import { tuned } from "@fcalell/ui-core/paint";
 import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import {
@@ -15,7 +16,6 @@ import { CountBase } from "../../atoms/count/base";
 import { Icon } from "../../atoms/icon";
 import { Spinner } from "../../atoms/spinner";
 import { useAct } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { ActInert } from "../../lib/form";
 import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";
@@ -129,7 +129,7 @@ export function ButtonBase({
 	// alone draws it under itself. The base makes the attempt whose mode `line` picks.
 	const acting = useAct(line && !host ? "line" : "toast");
 	const pending = given === true || acting.pending !== undefined;
-	const drawn = useShown(pending, timings.actDelay);
+	const drawn = useShown(pending, tuned.actDelay);
 	// Inert where it stands: the blocked look and no press, no reason.
 	const waiting = wait !== undefined && wait > 0;
 	const inert = (useContext(ActInert) || waiting) && !pending;

@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { switchThumb, switchTrack } from "@fcalell/ui-core/variants";
@@ -5,7 +6,6 @@ import { useContext } from "react";
 import { Pressable } from "react-native";
 import { useAnimatedStyle } from "react-native-reanimated";
 import { useHeldDraft } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { useTokenPx } from "../../lib/container";
 import { FadingView, usePress, useToggle } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";

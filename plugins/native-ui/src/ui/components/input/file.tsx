@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { accepts, fileSize, kindsOf, pickerTypes } from "@fcalell/ui-core/file";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { useTouched } from "@fcalell/ui-core/react/touched";
@@ -15,7 +16,6 @@ import * as DocumentPicker from "expo-document-picker";
 import { useContext, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
-import { cn } from "../../lib/cn";
 import { FieldError, useFieldName } from "../../lib/field";
 import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";

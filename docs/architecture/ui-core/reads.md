@@ -151,7 +151,7 @@ collection or leaf draws, painted or real; `more` says the drawn value is one pa
 ### Busy mark
 
 A frame's busy mark stands after its heading: a spinner while a read it holds refetches or retries,
-shown after `WAIT_DELAY` so a refetch the server answers at once draws nothing. Its ink is its place's,
+shown after `tuned.waitDelay` so a refetch the server answers at once draws nothing. Its ink is its place's,
 meta by default. A frame that holds no read and a frame with no heading draw none, and of sibling
 frames over one read only the first draws it, so one refetch stands as one mark.
 
@@ -182,7 +182,7 @@ frames over one read only the first draws it, so one refetch stands as one mark.
   enclosing frame holds that read, the label stays, the value region shows the failure mark and the
   retry icon, the line under reads `readFailed` ("This didn't load.") and a press retries. A read an
   enclosing frame holds draws nothing of its own there. A failed row's end draws the retry icon in its
-  own square, a spinner in its place once the retry has run `timings.actDelay`, so a retry the server
+  own square, a spinner in its place once the retry has run `tuned.actDelay`, so a retry the server
   answers at once never flashes one. A meter whose `value` or `bound` read ended stands empty (no
   share, no fill) in the same box.
 
@@ -248,19 +248,19 @@ item itself and never throws the page; the Table's rows go through it (`painting
 
 ### Timing
 
-- `WAIT_DELAY` is how long a read runs before its paint shows (400 ms): a read the local server
-  answers in a few milliseconds paints nothing. `ACT_DELAY` is how long an act runs before its pending
+- `tuned.waitDelay` is how long a read runs before its paint shows (400 ms): a read the local server
+  answers in a few milliseconds paints nothing. `tuned.actDelay` is how long an act runs before its pending
   look shows (300 ms), and `waitMin` how long a shown paint stays at least (0 ms). They are no
   consumer option, so an app has one rhythm for every paint; each is a motion knob
-  ([motion](motion.md)) whose default `tokens.ts` holds and the tuning bench moves live (`timings`
-  reads them).
+  ([motion](motion.md)) whose default `tokens.ts` holds and the tuning bench moves live (`tuned`
+  holds them).
 - A first load's data waits a little longer (`paintWait`) when it comes `elapsed` ms after the fetch
   began: nothing while the paint has not shown, else until the paint has stood for `waitMin`.
   `QueryProvider`'s `hold` takes it.
 - On the web a paint fades in after `--wait-delay` and then breathes on its fill's alpha. On the phone
   a painted part's opacity is the fade-in after `tuned.waitDelay` times the page's breath; the delay
   holds under reduced motion and the fade snaps. What follows the same delay without being painted (a
-  busy mark) asks whether a paint shows yet (`timings.waitDelay`, an act's `timings.actDelay`), one
+  busy mark) asks whether a paint shows yet (`tuned.waitDelay`, an act's `tuned.actDelay`), one
   timer only while painted.
 
 ### One breath

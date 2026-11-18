@@ -1,8 +1,8 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { CARD_BODY, CARD_PART } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 
 const BOX = "min-w-0";
 

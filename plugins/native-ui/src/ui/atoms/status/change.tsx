@@ -1,9 +1,9 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { ChangeKind } from "@fcalell/ui-core/descriptors";
 import { CHANGE_GLYPH } from "@fcalell/ui-core/list-state";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { changeContentTone, changeMark } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { IconBase } from "../icon";
 

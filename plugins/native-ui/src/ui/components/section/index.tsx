@@ -1,4 +1,5 @@
 import type { Offered } from "@fcalell/ui-core/acts";
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Band as BandData,
 	IconLinkAct,
@@ -36,7 +37,6 @@ import { View } from "react-native";
 import { SheetCard } from "../../atoms/section/card";
 import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { BodyAlone } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
 import { between } from "../../lib/group";

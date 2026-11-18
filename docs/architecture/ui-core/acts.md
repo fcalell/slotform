@@ -93,7 +93,7 @@ start. `pending` stands a pending bar in its place at its own height.
 
 ## Blocked and pending acts
 
-An act holds its own attempt. At the press it is inert; after `ACT_DELAY` ([paint](reads.md#paint))
+An act holds its own attempt. At the press it is inert; after `tuned.actDelay` ([paint](reads.md#paint))
 its glyph and label hide under the spinner and its name is kept; a rejection is a failed toast with
 Retry. A pending act keeps its rest look until the delay has run. `pending` is a host's state handed
 down: the host holds the attempt, so a press calls the handler as it is. `line` draws a rejection under

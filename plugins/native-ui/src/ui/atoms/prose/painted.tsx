@@ -1,6 +1,6 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { PROSE, PROSE_BLOCKS, text } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { cn } from "../../lib/cn";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 
 // The loaded column's box (Prose's own).

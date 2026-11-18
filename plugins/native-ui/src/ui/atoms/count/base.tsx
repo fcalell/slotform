@@ -1,5 +1,5 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { COUNT, COUNT_LABEL } from "@fcalell/ui-core/variants";
-import { cn } from "../../lib/cn";
 import { useInkColor } from "../../lib/ink";
 import { Decoded } from "../../lib/region";
 

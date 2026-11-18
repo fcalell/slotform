@@ -1,4 +1,5 @@
 import { drew, isThenable } from "@fcalell/ui-core/acts";
+import { cn } from "@fcalell/ui-core/cn";
 import { useAttempt } from "@fcalell/ui-core/react/acts";
 import { usePort } from "@fcalell/ui-core/react/port";
 import { useTouched } from "@fcalell/ui-core/react/touched";
@@ -18,7 +19,6 @@ import {
 	View,
 } from "react-native";
 import { Spinner } from "../../atoms/spinner";
-import { cn } from "../../lib/cn";
 import {
 	FieldError,
 	FieldFocus,

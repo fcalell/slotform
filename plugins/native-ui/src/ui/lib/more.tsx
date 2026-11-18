@@ -1,10 +1,11 @@
-import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
+import { cn } from "@fcalell/ui-core/cn";
+import { usePort } from "@fcalell/ui-core/react/port";
+import { useWindowMore } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { fetchesMore, type More, type Read } from "@fcalell/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { View } from "react-native";
 import { ButtonBase } from "../components/button/base";
-import { cn } from "./cn";
 import { StateLine } from "./read";
 
 // The room under a row of the viewer's own pressing, as a state line carries.
@@ -37,7 +38,7 @@ interface MoreProps {
 }
 
 function PagesMoreRow(props: MoreProps) {
-	return <MoreLine {...props} more={useMore(props.read)} />;
+	return <MoreLine {...props} more={usePort().useNextPage(props.read)} />;
 }
 
 function WindowMoreRow(props: MoreProps) {

@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints } from "@fcalell/ui-core/read";
@@ -18,7 +19,6 @@ import {
 	View,
 } from "react-native";
 import { Icon } from "../../atoms/icon";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 import { Button } from "../button";

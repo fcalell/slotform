@@ -1,4 +1,5 @@
 import { TOAST_GLYPHS } from "@fcalell/ui-core/banner";
+import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
 import { tuned } from "@fcalell/ui-core/paint";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -13,7 +14,6 @@ import { Icon } from "../../atoms/icon";
 import type { Act } from "../../lib/act";
 import { asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { useSwipe } from "../../lib/follow";
 import { Ink } from "../../lib/ink";
 import { curve, FadingView, riseIn, sinkOut } from "../../lib/motion";

@@ -1,12 +1,12 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconName } from "@fcalell/ui-core/descriptors";
-import { timings } from "@fcalell/ui-core/paint";
+import { tuned } from "@fcalell/ui-core/paint";
 import {
 	buttonContentTone,
 	ICON_BUTTON_PRIMARY,
 	type IconButtonFit,
 	iconButton,
 } from "@fcalell/ui-core/variants";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
@@ -28,7 +28,7 @@ const OPEN = "bg-wash-press";
 // press wash its ground (an open trigger's too); the glyph is in the meta
 // ink, the body ink under the press and while open, and the disabled ink in a
 // disabled place, which takes no wash. `pending` is the act running: inert at
-// once, its glyph swapped for the spinner after `ACT_DELAY`. `painted` is the
+// once, its glyph swapped for the spinner after `tuned.actDelay`. `painted` is the
 // act while its data is not here: its box filled, no glyph, inert.
 // Outside the package's exports.
 export function IconButtonBase({
@@ -59,7 +59,7 @@ export function IconButtonBase({
 	// The act the bar is for: the accent fill.
 	primary?: boolean;
 }) {
-	const drawn = useShown(pending, timings.actDelay);
+	const drawn = useShown(pending, tuned.actDelay);
 	return (
 		<Press
 			painted={painted}

@@ -1,6 +1,7 @@
 import { type Offered, offered } from "@fcalell/ui-core/acts";
 import { GLYPHS } from "@fcalell/ui-core/banner";
 import { timeLeft } from "@fcalell/ui-core/clock";
+import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import { usePending } from "@fcalell/ui-core/react/clock";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
@@ -21,7 +22,6 @@ import { Icon, IconBase } from "../../atoms/icon";
 import { Spinner } from "../../atoms/spinner";
 import { type Act, asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";

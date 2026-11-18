@@ -1090,7 +1090,7 @@ export function sorted(
 	keyed.sort((a, b) => {
 		const [x, y] = [a.key, b.key];
 		if (x === "" || y === "") return x === y ? 0 : x === "" ? 1 : -1;
-		if (isStatusCell(a.cell) && isStatusCell(b.cell)) {
+		if (isStatusFact(a.cell) && isStatusFact(b.cell)) {
 			const apart = STATUS_SEVERITY[a.cell.tone] - STATUS_SEVERITY[b.cell.tone];
 			if (apart !== 0) return apart * sign;
 		}
@@ -1118,11 +1118,6 @@ export function chipOf(
 	if (typeof cell === "object" && cell !== null && "family" in cell)
 		return cell;
 	return undefined;
-}
-
-// A table cell that holds a status (the object with a `tone`).
-export function isStatusCell(cell: TableCell | undefined): cell is StatusMark {
-	return typeof cell === "object" && cell !== null && "tone" in cell;
 }
 
 export function changeKind(cell: ChangeCell): ChangeCellKind | undefined {
@@ -1266,11 +1261,6 @@ export function nextSort(
 
 /** Whether a column's cells stand at the end of their box: a number's do. */
 export const isEnd = (column: TableColumn) => column.kind === "number";
-
-/** Whether a row's title is a status (its dot and word). */
-export function isStatus(value: RowTitle | undefined): value is StatusMark {
-	return typeof value === "object" && value !== null && "tone" in value;
-}
 
 /** Whether a title is the absent word. */
 export function isAbsent(

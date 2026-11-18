@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
@@ -27,7 +28,6 @@ import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Act } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
 import { between } from "../../lib/group";
 import { useLeaveGuard } from "../../lib/leave";

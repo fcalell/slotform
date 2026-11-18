@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
 import {
@@ -18,7 +19,6 @@ import {
 import { type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useAct } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import {
 	type FootRegionValue,
 	FootReturn,

@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Act } from "@fcalell/ui-core/descriptors";
 import {
 	menu,
@@ -9,7 +10,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { SheetHead } from "../sheet/head";
 import { SheetLayer } from "../sheet/layer";

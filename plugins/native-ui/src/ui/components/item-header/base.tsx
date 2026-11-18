@@ -1,4 +1,5 @@
 import { factReach } from "@fcalell/ui-core/chart";
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	OptionPick,
 	RecordFact,
@@ -31,7 +32,6 @@ import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import { Badge, BadgeWords, FactBadge } from "../../atoms/row/badges";
 import { EndMark } from "../../atoms/row/marks";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { useTokenPx } from "../../lib/container";
 import { badgesOf, says, wordless } from "../../lib/facts";

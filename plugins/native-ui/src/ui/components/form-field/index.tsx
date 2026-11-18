@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Answered,
 	ChangeKind,
@@ -33,7 +34,6 @@ import { ChangeMark } from "../../atoms/status/change";
 import type { CheckboxProps } from "../../atoms/switch/checkbox";
 import { CheckboxBase, checkboxPress } from "../../atoms/switch/checkbox";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import {
 	FieldError,

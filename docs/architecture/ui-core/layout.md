@@ -55,8 +55,8 @@ bar on touch, and a column that holds the current place.
   current place's ancestor. A place named by `group` carries its children into that group's run.
   The showcase's boards are such a tree: a leaf takes a dragged task and shows the count of what it
   holds, and a folder is a place that only opens and folds (its route is a spot).
-- The phone's tab bar and More page draw the top level only: they ignore `group`, `end` and
-  `children`, except that a route under a branch selects its tab.
+- The phone's tab bar and More page draw the top level only: they ignore `end` and
+  `children`, and read `group` only for the switcher the More page draws over a group's places, except that a route under a branch selects its tab.
 - A place with a `drop` takes what is dragged from a row; the container draws the label that follows
   the pointer and the line a reordered row lands at ([drag](drag.md)).
 - The routes a descriptor carries are `Route`s, typed by the platform's `RouteRegistry`

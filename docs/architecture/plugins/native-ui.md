@@ -204,9 +204,7 @@ A unified diff at the code role, in the frame `Code` shares
 `danger-soft`, the whole row, each with its `+` or `−` marker. The phone draws one number column, the
 new side or the only one (`numbersAt`). No hunk header's ranges are drawn: where lines go unshown
 (before a first hunk that starts past line 1, between two hunks) an elided band stands on the group
-ground, its mark (`┆`) in the marker's column and, in the code's, the words ("12 lines not shown"
-where the numbers count them, else "Lines not shown") and the function git names after the ranges, a
-middle dot apart. A long line wraps at its spaces and between tokens, under itself at its own
+ground (its mark and words are in `packages/ui-core/src/roster/diff.ts`). A long line wraps at its spaces and between tokens, under itself at its own
 indent: React Native has no text indent, so a wrapped line hangs no further. The frame is a list
 named by `label`, since the phone has no table.
 
@@ -225,7 +223,7 @@ sections gap under them. The thread fills what it stands in (a Pane's body) by p
 and the log is a LegendList inside it at the Pane's inset, oldest message first. It opens at the
 newest message (`initialScrollAtEnd`), and a short log stands at the bottom (`alignItemsAtEnd`).
 While the reader is at the end the log follows each arrival, a streaming reply's growth and the
-keyboard's resize (`maintainScrollAtEnd`, threshold 0: LegendList's 1 px edge, the same as
+keyboard's resize (`maintainScrollAtEnd`, whose edge is
 `AT_END`). A reader scrolled up keeps their place. While the reader is more than `AT_END` from the
 end, the Latest act floats centred above the foot and `scrollToEnd`s. With `replying` set, one
 waiting `Message` of the other author follows the messages, followed as any message is and

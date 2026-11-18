@@ -171,7 +171,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 			props: [
 				{ name: "client", value: { kind: "identifier", name: mod.export } },
 				// A read's first write lands no earlier than the minimum hold
-				// (`timings.waitMin`).
+				// (`tuned.waitMin`).
 				{ name: "hold", value: { kind: "identifier", name: "paintWait" } },
 				// The phone has no window events: the managers listen to the
 				// network and the app's foreground (`@fcalell/plugin-query/net`).

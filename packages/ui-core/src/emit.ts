@@ -243,14 +243,14 @@ export function modeTokens(
 }
 
 // A raised ground's hairline: docs/architecture/ui-core/tokens.md, "Edges".
-export function raisedGroundTokens(): Record<string, string> {
-	return { "--color-edge": "var(--color-edge-raised)" };
-}
+export const RAISED_GROUND_TOKENS: Record<string, string> = {
+	"--color-edge": "var(--color-edge-raised)",
+};
 
 // A soft ground's hairline: docs/architecture/ui-core/tokens.md, "Edges".
-export function softGroundTokens(): Record<string, string> {
-	return { "--color-edge": "var(--color-edge-strong)" };
-}
+export const SOFT_GROUND_TOKENS: Record<string, string> = {
+	"--color-edge": "var(--color-edge-strong)",
+};
 
 // The elevation utilities' declarations: docs/architecture/ui-core/tokens.md, "Emit".
 export function shadowUtilities(): Record<

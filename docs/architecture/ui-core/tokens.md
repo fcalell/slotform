@@ -157,11 +157,11 @@ A part names `edge` and the ground it stands in decides what it draws, so no par
 hairlines:
 
 - A raised ground (`RAISED_GROUNDS`: `group`, `raised`) re-points the hairline for everything inside
-  it to `edge-raised` (`raisedGroundTokens`).
+  it to `edge-raised` (`RAISED_GROUND_TOKENS`).
 - A soft ground (`SOFT_GROUNDS`: `accent-soft`, `ok-soft`, `warn-soft`, `danger-soft`,
   `chip-neutral-soft`, the tones a banner and a state pill stand on) is no edge for a hairline (a
   tenth or a soft tint from the canvas), so it re-points it to `edge-strong`, the one boundary that
-  holds 3:1 on every one of them (`softGroundTokens`). A quiet act on a banner is then an edge.
+  holds 3:1 on every one of them (`SOFT_GROUND_TOKENS`). A quiet act on a banner is then an edge.
   `edge.test.ts` holds the strong edge at 3:1 on every soft ground, in both modes, a veiled ground
   over each ground it can lie on.
 
@@ -452,4 +452,3 @@ text.
 - `packages/ui-core/src/cn.ts`: `cn()` and its tailwind-merge config.
 - `packages/ui-core/src/badge.test.ts`, `packages/ui-core/src/edge.test.ts`: the badge text floor and the strong edge on every soft ground.
 - `plugins/native-ui/src/types.ts`: the native plugin's `theme` option.
-- `plugins/native-ui/src/ui/lib/cn.ts`: native's `cn`, ui-core's merger under uniwind.

@@ -1,8 +1,9 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { RowTitle, RowTrailing } from "@fcalell/ui-core/descriptors";
 import {
 	isAbsent,
 	isCopy,
-	isStatus,
+	isStatusFact,
 	titleWords,
 	valueCut,
 } from "@fcalell/ui-core/list-state";
@@ -54,7 +55,6 @@ import { StatusBase } from "../../atoms/status/base";
 import { ChangeMark } from "../../atoms/status/change";
 import { StatusDot } from "../../atoms/status/dot";
 import { ageShort } from "../../lib/age";
-import { cn } from "../../lib/cn";
 import { CodeCut, RunText } from "../../lib/code";
 import { badgesOf, loneCode } from "../../lib/facts";
 import { FieldError } from "../../lib/field";
@@ -405,7 +405,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	let titleLine: ReactNode = null;
 	if (hasTitle) {
 		if (waitsTitle) {
-			if (isStatus(shape))
+			if (isStatusFact(shape))
 				titleLine = (
 					<View className={TITLE_STATUS}>
 						<StatusBase painted />
@@ -441,7 +441,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 					{plain.absent}
 				</RNText>
 			);
-		} else if (isStatus(plain)) {
+		} else if (isStatusFact(plain)) {
 			titleLine = (
 				<View className={TITLE_STATUS}>
 					<StatusBase tone={plain.tone} label={plain.label} />

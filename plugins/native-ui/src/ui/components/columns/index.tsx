@@ -1,8 +1,8 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { type ColumnsFit, columns } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { ScrollView, View } from "react-native";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 
 // The board's row bleeds to the place's edge and insets its columns back to
 // the page inset, so it scrolls sideways edge to edge.

@@ -220,13 +220,6 @@ export function hasBody(frame: Frame, children: ReactNode): boolean {
 	);
 }
 
-// The collection's side of a pages read: an observer that never fetches by
-// mounting, so the query is the frame's and the leaf's, and a page is fetched
-// only when the more row asks (`fetchesMore`).
-export function useMore(read: Read<unknown>): More {
-	return usePort().useNextPage(read);
-}
-
 // The rows of a state in their places, a hole for each not loaded.
 function rowsOf(state: WindowState): unknown[] {
 	const rows = new Array<unknown>(state.total);

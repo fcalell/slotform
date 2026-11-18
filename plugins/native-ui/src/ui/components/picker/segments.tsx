@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { LinkSegment } from "@fcalell/ui-core/descriptors";
 import { tuned } from "@fcalell/ui-core/paint";
 import { linkAt, scrollEdges } from "@fcalell/ui-core/pick";
@@ -20,7 +21,6 @@ import {
 import { LinearTransition, ReduceMotion } from "react-native-reanimated";
 import { Icon } from "../../atoms/icon";
 import { useHeldDraft } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { GroupName } from "../../lib/field";
 import { curve, FadingView } from "../../lib/motion";
 import { open, usePathname } from "../../lib/navigate";

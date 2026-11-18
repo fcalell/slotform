@@ -1,7 +1,5 @@
 import { Uniwind, useCSSVariable } from "uniwind";
 
-export { useCSSVariable };
-
 // The active theme name accepted by `Uniwind.setTheme`. The generated
 // `uniwind-types.d.ts` pins it to exactly `light` / `dark` / `system`.
 type ThemeName = Parameters<typeof Uniwind.setTheme>[0];

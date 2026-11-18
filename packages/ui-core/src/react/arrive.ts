@@ -35,10 +35,3 @@ export function useDrawn(): boolean {
 	}, []);
 	return drawn.current;
 }
-
-/**
- * The keys among `keys` that arrived at the end of a log after its first draw
- * (`ready`: its messages are loaded, not painted): those a message rises in for
- * when it mounts. What the log held when it was first drawn is not new.
- */
-export const useStreamed = useArrivals;

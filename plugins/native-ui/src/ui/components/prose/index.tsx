@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
 import { keyed, type Part, parts, safeHref } from "@fcalell/ui-core/prose";
 import { useSelections } from "@fcalell/ui-core/react/read";
@@ -23,7 +24,6 @@ import { Text as RNText, View } from "react-native";
 import { ButtonLink } from "../../atoms/button/link";
 import { PaintedProse } from "../../atoms/prose/painted";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { Code } from "../code";
 
 const COLUMN = "min-w-0";

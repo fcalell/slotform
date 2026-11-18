@@ -39,7 +39,7 @@ all read. A knob's `unit` is the CSS unit its variable takes (`""` for a scale).
 - `deriveTheme().motion` carries them as numbers, so a platform that animates outside CSS (a native
   timing call) reads the same record the web renders as custom properties: each duration in
   milliseconds, each easing as its four cubic-bezier control values.
-- The wait and act delays (`WAIT_DELAY`, `ACT_DELAY`, in `@fcalell/ui-core/paint`) and the
+- The wait and act delays (`tuned.waitDelay`, `tuned.actDelay`, in `@fcalell/ui-core/paint`) and the
   scramble's tick are knobs of the same table.
 
 ## Reduced motion
@@ -139,7 +139,7 @@ tick rides, a changing figure or mark swaps (`Swap`, `Roll`).
 
 ## Wait and settle
 
-A read that lasts shows its waiting shape after `WAIT_DELAY` ([timing](reads.md#timing)): the loaded
+A read that lasts shows its waiting shape after `tuned.waitDelay` ([timing](reads.md#timing)): the loaded
 tree painted, each region breathing in one page-wide phase (`PULSE`), or the spinner where a wait has no
 shape ([waiting paint](reads.md#waiting-paint)). On the web the fade is `paint-in` and the breath
 `pulse-fill` ([one breath](reads.md#one-breath)); under reduced motion `--pulse-name` is `none`, so
@@ -218,7 +218,7 @@ design critique's motion pass is the run with motion on.
 - `packages/ui-core/src/tokens.ts`: `MOTION_KNOBS`, `MOVES`, the rung scale and the delays' defaults.
 - `packages/ui-core/src/derive.ts`: `deriveTheme().motion`, the timings as numbers.
 - `packages/ui-core/src/emit.ts`: the motion variables and `reducedMotionTokens`.
-- `packages/ui-core/src/paint.ts`: `tuned`, `tune`, `subscribeMotion`, `loading`, `WAIT_DELAY`, `ACT_DELAY`.
+- `packages/ui-core/src/paint.ts`: `tuned`, `tune`, `subscribeMotion`, `loading`.
 - `packages/ui-core/src/variants.ts`, `packages/ui-core/src/variant-tables.ts`: the motion class sets (layers, flow lines, blocks, the painted fill).
 - `packages/ui-core/src/roster/shared.ts`: the state transitions and the fill class set.
 - `packages/ui-core/src/roster/thread.ts`, `packages/ui-core/src/roster/shell.ts`: the stream rise and the page slide.

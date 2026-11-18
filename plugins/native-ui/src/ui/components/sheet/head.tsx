@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
 import type { Frame } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -5,7 +6,6 @@ import { SHEET_HEAD, SHEET_HEAD_ROW, text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
-import { cn } from "../../lib/cn";
 import { RaisedGround } from "../../lib/raised";
 import { BusyMark, FrameLine } from "../../lib/read";
 import { Button } from "../button";

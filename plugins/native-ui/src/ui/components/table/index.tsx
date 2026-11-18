@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	CellValue,
 	Fact,
@@ -20,7 +21,7 @@ import {
 	firstDirection,
 	isChangeCell,
 	isEnd,
-	isStatusCell,
+	isStatusFact,
 	isTouchSplit,
 	nextSort,
 	type Sort,
@@ -90,7 +91,6 @@ import { HeldCheckbox } from "../../atoms/switch/checkbox";
 import { Turn } from "../../atoms/turn";
 import { age } from "../../lib/age";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { BodyAlone } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
 import type { CellFit } from "../../lib/field";
@@ -1155,7 +1155,7 @@ function Phone(props: {
 			const state = region((one) => {
 				if (painted) return { tone: "done" as const, label: "" };
 				const cellOf = cell(one, status);
-				if (!isStatusCell(cellOf)) return undefined;
+				if (!isStatusFact(cellOf)) return undefined;
 				const word = cellOf.label ?? words[cellOf.tone];
 				return {
 					tone: cellOf.tone,
@@ -1184,7 +1184,7 @@ function Phone(props: {
 						const at = cell(one, column);
 						if (column.kind === "number" && at !== null && at !== undefined)
 							return `${column.label} ${at}`;
-						const word = isStatusCell(at)
+						const word = isStatusFact(at)
 							? (at.label ?? words[at.tone])
 							: shown(column, at);
 						return named.has(column.key) && word !== ""

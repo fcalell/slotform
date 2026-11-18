@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconName, LinkAct } from "@fcalell/ui-core/descriptors";
 import type { Datum } from "@fcalell/ui-core/read";
 import {
@@ -13,7 +14,6 @@ import { Icon } from "../atoms/icon";
 import { ButtonBase } from "../components/button/base";
 import type { Act } from "./act";
 import { asAct, wiringOf } from "./act";
-import { cn } from "./cn";
 import { Ink } from "./ink";
 
 // Alone in a page body it fills what the body leaves and centres there.

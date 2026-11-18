@@ -84,10 +84,7 @@ the public composition that hosts it: a painted control in a host whose read wai
 portal of a `Gate` or a `Shell`, a toast raised by `toast()` into the queue every root container on the
 page draws. An edge no public composition reaches has no scene.
 
-- **Reads.** `waiting.ts` gives a scene's drawer the reads that show each of its forms: one that
-  never answers, so the scene stays painted; one that always rejects, so it draws its failure; one
-  that rejects as not found, so it draws the missing shape; one that answers nothing; one that
-  answers rows; and three that hold rows and are busy, stale or paused. None retries, so a failure
+- **Reads.** `Reads` in `src/roster/waiting.ts` gives a scene's drawer the reads that show each of its forms, each member documented there. None retries, so a failure
   shows at once. A drawer that draws several scenes, or a page of scenes, takes each its own set
   with `readsAt`, so the states of one do not leak into the next.
 - **Root containers.** A `Gate` or a `Shell` stands in a viewport-tall stage (`scenes/overlay-stage.tsx`),
@@ -101,7 +98,7 @@ page draws. An edge no public composition reaches has no scene.
   frame for the popup's content.
 - **Self-judging scenes.** Some scenes judge their own edge and log an error where it breaks; the
   others are looked at. No event says a scene's parts have mounted and laid out, so a judging scene
-  waits for its layout by counting animation frames (`judge.ts`); each wait returns its cancel, for
+  waits for its layout by counting animation frames (`judge.ts`), except the toolbar scene, which judges on a `ResizeObserver`; each wait returns its cancel, for
   the effect that starts it to return.
 
 ### Story generation

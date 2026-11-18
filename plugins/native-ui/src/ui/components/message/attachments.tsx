@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Attachment } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
@@ -10,7 +11,6 @@ import { memo, useRef } from "react";
 import { Pressable, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import { CHIP_LINES } from "../../lib/chip-lines";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
 import { Chip } from "../chip";

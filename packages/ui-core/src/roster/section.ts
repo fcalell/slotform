@@ -255,7 +255,7 @@ export type Row<V extends string | null = string, Q = unknown> =
 
 /** One row of a Section's sheet, a fact or a thing alike: it draws whichever regions it fills, on one box. A row with a `label` stands in the sheet's two columns (the label in the first, as wide as the widest of the Pane); a row without one starts its text group at the row's start. */
 export interface RowItem<V extends string | null = string, Q = unknown> {
-	/** The row's React key, unique across the whole sheet, a tree's children included; the label's text, then the title's, when none is given. */
+	/** The row's React key, unique across the whole sheet, a tree's children included; the label's text, then the title's, when none is given. A row whose title is not words (a selection, `{ absent }`, a status) gives its own `key`. */
 	key?: string;
 	/** Where the row stands in a change set: its mark at the row's start, ahead of the leading mark (a set's untouched rows are `unchanged`, so the titles line up). */
 	change?: ChangeKind;

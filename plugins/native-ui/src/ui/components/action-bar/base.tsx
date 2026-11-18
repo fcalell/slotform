@@ -5,6 +5,7 @@ import {
 	NO_FAILURE,
 } from "@fcalell/ui-core/action-bar";
 import { isThenable } from "@fcalell/ui-core/acts";
+import { cn } from "@fcalell/ui-core/cn";
 import type { ChosenCount } from "@fcalell/ui-core/descriptors";
 import { markedRuns } from "@fcalell/ui-core/form";
 import { formatterFor } from "@fcalell/ui-core/format";
@@ -29,7 +30,6 @@ import { useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import type { Act } from "../../lib/act";
 import { useAct } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { ActInert } from "../../lib/form";
 import { FadingText, flowIn } from "../../lib/motion";

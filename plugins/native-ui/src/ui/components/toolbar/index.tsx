@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { ToolbarChip, ToolbarSearch } from "@fcalell/ui-core/descriptors";
 import { filterSet, filtersFold } from "@fcalell/ui-core/list-state";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
@@ -7,7 +8,6 @@ import type { ReactNode } from "react";
 import { View } from "react-native";
 import { CHIP_LINES } from "../../lib/chip-lines";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { blockIn, FadingView } from "../../lib/motion";
 import { Chip } from "../chip";
 import { Input } from "../input";

@@ -77,7 +77,7 @@ arrows moves the focused row).
 ## Acts
 
 `refusal(error)` comes from `@fcalell/plugin-query/acts`; `useAttempt()` and
-`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `ACT_DELAY` (300 ms,
+`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `tuned.actDelay` (300 ms,
 `--act-delay`, from `@fcalell/ui-core/paint`).
 
 An `Act` (`@fcalell/ui-core/descriptors`) carries its wiring as data: `confirm` (`{ title, sentence }`, asked

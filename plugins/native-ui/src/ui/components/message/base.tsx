@@ -1,4 +1,6 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Message, MessageDetail } from "@fcalell/ui-core/descriptors";
+import { momentWords } from "@fcalell/ui-core/format";
 import { factParts, filled, flowRuns, META_TAIL } from "@fcalell/ui-core/runs";
 import { closeOpenRuns } from "@fcalell/ui-core/streaming";
 import {
@@ -20,10 +22,8 @@ import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import { PaintedProse } from "../../atoms/prose/painted";
 import { Turn } from "../../atoms/turn";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { Ink } from "../../lib/ink";
-import { moment } from "../../lib/moment";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { Prose } from "../prose";
 import { RowBase } from "../row";
@@ -205,7 +205,7 @@ export const MessageBase = memo(function MessageBase(
 			numberOfLines={1}
 			className={cn(text({ role: "meta" }), FIGURES, TIME)}
 		>
-			{moment(at)}
+			{momentWords(at, new Date())}
 		</RNText>
 	) : null;
 	if (author === "system")
@@ -224,7 +224,7 @@ export const MessageBase = memo(function MessageBase(
 	// The provenance (`from`) is a sentence, so text and no badge: it leads the
 	// time, one text a middle dot apart that breaks only between a part's words,
 	// never at a dot (`flowRuns`).
-	const when = at && moment(at);
+	const when = at && momentWords(at, new Date());
 	const line = from?.some(filled) ? (
 		<RNText
 			className={cn(

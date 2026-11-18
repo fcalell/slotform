@@ -1,9 +1,9 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { LIST_BAND, text, textStrong } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { CountBase } from "../../atoms/count/base";
 import { asIconAct, type IconAct } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { Button } from "../button";
 
 const BAND = "flex-row items-center";

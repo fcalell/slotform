@@ -216,8 +216,6 @@ export const SHELL_SIDEBAR = "dark w-sidebar bg-surface";
 // the sides and the foot.
 export const SHELL_INSET = "px-gap pb-gap";
 export const SHELL_COLUMN = "bg-canvas";
-// The phone's column is the canvas too: the sheets stand on it at the page inset.
-export const SHELL_COLUMN_PHONE = "bg-canvas";
 // The column's banner region: a `Banner` at the page inset all round, so its
 // edge meets the Pane title's and the page gap stands under it, above the
 // header.

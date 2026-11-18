@@ -1,4 +1,6 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Stage, StageEnd, StepState } from "@fcalell/ui-core/descriptors";
+import { momentWords } from "@fcalell/ui-core/format";
 import { stagesShown } from "@fcalell/ui-core/list-state";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
@@ -17,9 +19,7 @@ import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
-import { moment } from "../../lib/moment";
 import { blockIn, FadingText, FadingView, flowIn } from "../../lib/motion";
 import {
 	inertProps,
@@ -177,7 +177,7 @@ export function Stages({ steps, ended }: StagesProps) {
 								entering={flowIn()}
 								className={cn(text({ role: "meta" }), FIGURES)}
 							>
-								{moment(step.at)}
+								{momentWords(step.at, new Date())}
 							</FadingText>
 						) : null}
 					</Row>

@@ -1,3 +1,4 @@
+import { dev } from "@fcalell/ui-core/read";
 import {
 	OVERSCAN,
 	ranged,
@@ -272,7 +273,7 @@ export function Window({
 		}
 		const found = drawn.current;
 		const mounted = [...element.children].slice(0, found.length);
-		if (process.env.NODE_ENV !== "production") check(found, mounted);
+		if (dev()) check(found, mounted);
 		const first = found.findIndex((entry) => "row" in entry);
 		if (!shape && first >= 0) {
 			setShape({

@@ -18,13 +18,6 @@ const DEFAULTS = Object.fromEntries(
 	MOTION_KNOBS.map((knob) => [knob.name, knob.default]),
 ) as Record<MotionKnobName, number>;
 
-// How long a read runs before its paint shows: docs/architecture/ui-core/reads.md, "Timing".
-export const WAIT_DELAY = DEFAULTS.waitDelay;
-
-// How long an act runs before its pending look shows (ms): the act is inert
-// at the press, and one the server answers at once never flashes a spinner.
-export const ACT_DELAY = DEFAULTS.actDelay;
-
 // The live tuning record of every motion knob: docs/architecture/ui-core/motion.md, "Tuning record".
 export const tuned: Record<MotionKnobName, number> = { ...DEFAULTS };
 
@@ -69,24 +62,10 @@ export function scrambled(role: PaintRole): boolean {
 // `tuned.tick`.
 export const ticker = createTicker(() => tuned.tick);
 
-// The three waits as live reads of the knobs of the same names, so the two
-// never disagree.
-export const timings = {
-	get waitDelay() {
-		return tuned.waitDelay;
-	},
-	get actDelay() {
-		return tuned.actDelay;
-	},
-	get waitMin() {
-		return tuned.waitMin;
-	},
-};
-
 // How much longer a first load's data waits: docs/architecture/ui-core/reads.md, "Timing".
 export function paintWait(elapsed: number): number {
-	if (elapsed < timings.waitDelay) return 0;
-	return Math.max(0, timings.waitDelay + timings.waitMin - elapsed);
+	if (elapsed < tuned.waitDelay) return 0;
+	return Math.max(0, tuned.waitDelay + tuned.waitMin - elapsed);
 }
 
 // Painted rows, options, messages, cells and lines of a collection or text

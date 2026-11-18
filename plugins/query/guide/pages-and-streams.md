@@ -24,7 +24,7 @@ asks for it. The frame is not busy for a next page, draws no count while more re
 first page that has more fetches the next. A `Section`'s count is therefore the loaded rows only
 once the last page is in.
 
-`useMore(read)` (`@fcalell/ui-core/react/read`) is what that row builds on (`{ next, fetching, failed, fetch }`, `fetch` returning
+`usePort().useNextPage(read)` (`usePort` from `@fcalell/ui-core/react/port`) is what that row builds on (`{ next, fetching, failed, fetch }`, `fetch` returning
 its promise); reach for it only for a control of your own, since it never fetches by mounting. A
 hand-written `read` with `kind: "pages"` must be an infinite query (`infiniteOptions`) over the
 same envelope.

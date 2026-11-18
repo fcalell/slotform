@@ -22,6 +22,7 @@ import {
 	timeSpace,
 	unitSymbol,
 } from "@fcalell/ui-core/chart";
+import { cn } from "@fcalell/ui-core/cn";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { useCollection } from "@fcalell/ui-core/react/read";
 import type { Datum } from "@fcalell/ui-core/read";
@@ -50,14 +51,12 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useState } from "react";
 import { type LayoutChangeEvent, Text as RNText, View } from "react-native";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { useAnimatedStyle } from "react-native-reanimated";
 import Svg, { Defs, Pattern, Rect } from "react-native-svg";
-import { withUniwind } from "uniwind";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { compact } from "../../lib/compact";
 import { useTokenPx } from "../../lib/container";
-import { useValue } from "../../lib/motion";
+import { FadingView, useValue } from "../../lib/motion";
 import {
 	inertProps,
 	PAINT_BOX,
@@ -174,8 +173,6 @@ function formatters(
 	};
 }
 
-const BarView = withUniwind(Animated.View);
-
 // The plot's height in px where it stands (`CHART_GRID`): a part's lift is a
 // share of it, by transform.
 function usePlotHeight(): number {
@@ -202,7 +199,7 @@ function Part(props: {
 		],
 	}));
 	return (
-		<BarView
+		<FadingView
 			className={cn(chartFill({ series: props.series }), CHART_BAR)}
 			style={[{ transformOrigin: "bottom" }, moved]}
 		/>
@@ -225,9 +222,9 @@ function Reading(props: {
 		transform: [{ translateY: travel.value * plot }],
 	}));
 	return (
-		<BarView className={CHART_LEVEL} style={moved}>
+		<FadingView className={CHART_LEVEL} style={moved}>
 			<View className={cn(chartFill({ series: props.series }), CHART_DOT)} />
-		</BarView>
+		</FadingView>
 	);
 }
 
@@ -261,7 +258,7 @@ function Hatch(props: {
 		],
 	}));
 	return (
-		<BarView pointerEvents="none" className={HATCH} style={moved}>
+		<FadingView pointerEvents="none" className={HATCH} style={moved}>
 			<Svg width="100%" height="100%">
 				<Defs>
 					<Pattern
@@ -288,7 +285,7 @@ function Hatch(props: {
 					<Rect width="100%" height="100%" fill="url(#wash)" />
 				) : null}
 			</Svg>
-		</BarView>
+		</FadingView>
 	);
 }
 

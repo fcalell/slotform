@@ -1,4 +1,5 @@
 import { moreMenu, type Offered, offered } from "@fcalell/ui-core/acts";
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import {
 	type Frame,
@@ -24,7 +25,6 @@ import { IconButtonBase } from "../../atoms/button/glyph";
 import { Turn } from "../../atoms/turn";
 import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
 import { titleBound } from "../../lib/bind";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { useTokenPx } from "../../lib/container";
 import { Ink } from "../../lib/ink";

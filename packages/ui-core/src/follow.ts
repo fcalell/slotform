@@ -2,8 +2,6 @@
 import { tuned } from "./paint.ts";
 import { EASING, type Easing } from "./tokens.ts";
 
-// The finger's travel before a gesture is a drag rather than a press, in px.
-export const SLOP = 8;
 // The release rule and the speed window: docs/architecture/ui-core/drag.md, "Follow".
 const WINDOW = 100;
 

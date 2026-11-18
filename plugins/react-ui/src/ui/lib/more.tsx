@@ -1,5 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
-import { useMore, useWindowMore } from "@fcalell/ui-core/react/read";
+import { usePort } from "@fcalell/ui-core/react/port";
+import { useWindowMore } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { fetchesMore, type More, type Read } from "@fcalell/ui-core/read";
 import type { ReactNode } from "react";
@@ -36,7 +37,7 @@ export function MoreRow(props: MoreProps) {
 }
 
 function PagesMoreRow(props: MoreProps) {
-	return <MoreLine {...props} more={useMore(props.read)} />;
+	return <MoreLine {...props} more={usePort().useNextPage(props.read)} />;
 }
 
 function WindowMoreRow(props: MoreProps) {

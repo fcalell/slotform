@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { formatterFor } from "@fcalell/ui-core/format";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
@@ -14,7 +15,6 @@ import {
 import { useContext, useRef, useState } from "react";
 import { PanResponder, Text as RNText, View } from "react-native";
 import { useResolveClassNames } from "uniwind";
-import { cn } from "../../lib/cn";
 import { useTokenPx } from "../../lib/container";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import type { SliderProps } from "./index";

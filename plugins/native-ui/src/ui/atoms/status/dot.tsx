@@ -1,7 +1,7 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import { statusContentTone, statusDot } from "@fcalell/ui-core/variants";
 import { View } from "react-native";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 import { Swap } from "../../lib/swap";

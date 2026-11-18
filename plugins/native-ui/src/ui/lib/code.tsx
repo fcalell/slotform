@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Runs } from "@fcalell/ui-core/descriptors";
 import { valueCut } from "@fcalell/ui-core/list-state";
 import {
@@ -7,7 +8,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { codeWhole } from "./bind";
-import { cn } from "./cn";
 
 // A whole value of code in the room its box leaves: the stem truncates to it
 // and the tail stands whole (`valueCut`). The two read as the one value.

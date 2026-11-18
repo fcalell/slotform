@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { ReactNode } from "react";
 import {
 	Pressable,
@@ -6,7 +7,6 @@ import {
 } from "react-native";
 import type { AnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
-import { cn } from "./cn";
 import { FadingView, usePress } from "./motion";
 import { PaintPressable } from "./paint";
 

@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	GroupSpec,
 	IconName,
@@ -15,7 +16,7 @@ import {
 	placeTabContentTone,
 	placeTabLabel,
 	SHELL_BANNER,
-	SHELL_COLUMN_PHONE,
+	SHELL_COLUMN,
 	SHELL_TAB_BAR,
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, useMemo, useState } from "react";
@@ -23,7 +24,6 @@ import { Text as RNText, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "../../atoms/icon";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import {
 	PlaceName,
 	PlaceRoute,
@@ -127,7 +127,7 @@ export function Shell({
 		<ContainerHost>
 			<View
 				style={{ paddingTop: insets.top }}
-				className={cn(SHELL_COLUMN_PHONE, BOX)}
+				className={cn(SHELL_COLUMN, BOX)}
 			>
 				{banner ? <View className={SHELL_BANNER}>{banner}</View> : null}
 				<View className={CONTENT}>

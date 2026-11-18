@@ -1,7 +1,7 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { avatar, avatarLabel, avatarStep } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import { Image, Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 
 const CIRCLE = "items-center justify-center overflow-hidden";

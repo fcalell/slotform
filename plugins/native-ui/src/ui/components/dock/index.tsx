@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { trackTime } from "@fcalell/ui-core/player";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
@@ -13,7 +14,6 @@ import { shareOf } from "@fcalell/ui-core/waveform";
 import { useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { NOOP } from "../../lib/noop";
 import { player, usePlayer, usePlayerTime } from "../../lib/player";
 import { Press } from "../../lib/press";

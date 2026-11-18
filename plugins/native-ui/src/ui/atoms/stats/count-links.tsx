@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { CountLink } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import {
@@ -7,7 +8,6 @@ import {
 	lineBox,
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { Painted, PaintText } from "../../lib/paint";
 import { ButtonLink } from "../button/link";
 

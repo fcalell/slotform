@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import {
 	type SheetEntry,
 	sheetEntries,
@@ -18,7 +19,6 @@ import {
 	useState,
 } from "react";
 import { View } from "react-native";
-import { cn } from "../../lib/cn";
 import { between } from "../../lib/group";
 import { List } from "../../lib/hosts";
 import { FileRowItem } from "../file-row";

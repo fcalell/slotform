@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
 import { optionBlocked, optionLeading } from "@fcalell/ui-core/list-state";
 import {
@@ -26,7 +27,6 @@ import { Icon } from "../../atoms/icon";
 import { StatusDot } from "../../atoms/status/dot";
 import type { IconAct } from "../../lib/act";
 import { asIconAct, useAct } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { List } from "../../lib/hosts";
 import { Ink } from "../../lib/ink";
 import { Avatar } from "../avatar";

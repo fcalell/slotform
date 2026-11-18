@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { qrModules } from "@fcalell/ui-core/qr";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
@@ -6,7 +7,6 @@ import { useMemo } from "react";
 import { View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useResolveClassNames } from "uniwind";
-import { cn } from "../../lib/cn";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 
 /** A code a camera reads. */

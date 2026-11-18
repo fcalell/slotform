@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { FileItem } from "@fcalell/ui-core/descriptors";
 import {
 	DIRECTORY_LEAD,
@@ -6,7 +7,6 @@ import {
 	split,
 } from "@fcalell/ui-core/list-state";
 import { isCurrent } from "@fcalell/ui-core/route";
-
 import { sameBy } from "@fcalell/ui-core/same-by";
 import {
 	FILE_COUNTS,
@@ -18,16 +18,15 @@ import {
 } from "@fcalell/ui-core/variants";
 import { memo } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
+import { useCSSVariable } from "uniwind";
 import { ChipBase } from "../../atoms/chip/base";
 import { IconBase } from "../../atoms/icon";
 import { ChangeMark } from "../../atoms/status/change";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { open as follow, usePathname, useWarm } from "../../lib/navigate";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { HIT } from "../../lib/press";
 import { Roll, Swap } from "../../lib/swap";
-import { useCSSVariable } from "../../lib/theme";
 
 // A row's floor, as a list row's: on touch it stands at the target.
 const ROW = "relative flex-row items-center min-h-row";

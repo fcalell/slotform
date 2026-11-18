@@ -57,7 +57,7 @@ the platform's own relative-time and date words speak them in the reader's langu
 
 ### On the phone
 
-Hermes ships part of `Intl`, so native-ui's `lib/age`, `lib/moment` and `lib/compact` fall back where
+Hermes ships part of `Intl`, so native-ui's `lib/age` and `lib/compact` fall back where
 it lacks an API.
 
 - `Intl.DateTimeFormat` with `dateStyle` and `timeStyle` is there (not on Android before SDK 24);
@@ -113,5 +113,5 @@ what is drawn once.
 - `packages/ui-core/src/runs.ts`: the runs a part draws.
 - `packages/ui-core/src/roster/descriptors.ts`: the `Run` descriptor.
 - `plugins/native-ui/src/index.ts`: the generated `WordsProvider` on the phone.
-- `plugins/native-ui/src/ui/lib/age.ts`, `plugins/native-ui/src/ui/lib/moment.ts`, `plugins/native-ui/src/ui/lib/compact.ts`: the phone's ages, moments and compact figures over Hermes.
+- `plugins/native-ui/src/ui/lib/age.ts`, `plugins/native-ui/src/ui/lib/compact.ts`: the phone's ages and compact figures over Hermes.
 - `apps/showcase/src/roster/scenes/section-rows.ts`, `apps/showcase/src/roster/scenes/text.tsx`: the scenes that draw a copyable code fact and code in a sentence at 320.

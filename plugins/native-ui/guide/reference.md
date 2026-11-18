@@ -42,7 +42,7 @@ next to other content, or under 50 rows, it ends in Show more for you to press.
 ## Acts
 
 `refusal(error)` comes from `@fcalell/plugin-query/acts`; `useAttempt()` and
-`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `ACT_DELAY` (300 ms, from
+`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `tuned.actDelay` (300 ms, from
 `@fcalell/ui-core/paint`; the phone's fill snaps in).
 
 An `Act` (`@fcalell/ui-core/descriptors`) carries its wiring as data: `confirm` (`{ title, sentence }`, asked

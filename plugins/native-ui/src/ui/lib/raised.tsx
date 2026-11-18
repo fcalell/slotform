@@ -1,4 +1,7 @@
-import { raisedGroundTokens, softGroundTokens } from "@fcalell/ui-core/emit";
+import {
+	RAISED_GROUND_TOKENS,
+	SOFT_GROUND_TOKENS,
+} from "@fcalell/ui-core/emit";
 import { type PropsWithChildren, useMemo } from "react";
 import { ScopedVariables, useCSSVariable } from "uniwind";
 
@@ -30,8 +33,8 @@ function Repoint({ ground, children }: PropsWithChildren<{ ground: Ground }>) {
 	return <ScopedVariables variables={variables}>{children}</ScopedVariables>;
 }
 
-const RAISED = groundOf(raisedGroundTokens());
-const SOFT = groundOf(softGroundTokens());
+const RAISED = groundOf(RAISED_GROUND_TOKENS);
+const SOFT = groundOf(SOFT_GROUND_TOKENS);
 
 // A raised ground (`RAISED_GROUNDS`) for everything inside it: docs/architecture/plugins/native-ui.md, "Raised grounds and room".
 export function RaisedGround({ children }: PropsWithChildren) {

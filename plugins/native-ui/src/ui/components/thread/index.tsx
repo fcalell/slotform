@@ -1,4 +1,5 @@
 import { stampsTime } from "@fcalell/ui-core/clock";
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Attachment,
 	MessageDetail,
@@ -6,7 +7,7 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { PAINT_TURNS } from "@fcalell/ui-core/paint";
-import { useStreamed } from "@fcalell/ui-core/react/arrive";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import {
 	type Frame,
 	FrameHolds,
@@ -35,7 +36,6 @@ import {
 import { View } from "react-native";
 import { WaitingReply } from "../../atoms/message/waiting";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { FootReturn, useFootRegion } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
 import { FILL, Lifted, List, type ListRef } from "../../lib/hosts";
@@ -204,7 +204,7 @@ function ReplyTurn<T>(props: {
 	// The waiting message rises in when the turn begins once the log is drawn;
 	// the text that replaces it lands with the read's first answer, so the
 	// turn's own message never rises.
-	const begun = useStreamed(form === "waiting" ? ["replying"] : [], !painted);
+	const begun = useArrivals(form === "waiting" ? ["replying"] : [], !painted);
 	if (painted || form === "none") return null;
 	// `useFrameRead` takes the selection as `Selection<unknown>`, so the turn
 	// comes back untyped: it is the `reply`'s `T`.
@@ -347,7 +347,7 @@ function Log<T>(props: {
 	useEffect(() => {
 		awaiting.current = thread.replying === true;
 	});
-	const arrived = useStreamed(
+	const arrived = useArrivals(
 		drawn.painted || ended
 			? []
 			: [

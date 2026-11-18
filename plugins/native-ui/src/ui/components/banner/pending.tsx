@@ -3,6 +3,7 @@ import {
 	pendingShare,
 	timeLeft,
 } from "@fcalell/ui-core/clock";
+import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct } from "@fcalell/ui-core/descriptors";
 import { usePending } from "@fcalell/ui-core/react/clock";
 import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
@@ -17,7 +18,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useEffect } from "react";
 import { Text as RNText, View } from "react-native";
-import Animated, {
+import {
 	cancelAnimation,
 	Easing,
 	ReduceMotion,
@@ -26,13 +27,12 @@ import Animated, {
 	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
-import { withUniwind } from "uniwind";
 import { Spinner } from "../../atoms/spinner";
 import type { Act } from "../../lib/act";
 import { asAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
+import { FadingView } from "../../lib/motion";
 import { ButtonBase } from "../button/base";
 
 const TRACK = "relative flex-row items-center min-w-0 overflow-hidden";
@@ -41,8 +41,6 @@ const TRACK = "relative flex-row items-center min-w-0 overflow-hidden";
 const FILL = "absolute bottom-0 left-0 right-0";
 const SENTENCE = "relative min-w-0 flex-1";
 const LEFT = "relative shrink-0";
-
-const Filled = withUniwind(Animated.View);
 
 // The elapsed share, moving on its own from where the attempt stands to full at
 // its end; the clock's tick redraws only the time left. With the system's
@@ -71,7 +69,7 @@ export function Fill(props: { attempt: PendingAttempt; now: number }) {
 		transform: [{ scaleX: share.value }],
 	}));
 	return (
-		<Filled
+		<FadingView
 			className={cn(PENDING_FILL, FILL)}
 			style={[{ transformOrigin: "left" }, scaled]}
 		/>

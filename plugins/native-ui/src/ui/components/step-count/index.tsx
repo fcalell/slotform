@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { stepStateOf } from "@fcalell/ui-core/list-state";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
@@ -9,7 +10,6 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 
 const STACK = "min-w-0";
 const SEGMENTS = "flex-row";

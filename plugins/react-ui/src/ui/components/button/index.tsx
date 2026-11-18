@@ -31,7 +31,7 @@ export interface ButtonAttemptProps extends Named {
 	count?: number;
 	/** A wait, in seconds left: the act is inert while it is above zero, its count drawn, and it draws no reason, so its row never grows. At zero the count's region stays, hidden, so the act keeps its width. */
 	wait?: number;
-	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `ACT_DELAY`) its glyph and label hidden under a spinner, its name kept. A rejection reads under the act. */
+	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `tuned.actDelay`) its glyph and label hidden under a spinner, its name kept. A rejection reads under the act. */
 	onAct?: () => unknown;
 	/** Asked before `onAct` runs, as a decision over the page: declined, nothing runs. Its act carries this act's label. */
 	confirm?: Decision;
@@ -57,7 +57,7 @@ export interface ButtonGlyphProps extends Named {
 	icon: IconName;
 	/** Draws the glyph alone, the label its tooltip and accessible name. */
 	glyph: true;
-	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `ACT_DELAY`) its glyph swapped for a spinner, its size and name kept. A rejection raises a failed toast with Retry. */
+	/** Runs the act. A promise it returns holds the act pending until it settles: inert at the press, then (after `tuned.actDelay`) its glyph swapped for a spinner, its size and name kept. A rejection raises a failed toast with Retry. */
 	onAct?: () => unknown;
 	/** Asked before `onAct` runs, as a decision over the page: declined, nothing runs. */
 	confirm?: Decision;

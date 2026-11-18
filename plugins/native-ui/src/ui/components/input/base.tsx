@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { useTouched } from "@fcalell/ui-core/react/touched";
@@ -20,7 +21,6 @@ import { IconButtonBase } from "../../atoms/button/glyph";
 import { Icon } from "../../atoms/icon";
 import { useAct, useHeldDraft } from "../../lib/act";
 import { useCaretAtEnd } from "../../lib/caret";
-import { cn } from "../../lib/cn";
 import {
 	type CellFit,
 	FieldError,

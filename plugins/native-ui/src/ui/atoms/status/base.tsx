@@ -1,8 +1,8 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Tone } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { STATUS, STATUS_LABEL } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { StatusDot } from "./dot";
 

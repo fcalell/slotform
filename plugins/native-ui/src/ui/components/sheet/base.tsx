@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { submitOf, useFrame, usePainted } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -11,7 +12,6 @@ import type { ReactNode } from "react";
 import { View } from "react-native";
 import type { Act } from "../../lib/act";
 import { useAct } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import type { Empty } from "../../lib/empty";
 import { FrameBody, useSubmitOf } from "../../lib/read";
 import type { ActionBarProps } from "../action-bar";

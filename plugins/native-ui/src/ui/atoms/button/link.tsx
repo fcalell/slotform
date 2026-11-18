@@ -1,7 +1,7 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { LINK_TARGET, link, text } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Pressable, Text as RNText } from "react-native";
-import { cn } from "../../lib/cn";
 import { open, useWarm } from "../../lib/navigate";
 
 // Inline is underlined at rest and plain under the press; on its own the

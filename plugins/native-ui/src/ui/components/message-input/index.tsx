@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type {
 	Attachment,
 	Notice,
@@ -30,7 +31,6 @@ import {
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { asAct, useAct, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { FootReturn } from "../../lib/container";
 import { FadingView, flowIn } from "../../lib/motion";
 import { pickedFromDocument, pickedFromImage } from "../../lib/picked";

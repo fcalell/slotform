@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { tuned } from "@fcalell/ui-core/paint";
 import {
 	type Frame,
@@ -21,7 +22,6 @@ import { ButtonBase } from "../components/button/base";
 import { MissingBase } from "../components/missing/base";
 import type { Act } from "./act";
 import { wiringOf } from "./act";
-import { cn } from "./cn";
 import { type Empty, EmptyBase, type EmptyFit } from "./empty";
 import { Ink } from "./ink";
 import { useShown } from "./paint";

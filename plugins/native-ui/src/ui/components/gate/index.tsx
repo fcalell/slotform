@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { runsOf } from "@fcalell/ui-core/runs";
@@ -7,7 +8,6 @@ import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ToastSpace } from "../../atoms/toast/space";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { DistanceContext } from "../../lib/container";
 import { FieldClaim } from "../../lib/field";

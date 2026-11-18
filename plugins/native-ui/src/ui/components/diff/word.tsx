@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
@@ -10,7 +11,6 @@ import {
 import { diffWords } from "diff";
 import { type ReactNode, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { inertProps, PaintedLines, PaintText } from "../../lib/paint";
 
 const BOX = "min-w-0 overflow-hidden";

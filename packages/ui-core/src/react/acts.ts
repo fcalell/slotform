@@ -186,7 +186,7 @@ export type Attemptable = Partial<
 > & { sheet?: unknown };
 
 // What an act's holder reads: which act pends (inert at once; the pending look
-// comes after `ACT_DELAY`), whether it holds its siblings (while one pends),
+// comes after `tuned.actDelay`), whether it holds its siblings (while one pends),
 // the line its failure is drawn in, the call that attempts an act, and which act's
 // sheet is open (drawn by the holder through `ActSheet`, from that act's current
 // `sheet`: the open state is all the holder keeps).

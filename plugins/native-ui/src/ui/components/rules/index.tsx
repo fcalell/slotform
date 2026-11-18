@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { EitherPick, Rule, RuleValue } from "@fcalell/ui-core/descriptors";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -13,7 +14,6 @@ import { Icon } from "../../atoms/icon";
 import { SheetEntries } from "../../atoms/section/card";
 import { type Act, wiringOf } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";

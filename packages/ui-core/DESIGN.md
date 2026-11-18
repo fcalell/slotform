@@ -2507,10 +2507,6 @@ components:
     backgroundColor: "{colors.canvas}"
   shell-column-dark:
     backgroundColor: "{colors.canvas-dark}"
-  shell-column-phone:
-    backgroundColor: "{colors.canvas}"
-  shell-column-phone-dark:
-    backgroundColor: "{colors.canvas-dark}"
   shell-group-label:
     typography: "{typography.caption}"
     textColor: "{colors.ink-meta}"

@@ -64,7 +64,7 @@ function lookOf(kind: ButtonAct, pending: boolean, muted: boolean): string {
 	return PRESS[kind];
 }
 
-/** The act every Button renders; it holds its own attempt: inert and `aria-busy` at the press, the pending look after `ACT_DELAY`, a rejection drawn in a failed toast with Retry. `painted` is the act while its data is not here: its box filled, its content not drawn, inert. `pending` is a host's state handed down: the host holds the run, so a press calls the handler as it is and the act holds none of its own. `line` draws a rejection in a reason line under the act instead (the public Button standing alone). The props a Base UI trigger hands through its `render` (a popup's trigger) reach the button, its own press after them. Outside the package's exports. */
+/** The act every Button renders; it holds its own attempt: inert and `aria-busy` at the press, the pending look after `tuned.actDelay`, a rejection drawn in a failed toast with Retry. `painted` is the act while its data is not here: its box filled, its content not drawn, inert. `pending` is a host's state handed down: the host holds the run, so a press calls the handler as it is and the act holds none of its own. `line` draws a rejection in a reason line under the act instead (the public Button standing alone). The props a Base UI trigger hands through its `render` (a popup's trigger) reach the button, its own press after them. Outside the package's exports. */
 export function ButtonBase({
 	act,
 	fit,

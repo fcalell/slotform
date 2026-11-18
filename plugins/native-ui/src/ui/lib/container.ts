@@ -10,8 +10,8 @@ import {
 	useState,
 } from "react";
 import type { LayoutChangeEvent, ViewInstance } from "react-native";
+import { useCSSVariable } from "uniwind";
 import type { Route } from "./route";
-import { useCSSVariable } from "./theme";
 
 // What the container molecules hand each other: docs/architecture/ui-core/layout.md, "On the phone".
 export const ShellSwitcher = createContext<OptionPick | undefined>(undefined);

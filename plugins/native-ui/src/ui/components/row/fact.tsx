@@ -1,7 +1,7 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { FIGURES, text } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { useCopy } from "../../lib/copy";
 import { Decoded } from "../../lib/region";
 import { Button } from "../button";

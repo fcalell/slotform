@@ -15,6 +15,7 @@ import {
 	windowQueue,
 } from "@fcalell/ui-core/player";
 import { useSyncExternalStore } from "react";
+import { saveChoice, savedChoice } from "./saved.ts";
 
 export type {
 	Engine,
@@ -40,9 +41,7 @@ const VOLUME_KEY = "stack.player.volume";
 const host: PlayerHost = {
 	recall() {
 		try {
-			const saved: unknown = JSON.parse(
-				localStorage.getItem(VOLUME_KEY) ?? "null",
-			);
+			const saved: unknown = JSON.parse(savedChoice(VOLUME_KEY) ?? "null");
 			if (
 				typeof saved === "object" &&
 				saved !== null &&
@@ -59,9 +58,7 @@ const host: PlayerHost = {
 		return undefined;
 	},
 	keep(volume, muted) {
-		try {
-			localStorage.setItem(VOLUME_KEY, JSON.stringify({ volume, muted }));
-		} catch {}
+		saveChoice(VOLUME_KEY, JSON.stringify({ volume, muted }));
 	},
 	frame(run) {
 		const id = requestAnimationFrame(run);

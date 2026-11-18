@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { tuned } from "@fcalell/ui-core/paint";
 import {
 	BUSY_GLYPHS,
@@ -7,7 +8,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { useEffect } from "react";
 import { View } from "react-native";
-import Animated, {
+import {
 	cancelAnimation,
 	Easing,
 	FadeIn,
@@ -17,17 +18,11 @@ import Animated, {
 	withRepeat,
 	withTiming,
 } from "react-native-reanimated";
-import { withUniwind } from "uniwind";
-import { cn } from "../../lib/cn";
 import { useInkColor } from "../../lib/ink";
-import { useTuned } from "../../lib/motion";
+import { FadingView, useTuned } from "../../lib/motion";
 import { BusyGlyphs, busyScrambles } from "../../lib/scramble";
 
 const LAYER = "absolute inset-0";
-
-// `Animated` passes through uniwind unwrapped: its view takes a className
-// only once wrapped.
-const Turning = withUniwind(Animated.View);
 
 // A turning ring in the ink of its place, the size of the glyph it replaces: docs/architecture/ui-core/motion.md, "Spinner".
 export function Spinner() {
@@ -38,9 +33,9 @@ export function Spinner() {
 function Glyphs() {
 	const color = useInkColor();
 	return (
-		<Turning entering={FadeIn.duration(tuned.fast)} className="shrink-0">
+		<FadingView entering={FadeIn.duration(tuned.fast)} className="shrink-0">
 			<BusyGlyphs className={BUSY_GLYPHS} style={{ color }} />
-		</Turning>
+		</FadingView>
 	);
 }
 
@@ -67,12 +62,12 @@ function Ring() {
 		transform: [{ rotate: `${turn.value}deg` }],
 	}));
 	return (
-		<Turning entering={FadeIn.duration(tuned.fast)} className={SPINNER}>
+		<FadingView entering={FadeIn.duration(tuned.fast)} className={SPINNER}>
 			<View className={cn(SPINNER_TRACK, LAYER)} style={{ borderColor }} />
-			<Turning
+			<FadingView
 				className={cn(SPINNER_ARC, LAYER)}
 				style={[{ borderColor }, turning]}
 			/>
-		</Turning>
+		</FadingView>
 	);
 }

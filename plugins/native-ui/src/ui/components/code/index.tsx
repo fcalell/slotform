@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Run, Runs } from "@fcalell/ui-core/descriptors";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -21,7 +22,6 @@ import { IconButtonBase } from "../../atoms/button/glyph";
 import { Icon } from "../../atoms/icon";
 import { codeWhole } from "../../lib/bind";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { useCopy } from "../../lib/copy";
 import { Ink } from "../../lib/ink";

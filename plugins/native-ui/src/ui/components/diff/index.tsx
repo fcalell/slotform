@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { DiffLine, Hunk } from "@fcalell/ui-core/descriptors";
 import {
 	BOTH,
@@ -29,7 +30,6 @@ import {
 import { Fragment, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { FrameBody, FrameLine } from "../../lib/read";
 import { WordDiff } from "./word";

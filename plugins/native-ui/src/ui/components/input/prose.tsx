@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { wordCount } from "@fcalell/ui-core/controls";
 import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
@@ -17,7 +18,6 @@ import {
 } from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { useCaretAtEnd } from "../../lib/caret";
-import { cn } from "../../lib/cn";
 import { FieldError, useFieldName, useFieldTurn } from "../../lib/field";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";

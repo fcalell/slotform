@@ -1,9 +1,9 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconName } from "@fcalell/ui-core/descriptors";
 import type { IconStroke } from "@fcalell/ui-core/tokens";
 import { type IconFit, icon } from "@fcalell/ui-core/variants";
 import { useResolveClassNames } from "uniwind";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { GLYPHS, Glyph } from "../../lib/glyph";
 import { useInk } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";

@@ -71,7 +71,7 @@ export function IconButtonBase({
 	destructive?: boolean;
 	// The act the bar is for: the accent fill.
 	primary?: boolean;
-	// The act is running: inert at once, then (after `ACT_DELAY`) its glyph swapped for the spinner.
+	// The act is running: inert at once, then (after `tuned.actDelay`) its glyph swapped for the spinner.
 	pending?: boolean;
 	// Its frame clips (a Code's): the focus ring is drawn inset, so the clip never cuts it.
 	inset?: boolean;

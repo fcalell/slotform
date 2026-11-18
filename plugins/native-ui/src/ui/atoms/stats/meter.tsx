@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { levelOf, type MeterLevel } from "@fcalell/ui-core/list-state";
@@ -16,11 +17,9 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { I18nManager, Pressable, Text as RNText, View } from "react-native";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
-import { withUniwind } from "uniwind";
+import { useAnimatedStyle } from "react-native-reanimated";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
-import { useValue } from "../../lib/motion";
+import { FadingView, useValue } from "../../lib/motion";
 import {
 	clipWhen,
 	inertProps,
@@ -46,9 +45,6 @@ const TICK = "absolute";
 // The tick rides a box as wide as the track and travels by transform.
 const TRAVEL = "absolute inset-y-0 left-0 w-full";
 
-const FillView = withUniwind(Animated.View);
-const TravelView = withUniwind(Animated.View);
-
 // The fill is the whole track scaled from its start to the data's share, so a
 // change moves on the UI thread and never lays out. One that mounts grows from
 // its start.
@@ -58,7 +54,7 @@ export function Fill(props: { share: number; level: MeterLevel }) {
 		transform: [{ scaleX: grown.value }],
 	}));
 	return (
-		<FillView
+		<FadingView
 			className={meterFill({ level: props.level })}
 			style={[
 				{ transformOrigin: I18nManager.isRTL ? "right" : "left" },
@@ -75,13 +71,13 @@ function Travel(props: { share: number }) {
 		transform: [{ translateX: `${at.value * 100}%` }],
 	}));
 	return (
-		<TravelView
+		<FadingView
 			pointerEvents="none"
 			className={cn(TRAVEL_X, TRAVEL)}
 			style={moved}
 		>
 			<View className={cn(METER_MARK, TICK)} />
-		</TravelView>
+		</FadingView>
 	);
 }
 

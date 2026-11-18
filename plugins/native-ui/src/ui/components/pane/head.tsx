@@ -1,4 +1,5 @@
 import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
+import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
 import { actsSplit } from "@fcalell/ui-core/overflow";
@@ -27,7 +28,6 @@ import { useContext } from "react";
 import { View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { RunText } from "../../lib/code";
 import { ShellSwitcher } from "../../lib/container";
 import { navigate } from "../../lib/navigate";

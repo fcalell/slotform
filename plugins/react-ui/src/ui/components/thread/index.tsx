@@ -7,7 +7,7 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { PAINT_TURNS } from "@fcalell/ui-core/paint";
-import { useStreamed } from "@fcalell/ui-core/react/arrive";
+import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import {
 	type Frame,
 	FrameHolds,
@@ -226,7 +226,7 @@ function ReplyTurn<T>(props: {
 	// The waiting message rises in when the turn begins once the log is drawn;
 	// the text that replaces it lands with the read's first answer, so the
 	// turn's own message never rises.
-	const begun = useStreamed(form === "waiting" ? [WAITING] : [], !painted);
+	const begun = useArrivals(form === "waiting" ? [WAITING] : [], !painted);
 	if (painted || form === "none") return null;
 	if (form === "waiting") return <WaitingReply arrives={begun.has(WAITING)} />;
 	// `useFrameRead` reads the turn untyped (`turnOf` over the held read): its
@@ -401,7 +401,7 @@ function Log<T>(props: {
 	useEffect(() => {
 		awaiting.current = thread.replying === true;
 	});
-	const arrived = useStreamed(
+	const arrived = useArrivals(
 		drawn.painted || ended
 			? []
 			: [

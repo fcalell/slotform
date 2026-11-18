@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { StatSpec } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
@@ -21,7 +22,6 @@ import { Icon } from "../../atoms/icon";
 import { CountLinks } from "../../atoms/stats/count-links";
 import { Meter } from "../../atoms/stats/meter";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { navigate, useWarm } from "../../lib/navigate";
 import { inertProps } from "../../lib/paint";

@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import {
 	choose,
 	chosenOf,
@@ -27,13 +28,10 @@ import {
 } from "@fcalell/ui-core/variants";
 import { Fragment, type ReactNode, useContext } from "react";
 import { View } from "react-native";
-import Animated from "react-native-reanimated";
-import { withUniwind } from "uniwind";
 import { FactBadge } from "../../atoms/row/badges";
 import { Leading } from "../../atoms/row/leading";
 import { HeldCheckbox } from "../../atoms/switch/checkbox";
 import { useHeldDraft } from "../../lib/act";
-import { cn } from "../../lib/cn";
 import { badgesOf } from "../../lib/facts";
 import { GroupName } from "../../lib/field";
 import {
@@ -61,7 +59,6 @@ import type { PickerListBody, PickerListProps } from "./index";
 const OPTION = "flex-row items-center";
 const WASH = "rounded-row bg-wash-press";
 // The chosen radio's dot grows from nothing and shrinks away.
-const Dot = withUniwind(Animated.View);
 // A blocked option's label and reason, and its radio's disabled ring.
 const BLOCKED_INK = "text-ink-disabled";
 const RADIO_BLOCKED = "border-edge bg-fill-disabled";
@@ -235,7 +232,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 													)}
 												>
 													{chosen ? (
-														<Dot
+														<FadingView
 															entering={dotIn()}
 															exiting={dotOut()}
 															className={OPTION_RADIO_DOT}

@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { Datum } from "@fcalell/ui-core/read";
 import {
 	GALLERY,
@@ -9,7 +10,6 @@ import {
 import { useState } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
-import { cn } from "../../lib/cn";
 import { PictureTile, PictureView } from "../image/base";
 
 // A caption is cut to its tile's width with an ellipsis; its own width is

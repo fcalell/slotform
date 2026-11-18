@@ -1,3 +1,4 @@
+import { cn } from "@fcalell/ui-core/cn";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { ChipFamily } from "@fcalell/ui-core/tokens";
@@ -8,7 +9,6 @@ import {
 	REMOVE_HIT,
 } from "@fcalell/ui-core/variants";
 import { Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { useTokenPx } from "../../lib/container";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";

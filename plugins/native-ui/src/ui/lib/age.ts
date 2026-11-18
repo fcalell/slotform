@@ -1,6 +1,5 @@
 import { ageWords, ageShort as shortOf } from "@fcalell/ui-core/clock";
-import { formatterFor } from "@fcalell/ui-core/format";
-import { moment as momentOf } from "./moment";
+import { formatterFor, momentWords } from "@fcalell/ui-core/format";
 
 // An ISO moment as its age from `now`, through the platform's relative-time words.
 // Hermes fallbacks: docs/architecture/ui-core/words.md, "On the phone".
@@ -8,7 +7,7 @@ import { moment as momentOf } from "./moment";
 export function age(moment: string, now = Date.now()): string {
 	if (Number.isNaN(Date.parse(moment))) return moment;
 	if (typeof Intl.RelativeTimeFormat !== "function")
-		return momentOf(moment, new Date(now));
+		return momentWords(moment, new Date(now));
 	const format = formatterFor("relative", undefined, { numeric: "auto" });
 	return ageWords(moment, now, format);
 }

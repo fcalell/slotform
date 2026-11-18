@@ -3,6 +3,7 @@ import { test } from "node:test";
 import {
 	changedSince,
 	derive,
+	emptied,
 	firstRefused,
 	heldPick,
 	isEmpty,
@@ -242,4 +243,35 @@ test("a field left, or every field on a press, lets its typed issue stand", () =
 	assert.deepEqual([...left], ["title"]);
 	assert.equal(leftWith(left, ["title"]), left);
 	assert.deepEqual([...leftWith(left, ["title", "count"])], ["title", "count"]);
+});
+
+const emptying = {
+	type: "object",
+	properties: {
+		maybe: { anyOf: [{ type: "string" }, { type: "null" }] },
+		many: { type: "array", items: { type: "string", enum: ["a", "b"] } },
+		typed: { type: "string" },
+		count: { type: "number" },
+		flag: { type: "boolean" },
+	},
+	required: ["maybe", "many", "typed", "count"],
+};
+const emptiedOf = (key: string, hint?: "lines") =>
+	emptied(derive(emptying, key, hint));
+
+test("an emptied field sends what its shape holds, or says why it sends nothing", () => {
+	assert.deepEqual(emptiedOf("maybe"), { value: null });
+	assert.deepEqual(emptiedOf("many"), { value: [] });
+	assert.deepEqual(emptiedOf("many", "lines"), { value: [] });
+	assert.deepEqual(emptiedOf("typed"), { value: "" });
+	assert.equal(emptiedOf("count"), "required");
+	assert.equal(emptiedOf("flag"), "absent");
+});
+
+test("a blank word leaves a name the values do not own as the blank, an inherited one included", () => {
+	assert.equal(
+		filled("{constructor} of {at}", { at: "2" }),
+		"{constructor} of 2",
+	);
+	assert.equal(filled("{toString}", {}), "{toString}");
 });

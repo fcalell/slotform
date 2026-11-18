@@ -1,10 +1,10 @@
+import { cn } from "@fcalell/ui-core/cn";
 import type { RowLeading } from "@fcalell/ui-core/descriptors";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { rowMark, TREE_BLEED, TREE_RAIL } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
-import { cn } from "../../lib/cn";
 import { Ink } from "../../lib/ink";
 import { NOOP } from "../../lib/noop";
 import { AvatarBase } from "../avatar/base";

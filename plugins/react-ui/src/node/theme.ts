@@ -2,12 +2,12 @@ import type { ResolvedTheme } from "@fcalell/ui-core/derive";
 import {
 	densityTokens,
 	modeTokens,
-	raisedGroundTokens,
+	RAISED_GROUND_TOKENS,
 	reducedMotionTokens,
 	roomScope,
 	rootTokens,
+	SOFT_GROUND_TOKENS,
 	shadowUtilities,
-	softGroundTokens,
 	themeTokens,
 } from "@fcalell/ui-core/emit";
 import {
@@ -201,11 +201,11 @@ export function modeLayer(resolved: ResolvedTheme): CssLayer {
 	rules.push(
 		renderRule(
 			RAISED_GROUNDS.map((ground) => `.bg-${ground}`).join(", "),
-			raisedGroundTokens(),
+			RAISED_GROUND_TOKENS,
 		),
 		renderRule(
 			SOFT_GROUNDS.map((ground) => `.bg-${ground}`).join(", "),
-			softGroundTokens(),
+			SOFT_GROUND_TOKENS,
 		),
 	);
 	return { name: "base", content: rules.join("\n") };
