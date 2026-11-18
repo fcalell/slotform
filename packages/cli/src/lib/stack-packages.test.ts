@@ -6,8 +6,6 @@ import { isErrno } from "./errno.ts";
 import {
 	pinnedCommit,
 	STACK_PACKAGES,
-	stackBuildKey,
-	stackGitSpec,
 	stackPluginSpecs,
 	stackSpec,
 	stackSpecMode,
@@ -92,8 +90,14 @@ test("the github workspace template overrides each package and approves its prep
 	assert.match(yaml, /overrides/);
 	assert.match(yaml, /blockExoticSubdeps: false/);
 	assert.match(yaml, /childConcurrency: 1/);
-	assert.ok(yaml.includes(stackBuildKey("@fcalell/plugin-vite")));
-	assert.ok(yaml.includes(stackGitSpec("@fcalell/cli")));
+	assert.match(
+		yaml,
+		/"@fcalell\/plugin-vite@git\+https:\/\/github\.com\/fcalell\/stack\.git": true/,
+	);
+	assert.match(
+		yaml,
+		/"@fcalell\/cli": github:fcalell\/stack#path:\/packages\/cli/,
+	);
 });
 
 // The two tests below hold STACK_PACKAGES to the checkout's own manifests.

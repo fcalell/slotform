@@ -4,13 +4,11 @@ import type { ProcessExit, ProcessSpec } from "../specs.ts";
 
 // ── supervise() ────────────────────────────────────────────────────────────
 
-// Default port-in-use detection. Captures the port number when present so
-// callers can surface it. Covers Node `EADDRINUSE`, wrangler, vite, and bun.
-//   - "EADDRINUSE: address already in use :::3000"
-//   - "Error: Port 3000 is already in use"
-//   - "Port 8787 is unavailable"
-const DEFAULT_PORT_CONFLICT =
-	/(?:EADDRINUSE|already in use|unavailable).*?(?::|port\s+)(\d{2,5})/i;
+// A port conflict on stderr and its port, named after the keyword
+// ("EADDRINUSE: address already in use :::3000") or before it
+// ("Error: Port 3000 is already in use", "Port 8787 is unavailable").
+const PORT_CONFLICT =
+	/(?:EADDRINUSE|already in use|unavailable).*?(?::|port\s+)(\d{2,5})|port\s+(\d{2,5})\s+is\s+(?:already in use|unavailable)/i;
 
 const DEFAULT_MAX_RESTARTS = 3;
 const STDERR_TAIL_BYTES = 4 * 1024;
@@ -61,7 +59,6 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 	const { spec } = opts;
 	const policy = spec.restart ?? "never";
 	const maxRestarts = spec.maxRestarts ?? DEFAULT_MAX_RESTARTS;
-	const portPattern = spec.portConflictPattern ?? DEFAULT_PORT_CONFLICT;
 
 	let attempt = 0;
 	let stopped = false;
@@ -141,20 +138,10 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 					? stderrText.slice(-STDERR_TAIL_BYTES)
 					: stderrText;
 
-			let portInUse = false;
-			let detectedPort: number | null = null;
-			const match = portPattern.exec(stderrTail);
-			if (match) {
-				portInUse = true;
-				const captured = match[1];
-				if (captured) {
-					const n = Number.parseInt(captured, 10);
-					if (Number.isFinite(n)) detectedPort = n;
-				}
-				if (detectedPort === null && spec.defaultPort !== undefined) {
-					detectedPort = spec.defaultPort;
-				}
-			}
+			// One of the two groups matched: each alternative captures the port.
+			const match = PORT_CONFLICT.exec(stderrTail);
+			const portInUse = match !== null;
+			const detectedPort = match === null ? null : Number(match[1] ?? match[2]);
 
 			const event: ProcessExit = {
 				code,
@@ -191,8 +178,7 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 			}
 
 			const policyAllows =
-				policy === "always" ||
-				(policy === "on-crash" && (code === null || code !== 0));
+				policy === "always" || (policy === "on-crash" && code !== 0);
 			const restart = !vetoed && policyAllows && attempt < maxRestarts;
 
 			if (!restart) {

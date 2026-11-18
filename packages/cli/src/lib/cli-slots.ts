@@ -7,6 +7,7 @@ import type {
 	GeneratedFile,
 	GuideEntry,
 	LintPlugin,
+	Phase,
 	ProcessSpec,
 	PromptSpec,
 	WatcherSpec,
@@ -16,15 +17,9 @@ import { type Contribution, type Slot, slot } from "./slots.ts";
 // CLI-owned slot tokens: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 const SOURCE = "cli";
 
-const phaseOrder = { pre: 0, main: 1, post: 2 } satisfies Record<
-	BuildStep["phase"],
-	number
->;
+const phaseOrder = { pre: 0, main: 1, post: 2 } satisfies Record<Phase, number>;
 
-function comparePhaseOrder<T extends { phase: BuildStep["phase"] }>(
-	a: T,
-	b: T,
-): number {
+function comparePhaseOrder<T extends { phase: Phase }>(a: T, b: T): number {
 	return phaseOrder[a.phase] - phaseOrder[b.phase];
 }
 

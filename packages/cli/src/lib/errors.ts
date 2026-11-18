@@ -31,29 +31,21 @@ export class ConfigValidationError extends StackError {
 }
 
 export class StepFailedError extends StackError {
-	readonly step: string;
-	readonly exitCode: number | null;
-	readonly command?: string;
-	constructor(step: string, exitCode: number | null, command?: string) {
+	constructor(step: string, exitCode: number | null, command: string) {
 		super(
-			`Step "${step}" failed${exitCode !== null ? ` with exit code ${exitCode}` : ""}.`,
+			`Step "${step}" (${command}) failed${exitCode !== null ? ` with exit code ${exitCode}` : ""}.`,
 			"STEP_FAILED",
 		);
-		this.step = step;
-		this.exitCode = exitCode;
-		this.command = command;
 		this.name = "StepFailedError";
 	}
 }
 
 export class MissingPluginError extends StackError {
-	readonly pluginName: string;
 	constructor(pluginName: string, message?: string) {
 		super(
 			message ?? `Plugin "${pluginName}" is not available.`,
 			"MISSING_PLUGIN",
 		);
-		this.pluginName = pluginName;
 		this.name = "MissingPluginError";
 	}
 }

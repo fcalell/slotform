@@ -26,19 +26,20 @@ test("a map slot's merge combines the duplicates of a key pairwise", () => {
 	});
 });
 
-test("merge declining with undefined leaves the duplicate a conflict, and sees the key", () => {
+test("merge declining with undefined leaves the duplicate a conflict, and sees the key's identity", () => {
 	const seen: string[] = [];
 	const s = slot.map<number>({
 		source: "t",
 		name: "some",
+		keyOf: (k) => k.toLowerCase(),
 		merge: (a, b, key) => {
 			seen.push(key);
 			return key === "sum" ? a + b : undefined;
 		},
 	});
-	assert.deepEqual(composeMap(s, results({ sum: 1 }, { sum: 2 })), { sum: 3 });
+	assert.deepEqual(composeMap(s, results({ Sum: 1 }, { SUM: 2 })), { Sum: 3 });
 	assert.throws(
-		() => composeMap(s, results({ x: 1 }, { x: 2 })),
+		() => composeMap(s, results({ X: 1 }, { x: 2 })),
 		SlotConflictError,
 	);
 	assert.deepEqual(seen, ["sum", "x"]);

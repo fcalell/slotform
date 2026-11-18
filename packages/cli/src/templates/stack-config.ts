@@ -1,4 +1,4 @@
-import { isRecord } from "../lib/is-record.ts";
+import { pluginPackage } from "../lib/first-party.ts";
 import { toCamelCase } from "../lib/naming.ts";
 
 interface StackConfigOptions {
@@ -13,19 +13,19 @@ export function stackConfigTemplate(options: StackConfigOptions): string {
 
 	for (const name of options.plugins) {
 		const id = toCamelCase(name);
-		imports.push(`import { ${id} } from "@fcalell/plugin-${name}";`);
+		imports.push(`import { ${id} } from "${pluginPackage(name)}";`);
 	}
 
 	const pluginCalls: string[] = [];
 	for (const name of options.plugins) {
 		const id = toCamelCase(name);
 		const answers = options.pluginAnswers.get(name);
-		if (answers && Object.keys(answers).length > 0) {
-			const optStr = formatOptions(answers, 2);
-			pluginCalls.push(`\t\t${id}(${optStr})`);
-		} else {
-			pluginCalls.push(`\t\t${id}()`);
-		}
+		// JSON is a TypeScript literal; init's format pass lays it out.
+		const args =
+			answers && Object.keys(answers).length > 0
+				? JSON.stringify(answers, null, "\t").replaceAll("\n", "\n\t\t")
+				: "";
+		pluginCalls.push(`\t\t${id}(${args})`);
 	}
 
 	const lines: string[] = [];
@@ -36,30 +36,10 @@ export function stackConfigTemplate(options: StackConfigOptions): string {
 	lines.push(`\t\tdomain: ${JSON.stringify(options.domain)},`);
 	lines.push("\t},");
 	lines.push("\tplugins: [");
-	lines.push(`${pluginCalls.join(",\n")},`);
+	lines.push(...pluginCalls.map((call) => `${call},`));
 	lines.push("\t],");
 	lines.push("});");
 	lines.push("");
 
 	return `${imports.join("\n")}\n${lines.join("\n")}`;
-}
-
-function formatOptions(obj: Record<string, unknown>, depth: number): string {
-	const indent = "\t".repeat(depth);
-	const innerIndent = "\t".repeat(depth + 1);
-	const entries: string[] = [];
-
-	for (const [key, value] of Object.entries(obj)) {
-		if (typeof value === "string") {
-			entries.push(`${innerIndent}${key}: ${JSON.stringify(value)}`);
-		} else if (typeof value === "number" || typeof value === "boolean") {
-			entries.push(`${innerIndent}${key}: ${value}`);
-		} else if (isRecord(value)) {
-			entries.push(`${innerIndent}${key}: ${formatOptions(value, depth + 1)}`);
-		} else {
-			entries.push(`${innerIndent}${key}: ${JSON.stringify(value)}`);
-		}
-	}
-
-	return `{\n${entries.join(",\n")},\n${indent}}`;
 }

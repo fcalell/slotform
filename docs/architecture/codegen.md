@@ -105,7 +105,7 @@ plugin or config, and it fails loudly instead of emitting corrupt CSS.
 
 ## Path containment
 
-A contributed path (`removeFiles`, an artifact's `path`) is written or deleted, so `insideProject`
+A contributed path (`removeFiles`, an artifact's `path`, a scaffold's `target`) is written or deleted, so `insideProject`
 resolves it against the project root and refuses, with `PATH_OUTSIDE_PROJECT`, one that is the root
 itself or lies outside it: a `..` segment or an absolute path never reaches the filesystem.
 

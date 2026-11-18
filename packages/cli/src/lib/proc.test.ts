@@ -127,3 +127,37 @@ test("a restart after the run ended starts a run with its own done", async () =>
 	assert.equal((await settles(proc.done)).code, 0);
 	assert.deepEqual(launches, [0, 0]);
 });
+
+test("a port conflict on stderr is flagged with its port, before or after the keyword", async () => {
+	for (const [line, port] of [
+		["EADDRINUSE: address already in use :::3000", 3000],
+		["Error: Port 3001 is already in use", 3001],
+		["Port 8787 is unavailable", 8787],
+	] as const) {
+		const proc = supervise({
+			spec: {
+				name: "taken",
+				command: process.execPath,
+				args: ["-e", `console.error(${JSON.stringify(line)}); process.exit(1)`],
+			},
+			onOutput: () => {},
+		});
+		const exit = await proc.done;
+		assert.equal(exit.portInUse, true, line);
+		assert.equal(exit.detectedPort, port, line);
+	}
+});
+
+test("stderr that names no port conflict flags none", async () => {
+	const proc = supervise({
+		spec: {
+			name: "plain",
+			command: process.execPath,
+			args: ["-e", "console.error('listening on 3000'); process.exit(1)"],
+		},
+		onOutput: () => {},
+	});
+	const exit = await proc.done;
+	assert.equal(exit.portInUse, false);
+	assert.equal(exit.detectedPort, null);
+});

@@ -103,7 +103,7 @@ export async function applyScaffold(
 	);
 	announceCreated(created);
 	patchPackageJson(dir, { ...dependencies, fields: packageJsonFields });
-	if (gitignore.length > 0) ensureGitignore(...gitignore);
+	if (gitignore.length > 0) ensureGitignore(dir, ...gitignore);
 	installStack(dir);
 	return created;
 }

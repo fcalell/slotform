@@ -1,7 +1,4 @@
-// Shared spec types consumed across plugins + commands.
-// These were formerly exported alongside event tokens from `./events`; the
-// slot-based plugin system keeps the spec shapes (what plugins contribute)
-// but drops the event tokens and the bus that carried them.
+// The spec shapes plugins contribute to the CLI's slots.
 
 export interface GeneratedFile {
 	path: string;
@@ -29,11 +26,7 @@ export interface ProcessSpec {
 	name: string;
 	command: string;
 	args: string[];
-	// Optional port hint. Used as a fallback when the default
-	// `EADDRINUSE` regex matches but no number is captured (rare with the
-	// default pattern, common with custom patterns), and reported back on the
-	// `ProcessExit.detectedPort` field so callers can react (e.g. retry on a
-	// different port, surface a clearer error).
+	// The port the process serves on, shown as its URL: docs/architecture/commands.md, "`stack dev`".
 	defaultPort?: number;
 	readyPattern?: RegExp;
 	color?: string;
@@ -43,12 +36,8 @@ export interface ProcessSpec {
 	env?: Record<string, string>;
 	// Default restart policy: docs/architecture/commands.md, "`stack dev`".
 	restart?: ProcessRestartPolicy;
-	// Cap on restart attempts when policy allows restarts. Default 3. Once
-	// exceeded, the supervisor reports the final exit and stops.
+	// Cap on restart attempts: docs/architecture/commands.md, "`stack dev`".
 	maxRestarts?: number;
-	// Pattern matched against captured stderr to flag port-in-use. Defaults
-	// to a Node.js / Bun / Wrangler EADDRINUSE pattern.
-	portConflictPattern?: RegExp;
 	// Per-exit hook — method shorthand makes return-type checking bivariant
 	// so callers with side-effect-only handlers (no explicit return) work.
 	onExit?(event: ProcessExit): { restart: boolean } | undefined;
@@ -56,10 +45,8 @@ export interface ProcessSpec {
 
 // Surfaced on every exit (initial run + each restart attempt).
 //   restartAttempt — 0 for the first run, increments per restart.
-//   portInUse      — `portConflictPattern` matched on stderr.
-//   detectedPort   — port number captured from the pattern, or
-//                    `defaultPort` as a fallback when classification fired
-//                    without a captured number, otherwise `null`.
+//   portInUse      — stderr reports a port conflict.
+//   detectedPort   — the port a conflict on stderr names, otherwise `null`.
 //   stderrTail     — last ~4 KB of stderr; useful for surfacing the failure
 //                    in a higher-level error without re-streaming.
 export interface ProcessExit {
@@ -82,21 +69,17 @@ export interface WatcherSpec {
 	) => void | Promise<void>;
 }
 
+export type Phase = "pre" | "main" | "post";
+
 export type BuildStep =
 	| {
 			name: string;
-			phase: "pre" | "main" | "post";
+			phase: Phase;
 			exec: { command: string; args: string[]; cwd?: string };
 	  }
-	| { name: string; phase: "pre" | "main" | "post"; run: () => Promise<void> };
+	| { name: string; phase: Phase; run: () => Promise<void> };
 
-export type DeployStep =
-	| {
-			name: string;
-			phase: "pre" | "main" | "post";
-			exec: { command: string; args: string[]; cwd?: string };
-	  }
-	| { name: string; phase: "pre" | "main" | "post"; run: () => Promise<void> };
+export type DeployStep = BuildStep;
 
 export interface DeployCheck {
 	plugin: string;
@@ -117,7 +100,7 @@ export interface PromptSpec {
 	) => Promise<Record<string, unknown>>;
 }
 
-// Setup tasks surfaced via `cli.slots.devReadySetup`. Kept distinct from a
+// Setup tasks surfaced via `cliSlots.devReadySetup`. Kept distinct from a
 // generic "runnable" because `dev` logs each task's name as it runs.
 export interface DevReadyTask {
 	name: string;

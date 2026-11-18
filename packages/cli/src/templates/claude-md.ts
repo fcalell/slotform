@@ -1,4 +1,6 @@
-const IMPORT = "@.stack/guide.md";
+import { GUIDE_PATH } from "../lib/guide.ts";
+
+const IMPORT = `@${GUIDE_PATH}`;
 
 // The consumer's `CLAUDE.md` imports the guide's index: docs/architecture/consumer-project.md, "The guide".
 export function claudeMdTemplate(existing: string | null): string | null {

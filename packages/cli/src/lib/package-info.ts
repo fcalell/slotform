@@ -11,21 +11,25 @@ interface PackageInfo {
 	exports: object | undefined;
 }
 
-// Memoized: within a CLI process, package resolution is stable, so we
-// avoid repeating the require.resolve + filesystem walk for any package
-// we've already looked up.
-const cache = new Map<string, PackageInfo | null>();
+// The entry of `pkg` as the app at `dir` resolves it.
+export function resolveFromApp(pkg: string, dir: string): string {
+	return createRequire(join(dir, "package.json")).resolve(pkg);
+}
+
+// Only a found package is memoized: one not found yet may be installed later
+// in the same process (`stack init` installs, then loads).
+const cache = new Map<string, PackageInfo>();
 
 export function findPackageInfo(pkg: string): PackageInfo | null {
 	const cached = cache.get(pkg);
 	if (cached !== undefined) return cached;
-	for (const make of [
-		() => createRequire(join(process.cwd(), "package.json")),
-		() => createRequire(import.meta.url),
+	for (const resolvePkg of [
+		() => resolveFromApp(pkg, process.cwd()),
+		() => createRequire(import.meta.url).resolve(pkg),
 	]) {
 		let mainPath: string;
 		try {
-			mainPath = make().resolve(pkg);
+			mainPath = resolvePkg();
 		} catch (error) {
 			// Not installed, or installed with no entry `require` can reach.
 			if (!isErrno(error, "MODULE_NOT_FOUND", "ERR_PACKAGE_PATH_NOT_EXPORTED"))
@@ -38,7 +42,6 @@ export function findPackageInfo(pkg: string): PackageInfo | null {
 			return info;
 		}
 	}
-	cache.set(pkg, null);
 	return null;
 }
 

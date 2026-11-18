@@ -1,22 +1,16 @@
-import {
-	appendFileSync,
-	existsSync,
-	mkdirSync,
-	readFileSync,
-	writeFileSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join } from "node:path";
 import { log } from "@clack/prompts";
 import type { ScaffoldSpec } from "../ast/index.ts";
+import { gitignoreTemplate } from "../templates/gitignore.ts";
 import { StackError } from "./errors.ts";
+import { insideProject } from "./inside-project.ts";
 import { isRecord } from "./is-record.ts";
 
 class ScaffoldError extends StackError {
-	readonly path?: string;
-	constructor(message: string, path?: string) {
+	constructor(message: string) {
 		super(message, "SCAFFOLD");
-		this.path = path;
 		this.name = "ScaffoldError";
 	}
 }
@@ -43,15 +37,17 @@ export async function writeScaffoldSpecs(
 		if (prior !== undefined) {
 			throw new ScaffoldError(
 				`Duplicate scaffold target "${spec.target}" contributed by plugin-${prior} and plugin-${spec.plugin}`,
-				spec.target,
 			);
 		}
 		seen.set(spec.target, spec.plugin);
 	}
+	const writes = specs.map((spec) => ({
+		spec,
+		absTarget: insideProject(cwd, spec.target),
+	}));
 
 	const created: string[] = [];
-	for (const spec of specs) {
-		const absTarget = resolve(cwd, spec.target);
+	for (const { spec, absTarget } of writes) {
 		if (existsSync(absTarget)) continue;
 
 		const content = spec.source
@@ -70,25 +66,17 @@ export function announceCreated(created: readonly string[]): void {
 	}
 }
 
-export function ensureGitignore(...entries: string[]): boolean {
-	const gitignorePath = join(process.cwd(), ".gitignore");
-	let added = false;
-
-	if (existsSync(gitignorePath)) {
-		const content = readFileSync(gitignorePath, "utf-8");
-		const missing = entries.filter((e) => !content.includes(e));
-		if (missing.length > 0) {
-			appendFileSync(gitignorePath, `\n${missing.join("\n")}\n`);
-			added = true;
-		}
-	} else {
-		writeFileSync(
-			gitignorePath,
-			`${["node_modules", "dist", ...entries].join("\n")}\n`,
-		);
-		added = true;
-	}
-	return added;
+// Adds the entries `dir/.gitignore` lacks as whole lines, starting a missing
+// file from the template.
+export function ensureGitignore(dir: string, ...entries: string[]): void {
+	const path = join(dir, ".gitignore");
+	const existing = existsSync(path) ? readFileSync(path, "utf-8") : null;
+	const content = existing ?? gitignoreTemplate();
+	const lines = new Set(content.split("\n").map((line) => line.trim()));
+	const missing = entries.filter((e) => !lines.has(e));
+	if (existing !== null && missing.length === 0) return;
+	const added = missing.length > 0 ? `\n${missing.join("\n")}\n` : "";
+	writeFileSync(path, `${content}${added}`);
 }
 
 interface PackageJsonPatch {
@@ -115,7 +103,7 @@ export function patchPackageJson(cwd: string, patch: PackageJsonPatch): void {
 
 	const pkg: unknown = JSON.parse(readFileSync(pkgPath, "utf-8"));
 	if (!isRecord(pkg)) {
-		throw new ScaffoldError(`${pkgPath} is not a JSON object.`, pkgPath);
+		throw new ScaffoldError(`${pkgPath} is not a JSON object.`);
 	}
 	let changed = false;
 	const entries = (field: string): Record<string, unknown> => {

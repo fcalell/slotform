@@ -364,7 +364,7 @@ it (`#<sha>&path:/plugins/db`), so one install never holds two commits of a stac
 ref-less, the consumer's lockfile pins the commit. A git tarball keeps the `workspace:*` ranges
 between stack packages and runs the package's `prepare` to build `dist/`, so the yaml also:
 
-- overrides every stack package the app's `dependencies` reach to its spec;
+- overrides every stack package the app's `dependencies` and `devDependencies` reach to its spec;
 - sets `blockExoticSubdeps: false`, since the git packages depend on one another by git spec;
 - approves each package's `prepare` by `"<name>@git+https://github.com/fcalell/stack.git": true`
   (pnpm 11.15 or later; the bare name and the `github:` spec are refused);
@@ -412,10 +412,12 @@ over an attribute's text, so it reads a literal class string and not a class a f
 each rule's `.grit` header states what it forbids, and the rest of the rules page is a reviewer's.
 
 `.stack/biome.json` renders the slot, and the consumer's `biome.json` extends it. It is written for
-every app, so that `extends` always resolves. The file carries each rule as
-`node_modules/<package>/lint/<rule>.grit` in an override whose `includes` names the app's source,
-paths that resolve from the app's root in a consumer and in the showcase alike (its nested
-`biome.json` is that root). A file named `biome.json` under `.stack/` is also a nested config to
+every app, so that `extends` always resolves. The file carries each rule as a `plugins` entry,
+`{ "path": "node_modules/<package>/lint/<rule>.grit", "includes": [...] }`, a path that resolves
+from the app's root in a consumer and in the showcase alike (its nested `biome.json` is that root).
+The path is spelled under `node_modules/` because Biome 2.6 reads a bare package name in a plugin
+`path` as a Biome plugin package, which needs a `biome-manifest.json` the stack packages do not
+ship. A file named `biome.json` under `.stack/` is also a nested config to
 Biome's discovery, so it carries `root: false`, which keeps Biome from reading it as a second root
 config where the consumer's `files.includes` does not skip `.stack`.
 

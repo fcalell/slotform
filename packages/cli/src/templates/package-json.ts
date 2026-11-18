@@ -8,7 +8,10 @@ import {
 	stackPluginSpecs,
 	stackSpec,
 } from "../lib/stack-packages.ts";
-import { extendsNodeTsx, tsconfigLayout } from "./tsconfig.ts";
+import { extendsNodeTsx, isSplit, tsconfigLayout } from "./tsconfig.ts";
+
+// The React an app with a DOM or native side compiles against.
+const REACT_SPEC = "^19.3.0";
 
 interface PackageJsonOptions {
 	name: string;
@@ -35,26 +38,22 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 	}
 
 	const layout = tsconfigLayout(options.plugins);
-	const hasWorker = layout.worker;
 	if (extendsNodeTsx(layout)) devDeps["@types/node"] = TYPES_NODE_SPEC;
-	if (hasWorker && !layout.node) devDeps.wrangler = "^4.162.0";
 
 	const hasNative = layout.native;
 	const hasReactDom = options.plugins.includes("react");
 	if (hasNative || hasReactDom) {
 		// React's types back the app's JSX (`react/jsx-runtime`) so the app's
 		// tsconfig resolves the automatic runtime.
-		devDeps["@types/react"] = "^19.3.0";
+		devDeps["@types/react"] = REACT_SPEC;
 	}
 	if (hasReactDom) {
-		deps.react = "^19.3.0";
-		deps["react-dom"] = "^19.3.0";
-		devDeps["@types/react-dom"] = "^19.3.0";
+		deps.react = REACT_SPEC;
+		deps["react-dom"] = REACT_SPEC;
+		devDeps["@types/react-dom"] = REACT_SPEC;
 	}
 
 	Object.assign(deps, stackPluginSpecs(options.plugins, null));
-
-	const hasWeb = layout.web;
 
 	const pkg: Record<string, unknown> = {
 		name: options.name,
@@ -64,7 +63,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 	};
 	if (!options.workspace) pkg.packageManager = PACKAGE_MANAGER;
 
-	if (hasWeb) {
+	if (layout.web) {
 		pkg.imports = { "#/*": "./src/*" };
 	}
 
@@ -75,8 +74,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 		deploy: "stack deploy",
 		// An app with a worker is a solution of two projects, which only
 		// `tsc -b` checks: `--noEmit` on its `files: []` root checks nothing.
-		"check-types":
-			(hasNative || hasWeb) && hasWorker ? "tsc -b" : "tsc --noEmit",
+		"check-types": isSplit(layout) ? "tsc -b" : "tsc --noEmit",
 	};
 	if (!options.workspace) {
 		scripts.lint = "biome check --write --unsafe";

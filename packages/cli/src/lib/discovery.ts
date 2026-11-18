@@ -1,5 +1,3 @@
-import { createRequire } from "node:module";
-import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { StackConfig } from "../config.ts";
 import type {
@@ -10,6 +8,7 @@ import type {
 } from "./create-plugin.ts";
 import { PLUGIN_NAMES, pluginPackage } from "./first-party.ts";
 import { toCamelCase } from "./naming.ts";
+import { resolveFromApp } from "./package-info.ts";
 import type { Slot } from "./slots.ts";
 
 // A loaded plugin tied to its per-config options. `factory` is the
@@ -42,8 +41,7 @@ async function loadPlugin(
 		// `node_modules` (not the CLI's), the primary import fails. Retrying
 		// via `createRequire(cwd)` follows the consumer's resolution tree.
 		try {
-			const cwdRequire = createRequire(join(process.cwd(), "package.json"));
-			const resolved = cwdRequire.resolve(packageName);
+			const resolved = resolveFromApp(packageName, process.cwd());
 			mod = await import(pathToFileURL(resolved).href);
 		} catch {
 			const detail = cause instanceof Error ? cause.message : String(cause);

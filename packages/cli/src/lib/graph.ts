@@ -1,4 +1,3 @@
-import type { ScaffoldSpec } from "../ast/index.ts";
 import type { AppConfig } from "../config.ts";
 import {
 	type Contribution,
@@ -13,12 +12,11 @@ import {
 
 // ── Plugin shape consumed by buildGraph ─────────────────────────────
 //
-// Minimal structural slice; the Phase B `plugin()` factory produces a
-// richer object — buildGraph only needs name + slots + contributions.
+// The slice of a `plugin()` result buildGraph reads: its name, slots and
+// contributions.
 
 export interface GraphPlugin {
 	name: string;
-	options?: unknown;
 	slots?: Record<string, Slot<unknown>>;
 	contributes?: Contribution<unknown>[];
 }
@@ -33,13 +31,12 @@ export interface GraphCtxFactory {
 	app: AppConfig;
 	cwd: string;
 	log: LogContext;
-	ctxForPlugin(pluginName: string): {
-		options: unknown;
-		fileExists(path: string): Promise<boolean>;
-		readFile(path: string): Promise<string>;
-		template(name: string): URL;
-		scaffold(name: string, target: string): ScaffoldSpec;
-	};
+	ctxForPlugin(
+		pluginName: string,
+	): Pick<
+		ContributionCtx,
+		"options" | "fileExists" | "readFile" | "template" | "scaffold"
+	>;
 }
 
 export interface Graph {
@@ -52,7 +49,6 @@ export function buildGraph(
 	plugins: readonly GraphPlugin[],
 	ctxFactory: GraphCtxFactory,
 ): Graph {
-	// Collect every slot declared by any plugin.
 	const slotById = new Map<symbol, Slot<unknown>>();
 	const slotOwner = new Map<symbol, string>();
 	// A slot is matched by identity: docs/architecture/slot-graph.md, "Slot identity".
@@ -78,10 +74,12 @@ export function buildGraph(
 		}
 	}
 
-	// A slot whose plugin is absent: docs/architecture/slot-graph.md, "A slot whose plugin is absent".
-	function register(s: Slot<unknown>): void {
-		if (slotById.has(s.id)) return;
+	// Answers the slot's owner, claiming a slot whose plugin is absent: docs/architecture/slot-graph.md, "A slot whose plugin is absent".
+	function register(s: Slot<unknown>): string {
+		const owner = slotOwner.get(s.id);
+		if (owner !== undefined) return owner;
 		claim(s, s.source);
+		return s.source;
 	}
 
 	// Collect contributions keyed by slot id. Auto-stamp plugin name from the
@@ -109,7 +107,6 @@ export function buildGraph(
 		}
 	}
 
-	// Detect derived-input cycles up-front via 3-color DFS.
 	detectCycles(slotById, register);
 
 	// Memoized resolve. Stored as the Promise so parallel callers share it
@@ -156,7 +153,7 @@ export function buildGraph(
 			entries.forEach(([key], i) => {
 				inputs[key] = values[i];
 			});
-			const ownerName = slotOwner.get(s.id) ?? s.source;
+			const ownerName = register(s);
 			const ctx = makeCtx(ownerName);
 			try {
 				return (await kind.compute(inputs, ctx)) as T;
@@ -183,12 +180,11 @@ export function buildGraph(
 		if (kind.type === "map") {
 			return composeMap(s as Slot<Record<string, unknown>>, results) as T;
 		}
-		// value
 		let seedValue: { present: true; value: T } | { present: false } = {
 			present: false,
 		};
 		if (kind.seed) {
-			const ownerName = slotOwner.get(s.id) ?? s.source;
+			const ownerName = register(s);
 			const ctx = makeCtx(ownerName);
 			try {
 				seedValue = { present: true, value: (await kind.seed(ctx)) as T };
@@ -203,31 +199,20 @@ export function buildGraph(
 }
 
 class SlotCycleError extends SlotError {
-	readonly cycle: string[];
 	constructor(cycle: string[]) {
 		super(
 			`Slot dependency cycle detected: ${cycle.join(" -> ")}. ` +
 				`Break the cycle by removing one of the 'inputs' entries on a derived slot.`,
 			"SLOT_CYCLE",
 		);
-		this.cycle = cycle;
 		this.name = "SlotCycleError";
 	}
 }
 
 class SlotResolutionError extends SlotError {
-	readonly slotName: string;
-	readonly plugin: string | null;
 	readonly cause: unknown;
-	constructor(
-		message: string,
-		slotName: string,
-		plugin: string | null,
-		cause: unknown,
-	) {
+	constructor(message: string, cause: unknown) {
 		super(message, "SLOT_RESOLUTION");
-		this.slotName = slotName;
-		this.plugin = plugin;
 		this.cause = cause;
 		this.name = "SlotResolutionError";
 		if (cause instanceof Error && cause.stack) {
@@ -245,8 +230,6 @@ function wrapResolutionError(
 	const detail = err instanceof Error ? err.message : String(err);
 	return new SlotResolutionError(
 		`Slot '${s.source}:${s.name}' failed while resolving contribution from '${plugin}': ${detail}`,
-		`${s.source}:${s.name}`,
-		plugin,
 		err,
 	);
 }

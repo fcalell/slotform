@@ -1,3 +1,4 @@
+import { pluginPackage } from "./first-party.ts";
 import { cliManifest } from "./manifest.ts";
 
 // The package manager a scaffolded project outside stack's workspace pins.
@@ -11,8 +12,6 @@ export const STACK_PACKAGES = {
 	"@fcalell/cli": {
 		dir: "packages/cli",
 		dependencies: [],
-		// The wrangler its package.json template writes for an app with a worker.
-		builds: { esbuild: true, workerd: true },
 	},
 	"@fcalell/typescript-config": {
 		dir: "packages/typescript-config",
@@ -43,6 +42,8 @@ export const STACK_PACKAGES = {
 			"@fcalell/plugin-screens",
 			"@fcalell/plugin-vite",
 		],
+		// The wrangler it adds to the app's devDependencies.
+		builds: { esbuild: true, workerd: true },
 	},
 	"@fcalell/plugin-db": {
 		dir: "plugins/db",
@@ -90,6 +91,8 @@ export const STACK_PACKAGES = {
 			"@fcalell/plugin-vite",
 			"@fcalell/ui-core",
 		],
+		// The esbuild that bundles the server.
+		builds: { esbuild: true },
 	},
 	"@fcalell/plugin-query": {
 		dir: "plugins/query",
@@ -215,7 +218,7 @@ export function stackPluginSpecs(
 ): Record<string, string> {
 	const specs: Record<string, string> = {};
 	for (const name of plugins) {
-		const pkgName = `@fcalell/plugin-${name}`;
+		const pkgName = pluginPackage(name);
 		if (isStackPackage(pkgName))
 			specs[pkgName] = stackSpec(pkgName, commit, version);
 	}

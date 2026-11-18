@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
-import { resolve } from "node:path";
+import { join, resolve } from "node:path";
 import { test } from "node:test";
-import { StackError } from "./errors.ts";
-import { insideProject } from "./inside-project.ts";
+import { insideProject, leaves } from "./inside-project.ts";
 
 const cwd = resolve("/tmp/proj");
 
@@ -22,8 +21,20 @@ test("the root, a parent, an escape and an absolute path outside are refused", (
 		"/etc/passwd",
 		resolve("/tmp/proj-other/x"),
 	]) {
-		assert.throws(() => insideProject(cwd, bad), StackError, bad);
+		assert.throws(
+			() => insideProject(cwd, bad),
+			{ code: "PATH_OUTSIDE_PROJECT", message: /is not inside the project/ },
+			bad,
+		);
 	}
+});
+
+test("a relative path leaves its directory only through a `..` segment", () => {
+	assert.equal(leaves(".."), true);
+	assert.equal(leaves(join("..", "x")), true);
+	assert.equal(leaves(resolve("/elsewhere")), true);
+	assert.equal(leaves(join("..foo", "app")), false);
+	assert.equal(leaves("src"), false);
 });
 
 test("an absolute path inside the project is accepted", () => {

@@ -109,9 +109,6 @@ export class SlotError extends Error {
 }
 
 export class SlotConflictError extends SlotError {
-	readonly slotName: string;
-	readonly key: string | null;
-	readonly contributors: string[];
 	constructor(slotName: string, key: string | null, contributors: string[]) {
 		super(
 			key === null
@@ -125,9 +122,6 @@ export class SlotConflictError extends SlotError {
 						.join(", ")}.`,
 			"SLOT_CONFLICT",
 		);
-		this.slotName = slotName;
-		this.key = key;
-		this.contributors = contributors;
 		this.name = "SlotConflictError";
 	}
 }
@@ -322,21 +316,9 @@ export function composeList<T>(
 			seen.set(key, owners[i] ?? "(unknown)");
 		}
 	}
-	if (kind.sortBy) {
-		// Stable sort via decorate-sort-undecorate so tie-breaking is deterministic.
-		out
-			.map((item, index) => ({ item, index }))
-			.sort((a, b) => {
-				const cmp = (kind.sortBy as unknown as (x: T, y: T) => number)(
-					a.item,
-					b.item,
-				);
-				return cmp !== 0 ? cmp : a.index - b.index;
-			})
-			.forEach((wrapped, i) => {
-				out[i] = wrapped.item;
-			});
-	}
+	// Array sort is stable, so equal items keep their contribution order. The
+	// compiler cannot reduce `ItemOf<T[]>` to `T` for a generic `T`.
+	if (kind.sortBy) out.sort(kind.sortBy as unknown as (x: T, y: T) => number);
 	return out;
 }
 

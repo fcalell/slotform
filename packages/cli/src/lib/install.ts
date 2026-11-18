@@ -2,7 +2,6 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import {
 	dirname,
-	isAbsolute,
 	join,
 	matchesGlob,
 	posix,
@@ -15,6 +14,7 @@ import { parse } from "yaml";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 import { isErrno } from "./errno.ts";
 import { StackError } from "./errors.ts";
+import { leaves } from "./inside-project.ts";
 import { isRecord } from "./is-record.ts";
 import { type Manifest, readManifest } from "./manifest.ts";
 import {
@@ -165,7 +165,7 @@ function workspaceOf(
 	}));
 	const isProject = (path: string): boolean => {
 		const rel = relative(root, path);
-		if (rel.startsWith("..") || isAbsolute(rel)) return false;
+		if (leaves(rel)) return false;
 		const project = rel.split(sep).join("/");
 		const matches = (exclude: boolean) =>
 			globs.some((g) => g.exclude === exclude && matchesGlob(project, g.glob));
@@ -174,8 +174,8 @@ function workspaceOf(
 	return isProject(target) ? { root, isProject } : null;
 }
 
-// The root of the pnpm workspace `dir` belongs to, when the CLI at `cliDir`
-// is a project of that workspace too: stack's own checkout.
+// The root of the pnpm workspace `dir` belongs to, when this CLI's package
+// (`CLI_DIR`) is a project of that workspace too: stack's own checkout.
 export function stackWorkspaceRoot(dir: string): string | null {
 	const workspace = workspaceOf(dir);
 	return workspace?.isProject(realpathSync(CLI_DIR)) ? workspace.root : null;

@@ -16,7 +16,8 @@ export function tsconfigLayout(plugins: readonly string[]): TsconfigLayout {
 	};
 }
 
-function isSplit(layout: TsconfigLayout): boolean {
+// A worker beside a web or native side: two projects under one solution.
+export function isSplit(layout: TsconfigLayout): boolean {
 	return layout.worker && (layout.native || layout.web);
 }
 

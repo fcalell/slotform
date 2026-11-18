@@ -92,8 +92,8 @@ export async function init(dir: string, options: InitOptions): Promise<void> {
 		mkdirSync(dir, { recursive: true });
 	}
 
-	// The project is the cwd: the scaffold's relative paths, `ensureGitignore` and
-	// package resolution all read it.
+	// The project is the cwd: package resolution (plugin discovery, a plugin's
+	// package info) and `generate` read it.
 	const original = process.cwd();
 	process.chdir(dir);
 
@@ -161,7 +161,8 @@ async function installPlugins(
 	picked: string[],
 	pick?: ChooseRequirement,
 ): Promise<string[]> {
-	const ownsManifest = !existsSync("package.json");
+	const manifestPath = join(dir, "package.json");
+	const ownsManifest = !existsSync(manifestPath);
 	const workspace = stackWorkspaceRoot(dir) !== null;
 	const { plugins, available } = await installClosure({
 		dir,
@@ -171,7 +172,7 @@ async function installPlugins(
 		writeManifest: (plugins) => {
 			if (ownsManifest) {
 				writeFileSync(
-					"package.json",
+					manifestPath,
 					packageJsonTemplate({ name: basename(dir), plugins, workspace }),
 				);
 			} else {
@@ -217,7 +218,7 @@ export async function scaffold(
 			procedurePaths: tsconfigPaths,
 			nativeTypes: tsconfigTypes,
 		}),
-		[".gitignore", gitignoreTemplate({ plugins: selectedPlugins })],
+		[".gitignore", gitignoreTemplate()],
 	];
 	// An app in stack's workspace: docs/architecture/consumer-project.md, "Inside stack's workspace".
 	const workspaceRoot = stackWorkspaceRoot(dir);
@@ -232,11 +233,11 @@ export async function scaffold(
 		baseEntries.push([".editorconfig", editorconfigTemplate()]);
 	const createdBase: string[] = [];
 	for (const [path, content] of baseEntries) {
-		if (writeIfMissingString(path, content)) createdBase.push(path);
+		if (writeIfMissingString(join(dir, path), content)) createdBase.push(path);
 	}
 	announceCreated(createdBase);
 	const written = [...createdBase];
-	writeClaudeMd();
+	writeClaudeMd(dir);
 
 	const pluginAnswers = await askPrompts(
 		promptGraph,
@@ -250,7 +251,7 @@ export async function scaffold(
 		plugins: selectedPlugins,
 		pluginAnswers,
 	});
-	if (writeIfMissingString("stack.config.ts", configContent)) {
+	if (writeIfMissingString(join(dir, "stack.config.ts"), configContent)) {
 		announceCreated(["stack.config.ts"]);
 		written.push("stack.config.ts");
 	}
@@ -315,12 +316,12 @@ function formatWritten(dir: string, files: string[]): void {
 }
 
 // The consumer's `CLAUDE.md` imports the guide's index.
-function writeClaudeMd(): void {
-	const path = "CLAUDE.md";
+function writeClaudeMd(dir: string): void {
+	const path = join(dir, "CLAUDE.md");
 	const content = claudeMdTemplate(
 		existsSync(path) ? readFileSync(path, "utf8") : null,
 	);
 	if (content === null) return;
 	writeFileSync(path, content);
-	log.success(`Imported stack's guide in ${path}`);
+	log.success("Imported stack's guide in CLAUDE.md");
 }

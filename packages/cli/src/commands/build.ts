@@ -3,14 +3,14 @@ import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
 import type { Graph } from "../lib/graph.ts";
 import { runStep } from "../lib/run-step.ts";
-import type { BuildStep } from "../specs.ts";
+import type { Phase } from "../specs.ts";
 import { generateFromConfig } from "./generate.ts";
 
 const PHASE_LABEL = {
 	pre: "Pre-build",
 	main: "Building",
 	post: "Post-build",
-} satisfies Record<BuildStep["phase"], string>;
+} satisfies Record<Phase, string>;
 
 // Generates, then runs the build steps; answers the graph for `deploy`.
 export async function buildApp(configPath: string): Promise<Graph> {
