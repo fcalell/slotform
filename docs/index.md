@@ -26,7 +26,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
   [components](architecture/ui-core/components.md), and [plugin-react-ui](architecture/plugins/react-ui.md)
   or [plugin-native-ui](architecture/plugins/native-ui.md). The root `CLAUDE.md` names the guide pages
   and the showcase scenes a component change carries.
-- **The showcase, Storybook or the screen run:** [showcase](architecture/ui-core/showcase.md),
+- **The showcase, Storybook or the test run:** [showcase](architecture/ui-core/showcase.md),
   [plugin-screens](architecture/plugins/screens.md).
 - **A manifest's `files`, `exports`, dependencies or peers:** [releasing](architecture/releasing.md).
 - **A new consumer-facing option or surface:** [product](product.md).

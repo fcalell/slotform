@@ -1,7 +1,7 @@
 # A component is public when a consumer places it
 
-The roster's public components are the ones a consumer writes into a screen tree: a frame
-(`Shell`, `Pane`, `Gate`, `Sheet`), a `Section`, a `Table`, a `Form`, a control, a figure, a
+The roster's public components are the ones a consumer writes into a screen tree: a container
+(`Shell`, `Gate`, `Pane`, `Sheet`), a `Section`, a `Table`, a `Form`, a control, a figure, a
 picture, a text. Everything the owner draws from data is a descriptor the owner takes, not a
 component: a row, a mark (status, chip, avatar, icon, count), an act (button, icon act, menu entry,
 link), a field, a message, a step count. The package exports the public components by name, never

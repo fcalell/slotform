@@ -46,9 +46,7 @@ below holds how it is built.
 Cross-plugin dataflow is typed slot imports: plugin A imports `pluginB.slots.foo` and either
 contributes to it or derives from it, so A depends on B's package. The graph engine resolves the
 topology from those edges ([slot graph](./architecture/slot-graph.md#ordering-by-data)). `requires`
-only declares presence, by name or as a one-of, for clearer error messages and for the auto-pull of
-`stack init` and `stack add` ([slot graph](./architecture/slot-graph.md#requires)); ordering never
-comes from it. Which slots each plugin owns and contributes to is in the
+only declares presence ([slot graph](./architecture/slot-graph.md#requires)). Which slots each plugin owns and contributes to is in the
 [slot catalog](./architecture/slot-catalog.md).
 
 `@fcalell/cli` and `@fcalell/ui-core` depend on no stack package. Every plugin depends on

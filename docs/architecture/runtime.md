@@ -8,8 +8,7 @@ receives, the consumer's middleware and background handlers, the MCP endpoint, a
 ## The generated worker
 
 `stack.config.ts` is never imported by the worker. The slot graph reads config at generate time and
-inlines plugin options as JS literals into the file `api.slots.workerSource` produces. Runtime
-factories receive plain option objects, never `PluginConfig`.
+inlines plugin options as JS literals into the file `api.slots.workerSource` produces.
 
 `.stack/worker.ts` is composed from the contributions to `api.slots.workerImports`,
 `pluginRuntimes`, `callbacks` and `cors`, and is emitted only when the worker has something to run:
@@ -38,9 +37,8 @@ export type { Entity } from "./procedure.ts";
 export default worker;
 ```
 
-Runtime code lives in each plugin's `src/worker/` and is published from the `./runtime` subpath;
-the CLI discovers it by checking `package.json` exports. `worker/` files never import from `node/`
-and the reverse ([plugin folder structure](./conventions.md#plugin-folder-structure)).
+Runtime code lives in each plugin's `src/worker/`, published from the `./runtime` subpath
+([plugin folder structure](./conventions.md#plugin-folder-structure)).
 
 ### Chain order
 
@@ -270,9 +268,8 @@ types `stackContext<WorkerContext>(c)`, and that middleware imports it type-only
 imports the middleware file back, and only erasure keeps that from being a real cycle.
 
 `TStatements` (the autocomplete of `procedure({ rbac })` and `procedure({ can })`) comes from
-`api.slots.rbacStatements`, a plain-JSON handoff `auth` contributes from
-`organization.ac.statements`; absent that contribution it falls back to `Record<never, never>`,
-which makes `rbac` and `can` un-settable rather than accepting an arbitrary string.
+`api.slots.rbacStatements`, a plain-JSON handoff `auth` contributes; its source and the
+`Record<never, never>` fallback are in the [slot catalog](./slot-catalog.md#apislots-plugin-api).
 
 ### Input and output types
 

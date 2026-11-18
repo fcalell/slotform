@@ -19,8 +19,9 @@ one `useState` per field, built the input by hand, derived `blocked` and called 
 The schema is the one truth the product already writes; a second declaration per field is the
 part that drifts.
 
-**Trade-off.** A field the schema cannot describe (a file, a long text that needs a prose
-control, a pick whose options are a read) takes a `control` hint on its field entry; a form
+**Trade-off.** A field the schema cannot describe takes what it lacks on its field entry: a
+`control` hint (a file, a long text that needs a prose control) or `options` (a pick whose
+choices are a read); a form
 over no procedure (a filter, a local setting) is not a `Form`. The generated schema file is
 one more generated artefact under `stack generate`, a `Gate` step over local state draws its
 controls directly, and a procedure whose input is not a

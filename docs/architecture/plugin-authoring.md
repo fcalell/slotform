@@ -292,12 +292,12 @@ named plugins already installed.
    `src` ([templates](#templates)).
 2. `node/` and `worker/` are split, with no cross-imports
    ([conventions](./conventions.md#plugin-folder-structure)).
-3. A runtime, if any, is exported from `./runtime` and takes plain options, not `PluginConfig`.
+3. A runtime, if any, follows [plugin folder structure](./conventions.md#plugin-folder-structure).
    Which entries export compiled `dist` and which source, and the package's `tsconfig.build.json`,
    `build` and `prepare`: [conventions](./conventions.md#build-and-exports).
 4. Commands route as `stack <plugin> <command>`.
-5. Cross-plugin dataflow is slot imports: `B.slots.foo.contribute(...)` to push,
-   `slot.derived({ inputs: { foo: B.slots.foo }, ... })` to read. No `requires` for ordering.
+5. Cross-plugin dataflow is slot imports ([contribute, don't coordinate](#design-paradigm)),
+   never `requires` ([slot graph](./slot-graph.md#requires)).
 6. A slot added, renamed or removed updates the [slot catalog](./slot-catalog.md) in the same
    commit.
 7. Dependencies and peers follow

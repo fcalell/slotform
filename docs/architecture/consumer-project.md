@@ -392,8 +392,8 @@ glob names, the app installs from npm.
 Such an app lints and formats under the checkout's root configs, since Biome refuses a second root
 config below the checkout's. `stack init` writes it a `biome.json` that extends the checkout's root
 config by path (from the app to it) and `./.stack/biome.json`, so only the generated lint plugins
-are the app's. A nested config inherits nothing of the root's unless it extends it, and Biome 2.4
-takes `//` only as a lone `extends` string (see [Limits](#limits)). It writes no `.editorconfig`,
+are the app's. A nested config inherits nothing of the root's unless it extends it, and Biome takes `//` only as
+a lone `extends` string (see [Limits](#limits)). It writes no `.editorconfig`,
 no `@biomejs/biome` or `@fcalell/biome-config` devDependency, no `lint` or `check` script and no
 `packageManager`, so the app runs the root's pnpm as `apps/showcase` does.
 
@@ -413,11 +413,9 @@ over an attribute's text, so it reads a literal class string and not a class a f
 the rules page's table lists what each rule leaves to a reviewer.
 
 `.stack/biome.json` renders the slot, and the consumer's `biome.json` extends it. It is written for
-every app, so that `extends` always resolves. Biome 2.4 reads no `includes` on a plugin entry and
-resolves a plugin path against the directory of the config that is root (the app's, or its nested
-config), never the extending file, failing a package specifier. The file therefore carries each
-rule as `node_modules/<package>/lint/<rule>.grit` in an override whose `includes` names the app's
-source, paths that resolve from the app's root in a consumer and in the showcase alike (its nested
+every app, so that `extends` always resolves. The file carries each rule as
+`node_modules/<package>/lint/<rule>.grit` in an override whose `includes` names the app's source,
+paths that resolve from the app's root in a consumer and in the showcase alike (its nested
 `biome.json` is that root). A file named `biome.json` under `.stack/` is also a nested config to
 Biome's discovery, so it carries `root: false`, which keeps Biome from reading it as a second root
 config where the consumer's `files.includes` does not skip `.stack`.
@@ -480,10 +478,9 @@ repository (the CLI's `shortfall.md`), and only the work that cannot ship withou
 - The guide index lists a page by its path under the consumer's root `node_modules`, so a package
   whose pages are listed is a direct dependency there: the UI plugins add `@fcalell/ui-core` to the
   consumer's `dependencies` for ui-core's pages.
-- Biome 2.4 takes no per-plugin `includes`, no package specifier for a plugin and no `//` in an
-  `extends` array. The trigger is a Biome that does (2.5 has the object form of `plugins`): then
-  `.stack/biome.json` names `@scope/pkg/file.grit` with its `includes` on the entry, and an app in
-  stack's workspace extends `["//", "./.stack/biome.json"]`.
+- Biome takes `//` only as a lone `extends` string, never in an array, so an app in stack's
+  workspace extends the checkout's root config by path. The trigger is a Biome whose `extends`
+  array takes `//`: then the app extends `["//", "./.stack/biome.json"]`.
 
 ## In the code
 

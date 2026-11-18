@@ -4,7 +4,7 @@ An `Act` says what happens around its `onAct` as data: `confirm` (`{ title, sent
 before it runs), `done` (the sentence toasted once it resolves), `to` (the route gone to once it
 resolves) and `sheet` (the sheet it opens, whose open state the platform holds and whose props it reads from the act on every render, so a sheet follows what its act holds now; an act that opens a sheet has no
 `onAct`, the two being exclusive in the type; `sheetOf` types the sheet's form by its procedure). A `LinkAct` takes `blocked` and draws inert with its reason. The platform
-sequences them: confirm, run, toast, navigate. A consumer writes none of that by hand, and a
+runs them in one order ([act press](../architecture/ui-core/acts.md#act-press)). A consumer writes none of that by hand, and a
 sheet with no act that opens it is addressed by a search param, never by an open flag in a
 component's state.
 

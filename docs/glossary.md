@@ -269,7 +269,7 @@ to fix, and a new term enters this page in the change that introduces it.
   [layout](architecture/ui-core/layout.md#text-group-and-end-group)
 - **card**: The surface inside a hairline edge at the card radius.
   [layout](architecture/ui-core/layout.md#cards)
-- **column cell**: A measure-wide column that keeps a field at the reading width inside a wider
+- **column class set**: A measure-wide column that keeps a field at the reading width inside a wider
   region. [layout](architecture/ui-core/layout.md#foot)
 - **overflow rule**: A rule that decides a part's form from its structure, never from a measure of its
   content; for acts, the first stands and the rest go into the more menu.
@@ -383,8 +383,6 @@ to fix, and a new term enters this page in the change that introduces it.
 - **test run**: `stack screens test`, which opens each screen in every state and fails it on an axe
   violation, an overflow, a render walk finding or a console error. Avoid: screen run.
   [plugin-screens](architecture/plugins/screens.md#test-run)
-- **screen checks**: The test run's checks at each width (320, 1280, 1920): overflow and the render walk.
-  [showcase](architecture/ui-core/showcase.md#enforcement)
 - **render walk**: One pass over a drawn page that checks what it draws against the contract's own
   values. [plugin-screens](architecture/plugins/screens.md#render-walk)
 - **walk rule**: One check of the render walk, a pure function with a canary.

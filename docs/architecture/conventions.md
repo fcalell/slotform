@@ -18,10 +18,8 @@ plugin, not core**; the rationale is in [philosophy](../product.md).
 - **Runtime data types** (`FontEntry`, design tokens) belong to the plugin that renders or emits
   them at build time; a downstream plugin imports them through its subpath export and re-exports
   them from its own `types.ts` for consumers.
-- **Cross-plugin coordination** goes through the slot graph, never through shared core state. If
-  plugin A feeds a value into plugin B's codegen, A imports `B.slots.foo` and contributes typed
-  payloads. If A reads B's value, A declares a derived slot with `inputs: { foo: B.slots.foo }`.
-  Plugins never call into each other's internals at runtime.
+- **Cross-plugin coordination** goes through the slot graph, never through shared core state
+  ([contribute, don't coordinate](./plugin-authoring.md#design-paradigm)).
 
 Quick test: if removing the feature would require changes to `@fcalell/cli`, the feature is in the
 wrong place.
@@ -51,7 +49,7 @@ A package ships JavaScript for everything Node runs, because Node refuses to str
 - `"build": "tsc -p tsconfig.build.json"`;
 - `"prepare": "node ../../scripts/prepare.ts"`, which builds a checkout's install
   ([releasing](./releasing.md#prepare-script));
-- `clear`, which removes `dist`.
+- `"clear": "rm -rf dist node_modules .turbo"`.
 
 Its `files` lists `dist` and `src`, and the `guide`, `templates` or `lint` the package ships, never
 a test or a `tsconfig` ([releasing](./releasing.md#what-is-published)).
@@ -150,8 +148,7 @@ What `shared.json` configures:
   table in the docs and rewrite `pnpm-workspace.yaml`, which pnpm writes with its own quotes.
 - **Linter:** on with the default rules, `noThenProperty` off, and `useValidAriaRole` an error that
   skips non-DOM components (`ignoreNonDom`), so React Native's `role` props pass.
-- **Plugins:** none. Biome resolves a plugin path against the root config's directory, not the
-  extending file, so a shared preset cannot carry one; the plugins ride `.stack/biome.json`.
+- **Plugins:** none; the plugins ride `.stack/biome.json`.
 - **CSS:** Tailwind directives parse.
 - **Imports:** organized by the `organizeImports` assist.
 - **VCS:** git, so every `.gitignore` entry is excluded.

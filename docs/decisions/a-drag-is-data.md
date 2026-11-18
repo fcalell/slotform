@@ -17,15 +17,14 @@ the unmount, carry a `Picked` as it is, and a held finger is the same press; the
 test and the scroll, written once. The payload is the `Picked` of a selection because a mutation
 already takes it whole (`selector()`), so a drop is `mutate({ tasks: drag.picked })`.
 
-**No drag is the pointer's alone.** A drop's `label` is required, and the platform adds it as an
-entry to the more menu of every row whose kind it accepts, so what a drag does by pointer a menu
-does by keyboard; a reorder adds Move up, down, to top and to bottom, and Alt with the arrows moves
-the focused row. An optional label fails: a drop that is only its `onDrop` has no menu entry, so
-the keyboard cannot reach it, and a dev warning on the missing label is a floor nobody keeps.
+**No drag is the pointer's alone.** A drop's `label` is required, because the platform turns it into
+a menu entry, so what a drag does by pointer a menu does by keyboard
+([without a pointer](../architecture/ui-core/drag.md#without-a-pointer)). An optional label fails: a
+drop that is only its `onDrop` has no menu entry, so the keyboard cannot reach it, and a dev warning
+on the missing label is a floor nobody keeps.
 
 **Trade-off.** A move shows at once and the read's own order replaces it, so a consumer that
 updates nothing leaves the viewer's order in place until the data changes; a refusal puts it back
-and toasts. A reorder moves one row (a selection drags to a drop but is not moved as a set), the
-order is the consumer's (`after` and `before` are what a fractional position needs, `index` what an
-integer one does), and the whole of it is web only. A press that moves a draggable row drags it,
-so text in those rows is not selected by dragging.
+and toasts. The order is the consumer's (`after` and `before` are what a fractional position needs,
+`index` what an integer one does). What a drag cannot do, on each platform, is in
+[ui-core's limits](../architecture/ui-core.md#limits).

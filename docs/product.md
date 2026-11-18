@@ -47,11 +47,11 @@ structurally dead ([ordering by data](./architecture/slot-graph.md#ordering-by-d
 ## Features live in the plugin that owns the domain; core stays domain-agnostic
 
 `@fcalell/cli` does not know what fonts, auth or schemas mean. Typography options go on
-`plugin-native-ui`; CORS on `plugin-api`; tables on `plugin-db`; HTML `<head>` metadata on
+the UI plugins (`plugin-react-ui`, `plugin-native-ui`); CORS on `plugin-api`; tables on `plugin-db`; HTML `<head>` metadata on
 `plugin-react`; the deep-link scheme on `plugin-expo`. The top-level `app` field is strictly
 cross-cutting identity (`name`, `domain`): values consumed by more than one plugin. A field that
 only makes sense for one plugin's domain belongs on that plugin's options, not on `app`. Domain
-types (`FontEntry`, `AuthProvider`) never leak into `@fcalell/cli`.
+types (`FontEntry`, `AuthOptions`) never leak into `@fcalell/cli`.
 
 Quick test: if removing a feature would require changes to `@fcalell/cli`, the feature is in the
 wrong place.
