@@ -1,4 +1,4 @@
-import type { ControlPoint } from "./page.ts";
+import type { ControlPoint } from "./aim.ts";
 
 // A press of a control by its text: docs/architecture/plugins/screens.md,
 // "A press". DOM-free, so the test run and `shoot`/`drive` share it; each

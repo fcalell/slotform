@@ -35,7 +35,7 @@ import {
 	stateExcludes,
 } from "./node/select.ts";
 import { serve } from "./node/serve.ts";
-import { shoot } from "./node/shoot.ts";
+import { DEFAULT_WIDTHS, shoot } from "./node/shoot.ts";
 import {
 	listScreens,
 	STORIES_DIR,
@@ -330,7 +330,7 @@ export const screens = plugin("screens", {
 				},
 				width: {
 					type: "string" as const,
-					description: "A comma list of widths in px (default: 320,1920)",
+					description: `A comma list of widths in px (default: ${DEFAULT_WIDTHS.join(",")})`,
 				},
 				mode: {
 					type: "string" as const,

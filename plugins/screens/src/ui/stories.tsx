@@ -15,8 +15,11 @@ import {
 	RouterProvider,
 } from "@tanstack/react-router";
 import { useState } from "react";
-import { fixtureHandlers, type ScreenState, setStory } from "./answer.ts";
+import { fixtureHandlers, type ScreenState } from "./answer.ts";
+import { setStory } from "./channels.ts";
 import { paramsFor, routeUrl, withSearch } from "./route.ts";
+
+type Story = { state: ScreenState; params: Record<string, string> };
 
 // The story's client is made inside its providers, so the router is built
 // with a stand-in and `Screen` hands it the real one as its context.
@@ -56,14 +59,10 @@ function routerAt(routeId: string) {
 	return router;
 }
 
-function Screen({ routeId, state }: { routeId: string; state: ScreenState }) {
+function Screen({ routeId, story }: { routeId: string; story: Story }) {
 	// Set before the router mounts, so the socket it opens finds its story.
 	const [router] = useState(() => {
-		setStory({
-			channels: fixtures?.channels,
-			params: paramsFor(routeId, fixtures?.params ?? {}),
-			state,
-		});
+		setStory({ channels: fixtures?.channels, ...story });
 		return routerAt(routeId);
 	});
 	const queryClient = useQueryClient();
@@ -79,6 +78,10 @@ export function screenStory(
 	state: ScreenState,
 	globals: Record<string, string> = {},
 ): StoryObj {
+	const story = {
+		state,
+		params: paramsFor(routeId, fixtures?.params ?? {}),
+	};
 	return {
 		globals,
 		parameters: {
@@ -90,12 +93,12 @@ export function screenStory(
 						prefixes,
 						fixtures?.procedures,
 						pluginFixtures,
-						state,
+						story,
 						SCHEMA,
 					),
 				],
 			},
 		},
-		render: () => <Screen routeId={routeId} state={state} />,
+		render: () => <Screen routeId={routeId} story={story} />,
 	};
 }

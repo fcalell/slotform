@@ -205,7 +205,7 @@ last `holdCalls` (`called`). The run finds a screen's reads by watching: nothing
 dependent or ambient read shows up like any other.
 
 It also records what the fixtures could not answer since the last `holdCalls`: a procedure with no
-fixture, or a fixture that threw other than the procedure's own error. The screen draws either as a
+fixture, a call whose input oRPC cannot decode (answered `BAD_REQUEST`), or a fixture that threw other than the procedure's own error. The screen draws either as a
 failed read, so the test run fails the story on it rather than judge an error form as the state asked
 for.
 
@@ -232,12 +232,12 @@ app's `channels` fixture: the third argument of `defineFixtures`, a map from cha
 for the story on screen, which `stories.tsx` sets as the story renders; `./channels` exports both for
 the handler module.
 
-On a subscribe the socket sends the opening frame, closes, or sends nothing. Data sends the frame,
+On a subscribe the socket sends the opening frame or nothing. Data sends the frame,
 loading holds it with the queries, and empty applies `emptyOf`. The protocol has no error frame and no
 not-found frame: a channel read fails only when its fold throws on a message type the app defines,
-which no fixture can name, or when the socket is down. So error closes the socket, which the client
-backs off from and, after `PAUSE_AFTER`, pauses the channel's read for; not found sends the snapshot as
-data. A channel with no fixture sends nothing, logs one console error and is an unanswered call of the test run.
+which no fixture can name, or when the socket is down. So the error story closes the socket as it
+connects, before any subscribe, which the client backs off from and, after `PAUSE_AFTER`, pauses the
+channel's read for; not found sends the snapshot as data. A channel with no fixture sends nothing, logs one console error and is an unanswered call of the test run.
 
 ## Single copies for plugin modules
 
@@ -298,7 +298,7 @@ Each story runs:
    checks there ran, so a loading story's shows its waiting shape.
 3. The console check: `console.error`, `console.warn` and the window's `error` event.
 
-A data story's screen also runs with one of its reads failed at a time. The reads are the procedures
+The sidebar's Data story (Storybook's `dev` tag; its hidden `!dev` variants are the same reads in other modes and densities) also runs with one of its reads failed at a time. The reads are the procedures
 the story called (`called`); the run answers one with an error and every other with data, resets
 those queries so they fetch again, waits for the page to settle, and applies the width checks and the
 console capture. A failed read draws in its frame, and the dev error for a read no frame holds is a
@@ -366,43 +366,19 @@ document. The rules as a consumer meets them are in the guide's [render walk](..
 
 ### Render walk rules
 
-- **Control height.** Each control's height is a size token at the density, or, where it sets a floor,
-  the floor is one and the height at least it; each row is at least the shortest row token (a row is a
-  floor, `min-h-row`, that its content grows).
-- **Radius.** Every radius is 0, a radius role or a pill (at least half the box's shorter side); a box
-  inside a rounded box with an inset smaller than the outer radius has the outer radius less the inset.
+The rules and what each finds are the table in the guide's
+[render walk](../../../plugins/screens/guide/screens.md#the-render-walk). What the walk reads beyond it:
+
+- **Pill.** A radius of at least half the box's shorter side.
 - **Insets that are no spacing role**: a field's border, and the centring insets a recipe spells, half
   of what one size has over another (an icon act's glyph in the control, a field's line in it, a
   switch's knob in its track, a line of parts' dot).
-- **Clipped content.** A box that clips (`overflow` hidden or clip) with more inside than it shows, and
-  neither an ellipsis, a line clamp nor a scroll container saying so, hides a layout error.
-- **Late face.** A face the screen asked for at its first layout that was not loaded at the first frame
-  draws the fallback and then jumps; a face that failed draws the fallback for good (a metric fallback
-  face is a system font, which a host may lack: `isMetricFallback`).
-- **Heading order.** Of the headings a reader gets (not under `display: none`, so a Pane folded away
-  has none), one `h1` names where you are, and a heading is never more than one level under the one
-  before it.
-- **Canvas.** A canvas opens with every node whole at the pane's start and none under the zoom stack.
-  The pane's far side may cut a node only where the graph is wider than the overview's floor holds, and
-  the viewer pans for the rest; a node wholly outside the pane is the viewer's to pan to.
-- **Alignment (`align-*`).** These report what a layout draws off the group structure and fail a run
-  with the walk's other rules: a row is a text group and an end group centred on the row, a line of
-  mixed sizes has one baseline, nothing takes space and draws nothing, and the layout is flex alone.
-  The rows on the page are flex rows with a row's role, or ones whose floor is a row token's (a control
-  with that floor is no row); a flex column that is one stands its end items on its label line, which
-  is then the row measured, centre and all. Its label is its first text, and its end items are what
-  draws beyond the label's right edge.
-- **Shared baseline.** Texts of different sizes on one line share a baseline, to a pixel: a count
-  centred by its line box beside a heading rides above the heading's baseline. The runs are the bare
-  texts of one flex row's items; two share a line when they overlap by most of the smaller one's height
-  (a value centred over a title and its meta shares neither), and are compared when their sizes differ.
-- **Dead box.** A box in the flow, wider and taller than half a pixel, that draws nothing and holds
-  nothing that does (the empty end square, a spacer) fails. Space that holds an alignment is a group's
-  gap or padding, never an element.
-- **Covered text.** A text is covered when a box that is no relative of it and draws at a point of one
-  of its lines stands above it there. A layer, a sticky box, a transparent box and a hit area that draws
-  nothing are no cover. A layer with `pointer-events: none` is never in the hit test: a decoration that
-  lets the press through, by design, is not read.
+- **Heading order.** One `h1` names where you are, and a heading is never more than one level under
+  the one before it.
+- **Shared baseline runs.** The runs are the bare texts of one flex row's items; two share a line when
+  they overlap by most of the smaller one's height (a value centred over a title and its meta shares
+  neither), and are compared when their sizes differ.
+- **Space that holds an alignment** is a group's gap or padding, never an element.
 
 ### Render walk exceptions
 
@@ -448,8 +424,8 @@ the generated Vitest config registers).
 ### A press
 
 A press of a control by its text or accessible name (`--open` in the test run, `open` in shoot and
-drive) is up to three tries (`TRIES`, `src/ui/press.ts`): at once, after 50 ms, after 100 ms more.
-Each try finds the control again (`aim`, `src/ui/page.ts`), scrolls it into view instantly at that
+drive) is up to three tries (`TRIES`, `src/ui/press.ts`): each with its own wait and scroll alignment.
+Each try finds the control again (`aim`, `src/ui/aim.ts`), scrolls it into view instantly at that
 try's alignment (centre, then start, then end, so a sticky header or footer over it at one is clear of
 it at another), and takes the press point (`pressPoint`): the middle of the part inside the viewport of
 the control's first client rect that shows a pixel or more, so an inline link wrapped over two lines is
@@ -462,8 +438,8 @@ finds no control, or a cover at either hit test, goes to the next. When the last
 the press fails naming the last cover and its point: `"delete" is covered by div.toast at 160,412
 (3 tries)`; with no control on the last try, `no control named "Delete" (3 tries)`. The test run
 reports that line as a finding of the screen; shoot and drive report it for the route or the step. A
-press that lands adds one page evaluation and no wait; the retries cost time only on a cover, at most
-150 ms and three round trips.
+press that lands adds one page evaluation and no wait; the retries cost time only on a cover: the waits
+of `TRIES` and three round trips.
 
 The second hit test leans on two facts of Chrome. Blink dispatches a press's `pointerdown` before its
 `mousedown` or `touchstart`, so the first event has a point; a first event with none is the try's
@@ -526,13 +502,14 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/node/judge.ts`: what `shoot` and `drive` judge with.
 - `plugins/screens/src/ui/inject.ts`: the page code `shoot` and `drive` inject.
 - `plugins/screens/src/ui/page.ts`: what the test run and `shoot` and `drive` share about a drawn page.
+- `plugins/screens/src/ui/aim.ts`: where a control is and whether a press of it lands.
 - `plugins/screens/src/ui/busy.ts`: the reads in flight a run waits for.
 - `plugins/screens/src/ui/globals.ts`: the globals unpinned while the run visits a width.
 - `plugins/screens/src/ui/client.tsx`: the query client of the story on screen.
 - `plugins/screens/src/ui/fixtures.ts`: the fixtures and the example values.
 - `plugins/screens/src/ui/route.ts`: the URL a route is drawn at.
-- `plugins/screens/src/ui/answer.ts`: the answerer, states, unanswered calls, channels.
-- `plugins/screens/src/ui/channels.ts`: the channel answer a plugin's handler module imports.
+- `plugins/screens/src/ui/answer.ts`: the answerer, states, unanswered calls.
+- `plugins/screens/src/ui/channels.ts`: the channel answer and the story on screen, which a plugin's handler module imports.
 - `plugins/screens/src/ui/msw.ts`: the one MSW copy.
 - `plugins/screens/src/ui/checks.ts`: the test run's checks and their order, screenshot paths.
 - `plugins/screens/src/ui/press.ts`: a press and its tries.

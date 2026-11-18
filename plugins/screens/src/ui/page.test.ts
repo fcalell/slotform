@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { pressPoint } from "./page.ts";
+import { pressPoint } from "./aim.ts";
 
 const rect = (left: number, top: number, right: number, bottom: number) => ({
 	left,

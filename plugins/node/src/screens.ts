@@ -25,7 +25,6 @@ export default [
 			if (frame.t !== "sub" || typeof frame.ch !== "string") return;
 			const { channels, params, state } = currentStory();
 			const answer = await channelAnswer(frame.ch, channels, params, state);
-			if (answer.close) client.close(1011, "error");
 			if (!answer.send) return;
 			const reply: ServerFrame = answer.send;
 			client.send(JSON.stringify(reply));

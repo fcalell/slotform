@@ -1,9 +1,9 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { openedPart, slug } from "../slug.ts";
-import type { ControlPoint } from "../ui/page.ts";
+import type { ControlPoint } from "../ui/aim.ts";
 import { press } from "../ui/press.ts";
-import { HEIGHT, SHOT_MAX_HEIGHT } from "../widths.ts";
+import { DESKTOP, HEIGHT, PHONE, SHOT_MAX_HEIGHT } from "../widths.ts";
 import { withLease } from "./browser.ts";
 import { call, judge, prepare, settle } from "./judge.ts";
 import { parseList } from "./select.ts";
@@ -42,7 +42,7 @@ export const shotName = (
 ): string => `${name}-${width}-${mode}${openedPart(opened)}.png`;
 
 // The viewports of a run without its own: a phone and a monitor, dark.
-export const DEFAULT_WIDTHS = [320, 1920];
+export const DEFAULT_WIDTHS = [PHONE, DESKTOP];
 export const DEFAULT_MODE = "dark";
 
 // A viewport width in px; `at` names the value and where it came from.

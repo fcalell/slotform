@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, mock, test } from "node:test";
-import type { ControlPoint } from "./page.ts";
+import type { ControlPoint } from "./aim.ts";
 import { type PressSteps, press } from "./press.ts";
 
 beforeEach(() => mock.timers.enable({ apis: ["setTimeout", "Date"], now: 0 }));

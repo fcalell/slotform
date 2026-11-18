@@ -95,7 +95,7 @@ function findFixture(
 }
 
 // The empty answer: docs/architecture/plugins/screens.md, "States".
-const isPlain = (value: unknown): value is Record<string, unknown> => {
+export const isPlain = (value: unknown): value is Record<string, unknown> => {
 	if (typeof value !== "object" || value === null) return false;
 	const prototype = Object.getPrototypeOf(value);
 	return prototype === Object.prototype || prototype === null;
@@ -197,6 +197,18 @@ export function release(): void {
 	open();
 }
 
+// Resolves when the loading hold opens.
+export function whenReleased(): Promise<void> {
+	return hold;
+}
+
+// One unanswered call, one console error (the checks fail the story on either).
+export function noteUnanswered(message: string): void {
+	if (unanswered.has(message)) return;
+	unanswered.add(message);
+	console.error(message);
+}
+
 // The kind of each procedure by dotted path, from the generated schema
 // (`virtual:stack-schema`).
 type ProcedureKinds = Readonly<
@@ -209,7 +221,8 @@ export async function answer(
 	prefix: string,
 	app: unknown,
 	plugins: readonly unknown[],
-	story: ScreenState,
+	// The screen on screen: its state and the route params its fixtures were written for.
+	story: { state: ScreenState; params: Readonly<Record<string, string>> },
 	// The generated schema is a virtual module the node tests cannot import.
 	kinds: ProcedureKinds = {},
 ): Promise<Response> {
@@ -218,7 +231,7 @@ export async function answer(
 	const query = kind ? kind === "query" : request.method === "GET";
 	const found = findFixture(app, plugins, path);
 	const owned = found?.plugin || isContainerRoute(path) || isSessionRead(path);
-	let state: ScreenState = query && !owned ? story : "data";
+	let state: ScreenState = query && !owned ? story.state : "data";
 	if (query) {
 		seen.set(path.join("."), path);
 		if (state === "data" && !owned && failed === path.join("."))
@@ -264,8 +277,8 @@ export async function answer(
 		const thrown = asORPCError(error);
 		if (thrown) {
 			const lost =
-				query && story === "data" && !isContainerRoute(path)
-					? failedInData(path, input, currentStory().params, thrown.code)
+				query && story.state === "data" && !isContainerRoute(path)
+					? failedInData(path, input, story.params, thrown.code)
 					: undefined;
 			if (lost) unanswered.add(lost);
 			return replyError(thrown);
@@ -276,110 +289,16 @@ export async function answer(
 	}
 }
 
-// A channel's fixture, by the channel's name: it takes the route params of the
-// fixtures, since the `sub` frame carries none.
-type ChannelFixture = (params: Record<string, string>) => unknown;
-
-// The frame plugin-node's server sends and its client decodes (`ServerFrame`,
-// `serverFrameSchema`). A channel has no frame of its own for its opening: it
-// is one of its server messages, "snapshot" by the `channelRead` convention.
-interface ChannelFrame {
-	t: "msg";
-	ch: string;
-	type: string;
-	payload: unknown;
-}
-
-// A fixture names the opening message with `{ type, payload }` (exactly those
-// two keys, a string type); any other value is the payload of "snapshot".
-function opening(value: unknown): { type: string; payload: unknown } {
-	if (isPlain(value)) {
-		const keys = Object.keys(value);
-		if (
-			keys.length === 2 &&
-			keys.includes("type") &&
-			keys.includes("payload") &&
-			typeof value.type === "string"
-		)
-			return { type: value.type, payload: value.payload };
-	}
-	return { type: "snapshot", payload: value };
-}
-
-// What the socket does on a subscribe: docs/architecture/plugins/screens.md, "Channels".
-type ChannelAnswer =
-	| { send: ChannelFrame; close?: undefined }
-	| { send?: undefined; close: boolean };
-
-// One subscribe, answered for the story's state. Loading holds the frame until
-// `release`, as it holds a query.
-export async function channelAnswer(
-	channel: string,
-	channels: Record<string, ChannelFixture> | undefined,
-	params: Record<string, string>,
-	state: ScreenState,
-): Promise<ChannelAnswer> {
-	if (state === "error") return { close: true };
-	const fixture = channels?.[channel];
-	if (!fixture) return leaveUnanswered(`no fixture for channel ${channel}`);
-	if (state === "loading") await hold;
-	try {
-		const { type, payload } = opening(fixture(params));
-		return {
-			send: {
-				t: "msg",
-				ch: channel,
-				type,
-				payload: state === "empty" ? emptyOf(payload) : payload,
-			},
-		};
-	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
-		return leaveUnanswered(
-			`the fixture for channel ${channel} threw: ${message}`,
-		);
-	}
-}
-
-// A subscribe left unanswered: one unanswered call, one console error (the checks fail the
-// story on either).
-function leaveUnanswered(message: string): ChannelAnswer {
-	if (!unanswered.has(message)) {
-		unanswered.add(message);
-		console.error(message);
-	}
-	return { close: false };
-}
-
-// The story on screen, for the socket's one handler: a handler module is
-// static and a socket belongs to the story that opened it. A story sets it as
-// it renders.
-interface Story {
-	channels: Record<string, ChannelFixture> | undefined;
-	params: Record<string, string>;
-	state: ScreenState;
-}
-
-let story: Story = { channels: undefined, params: {}, state: "data" };
-
-export function setStory(next: Story): void {
-	story = next;
-}
-
-export function currentStory(): Story {
-	return story;
-}
-
 export function fixtureHandlers(
 	prefixes: readonly string[],
 	app: unknown,
 	plugins: readonly unknown[],
-	state: ScreenState,
+	story: { state: ScreenState; params: Readonly<Record<string, string>> },
 	kinds: ProcedureKinds,
 ) {
 	return prefixes.map((prefix) =>
 		http.all(`*${prefix}/*`, ({ request }) =>
-			answer(request, prefix, app, plugins, state, kinds),
+			answer(request, prefix, app, plugins, story, kinds),
 		),
 	);
 }

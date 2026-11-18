@@ -5,6 +5,7 @@ import { commands, page } from "vitest/browser";
 import { stateTag } from "../node/screens.ts";
 import { openedPart, slug } from "../slug.ts";
 import { HEIGHT, LAPTOP, PHONE, SHOT_MAX_HEIGHT, WIDTHS } from "../widths.ts";
+import { aim, landed } from "./aim.ts";
 import {
 	called,
 	failing,
@@ -16,14 +17,7 @@ import {
 import { fetchingReads } from "./busy.ts";
 import { storyClient } from "./client.tsx";
 import { repinGlobal, unpinGlobal } from "./globals.ts";
-import {
-	aim,
-	checksAt,
-	hiddenHeight,
-	landed,
-	READ_BUSY,
-	settled,
-} from "./page.ts";
+import { checksAt, hiddenHeight, READ_BUSY, settled } from "./page.ts";
 import { press } from "./press.ts";
 import { compare, measure, type SectionBox } from "./shift.ts";
 import { densityMark, watchFirstPaint } from "./walk.ts";

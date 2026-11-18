@@ -1,11 +1,5 @@
-import {
-	aim,
-	checksAt,
-	hiddenHeight,
-	landed,
-	READ_BUSY,
-	settled,
-} from "./page.ts";
+import { aim, landed } from "./aim.ts";
+import { checksAt, hiddenHeight, READ_BUSY, settled } from "./page.ts";
 
 // The page code `stack screens shoot` and `drive` inject once per tab (bundled
 // by `src/node/judge.ts`): the same functions the test run's checks call.

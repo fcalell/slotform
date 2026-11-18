@@ -5,15 +5,14 @@ import { ORPCError } from "@orpc/client";
 import {
 	answer,
 	asORPCError,
-	channelAnswer,
 	emptyOf,
 	heldReads,
 	holdCalls,
 	release,
 	type ScreenState,
-	setStory,
 	unansweredCalls,
 } from "./answer.ts";
+import { channelAnswer } from "./channels.ts";
 
 test("an array answers []", () => {
 	assert.deepEqual(emptyOf([1, 2]), []);
@@ -78,7 +77,7 @@ const call = async (path: string, state: ScreenState, tree: unknown = app) => {
 		"/rpc",
 		tree,
 		[plugin],
-		state,
+		{ state, params: {} },
 	);
 	return response.status;
 };
@@ -98,7 +97,7 @@ test("a loading query is held and counted until release, a call answered at once
 			"/rpc",
 			app,
 			[plugin],
-			"loading",
+			{ state: "loading", params: {} },
 		).then((response) => response.status),
 	]);
 	assert.deepEqual(answered, [200, 200]);
@@ -184,7 +183,7 @@ test("a record's date survives the empty answer on the wire, as a Date and as an
 		"/rpc",
 		{ org: { get: () => org } },
 		[],
-		"empty",
+		{ state: "empty", params: {} },
 	);
 	const body = (await response.json()) as {
 		json: { createdAt: string; iso: string; members: unknown[] };
@@ -220,12 +219,6 @@ test("an empty channel snapshot is emptied by the same rule", async () => {
 	assert.deepEqual(answered.send?.payload, { items: [], unread: 1 });
 });
 
-test("an error closes the socket and sends no frame", async () => {
-	assert.deepEqual(await channelAnswer("inbox", channels, {}, "error"), {
-		close: true,
-	});
-});
-
 test("loading holds the frame until release", async () => {
 	holdCalls();
 	let settled = false;
@@ -245,9 +238,7 @@ test("a channel with no fixture sends nothing and is an unanswered call", async 
 	const log = console.error;
 	console.error = (...args: unknown[]) => errors.push(args);
 	try {
-		assert.deepEqual(await channelAnswer("chat", channels, {}, "data"), {
-			close: false,
-		});
+		assert.deepEqual(await channelAnswer("chat", channels, {}, "data"), {});
 		await channelAnswer("chat", channels, {}, "data");
 	} finally {
 		console.error = log;
@@ -266,9 +257,7 @@ test("a channel fixture that throws is an unanswered call", async () => {
 				throw new Error("boom");
 			},
 		};
-		assert.deepEqual(await channelAnswer("inbox", boom, {}, "data"), {
-			close: false,
-		});
+		assert.deepEqual(await channelAnswer("inbox", boom, {}, "data"), {});
 	} finally {
 		console.error = log;
 	}
@@ -352,7 +341,7 @@ const post = async (path: string, state: ScreenState) => {
 		"/rpc",
 		{ projects: { list: () => [1], create: () => ({ id: 1 }) } },
 		[],
-		state,
+		{ state, params: {} },
 		kinds,
 	);
 	return { status: response.status, body: await response.text() };
@@ -384,7 +373,7 @@ const missing = {
 		},
 	},
 };
-const getProject = (state: ScreenState) =>
+const getProject = (state: ScreenState, params: Record<string, string> = {}) =>
 	answer(
 		new Request(
 			`http://x/rpc/projects/get?data=${encodeURIComponent(JSON.stringify({ json: { id: "p9" } }))}`,
@@ -392,17 +381,15 @@ const getProject = (state: ScreenState) =>
 		"/rpc",
 		missing,
 		[],
-		state,
+		{ state, params },
 	);
 
 test("a read that lands not found in the data state is an unanswered call naming the procedure and the param", async () => {
 	holdCalls();
-	setStory({
-		channels: undefined,
-		params: { id: "p9", other: "x" },
-		state: "data",
-	});
-	assert.equal((await getProject("data")).status, 404);
+	assert.equal(
+		(await getProject("data", { id: "p9", other: "x" })).status,
+		404,
+	);
 	assert.deepEqual(unansweredCalls(), [
 		'projects.get answered NOT_FOUND in the data state for the param id "p9": give the route an example value the procedure accepts, under its id in the params of src/app/fixtures.ts',
 	]);
@@ -415,7 +402,7 @@ const refused = {
 		},
 	},
 };
-const getRefused = (state: ScreenState) =>
+const getRefused = (state: ScreenState, params: Record<string, string> = {}) =>
 	answer(
 		new Request(
 			`http://x/rpc/projects/get?data=${encodeURIComponent(JSON.stringify({ json: { id: "p9" } }))}`,
@@ -423,13 +410,12 @@ const getRefused = (state: ScreenState) =>
 		"/rpc",
 		refused,
 		[],
-		state,
+		{ state, params },
 	);
 
 test("a read that is refused in the data state is an unanswered call naming the procedure, the param and the code", async () => {
 	holdCalls();
-	setStory({ channels: undefined, params: { id: "p9" }, state: "data" });
-	assert.equal((await getRefused("data")).status, 409);
+	assert.equal((await getRefused("data", { id: "p9" })).status, 409);
 	assert.deepEqual(unansweredCalls(), [
 		'projects.get answered CONFLICT in the data state for the param id "p9": give the route an example value the procedure accepts, under its id in the params of src/app/fixtures.ts',
 	]);
@@ -437,9 +423,8 @@ test("a read that is refused in the data state is an unanswered call naming the 
 
 test("a refusal without a route param's value in its input, and the error state, are no unanswered call", async () => {
 	holdCalls();
-	setStory({ channels: undefined, params: { id: "p1" }, state: "data" });
-	assert.equal((await getRefused("data")).status, 409);
-	assert.equal((await getRefused("error")).status, 500);
+	assert.equal((await getRefused("data", { id: "p1" })).status, 409);
+	assert.equal((await getRefused("error", { id: "p1" })).status, 500);
 	assert.deepEqual(unansweredCalls(), []);
 });
 
@@ -451,7 +436,6 @@ test("the not found state draws that form on purpose and is no unanswered call",
 
 test("a not found read without a route param's value in its input is no unanswered call", async () => {
 	holdCalls();
-	setStory({ channels: undefined, params: { id: "p1" }, state: "data" });
-	assert.equal((await getProject("data")).status, 404);
+	assert.equal((await getProject("data", { id: "p1" })).status, 404);
 	assert.deepEqual(unansweredCalls(), []);
 });

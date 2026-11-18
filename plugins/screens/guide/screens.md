@@ -56,7 +56,7 @@ state like any app read.
 | data | The fixture's value |
 | loading | No answer until the test run releases it, then the fixture's value (the workbench never releases it, so the story stays waiting) |
 | error | A server error |
-| empty | The fixture's value with no items: an array becomes `[]`, a `{ data, nextCursor }` page keeps its envelope with no rows, and any other object (a record) is walked with every array in it emptied to `[]`, the rest kept; a JSON Schema object schema (`type: "object"` and an object `properties`) also has its `properties` emptied to `{}`, so a stored schema's fields list is empty |
+| empty | The fixture's value with no items: an array becomes `[]`, a `{ data, nextCursor }` page keeps its envelope with no rows, a `{ data, total, offset }` page has `data: []` and `total: 0`, and any other object (a record) is walked with every array in it emptied to `[]`, the rest kept; a JSON Schema object schema (`type: "object"` and an object `properties`) also has its `properties` emptied to `{}`, so a stored schema's fields list is empty |
 | not found | A `NOT_FOUND` error, which `isNotFound(error)` from `@fcalell/plugin-api/client` tests |
 
 ## Fixtures
@@ -251,8 +251,7 @@ a finding as `rule: element measured X, expected Y; fix: how`.
 | `canvas-open` | a canvas, once it shows, with a node (`data-node`: its card, or its glyph under the text floor) cut at the pane's start by more than a pixel, or standing under its zoom stack. The pane's far side may cut a node where the graph is wider than the overview's floor holds, so it is not read; a node wholly outside the pane is the viewer's to pan to |
 | `text-covered` | a visible text with a point on one of its lines under a box that is no relative of its element and draws there: a background, a picture, its own glyphs, or the edge of its border, outline or ring (a Banner's act standing over the last line of its sentence). The walk brings each text into view, samples points across its line boxes (`Range.getClientRects`, about every 12 px along and 3 px down) and reads them with `document.elementsFromPoint`, then puts the scroll back. Not covers: a box in a dialog, menu, listbox, tooltip or popover layer, a sticky box, a box that draws nothing at the point (a transparent overlay, a hit area), and a text that draws nothing itself (transparent ink or opacity 0, as a label held under a spinner). While a modal is open, the page behind it (and anything `inert`) is not read. A `pointer-events: none` layer is not in the hit test, so a decoration that lets the press through is not read |
 
-Four more rules are `align-*`. They fail a run like the rest;
-`alignFindings()` returns them alone.
+Four more rules are `align-*`. They fail a run like the rest.
 
 | Rule | A finding is |
 | --- | --- |
@@ -324,7 +323,7 @@ edit, name it and one of each: `stack screens test --screen deploys --state data
 ### Opening a popup, a search for a filter
 
 - `--open <control text>` presses, once a story has drawn, the control whose visible text or accessible
-  name is that text (with real mouse input after a hit test, tried up to three times over about 150 ms
+  name is that text (with real mouse input after a hit test, tried up to three times
   at different scroll positions; a control still covered fails, naming what covers it), waits for what
   it opens to settle, then runs the checks and takes the shot with it open, named
   `<story>-<width>-open-<slug>.png`; Escape closes it. A Menu, a Picker, a Dialog or a Sheet is then
