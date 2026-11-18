@@ -9,7 +9,7 @@ import { bundleServer, rewriteSource } from "./bundle.ts";
 
 const modules = fileURLToPath(new URL("../server/modules.ts", import.meta.url));
 
-test("a worker URL and a loadModules call are rewritten for the bundle", () => {
+test("a worker URL is rewritten for the bundle", () => {
 	const out = rewriteSource(
 		'const w = new Worker(new URL("./w.ts", import.meta.url), { workerData: 1 });',
 		"/app/src/lib/start.ts",

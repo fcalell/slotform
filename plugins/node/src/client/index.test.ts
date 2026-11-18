@@ -146,7 +146,8 @@ test("a send after close throws", () => {
 	assert.throws(() => sub.send("say", "late"), /closed/);
 });
 
-test("a probe with no reply drops the socket and reconnects", () => {
+// Runs `run` with page events on the global, keeping each type's listener.
+function withPageEvents(run: (listeners: Map<string, () => void>) => void) {
 	const listeners = new Map<string, () => void>();
 	const target = globalThis as unknown as {
 		addEventListener?: (type: string, listener: () => void) => void;
@@ -155,6 +156,15 @@ test("a probe with no reply drops the socket and reconnects", () => {
 	target.addEventListener = (type, listener) => listeners.set(type, listener);
 	target.removeEventListener = () => {};
 	try {
+		run(listeners);
+	} finally {
+		delete target.addEventListener;
+		delete target.removeEventListener;
+	}
+}
+
+test("a probe with no reply drops the socket and reconnects", () => {
+	withPageEvents((listeners) => {
 		open();
 		const first = last();
 		listeners.get("online")?.();
@@ -163,32 +173,20 @@ test("a probe with no reply drops the socket and reconnects", () => {
 		assert.equal(first.closes, 1);
 		mock.timers.tick(250);
 		assert.equal(sockets().length, 2);
-	} finally {
-		delete target.addEventListener;
-		delete target.removeEventListener;
-	}
+	});
 });
 
 test("a reply to the probe keeps the socket", () => {
-	const listeners = new Map<string, () => void>();
-	const target = globalThis as unknown as {
-		addEventListener?: (type: string, listener: () => void) => void;
-		removeEventListener?: (type: string, listener: () => void) => void;
-	};
-	target.addEventListener = (type, listener) => listeners.set(type, listener);
-	target.removeEventListener = () => {};
-	try {
+	withPageEvents((listeners) => {
 		open();
 		const first = last();
 		listeners.get("online")?.();
+		assert.deepEqual(frames(first).at(-1), { t: "ping" });
 		first.emit("message", { data: JSON.stringify({ t: "pong" }) });
 		mock.timers.tick(PING_TIMEOUT_MS * 2);
 		assert.equal(first.closes, 0);
 		assert.equal(sockets().length, 1);
-	} finally {
-		delete target.addEventListener;
-		delete target.removeEventListener;
-	}
+	});
 });
 
 test("a new subscribe reopens a socket whose session ended", () => {
@@ -200,14 +198,7 @@ test("a new subscribe reopens a socket whose session ended", () => {
 });
 
 test("a frame from a retired socket does not clear the new socket's probe", () => {
-	const listeners = new Map<string, () => void>();
-	const target = globalThis as unknown as {
-		addEventListener?: (type: string, listener: () => void) => void;
-		removeEventListener?: (type: string, listener: () => void) => void;
-	};
-	target.addEventListener = (type, listener) => listeners.set(type, listener);
-	target.removeEventListener = () => {};
-	try {
+	withPageEvents((listeners) => {
 		const client = createWsClient({ url: "ws://x/ws" });
 		client.subscribe(chat, { onMessage: {} });
 		const retired = last();
@@ -218,10 +209,7 @@ test("a frame from a retired socket does not clear the new socket's probe", () =
 		retired.emit("message", { data: JSON.stringify({ t: "pong" }) });
 		mock.timers.tick(PING_TIMEOUT_MS);
 		assert.equal(current.closes, 1);
-	} finally {
-		delete target.addEventListener;
-		delete target.removeEventListener;
-	}
+	});
 });
 
 test("constructing a client registers no page listener until its socket opens", () => {

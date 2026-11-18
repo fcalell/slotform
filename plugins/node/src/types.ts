@@ -1,8 +1,11 @@
 import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
 import { z } from "zod";
 
-// A further port the server answers on for one origin of its own, which the
-// server reads from the env var `originVar` on every request.
+// A further port the server answers on for one origin of its own (the app at a
+// proxy's named address beside its loopback port, say). Its origin is read from
+// `originVar` in the server's env on every request, so it can change while the
+// server runs; while it is unset or not an http(s) origin, the listener refuses
+// everything.
 const nodeListenerSchema = z.object({
 	port: z.number().int().min(1).max(65535),
 	host: z.string().min(1).optional(),
@@ -68,7 +71,8 @@ export interface BundleEntry {
 	imports?: TsImportSpec[];
 	boot?: TsExpression;
 	copy?: Array<{
-		// A file or directory relative to the project root.
+		// A file or directory relative to the project root; one that does not
+		// exist copies nothing (db before its first migration).
 		from: string;
 		// Its place relative to the bundle's directory.
 		to: string;
@@ -100,7 +104,6 @@ export interface CodegenServerPayload {
 	workerFile?: string;
 	// Set for the production bundle's entry: docs/architecture/plugins/node.md, "Build and bundle".
 	bundle?: {
-		staticDir: string | null;
 		imports: TsImportSpec[];
 		boot: TsExpression[];
 	};

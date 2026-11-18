@@ -25,13 +25,14 @@ export default defineService({
 });
 ```
 
-`start` runs before the server listens, one service after another in file-name order. It may
+`start` runs before the server listens, one service after another: the services plugins add, then
+yours in file-name order. It may
 return a stop function, which runs on shutdown in reverse order. A `start` that throws stops the
 process.
 
 ## Order: `start` then `ready`
 
-File-name order is the only order, so a `start` must not rely on another service having started:
+That is the only order, so a `start` must not rely on another service having started:
 `notifications.ts` starts before `jobs.ts`, and a `start` that enqueues a job would run before the runner
 that takes it exists. Work that needs the other services goes in `ready`: it runs for every
 service, in the same file-name order, once every `start` has resolved, and still before the server
@@ -89,7 +90,7 @@ The hub takes `onSubscribe(conn)`, `onUnsubscribe(conn)` and `onMessage.<type>(p
 subscription with `send(type, payload)` and `unsubscribe()`. The client reconnects on its own and
 subscribes again, so a channel that sends a snapshot in `onSubscribe` stays consistent. A session
 that ended (close code 1008) is not retried until `reconnect()` or a new subscribe. A `send` made
-before the socket is open is queued (the newest 100 are kept) and goes out after the subscribes.
+before the socket is open is queued (the newest `SEND_QUEUE_MAX` are kept) and goes out after the subscribes.
 
 ## Who is connected
 
@@ -97,7 +98,7 @@ before the socket is open is queued (the newest 100 are kept) and goes out after
 CORS to a WebSocket. An upgrade off the worker's CORS list (the production origins, plus the dev
 origins under `pnpm dev`; on a further listener, its own origin alone) is refused with 403, and so
 is one with no valid session when the app has `auth()`. An upgrade with no `Origin` is refused too,
-unless it carries `Authorization: Bearer`, a header no browser page can set on a WebSocket: a
+unless the app has `auth()` and it carries `Authorization: Bearer`, a header no browser page can set on a WebSocket: a
 headless daemon sends its device key so, which `createWsClient({ url, headers })` sets on the
 upgrade (a browser ignores `headers`), and it is judged by that key alone, its cookies unread. The
 session is read from the database, past the cookie cache, so a revoked one opens nothing.

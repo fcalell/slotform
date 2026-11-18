@@ -27,7 +27,6 @@ interface BundleOptions {
 }
 
 export interface Bundled {
-	file: string;
 	// The tools bundled from `src/bin/`, by name.
 	bins: string[];
 	// The packages kept as files, with their versions.
@@ -258,8 +257,7 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 			plugins: [pluginFor(prefix)],
 		});
 
-	const file = join(outDir, "server.mjs");
-	await bundle(entry, file, "./workers/");
+	await bundle(entry, join(outDir, "server.mjs"), "./workers/");
 	// The tools: each module of `src/bin/` beside the server, in `bin/`, so the
 	// workers are one directory up.
 	const bins = listedModules(join(cwd, "src", "bin"));
@@ -297,7 +295,6 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 		}
 	}
 	return {
-		file,
 		bins: bins.map((name) => name.replace(/\.m?ts$/, ".mjs")),
 		native,
 	};

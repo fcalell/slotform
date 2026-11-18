@@ -1,3 +1,4 @@
+import { posix } from "node:path";
 import {
 	dedupeImports,
 	renderTsSourceFile,
@@ -163,7 +164,7 @@ export function aggregateServer(payload: CodegenServerPayload): string {
 			payload.staticRoot === null
 				? { kind: "null" }
 				: bundle
-					? moduleUrl(bundle.staticDir ?? "../client")
+					? moduleUrl(`../${posix.basename(payload.staticRoot)}`)
 					: { kind: "string", value: payload.staticRoot },
 	});
 	const headers = Object.entries(payload.clientHeaders).sort(([a], [b]) =>

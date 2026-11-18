@@ -50,8 +50,8 @@ fetch handler on every `api.slots.routePrefixes` path, and, with `vite()`, the w
 fallback shadows the worker's `GET /` liveness route; with no vite neither is mounted. The static
 files and the fallback carry `clientHeaders` ([content security policy](vite.md#content-security-policy));
 the earlier layers never do. A request body over `bounds.body` bytes is refused with 413, and a
-WebSocket frame over `bounds.frame` bytes closes its socket ([Channels](#channels)). The server listens on the configured port and host
-unless `PORT` and `HOST` say otherwise (never under `STACK_DEV`). Services start before it listens
+WebSocket frame over `bounds.frame` bytes closes its socket ([Channels](#channels)). Where the
+server listens is the guide's [production](../../../plugins/node/guide/server.md#production) (`listenOf`). Services start before it listens
 and stop in reverse order on `SIGINT` or `SIGTERM`; a failed boot logs and exits 1.
 
 Node has no bindings: the worker gets `env = process.env`, `executionCtx` degrades to a no-op
@@ -122,8 +122,10 @@ cookies; the server admits the upgrade itself, by one rule in `ws-guard.ts`:
    [CORS and origins](api.md#cors-and-origins)), so no second list exists to drift. A worker with no
    CORS, or none at all, trusts no browser origin.
 2. **No Origin.** The one upgrade admitted without an Origin is a headless client's (a daemon holding
-   a device key), which carries its credential as `Authorization: Bearer`, a header no browser page
-   can set on a WebSocket. It is judged by that credential alone, its cookies unread.
+   a device key) in an app with `auth()`, which carries its credential as `Authorization: Bearer`, a
+   header no browser page can set on a WebSocket. It is judged by that credential alone, its cookies
+   unread. Without `auth()` there is no credential to judge, so every upgrade without an Origin is
+   refused.
 3. **Session.** An app with `auth()` requires a session of every socket. The session is asked of the
    same auth the RPC calls resolve it from (better-auth's `get-session`, answered by the worker),
    from the database rather than the signed cookie cache, so a session revoked a moment ago opens
@@ -160,8 +162,8 @@ default-exports a `defineService({ name, start, ready? })`, and code that needs 
 module directly, with no context plumbing. `start(ctx)` receives `{ log, ws, http }` and may return a
 stop handle. The consumer's half is the guide's [services](../../../plugins/node/guide/services.md).
 
-- **Order.** Services start in file-name order, so a `start` never relies on another service having
-  started. Work that needs the others (enqueueing a job, reading what another service loaded,
+- **Order.** The services of `node.slots.services` start first, by name, then the consumer's in
+  file-name order, so a `start` never relies on another service having started. Work that needs the others (enqueueing a job, reading what another service loaded,
   broadcasting) goes in `ready`, which runs for every service, in the same order, once every `start`
   has finished and before the server listens. Stops run in reverse order.
 - **Mounts.** `http.mount(prefix, handler)` registers a raw fetch-style route: every request whose
@@ -170,8 +172,9 @@ stop handle. The consumer's half is the guide's [services](../../../plugins/node
   service owns its subtree (an in-process MCP endpoint a spawned CLI reaches directly by
   `http.port`); a consumer mounting a worker prefix is documented, not guarded.
 - **The barrel.** The services directory is flat, as plugin-api's route barrel is
-  ([routes barrel](api.md#routes-barrel)): one module per name, subdirectories ignored, `index.ts`
-  is the barrel and excluded so it does not import itself, `.test.ts` and `.d.ts` excluded.
+  ([routes barrel](api.md#routes-barrel)): one module per file `listed.ts` lists
+  ([Directory modules](#services)), subdirectories ignored, so `index.ts`, the barrel, never imports
+  itself. The barrel names each import by its position (`service0`), so any file name binds.
   `consumerServices` is seeded from the directory's contents, the one value the barrel emission and
   the barrel import both resolve, so they never disagree about whether the directory takes part.
 - **Directory modules.** `loadModules(new URL("./dir/", import.meta.url))` returns the modules of a
@@ -258,8 +261,8 @@ The dev process runs the generated server directly under the consumer's node (ty
 build step): `node --watch .stack/server.ts`. Its env, `ProcessSpec.env`, carries `STACK_DEV=1`,
 which puts the worker runtime in [dev mode](../runtime.md#dev-mode), and the `devDefault` of each
 declared `api.slots.env` var the shell leaves unset. The main listener binds last: its `listening on`
-line is the dev supervisor's ready signal (`readyPattern`), so it comes once every port answers, and
-the wording and the pattern stay equal.
+line (`READY_LINE`, `server/log.ts`) is the dev supervisor's ready signal (`readyPattern`), so it
+comes once every port answers; a further listener's line does not match it.
 
 ## Build and bundle
 
@@ -270,7 +273,8 @@ barrel imported for esbuild to follow (`virtual:stack-procedure` is its alias fo
 `.stack/procedure.ts`), the client's directory found beside the bundle (`staticDir`), and the `boot`
 tasks of `node.slots.bundleEntries` run before it listens. It is null where `serverSource` is. A
 `bundleEntries` entry adds imports, a boot task (an expression evaluating to
-`() => void | Promise<void>`) and files copied beside the bundle for it to read at run time: db
+`() => void | Promise<void>`) and files copied beside the bundle for it to read at run time (a source
+that does not exist copies nothing): db
 applies its committed migrations ([db's contributions](db.md#slots-and-contributions)). Dev runs
 neither, since it runs the sources and db pushes the schema.
 
@@ -286,7 +290,8 @@ dependency written into one file, `server.mjs`, plus what a file cannot hold:
 - `bin/<name>.mjs` for each module of `src/bin/`, bundled the same way: a tool run by hand on the box.
 
 The build reads those two idioms, `new Worker(new URL(...))` and `loadModules(new URL(...))`, in the
-app's own sources (never a dependency's) and rewrites them, so neither needs a registry or a second
+sources outside `node_modules` (the app's own, and a `link:` or workspace package's, which resolve
+to their checkout) and rewrites them, so neither needs a registry or a second
 build step: a thread is started from a module the bundle holds no file for, and a directory listed at
 run time lists the source's files, not the bundle's. A `loadModules` call becomes lazy imports of the
 directory's modules, listed at build; from source the same call reads the directory. The directory

@@ -47,6 +47,11 @@ export function boundHost(
 	return hostOf(`${name}:${port}`, "http:");
 }
 
+// Whether the process runs under `stack dev`, which sets `STACK_DEV=1`.
+export function isDev(env: Record<string, string | undefined>): boolean {
+	return env.STACK_DEV === "1";
+}
+
 // The main listener's rule: docs/architecture/plugins/node.md, "Hosts and listeners".
 export function mainAdmits(input: {
 	host: string | undefined;

@@ -16,15 +16,16 @@ const payload = {
 	services: [],
 };
 
-test("the dev and bundle entries hold no trace of the served controls", () => {
-	const bundle = { staticDir: "../client", imports: [], boot: [] };
-	for (const source of [
-		aggregateServer(payload),
-		aggregateServer({ ...payload, bundle }),
-	]) {
-		assert.match(source, /startNodeServer/);
-		assert.doesNotMatch(source, /fixture|STACK_SERVE|plugin-screens/);
-	}
+test("the bundle entry finds the client beside itself and runs its boot tasks", () => {
+	const source = aggregateServer({
+		...payload,
+		bundle: {
+			imports: [],
+			boot: [{ kind: "identifier", name: "migrate" }],
+		},
+	});
+	assert.match(source, /staticDir:\s*new URL\(["']\.\.\/client["']/);
+	assert.match(source, /boot:\s*\[migrate\]/);
 });
 
 test("a served entry loads the run's own worker module", () => {

@@ -1,6 +1,6 @@
 import { rmSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, posix, relative } from "node:path";
-import type { ContributionCtx } from "@fcalell/cli";
+import { basename, dirname, join, relative } from "node:path";
+import type { ContributionCtx, Slot } from "@fcalell/cli";
 import { plugin, slot } from "@fcalell/cli";
 import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
 import { api } from "@fcalell/plugin-api";
@@ -12,8 +12,10 @@ import { vite } from "@fcalell/plugin-vite";
 import { generateServiceBarrel, hasServiceFiles } from "./node/barrel.ts";
 import { bundleServer } from "./node/bundle.ts";
 import { aggregateServer } from "./node/codegen.ts";
+import { READY_LINE } from "./server/log.ts";
 import {
 	type BundleEntry,
+	type CodegenServerPayload,
 	type NodeListenerOptions,
 	type NodeOptions,
 	type NodeOptionsResolved,
@@ -64,15 +66,13 @@ const consumerServices = slot.value<{ identifier: string } | null>({
 	seed: (ctx) => (hasServiceFiles(ctx.cwd) ? { identifier: "services" } : null),
 });
 
-// The rendered `src/server/services/index.ts` barrel; null skips emission
-// (no header-only stub in service-less consumer trees).
+// The rendered `src/server/services/index.ts` barrel; null skips emission.
 const serviceBarrelSource = slot.derived({
 	source: SOURCE,
 	name: "serviceBarrelSource",
-	compute: (_inp, ctx): string | null => {
-		if (!hasServiceFiles(ctx.cwd)) return null;
-		return generateServiceBarrel(ctx.cwd);
-	},
+	inputs: { consumer: consumerServices },
+	compute: (inp, ctx): string | null =>
+		inp.consumer === null ? null : generateServiceBarrel(ctx.cwd),
 });
 
 // The transport bounds the server enforces, from the config.
@@ -110,34 +110,48 @@ const serverInputs = {
 	clientHeaders: vite.slots.clientHeaders,
 };
 
+// What both entries render; null when there is nothing to serve or run: no
+// worker (api emitted none) and no services.
+function serverPayload(
+	inp: {
+		[K in keyof typeof serverInputs]: (typeof serverInputs)[K] extends Slot<
+			infer T
+		>
+			? T
+			: never;
+	},
+): CodegenServerPayload | null {
+	const hasWorker = inp.worker !== null;
+	const hasConsumerServices = inp.consumer !== null;
+	if (!hasWorker && !hasConsumerServices && inp.entries.length === 0) {
+		return null;
+	}
+	return {
+		port: inp.port,
+		host: inp.host,
+		origins: inp.origins,
+		listeners: inp.listeners,
+		bounds: inp.bounds,
+		hasWorker,
+		workerPaths: inp.prefixes,
+		staticRoot: inp.staticRoot,
+		clientHeaders: inp.clientHeaders,
+		hasConsumerServices,
+		services: inp.entries,
+	};
+}
+
 // The production bundle entry, null where serverSource is: docs/architecture/plugins/node.md, "Build and bundle".
 const serverBundleSource = slot.derived({
 	source: SOURCE,
 	name: "serverBundleSource",
 	inputs: { ...serverInputs, bundle: bundleEntries },
 	compute: (inp): string | null => {
-		const hasWorker = inp.worker !== null;
-		const hasConsumerServices = inp.consumer !== null;
-		if (!hasWorker && !hasConsumerServices && inp.entries.length === 0) {
-			return null;
-		}
+		const payload = serverPayload(inp);
+		if (payload === null) return null;
 		return aggregateServer({
-			port: inp.port,
-			host: inp.host,
-			origins: inp.origins,
-			listeners: inp.listeners,
-			bounds: inp.bounds,
-			hasWorker,
-			workerPaths: inp.prefixes,
-			staticRoot: inp.staticRoot,
-			clientHeaders: inp.clientHeaders,
-			hasConsumerServices,
-			services: inp.entries,
+			...payload,
 			bundle: {
-				staticDir:
-					inp.staticRoot === null
-						? null
-						: `../${posix.basename(inp.staticRoot)}`,
 				imports: inp.bundle.flatMap((entry) => entry.imports ?? []),
 				boot: inp.bundle.flatMap((entry) => (entry.boot ? [entry.boot] : [])),
 			},
@@ -145,8 +159,6 @@ const serverBundleSource = slot.derived({
 	},
 });
 
-// The rendered `.stack/server.ts` source. Null when there is nothing to
-// serve or run: no worker (api emitted none) and no services.
 const serverSource = slot.derived({
 	source: SOURCE,
 	name: "serverSource",
@@ -165,26 +177,22 @@ const serverSource = slot.derived({
 				);
 			}
 		}
-		const hasWorker = inp.worker !== null;
-		const hasConsumerServices = inp.consumer !== null;
-		if (!hasWorker && !hasConsumerServices && inp.entries.length === 0) {
-			return null;
-		}
-		return aggregateServer({
-			port: inp.port,
-			host: inp.host,
-			origins: inp.origins,
-			listeners: inp.listeners,
-			bounds: inp.bounds,
-			hasWorker,
-			workerPaths: inp.prefixes,
-			staticRoot: inp.staticRoot,
-			clientHeaders: inp.clientHeaders,
-			hasConsumerServices,
-			services: inp.entries,
-		});
+		const payload = serverPayload(inp);
+		return payload === null ? null : aggregateServer(payload);
 	},
 });
+
+// A dev run's env: STACK_DEV, and the dev default of each declared var the
+// shell leaves unset.
+function devEnv(
+	declared: ReadonlyArray<{ name: string; devDefault: string }>,
+): Record<string, string> {
+	const env: Record<string, string> = { STACK_DEV: "1" };
+	for (const spec of declared) {
+		if (process.env[spec.name] === undefined) env[spec.name] = spec.devDefault;
+	}
+	return env;
+}
 
 export const node = plugin("node", {
 	label: "Node server",
@@ -251,7 +259,7 @@ export const node = plugin("node", {
 					writeFileSync(entry, source);
 					const outDir = join(
 						ctx.cwd,
-						dirname(staticRoot ?? "dist/client"),
+						staticRoot === null ? "dist" : dirname(staticRoot),
 						"server",
 					);
 					const { native, bins } = await bundleServer({
@@ -330,18 +338,12 @@ export const node = plugin("node", {
 							workerFile: `./${worker}`,
 						}),
 					);
-					const env: Record<string, string> = { STACK_DEV: "1" };
-					for (const spec of declared) {
-						if (process.env[spec.name] === undefined) {
-							env[spec.name] = spec.devDefault;
-						}
-					}
 					const stop = await startServer(
 						serve,
 						"node",
 						process.execPath,
 						[join(".stack", server)],
-						env,
+						devEnv(declared),
 					);
 					return async () => {
 						await stop();
@@ -359,18 +361,13 @@ export const node = plugin("node", {
 				return undefined;
 			}
 			const port = await ctx.resolve(self.slots.serverPort);
-			const env: Record<string, string> = { STACK_DEV: "1" };
-			for (const spec of await ctx.resolve(api.slots.env)) {
-				if (process.env[spec.name] === undefined) {
-					env[spec.name] = spec.devDefault;
-				}
-			}
+			const env = devEnv(await ctx.resolve(api.slots.env));
 			return {
 				name: "node",
 				command: "node",
 				args: ["--watch", ".stack/server.ts"],
 				defaultPort: port,
-				readyPattern: /listening on/i,
+				readyPattern: new RegExp(READY_LINE),
 				color: "green",
 				env,
 			};

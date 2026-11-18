@@ -92,7 +92,7 @@ export function createWsClient(
 	let socket: WebSocket | null = null;
 	let closed = false;
 	let attempt = 0;
-	// A session that ended (close code 1008) is not retried: only `reconnect()` or a new subscribe opens a socket again.
+	// Set by a 1008 close: docs/architecture/plugins/node.md, "Client socket".
 	let ended = false;
 	let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	let connectTimer: ReturnType<typeof setTimeout> | undefined;
@@ -114,7 +114,6 @@ export function createWsClient(
 		}
 	}
 
-	// Sent now when the socket is open, else queued for the next open.
 	function sendFrame(frame: ClientFrame): void {
 		if (closed) throw new Error("ws client: closed");
 		const text = JSON.stringify(frame);

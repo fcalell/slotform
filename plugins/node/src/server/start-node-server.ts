@@ -6,6 +6,7 @@ import {
 	type NodeServer,
 	type NodeServerOptions,
 } from "./create-node-server.ts";
+import { isDev } from "./listeners.ts";
 import type { ServiceSpec } from "./service.ts";
 import type { NodeWorker } from "./worker.ts";
 
@@ -34,7 +35,7 @@ export function listenOf(
 	configured: { port: number; host?: string },
 	env: Record<string, string | undefined> = process.env,
 ): { port: number; host?: string } {
-	if (env.STACK_DEV) return configured;
+	if (isDev(env)) return configured;
 	let { port, host } = configured;
 	const given = env.PORT?.trim();
 	if (given) {
@@ -90,7 +91,7 @@ export async function startNodeServer(
 				: []);
 		const server = createNodeServer({
 			...rest,
-			...listenOf(rest),
+			...listenOf(rest, rest.env),
 			staticRoot: staticDir
 				? relative(process.cwd(), fileURLToPath(staticDir)) || "."
 				: (staticRoot ?? null),

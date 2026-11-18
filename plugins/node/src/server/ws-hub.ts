@@ -108,7 +108,6 @@ interface RegisteredChannel {
 
 interface WsHubInternal {
 	hub: WsHub;
-	// Starts the idle sweep; the returned function stops it.
 	startSweep(): () => void;
 	// The per-connection event handlers create-node-server hands to
 	// upgradeWebSocket. Own minimal shape so this module never imports hono.
@@ -205,7 +204,6 @@ export function createWsHub(log: ServiceLogger): WsHubInternal {
 		closeSession(sessionId) {
 			for (const [socket, session] of open) {
 				if (session?.session.id !== sessionId) continue;
-				open.delete(socket);
 				dropSocket(socket, session);
 				socket.close(SESSION_ENDED.code, SESSION_ENDED.reason);
 			}
@@ -233,6 +231,7 @@ export function createWsHub(log: ServiceLogger): WsHubInternal {
 		socket: HubSocket,
 		session: ConnectionSession | null,
 	): void {
+		open.delete(socket);
 		for (const registered of channels.values()) {
 			unsubscribe(registered, socket, session);
 		}
@@ -333,11 +332,9 @@ export function createWsHub(log: ServiceLogger): WsHubInternal {
 				tails.set(ws, queued);
 			},
 			onClose(_event, ws) {
-				open.delete(ws);
 				dropSocket(ws, session);
 			},
 			onError(_event, ws) {
-				open.delete(ws);
 				dropSocket(ws, session);
 			},
 		}),

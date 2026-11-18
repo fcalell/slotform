@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { subscribe, unsubscribe } from "node:diagnostics_channel";
 import type { ServerResponse } from "node:http";
 import { serve, upgradeWebSocket } from "@hono/node-server";
@@ -6,14 +7,16 @@ import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { WebSocketServer } from "ws";
 import { z } from "zod";
+import type { NodeListenerOptions } from "../types.ts";
 import {
 	boundHost,
+	isDev,
 	listenerAdmits,
 	listenerEnv,
 	mainAdmits,
 	originOf,
 } from "./listeners.ts";
-import type { ServiceLogger } from "./log.ts";
+import { READY_LINE, type ServiceLogger } from "./log.ts";
 import type { ServiceSpec, ServiceStop } from "./service.ts";
 import type { NodeWorker } from "./worker.ts";
 import {
@@ -24,18 +27,6 @@ import {
 } from "./ws-guard.ts";
 import { type ConnectionSession, createWsHub } from "./ws-hub.ts";
 
-// A further port the server answers on, for one origin of its own (the
-// app at a proxy's named address beside its loopback port, say). Its origin
-// is read from `originVar` in the server's env on every request, so it can
-// change while the server runs; while it is unset or not an http(s) origin,
-// the listener refuses everything.
-export interface NodeListener {
-	port: number;
-	// The address to bind; unset binds every interface.
-	host?: string;
-	originVar: string;
-}
-
 export interface NodeServerOptions {
 	port: number;
 	// The address to bind; unset binds every interface.
@@ -43,7 +34,7 @@ export interface NodeServerOptions {
 	// The app's CORS origins, which the main listener's Host rule admits: docs/architecture/plugins/node.md, "Hosts and listeners".
 	origins?: string[];
 	// Further listeners by name: docs/architecture/plugins/node.md, "Hosts and listeners".
-	listeners?: Record<string, NodeListener>;
+	listeners?: Record<string, NodeListenerOptions>;
 	// A request body over this many bytes is refused with 413.
 	maxBody?: number;
 	// A WebSocket frame over this many bytes closes its socket.
@@ -153,7 +144,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 				host: hostHeader,
 				origins,
 				bound: listener.bound,
-				dev: env.STACK_DEV === "1",
+				dev: isDev(env),
 			});
 			if (!admitted) return c.text("Misdirected Request", 421);
 			c.set("workerEnv", env);
@@ -194,15 +185,17 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 
 	// The session a service route's request holds, from the worker's auth as a
 	// `/ws` upgrade's is and by its origin rule (`mountSession`), under the env
-	// and origin of the listener it came in on (a further listener's origin
-	// names its own cookies); null when the app has none.
-	const mountListeners = new WeakMap<
-		Request,
-		{ env: unknown; origin: string | null }
-	>();
+	// and origin of the listener the mounted handler runs for (a further
+	// listener's origin names its own cookies); null when the app has none. The
+	// listener rides the handler's async context, so a request the handler
+	// clones or rebuilds keeps it.
+	const mountListener = new AsyncLocalStorage<{
+		env: unknown;
+		origin: string | null;
+	}>();
 	const session = (request: Request): Promise<ConnectionSession | null> => {
 		if (!hasAuth(workerPaths)) return Promise.resolve(null);
-		const listener = mountListeners.get(request);
+		const listener = mountListener.getStore();
 		return mountSession({
 			worker,
 			env: listener?.env ?? env,
@@ -239,11 +232,10 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 	app.use("*", async (c, next) => {
 		const handler = matchMount(c.req.path);
 		if (handler) {
-			mountListeners.set(c.req.raw, {
-				env: c.get("workerEnv"),
-				origin: c.get("listenerOrigin"),
-			});
-			return handler(c.req.raw);
+			return mountListener.run(
+				{ env: c.get("workerEnv"), origin: c.get("listenerOrigin") },
+				() => handler(c.req.raw),
+			);
 		}
 		await next();
 	});
@@ -300,7 +292,6 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 	}
 
 	async function stopServices(): Promise<void> {
-		// Reverse order: later services may depend on earlier ones.
 		for (const entry of [...stops].reverse()) {
 			try {
 				await entry.stop();
@@ -367,6 +358,9 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 					websocket: { server: wss },
 				},
 				(info) => {
+					// A later error is the running server's, not the bind's: unheard, it
+					// ends the process.
+					server.off("error", reject);
 					const bound = info.port;
 					listener.bound = boundHost(listenHost, bound);
 					resolve(bound);
@@ -403,11 +397,8 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 				);
 			}
 			// The main listener binds last: docs/architecture/plugins/node.md, "Dev".
-			// Keep the wording equal to the plugin's readyPattern.
 			const bound = await listen(null, port, host, null);
-			log.info(
-				`stack node: listening on http://${host ?? "localhost"}:${bound}`,
-			);
+			log.info(`${READY_LINE} http://${host ?? "localhost"}:${bound}`);
 			process.once("SIGINT", () => void shutdown());
 			process.once("SIGTERM", () => void shutdown());
 		} catch (error) {

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { channel } from "node:diagnostics_channel";
+import { request } from "node:http";
 import { test } from "node:test";
 import createWorker from "@fcalell/plugin-api/runtime";
 import { WebSocket } from "ws";
@@ -540,6 +541,66 @@ test("http.session resolves a mounted route's credentials by /ws's origin rule",
 			}),
 			200,
 		);
+	} finally {
+		await server.stop();
+	}
+});
+
+test("http.session keeps a further listener's origin for a request the route rebuilds", async () => {
+	let network = 0;
+	const server = createNodeServer({
+		port: 0,
+		host: "127.0.0.1",
+		listeners: {
+			network: { port: 0, host: "127.0.0.1", originVar: "NET_ORIGIN" },
+		},
+		worker: worker(),
+		workerPaths: ["/rpc", "/api/auth"],
+		staticRoot: null,
+		env: { NET_ORIGIN: NETWORK },
+		log: {
+			info(message) {
+				const match = /network listening on http:\/\/[^:]+:(\d+)/.exec(message);
+				if (match) network = Number(match[1]);
+			},
+			error() {},
+		},
+		services: [
+			defineService({
+				name: "sync",
+				start({ http }) {
+					http.mount("/sync", async (request) => {
+						const session = await http.session(new Request(request));
+						return new Response(null, { status: session ? 200 : 401 });
+					});
+				},
+			}),
+		],
+	});
+	await server.start();
+	try {
+		const status = await new Promise<number | undefined>((resolve, reject) => {
+			request(
+				{
+					host: "127.0.0.1",
+					port: network,
+					path: "/sync",
+					method: "POST",
+					headers: {
+						host: "app.internal.example.com",
+						origin: NETWORK,
+						cookie: "sid=valid",
+					},
+				},
+				(response) => {
+					response.resume();
+					resolve(response.statusCode);
+				},
+			)
+				.on("error", reject)
+				.end();
+		});
+		assert.equal(status, 200);
 	} finally {
 		await server.stop();
 	}
