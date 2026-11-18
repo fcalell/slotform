@@ -21,7 +21,7 @@ translation that misses a word fails `tsc` and the schema, never the interface.
   `{name}` where the value stands, drawn through `filled(word, values)`. The schema rejects a
   translation that drops a blank. A connective is never composed around figures: the phrase holds
   them.
-- A tab bar's count past `TAB_COUNT_MAX` (99) reads as `countOver` through `tabCount(words, count)`.
+- A tab bar's count past the tab count's cap reads as `countOver` through `tabCount(words, count)`.
 
 `words` is a plugin option beside `theme`. Each plugin contributes a `WordsProvider` through its
 `providers` slot, which mounts the context (`@fcalell/ui-core/react/words`) with the consumer's
@@ -104,7 +104,7 @@ what is drawn once.
 
 ## In the code
 
-- `packages/ui-core/src/tokens.ts`: `ENGLISH`, the word keys, `counted`, `filled`, `tabCount`, `TAB_COUNT_MAX`.
+- `packages/ui-core/src/tokens.ts`: `ENGLISH`, the word keys, `counted`, `filled`, `tabCount`.
 - `packages/ui-core/src/schema.ts`: `wordsSchema`.
 - `packages/ui-core/src/react/words.ts`: `WordsProvider` and `useWords`.
 - `packages/ui-core/src/format.ts`: `formatterFor` and `momentWords`.

@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { placeTabContentTone } from "./roster/shell.ts";
+import {
+	PLACE_TAB,
+	type PlaceTabState,
+	placeTab,
+	placeTabContentTone,
+	placeTabLabel,
+} from "./roster/shell.ts";
 import { YIELDS_FIRST, YIELDS_LAST, YIELDS_LAST_EACH } from "./variants.ts";
 
 const weight = (name: string) =>
@@ -17,7 +23,14 @@ test("the first weight is above the default of 1 and the last below it", () => {
 	assert.ok(weight(YIELDS_LAST) < 1);
 });
 
-test("a place tab's tone is its text colour, never the selected tab's border", () => {
-	assert.equal(placeTabContentTone("idle"), "ink-meta");
-	assert.equal(placeTabContentTone("selected"), "ink-body");
+test("a place tab's tone is the ink its box and its label draw in every state, never the selected tab's border", () => {
+	const inks = (classes: string) => classes.match(/\btext-ink-[a-z]+/g) ?? [];
+	for (const state of Object.keys(
+		PLACE_TAB.variants.state,
+	) as PlaceTabState[]) {
+		const tone = placeTabContentTone(state);
+		assert.deepEqual(inks(placeTab({ state })), [`text-${tone}`], state);
+		assert.deepEqual(inks(placeTabLabel({ state })), [`text-${tone}`], state);
+	}
+	assert.notEqual(placeTabContentTone("idle"), placeTabContentTone("selected"));
 });

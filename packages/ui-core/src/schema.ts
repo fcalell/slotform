@@ -4,6 +4,7 @@ import {
 	BLANK_WORDS,
 	type BlankWordKey,
 	COUNTED_WORD_KEYS,
+	type CountedWord,
 	type CountedWordKey,
 	LABEL,
 	LOADING_PAINTS,
@@ -64,7 +65,7 @@ export type ParsedTheme = z.output<typeof themeSchema>;
 const countedWordSchema = z.strictObject({
 	one: z.string().min(1),
 	other: z.string().min(1),
-});
+}) satisfies z.ZodType<CountedWord>;
 
 // A blank word spells every blank it is filled with.
 function blankWordSchema(key: BlankWordKey) {

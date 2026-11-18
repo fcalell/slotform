@@ -232,9 +232,8 @@ why).
 
 ## Rules editor
 
-`Rules` is the one molecule for inline-term rows. `rules.ts` holds the decisions a `Rules` editor and a `Picker` make before they draw: whether a term
-is set (`termSet`, `pairSet`), a term's label (`termLabel`), whether a term is typed (`isTyped`) and
-its mark (`marked`, with `PICKED_GLYPH`).
+`Rules` is the one molecule for inline-term rows. `rules.ts` holds the decisions a `Rules` editor and a `Picker` make before they draw: whether a pair
+is set (`pairSet`), whether a term is typed (`isTyped`) and its mark (`marked`).
 
 ## Thread
 
@@ -339,7 +338,7 @@ alike (one bar, a flat day), is the thing's own reading too, so the head draws n
 ## Stats meter
 
 `Stats` is the figure component. `levelOf` gives the level a share of the max stands at: past the max, `over`; from `near`
-(`METER_NEAR`, 0.9, or a meter's own mark), `near`; else `under`. A meter of a goal (tests passing of
+(`METER_NEAR`, or a meter's own mark), `near`; else `under`. A meter of a goal (tests passing of
 all of them) reads the other way: full is `met`, the good tone, and anything short of it is `under`,
 the neutral one, never near or over, since more of a goal is never a warning.
 

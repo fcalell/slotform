@@ -131,8 +131,10 @@ export const BUSY_STILL = "···";
 // locale groups from five digits).
 export function groupZeros(zeros: string, locale?: string): string {
 	if (!/^0+$/.test(zeros)) return zeros;
+	// The power of ten with as many digits: exact as a number up to 23 digits,
+	// where a run of nines past 15 rounds up to one digit more.
 	const grouped = new Intl.NumberFormat(locale).format(
-		Number("9".repeat(zeros.length)),
+		10 ** (zeros.length - 1),
 	);
 	return grouped.replace(/\p{Nd}/gu, "0");
 }

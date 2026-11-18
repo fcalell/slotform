@@ -130,9 +130,8 @@ export const stageRail = build(STAGE_RAIL);
 // words the label with one meta line under it; a hairline in the edge ink
 // runs from each mark to the next (`STAGE_RAIL`), and the room between two
 // stages is the words' own bottom inset, so the rail runs unbroken. A row
-// stands at least the two-line row's height (`STAGE_ROW`: 48, 64 on touch,
-// the state rail's rows), so a later row of one meta line keeps the pace of a
-// done one. A done mark's check stands on its disc in the canvas ink
+// (`STAGE_ROW`) keeps a gap between its mark and its words and a gap over and
+// under them. A done mark's check stands on its disc in the canvas ink
 // (`STAGE_CHECK`), an ended rail's cross is the danger ink (`STAGE_CROSS`).
 export const STAGE_ROW = "gap-gap py-gap";
 export const STAGE_WORDS = "pb-gap";

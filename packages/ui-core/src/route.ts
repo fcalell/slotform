@@ -19,7 +19,10 @@ function decode(text: string): string {
 function parts(route: string): Parts {
 	const [beforeHash = "", ...afterHash] = route.split("#");
 	const hash = afterHash.join("#");
-	const [path = "", ...afterPath] = beforeHash.split("?");
+	const [written = "", ...afterPath] = beforeHash.split("?");
+	// A trailing slash names the same place (`/projects/`, an index route's
+	// path, is `/projects`); the root keeps its own.
+	const path = written.replace(/(.)\/+$/, "$1");
 	const params = afterPath
 		.join("?")
 		.split("&")

@@ -1,68 +1,7 @@
 // The variant matrices as data, internal with no subpath: docs/architecture/ui-core/roster.md, "Matrices".
 
-import { ANSWER, FILL_X, matrix } from "./roster/shared.ts";
-
-export { BANNER, BANNER_GLYPH } from "./roster/banner.ts";
-export {
-	CHART_BAND,
-	CHART_FILL,
-	FILL_Y,
-	TRAVEL_Y,
-} from "./roster/bar-chart.ts";
-export { BUTTON, ICON_BUTTON } from "./roster/button.ts";
-export {
-	CANVAS_GROUP,
-	CANVAS_NODE,
-	CANVAS_NODE_GLYPH,
-	CANVAS_NODE_INK,
-	CANVAS_NODE_MARK,
-	CANVAS_NODE_NAME,
-	CANVAS_NODE_TEXT,
-	LIFT,
-	PATH_TONE,
-} from "./roster/canvas.ts";
-export { CODE_TEXT } from "./roster/code.ts";
-export { COLUMNS } from "./roster/columns.ts";
-export { DIFF_LINE, PROSE_DIFF_RUN } from "./roster/diff.ts";
-export { FILL_FADE, STEP_COUNT_SEGMENT } from "./roster/gate.ts";
-export {
-	FIELD_VALUE,
-	OTP_BOX,
-	TEXT_AREA,
-	TEXT_AREA_BUDGET,
-} from "./roster/input.ts";
-export {
-	OPTION_RADIO,
-	PICKER,
-	RADIO_DOT,
-	SEGMENT,
-	SEGMENT_LABEL,
-} from "./roster/picker.ts";
-export { PROSE_MARKER } from "./roster/prose.ts";
-export { RULE_ARROW } from "./roster/rules.ts";
-export { FILE_COUNT, FILE_PATH_PART } from "./roster/section.ts";
-export type { Axes, Matrix } from "./roster/shared.ts";
-export { ANSWER, BUTTON_LABEL, FILL_X, GIVE, TEXT } from "./roster/shared.ts";
-export {
-	CURRENT_BAR,
-	CURRENT_SPACE,
-	PLACE_ROW,
-	PLACE_ROW_GLYPH,
-	PLACE_TAB,
-	PLACE_TAB_LABEL,
-} from "./roster/shell.ts";
-export { STAGE, STAGE_MARK, STAGE_RAIL } from "./roster/stages.ts";
-export { TRAVEL_X } from "./roster/stats.ts";
-export { SWITCH, SWITCH_THUMB, TOGGLE_THUMB } from "./roster/switch.ts";
-export {
-	TABLE_CHANGE_VALUE,
-	TABLE_FROZEN_CELL,
-	TABLE_HEAD,
-	TABLE_HEAD_LABEL,
-	TABLE_ROW,
-} from "./roster/table.ts";
-export { MESSAGE } from "./roster/thread.ts";
-export { TOAST_STATE } from "./roster/toast.ts";
+import { ANSWER, FILL_X, matrix, ROW_WASH } from "./roster/shared.ts";
+import type { AvatarStep, ChipFamily } from "./tokens.ts";
 
 // ── Motion class sets ─────────────────────────────────────────────────
 
@@ -157,7 +96,7 @@ export const AVATAR = matrix({
 			"6": "bg-avatar-6",
 			"7": "bg-avatar-7",
 			"8": "bg-avatar-8",
-		},
+		} satisfies Record<`${AvatarStep}`, string>,
 	},
 });
 
@@ -173,7 +112,7 @@ export const AVATAR_LABEL = matrix({
 			"6": "text-avatar-6-ink",
 			"7": "text-avatar-7-ink",
 			"8": "text-avatar-8-ink",
-		},
+		} satisfies Record<`${AvatarStep}`, string>,
 	},
 });
 
@@ -268,7 +207,7 @@ export const CHIP_DOT = matrix({
 			teal: "bg-chip-teal",
 			violet: "bg-chip-violet",
 			pink: "bg-chip-pink",
-		},
+		} satisfies Record<Exclude<ChipFamily, "neutral">, string>,
 	},
 });
 
@@ -325,13 +264,7 @@ export const CHECKBOX = matrix({
 export const ROW = matrix({
 	base: `gap-gap px-pad py-gap rounded-row ${ANSWER}`,
 	variants: {
-		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
-			selected: "bg-wash-selected",
-			"selected-hover": "bg-wash-selected-hover",
-		},
+		state: ROW_WASH,
 	},
 	defaultVariants: { state: "rest" },
 });
@@ -365,7 +298,7 @@ export const ROW_MARK = matrix({
 			violet: "bg-chip-violet-soft text-chip-violet-ink",
 			pink: "bg-chip-pink-soft text-chip-pink-ink",
 			neutral: "bg-chip-neutral-soft text-chip-neutral-ink",
-		},
+		} satisfies Record<ChipFamily, string>,
 	},
 });
 

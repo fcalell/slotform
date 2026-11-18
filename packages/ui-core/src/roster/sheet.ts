@@ -96,6 +96,7 @@ export const SHEET_CENTERED =
 // line centred beside the acts) on the sheet's own ground, since on touch it
 // stands over the end of the scrolling body.
 export const SHEET_HEAD = "gap-gap px-pad py-gap border-b border-edge";
+export const SHEET_PARTS = "gap-section p-pad";
 // The head's row: the lead act, the title over the description, the end act,
 // the title centred on the acts, which set the row's height.
 export const SHEET_HEAD_ROW = "gap-gap";
@@ -119,6 +120,8 @@ export const SHEET_DOCKED_FOOT = "gap-gap";
 // In a foot the body's content keeps its floor whatever the head, the foot line and the log hold; the scroller around it, bounded by `dockedBodyMax`, gives below it where the region is short.
 // The floor is `DOCKED_FLOOR_ROWS` rows; under a log, `DOCKED_LOG_FLOOR_ROWS`.
 export const DOCKED_FLOOR_ROWS = 3;
+export const DOCKED_LOG_FLOOR_ROWS = 2;
+// `DOCKED_FLOOR_ROWS` rows, spelled whole: Tailwind reads a class as written.
 export const SHEET_DOCKED_FLOOR = "min-h-[calc(3*var(--spacing-row))]";
 
 // A bottom sheet slides from its edge and back to it.

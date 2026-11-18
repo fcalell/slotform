@@ -11,7 +11,7 @@ import type {
 	StatusMark,
 } from "./descriptors.ts";
 import type { RosterEntry } from "./shared.ts";
-import { ANSWER, build, matrix, PRESS } from "./shared.ts";
+import { ANSWER, build, matrix, PRESS, ROW_WASH } from "./shared.ts";
 
 // The table: docs/architecture/ui-core/components.md, "Table".
 export const tableEntry: RosterEntry = {
@@ -272,13 +272,7 @@ export interface DragSource {
 export const TABLE_ROW = matrix({
 	base: `border-b border-edge ${ANSWER}`,
 	variants: {
-		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
-			selected: "bg-wash-selected",
-			"selected-hover": "bg-wash-selected-hover",
-		},
+		state: ROW_WASH,
 	},
 	defaultVariants: { state: "rest" },
 });
@@ -289,9 +283,9 @@ export const TABLE_HEAD = matrix({
 	base: `gap-gap py-gap border-x border-transparent px-pad ${ANSWER}`,
 	variants: {
 		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
+			rest: ROW_WASH.rest,
+			highlighted: ROW_WASH.highlighted,
+			pressed: ROW_WASH.pressed,
 		},
 	},
 	defaultVariants: { state: "rest" },
@@ -317,13 +311,7 @@ export const TABLE_HEAD_LABEL = matrix({
 export const TABLE_FROZEN_CELL = matrix({
 	base: ANSWER,
 	variants: {
-		state: {
-			rest: "",
-			highlighted: "bg-wash-hover",
-			pressed: "bg-wash-press",
-			selected: "bg-wash-selected",
-			"selected-hover": "bg-wash-selected-hover",
-		},
+		state: ROW_WASH,
 		edge: {
 			none: "",
 			end: "border-e-edge",

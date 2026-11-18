@@ -35,7 +35,7 @@ The subpaths:
   which `matrixClasses` enumerates into class sets; the prop types a component shares across plugins
   with them (`ContentTone`, a glyph's ink; `IconFit`, the `ICON` matrix's `meta`, `body` or
   `control`, what an icon sits beside, which picks `icon-meta`, `icon` or `icon-control`;
-  `ButtonFit`, `IconButtonFit` and `LinkFit`, what an act sits in, read off each matrix's `fit`
+  `ButtonFit` and `IconButtonFit`, what an act sits in, read off each matrix's `fit`
   axis; `ActionBarFit`, where a native action bar stands, `end` or `full`;
   `TextRole`, the `body` and `meta` roles `Text` draws).
 - `@fcalell/ui-core/descriptors`: `IconName`, `Act`, `LinkAct`, `IconAct`, `Run`, `Runs`, `StatusMark`, `ChipMark`, `RowMark`, `Fact`, `RecordFact`,
@@ -43,7 +43,7 @@ The subpaths:
   `RowEntry`, `Lock`, `Answered`, `TableColumn`, `TableRowRegions`, `Stage`,
   `StageEnd` and the other framework-free types a prop carries.
 - `@fcalell/ui-core/rules`: what the Rules editor and the Picker decide before they draw, free of
-  any framework: `termSet`, `pairSet`, `termLabel`, `isTyped` and `marked` (with `PICKED_GLYPH`).
+  any framework: `pairSet`, `isTyped` and `marked`.
 - `@fcalell/ui-core/streaming`: `closeOpenRuns`, a still-arriving reply's Markdown with the runs open at its end closed, free of any framework.
 - `@fcalell/ui-core/read`: the read model, free of any framework and of TanStack: `readState`, a read's phase (idle, waiting, ready, failed, missing) and flags (busy, stale, more, streaming, paused) from the few fields of a query's result it names; `frameOf` and `turnOf`; `isEnded`, whether a frame's shape or a selection's phase says its read ended (failed or missing); the `Read` handle (`key`, `kind`, `missing`), `Selection`, `Datum`, `combine`, `lift`, `Drawn` and `paints`, the stand-in and the sample, the frame's holds and flags, and `planSelections`/`planFrame`, the pure core of the hooks. The binding that runs the reads builds a `Read` with `readOf`. `endedSentence` is the sentence a failed or missing row says.
 - `@fcalell/ui-core/acts`: what an act is made of apart from what runs it: `isThenable`, `drew`/`wasDrawn`, `placed`/`isPlaced` (a rejection whose sentences its own host draws in place), `Offered` and `offered` (an act as a region takes it, and that made whole), `startAttempt`, `keepSave`, `Issue`, `Unreached`, and a more menu's items (`moreMenu`, `endedItems`).

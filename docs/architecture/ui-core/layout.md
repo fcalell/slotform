@@ -374,7 +374,7 @@ own; a Section with no `read` takes no `empty`.
   Section owns which branches are folded (open by default), handing every row its depth and fold.
 - `groups` draws a band (`LIST_BAND`, a `band` tall) over the rows of each group, in the groups'
   order: the label at the body role at 500, the count of its rows (none when empty, in the meta ink)
-  and its icon act at the end, closed by a rule in the body ink with none above it. Rows with no
+  and its icon act at the end, closed by a hairline in the edge colour, none above it. Rows with no
   group stand before the first band; in a tree the group is the root rows'. A painted sheet draws no
   band.
 - Over a pages read the sheet ends in its more row ([reads](reads.md#paging)). The Table ends the same

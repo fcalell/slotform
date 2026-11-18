@@ -112,9 +112,7 @@ export const COLOR_GROUPS = {
 	],
 	// a chart series' fill: the chip hue, quieter, holding 3:1 on `surface` and
 	// `group`; the seventh is the neutral family's grey
-	chart: ([...CHIP_HUES, "neutral"] as const).map(
-		(hue) => `chart-${hue}` as const,
-	),
+	chart: CHIP_FAMILIES.map((family) => `chart-${family}` as const),
 	// the fill and the initial on it
 	avatars: AVATAR_STEPS.flatMap(
 		(step) => [`avatar-${step}`, `avatar-${step}-ink`] as const,
@@ -300,7 +298,7 @@ function chipColors(): Record<ChipColor, ColorDeclaration> {
 
 // A chart series' fill: docs/architecture/ui-core/tokens.md, "Chart colours".
 const CHART: Record<
-	ChipHue | "neutral",
+	ChipFamily,
 	{ light: [number, number]; dark: [number, number] }
 > = {
 	red: { light: [0.63, 0.12], dark: [0.55, 0.088] },
@@ -313,12 +311,9 @@ const CHART: Record<
 	neutral: { light: [0.62, 0.012], dark: [0.57, 0.01] },
 };
 
-function chartColors(): Record<
-	`chart-${ChipHue | "neutral"}`,
-	ColorDeclaration
-> {
+function chartColors(): Record<`chart-${ChipFamily}`, ColorDeclaration> {
 	// The loop declares each hue's key and `chart-neutral` follows it.
-	const out = {} as Record<`chart-${ChipHue | "neutral"}`, ColorDeclaration>;
+	const out = {} as Record<`chart-${ChipFamily}`, ColorDeclaration>;
 	for (const family of CHIP_HUES) {
 		const { hue } = CHIP[family];
 		const { light, dark } = CHART[family];
@@ -378,21 +373,34 @@ const DANGER_LIGHT: ColorValue = {
 	grounds: [{ on: "group", under: "wash-press", ratio: 4.5 }],
 };
 
-// The faintest text ink's floor: docs/architecture/ui-core/tokens.md, "Contrast floors".
+// The grounds the faintest text ink and a mark stand on: docs/architecture/ui-core/tokens.md, "Contrast floors".
+export const CONTRAST_GROUNDS = ["canvas", "surface", "group"] as const;
+
 const META_GROUNDS: readonly ContrastGrounds[] = [
 	{ on: "neutral-soft", ratio: 4.5 },
-	{ on: "canvas", ratio: 4.5 },
-	{ on: "surface", ratio: 4.5 },
-	{ on: "group", ratio: 4.5 },
+	...CONTRAST_GROUNDS.map((on) => ({ on, ratio: 4.5 })),
 	{ on: "surface", under: "wash-selected", ratio: 4.5 },
 ];
 
 const MARK_GROUNDS: readonly ContrastGrounds[] = [
-	{ on: "canvas", ratio: 3 },
-	{ on: "surface", ratio: 3 },
-	{ on: "group", ratio: 3 },
+	...CONTRAST_GROUNDS.map((on) => ({ on, ratio: 3 })),
 	{ on: "surface", under: "wash-selected", ratio: 3 },
 ];
+
+// The accent ink holds the same grounds in both modes.
+const ACCENT_INK_GROUNDS: readonly ContrastGrounds[] = [
+	{ on: "group", ratio: 4.5 },
+	{ on: "canvas", ratio: 3 },
+	{ on: "accent-soft", under: "wash-press", ratio: 4.5 },
+];
+
+// A pending act's fill holds its label at 3:1 in both modes.
+function pendingGrounds(
+	label: ColorName,
+): Record<Mode, readonly ContrastGrounds[]> {
+	const grounds = [{ on: label, ratio: 3 }];
+	return { light: grounds, dark: grounds };
+}
 
 // The neutral soft ground is a veil, so it holds on each ground it can lie over;
 // the tinted ones are opaque.
@@ -452,19 +460,11 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 	"accent-ink": {
 		light: {
 			...accent(0.505, 0.19),
-			grounds: [
-				{ on: "group", ratio: 4.5 },
-				{ on: "canvas", ratio: 3 },
-				{ on: "accent-soft", under: "wash-press", ratio: 4.5 },
-			],
+			grounds: ACCENT_INK_GROUNDS,
 		},
 		dark: {
 			...accent(0.72, 0.13),
-			grounds: [
-				{ on: "group", ratio: 4.5 },
-				{ on: "canvas", ratio: 3 },
-				{ on: "accent-soft", under: "wash-press", ratio: 4.5 },
-			],
+			grounds: ACCENT_INK_GROUNDS,
 		},
 	},
 	// The accent's edge on its soft ground (a canvas start node's): the ink
@@ -545,10 +545,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		mix: "accent",
 		toward: { light: "on-accent", dark: "canvas" },
 		amount: 0.3,
-		grounds: {
-			light: [{ on: "on-act-accent", ratio: 3 }],
-			dark: [{ on: "on-act-accent", ratio: 3 }],
-		},
+		grounds: pendingGrounds("on-act-accent"),
 	},
 	"act-danger": {
 		light: DANGER_LIGHT,
@@ -566,10 +563,7 @@ export const COLORS: Record<ColorName, ColorDeclaration> = {
 		mix: "act-danger",
 		toward: { light: "on-act-danger", dark: "canvas" },
 		amount: 0.3,
-		grounds: {
-			light: [{ on: "on-act-danger", ratio: 3 }],
-			dark: [{ on: "on-act-danger", ratio: 3 }],
-		},
+		grounds: pendingGrounds("on-act-danger"),
 	},
 	// A toggle on: docs/architecture/ui-core/tokens.md, "Interaction colours".
 	"switch-off": { alias: "edge-strong" },
@@ -595,7 +589,7 @@ export const CHART_SERIES = [
 	"green",
 	"red",
 	"neutral",
-] as const satisfies readonly (ChipHue | "neutral")[];
+] as const satisfies readonly ChipFamily[];
 
 // The share of its max at or above which a meter is near; above the max it
 // is over.
@@ -874,8 +868,8 @@ export const MEASURE_CHARACTERS: Record<Measure, number> = {
 // Running text's characters per line, the `measure` size.
 export const TEXT_MEASURE_CHARACTERS = 58;
 
-// The unit widths: docs/architecture/ui-core/tokens.md, "Widths".
-export const UNIT_WIDTHS = [
+// The unit widths, declared in px (no measure): docs/architecture/ui-core/tokens.md, "Widths".
+export const PX_WIDTHS = [
 	"popover",
 	"toast",
 	"dialog",
@@ -890,10 +884,10 @@ export const UNIT_WIDTHS = [
 	"empty",
 	"node",
 ] as const;
-export type UnitWidth = (typeof UNIT_WIDTHS)[number];
+export type PxWidth = (typeof PX_WIDTHS)[number];
 
 // Each unit width as a count of `SPACE_BASE`.
-export const WIDTH_VALUE: Record<UnitWidth, number> = {
+export const WIDTH_VALUE: Record<PxWidth, number> = {
 	popover: 60,
 	toast: 90,
 	dialog: 130,
@@ -908,10 +902,6 @@ export const WIDTH_VALUE: Record<UnitWidth, number> = {
 	// A canvas node, 240 px at the default `size`.
 	node: 60,
 };
-
-// The widths declared in px: no measure.
-export const PX_WIDTHS = UNIT_WIDTHS;
-export type PxWidth = UnitWidth;
 
 export const WIDTHS = [...MEASURES, ...PX_WIDTHS] as const;
 export type Width = (typeof WIDTHS)[number];
@@ -978,46 +968,61 @@ export const STACK_ORDER = ["sidebar", "sheet", "popover", "toasts"] as const;
 export const DURATIONS = ["instant", "fast", "base", "slow"] as const;
 export type Duration = (typeof DURATIONS)[number];
 
-export const DURATION_MS: Record<Duration, number> = {
+// Every motion knob's default, the one literal each is spelled by:
+// `scripts/apply-motion.ts` rewrites the numbers here. Durations and waits are
+// in ms. No entry may hold a closing brace, which ends the script's match.
+const MOTION_DEFAULTS = {
 	instant: 100,
 	fast: 150,
 	base: 200,
 	slow: 300,
+	loop: 800,
+	pulse: 1600,
+	tick: 70,
+	press: 0.97,
+	lift: 1.02,
+	fling: 0.5,
+	reach: 0.4,
+	// the wait delays: docs/architecture/ui-core/reads.md, "Timing"
+	waitDelay: 400,
+	actDelay: 300,
+	waitMin: 0,
+} satisfies Record<MotionKnobName, number>;
+
+export const DURATION_MS: Record<Duration, number> = {
+	instant: MOTION_DEFAULTS.instant,
+	fast: MOTION_DEFAULTS.fast,
+	base: MOTION_DEFAULTS.base,
+	slow: MOTION_DEFAULTS.slow,
 };
 
 // A loop, not a transition: outside the scale and kept under reduced motion,
 // because the spin is the only sign a wait is live.
-export const LOOP_MS = 800;
+export const LOOP_MS = MOTION_DEFAULTS.loop;
 
-// The skeleton's breath: one pulse across the page, two turns of the spinner
-// so it reads as calm. Stills under reduced motion.
-export const PULSE_MS = 1600;
+// The skeleton's breath: one pulse across the page, slower than the spinner's
+// turn so it reads as calm. Stills under reduced motion.
+export const PULSE_MS = MOTION_DEFAULTS.pulse;
 
 // How long a toast stands, in ms: Base UI's default.
 export const TOAST_MS = 5000;
 
 // The scramble's step.
-export const TICK_MS = 70;
+export const TICK_MS = MOTION_DEFAULTS.tick;
 
 // A pressed filled control gives to this scale, a lifted canvas node rises to
 // the other.
-export const PRESS_SCALE = 0.97;
-export const LIFT_SCALE = 1.02;
+export const PRESS_SCALE = MOTION_DEFAULTS.press;
+export const LIFT_SCALE = MOTION_DEFAULTS.lift;
 
 // A release past this speed toward the way off (px per ms) leaves, past it
 // the other way goes back, and a slower one leaves once it was carried this
 // share of its extent (`follow.ts`).
-export const FOLLOW_FLING = 0.5;
-export const FOLLOW_REACH = 0.4;
+export const FOLLOW_FLING = MOTION_DEFAULTS.fling;
+export const FOLLOW_REACH = MOTION_DEFAULTS.reach;
 
 // The fill's alpha at the pulse's low (its high is the fill itself).
 export const PULSE_LOW = 0.55;
-
-// The wait delays: docs/architecture/ui-core/reads.md, "Timing".
-// The defaults of `paint.ts`'s `WAIT_DELAY`, `ACT_DELAY` and `waitMin`, in ms.
-const WAIT_DELAY_MS = 400;
-const ACT_DELAY_MS = 300;
-const WAIT_MIN_MS = 0;
 
 export type MotionKnobName =
 	| Duration
@@ -1047,7 +1052,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "instant",
 		cssVar: "--transition-duration-instant",
-		default: DURATION_MS.instant,
+		default: MOTION_DEFAULTS.instant,
 		unit: "ms",
 		min: 50,
 		max: 200,
@@ -1056,7 +1061,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "fast",
 		cssVar: "--transition-duration-fast",
-		default: DURATION_MS.fast,
+		default: MOTION_DEFAULTS.fast,
 		unit: "ms",
 		min: 100,
 		max: 300,
@@ -1065,7 +1070,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "base",
 		cssVar: "--transition-duration-base",
-		default: DURATION_MS.base,
+		default: MOTION_DEFAULTS.base,
 		unit: "ms",
 		min: 100,
 		max: 400,
@@ -1074,7 +1079,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "slow",
 		cssVar: "--transition-duration-slow",
-		default: DURATION_MS.slow,
+		default: MOTION_DEFAULTS.slow,
 		unit: "ms",
 		min: 200,
 		max: 600,
@@ -1083,7 +1088,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "loop",
 		cssVar: "--transition-duration-loop",
-		default: LOOP_MS,
+		default: MOTION_DEFAULTS.loop,
 		unit: "ms",
 		min: 400,
 		max: 2000,
@@ -1092,7 +1097,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "pulse",
 		cssVar: "--pulse",
-		default: PULSE_MS,
+		default: MOTION_DEFAULTS.pulse,
 		unit: "ms",
 		min: 800,
 		max: 4000,
@@ -1101,7 +1106,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "tick",
 		cssVar: "--tick",
-		default: TICK_MS,
+		default: MOTION_DEFAULTS.tick,
 		unit: "ms",
 		min: 30,
 		max: 200,
@@ -1110,7 +1115,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "press",
 		cssVar: "--scale-press",
-		default: PRESS_SCALE,
+		default: MOTION_DEFAULTS.press,
 		unit: "",
 		min: 0.9,
 		max: 1,
@@ -1119,7 +1124,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "lift",
 		cssVar: "--scale-lift",
-		default: LIFT_SCALE,
+		default: MOTION_DEFAULTS.lift,
 		unit: "",
 		min: 1,
 		max: 1.1,
@@ -1128,7 +1133,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "fling",
 		cssVar: "--follow-fling",
-		default: FOLLOW_FLING,
+		default: MOTION_DEFAULTS.fling,
 		unit: "",
 		min: 0.2,
 		max: 1,
@@ -1137,7 +1142,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "reach",
 		cssVar: "--follow-reach",
-		default: FOLLOW_REACH,
+		default: MOTION_DEFAULTS.reach,
 		unit: "",
 		min: 0.2,
 		max: 0.6,
@@ -1146,7 +1151,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "waitDelay",
 		cssVar: "--wait-delay",
-		default: WAIT_DELAY_MS,
+		default: MOTION_DEFAULTS.waitDelay,
 		unit: "ms",
 		min: 0,
 		max: 1000,
@@ -1155,7 +1160,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "actDelay",
 		cssVar: "--act-delay",
-		default: ACT_DELAY_MS,
+		default: MOTION_DEFAULTS.actDelay,
 		unit: "ms",
 		min: 0,
 		max: 1000,
@@ -1164,7 +1169,7 @@ export const MOTION_KNOBS: readonly MotionKnob[] = [
 	{
 		name: "waitMin",
 		cssVar: "--wait-min",
-		default: WAIT_MIN_MS,
+		default: MOTION_DEFAULTS.waitMin,
 		unit: "ms",
 		min: 0,
 		max: 1000,
@@ -1274,6 +1279,7 @@ export const WORD_KEYS = [
 	"add",
 	"remove",
 	"edit",
+	"save",
 	"details",
 	"places",
 	"foldSidebar",
@@ -1429,6 +1435,7 @@ export const ENGLISH: Words = {
 	add: "Add",
 	remove: "Remove",
 	edit: "Edit",
+	save: "Save",
 	details: "Details",
 	places: "Places",
 	foldSidebar: "Collapse sidebar",
@@ -1542,15 +1549,14 @@ export const ENGLISH: Words = {
 
 // A blank word with its values: `filled(words.stepOf, { at, of })`.
 export function filled(word: string, values: Record<string, string>): string {
-	return word.replace(
-		/\{(\w+)\}/g,
-		(blank, name: string) => values[name] ?? blank,
+	return word.replace(/\{(\w+)\}/g, (blank, name: string) =>
+		Object.hasOwn(values, name) ? (values[name] ?? blank) : blank,
 	);
 }
 
 // The most a tab's count draws; a count past it reads as the blank word
 // `countOver` ("99+"), so the count stays inside the bar at the narrowest width.
-export const TAB_COUNT_MAX = 99;
+const TAB_COUNT_MAX = 99;
 
 // A tab's count as drawn: `tabCount(words, 44)` is "44", `tabCount(words, 444)` "99+".
 export function tabCount(words: Words, count: number): string {

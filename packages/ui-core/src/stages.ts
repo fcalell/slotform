@@ -2,8 +2,9 @@
 
 import type { Stage, StepState } from "./descriptors.ts";
 import { PAINT_ROWS } from "./paint.ts";
+import type { STAGE_RAIL } from "./roster/stages.ts";
 
-export type RailState = "done" | "ahead";
+export type RailState = keyof (typeof STAGE_RAIL)["variants"]["state"];
 
 export const railBelow = (state: StepState | "ended"): RailState =>
 	state === "done" ? "done" : "ahead";

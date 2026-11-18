@@ -1,9 +1,9 @@
 // The contrast tests' measure of a resolved color as a browser paints it.
 import assert from "node:assert/strict";
 import { type Oklch, oklchToRgb } from "../oklch.ts";
+import { CONTRAST_GROUNDS } from "../tokens.ts";
 
-// The grounds a mark stands on: docs/architecture/ui-core/tokens.md, "Contrast floors".
-export const GROUNDS = ["canvas", "surface", "group"] as const;
+export const GROUNDS = CONTRAST_GROUNDS;
 
 export const parse = (value: string): Oklch & { alpha: number } => {
 	const match = /oklch\(([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/.exec(

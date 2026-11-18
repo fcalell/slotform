@@ -6,10 +6,9 @@ import { ANSWER } from "./shared.ts";
 // each a label over its figure (a unit beside it), then a `line` or
 // sub-counts (links composed from `Link`), or the whole cell a link to
 // its `href` (a chevron at its label's end), never both. Zeros are drawn. A cell with a `bound` is the meter
-// form: the label over the share in percent as its figure, over a bar at the
-// `meter` size, its fill by level, amber near full (at its `mark` when it has
-// one, a tick across the track) and `danger` over (a `goal`, a target reached, is the meta ink short of it and the good
-// tone once reached); under it one line, its `line` or its sub-counts. Its `value` and `bound` are data: a selection paints
+// form: the label over the share in percent as its figure, over a bar (`METER_TRACK`),
+// its fill by level (docs/architecture/ui-core/components.md, "Stats meter"; a `mark` is a
+// tick across the track); under it one line, its `line` or its sub-counts. Its `value` and `bound` are data: a selection paints
 // in their place, the cell inert, until the read lands. The meter is the frame
 // of the selections it draws: one that failed, with no frame above holding it,
 // makes the failed shape in the same box (the label stays; the figure's place shows
@@ -140,7 +139,7 @@ export const METER = "gap-gap";
 
 // A meter's mark: a tick across the track centred on the mark's share (so one
 // at the max stands on the track's end), standing proud of the track by
-// `inside` above and below. It sits outside the track, which clips.
+// `gap` above and below. It sits outside the track, which clips.
 export const METER_MARK =
 	"w-[calc(2*var(--spacing-hairline))] bg-ink-body -inset-y-gap -translate-x-1/2";
 // A line of counts that lead to their lists: standalone links a gap apart

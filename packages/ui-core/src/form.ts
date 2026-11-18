@@ -471,6 +471,22 @@ export function isEmpty(derived: Derived, shown: Held | undefined): boolean {
 	return typeof shown === "string" && shown.trim() === "";
 }
 
+/** What an emptied field sends when it commits alone: `null` where nullable, the empty list for a pick of several or lines, the empty string for a control that types a string, and otherwise the key absent where optional (`absent`); a required one has nothing to send (`required`). */
+export function emptied(
+	derived: Derived,
+): { value: unknown } | "absent" | "required" {
+	if (derived.nullable) return { value: null };
+	if (derived.control === "several" || derived.control === "lines")
+		return { value: [] };
+	if (
+		["text", "mono", "prose", "source", "code", "secret"].includes(
+			derived.control,
+		)
+	)
+		return { value: "" };
+	return derived.required ? "required" : "absent";
+}
+
 // The item a line is, in the type the schema allows: a boolean, then null, then a number, then the text.
 function lineOf(
 	line: string,

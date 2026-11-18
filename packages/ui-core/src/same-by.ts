@@ -1,17 +1,20 @@
 // A collection row's `memo` comparison, the same on both platforms. Pure.
 
+import { isPlain } from "./plain.ts";
+
 type Walked = Readonly<Record<string, unknown>>;
 
 // What structural sharing walks into: an array with no holes and no keys of its
-// own besides its items, or an object on `Object.prototype` or on none.
-// Anything else is the same only as itself.
+// own besides its items, or a plain object whose tag is an object's (no
+// `Symbol.toStringTag` of its own). Anything else is the same only as itself.
 function walked(value: unknown): value is Walked {
 	if (Array.isArray(value)) {
 		return value.length === Object.keys(value).length;
 	}
-	if (Object.prototype.toString.call(value) !== "[object Object]") return false;
-	const prototype = Object.getPrototypeOf(value);
-	return prototype === null || prototype === Object.prototype;
+	return (
+		isPlain(value) &&
+		Object.prototype.toString.call(value) === "[object Object]"
+	);
 }
 
 // Whether structural sharing would keep `was` for `now`: the same value, or two

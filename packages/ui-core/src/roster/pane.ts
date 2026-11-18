@@ -64,7 +64,6 @@ export const paneEntry: RosterEntry = {
 		"IMAGE.state.error",
 		"IMAGE_PICTURE.fit.thumb",
 		"IMAGE_FAILED_INK",
-		"ITEM_FACTS",
 		"ITEM_FACT",
 		"WORD_ACT",
 		"ICON.fit.meta",
@@ -145,7 +144,7 @@ export const ITEM_HEADER = "gap-gap";
 // column a stack gap apart, the tile at the top of the head (each platform
 // sets the direction and the alignment, which are overlays).
 export const ITEM_HEADER_PICTURE = "gap-stack";
-export const ITEM_FACTS = "gap-x-stack gap-y-gap";
+
 export const ITEM_FACT = "gap-gap";
 
 // A record head's overline: the meta role on one line (each platform draws the

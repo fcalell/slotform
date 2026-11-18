@@ -10,25 +10,11 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { MOTION_KNOBS, type MotionKnobName } from "../src/tokens.ts";
 
-// The one literal each knob's default is spelled by in `tokens.ts`: what
-// stands before it, so only the number changes and the formatting and comments
-// stay.
-const SITES: Record<MotionKnobName, string> = {
-	instant: "DURATION_MS: Record<Duration, number> = \\{[^}]*?\\binstant: ",
-	fast: "DURATION_MS: Record<Duration, number> = \\{[^}]*?\\bfast: ",
-	base: "DURATION_MS: Record<Duration, number> = \\{[^}]*?\\bbase: ",
-	slow: "DURATION_MS: Record<Duration, number> = \\{[^}]*?\\bslow: ",
-	loop: "export const LOOP_MS = ",
-	pulse: "export const PULSE_MS = ",
-	tick: "export const TICK_MS = ",
-	press: "export const PRESS_SCALE = ",
-	lift: "export const LIFT_SCALE = ",
-	fling: "export const FOLLOW_FLING = ",
-	reach: "export const FOLLOW_REACH = ",
-	waitDelay: "const WAIT_DELAY_MS = ",
-	actDelay: "const ACT_DELAY_MS = ",
-	waitMin: "const WAIT_MIN_MS = ",
-};
+// The one literal a knob's default is spelled by in `tokens.ts`, its entry in
+// `MOTION_DEFAULTS`: what stands before the number, so only the number changes
+// and the formatting and comments stay.
+const site = (name: MotionKnobName): RegExp =>
+	new RegExp(`(const MOTION_DEFAULTS = \\{[^}]*?\\b${name}: )[\\d.]+`);
 
 // The values a JSON text holds, or every reason it is refused.
 function parseValues(text: string): Map<MotionKnobName, number> {
@@ -72,9 +58,9 @@ function applyValues(
 ): string {
 	let next = source;
 	for (const [name, value] of values) {
-		const site = new RegExp(`(${SITES[name]})[\\d.]+`);
-		if (!site.test(next)) throw new Error(`${name}: no default in tokens.ts`);
-		next = next.replace(site, (_, before: string) => `${before}${value}`);
+		const at = site(name);
+		if (!at.test(next)) throw new Error(`${name}: no default in tokens.ts`);
+		next = next.replace(at, (_, before: string) => `${before}${value}`);
 	}
 	return next;
 }

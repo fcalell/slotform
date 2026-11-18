@@ -22,5 +22,6 @@ test("flowRuns binds the dot to its words", () => {
 		"b",
 		{ code: "c" },
 	]);
-	assert.ok(META_TAIL.startsWith(" ") && META_TAIL.endsWith(" "));
+	// No-break spaces each side, so a line never breaks at the dot.
+	assert.equal(META_TAIL, "\u00a0\u00b7\u00a0");
 });

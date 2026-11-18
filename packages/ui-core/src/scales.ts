@@ -33,7 +33,7 @@ function roundEven(value: number): number {
 }
 
 // The body size at a density: docs/architecture/ui-core/tokens.md, "Type roles".
-export function bodyOf(density: Density, size = KNOB_DEFAULTS.size): number {
+function bodyOf(density: Density, size = KNOB_DEFAULTS.size): number {
 	if (density === "desktop") return size;
 	return Math.max(
 		BODY_SIZE.touch,
@@ -94,16 +94,20 @@ export function widthPx(width: PxWidth, size = KNOB_DEFAULTS.size): number {
 	return Math.round(base * WIDTH_VALUE[width]);
 }
 
-// Running text's width in px: its characters at the sans figure advance of the
+// A measure's width in px: its characters at the sans figure advance of the
 // density's body size, rounded up, so every role of text stands at one width.
-function measureOf(density: Density, size: number): number {
-	return Math.ceil(
-		TEXT_MEASURE_CHARACTERS * SANS_ADVANCE * bodyOf(density, size),
-	);
+function measureWidth(
+	characters: number,
+	density: Density,
+	size: number,
+): number {
+	return Math.ceil(characters * SANS_ADVANCE * bodyOf(density, size));
 }
 
-// Every size is derived from the type, the space and the target; none is a
-// set number but the target.
+// Every size is derived from the type, the space and the target, but the
+// target, which is declared per density, and the hairline, a set pixel; the
+// meta and control icons stand a step of 2 px under and over the icon, so each
+// stays an even size.
 export function sizePx(
 	density: Density,
 	name: Size,
@@ -136,7 +140,7 @@ export function sizePx(
 		case "figures":
 			return Math.ceil(4 * MONO_ADVANCE * sizeOf(density, "code", size));
 		case "measure":
-			return measureOf(density, size);
+			return measureWidth(TEXT_MEASURE_CHARACTERS, density, size);
 	}
 }
 
@@ -153,7 +157,5 @@ export function nativeMeasurePx(
 	measure: Measure,
 	size = KNOB_DEFAULTS.size,
 ): number {
-	return Math.ceil(
-		MEASURE_CHARACTERS[measure] * SANS_ADVANCE * bodyOf("touch", size),
-	);
+	return measureWidth(MEASURE_CHARACTERS[measure], "touch", size);
 }

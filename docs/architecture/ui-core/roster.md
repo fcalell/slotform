@@ -77,9 +77,8 @@ covers every chip role); every other namespace names its tokens. A namespace lef
 ### Roster files
 
 Each entry is declared in its component's `src/roster/<component>.ts`, beside the descriptors,
-matrices, cvas and class sets that component alone uses; `roster.ts` groups them by layer. The four public
-modules (`roster.ts`, `descriptors.ts`, `variants.ts`, `variant-tables.ts`) declare what two or more
-components share and import the component files to re-export the rest, so the subpaths keep their
+matrices, cvas and class sets that component alone uses; `roster.ts` groups them by layer. `variant-tables.ts` declares the matrices two or more components share; `roster.ts`,
+`descriptors.ts` and `variants.ts` declare what is shared and import the component files to re-export the rest, so the subpaths keep their
 names. A component file therefore takes what it shares from `roster/shared.ts` (values and types,
 `RosterEntry` among them) or `roster/descriptors.ts` (the descriptors two or more components take,
 `RouteRegistry` among them), never from the four, and no ui-core file is in an import cycle.

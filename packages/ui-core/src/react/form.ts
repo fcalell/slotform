@@ -7,6 +7,7 @@ import {
 	changedSince,
 	type Derived,
 	derive,
+	emptied,
 	type FieldSpec,
 	type FormFields,
 	type FormGroupOf,
@@ -427,21 +428,13 @@ export function useFormModel<P extends ProcedureCall, A>(
 	const commitField = async (key: string, derived: Derived, next: Held) => {
 		const made: Record<string, unknown> = { ...given_ };
 		if (isEmpty(derived, next)) {
-			// Any other optional field emptied sends the key absent.
-			if (derived.nullable) made[key] = null;
-			else if (derived.control === "several" || derived.control === "lines")
-				made[key] = [];
-			else if (
-				["text", "mono", "prose", "source", "code", "secret"].includes(
-					derived.control,
-				)
-			)
-				made[key] = "";
-			else if (derived.required) {
+			const empty = emptied(derived);
+			if (empty === "required") {
 				throw new Error(
 					requiredReason(words, specOf.get(key)?.label ?? key, false),
 				);
 			}
+			if (empty !== "absent") made[key] = empty.value;
 		} else {
 			const one = toInput(derived, next, words);
 			if (one === "invalid") {
@@ -642,7 +635,7 @@ export function useFormModel<P extends ProcedureCall, A>(
 								...others,
 								{
 									...submit,
-									label: submit?.label ?? "Save",
+									label: submit?.label ?? words.save,
 									blocked,
 									onAct,
 								},

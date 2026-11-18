@@ -7,6 +7,7 @@ import {
 	chartBand,
 	chartFill,
 } from "./roster/bar-chart.ts";
+import { BUTTON, ICON_BUTTON } from "./roster/button.ts";
 import {
 	CANVAS_GROUP,
 	CANVAS_NODE,
@@ -33,6 +34,7 @@ import {
 } from "./roster/diff.ts";
 import { STEP_COUNT_SEGMENT, stepCountSegment } from "./roster/gate.ts";
 import {
+	FIELD_VALUE,
 	OTP_BOX,
 	otpBox,
 	TEXT_AREA,
@@ -58,7 +60,7 @@ import {
 	fileCount,
 	filePathPart,
 } from "./roster/section.ts";
-import type { ContentTone, Variant } from "./roster/shared.ts";
+import type { Axes, ContentTone, Matrix, Variant } from "./roster/shared.ts";
 import {
 	ANSWER,
 	BUTTON_LABEL,
@@ -107,26 +109,21 @@ import {
 } from "./roster/table.ts";
 import { MESSAGE, message } from "./roster/thread.ts";
 import { TOAST_STATE, toastState } from "./roster/toast.ts";
-import type { Tone } from "./tokens.ts";
+import { AVATAR_STEPS, type AvatarStep, type Tone } from "./tokens.ts";
 import {
 	AVATAR,
 	AVATAR_LABEL,
-	type Axes,
-	BUTTON,
 	CHANGE_MARK,
 	CHECK_MARK,
 	CHECKBOX,
 	CHIP,
 	CHIP_DOT,
 	FIELD,
-	FIELD_VALUE,
 	ICON,
-	ICON_BUTTON,
 	IMAGE,
 	IMAGE_PICTURE,
 	LINE_BOX,
 	LINK,
-	type Matrix,
 	MENU,
 	MENU_GROUP,
 	MENU_LABEL,
@@ -177,8 +174,6 @@ export {
 	CHART_TOTAL,
 	chartBand,
 	chartFill,
-	FILL_Y,
-	TRAVEL_Y,
 } from "./roster/bar-chart.ts";
 export {
 	type ButtonAct,
@@ -241,7 +236,6 @@ export {
 } from "./roster/form.ts";
 export { GALLERY, GALLERY_TILE } from "./roster/gallery.ts";
 export {
-	FILL_FADE,
 	GATE,
 	GATE_COLUMN,
 	GATE_LOCKUP_ROW,
@@ -263,7 +257,6 @@ export {
 } from "./roster/input.ts";
 export {
 	ITEM_FACT,
-	ITEM_FACTS,
 	ITEM_HEADER,
 	ITEM_HEADER_PICTURE,
 	ITEM_OVERLINE,
@@ -302,7 +295,6 @@ export {
 	PICKER_VALUE,
 	type PickerFit,
 	picker,
-	RADIO_DOT,
 	SEGMENT_CHOSEN,
 	SEGMENT_GROUND,
 	SEGMENT_IDLE,
@@ -348,7 +340,6 @@ export {
 	SECTION_TOGGLE,
 } from "./roster/section.ts";
 export type {
-	ClassProp,
 	ContentTone,
 	Variant,
 	VariantProps,
@@ -368,6 +359,7 @@ export {
 } from "./roster/shared.ts";
 export {
 	DOCKED_FLOOR_ROWS,
+	DOCKED_LOG_FLOOR_ROWS,
 	LAYER_SHEET_BOTTOM,
 	SHEET,
 	SHEET_CENTERED,
@@ -379,11 +371,10 @@ export {
 	SHEET_FOOT,
 	SHEET_HEAD,
 	SHEET_HEAD_ROW,
+	SHEET_PARTS,
 	SHEET_PARTS_END,
 } from "./roster/sheet.ts";
 export {
-	CURRENT_BAR,
-	CURRENT_SPACE,
 	DRAG_GHOST,
 	PLACE_NEST,
 	type PlaceTabState,
@@ -446,7 +437,7 @@ export {
 	STATS_OPENS,
 	TRAVEL_X,
 } from "./roster/stats.ts";
-export { switchThumb, switchTrack, TOGGLE_THUMB } from "./roster/switch.ts";
+export { switchThumb, switchTrack } from "./roster/switch.ts";
 export {
 	TABLE,
 	TABLE_CELL,
@@ -954,7 +945,6 @@ export const LOCK_GLYPH = "shrink-0 text-ink-meta";
 // meta line's height whichever kinds of fact it holds and a head waiting with
 // badges draws the height of the one that lands with a pick; the pill takes the
 // washes and the ring.
-export const ITEM_PILLS = "gap-gap";
 export const ITEM_PILL =
 	"rounded-chip border border-edge bg-surface px-gap gap-gap text-ink-body";
 export const ITEM_PILL_GLYPH = "shrink-0 text-ink-meta";
@@ -967,10 +957,6 @@ export const ITEM_PILL_ACT = `group-hover:bg-wash-hover group-active:bg-wash-pre
 export const FORM_FIELD_SUMMARY_GLYPH = "text-ok";
 
 export const SCRIM = "bg-scrim";
-
-export const SHEET_PARTS = "gap-section p-pad";
-
-export const DOCKED_LOG_FLOOR_ROWS = 2;
 
 // An empty state: its column at the empty width (the mark, the text, the
 // act a fields gap apart), the title over the sentence a pair apart.
@@ -1039,15 +1025,14 @@ export const PAGE_TITLE_FLOOR = "min-w-2/5 basis-0";
 // in its height range, a field at its own), fitting what it holds up to the
 // region it shares with what stands over it (the log and the foot, never the
 // head), so the log gives way to it: a docked `Sheet` fills it and bounds its
-// own body (two fifths of the region, three rows at least, and the log its
-// two-row floor while the body can give), so the foot is never capped below the
-// sheet's pinned parts.
+// own body (`dockedBodyMax`: `SHEET_DOCKED_BODY_SHARE` of the region,
+// `DOCKED_FLOOR_ROWS` at least, and the log its `DOCKED_LOG_FLOOR_ROWS` floor
+// while the body can give), so the foot is never capped below the sheet's
+// pinned parts.
 export const FOOT_DOCKED =
 	"border-t border-edge-raised bg-raised px-page py-gap max-h-full min-h-0";
 
-// A section's labelled act is words in the accent ink, as an empty state's act
-// is: the one filled act of a page is its bar's. One that removes or ends
-// something is in the danger ink.
+// An icon act that removes or ends something: its glyph in the danger ink.
 export const ICON_BUTTON_DESTRUCTIVE = "text-danger";
 // An icon act that is the one its bar is for (play): the accent fill, with its
 // own hover, press and blocked looks in place of the wash.
@@ -1056,8 +1041,7 @@ export const ICON_BUTTON_PRIMARY = "bg-act-accent text-on-act-accent";
 // A group's band in a list with `groups`: the band ground at the band height,
 // across the list's width (which bleeds the card), its text at the rows' inline
 // inset, the label, its count and its act a gap apart; no radius; closed by a
-// rule in the body ink (the list's one rule not in the edge colour), no rule
-// above it.
+// hairline in the edge colour, no rule above it.
 export const LIST_BAND = "py-gap px-pad gap-gap bg-band border-b border-edge";
 // A tree row's level: one `stack` step in (no wider than the row's inset on
 // touch), its hairline rail on the end. A row draws one per level of its
@@ -1079,14 +1063,10 @@ export const TREE_BLEED = "-my-gap";
 export const ACTION_BAR = "gap-gap";
 export const ACTION_BAR_ACTS = "gap-gap";
 
-// What an icon sits beside, which picks its size: meta or caption text, body
-// text, or the inside of a control.
 export type IconFit = keyof (typeof ICON)["variants"]["fit"];
 
-export type LinkFit = keyof (typeof LINK)["variants"]["fit"];
 export type ImageFit = keyof (typeof IMAGE)["variants"]["fit"];
 export type ImageState = keyof (typeof IMAGE)["variants"]["state"];
-export type AvatarStep = keyof (typeof AVATAR)["variants"]["step"];
 
 export function rowTitleLines(
 	dim: boolean,
@@ -1123,12 +1103,13 @@ export function rowWarningContentTone(): ContentTone {
 	return toneOf(ROW_WARNING);
 }
 
-// A stable step for a name, so one name keeps one fill everywhere.
-export function avatarStep(name: string): AvatarStep {
+// A stable step for a name, so one name keeps one fill everywhere: the key of
+// the `AVATAR` matrix's `step` it takes.
+export function avatarStep(name: string): `${AvatarStep}` {
 	let hash = 0;
 	for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-	// `1` to `8` are the keys of the `AVATAR` matrix's `step`.
-	return String((hash % 8) + 1) as AvatarStep;
+	// The steps run from 1, one per `AVATAR_STEPS` entry.
+	return String((hash % AVATAR_STEPS.length) + 1) as `${AvatarStep}`;
 }
 
 // A painted fill's animation: docs/architecture/ui-core/motion.md, "Wait and settle".

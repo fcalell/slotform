@@ -19,7 +19,8 @@ const CONSTANTS: readonly { phrase: string; reason: string }[] = [
 	},
 ];
 
-const PX = /\d+(?:\.\d+)? px/g;
+// A px value, spelled with a space or without one.
+const PX = /\d+(?:\.\d+)? ?px\b/g;
 // A token, then words with no sentence break, then a parenthesis of px values
 // (or ch) ending "at the default `size`" or "`radius`".
 const STATED =

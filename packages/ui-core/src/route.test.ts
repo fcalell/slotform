@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
 	flatPlaces,
+	isCurrent,
 	type PlaceNode,
+	placeAt,
 	placesFolded,
 	placeTrail,
 } from "./route.ts";
@@ -67,5 +69,16 @@ test("placesFolded opens the path and what the viewer chose", () => {
 			"/projects",
 		]),
 		["/projects"],
+	);
+});
+
+test("a trailing slash names the same place, on the route and on the address", () => {
+	assert.equal(isCurrent("/projects/", "/projects"), true);
+	assert.equal(isCurrent("/projects", "/projects/"), true);
+	assert.equal(isCurrent("/projects/", "/projects/p-1"), true);
+	assert.equal(isCurrent("/", "/projects/"), false);
+	assert.equal(
+		placeAt([{ route: "/" }, { route: "/projects/" }], "/projects"),
+		"/projects/",
 	);
 });

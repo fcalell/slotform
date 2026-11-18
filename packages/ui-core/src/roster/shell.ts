@@ -36,6 +36,8 @@ export const shellEntry: RosterEntry = {
 		"SWITCHER_REGION",
 		"SWITCHER",
 		"SHELL_PLACES",
+		"SHELL_GROUP_LABEL",
+		"SHELL_FOOT",
 		"PLACE_ROW",
 		"PLACE_ROW_GLYPH",
 		"PLACE_NEST",
@@ -132,9 +134,9 @@ export interface GroupSpec {
 // no rounded corner on that side. Every place holds the bar's width, clear, so
 // a label does not move as the bar arrives. Selection is never a fill of the
 // accent: the sidebar's place also takes the 6 percent wash.
-export const CURRENT_BAR = "border-s-3 border-accent rounded-s-none";
+const CURRENT_BAR = "border-s-3 border-accent rounded-s-none";
 // The bar's room at rest, drawn in nothing.
-export const CURRENT_SPACE = "border-s-3 border-transparent";
+const CURRENT_SPACE = "border-s-3 border-transparent";
 
 // A place in the sidebar: a control-tall row under its state's wash; the label is
 // `TEXT.body` with the ink of `PLACE_ROW_GLYPH`.
@@ -161,6 +163,12 @@ export const PLACE_ROW_GLYPH = matrix({
 	defaultVariants: { state: "rest" },
 });
 
+// A place tab's ink by its state: the box, its glyph and its label take it.
+const PLACE_TAB_INK = {
+	idle: "text-ink-meta",
+	selected: "text-ink-body",
+} as const;
+
 // A place in the tab bar: glyph over label, the box carrying the tab's ink
 // for the glyph inside it (currentColor on the web) and the label caption
 // repeating it, since a native Text inherits none. The box keeps no side
@@ -169,8 +177,8 @@ export const PLACE_TAB = matrix({
 	base: `py-gap rounded-none border-t-3 ${ANSWER} ${GIVE}`,
 	variants: {
 		state: {
-			idle: "border-transparent text-ink-meta",
-			selected: "border-accent text-ink-body",
+			idle: `border-transparent ${PLACE_TAB_INK.idle}`,
+			selected: `border-accent ${PLACE_TAB_INK.selected}`,
 		},
 	},
 	defaultVariants: { state: "idle" },
@@ -181,8 +189,8 @@ export const PLACE_TAB_LABEL = matrix({
 	base: `text-caption leading-caption tracking-caption ${ANSWER}`,
 	variants: {
 		state: {
-			idle: "font-normal text-ink-meta",
-			selected: "font-medium text-ink-body",
+			idle: `font-normal ${PLACE_TAB_INK.idle}`,
+			selected: `font-medium ${PLACE_TAB_INK.selected}`,
 		},
 	},
 	defaultVariants: { state: "idle" },
@@ -314,11 +322,7 @@ export const TOASTS = "p-page gap-gap";
 export type PlaceTabState = keyof (typeof PLACE_TAB)["variants"]["state"];
 
 // A place tab's content ink, its state's: the glyph reads it, and the label
-// repeats it. The class set also draws a border, so the text colour is the one read.
+// repeats it.
 export function placeTabContentTone(state: PlaceTabState): ContentTone {
-	const ink = PLACE_TAB.variants.state[state]
-		.split(" ")
-		.filter((name) => name.startsWith("text-"))
-		.join(" ");
-	return toneOf(ink);
+	return toneOf(PLACE_TAB_INK[state]);
 }

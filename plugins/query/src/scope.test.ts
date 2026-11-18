@@ -172,7 +172,7 @@ test("an outer boundary registering after the inner never replaces it; releasing
 	const project = { organizationId: "org-a", projectId: "p-1" };
 	registerScope(org, 1);
 	registerScope(project, 2);
-	registerScope(org, 1); // the outer boundary's mount effect, which React runs after the inner's
+	registerScope(org, 1); // the outer boundary's effect set up again after the inner's, as StrictMode's development re-run does
 	assert.deepEqual(registeredScope(), project);
 	const next = { organizationId: "org-a", projectId: "p-2" };
 	registerScope(next, 2); // the next route's boundary renders before the old one's cleanup

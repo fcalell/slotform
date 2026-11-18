@@ -91,6 +91,16 @@ export function matrix<T extends Axes>(config: Matrix<T>): Matrix<T> {
 // A state's look and a press: docs/architecture/ui-core/motion.md, "Press".
 export const ANSWER =
 	"transition-[background-color,border-color,color,text-decoration-color,fill,stroke,opacity,scale] duration-fast ease-out active:duration-instant";
+// A row's wash by its state, a list's and a table's alike: none at rest, the
+// pointer's, the press's, the selection's and the selection's under the pointer.
+export const ROW_WASH = {
+	rest: "",
+	highlighted: "bg-wash-hover",
+	pressed: "bg-wash-press",
+	selected: "bg-wash-selected",
+	"selected-hover": "bg-wash-selected-hover",
+} as const;
+
 // A filled control gives to the press scale under a press; it lets go on
 // ANSWER's `fast`.
 export const GIVE = "active:scale-(--scale-press)";

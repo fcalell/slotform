@@ -33,7 +33,7 @@ export const switchEntry: RosterEntry = {
 };
 
 // A toggle's thumb travels by transform on `fast`, in and out.
-export const TOGGLE_THUMB = "transition-transform duration-fast ease-in-out";
+const TOGGLE_THUMB = "transition-transform duration-fast ease-in-out";
 
 // `on` draws `toggle-on`, the fill the checkbox and the slider share. The
 // track is the control's icon tall and two knobs wide, its knob the meta icon,

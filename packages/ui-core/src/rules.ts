@@ -11,7 +11,7 @@ import type {
 
 // A picked option that carries no leading form of its own leads with this
 // glyph, which marks the value as a field and not typed text.
-export const PICKED_GLYPH: IconName = "Braces";
+const PICKED_GLYPH: IconName = "Braces";
 
 export function isTyped<V extends string | null>(
 	value: EitherValue<V>,
@@ -21,16 +21,14 @@ export function isTyped<V extends string | null>(
 
 // Whether a rule's term holds a value: a pick its option, a several-pick any
 // option, a typed cell any text, a picked cell its option.
-export function termSet<V extends string | null>(value: RuleValue<V>): boolean {
+function termSet<V extends string | null>(value: RuleValue<V>): boolean {
 	if (value.pick) return value.pick.value !== undefined;
 	if (value.picks) return value.picks.value.length > 0;
 	const either = value.either.value;
 	return isTyped(either) ? either.typed !== "" : either.picked !== undefined;
 }
 
-export function termLabel<V extends string | null>(
-	value: RuleValue<V>,
-): string {
+function termLabel<V extends string | null>(value: RuleValue<V>): string {
 	return (value.pick ?? value.picks ?? value.either).label;
 }
 

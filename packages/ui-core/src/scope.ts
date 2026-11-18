@@ -11,7 +11,7 @@ export type ScopeIds = Readonly<Record<string, string>>;
 // serves many users from one isolate passes ids explicitly (`scoped`).
 let registered: { ids: ScopeIds; depth: number } = { ids: {}, depth: 0 };
 
-/** Registers a boundary's ids at its depth. A boundary shallower than the one registered never replaces it. */
+/** Registers a boundary's ids at its depth. A boundary shallower than the one registered never replaces it: boundaries commit outer first, but StrictMode's development re-run sets their effects up again child first. */
 export function registerScope(ids: ScopeIds, depth = 0): void {
 	if (depth >= registered.depth) registered = { ids, depth };
 }
