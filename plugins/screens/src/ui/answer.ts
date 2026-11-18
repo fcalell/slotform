@@ -5,12 +5,16 @@ import {
 	StandardRPCSerializer,
 } from "@orpc/client/standard";
 import { StandardRPCCodec } from "@orpc/server/standard";
-import { toFetchResponse } from "@orpc/standard-server-fetch";
+import {
+	toFetchResponse,
+	toStandardLazyRequest,
+} from "@orpc/standard-server-fetch";
 import { http } from "msw/http";
+import type { SCREEN_STATES } from "../node/screens.ts";
 
 // What a screen's queries answer: the fixture's value, nothing yet, a failure,
 // the collection with no items, or that the thing does not exist.
-export type ScreenState = "data" | "loading" | "error" | "empty" | "notFound";
+export type ScreenState = (typeof SCREEN_STATES)[number]["state"];
 
 type Fixture = (input: unknown) => unknown;
 
@@ -113,20 +117,6 @@ export function emptyOf(value: unknown): unknown {
 	);
 }
 
-// A call's input, as oRPC sends it: a POST body, or a GET's `data` parameter.
-async function inputOf(request: Request): Promise<unknown> {
-	try {
-		const raw =
-			request.method === "GET"
-				? new URL(request.url).searchParams.get("data")
-				: await request.text();
-		return raw ? serializer.deserialize(JSON.parse(raw)) : undefined;
-	} catch {
-		// A body that is no JSON (a file upload) reaches the fixture as no input.
-		return undefined;
-	}
-}
-
 function procedurePath(url: string, prefix: string): string[] {
 	const { pathname } = new URL(url);
 	const at = pathname.indexOf(`${prefix}/`);
@@ -203,7 +193,6 @@ export function holdCalls(): void {
 
 holdCalls();
 
-// Answers the calls held, and the ones after, as data.
 export function release(): void {
 	open();
 }
@@ -256,7 +245,18 @@ export async function answer(
 	}
 	let input: unknown;
 	try {
-		input = await inputOf(request);
+		// `decode` takes the params and the procedure it never reads.
+		input = await codec.decode(
+			toStandardLazyRequest(request),
+			undefined,
+			undefined as never,
+		);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		unanswered.add(`the input of ${path.join(".")} is malformed: ${message}`);
+		return replyError(new ORPCError("BAD_REQUEST", { message }));
+	}
+	try {
 		const output = found.fixture(input);
 		return reply(state === "empty" ? emptyOf(output) : output);
 	} catch (error) {
@@ -278,12 +278,12 @@ export async function answer(
 
 // A channel's fixture, by the channel's name: it takes the route params of the
 // fixtures, since the `sub` frame carries none.
-export type ChannelFixture = (params: Record<string, string>) => unknown;
+type ChannelFixture = (params: Record<string, string>) => unknown;
 
 // The frame plugin-node's server sends and its client decodes (`ServerFrame`,
 // `serverFrameSchema`). A channel has no frame of its own for its opening: it
 // is one of its server messages, "snapshot" by the `channelRead` convention.
-export interface ChannelFrame {
+interface ChannelFrame {
 	t: "msg";
 	ch: string;
 	type: string;
@@ -307,7 +307,7 @@ function opening(value: unknown): { type: string; payload: unknown } {
 }
 
 // What the socket does on a subscribe: docs/architecture/plugins/screens.md, "Channels".
-export type ChannelAnswer =
+type ChannelAnswer =
 	| { send: ChannelFrame; close?: undefined }
 	| { send?: undefined; close: boolean };
 
@@ -375,7 +375,7 @@ export function fixtureHandlers(
 	app: unknown,
 	plugins: readonly unknown[],
 	state: ScreenState,
-	kinds: ProcedureKinds = {},
+	kinds: ProcedureKinds,
 ) {
 	return prefixes.map((prefix) =>
 		http.all(`*${prefix}/*`, ({ request }) =>

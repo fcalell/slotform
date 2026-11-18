@@ -1,8 +1,10 @@
+import { scrolls } from "./walk-checks.ts";
+
 // The loading shift: docs/architecture/plugins/screens.md, "Loading shift comparison".
 
 // What `compare` found: `fails` fail the screen; `reports` are moves a block
 // that appears only with its data caused, which are accepted and told.
-export interface Shift {
+interface Shift {
 	fails: string[];
 	reports: string[];
 }
@@ -82,9 +84,7 @@ function blocksOf(pane: Element): Element[] {
 	for (const region of pane.children) {
 		if (region.tagName === "HEADER") continue;
 		for (const body of region.children) {
-			const overflow = getComputedStyle(body).overflowY;
-			if (overflow === "auto" || overflow === "scroll")
-				return [...body.children];
+			if (scrolls(getComputedStyle(body).overflowY)) return [...body.children];
 		}
 	}
 	return [];

@@ -24,7 +24,15 @@ export function initialGlobals(
 
 // The globals the test run has taken the pin off while it visits a width: a
 // story that renders again pins the rest, never these.
-export const unpinned = new Set<string>();
+const unpinned = new Set<string>();
+
+export const unpinGlobal = (name: string): void => {
+	unpinned.add(name);
+};
+
+export const repinGlobal = (name: string): void => {
+	unpinned.delete(name);
+};
 
 export function applyGlobals(
 	root: Element,

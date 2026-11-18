@@ -9,12 +9,14 @@ import {
 	checkFigures,
 	checkFonts,
 	checkHeadings,
+	checkHeights,
 	checkToolbars,
 	checkWords,
 	contentCentre,
 	type HeadingMeasure,
 	isHeading,
 	isMetricFallback,
+	type Tokens,
 } from "./walk-checks.ts";
 
 const at = (level: number, name = `h${level}`): HeadingMeasure => ({
@@ -44,7 +46,7 @@ test("no h1 is found", () => {
 	assert.match(found[0]?.measured ?? "", /no h1/);
 });
 
-test("a second h1 is found (the old last-Pane h1 beside the Panes's)", () => {
+test("a second h1 is found (a Pane's h1 beside the Panes's)", () => {
 	const found = checkHeadings([at(1), at(2), at(1, "Item")]);
 	assert.equal(found.length, 1);
 	assert.equal(found[0]?.rule, "heading-one");
@@ -194,13 +196,13 @@ test("a relative above the text is no cover", () => {
 
 test("the Banner canary: the act over the sentence's last line fails, the act under it passes", () => {
 	const sentence = { path: "p", name: "A sentence that wraps" };
-	// Before d17a4ced on touch: the act is inline-flex after the sentence, its
-	// target taller than the line, so it stands over the last line's end.
-	const before = [{ ...sentence, samples: [[own], [own], [above(), own]] }];
-	// After: a column, the act in a row of its own under the sentence.
-	const after = [{ ...sentence, samples: [[own], [own], [own]] }];
-	assert.equal(checkCovered(before).length, 1);
-	assert.deepEqual(checkCovered(after), []);
+	// The act inline-flex after the sentence, its target taller than the line,
+	// stands over the last line's end.
+	const inline = [{ ...sentence, samples: [[own], [own], [above(), own]] }];
+	// A column: the act in a row of its own under the sentence.
+	const column = [{ ...sentence, samples: [[own], [own], [own]] }];
+	assert.equal(checkCovered(inline).length, 1);
+	assert.deepEqual(checkCovered(column), []);
 });
 
 test("a short word on two lines is found, whole words and long ones are not", () => {
@@ -255,4 +257,21 @@ test("a toolbar whose acts wrapped with room beside the search is found, one wit
 	assert.equal(found[0]?.rule, "toolbar-wrap");
 	assert.deepEqual(checkToolbars([{ ...wrapped, row: 200 }]), []);
 	assert.deepEqual(checkToolbars([{ ...wrapped, actsTop: 8 }]), []);
+});
+
+test("a row is held to the row floor, and to none where the row token does not resolve", () => {
+	const row = { path: "li", name: "Item", kind: "listitem", height: 20 };
+	const tokens: Tokens = {
+		text: [],
+		spacing: [],
+		controls: [],
+		rows: [{ name: "row", px: 44 }],
+		radius: [],
+	};
+	const found = checkHeights([], [row], tokens);
+	assert.deepEqual(
+		found.map((f) => [f.rule, f.expected]),
+		[["row-height", "at least row 44px"]],
+	);
+	assert.deepEqual(checkHeights([], [row], { ...tokens, rows: [] }), []);
 });

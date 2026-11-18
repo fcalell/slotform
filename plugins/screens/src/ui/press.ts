@@ -6,12 +6,11 @@ import type { ControlPoint } from "./page.ts";
 
 // Each try's wait before it and the alignment it scrolls the control to, so a
 // fixed bar over the control at one is clear of it at another.
-export const TRIES: readonly { wait: number; align: ScrollLogicalPosition }[] =
-	[
-		{ wait: 0, align: "center" },
-		{ wait: 50, align: "start" },
-		{ wait: 100, align: "end" },
-	];
+const TRIES: readonly { wait: number; align: ScrollLogicalPosition }[] = [
+	{ wait: 0, align: "center" },
+	{ wait: 50, align: "start" },
+	{ wait: 100, align: "end" },
+];
 
 export interface PressSteps {
 	// Finds and scrolls the control, hit-tests its point, and arms the second

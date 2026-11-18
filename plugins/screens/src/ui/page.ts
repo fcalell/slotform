@@ -1,5 +1,6 @@
-import { SHOT_MAX_HEIGHT } from "../widths.ts";
-import { findings, format } from "./walk.ts";
+import { ariaName, squash } from "./name.ts";
+import { findings } from "./walk.ts";
+import { format, type Rect, scrolls } from "./walk-checks.ts";
 
 // What the test run's checks and `stack screens shoot` and `drive` share about
 // a drawn page: what a read holds busy, how far its scrollers hide content,
@@ -20,8 +21,6 @@ function overflowError(
 // flight (a demo of one stays so), only a region or a list waiting for data.
 export const READ_BUSY = '[aria-busy="true"]:not(button, [role="button"])';
 
-export { SHOT_MAX_HEIGHT };
-
 // How far the page's scrollers run past what they show: the document, and any
 // element that scrolls on its own (a shell's pane holds the page in a fixed
 // height, so the document alone never overflows).
@@ -30,10 +29,33 @@ export function hiddenHeight(): number {
 	let hidden = root.scrollHeight - root.clientHeight;
 	for (const element of document.body.getElementsByTagName("*")) {
 		const { overflowY } = getComputedStyle(element);
-		if (overflowY !== "auto" && overflowY !== "scroll") continue;
+		if (!scrolls(overflowY)) continue;
 		hidden = Math.max(hidden, element.scrollHeight - element.clientHeight);
 	}
 	return Math.max(hidden, 0);
+}
+
+// Waits for the finite animations and transitions on the page to end, so a
+// popup still opening or a sheet sliding in is judged where it settles (an
+// endless one, a spinner or a shimmer, is left running). Gives up after
+// 2000 ms.
+export async function settled(): Promise<void> {
+	const end = performance.now() + 2000;
+	while (performance.now() < end) {
+		const running = document
+			.getAnimations()
+			.filter(
+				(animation) =>
+					animation.playState === "running" &&
+					Number.isFinite(animation.effect?.getComputedTiming().endTime ?? 0),
+			);
+		if (running.length === 0) return;
+		await Promise.race([
+			Promise.allSettled(running.map((animation) => animation.finished)),
+			// An animation paused meanwhile never finishes: look again.
+			new Promise((resolve) => setTimeout(resolve, 100)),
+		]);
+	}
 }
 
 // The screen at one width: the horizontal overflow and the walk's findings.
@@ -55,21 +77,15 @@ const CONTROLS =
 	"button, a[href], summary, input:not([type=hidden]), select, textarea, [role], [tabindex]";
 
 const words = (text: string | null | undefined): string =>
-	(text ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+	squash(text).toLowerCase();
 
 function nameOf(element: HTMLElement): string {
-	const label = element.getAttribute("aria-label");
-	if (label) return words(label);
-	const by = element.getAttribute("aria-labelledby");
-	if (by)
-		return words(
-			by
-				.split(" ")
-				.map((id) => document.getElementById(id)?.textContent)
-				.join(" "),
-		);
-	// biome-ignore lint/performance/useDomNodeTextContent: the text a viewer sees, which CSS and hidden elements change; textContent is not it
-	return words(element.innerText || element.getAttribute("title"));
+	return words(
+		ariaName(element) ||
+			// biome-ignore lint/performance/useDomNodeTextContent: the text a viewer sees, which CSS and hidden elements change; textContent is not it
+			element.innerText ||
+			element.getAttribute("title"),
+	);
 }
 
 export interface ControlPoint {
@@ -78,13 +94,6 @@ export interface ControlPoint {
 	label: string;
 	// What is drawn at the point instead of the control (`coverAt`).
 	cover: string | null;
-}
-
-interface Rect {
-	left: number;
-	top: number;
-	right: number;
-	bottom: number;
 }
 
 const middle = (rect: Rect) => ({
@@ -123,11 +132,10 @@ function coverAt(element: Element, x: number, y: number): string | null {
 	const hit = document.elementFromPoint(x, y);
 	if (hit && (element.contains(hit) || hit.contains(element))) return null;
 	return hit
-		? `${hit.tagName.toLowerCase()}.${String(hit.className).slice(0, 40)}`
+		? `${hit.tagName.toLowerCase()}.${(hit.getAttribute("class") ?? "").slice(0, 40)}`
 		: "nothing";
 }
 
-// The events of one press, by a mouse or a touch.
 const PRESS_EVENTS = [
 	"pointerdown",
 	"pointerup",

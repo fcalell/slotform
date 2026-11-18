@@ -3,7 +3,8 @@ import type { Preview } from "@storybook/react-vite";
 import { expect, inject } from "vitest";
 import { commands, page } from "vitest/browser";
 import { stateTag } from "../node/screens.ts";
-import { HEIGHT, SHOT_MAX_HEIGHT, WIDTHS } from "../widths.ts";
+import { openedPart, slug } from "../slug.ts";
+import { HEIGHT, LAPTOP, PHONE, SHOT_MAX_HEIGHT, WIDTHS } from "../widths.ts";
 import {
 	called,
 	failing,
@@ -14,11 +15,18 @@ import {
 } from "./answer.ts";
 import { fetchingReads } from "./busy.ts";
 import { storyClient } from "./client.tsx";
-import { unpinned } from "./globals.ts";
-import { aim, checksAt, hiddenHeight, landed, READ_BUSY } from "./page.ts";
+import { repinGlobal, unpinGlobal } from "./globals.ts";
+import {
+	aim,
+	checksAt,
+	hiddenHeight,
+	landed,
+	READ_BUSY,
+	settled,
+} from "./page.ts";
 import { press } from "./press.ts";
 import { compare, measure, type SectionBox } from "./shift.ts";
-import { densityMark, settled, watchFirstPaint } from "./walk.ts";
+import { densityMark, watchFirstPaint } from "./walk.ts";
 
 // The checks a test run adds to every screen: docs/architecture/plugins/screens.md, "Test run order".
 
@@ -49,13 +57,6 @@ const widths = (): number[] => {
 	return asked?.length ? asked : [...WIDTHS];
 };
 
-const slug = (text: string): string =>
-	text
-		.toLowerCase()
-		.split(/[^a-z0-9]+/)
-		.filter(Boolean)
-		.join("-");
-
 // Screenshot path: docs/architecture/plugins/screens.md, "Screenshots".
 function shotPath(
 	title: string,
@@ -66,7 +67,7 @@ function shotPath(
 	const dir = inject("screensShots");
 	if (!dir) return null;
 	const screen = title.replace(/^Screens\//, "");
-	return `${dir}/${screen}/${slug(name)}-${width}${opened ? `-open-${slug(opened)}` : ""}.png`;
+	return `${dir}/${screen}/${slug(name)}-${width}${openedPart(opened)}.png`;
 }
 
 // A resize settles over frames: layout that reads the viewport in script
@@ -127,18 +128,23 @@ const waiting = (): boolean =>
 	document.querySelector(READ_BUSY) !== null ||
 	fetchingReads(storyClient()) > 0;
 
-// Once the reads are answered (held ones released): no read fetching and
-// nothing busy. Holds for a few frames running, since a read can start the
-// frame after another lands.
-async function readsLanded(): Promise<string | undefined> {
+// Whether `busy` went false and held so for a few frames running before the
+// load timeout: a read can start the frame after another lands.
+async function quiet(busy: () => boolean): Promise<boolean> {
 	const end = performance.now() + LOAD_TIMEOUT;
 	for (let held = 0; held < STABLE_FRAMES; ) {
-		if (performance.now() > end)
-			return `still busy: ${[...document.querySelectorAll(READ_BUSY)].map((e) => e.outerHTML.slice(0, 160)).join(" | ") || "a read still fetching"}`;
+		if (performance.now() > end) return false;
 		await frame();
-		held = waiting() ? 0 : held + 1;
+		held = busy() ? 0 : held + 1;
 	}
-	return undefined;
+	return true;
+}
+
+// Once the reads are answered (held ones released): no read fetching and
+// nothing busy.
+async function readsLanded(): Promise<string | undefined> {
+	if (await quiet(waiting)) return undefined;
+	return `still busy: ${[...document.querySelectorAll(READ_BUSY)].map((e) => e.outerHTML.slice(0, 160)).join(" | ") || "a read still fetching"}`;
 }
 
 // The reads answered and the page settled.
@@ -157,16 +163,10 @@ const answering = (): boolean => fetchingReads(storyClient()) > heldReads();
 
 // The waiting shape of a loading story, once the reads the run does not hold
 // have landed and drawn: the page the held ones leave waiting, never one
-// caught between its first paint and what answers at once. Holds for a few
-// frames running, since an answer that lands can start a read the frame after.
+// caught between its first paint and what answers at once.
 async function answered(): Promise<string | undefined> {
-	const end = performance.now() + LOAD_TIMEOUT;
-	for (let quiet = 0; quiet < STABLE_FRAMES; ) {
-		if (performance.now() > end)
-			return "a read the run does not hold is still fetching";
-		await frame();
-		quiet = answering() ? 0 : quiet + 1;
-	}
+	if (!(await quiet(answering)))
+		return "a read the run does not hold is still fetching";
 	await settle(false);
 	return undefined;
 }
@@ -214,7 +214,7 @@ function unpin(): { any: boolean; reread: () => void; restore: () => void } {
 	);
 	const values = pins.map((pin) => root.getAttribute(pin.attribute));
 	for (const pin of pins) {
-		unpinned.add(pin.name);
+		unpinGlobal(pin.name);
 		root.removeAttribute(pin.attribute);
 	}
 	return {
@@ -227,7 +227,7 @@ function unpin(): { any: boolean; reread: () => void; restore: () => void } {
 		},
 		restore: () => {
 			for (const [i, pin] of pins.entries()) {
-				unpinned.delete(pin.name);
+				repinGlobal(pin.name);
 				const value = values[i];
 				if (value != null) root.setAttribute(pin.attribute, value);
 			}
@@ -377,16 +377,15 @@ async function visit(
 	for (const line of reports) console.info(line);
 	// The phone width draws the touch set and the wider ones the desktop one: a
 	// run that visits both and draws one set at all of them did not unpin.
-	// `WIDTHS` lists the phone, the laptop and the desktop, in that order.
-	const wide = [...marks].filter(([width]) => width >= WIDTHS[1]);
-	const phone = marks.get(WIDTHS[0]);
+	const wide = [...marks].filter(([width]) => width >= LAPTOP);
+	const phone = marks.get(PHONE);
 	if (
 		pins.any &&
 		phone !== undefined &&
 		wide.some(([, mark]) => mark === phone)
 	) {
 		failures.push(
-			`density: the token set at ${WIDTHS[0]}px is the one at ${wide[0]?.[0]}px (${phone}); expected the touch set at ${WIDTHS[0]}px and the desktop set at the wider widths; fix: the density global must follow the viewport (byViewport)`,
+			`density: the token set at ${PHONE}px is the one at ${wide[0]?.[0]}px (${phone}); expected the touch set at ${PHONE}px and the desktop set at the wider widths; fix: the density global must follow the viewport (byViewport)`,
 		);
 	}
 	return failures;

@@ -36,8 +36,6 @@ export interface Tokens {
 // A measured length is a token's to the half pixel: subpixel layout rounds.
 const TOLERANCE = 0.5;
 
-// The least font size a visible text may have, and the most distinct sizes a
-// screen may draw.
 const MIN_TEXT_PX = 12;
 const MAX_TEXT_SIZES = 6;
 
@@ -87,8 +85,6 @@ export interface TextMeasure extends Located {
 	size: number;
 }
 
-// Every visible text at 12 px or more, and no more than six distinct sizes on
-// the screen.
 export function checkType(texts: TextMeasure[]): Finding[] {
 	const found: Finding[] = texts
 		.filter((t) => t.size < MIN_TEXT_PX - TOLERANCE)
@@ -133,7 +129,6 @@ export function checkHeights(
 	rows: HeightMeasure[],
 	tokens: Tokens,
 ): Finding[] {
-	const floor = Math.min(...tokens.rows.map((t) => t.px));
 	return [
 		...controls
 			.filter((c) =>
@@ -151,16 +146,20 @@ export function checkHeights(
 					"size the control by a size (control, target, row, icon-control) or a formula over sizes, as a height or as a floor (min-h-*)",
 				),
 			),
-		...rows
-			.filter((r) => r.height < floor - TOLERANCE)
-			.map((r) => ({
-				rule: "row-height",
-				path: r.path,
-				name: r.name,
-				measured: `${r.kind} height ${px(r.height)}`,
-				expected: `at least ${names(tokens.rows.slice(0, 1))}`,
-				fix: "give the row the row floor (min-h-row)",
-			})),
+		// The row floor is one token; a scope where it does not resolve holds no
+		// floor to measure a row against.
+		...tokens.rows.flatMap((floor) =>
+			rows
+				.filter((r) => r.height < floor.px - TOLERANCE)
+				.map((r) => ({
+					rule: "row-height",
+					path: r.path,
+					name: r.name,
+					measured: `${r.kind} height ${px(r.height)}`,
+					expected: `at least ${names([floor])}`,
+					fix: "give the row the row floor (min-h-row)",
+				})),
+		),
 	];
 }
 
@@ -311,6 +310,13 @@ export function checkRadii(items: RadiusMeasure[], tokens: Tokens): Finding[] {
 
 // ── clipping ────────────────────────────────────────────────────────
 
+// Whether an `overflow` value cuts what runs past the box, and whether it lets
+// the box scroll.
+export const clips = (overflow: string): boolean =>
+	overflow === "hidden" || overflow === "clip";
+export const scrolls = (overflow: string): boolean =>
+	overflow === "auto" || overflow === "scroll";
+
 export interface ClipMeasure extends Located {
 	overflowX: string;
 	textOverflow: string;
@@ -326,7 +332,7 @@ export function checkClip(items: ClipMeasure[]): Finding[] {
 	return items
 		.filter(
 			(c) =>
-				(c.overflowX === "hidden" || c.overflowX === "clip") &&
+				clips(c.overflowX) &&
 				c.scrollWidth > c.clientWidth + 1 &&
 				c.textOverflow !== "ellipsis" &&
 				!(c.lineClamp && c.lineClamp !== "none"),
@@ -525,12 +531,21 @@ export function checkHeadings(headings: HeadingMeasure[]): Finding[] {
 
 // ── canvas ──────────────────────────────────────────────────────────
 
-interface Rect {
+// A box by its four edges, in viewport px.
+export interface Rect {
 	left: number;
 	right: number;
 	top: number;
 	bottom: number;
 }
+
+// A box's edges as a plain value: a `DOMRect`'s are getters a spread drops.
+export const rectOf = (box: Rect): Rect => ({
+	left: box.left,
+	right: box.right,
+	top: box.top,
+	bottom: box.bottom,
+});
 
 // A canvas as it stands once it shows: its pane, the zoom stack's box, and the
 // box each node draws (its card, or its glyph under the text floor).

@@ -11,6 +11,7 @@ import {
 	SUBGRID,
 	TOOLBAR_SEARCH,
 } from "@fcalell/ui-core/variants";
+import { ariaName, squash } from "./name.ts";
 import {
 	type Above,
 	type BoxMeasure,
@@ -35,6 +36,7 @@ import {
 	checkToolbars,
 	checkType,
 	checkWords,
+	clips,
 	contentCentre,
 	type EndMeasure,
 	type FigureMeasure,
@@ -48,9 +50,11 @@ import {
 	type Located,
 	type NumberMeasure,
 	type RadiusMeasure,
+	type Rect,
 	type RegionMeasure,
 	type RowMeasure,
 	type RunMeasure,
+	rectOf,
 	type SpacingMeasure,
 	type TextMeasure,
 	type Token,
@@ -62,11 +66,8 @@ import {
 
 // The render walk: docs/architecture/plugins/screens.md, "Render walk".
 
-export type { Finding } from "./walk-checks.ts";
-export { format } from "./walk-checks.ts";
-
 // The named exceptions: docs/architecture/plugins/screens.md, "Render walk exceptions".
-export interface Exception {
+interface Exception {
 	rule: string;
 	selector: string;
 	/** The class list the selector is built from: every token must be on the element. */
@@ -81,7 +82,6 @@ export interface Exception {
 	reason: string;
 }
 
-// The selector of an element holding every token of a class list.
 const held = (classes: string, tag = ""): string =>
 	tag +
 	classes
@@ -392,10 +392,7 @@ function drawn(): Seen[] {
 			const rect = element.getBoundingClientRect();
 			// A pixel-wide box that clips holds nothing to see: the visually
 			// hidden text pattern.
-			if (
-				(style.overflowX === "hidden" || style.overflowX === "clip") &&
-				(rect.width <= 1 || rect.height <= 1)
-			)
+			if (clips(style.overflowX) && (rect.width <= 1 || rect.height <= 1))
 				return;
 			if (style.visibility === "visible" && rect.width > 1 && rect.height > 1)
 				seen.push({ element, style, rect });
@@ -430,20 +427,9 @@ function locate(element: Element, leaf = true): Located {
 }
 
 function nameOf(element: Element): string {
-	const label = element.getAttribute("aria-label");
-	if (label) return label.slice(0, 40);
-	const by = element.getAttribute("aria-labelledby");
-	if (by) {
-		const text = by
-			.split(/\s+/)
-			.map((id) => document.getElementById(id)?.textContent?.trim() ?? "")
-			.join(" ")
-			.trim();
-		if (text) return text.slice(0, 40);
-	}
-	if (element instanceof HTMLInputElement && element.placeholder)
-		return element.placeholder.slice(0, 40);
-	return (element.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 40);
+	const placeholder =
+		element instanceof HTMLInputElement ? element.placeholder : "";
+	return squash(ariaName(element) || placeholder || element.textContent, 40);
 }
 
 const px = (value: string): number => Number.parseFloat(value) || 0;
@@ -569,29 +555,6 @@ const painted = (style: CSSStyleDeclaration): boolean =>
 
 // ── the walk ────────────────────────────────────────────────────────
 
-// Waits for the finite animations and transitions on the page to end, so a
-// popup still opening or a sheet sliding in is judged where it settles (an
-// endless one, a spinner or a shimmer, is left running). Gives up after
-// 2000 ms.
-export async function settled(): Promise<void> {
-	const end = performance.now() + 2000;
-	while (performance.now() < end) {
-		const running = document
-			.getAnimations()
-			.filter(
-				(animation) =>
-					animation.playState === "running" &&
-					Number.isFinite(animation.effect?.getComputedTiming().endTime ?? 0),
-			);
-		if (running.length === 0) return;
-		await Promise.race([
-			Promise.allSettled(running.map((animation) => animation.finished)),
-			// An animation paused meanwhile never finishes: look again.
-			new Promise((resolve) => setTimeout(resolve, 100)),
-		]);
-	}
-}
-
 // The first frame a screen draws, after its first layout: the status of every
 // font face then. A face a screen asks for starts loading at its first layout,
 // so one still loading at the first frame is a face that arrives late.
@@ -636,7 +599,7 @@ function fonts(): FontMeasure[] {
 	}));
 }
 
-export interface WalkOptions {
+interface WalkOptions {
 	// Whether the fonts are judged too (once a screen: they do not change with
 	// the width); on by default.
 	fonts?: boolean;
@@ -853,7 +816,7 @@ function layoutFindings(options: WalkOptions): Finding[] {
 		});
 	}
 
-	const clips: ClipMeasure[] = [];
+	const clipped: ClipMeasure[] = [];
 	const regions: RegionMeasure[] = [];
 
 	for (const { element, style, rect } of seen) {
@@ -904,11 +867,11 @@ function layoutFindings(options: WalkOptions): Finding[] {
 		}
 
 		if (
-			(style.overflowX === "hidden" || style.overflowX === "clip") &&
+			clips(style.overflowX) &&
 			!REPLACED.has(element.tagName) &&
 			!excepted("clip", element)
 		) {
-			clips.push({
+			clipped.push({
 				...at(),
 				overflowX: style.overflowX,
 				textOverflow: style.textOverflow,
@@ -941,7 +904,7 @@ function layoutFindings(options: WalkOptions): Finding[] {
 			...checkSpacing(g.spacing, g.tokens),
 			...checkRadii(g.radii, g.tokens),
 		]),
-		...checkClip(clips),
+		...checkClip(clipped),
 		...checkCovered(covers(seen)),
 		...checkDigits(numbers),
 		...checkWords(words),
@@ -994,12 +957,6 @@ function toolbars(): ToolbarMeasure[] {
 // ground or the nodes at no opacity) is not one yet, and a node cross-fading
 // out to its glyph is not drawn.
 function canvases(): CanvasMeasure[] {
-	const rect = (box: DOMRect) => ({
-		left: box.left,
-		right: box.right,
-		top: box.top,
-		bottom: box.bottom,
-	});
 	return [...document.querySelectorAll("[data-layer]")].flatMap((layer) => {
 		const region = layer.parentElement;
 		if (!region || region.hasAttribute("inert")) return [];
@@ -1013,14 +970,14 @@ function canvases(): CanvasMeasure[] {
 			)
 			.map((node) => ({
 				name: node.getAttribute("data-node") ?? "a node",
-				rect: rect(node.getBoundingClientRect()),
+				rect: rectOf(node.getBoundingClientRect()),
 			}));
 		const stack = region.querySelector("[data-clear=left]");
 		return [
 			{
 				...locate(region),
-				pane: rect(region.getBoundingClientRect()),
-				stack: stack ? rect(stack.getBoundingClientRect()) : undefined,
+				pane: rectOf(region.getBoundingClientRect()),
+				stack: stack ? rectOf(stack.getBoundingClientRect()) : undefined,
 				nodes,
 			},
 		];
@@ -1298,7 +1255,6 @@ function boxes(): BoxMeasure[] {
 	return out;
 }
 
-// Every element of the page that is laid out as a grid.
 function grids(): GridMeasure[] {
 	const out: GridMeasure[] = [];
 	const visit = (element: Element): void => {
@@ -1319,15 +1275,9 @@ function grids(): GridMeasure[] {
 const isRow = (style: CSSStyleDeclaration): boolean =>
 	/flex/.test(style.display) && !style.flexDirection.startsWith("column");
 
-// A drawn box's rectangle clipped by the clipping boxes it stands in.
-interface Box {
-	left: number;
-	right: number;
-	top: number;
-	bottom: number;
-}
-
-function clipTo(box: Box, clip: Box | undefined): Box | undefined {
+// A drawn box clipped by the clipping box it stands in; undefined when under
+// half a pixel of it is left on a side.
+function clipTo(box: Rect, clip: Rect | undefined): Rect | undefined {
 	if (!clip) return box;
 	const out = {
 		left: Math.max(box.left, clip.left),
@@ -1340,15 +1290,8 @@ function clipTo(box: Box, clip: Box | undefined): Box | undefined {
 		: undefined;
 }
 
-const boxOf = (rect: DOMRect): Box => ({
-	left: rect.left,
-	right: rect.right,
-	top: rect.top,
-	bottom: rect.bottom,
-});
-
 // The union of the rectangles a text node's lines take.
-function textBox(node: Text): { box: Box; lines: number } | undefined {
+function textBox(node: Text): { box: Rect; lines: number } | undefined {
 	const range = document.createRange();
 	range.selectNodeContents(node);
 	const rects = [...range.getClientRects()].filter(
@@ -1358,7 +1301,7 @@ function textBox(node: Text): { box: Box; lines: number } | undefined {
 	if (!first) return undefined;
 	return {
 		lines: rects.length,
-		box: rects.map(boxOf).reduce((a, b) => ({
+		box: rects.map(rectOf).reduce((a, b) => ({
 			left: Math.min(a.left, b.left),
 			right: Math.max(a.right, b.right),
 			top: Math.min(a.top, b.top),
@@ -1383,7 +1326,7 @@ interface Leaf extends EndMeasure {
 function leavesOf(row: Element): Array<Leaf & { right: number }> {
 	const out: Array<Leaf & { right: number }> = [];
 	const push = (
-		box: Box | undefined,
+		box: Rect | undefined,
 		text: boolean,
 		element: Element,
 		name: string,
@@ -1401,7 +1344,7 @@ function leavesOf(row: Element): Array<Leaf & { right: number }> {
 				element,
 			});
 	};
-	const visit = (element: Element, clip: Box | undefined): void => {
+	const visit = (element: Element, clip: Rect | undefined): void => {
 		const style = getComputedStyle(element);
 		if (style.display === "none" || style.opacity === "0") return;
 		if (outOfFlow(style) || (element !== row && rowKind(element) !== null))
@@ -1409,10 +1352,7 @@ function leavesOf(row: Element): Array<Leaf & { right: number }> {
 		let inside = clip;
 		if (style.display !== "contents") {
 			const rect = element.getBoundingClientRect();
-			if (
-				(style.overflowX === "hidden" || style.overflowX === "clip") &&
-				(rect.width <= 1 || rect.height <= 1)
-			)
+			if (clips(style.overflowX) && (rect.width <= 1 || rect.height <= 1))
 				return;
 			if (style.visibility === "visible" && element !== row) {
 				if (
@@ -1424,7 +1364,7 @@ function leavesOf(row: Element): Array<Leaf & { right: number }> {
 					// text draws them as text). A text's filler stands for its text: the waiting row's label is
 					// its first filler, as the loaded row's is its first text.
 					push(
-						clipTo(boxOf(rect), clip),
+						clipTo(rectOf(rect), clip),
 						element.hasAttribute("data-painted") && hasText(element),
 						element,
 						nameOf(element) || `<${element.tagName.toLowerCase()}>`,
@@ -1432,8 +1372,8 @@ function leavesOf(row: Element): Array<Leaf & { right: number }> {
 					return;
 				}
 			}
-			if (style.overflowX === "hidden" || style.overflowX === "clip") {
-				inside = clipTo(boxOf(rect), clip);
+			if (clips(style.overflowX)) {
+				inside = clipTo(rectOf(rect), clip);
 				if (!inside) return;
 			}
 		}
@@ -1450,7 +1390,7 @@ function leavesOf(row: Element): Array<Leaf & { right: number }> {
 						clipTo(shown.box, inside),
 						true,
 						element,
-						(node.nodeValue ?? "").trim().replace(/\s+/g, " ").slice(0, 24),
+						squash(node.nodeValue, 24),
 					);
 			}
 		}
@@ -1620,7 +1560,7 @@ function runsOf(item: Node, lane: number): RunMeasure[] {
 		const top = shown.box.top;
 		out.push({
 			...locate(element),
-			name: (node.nodeValue ?? "").trim().replace(/\s+/g, " ").slice(0, 24),
+			name: squash(node.nodeValue, 24),
 			lane,
 			size: px(style.fontSize),
 			top,
@@ -1684,9 +1624,7 @@ function lines(seen: Seen[]): RunMeasure[][] {
 	return out;
 }
 
-// The alignment findings on the page: what `findings()` adds to the layout
-// rules.
-export function alignFindings(): Finding[] {
+function alignFindings(): Finding[] {
 	const seen = drawn();
 	return [
 		...checkDeadBoxes(boxes()),
@@ -1727,7 +1665,7 @@ function reachPast(node: Text, element: Element): number {
 	let clip: Element | null = element;
 	while (clip) {
 		const { overflowX } = getComputedStyle(clip);
-		if (overflowX === "hidden" || overflowX === "clip") break;
+		if (clips(overflowX)) break;
 		clip = clip.parentElement;
 	}
 	if (!clip) return 0;

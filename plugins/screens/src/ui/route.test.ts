@@ -70,22 +70,20 @@ test("a missing value names the route and where it looked", () => {
 	);
 });
 
-// The typing of the example values, held by the type-check: a plain name is any
-// registered route's param, a route-id entry takes only the names of that route
-// and the routes under it, and with no router registered the keys are strings.
+// The typing of the example values, held by the type-check alone (no runtime
+// test): a plain name is any registered route's param, a route-id entry takes
+// only the names of that route and the routes under it, and with no router
+// registered the keys are strings.
 type Ids = "/things/$thing" | "/things/$thing/parts/$part" | "/other/$orphan";
-test("the example values are typed from the route tree", () => {
-	const typed: RouteParams<Ids> = {
-		part: "p",
-		"/things/$thing": { thing: "t", part: "p" },
-		"/things/$thing/parts/$part": { part: "p" },
-	};
-	// @ts-expect-error a plain name no registered route has
-	const unknown: RouteParams<Ids> = { nothing: "x" };
-	const outside: RouteParams<Ids> = {
-		// @ts-expect-error a route outside the entry's id
-		"/things/$thing/parts/$part": { orphan: "x" },
-	};
-	const loose: RouteParams<string> = { anything: "x", "/any": { a: "b" } };
-	assert.ok(typed && unknown && outside && loose);
-});
+({
+	part: "p",
+	"/things/$thing": { thing: "t", part: "p" },
+	"/things/$thing/parts/$part": { part: "p" },
+}) satisfies RouteParams<Ids>;
+// @ts-expect-error a plain name no registered route has
+({ nothing: "x" }) satisfies RouteParams<Ids>;
+({
+	// @ts-expect-error a route outside the entry's id
+	"/things/$thing/parts/$part": { orphan: "x" },
+}) satisfies RouteParams<Ids>;
+({ anything: "x", "/any": { a: "b" } }) satisfies RouteParams<string>;

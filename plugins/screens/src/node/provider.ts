@@ -13,6 +13,7 @@ import type {
 	BrowserProviderOption,
 	TestProject,
 } from "vitest/node";
+import { START_VIEWPORT } from "../widths.ts";
 import { type Lease, openLease, type Scope } from "./browser.ts";
 import type { Tab } from "./tab.ts";
 
@@ -117,7 +118,7 @@ class ChromeProvider implements BrowserProvider {
 		this.scopes.set(sessionId, scope);
 		const tab = await scope.tab();
 		this.tabs.set(sessionId, tab);
-		await tab.viewport(1280, 800);
+		await tab.viewport(START_VIEWPORT.width, START_VIEWPORT.height);
 		await tab.goto(url, 60_000);
 	}
 

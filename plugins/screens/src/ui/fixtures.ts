@@ -11,8 +11,7 @@ export type Fixtures<TRouter> = {
 			: never;
 };
 
-// An example value for each `$param`, by the param's name.
-export type ParamValues = Record<string, string>;
+type ParamValues = Record<string, string>;
 
 // The `$param` names a route id holds: `$id`, `{$id}`, `{-$id}`, and the bare
 // `$` of the splat (`_splat`).
@@ -54,7 +53,7 @@ export type RouteParams<Id extends string = RouteId> = string extends Id
 
 // The opening frame of each channel the app's screens read over plugin-node's socket, by channel name.
 // Channel fixtures: plugins/screens/guide/screens.md, "Fixtures".
-export type ChannelFixtures<TSnapshots = Record<string, unknown>> = {
+type ChannelFixtures<TSnapshots = Record<string, unknown>> = {
 	[K in keyof TSnapshots]?: (params: ParamValues) => TSnapshots[K];
 };
 

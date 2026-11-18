@@ -5,6 +5,7 @@ import {
 	type ViteConfigValues,
 } from "@fcalell/plugin-vite/node";
 import type { ScreensConfigValues } from "../types.ts";
+import { START_VIEWPORT } from "../widths.ts";
 import { TEST_STORYBOOK_DIR, VITE_CONFIG } from "./files.ts";
 import {
 	EXCLUDE_ENV,
@@ -208,7 +209,7 @@ export default defineConfig({
 						provider: chrome(),
 						commands: inputCommands,
 						instances: [
-							{ browser: "chromium", viewport: { width: 1280, height: 800 } },
+							{ browser: "chromium", viewport: { width: ${START_VIEWPORT.width}, height: ${START_VIEWPORT.height} } },
 						],
 					},
 				},
