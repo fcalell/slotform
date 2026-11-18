@@ -373,10 +373,9 @@ tab at the edge never stands cut with nothing to say so. It hugs its segments in
   than its column and scroll the page.
 - **Height.** A scroll container has no automatic minimum height, so `shrink-0` keeps it from giving
   up its height to a column that overflows (a Pane's body above a tall facet).
-- **Offset parent.** The track is positioned, so it is its segments' offset parent: the radio group
-  scrolls the chosen segment into view by its offset in the track (`offsetLeft` up the offset
-  parents). From any further ancestor that offset is the segment's place in the page, which reads as
-  a segment past the track's end and scrolls a chosen segment that fits past the ones before it.
+- **Reveal.** The chosen segment is scrolled into view by the track's own `scrollBy`, from the
+  track's and the segment's bounding boxes (physical edges, so the scroll is the same in a
+  right-to-left page); no ancestor scrolls.
 
 ## Text
 

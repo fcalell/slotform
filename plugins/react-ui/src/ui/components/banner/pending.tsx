@@ -17,13 +17,13 @@ import {
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
+import { useReasonLine } from "../../atoms/button/reason.tsx";
 import { Spinner } from "../../atoms/spinner/index.tsx";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { useReducedMotion } from "../../lib/media.ts";
 import type { VarStyle } from "../../lib/style.ts";
 import { ActFace } from "../button/face.tsx";
-import { useReasonLine } from "../row/acts.tsx";
 
 // The bar over a blocked act's reason, at the end on the desktop; on touch
 // the track stacks over the act as an ActionBar's acts do.

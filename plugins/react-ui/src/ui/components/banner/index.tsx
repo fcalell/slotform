@@ -5,8 +5,7 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import { usePending } from "@fcalell/ui-core/react/clock";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, endedReason } from "@fcalell/ui-core/read";
 import { partRuns } from "@fcalell/ui-core/runs";
@@ -21,7 +20,7 @@ import {
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
-import { Reason } from "../../atoms/button/reason.tsx";
+import { useReasonLine } from "../../atoms/button/reason.tsx";
 import { Icon, IconBase } from "../../atoms/icon/index.tsx";
 import { Spinner } from "../../atoms/spinner/index.tsx";
 import type { Act } from "../../lib/act.ts";
@@ -99,15 +98,13 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 	// false yes; one still to land paints the banner inert.
 	const ended = offer.painted ? endedReason(words, offer.phase) : undefined;
 	const waits = picked.painted || (offer.painted && ended === undefined);
-	const { touched } = useTouched();
 	const given = offer.painted ? undefined : offer.value;
 	const blocked =
 		ended ?? (given && "blocked" in given ? given.blocked : undefined);
-	const [pressed, press] = usePressed(blocked);
+	const reason = useReasonLine(blocked, "desktop");
 	// A run with a deadline and an act: its end stands on the sentence's first
 	// line, under the sentence on touch.
 	const running = end !== undefined && (offer.painted || given !== undefined);
-	const host = blocked === undefined ? undefined : press;
 	// Whether there is anything to say is not known until the sentence's read
 	// lands, so nothing stands while it waits (or ended): a banner painted then
 	// and gone loaded would be a block that stood for nothing. The page moves
@@ -144,14 +141,14 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 						{ended === undefined ? (
 							<ButtonBase act="secondary" label="" painted />
 						) : (
-							<ReasonHostContext value={host}>
+							<ReasonHostContext value={reason.host}>
 								<ButtonBase act="secondary" label={ended} blocked={ended} />
 							</ReasonHostContext>
 						)}
 					</span>
 				) : given ? (
 					<span className={ACT_REGION}>
-						<ReasonHostContext value={host}>
+						<ReasonHostContext value={reason.host}>
 							<ActFace act={given} kind="secondary" blocked={blocked} />
 						</ReasonHostContext>
 					</span>
@@ -204,11 +201,7 @@ export function Banner({ tone, sentence, act, until }: BannerProps) {
 				</div>
 				{running ? ending : null}
 			</div>
-			{blocked === undefined ? null : (
-				<Reason shown={pressed || touched} end="desktop">
-					{blocked}
-				</Reason>
-			)}
+			{reason.line}
 		</div>
 	);
 }

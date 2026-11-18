@@ -23,7 +23,6 @@ import {
 	FLOW_IN,
 	lineBox,
 	OPTION_CHILDREN,
-	OPTION_GROUP_LABEL,
 	OPTION_INDENT,
 	OPTION_LINE,
 	OPTION_LIST,
@@ -32,7 +31,6 @@ import {
 	optionRadio,
 	row,
 	text,
-	textStrong,
 } from "@fcalell/ui-core/variants";
 import {
 	memo,
@@ -51,6 +49,7 @@ import { GroupName } from "../../lib/field.ts";
 import { PAINT_CONTROL, Painted } from "../../lib/paint.tsx";
 import { OptionsLine } from "../../lib/read.tsx";
 import { Window } from "../../lib/window.tsx";
+import { GROUP_LABEL } from "./base.tsx";
 import type { PickerListBody, PickerListProps } from "./index.tsx";
 
 const LIST = "flex flex-col";
@@ -84,21 +83,6 @@ const RADIO =
 	"relative inline-flex shrink-0 items-center justify-center data-disabled:border-edge data-disabled:bg-fill-disabled";
 const CHILDREN = "flex";
 const CHILDREN_BODY = "flex flex-col grow min-w-0";
-
-// A group's label is its fieldset's legend.
-function GroupLabel(props: { children: ReactNode }) {
-	return (
-		<legend
-			className={cn(
-				OPTION_GROUP_LABEL,
-				text({ role: "meta" }),
-				textStrong({ role: "meta" }),
-			)}
-		>
-			{props.children}
-		</legend>
-	);
-}
 
 // One option's row, its children under it when it is the first chosen: a
 // row's own element, so a window can place it. It reads its place among its
@@ -306,9 +290,9 @@ function OptionGroupBox<V extends string>(props: {
 	return (
 		<fieldset className={cn(GROUP, FIELDSET)}>
 			{group.label === undefined ? null : (
-				<GroupLabel>
+				<legend className={GROUP_LABEL}>
 					{props.rowsPaint ? <Painted role="word" /> : group.label}
-				</GroupLabel>
+				</legend>
 			)}
 			<div ref={box} className={GROUP}>
 				<Window

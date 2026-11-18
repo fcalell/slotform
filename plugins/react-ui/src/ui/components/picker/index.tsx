@@ -21,7 +21,7 @@ import { HeldList } from "./list.tsx";
 import { HeldSegments, LinkSegments } from "./segments.tsx";
 
 interface Shared<V extends string | null> extends Closed, Fielded {
-	/** The hint drawn while nothing is chosen, in the placeholder's ink (a short phrase; truncates). None, it is nothing at the field fit, whose label stands over the box, and `label` at the other fits. The label is also the touch sheet's title. */
+	/** The hint drawn while nothing is chosen, in the placeholder's ink (a short phrase; truncates). None, it is nothing in a field, whose label stands over the box, the word for choosing at the `row` fit, and `label` at the other fits. The label is also the touch sheet's title. */
 	placeholder?: string;
 	/** The choices, flat or under group labels; an option may carry a status, an avatar or a chip. A selection paints the trigger, inert, until its read lands; an option's `label`, `description` and `blocked` may be selections on their own, which paint it the same way. */
 	options: WithText<
@@ -79,8 +79,8 @@ export type PickerListBody<V extends string, T> = OptionSource<T, V> & {
 	children?: ReactNode;
 };
 
-/** What every list fit holds: its name, its fit and its body. */
-export type PickerListShape<V extends string, T> = PickerListBody<V, T> &
+// What every list fit holds: its name, its fit and its body.
+type PickerListShape<V extends string, T> = PickerListBody<V, T> &
 	Closed &
 	Fielded & {
 		fit: "list";

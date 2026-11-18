@@ -2,14 +2,20 @@ import { moreMenu } from "@fcalell/ui-core/acts";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	type Drawn,
+	endedReason,
+	isSelection,
+} from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
+import type { Words } from "@fcalell/ui-core/tokens";
 import { useMemo } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
-import { Reason } from "../../atoms/button/reason.tsx";
+import { Reason, type useReasonLine } from "../../atoms/button/reason.tsx";
 import {
 	type Act,
 	type IconAct,
@@ -20,20 +26,8 @@ import { ButtonBase } from "../button/base.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { MenuBase } from "../menu/base.tsx";
 
+// An ended act's press: it is blocked, so its reason stands instead.
 const NOOP = () => {};
-
-// A blocked act's reason draws on the row's own line, so the act keeps its
-// place; the act is handed the host.
-export function useReasonLine(blocked: string | undefined) {
-	const { touched } = useTouched();
-	const [pressed, press] = usePressed(blocked);
-	const host = blocked === undefined ? undefined : press;
-	const line =
-		blocked === undefined ? null : (
-			<Reason shown={pressed || touched}>{blocked}</Reason>
-		);
-	return { host, line };
-}
 
 /** Whether the row has a more act to draw: a selection may still answer none, the box standing meanwhile. */
 export function hasMore(more: Datum<readonly MenuEntry[] | undefined>) {
@@ -51,24 +45,35 @@ export function PaintedAct({
 	return <ButtonBase act="secondary" label={paintText("word", at)} painted />;
 }
 
-// The row's act as its own datum draws it: waiting while the read lands, the
-// act once it did, and blocked with the sentence once the read ended, never a
-// false yes.
+// An icon act as its own datum draws it (a row's, a Section head's): waiting
+// while the read lands, the act once it did, and blocked with the sentence
+// once the read ended, never a false yes: its glyph and name went with the
+// read, so it is the alert glyph named by the sentence.
+export function offerOf(
+	words: Words,
+	offer: Drawn<IconAct | IconLinkAct | undefined>,
+): {
+	waits: boolean;
+	given: IconAct | IconLinkAct | undefined;
+	blocked: string | undefined;
+} {
+	if (!offer.painted)
+		return { waits: false, given: offer.value, blocked: offer.value?.blocked };
+	const ended = endedReason(words, offer.phase);
+	if (ended === undefined)
+		return { waits: true, given: undefined, blocked: undefined };
+	const given: IconAct = {
+		label: ended,
+		icon: "CircleAlert",
+		blocked: ended,
+		onAct: NOOP,
+	};
+	return { waits: false, given, blocked: ended };
+}
+
 function useOffer(act: Datum<IconAct | IconLinkAct | undefined>) {
 	const [offer] = useSelections([act]);
-	const words = useWords();
-	const ended = offer.painted ? endedReason(words, offer.phase) : undefined;
-	const given: IconAct | IconLinkAct | undefined =
-		ended === undefined
-			? offer.painted
-				? undefined
-				: offer.value
-			: { label: ended, icon: "CircleAlert", blocked: ended, onAct: NOOP };
-	return {
-		waits: offer.painted && ended === undefined,
-		given,
-		blocked: (given && "blocked" in given ? given.blocked : undefined) ?? ended,
-	};
+	return offerOf(useWords(), offer);
 }
 
 // The row's act at its end, its icon; a press on it while blocked tells the

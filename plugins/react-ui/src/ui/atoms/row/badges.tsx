@@ -247,7 +247,3 @@ export function FactBadge(props: { fact: Fact; painted?: boolean }) {
 	if (painted) return <Badge painted />;
 	return <WordsBadge fact={fact} />;
 }
-
-export function PaintedBadge() {
-	return <Badge painted />;
-}

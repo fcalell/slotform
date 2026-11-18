@@ -29,16 +29,13 @@ const SEGMENT =
 const IDLE_LABEL = "group-hover:text-ink-body";
 const LABEL = "truncate max-w-measure-short";
 
-// The chosen segment is in the track's view whenever the track holds it: as it
-// mounts, as the choice changes and as the track's size changes (the phone's
-// width, a late font, a Pane's body settling). A chosen tab is never the one
-// cut; only the track's own scroll moves, never an ancestor, and only when the
-// segment is not already whole in view (a pixel of subpixel rounding is whole).
-// This reads two boxes in JavaScript because CSS cannot scroll a track to a
-// child on its own; it looks the chosen
-// segment up in the track, since a ref on a child runs before its parent's is
-// set, which is why the reveal on mount was lost. A key's focus scrolls its own
-// segment natively.
+// The chosen segment is revealed as it mounts, as the choice changes and as
+// the track's size changes (the phone's width, a late font, a Pane's body
+// settling), by the track's own scroll and only when the segment is not
+// already whole in view (a pixel of subpixel rounding is whole); CSS cannot
+// scroll a track to a child. It looks the chosen segment up in the track,
+// since a ref on a child runs before its parent's is set. A key's focus
+// scrolls its own segment natively.
 const CHOSEN = '[role="radio"][aria-checked="true"], [aria-current="page"]';
 const SLACK = 1;
 function useReveal<E extends HTMLElement>(chosen: string) {
@@ -66,20 +63,18 @@ function useReveal<E extends HTMLElement>(chosen: string) {
 	return track;
 }
 
-/** The group every Picker in `fit: segments` over choices renders, on the `draft` its host holds: a field hosts the draft of its segments and draws a rejection in its own line. `painted` is the track while its data is not here: one filled box at its loaded size, the segments not drawn, inert. Outside the package's exports. */
+/** The group every Picker in `fit: segments` over choices renders, on the `draft` its host holds: a field hosts the draft of its segments and draws a rejection in its own line. While the draft paints, the track is one filled box at its loaded size, the segments not drawn, inert. Outside the package's exports. */
 export function SegmentsBase<V extends string = string>({
 	label,
 	options,
 	draft,
 	onChange,
-	painted: given,
 }: Pick<PickerSegmentsProps<V>, "label" | "options" | "onChange"> & {
 	draft: Draft<V>;
-	painted?: boolean;
 }) {
 	// A read that ended leaves the track with no segment chosen, blocked.
 	const ended = draft.ended !== undefined;
-	const painted = given || (draft.painted && !ended);
+	const painted = draft.painted && !ended;
 	const chosenValue = painted || ended ? "" : draft.value;
 	// A FormField around it names it with its visible label.
 	const named = use(GroupName);
@@ -135,16 +130,14 @@ export function SegmentsBase<V extends string = string>({
 	);
 }
 
-/** Segments over choices that hold their own draft, as a bare one does; a rejection toasts. `painted` forces the painted track. Outside the package's exports. */
+/** Segments over choices that hold their own draft, as a bare one does; a rejection toasts. Outside the package's exports. */
 export function HeldSegments<V extends string = string>({
 	label,
 	options,
 	value,
 	onChange,
-	painted,
 }: Omit<PickerSegmentsProps<V>, "fit"> & {
 	fit?: "segments";
-	painted?: boolean;
 }) {
 	return (
 		<SegmentsBase<V>
@@ -152,7 +145,6 @@ export function HeldSegments<V extends string = string>({
 			options={options}
 			draft={useHeldDraft<V>(value)}
 			onChange={onChange}
-			painted={painted}
 		/>
 	);
 }

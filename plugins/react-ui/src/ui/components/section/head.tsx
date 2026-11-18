@@ -7,10 +7,9 @@ import {
 	useDrawsFailure,
 	useSelections,
 } from "@fcalell/ui-core/react/read";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
+import { type Datum, paints } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,
@@ -24,7 +23,7 @@ import {
 } from "@fcalell/ui-core/variants";
 import { type ReactNode, use } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
-import { Reason } from "../../atoms/button/reason.tsx";
+import { useReasonLine } from "../../atoms/button/reason.tsx";
 import { Turn } from "../../atoms/turn.tsx";
 import type { IconAct, MenuEntry } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
@@ -35,10 +34,8 @@ import { BusyMark, FrameLine } from "../../lib/read.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Count } from "../count/index.tsx";
 import { MenuBase } from "../menu/base.tsx";
+import { offerOf } from "../row/acts.tsx";
 import { Text } from "../text/index.tsx";
-
-// An ended act's press: it is blocked, so its reason stands instead.
-const NOOP = () => {};
 
 // A waiting description is one line, clipped where it ends: the loaded one is
 // a short sentence, and a bar that wraps would be taller than it.
@@ -148,25 +145,11 @@ export function SectionHead(props: {
 	// inert, as a painted description is, until the title lands.
 	const waiting = paints(named) ? { "aria-hidden": true, inert: true } : {};
 	useDrawsFailure([actOf, moreOf]);
-	const { touched } = useTouched();
 	const words = useWords();
-	// An act whose own read ended stands blocked with its sentence, never a
-	// false yes: its glyph and name went with the read, so it is the alert
-	// glyph named by the sentence, which a press stands on the head's line.
-	const ended = shownAct.painted
-		? endedReason(words, shownAct.phase)
-		: undefined;
-	const given: IconAct | IconLinkAct | undefined =
-		ended !== undefined
-			? { label: ended, icon: "CircleAlert", blocked: ended, onAct: NOOP }
-			: shownAct.painted
-				? undefined
-				: shownAct.value;
-	const blocked = ended ?? given?.blocked;
-	const [pressed, press] = usePressed(blocked);
+	const { waits, given, blocked } = offerOf(words, shownAct);
 	// The act hands its blocked press here, so its reason stands on the head's
 	// own line under the row.
-	const host = blocked === undefined ? undefined : press;
+	const reason = useReasonLine(blocked, true);
 	let sentence: ReactNode = null;
 	if (paints(said))
 		sentence = (
@@ -190,11 +173,10 @@ export function SectionHead(props: {
 	// its concern. An act beside a heading is an icon act: its words are its
 	// accessible name and its tooltip, never drawn beside the title.
 	let actNode: ReactNode = null;
-	if (shownAct.painted && ended === undefined)
-		actNode = <IconButtonBase icon="Plus" label="" painted />;
+	if (waits) actNode = <IconButtonBase icon="Plus" label="" painted />;
 	else if (given !== undefined)
 		actNode = (
-			<ReasonHostContext value={host}>
+			<ReasonHostContext value={reason.host}>
 				<IconActFace act={given} />
 			</ReasonHostContext>
 		);
@@ -275,11 +257,7 @@ export function SectionHead(props: {
 				) : null}
 			</div>
 			<FrameLine frame={frame} />
-			{blocked === undefined ? null : (
-				<Reason shown={pressed || touched} end>
-					{blocked}
-				</Reason>
-			)}
+			{reason.line}
 		</div>
 	);
 }

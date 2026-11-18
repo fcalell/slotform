@@ -53,8 +53,12 @@ const BODY = ROWS;
 /** A band as the platform draws it: its act may open a sheet. */
 export type Band = Omit<BandData, "act"> & { act?: IconAct | IconLinkAct };
 
-/** A descriptor as the platform draws it: each field that can be a read of its own (a row's `act`, `more`, `title`, `line` and `facts`, a switch's `checked`, a pick's `options` and `value`, the same in a tree's children) may be a `Datum`; the row's `facts` may be a read of the whole list or a list of facts that are each a read of their own. */
-export type WithReads<T> = T extends unknown
+// A descriptor as the platform draws it: each field that can be a read of its
+// own (a row's `act`, `more`, `title`, `line` and `facts`, a switch's
+// `checked`, a pick's `options` and `value`, the same in a tree's children)
+// may be a `Datum`; the row's `facts` may be a read of the whole list or a
+// list of facts that are each a read of their own.
+type WithReads<T> = T extends unknown
 	? {
 			[K in keyof T]: K extends "act" | "more"
 				? Datum<Sheeted<T[K]>>
@@ -153,9 +157,6 @@ export function Section<V extends string | null = string, Q = unknown>(
 	);
 }
 
-// A described Section's empty shape says no generic sentence, its description
-// saying what it holds: a sheet's own sentence stands, else the act alone, or
-// the word for none.
 // The shape the waiting rows paint in: one record as the items' selector maps
 // it, where that is a list row; else the roster's title over a facts line.
 function paintOf<V extends string | null, Q>(
@@ -172,6 +173,9 @@ function paintOf<V extends string | null, Q>(
 	return typeof row.facts === "string" ? { ...row, facts: [""] } : row;
 }
 
+// A described Section's empty shape says no generic sentence, its description
+// saying what it holds: a sheet's own sentence stands, else the act alone, or
+// the word for none.
 function emptyOf(
 	description: Datum<string> | undefined,
 	empty: Empty | { act: Act | LinkAct } | undefined,

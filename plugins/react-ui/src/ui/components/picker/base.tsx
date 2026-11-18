@@ -61,7 +61,6 @@ import {
 import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
 import {
 	type ComponentProps,
-	createContext,
 	memo,
 	type ReactElement,
 	type ReactNode,
@@ -184,9 +183,6 @@ const LEADING = "flex shrink-0 items-center justify-center";
 // An option's own chip stands after its text and keeps its word whole: the text
 // truncates before it does, and only a chip past the short measure is cut.
 const CHIP_AFTER = "flex shrink-0 max-w-measure-short";
-// In a Pane's bar (`fit: pill`) the trigger is its dot, its label, its chip and
-// its chevron at every width, the label truncating within its share of the
-// bar. Its name and tooltip are the chosen label.
 const SEARCH = "flex grow items-center";
 const SEARCH_VALUE =
 	"min-w-0 grow truncate outline-none placeholder:text-ink-meta";
@@ -204,7 +200,6 @@ const ACT_GLYPH = "flex shrink-0 text-ink-meta";
 
 const NO_MATCHES = "flex items-center";
 
-// Base UI's props for a trigger.
 type Handed = ComponentProps<"button">;
 
 // A pick's props once its value is drawn: the viewer's pick or the
@@ -232,8 +227,16 @@ const inValue = <V extends string | null>(
 	one: V,
 ) => (several ? several.value.includes(one) : one === value);
 
-const optionRow = (highlighted = false) =>
-	row({ state: highlighted ? "highlighted" : "rest" });
+// An option's row: a blocked one takes no highlight and no press wash.
+const optionLook = (blocked: string | undefined, highlighted = false) =>
+	cn(
+		row({
+			state: highlighted && blocked === undefined ? "highlighted" : "rest",
+		}),
+		OPTION_ROW,
+		OPTION,
+		blocked === undefined && PRESS,
+	);
 
 // An option's label (the empty choice in the placeholder's ink) over its
 // line; an option leading with a state shows its status's dot, one leading
@@ -288,20 +291,16 @@ function OptionText(props: { option: Option<string | null>; chosen: boolean }) {
 
 // The act that ends the list under a hairline: its glyph and label on a row,
 // washed under the pointer and the press; it closes the list as it runs.
-// The picker holds its act's attempt past the list's close (the list unmounts
-// with it): a rejection toasts with Retry, and a sheet it opens stands beside
-// the picker.
-const PickActing = createContext<Acting<true> | undefined>(undefined);
-
+// The picker holds its act's attempt (`acting`) past the list's close (the
+// list unmounts with it): a rejection toasts with Retry, and a sheet it opens
+// stands beside the picker.
 function PickAct(props: {
 	act: IconAct | IconLinkAct;
+	acting: Acting<true>;
 	done: () => void;
 	onFocus?: () => void;
 }) {
-	const { act } = props;
-	// Only PickerBase's lists draw it, inside its `PickActing`.
-	const acting = use(PickActing);
-	if (!acting) return null;
+	const { act, acting } = props;
 	// An option's row, in the popover and the touch sheet alike, so on touch it
 	// stands at the target.
 	const look = cn(row(), OPTION_ROW, ACT_ROW);
@@ -358,18 +357,17 @@ function NoMatches(props: { children: ReactNode }) {
 	);
 }
 
-function GroupLabel(props: { children: ReactNode }) {
-	return (
-		<div
-			className={cn(
-				OPTION_GROUP_LABEL,
-				text({ role: "meta" }),
-				textStrong({ role: "meta" }),
-			)}
-		>
-			{props.children}
-		</div>
-	);
+/** A group's label over its options, in every list a pick draws. Outside the package's exports. */
+export const GROUP_LABEL = cn(
+	OPTION_GROUP_LABEL,
+	text({ role: "meta" }),
+	textStrong({ role: "meta" }),
+);
+
+// Base UI's group label renders through it, handing the id its group is named
+// by, so the given props stand on the element.
+function GroupLabel(props: ComponentProps<"div">) {
+	return <div {...props} className={GROUP_LABEL} />;
 }
 
 // What every pick draws: the public `Picker`'s field and row triggers, or a
@@ -379,7 +377,7 @@ interface Composed {
 	/** Where it stands: a public fit, or `fact`, a fact of a record's head, which stands as the row fit does but for its trigger: one pill, the outlined pill around a plain value (in the body ink, as the facts beside it) or the state pill of a chosen option that carries a state, each with its chevron, at the badge's height (the meta line), in the target's hit box pulled back to that line, so a facts line holds one height whichever kinds of fact it holds. */
 	fit?: PickerFit | "fact";
 	/** A trigger drawn by the composer, handed Base UI's props and whether the list is open. */
-	drawn?: (handed: ComponentProps<"button">, open: boolean) => ReactElement;
+	drawn?: (handed: Handed, open: boolean) => ReactElement;
 	/** `-1` where the trigger's host holds the tab stop (a tree's row); absent, the trigger keeps its own. */
 	tabIndex?: -1;
 	/** Its data is not here: the trigger's box filled at its loaded size, its content not drawn, inert, so no list opens. */
@@ -653,12 +651,12 @@ export function PickerBase<V extends string | null = string>(
 	// A head's pill stands at the badge's height, the meta line; a row's is a
 	// chip's, its caption line between its hairlines.
 	const compact = !fact;
-	const pill = (handed: ComponentProps<"button">) => (
+	const pill = (handed: Handed) => (
 		<button
 			{...handed}
 			type="button"
 			aria-label={named}
-			tabIndex={given.tabIndex === -1 ? -1 : handed.tabIndex}
+			tabIndex={given.tabIndex ?? handed.tabIndex}
 			disabled={form?.disabled}
 			inert={painted || undefined}
 			aria-disabled={ended || undefined}
@@ -696,12 +694,12 @@ export function PickerBase<V extends string | null = string>(
 			</span>
 		</button>
 	);
-	const button = (handed: ComponentProps<"button">) => (
+	const button = (handed: Handed) => (
 		<button
 			{...handed}
 			type="button"
 			aria-label={named}
-			tabIndex={given.tabIndex === -1 ? -1 : handed.tabIndex}
+			tabIndex={given.tabIndex ?? handed.tabIndex}
 			disabled={form?.disabled}
 			inert={painted || undefined}
 			aria-disabled={ended || undefined}
@@ -735,7 +733,7 @@ export function PickerBase<V extends string | null = string>(
 	);
 	// The bar's pill wears its name as a tooltip on a pointer, as an icon act
 	// does, so a label its share of the bar cuts is read whole.
-	const own = (handed: ComponentProps<"button">) =>
+	const own = (handed: Handed) =>
 		several ? (
 			severalBox(handed, several)
 		) : fit === "row" && (fact || stateful) ? (
@@ -745,9 +743,7 @@ export function PickerBase<V extends string | null = string>(
 		) : (
 			button(handed)
 		);
-	const trigger = drawn
-		? (handed: ComponentProps<"button">) => drawn(handed, open)
-		: own;
+	const trigger = drawn ? (handed: Handed) => drawn(handed, open) : own;
 	const view = touch ? (
 		<PickSheet
 			label={label}
@@ -760,6 +756,7 @@ export function PickerBase<V extends string | null = string>(
 			pick={pick}
 			trigger={trigger}
 			act={act}
+			acting={acting}
 		/>
 	) : searching ? (
 		<PickSearch
@@ -774,6 +771,7 @@ export function PickerBase<V extends string | null = string>(
 			pick={pick}
 			trigger={trigger}
 			act={act}
+			acting={acting}
 		/>
 	) : (
 		<PickList
@@ -787,6 +785,7 @@ export function PickerBase<V extends string | null = string>(
 			pick={pick}
 			trigger={trigger}
 			act={act}
+			acting={acting}
 		/>
 	);
 	// A field's options that ended draw their sentence and Retry in the value column,
@@ -798,7 +797,7 @@ export function PickerBase<V extends string | null = string>(
 		waiting.painted &&
 		isEnded(waiting.phase);
 	return (
-		<PickActing value={acting}>
+		<>
 			{lone ? null : view}
 			{/* A row's pick says nothing under itself: its box stands blocked, and the sheet that holds the row says the failure once (`PicksLine`). */}
 			{fit === "row" ? null : (
@@ -813,7 +812,7 @@ export function PickerBase<V extends string | null = string>(
 				acting={acting}
 				of={() => (act && "sheet" in act ? act.sheet : undefined)}
 			/>
-		</PickActing>
+		</>
 	);
 }
 
@@ -869,7 +868,7 @@ function useKeyed(trigger: PickParts<string | null>["trigger"]) {
 		keyed,
 		landed,
 		input: { onKeyDown: () => setLanded(true) },
-		trigger: (handed: ComponentProps<"button">) =>
+		trigger: (handed: Handed) =>
 			trigger({
 				...handed,
 				onKeyDown: (event) => {
@@ -896,8 +895,9 @@ interface PickParts<V extends string | null> {
 	open: boolean;
 	setOpen: (open: boolean) => void;
 	pick: (value: V) => void;
-	trigger: (props: ComponentProps<"button">) => ReactElement;
+	trigger: (props: Handed) => ReactElement;
 	act?: IconAct | IconLinkAct;
+	acting: Acting<true>;
 	// A pick of several: its chosen values and what hears their new set.
 	several?: Several<V>;
 	// The box the list opens against and takes its width from, where the trigger
@@ -966,12 +966,7 @@ function PickList<V extends string | null>(
 												disabled={blocked !== undefined}
 												className={(state) =>
 													cn(
-														optionRow(
-															state.highlighted && blocked === undefined,
-														),
-														OPTION_ROW,
-														OPTION,
-														blocked === undefined && PRESS,
+														optionLook(blocked, state.highlighted),
 														optionFocus(state.highlighted, keyboard.keyed),
 													)
 												}
@@ -992,6 +987,7 @@ function PickList<V extends string | null>(
 						{props.act ? (
 							<PickAct
 								act={props.act}
+								acting={props.acting}
 								done={() => props.setOpen(false)}
 								onFocus={keyboard.leave}
 							/>
@@ -1032,10 +1028,7 @@ function SearchItemBase<V extends string | null>(props: SearchItemProps<V>) {
 			disabled={blocked !== undefined}
 			className={(state) =>
 				cn(
-					optionRow(state.highlighted && blocked === undefined),
-					OPTION_ROW,
-					OPTION,
-					blocked === undefined && PRESS,
+					optionLook(blocked, state.highlighted),
 					// A blocked row has no wash to mark the key's position, so the key landing on it rings it.
 					optionFocus(
 						state.highlighted,
@@ -1264,6 +1257,7 @@ function PickSearch<V extends string | null>(
 						{props.act ? (
 							<PickAct
 								act={props.act}
+								acting={props.acting}
 								done={() => props.setOpen(false)}
 								onFocus={keyboard.leave}
 							/>
@@ -1310,6 +1304,7 @@ function PickSheet<V extends string | null>(props: SheetParts<V>) {
 					setOpen={props.setOpen}
 					pick={props.pick}
 					act={props.act}
+					acting={props.acting}
 					first={first}
 				/>
 			</SheetLayer>
@@ -1352,10 +1347,7 @@ function PickOptionBase<V extends string | null>(props: PickOptionProps<V>) {
 				if (blocked === undefined) props.pick(option.value);
 			}}
 			className={cn(
-				optionRow(),
-				OPTION_ROW,
-				OPTION,
-				blocked === undefined && PRESS,
+				optionLook(blocked),
 				OPTION_BUTTON,
 				blocked === undefined && OPTION_FOCUS_WASH,
 			)}
@@ -1548,7 +1540,11 @@ function PickRows<V extends string | null>(
 				</NoMatches>
 			) : null}
 			{props.act ? (
-				<PickAct act={props.act} done={() => props.setOpen(false)} />
+				<PickAct
+					act={props.act}
+					acting={props.acting}
+					done={() => props.setOpen(false)}
+				/>
 			) : null}
 		</div>
 	);

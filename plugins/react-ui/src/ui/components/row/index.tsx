@@ -63,11 +63,12 @@ import {
 	useState,
 } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
+import { useReasonLine } from "../../atoms/button/reason.tsx";
 import {
+	Badge,
 	BadgesLine,
 	FactBadge,
 	LockBadge,
-	PaintedBadge,
 	WordsBadge,
 } from "../../atoms/row/badges.tsx";
 import {
@@ -107,11 +108,11 @@ import {
 	PaintedAct,
 	RowAct,
 	RowMore,
-	useReasonLine,
 } from "./acts.tsx";
 import { CopyAct, IdValue } from "./fact.tsx";
 import { RowProgress } from "./progress.tsx";
 import { RowStatusDot, RowStatusWord, StatusValue } from "./status.tsx";
+import { TITLE_ADAPTS, TITLE_COMPACT } from "./title.ts";
 
 // The row is one box on the sheet's rows: docs/architecture/ui-core/layout.md, "Definition rows".
 const ROW = "relative flex items-center min-h-row";
@@ -211,10 +212,6 @@ const TICK = "relative size-target";
 // content); on touch it is two lines at every width, and a row with a mark, an
 // entry or the steps at every width and on every device.
 const CONTAINED = "@container/row";
-// A title wraps to three lines and keeps its longest word whole: docs/architecture/ui-core/layout.md, "Title and facts".
-const TITLE_COMPACT = "line-clamp-3 whitespace-normal break-words";
-const TITLE_ADAPTS =
-	"row-two-line:line-clamp-3 row-two-line:whitespace-normal row-two-line:break-words";
 const TEXT_WORDS = "basis-auto w-min max-w-full shrink-0";
 const TEXT_ADAPTS =
 	"row-two-line:basis-auto row-two-line:w-min row-two-line:max-w-full row-two-line:shrink-0";
@@ -730,7 +727,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 				locked = true;
 			} else if (isWarningFact(fact) || isChipFact(fact) || isMarkFact(fact)) {
 				badges.push(<FactBadge key={key} fact={fact} painted={painted} />);
-			} else if (waitsFacts) badges.push(<PaintedBadge key={key} />);
+			} else if (waitsFacts) badges.push(<Badge key={key} painted />);
 			else {
 				// What no guard above took is a `Run`; the drawn list's type does not
 				// narrow to it.
@@ -1023,8 +1020,6 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 				onKeyDown: opens ? openOnEnter : undefined,
 			}
 		: {};
-	// The end group: centred on the row, or on the title's line in a touch row
-	// of two lines (`headed`).
 	const endGroup = hasEnd ? (
 		<span
 			className={cn(
@@ -1313,8 +1308,8 @@ function rails(tree: RowTree | undefined): VarStyle | undefined {
 interface RowItemProps {
 	item: RowItemData;
 	/** The item's key, which a tree's keys find the row by. */
-	/** A painted row's place among the rows, which varies its fillers; a loaded row takes none, its place moving when a row lands above it. */
 	id: string;
+	/** A painted row's place among the rows, which varies its fillers; a loaded row takes none, its place moving when a row lands above it. */
 	index?: number;
 	painted: boolean;
 	/** In a tree: the row's depth, its fold (`open` on a branch alone, and `fold` hears the item's key) and whether it holds the tab stop. Flat so the memo compares them. */

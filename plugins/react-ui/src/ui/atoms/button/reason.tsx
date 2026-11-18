@@ -1,5 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { markedRuns } from "@fcalell/ui-core/form";
+import { usePressed } from "@fcalell/ui-core/react/reason";
+import { useTouched } from "@fcalell/ui-core/react/touched";
 import { partRuns } from "@fcalell/ui-core/runs";
 import { FIELD_ERROR_LINE, FLOW_IN, text } from "@fcalell/ui-core/variants";
 import { RunText } from "../../lib/code.tsx";
@@ -48,4 +50,23 @@ export function Reason(props: {
 			)}
 		</p>
 	);
+}
+
+// A blocked act's reason drawn on its host's own line, so the act keeps its
+// place: the act is handed the `host`, and the `line` shows once the act was
+// pressed while blocked, or its form is touched.
+export function useReasonLine(
+	blocked: string | undefined,
+	end?: boolean | "desktop",
+) {
+	const { touched } = useTouched();
+	const [pressed, press] = usePressed(blocked);
+	const host = blocked === undefined ? undefined : press;
+	const line =
+		blocked === undefined ? null : (
+			<Reason shown={pressed || touched} end={end}>
+				{blocked}
+			</Reason>
+		);
+	return { host, line };
 }
