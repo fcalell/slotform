@@ -1,6 +1,6 @@
+import { trackTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Peaks } from "@fcalell/ui-core/descriptors";
-import { trackTime } from "@fcalell/ui-core/player";
 import { WAVEFORM_BAR, WAVEFORM_RECORD } from "@fcalell/ui-core/variants";
 import {
 	type Columns,

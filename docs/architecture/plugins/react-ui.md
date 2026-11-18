@@ -239,7 +239,8 @@ value's focus alone: an act inside it rings inset on its own focus, so the box y
 guard names the act, not the value, so a showcase scene forced to focus still rings the box.
 
 Base UI's `Field` wires the control (its id, label, description and validity); the render function
-hands over its props and state, so the box around the value draws that state. A disabled box carries
+hands over its props and state, so the box around the value draws that state. A file box (`input/drop.ts`) takes only a drag that
+carries `Files`: a text selection or a link passes it by. A disabled box carries
 `aria-disabled` itself: the unit outside the native control (an `Input`'s box, a file input's name
 and size, a prose input's budget) reads as disabled to a checker only through an ancestor that says
 so.
@@ -411,6 +412,9 @@ and a reader draws again.
   `pair` under its source, and under the bend a label chip hangs a `pair` below it with a `pair` of
   air and an arrowhead beneath it before the next node. With no chip the gap is the bend's `pair`, two
   `pair`s and the arrowhead, never under `floor`.
+- **Run.** ELK runs when `runKey` moves: once the canvas is measured, and again only when the graph's
+  key changes; an arrange runs it by hand. A failed import of the layout module or an ELK throw is
+  thrown on the next render, so it reaches the error boundary.
 - **Text floor.** A node's smallest text is the caption role, and its size is the text floor: the
   same number, so a node draws its words from zoom 1 up and its glyph alone below. Both are read from
   the type scale at the desktop body size.
@@ -504,4 +508,4 @@ do.
 - `plugins/react-ui/src/ui/atoms/button/glyph.tsx`: icon acts and their tooltip.
 - `plugins/react-ui/src/ui/components/picker/segments.tsx`: the segmented picker's track.
 - `plugins/react-ui/src/ui/components/table/index.tsx`: the Table and its server sort.
-- `plugins/react-ui/src/ui/components/canvas/`: `elk.ts`, `floor.ts`, `view.ts`, `viewport.ts`, `hit.ts`, `lift.ts`, `zoom.tsx`, `geometry.ts`.
+- `plugins/react-ui/src/ui/components/canvas/`: `elk.ts`, `layout.ts`, `open.ts`, `look.ts`, `floor.ts`, `view.ts`, `viewport.ts`, `hit.ts`, `lift.ts`, `zoom.tsx`, `geometry.ts`, `__fixtures__/density.ts`.

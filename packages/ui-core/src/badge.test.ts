@@ -1,15 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-	GROUNDS,
-	measured,
-	painted,
-	parse,
-	veiled,
-} from "./__fixtures__/painted.ts";
+import { measured, painted, parse, veiled } from "./__fixtures__/painted.ts";
 import { deriveTheme } from "./derive.ts";
 import { contrastRatio } from "./oklch.ts";
-import { MODES } from "./tokens.ts";
+import { CONTRAST_GROUNDS, MODES } from "./tokens.ts";
 
 // A badge's words and ground: docs/architecture/ui-core/tokens.md, "Contrast floors".
 test("a badge's words hold 4.5:1 on its painted fill, a step off the ground, at every cast", () => {
@@ -20,7 +14,7 @@ test("a badge's words hold 4.5:1 on its painted fill, a step off the ground, at 
 			const colors = theme.colors[mode];
 			const ink = measured(painted(parse(colors["ink-meta"])));
 			const fill = parse(colors["fill-badge"]);
-			for (const ground of GROUNDS) {
+			for (const ground of CONTRAST_GROUNDS) {
 				const under = parse(colors[ground]);
 				const filled = measured(veiled(fill, under));
 				if (contrastRatio(ink, filled) < 4.5)

@@ -730,8 +730,7 @@ export function isTouchSplit(
 }
 
 // The share of the table's width a fractional column takes; a measure is none.
-const FRACTION: Record<ColumnWidth, number | undefined> = {
-	"measure-short": undefined,
+const FRACTION: Partial<Record<ColumnWidth, number>> = {
 	"1/4": 1 / 4,
 };
 

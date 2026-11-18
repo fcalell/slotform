@@ -1,15 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-	GROUNDS,
-	measured,
-	painted,
-	parse,
-	veiled,
-} from "./__fixtures__/painted.ts";
+import { measured, painted, parse, veiled } from "./__fixtures__/painted.ts";
 import { deriveTheme } from "./derive.ts";
 import { contrastRatio } from "./oklch.ts";
-import { MODES, SOFT_GROUNDS } from "./tokens.ts";
+import { CONTRAST_GROUNDS, MODES, SOFT_GROUNDS } from "./tokens.ts";
 
 // The strong edge on every soft ground: docs/architecture/ui-core/tokens.md, "Edges".
 test("the strong edge holds 3:1 on every painted soft ground, a veiled one over each ground, at every hue", () => {
@@ -23,7 +17,9 @@ test("the strong edge holds 3:1 on every painted soft ground, a veiled one over 
 				const soft = parse(colors[ground]);
 				const paints =
 					soft.alpha < 1
-						? GROUNDS.map((under) => veiled(soft, parse(colors[under])))
+						? CONTRAST_GROUNDS.map((under) =>
+								veiled(soft, parse(colors[under])),
+							)
 						: [painted(soft)];
 				for (const paint of paints)
 					if (contrastRatio(edge, measured(paint)) < 3)

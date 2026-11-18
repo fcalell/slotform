@@ -96,7 +96,7 @@ export function useFootRegion(logged: boolean) {
 }
 
 // A size token as the layout reads it, zero while it is unset.
-export function tokenPx(value: unknown): number {
+function tokenPx(value: unknown): number {
 	return Number.parseFloat(String(value ?? 0));
 }
 

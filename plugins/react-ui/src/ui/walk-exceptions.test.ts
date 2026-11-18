@@ -65,10 +65,7 @@ test("the specimen exception matches only a marked main", () => {
 	const specimen = EXCEPTIONS.find(
 		(e) => e.rule === "type-size" && e.selector.includes("main"),
 	);
-	assert.ok(
-		specimen?.selector.includes("[data-specimen]"),
-		"a bare main is no specimen",
-	);
+	assert.equal(specimen?.selector, "main[data-specimen]");
 	assert.ok(
 		EXCEPTIONS.every((e) => !e.selector.includes("min-h-screen")),
 		"no exception keys on a page's min-h-screen",
@@ -105,11 +102,8 @@ test("the grid exceptions' tokens survive what a component merges over them", ()
 			assert.ok(tokens(classes).includes(token), `${token} in ${classes}`);
 		}
 	}
-	// Every grid exception is among the markers merged above.
-	for (const e of EXCEPTIONS.filter((one) => one.rule === "align-grid")) {
-		assert.ok(
-			drawn.some(([marker]) => marker === e.classes),
-			`${e.classes} is merged above`,
-		);
-	}
+	const grids = EXCEPTIONS.filter((e) => e.rule === "align-grid").map(
+		(e) => e.classes,
+	);
+	assert.deepEqual(grids, [ROWS_HOST, SUBGRID]);
 });

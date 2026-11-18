@@ -149,7 +149,7 @@ export interface ChoiceSegment<V extends string = string> {
 }
 
 // A radio's dot grows from nothing on `fast` and shrinks on `instant`.
-export const RADIO_DOT =
+const RADIO_DOT =
 	"transition-[scale] duration-fast ease-out data-starting-style:scale-0 data-ending-style:scale-0 data-ending-style:duration-instant";
 
 // A single-choice option's radio: a ring at the box's size, the chosen one

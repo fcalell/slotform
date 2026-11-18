@@ -111,7 +111,7 @@ The subpaths:
   after it, `levelUnit(unit)`, whether a unit never sums (`%`, `°C`) so its chart is a level, and
   `unitOf(unit, count)`, a unit's word at the figure it follows (a word, or `{ one, other }`).
 - `@fcalell/ui-core/clock`: what a clock-read part draws, as functions of its times and now:
-  `timeLeft`, a `PendingAttempt` with `pendingAttempt` and `pendingShare` (a `Banner` with `until`'s clock
+  `timeLeft`, `trackTime` (a time as `3:07`), a `PendingAttempt` with `pendingAttempt` and `pendingShare` (a `Banner` with `until`'s clock
   and fill), and an ISO moment's age: `ageOf` (its value and unit), `ageWords` (long) and `ageShort`
   (a row's "2 min"). Both plugins tick `now` from one shared clock.
 - `@fcalell/ui-core/roster`: the component roster as data (`STATES`,
@@ -137,7 +137,7 @@ The subpaths:
 - `@fcalell/ui-core/window`: how a long collection windows: `windowEntries`, `ranged`, `pagesCovering`, `VIRTUAL_FROM` and `OVERSCAN`.
 - `@fcalell/ui-core/drag`: drag and drop, free of any framework: when a press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands (`movedTo`, `moveOf`, `stepOf`, `moveEntry`), how deep a drag stands in a scroller's edge band and the distance a frame carries it there (`edgeDepth`, `edgeSpeed`), the band's entry and steps (`bandAt`) and the drop a drag is accepted by (`accepts`).
 - `@fcalell/ui-core/waveform`: a waveform's arithmetic: the peaks reduced to columns (`columns`), the moment a pointer or key names (`momentAt`, `seekKey`, `shareOf`) and the keyboard's steps (`SEEK`).
-- `@fcalell/ui-core/player`: the audio player's rules, free of the sound: `createPlayer` over an `Output` an app passes, `windowQueue`, `trackTime`, `keyOf`, `neighbour` and `shortcut`, with `QueueProvider` and the player's types.
+- `@fcalell/ui-core/player`: the audio player's rules, free of the sound: `createPlayer` over a `PlayerHost`, the store an app connects its `Engine` to (the `Engine` makes the `Output`), `windowQueue`, `keyOf`, `neighbour` and `shortcut`, with `QueueProvider` and the player's types.
 - `@fcalell/ui-core/qr`: `qrModules`, a QR code's modules as one SVG path, so both platforms draw the same code.
 - `@fcalell/ui-core/manifest`: `uiCoreGuide`, the package's `guide/` pages with their load
   triggers, which react-ui and native-ui contribute to `cliSlots.guide`.

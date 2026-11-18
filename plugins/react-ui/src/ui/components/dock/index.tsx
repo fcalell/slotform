@@ -1,6 +1,7 @@
+import { trackTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Track } from "@fcalell/ui-core/descriptors";
-import { shortcut, trackTime } from "@fcalell/ui-core/player";
+import { shortcut } from "@fcalell/ui-core/player";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	DOCK,

@@ -43,7 +43,7 @@ export const gateEntry: RosterEntry = {
 	},
 };
 
-export const FILL_FADE = "transition-[background-color] duration-base ease-out";
+const FILL_FADE = "transition-[background-color] duration-base ease-out";
 
 // One segment of an onboarding step count at the meter's height, a gap: the steps
 // done and the current one in the meta ink, the later ones a wash; never the

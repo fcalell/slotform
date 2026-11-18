@@ -65,13 +65,13 @@ export const barChartEntry: RosterEntry = {
 
 // A bar's fill (`FILL_X` up its column) stands on the baseline, and `--stack`
 // lifts a stacked part over the ones under it.
-export const FILL_Y =
+const FILL_Y =
 	"origin-bottom scale-y-(--fill) -translate-y-(--stack) starting:scale-y-0 transition-[scale,translate,background-color] [transition-duration:var(--transition-duration-slow),var(--transition-duration-slow),var(--transition-duration-base)] ease-in-out";
 
 // A mark that rides a share of its column (a level's reading in a bar
 // chart) travels the same way down it; the site sets `--travel` (a share of
 // the mark's own box, the column's height).
-export const TRAVEL_Y =
+const TRAVEL_Y =
 	"translate-y-(--travel) transition-[translate] duration-slow ease-in-out";
 
 // One of the four bands the plot's height splits into, its top a gridline

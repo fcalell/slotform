@@ -69,7 +69,7 @@ export interface Matrix<T extends Axes> {
 
 // A variant's props: docs/architecture/ui-core/roster.md, "Variants".
 // cva keeps its prop types in a `types` module the emit would import by path, which fails where the package is built inside a pnpm virtual store.
-export type ClassProp =
+type ClassProp =
 	| { class: ClassValue; className?: never }
 	| { class?: never; className: ClassValue }
 	| { class?: never; className?: never };

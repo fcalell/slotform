@@ -325,7 +325,24 @@ const CONTROLS: Record<
 		splits: false,
 	},
 };
-const KINDS = Object.keys(CONTROLS) as ControlKind[];
+// The order is the precedence: the first kind whose descriptor is set draws the
+// field. `satisfies` rejects an extra kind; `Listed` on `KINDS` rejects a missing one.
+const PRECEDENCE = [
+	"input",
+	"textArea",
+	"picker",
+	"switch",
+	"checkbox",
+	"slider",
+	"options",
+	"segments",
+] as const satisfies readonly ControlKind[];
+type Listed<L extends readonly ControlKind[]> = [
+	Exclude<ControlKind, L[number]>,
+] extends [never]
+	? L
+	: never;
+const KINDS: Listed<typeof PRECEDENCE> = PRECEDENCE;
 
 // The field's form follows which descriptor is set: a switch or a checkbox at
 // the value line's end, any other filling it; a slider's head is its own

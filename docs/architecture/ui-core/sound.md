@@ -13,7 +13,8 @@ A track is a descriptor (`Track`, with `Peaks`), so a record that plays is data 
 
 What both platforms run lives in ui-core, free of any framework and of the sound:
 
-- `@fcalell/ui-core/player`: the player's rules (a time as worded, `trackTime`; the queue's
+- `@fcalell/ui-core/clock` holds `trackTime`, a time as the dock words it (`3:07`, `1:02:03`).
+- `@fcalell/ui-core/player`: the player's rules (the queue's
   neighbours, `neighbour`; the global `shortcut`s) and the store itself. `createPlayer` holds the
   track, its queue or `QueueProvider`, the play state, the volume, the clock and the rules that move
   them (Previous returns to the track's start past `PREVIOUS_RESTART`, 3 seconds in). It drives the

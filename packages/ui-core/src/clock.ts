@@ -1,7 +1,17 @@
 // What a clock-read part draws: docs/architecture/ui-core/reads.md, "Clock".
 
-import { trackTime } from "./player.ts";
 import { createStore } from "./store.ts";
+
+// A time as the dock draws it: `3:07`, and `1:02:03` from an hour.
+export function trackTime(seconds: number): string {
+	const whole = Math.max(0, Math.floor(Number.isFinite(seconds) ? seconds : 0));
+	const hours = Math.floor(whole / 3600);
+	const minutes = Math.floor((whole % 3600) / 60);
+	const rest = String(whole % 60).padStart(2, "0");
+	return hours > 0
+		? `${hours}:${String(minutes).padStart(2, "0")}:${rest}`
+		: `${minutes}:${rest}`;
+}
 
 // A pending run's toward one `until`: it began at `start` with `from` of
 // the track already filled.

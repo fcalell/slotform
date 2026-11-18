@@ -1,9 +1,6 @@
 // The contrast tests' measure of a resolved color as a browser paints it.
 import assert from "node:assert/strict";
 import { type Oklch, oklchToRgb } from "../oklch.ts";
-import { CONTRAST_GROUNDS } from "../tokens.ts";
-
-export const GROUNDS = CONTRAST_GROUNDS;
 
 export const parse = (value: string): Oklch & { alpha: number } => {
 	const match = /oklch\(([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)/.exec(

@@ -7,17 +7,6 @@ import { clamp, SEEK } from "./waveform.ts";
 // it goes to the track before.
 const PREVIOUS_RESTART = 3;
 
-// A time as the dock draws it: `3:07`, and `1:02:03` from an hour.
-export function trackTime(seconds: number): string {
-	const whole = Math.max(0, Math.floor(Number.isFinite(seconds) ? seconds : 0));
-	const hours = Math.floor(whole / 3600);
-	const minutes = Math.floor((whole % 3600) / 60);
-	const rest = String(whole % 60).padStart(2, "0");
-	return hours > 0
-		? `${hours}:${String(minutes).padStart(2, "0")}:${rest}`
-		: `${minutes}:${rest}`;
-}
-
 export const keyOf = (track: Track): string => track.key ?? track.src;
 
 // The track `delta` places from `track` in the queue, none past either end (and
