@@ -96,14 +96,13 @@ export function createClient<TRouter>(
 				...init,
 				credentials: config?.credentials ?? "include",
 			});
-			// Never let a capture failure break the response passed back to the RPC link.
 			try {
 				captureEntityHeaders(
 					pathKeyFromRequestUrl(request.url, urlNow()),
 					response.headers,
 				);
 			} catch {
-				// Capture is best-effort; the response must pass through untouched.
+				// Capture is best-effort: a failure never breaks the response.
 			}
 			// A read's not found travels as a success status (see the worker);
 			// oRPC decodes an error from the status, so the 404 goes back on.

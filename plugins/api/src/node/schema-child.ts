@@ -2,13 +2,14 @@ import { registerHooks } from "node:module";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { routerSchema } from "../schema.ts";
+import { PROCEDURE_FILE, WORKER_FILE } from "./types.ts";
 
 // The child `stack generate` runs to read the router: docs/architecture/plugins/api.md, "Schema".
 // It prints the schema as JSON; a failure prints to stderr and exits 1.
 const [cwd] = process.argv.slice(2);
 if (cwd === undefined) throw new Error("schema-child: no project directory");
 
-const procedure = pathToFileURL(join(cwd, ".stack/procedure.ts")).href;
+const procedure = pathToFileURL(join(cwd, PROCEDURE_FILE)).href;
 registerHooks({
 	resolve: (specifier, context, next) =>
 		next(
@@ -19,7 +20,7 @@ registerHooks({
 
 try {
 	const { default: worker } = (await import(
-		pathToFileURL(join(cwd, ".stack/worker.ts")).href
+		pathToFileURL(join(cwd, WORKER_FILE)).href
 	)) as { default: { _router: unknown } };
 	process.stdout.write(JSON.stringify(routerSchema(worker._router)));
 } catch (error) {

@@ -30,7 +30,7 @@ export interface WindowOptions<C = object, K extends string = string> {
 	/** The caller's order, a procedure's `input.sort`: it replaces `orderBy` with what `sorts` maps its key to, so a Table's header sort reaches the query. */
 	sort?: SortInput<K> | undefined;
 	/** What each sort key orders by: a column, or an expression (`sql\`${tasks.title} collate nocase\``). A key not named here sorts by the column of `idColumn`'s table of that name. */
-	sorts?: Record<K, Orderable>;
+	sorts?: Partial<Record<K, Orderable>>;
 	idColumn: SQLiteColumn;
 	columns?: C;
 	/** The page's first row, a procedure's `input.offset`. */

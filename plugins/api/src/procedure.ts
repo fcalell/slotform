@@ -1,6 +1,6 @@
 import { ORPCError, os } from "@orpc/server";
 import { z } from "zod";
-import { DEFAULT_LIMIT, LIMIT_CEILING } from "./lib/cursor.ts";
+import { DEFAULT_LIMIT, LIMIT_CEILING, MAX_LIMIT } from "./lib/limits.ts";
 import type { Procedure } from "./types.ts";
 import {
 	ENTITY_NAME_RE,
@@ -222,59 +222,50 @@ type OutputSides<TSchema extends z.ZodType> = Sides<
 	z.input<TSchema>
 >;
 
-interface ProcedureWithInputOutput<
+type TerminalName = "handler" | "query" | "mutation";
+
+// The terminals of a procedure whose handler's return types its output.
+type Terminals<TContext, TInput extends AnySides> = Record<
+	TerminalName,
+	<TOutput>(
+		fn: (
+			opts: HandlerOptions<TContext, TInput["handler"]>,
+		) => Promisable<TOutput>,
+	) => Procedure<TInput["client"], TOutput, TInput["scope"]>
+>;
+
+// The terminals of a procedure whose output schema types its output.
+type OutputTerminals<
 	TContext,
 	TInput extends AnySides,
 	TOutput extends AnySides,
-> {
-	handler(
+> = Record<
+	TerminalName,
+	(
 		fn: (
 			opts: HandlerOptions<TContext, TInput["handler"]>,
 		) => Promisable<TOutput["handler"]>,
-	): Procedure<TInput["client"], TOutput["client"], TInput["scope"]>;
+	) => Procedure<TInput["client"], TOutput["client"], TInput["scope"]>
+>;
 
-	query(
-		fn: (
-			opts: HandlerOptions<TContext, TInput["handler"]>,
-		) => Promisable<TOutput["handler"]>,
-	): Procedure<TInput["client"], TOutput["client"], TInput["scope"]>;
+type ProcedureWithInputOutput<
+	TContext,
+	TInput extends AnySides,
+	TOutput extends AnySides,
+> = OutputTerminals<TContext, TInput, TOutput>;
 
-	mutation(
-		fn: (
-			opts: HandlerOptions<TContext, TInput["handler"]>,
-		) => Promisable<TOutput["handler"]>,
-	): Procedure<TInput["client"], TOutput["client"], TInput["scope"]>;
-}
-
-interface ProcedureWithInput<TContext, TInput extends AnySides> {
+interface ProcedureWithInput<TContext, TInput extends AnySides>
+	extends Terminals<TContext, TInput> {
 	output<TSchema extends z.ZodType>(
 		schema: TSchema,
 	): ProcedureWithInputOutput<TContext, TInput, OutputSides<TSchema>>;
-
-	handler<TOutput>(
-		fn: (
-			opts: HandlerOptions<TContext, TInput["handler"]>,
-		) => Promisable<TOutput>,
-	): Procedure<TInput["client"], TOutput, TInput["scope"]>;
-
-	query<TOutput>(
-		fn: (
-			opts: HandlerOptions<TContext, TInput["handler"]>,
-		) => Promisable<TOutput>,
-	): Procedure<TInput["client"], TOutput, TInput["scope"]>;
-
-	mutation<TOutput>(
-		fn: (
-			opts: HandlerOptions<TContext, TInput["handler"]>,
-		) => Promisable<TOutput>,
-	): Procedure<TInput["client"], TOutput, TInput["scope"]>;
 }
 
 interface ProcedureWithOutput<
 	TContext,
 	TBaseInput extends AnySides,
 	TOutput extends AnySides,
-> {
+> extends OutputTerminals<TContext, TBaseInput, TOutput> {
 	input<TSchema extends z.ZodType>(
 		schema: TSchema,
 	): ProcedureWithInputOutput<
@@ -282,30 +273,12 @@ interface ProcedureWithOutput<
 		MergedInput<TBaseInput, TSchema>,
 		TOutput
 	>;
-
-	handler(
-		fn: (
-			opts: HandlerOptions<TContext, TBaseInput["handler"]>,
-		) => Promisable<TOutput["handler"]>,
-	): Procedure<TBaseInput["client"], TOutput["client"], TBaseInput["scope"]>;
-
-	query(
-		fn: (
-			opts: HandlerOptions<TContext, TBaseInput["handler"]>,
-		) => Promisable<TOutput["handler"]>,
-	): Procedure<TBaseInput["client"], TOutput["client"], TBaseInput["scope"]>;
-
-	mutation(
-		fn: (
-			opts: HandlerOptions<TContext, TBaseInput["handler"]>,
-		) => Promisable<TOutput["handler"]>,
-	): Procedure<TBaseInput["client"], TOutput["client"], TBaseInput["scope"]>;
 }
 
 export interface ProcedureBuilder<
 	TContext extends Record<string, unknown>,
 	TBaseInput extends AnySides,
-> {
+> extends Terminals<TContext, TBaseInput> {
 	use<TExtra extends Record<string, unknown>>(
 		middleware: Middleware<TContext, TExtra>,
 	): ProcedureBuilder<TContext & TExtra, TBaseInput>;
@@ -317,24 +290,6 @@ export interface ProcedureBuilder<
 	output<TSchema extends z.ZodType>(
 		schema: TSchema,
 	): ProcedureWithOutput<TContext, TBaseInput, OutputSides<TSchema>>;
-
-	handler<TOutput>(
-		fn: (
-			opts: HandlerOptions<TContext, TBaseInput["handler"]>,
-		) => Promisable<TOutput>,
-	): Procedure<TBaseInput["client"], TOutput, TBaseInput["scope"]>;
-
-	query<TOutput>(
-		fn: (
-			opts: HandlerOptions<TContext, TBaseInput["handler"]>,
-		) => Promisable<TOutput>,
-	): Procedure<TBaseInput["client"], TOutput, TBaseInput["scope"]>;
-
-	mutation<TOutput>(
-		fn: (
-			opts: HandlerOptions<TContext, TBaseInput["handler"]>,
-		) => Promisable<TOutput>,
-	): Procedure<TBaseInput["client"], TOutput, TBaseInput["scope"]>;
 }
 
 export type ProcedureFactory<
@@ -619,9 +574,6 @@ function createEntityHeadersMiddleware(
 	};
 }
 
-// What a paginated procedure accepts unless it names its own `maxLimit`.
-const MAX_LIMIT = 100;
-
 // The input a paginated procedure adds: the page (a cursor, or an offset) and
 // its size, and the sort when columns are declared. A `maxLimit` below the
 // default limit lowers the default with it.
@@ -631,10 +583,6 @@ function pageShape(opts: BaseOptions): z.ZodRawShape {
 		throw new Error(
 			`procedure(): \`maxLimit\` is a whole number from 1 to ${LIMIT_CEILING}, got ${max}`,
 		);
-	}
-	const sort = opts.sort;
-	if (sort && opts.paginated !== true && opts.paginated !== "window") {
-		throw new Error("procedure(): `sort` needs `paginated`");
 	}
 	return {
 		...(opts.paginated === "window"
@@ -646,11 +594,11 @@ function pageShape(opts: BaseOptions): z.ZodRawShape {
 			.min(1)
 			.max(max)
 			.default(Math.min(DEFAULT_LIMIT, max)),
-		...(sort
+		...(opts.sort
 			? {
 					sort: z
 						.object({
-							column: z.enum(sort),
+							column: z.enum(opts.sort),
 							direction: z.enum(["asc", "desc"]),
 						})
 						.optional(),
@@ -785,20 +733,18 @@ function createBuilder<
 	TBaseInput extends AnySides,
 >(state: BuilderState): ProcedureBuilder<TContext, TBaseInput> {
 	const { chain, baseShape, scope } = state;
-	const hasBaseShape = baseShape !== null;
 
-	function terminate(fn: OrpcHandlerFn): OrpcTerminal {
-		if (hasBaseShape) {
-			const schema = z.object(baseShape);
-			return chain.input(schema).handler(fn);
-		}
-		return chain.handler(fn);
+	// The end of a chain no `.input()` was called on: the config's own keys,
+	// when it adds any, are the input.
+	function terminate(on: OrpcChain) {
+		return (fn: OrpcHandlerFn): OrpcTerminal =>
+			(baseShape === null ? on : on.input(z.object(baseShape))).handler(fn);
 	}
 
+	// `.handler()` is a mutation under another name.
 	function terminals(end: (fn: OrpcHandlerFn) => OrpcTerminal) {
 		return {
-			handler: (fn: OrpcHandlerFn) =>
-				scope ? end(fn).meta({ scope }) : end(fn),
+			handler: (fn: OrpcHandlerFn) => stamp(end(fn), "mutation", scope),
 			query: (fn: OrpcHandlerFn) => stamp(end(fn), "query", scope),
 			mutation: (fn: OrpcHandlerFn) => stamp(end(fn), "mutation", scope),
 		};
@@ -839,13 +785,6 @@ function createBuilder<
 
 		output(outputSchema: z.ZodType) {
 			const withOutputChain = chain.output(outputSchema);
-			const runOutput = (fn: OrpcHandlerFn) => {
-				if (hasBaseShape) {
-					const schema = z.object(baseShape);
-					return withOutputChain.input(schema).handler(fn);
-				}
-				return withOutputChain.handler(fn);
-			};
 			const withOutput = {
 				input(inputSchema: z.ZodType) {
 					const innerChain = withOutputChain.input(
@@ -854,7 +793,7 @@ function createBuilder<
 					const run = (fn: OrpcHandlerFn) => innerChain.handler(fn);
 					return terminals(run);
 				},
-				...terminals(runOutput),
+				...terminals(terminate(withOutputChain)),
 			};
 			// Same boundary as in `input()` above.
 			return withOutput as unknown as ProcedureWithOutput<
@@ -864,7 +803,7 @@ function createBuilder<
 			>;
 		},
 
-		...terminals(terminate),
+		...terminals(terminate(chain)),
 	};
 
 	// Final boundary: this literal satisfies every method required by
@@ -933,6 +872,9 @@ export function createProcedure<
 		}
 
 		const isPaginated = opts.paginated === true || opts.paginated === "window";
+		if (opts.sort && !isPaginated) {
+			throw new Error("procedure(): `sort` needs `paginated`");
+		}
 		let baseShape: z.ZodRawShape | null = null;
 		if (scope || isPaginated) {
 			baseShape = {

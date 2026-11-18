@@ -17,11 +17,9 @@ import {
 } from "drizzle-orm";
 import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import { ApiError } from "../error.ts";
+import { DEFAULT_LIMIT, LIMIT_CEILING } from "./limits.ts";
 
-export const DEFAULT_LIMIT = 20;
-// What no procedure may name as its `maxLimit`: a page this large is a table
-// scan the client asked for by mistake.
-export const LIMIT_CEILING = 10_000;
+export { DEFAULT_LIMIT, LIMIT_CEILING } from "./limits.ts";
 
 export type Direction = "asc" | "desc";
 
@@ -54,7 +52,9 @@ function toWire(value: CursorValue): unknown {
 function fromWire(value: unknown): CursorValue | undefined {
 	if (typeof value === "object" && value !== null && "$date" in value) {
 		const at = (value as { $date: unknown }).$date;
-		return typeof at === "number" ? new Date(at) : undefined;
+		if (typeof at !== "number") return undefined;
+		const date = new Date(at);
+		return Number.isNaN(date.getTime()) ? undefined : date;
 	}
 	return value === null ||
 		typeof value === "string" ||
@@ -126,7 +126,7 @@ export interface PageOptions<C = object, K extends string = string> {
 	/** The caller's order, a procedure's `input.sort`: it replaces `orderBy` with the ordering `sorts` maps its key to (else the column of `idColumn`'s table it names), so a Table's header sort reaches the query. */
 	sort?: SortInput<K> | undefined;
 	/** The ordering each sort key stands for, where a key is not a column's name. */
-	sorts?: Sorts<K>;
+	sorts?: Partial<Sorts<K>>;
 	idColumn: SQLiteColumn;
 	columns?: C;
 }
@@ -163,11 +163,12 @@ function orderOf(options: PageOptions<unknown, string>): Order[] {
 // that name. Own keys only, so `constructor` is not a column.
 export function sortOf(
 	key: string,
-	sorts: Readonly<Record<string, Orderable>> | undefined,
+	sorts: Readonly<Partial<Record<string, Orderable>>> | undefined,
 	idColumn: SQLiteColumn,
 ): Orderable | undefined {
-	const from = sorts ?? getTableColumns(idColumn.table);
-	return Object.hasOwn(from, key) ? (from[key] as Orderable) : undefined;
+	if (sorts !== undefined && Object.hasOwn(sorts, key)) return sorts[key];
+	const columns = getTableColumns(idColumn.table);
+	return Object.hasOwn(columns, key) ? columns[key] : undefined;
 }
 
 function isColumn(value: Orderable): value is SQLiteColumn {
@@ -187,6 +188,20 @@ function keysOf(orders: readonly Order[], idColumn: SQLiteColumn): string[] {
 	});
 }
 
+// What a cursor value of each column data type is: a value of another type
+// would reach the driver, which refuses to bind it. A type not listed here is
+// not judged.
+const FITS: Partial<Record<string, (value: CursorValue) => boolean>> = {
+	string: (value) => typeof value === "string",
+	number: (value) => typeof value === "number",
+	boolean: (value) => typeof value === "boolean",
+	date: (value) => value instanceof Date,
+};
+
+function fits(column: SQLiteColumn, value: CursorValue): boolean {
+	return value === null || (FITS[column.dataType]?.(value) ?? true);
+}
+
 // The rows strictly after the cursor's, in order, as keyset segments read one
 // after another. Within a segment, for columns c1..cn and id, (c1 > v1) or
 // (c1 = v1 and c2 > v2) or ... or (all equal and id > vid), each `>` a `<` in a
@@ -201,7 +216,10 @@ function segments(
 	idColumn: SQLiteColumn,
 	cursor: { values: readonly CursorValue[]; id: string },
 ): SQL[] {
-	if (cursor.values.length !== orders.length) {
+	if (
+		cursor.values.length !== orders.length ||
+		orders.some((order, at) => !fits(order.column, cursor.values[at] ?? null))
+	) {
 		throw new ApiError("BAD_REQUEST", { message: "Invalid cursor" });
 	}
 	const steps = [

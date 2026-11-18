@@ -1,5 +1,5 @@
-import { and, inArray, notInArray, type SQL, sql } from "drizzle-orm";
-import type { SQLiteColumn, SQLiteTable } from "drizzle-orm/sqlite-core";
+import { and, type SQL, sql } from "drizzle-orm";
+import type { SQLiteColumn } from "drizzle-orm/sqlite-core";
 import type { Selector } from "../schema.ts";
 
 export interface ChosenOptions<Q> {
@@ -9,37 +9,23 @@ export interface ChosenOptions<Q> {
 	where: (query: Q) => SQL | undefined;
 }
 
-/** The rows a selector names, as a where clause: `{ ids }` those rows, `{ query, except }` every row the query matches but the excepted. A D1 statement binds at most 100 values, so a long `ids` or `except` is read in batches by the caller. */
+// A D1 statement binds at most 100 values, so a list of ids travels as one
+// JSON value that `json_each` expands.
+function idList(ids: readonly string[]): SQL {
+	return sql`(select value from json_each(${JSON.stringify(ids)}))`;
+}
+
+/** The rows a selector names, as a where clause: `{ ids }` those rows, `{ query, except }` every row the query matches but the excepted. Each list binds one value, whatever its length. */
 export function chosenWhere<Q>(
 	selection: Selector<Q>,
 	options: ChosenOptions<Q>,
 ): SQL {
 	const { id } = options;
-	if ("ids" in selection) return inArray(id, selection.ids);
+	if ("ids" in selection) return sql`${id} in ${idList(selection.ids)}`;
 	const matching = options.where(selection.query);
 	const kept =
-		selection.except.length > 0 ? notInArray(id, selection.except) : undefined;
+		selection.except.length > 0
+			? sql`${id} not in ${idList(selection.except)}`
+			: undefined;
 	return and(matching, kept) ?? sql`1 = 1`;
-}
-
-interface Selecting {
-	select(fields: { id: SQLiteColumn }): {
-		from(table: SQLiteTable): {
-			where(where: SQL): PromiseLike<{ id: string }[]>;
-		};
-	};
-}
-
-/** The ids a selector names: its own for `{ ids }`, the matching rows' less the excepted for `{ query, except }`. */
-export async function chosenIds<Q>(
-	db: Selecting,
-	selection: Selector<Q>,
-	options: ChosenOptions<Q>,
-): Promise<string[]> {
-	if ("ids" in selection) return selection.ids;
-	const rows = await db
-		.select({ id: options.id })
-		.from(options.id.table as SQLiteTable)
-		.where(chosenWhere(selection, options));
-	return rows.map((row) => row.id);
 }

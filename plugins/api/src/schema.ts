@@ -61,16 +61,18 @@ function jsonSchema(schema: z.ZodType): JsonSchema {
 	}) as JsonSchema;
 }
 
-function takesNoInput(schema: z.ZodType | undefined): schema is undefined {
-	if (schema === undefined) return true;
+// An input of `undefined` or `void`, or none, is the empty object.
+function inputSchemaOf(schema: z.ZodType | undefined): JsonSchema {
+	if (schema === undefined) return { type: "object" };
 	const type = schema._zod.def.type;
-	return type === "undefined" || type === "void";
+	return type === "undefined" || type === "void"
+		? { type: "object" }
+		: jsonSchema(schema);
 }
 
 /** A procedure's zod input as the JSON Schema of an object, dates as `date-time` strings; an input of `undefined` or `void`, or none, is the empty object. Throws when a part has no JSON Schema form or the input is not an object. */
 export function inputJsonSchema(schema: z.ZodType | undefined): JsonSchema {
-	if (takesNoInput(schema)) return { type: "object" };
-	const json = jsonSchema(schema);
+	const json = inputSchemaOf(schema);
 	if (json.type !== "object") {
 		throw new Error("its input is not an object schema");
 	}
@@ -100,9 +102,7 @@ export function routerSchema(routes: unknown): Record<string, ProcedureSchema> {
 			const def = node["~orpc"];
 			const schema = def.inputSchema as z.ZodType | undefined;
 			try {
-				const json = takesNoInput(schema)
-					? { type: "object" }
-					: jsonSchema(schema);
+				const json = inputSchemaOf(schema);
 				const { kind, scope } = (def.meta ?? {}) as {
 					kind?: string;
 					scope?: string;

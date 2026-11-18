@@ -4,11 +4,8 @@ import {
 	type TsExpression,
 	type TsImportSpec,
 } from "@fcalell/cli/ast";
-import {
-	type MiddlewareCall,
-	type PluginRuntimeEntry,
-	ROUTES_BARREL_IMPORT_SOURCE,
-} from "./types.ts";
+import { runtimeChain } from "./codegen.ts";
+import type { MiddlewareCall, PluginRuntimeEntry } from "./types.ts";
 
 // Renders `.stack/procedure.ts`, the `virtual:stack-procedure` target: docs/architecture/runtime.md, "The rebuilt chain".
 interface ProcedurePayload {
@@ -16,15 +13,11 @@ interface ProcedurePayload {
 	base: TsExpression;
 	// Same `pluginRuntimes` the real worker uses, in the same (sorted) order.
 	runtimes: PluginRuntimeEntry[];
-	// The full `workerImports` list minus the route barrel: docs/architecture/runtime.md, "The rebuilt chain".
+	// `workerImports` without the consumer files that import this one back: docs/architecture/runtime.md, "The rebuilt chain".
 	imports: TsImportSpec[];
-	// Same `middlewareCalls` the real worker's `.use(...)` chain mounts, in
-	// the same (phase + order sorted) sequence. See the cycle note above.
+	// Same `middlewareCalls` the real worker's chain mounts, in the same order.
 	middlewareChain: MiddlewareCall[];
-	// Imports the middleware call expressions need (e.g. the consumer's
-	// default-exported `middleware` identifier). Never the route barrel — a
-	// middleware file importing the barrel back would itself be a cycle, but
-	// that's a consumer authoring error, not something this codegen guards.
+	// The imports the middleware calls name, without the same files as `imports`.
 	middlewareImports: TsImportSpec[];
 	// RBAC statements from `api.slots.rbacStatements`: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
 	statements: Record<string, readonly string[]> | null;
@@ -59,79 +52,27 @@ function renderStatementsType(
 	return `{\n${entries.join("\n")}\n}`;
 }
 
-// Renders the entity vocabulary as an inline string-literal union — same
-// "plain data, no cross-module type import" approach as
-// `renderStatementsType`. Empty falls back to the domain-agnostic `string`
-// (api stays domain-agnostic; the slot itself already dedupes/sorts contributed
-// names — see `api.slots.entities` — this dedup is defense in depth for a raw
-// `AggregateProcedureInput` caller).
+// The entity vocabulary (sorted and unique, as the slot holds it) as an inline
+// string-literal union, plain data like `renderStatementsType`; `string` when
+// the app names none.
 function renderEntityType(entities: readonly string[]): string {
 	if (entities.length === 0) return "string";
-	const seen = new Set<string>();
-	const literals: string[] = [];
-	for (const name of entities) {
-		if (seen.has(name)) continue;
-		seen.add(name);
-		literals.push(JSON.stringify(name));
-	}
-	if (literals.length === 0) return "string";
-	return literals.join(" | ");
+	return entities.map((name) => JSON.stringify(name)).join(" | ");
 }
 
-// The chain `typeof __chain` infers `TContext` from: docs/architecture/runtime.md, "The rebuilt chain".
-function buildChain(
-	base: TsExpression,
-	runtimes: PluginRuntimeEntry[],
-	middlewareChain: MiddlewareCall[],
-): { chain: TsExpression; imports: TsImportSpec[] } {
-	let chain = base;
-	const imports: TsImportSpec[] = [];
-	for (const rt of runtimes) {
-		imports.push(rt.import);
-		const properties = Object.entries(rt.options).map(([key, value]) => ({
-			key,
-			value,
-		}));
-		const runtimeCall: TsExpression = {
-			kind: "call",
-			callee: { kind: "identifier", name: rt.identifier },
-			args: [{ kind: "object", properties }],
-		};
-		chain = {
-			kind: "call",
-			callee: { kind: "member", object: chain, property: "use" },
-			args: [runtimeCall],
-		};
-	}
-	for (const mw of middlewareChain) {
-		chain = {
-			kind: "call",
-			callee: { kind: "member", object: chain, property: mw.method },
-			args: [mw.call],
-		};
-	}
-	return { chain, imports };
-}
-
-export function aggregateProcedure(payload: ProcedurePayload): string | null {
-	const { chain, imports: runtimeImports } = buildChain(
+export function aggregateProcedure(payload: ProcedurePayload): string {
+	const { chain, imports: runtimeImports } = runtimeChain(
 		payload.base,
 		payload.runtimes,
 		payload.middlewareChain,
-	);
-
-	const auxiliaryImports = payload.imports.filter(
-		(imp) => imp.source !== ROUTES_BARREL_IMPORT_SOURCE,
-	);
-	const middlewareImports = payload.middlewareImports.filter(
-		(imp) => imp.source !== ROUTES_BARREL_IMPORT_SOURCE,
+		{},
 	);
 
 	const importsText = renderTsSourceFile({
 		imports: dedupeImports([
-			...auxiliaryImports,
+			...payload.imports,
 			...runtimeImports,
-			...middlewareImports,
+			...payload.middlewareImports,
 			APP_BUILDER_IMPORT,
 			CREATE_PROCEDURE_IMPORT,
 		]),

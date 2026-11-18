@@ -64,7 +64,9 @@ write on null, so a worker-only or no-routes project never gets a header-only st
 derivation has no slot inputs: it reads `ctx.cwd` through `generateRouteBarrel` and
 `hasRoutableFiles`, because the routes directory is the consumer's source tree, not slot data.
 `routesHandler` shares the `hasRoutableFiles` predicate, so the import, the handler and the barrel
-agree.
+agree. Under `stack dev` a watcher rewrites the barrel when a route file is added or removed, an
+emptied directory included: the running worker imports the barrel until the next generate, so the
+last route's removal leaves a header-only barrel rather than an import of a deleted file.
 
 The layout rules:
 
@@ -142,7 +144,7 @@ otherwise), while `undefined` is allowed for a non-browser worker that needs no 
 **Local origins** are the local-dev hostnames in `lib/local-origin.ts`. An origin matching one is a
 dev origin wherever it appears: the `cors` derivation strips it from the baked production list and
 `devCorsOrigins` picks it up. The match runs against `new URL(origin).hostname`, and `URL` keeps IPv6
-brackets on `.hostname` (`[::1]`, not `::1`), so the bracketed form is listed too.
+brackets on `.hostname` (`[::1]`, not `::1`), so the list holds the bracketed form.
 
 `api.slots.localOrigins` says where the local origins of `app.origins` belong. `dev`: they are dev
 origins, stripped from the deployed list and re-admitted under `STACK_DEV`, so a deployed worker never
@@ -183,11 +185,10 @@ short-circuits. The effective allow-list is resolved per request, not at constru
 apply only under `STACK_DEV`, the origin of the listener a request came in on (`STACK_ORIGIN`) is
 always its own, and the same list backs `isForbiddenOrigin`.
 
-`isForbiddenOrigin` is the CSRF guard for state-changing raw routes, which bypass the RPC tree's
-JSON content-type check (a multipart R2 upload). It is true when the request carries a browser Origin
-that is not on the effective allow-list. That list holds the dev origins only under `STACK_DEV`, and
-it is empty on a worker configured without CORS, so there no browser Origin passes. A request with no
-Origin passes: a browser cannot drive one cross-site, and the native client sends none.
+`isForbiddenOrigin`, the CSRF guard for state-changing raw routes, follows the rule in
+[middleware](../../../plugins/api/guide/middleware.md) over the effective allow-list, which holds the
+dev origins only under `STACK_DEV` and is empty on a worker configured without CORS, so there no
+browser Origin passes.
 
 ## Env vars
 
@@ -209,8 +210,9 @@ pointed at a real URL, and the check is the canary for a deploy that shipped the
 
 The worker export's `checkEnv(env)` throws one error naming every env var the app needs and the env lacks or
 holds wrong (the baked checks and each runtime plugin's `validateEnv`). The Node server calls it before
-it listens, so a missing `AUTH_SECRET` stops the boot. A Worker has no start, so its first request runs
-the same checks, once per isolate: a failed run sets no flag, so a misconfigured isolate keeps failing.
+it listens, so a missing `AUTH_SECRET` stops the boot. A Worker has no start, so a request runs the
+same checks: the baked checks once per isolate (a failed run sets no flag, so a misconfigured isolate
+keeps failing), each runtime plugin's `validateEnv` on every request and every job.
 
 ## Rate limiting
 
@@ -221,8 +223,8 @@ with the auth surface's `RATE_LIMITER_IP` and `RATE_LIMITER_EMAIL` or with a pro
 `rateLimit: "ip"` middleware: a shared binding would double-draw one budget (halving the limit for a
 procedure that also declares `rateLimit: "ip"`) and let `/rpc` volume starve `/api/auth`'s budget.
 
-It is a fixed ceiling, not a consumer option: 1000 requests per 60 s per IP, far above any legitimate
-single client, low enough to catch a runaway retry loop or a scraper, and sized so a shared
+It is a fixed per-IP ceiling, set where plugin-cloudflare provisions the binding and not a consumer
+option: far above any legitimate single client, low enough to catch a runaway retry loop or a scraper, and sized so a shared
 carrier-NAT IP (a mobile network, a corporate proxy) never trips it. It runs in production only, and
 skips when no `RATE_LIMITER_RPC` binding is present (a worker-only project that has not run
 `wrangler types` or deployed the binding). A deploy with no api has no `/rpc` tree to limit.
@@ -442,16 +444,13 @@ router type: the import puts the module in the program, which an augmentation al
 is registered yet, so the first client created wins; an explicit `registerApiClient` call always
 overwrites, whatever the order. The registered client is what `useAbility()` fetches the org rules
 through, so the hook needs no wiring in the common case of one client per app. The entity registry
-`client.ts` and the query plugin's query client share by default is the same kind of module-level
-singleton; a test that needs isolation from other tests' captured headers builds its own with
-`createEntityRegistry()`.
+`client.ts` and the query plugin's query client share is the same kind of module-level singleton.
 
 Both singletons assume one client and one user for the lifetime of the JS isolate (CSR in a browser
 tab, a native app's single runtime); neither is per request. An SSR target that reuses an isolate
-across requests and users (Node, most non-Workers SSR runtimes) must not rely on them: user A's
+across requests and users (Node, most non-Workers SSR runtimes) cannot rely on them: user A's
 captured entity headers could drive user B's cache invalidation, and a request from user A could read
-user B's client. Such a consumer calls `registerApiClient` within each request's scope (or threads the
-client explicitly) and builds a request-scoped registry with `createEntityRegistry()`.
+user B's client.
 
 oRPC's TanStack Query utils tag every call with an operation context (`queryOptions` is `query`,
 `mutationOptions` is `mutation`) under a symbol `@orpc/tanstack-query` exports. That package is the
@@ -507,13 +506,21 @@ the worker is built. What `generate` checks is in [mcp](../../../plugins/api/gui
 
 - `plugins/api/src/index.ts`: the plugin, its slots, the CORS, env and entity derivations, the
   generated-file contributions.
-- `plugins/api/src/node/types.ts`: the routes barrel import source and the callback attachment types.
+- `plugins/api/src/node/types.ts`: the generated files' and the routes barrel's paths, the payload
+  and callback attachment types.
+- `plugins/api/src/node/codegen.ts`: `.stack/worker.ts`, the runtime chain both generated files
+  build, the middleware mount order.
 - `plugins/api/src/node/barrel.ts`: the route barrel's layout rules and rendering.
 - `plugins/api/src/node/procedure-codegen.ts`: `.stack/procedure.ts`, the `Entity` type.
+- `plugins/api/src/node/schema-source.ts`: `.stack/schema.ts`, read from the router in a child process.
 - `plugins/api/src/node/schema-child.ts`: the child process that reads the router's schema.
 - `plugins/api/src/node/server-client.ts`: a client-only app's copies of its server's files.
-- `plugins/api/src/worker/index.ts`: `createWorker`, CORS at runtime, `isForbiddenOrigin`, the
-  content-type check, the `/rpc` limiter, env checks, route-key collisions.
+- `plugins/api/src/worker/index.ts`: `createWorker`, CORS at runtime, the content-type check, env
+  checks, route-key collisions.
+- `plugins/api/src/worker/guards.ts`: `isForbiddenOrigin` and the `/rpc` limiter, which the MCP
+  route draws too.
+- `plugins/api/src/worker/mcp.ts`: the MCP endpoint, its tools and its route.
+- `plugins/api/src/mcp-path.ts`: the path the MCP endpoint answers at.
 - `plugins/api/src/worker/request-log.ts`: the request log without query strings.
 - `plugins/api/src/procedure.ts`: the procedure factory, auth refusals, the entity headers middleware.
 - `plugins/api/src/wire.ts`: the import-free wire contract.
@@ -524,5 +531,8 @@ the worker is built. What `generate` checks is in [mcp](../../../plugins/api/gui
 - `plugins/api/src/not-found.ts`: `isNotFound()`.
 - `plugins/api/src/mcp.ts`: `defineMcp()`.
 - `plugins/api/src/lib/local-origin.ts`: the local-dev hostnames.
+- `plugins/api/src/lib/limits.ts`: a page's size bounds.
 - `plugins/api/src/lib/cursor.ts`: `paginate`, the keyset segments, the cursor wire form, `orderSql`.
 - `plugins/api/src/lib/window.ts`: `paginateWindow`, the id sort and the read by id.
+- `plugins/api/src/lib/chosen.ts`: `chosenWhere`, a selector as a where clause.
+- `plugins/api/src/lib/slugify.ts`: `slugify`, the reserved slugs.

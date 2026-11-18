@@ -57,8 +57,6 @@ export type ScopedRouterClient<T> = {
 			: never;
 };
 
-export type InferRouter<T> = T extends { _router: infer R } ? R : never;
-
 // Env value checks: docs/architecture/plugins/api.md, "Env vars".
 export interface EnvValidation {
 	minLength?: number;

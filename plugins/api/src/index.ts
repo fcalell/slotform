@@ -1,5 +1,3 @@
-import { writeFileSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
 import { join, posix } from "node:path";
 import type { ContributionCtx } from "@fcalell/cli";
 import { plugin, slot } from "@fcalell/cli";
@@ -13,8 +11,13 @@ import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
 import { writeArtifact } from "@fcalell/cli/write-artifact";
 import { z } from "zod";
 import { isLocalOrigin } from "./lib/local-origin.ts";
+import { MCP_PATH } from "./mcp-path.ts";
 import { generateRouteBarrel, hasRoutableFiles } from "./node/barrel.ts";
-import { aggregateMiddleware, aggregateWorker } from "./node/codegen.ts";
+import {
+	aggregateWorker,
+	middlewareCallsOf,
+	middlewareImportsOf,
+} from "./node/codegen.ts";
 import { aggregateProcedure } from "./node/procedure-codegen.ts";
 import { schemaSource } from "./node/schema-source.ts";
 import {
@@ -24,12 +27,18 @@ import {
 	serverTypesSource as renderServerTypes,
 	SERVER_MANIFEST,
 	SERVER_SCHEMA,
+	SERVER_TYPES,
 } from "./node/server-client.ts";
 import {
 	type CallbackSpec,
+	importSource,
 	type MiddlewareCall,
 	type PluginRuntimeEntry,
+	PROCEDURE_FILE,
+	ROUTES_BARREL,
 	ROUTES_BARREL_IMPORT_SOURCE,
+	ROUTES_DIR,
+	WORKER_FILE,
 	type WorkerPayload,
 } from "./node/types.ts";
 import type { EnvSpec } from "./types.ts";
@@ -47,7 +56,7 @@ const envSpecSchema = z.object({
 		.optional(),
 }) satisfies z.ZodType<EnvSpec>;
 
-export const apiOptionsSchema = z.object({
+const apiOptionsSchema = z.object({
 	prefix: z
 		.string()
 		.refine((p) => p.startsWith("/"), {
@@ -75,17 +84,26 @@ export type ApiOptions = z.input<typeof apiOptionsSchema>;
 
 const SOURCE = "api";
 
-// The consumer's MCP definition and the one path it is served at.
+type ParsedOptions = z.output<typeof apiOptionsSchema>;
+
+// The consumer's MCP definition.
 const MCP_FILE = "src/worker/mcp.ts";
-const MCP_PREFIX = "/mcp";
-const MCP_IMPORT_SOURCE = "../src/worker/mcp.ts";
 
 // The background handlers' convention files: a queue consumer and a cron
 // handler, each answering with the plugin context a procedure gets.
 const QUEUE_FILE = "src/worker/queue.ts";
-const QUEUE_IMPORT_SOURCE = "../src/worker/queue.ts";
 const SCHEDULED_FILE = "src/worker/scheduled.ts";
-const SCHEDULED_IMPORT_SOURCE = "../src/worker/scheduled.ts";
+
+// The consumer middleware convention files: docs/architecture/runtime.md, "Middleware".
+const MIDDLEWARE_FILE = "src/worker/middleware.ts";
+const CONTEXT_MIDDLEWARE_FILE = "src/worker/middleware.context.ts";
+
+// The consumer files `.stack/procedure.ts` leaves out: each imports it back,
+// the MCP definition to type itself against the routes and a job handler for
+// `defineQueue`, as the route barrel does.
+const WORKER_ONLY_IMPORTS = new Set(
+	[ROUTES_BARREL, MCP_FILE, QUEUE_FILE, SCHEDULED_FILE].map(importSource),
+);
 
 // Sort imports by source so the emitted worker file is independent of
 // `config.plugins` array order. dedupeImports preserves insertion order
@@ -114,16 +132,14 @@ const middlewareCalls = slot.derived({
 	source: SOURCE,
 	name: "middlewareCalls",
 	inputs: { entries: middlewareEntries },
-	compute: (inp): MiddlewareCall[] =>
-		aggregateMiddleware({ entries: inp.entries }).calls,
+	compute: (inp): MiddlewareCall[] => middlewareCallsOf(inp.entries),
 });
 
 const middlewareImports = slot.derived({
 	source: SOURCE,
 	name: "middlewareImports",
 	inputs: { entries: middlewareEntries },
-	compute: (inp): TsImportSpec[] =>
-		aggregateMiddleware({ entries: inp.entries }).imports,
+	compute: (inp): TsImportSpec[] => middlewareImportsOf(inp.entries),
 });
 
 // The routes handler is gated on routable files, as the barrel is: docs/architecture/runtime.md, "Chain order".
@@ -142,7 +158,7 @@ const mcpAuth = slot.value<boolean>({
 });
 
 // Whether the server has `auth()`: docs/architecture/plugins/api.md, "Client-only apps".
-const serverAuth = slot.value<boolean, z.output<typeof apiOptionsSchema>>({
+const serverAuth = slot.value<boolean, ParsedOptions>({
 	source: SOURCE,
 	name: "serverAuth",
 	seed: async (ctx) =>
@@ -157,13 +173,13 @@ const serverSchemaSource = slot.derived({
 	name: "serverSchemaSource",
 	compute: async (
 		_inp,
-		ctx: ContributionCtx<z.output<typeof apiOptionsSchema>>,
+		ctx: ContributionCtx<ParsedOptions>,
 	): Promise<string | null> => {
 		const { server } = ctx.options;
 		if (server === undefined) return null;
 		if (hasRoutableFiles(ctx.cwd)) {
 			throw new Error(
-				`api: \`server: "${server}"\` makes this app a client, which serves no procedures: remove src/worker/routes or the option.`,
+				`api: \`server: "${server}"\` makes this app a client, which serves no procedures: remove ${ROUTES_DIR} or the option.`,
 			);
 		}
 		await checkServer(ctx, server);
@@ -175,10 +191,7 @@ const serverSchemaSource = slot.derived({
 const serverTypesSource = slot.derived({
 	source: SOURCE,
 	name: "serverTypesSource",
-	compute: (
-		_inp,
-		ctx: ContributionCtx<z.output<typeof apiOptionsSchema>>,
-	): string | null =>
+	compute: (_inp, ctx: ContributionCtx<ParsedOptions>): string | null =>
 		ctx.options.server === undefined
 			? null
 			: renderServerTypes(ctx.options.server),
@@ -192,7 +205,7 @@ const mcpMount = slot.derived({
 	inputs: { auth: mcpAuth, handler: routesHandler },
 	compute: async (
 		inp,
-		ctx: ContributionCtx<z.output<typeof apiOptionsSchema>>,
+		ctx: ContributionCtx<ParsedOptions>,
 	): Promise<{ identifier: string; name: string } | null> => {
 		if (!(await ctx.fileExists(MCP_FILE))) return null;
 		if (!inp.auth) {
@@ -202,12 +215,12 @@ const mcpMount = slot.derived({
 		}
 		if (inp.handler === null) {
 			throw new Error(
-				`api: ${MCP_FILE} lists procedures of src/worker/routes, which has no routable file.`,
+				`api: ${MCP_FILE} lists procedures of ${ROUTES_DIR}, which has no routable file.`,
 			);
 		}
-		if (ctx.options.prefix === MCP_PREFIX) {
+		if (ctx.options.prefix === MCP_PATH) {
 			throw new Error(
-				`api: the prefix ${MCP_PREFIX} is where the MCP endpoint answers; pick another api({ prefix }).`,
+				`api: the prefix ${MCP_PATH} is where the MCP endpoint answers; pick another api({ prefix }).`,
 			);
 		}
 		return { identifier: "mcp", name: ctx.app.name };
@@ -226,12 +239,12 @@ function handlerMount<TIdentifier extends string>(
 		inputs: { handler: routesHandler, runtimes: pluginRuntimes },
 		compute: async (
 			inp,
-			ctx: ContributionCtx<z.output<typeof apiOptionsSchema>>,
+			ctx: ContributionCtx<ParsedOptions>,
 		): Promise<{ identifier: TIdentifier } | null> => {
 			if (!(await ctx.fileExists(file))) return null;
 			if (inp.handler === null && inp.runtimes.length === 0) {
 				throw new Error(
-					`api: ${file} runs in the worker, which has no routable file in src/worker/routes and no plugin runtime.`,
+					`api: ${file} runs in the worker, which has no routable file in ${ROUTES_DIR} and no plugin runtime.`,
 				);
 			}
 			return { identifier };
@@ -291,7 +304,7 @@ const routePrefixes = slot.list<string>({
 
 // The oRPC endpoint's prefix (`api({ prefix })`, `/rpc` by default): the one
 // of `routePrefixes` a client's procedure calls go to.
-const rpcPrefix = slot.value<string, z.output<typeof apiOptionsSchema>>({
+const rpcPrefix = slot.value<string, ParsedOptions>({
 	source: SOURCE,
 	name: "rpcPrefix",
 	seed: (ctx) => ctx.options.prefix,
@@ -362,15 +375,13 @@ const workerBase = slot.derived({
 		env,
 		envType,
 	},
-	compute: (inp, ctx: ContributionCtx<ApiOptions>): TsExpression => {
-		const options = ctx.options;
-		const properties: Array<{ key: string; value: TsExpression }> = [];
-		if (options.prefix) {
-			properties.push({
+	compute: (inp, ctx: ContributionCtx<ParsedOptions>): TsExpression => {
+		const properties: Array<{ key: string; value: TsExpression }> = [
+			{
 				key: "prefix",
-				value: { kind: "string", value: options.prefix },
-			});
-		}
+				value: { kind: "string", value: ctx.options.prefix },
+			},
+		];
 		// `cors` is always emitted, an empty list included: docs/architecture/plugins/api.md, "The production list".
 		properties.push({
 			key: "cors",
@@ -426,7 +437,7 @@ const workerBase = slot.derived({
 		return {
 			kind: "call",
 			callee: { kind: "identifier", name: "createWorker" },
-			args: properties.length > 0 ? [{ kind: "object", properties }] : [],
+			args: [{ kind: "object", properties }],
 			...(inp.envType ? { typeArgs: [inp.envType] } : {}),
 		};
 	},
@@ -513,20 +524,14 @@ const procedureSource = slot.derived({
 	},
 	compute: (inp): string | null => {
 		if (inp.runtimes.length === 0 && inp.handler === null) return null;
+		const procedureImports = (imports: TsImportSpec[]) =>
+			imports.filter((imp) => !WORKER_ONLY_IMPORTS.has(imp.source));
 		return aggregateProcedure({
 			base: inp.base,
 			runtimes: inp.runtimes,
-			// The MCP definition types itself against the routes, and a job handler
-			// imports this file for `defineQueue`, which import this file back, as
-			// the route barrel does.
-			imports: inp.imports.filter(
-				(imp) =>
-					imp.source !== MCP_IMPORT_SOURCE &&
-					imp.source !== QUEUE_IMPORT_SOURCE &&
-					imp.source !== SCHEDULED_IMPORT_SOURCE,
-			),
+			imports: procedureImports(inp.imports),
 			middlewareChain: inp.middlewareCalls,
-			middlewareImports: inp.middlewareImports,
+			middlewareImports: procedureImports(inp.middlewareImports),
 			statements: inp.statements,
 			entities: inp.entities,
 		});
@@ -622,7 +627,7 @@ export const api = plugin("api", {
 		self.slots.routePrefixes.contribute(() => self.options.prefix),
 		// `/mcp` is the endpoint's own, when it is served.
 		self.slots.routePrefixes.contribute(async (ctx) =>
-			(await ctx.resolve(self.slots.mcpMount)) ? MCP_PREFIX : undefined,
+			(await ctx.resolve(self.slots.mcpMount)) ? MCP_PATH : undefined,
 		),
 		self.slots.env.contribute(() => self.options.env),
 		self.slots.entities.contribute(() => self.options.entities),
@@ -640,14 +645,8 @@ export const api = plugin("api", {
 			}),
 		),
 
-		// Routes namespace import — single source of truth is the
-		// `routesHandler` slot. The seed there decides whether the consumer has
-		// a routes directory; the import contribution simply mirrors that
-		// decision. A naive `await ctx.fileExists(...)` here would race the
-		// seed if the filesystem ever returned different answers between the
-		// two reads, emitting either an import without a `.handler(routes)` call
-		// or a handler call without its import. Resolving the slot guarantees
-		// internal consistency by construction.
+		// The routes import follows `routesHandler`, so the import and the
+		// `.handler(routes)` call never disagree.
 		self.slots.workerImports.contribute(async (ctx) => {
 			const handler = await ctx.resolve(self.slots.routesHandler);
 			if (!handler) return undefined;
@@ -662,10 +661,7 @@ export const api = plugin("api", {
 			async (ctx): Promise<TsImportSpec | undefined> => {
 				const mount = await ctx.resolve(self.slots.mcpMount);
 				if (!mount) return undefined;
-				return {
-					source: MCP_IMPORT_SOURCE,
-					default: mount.identifier,
-				};
+				return { source: importSource(MCP_FILE), default: mount.identifier };
 			},
 		),
 
@@ -675,27 +671,26 @@ export const api = plugin("api", {
 			async (ctx): Promise<TsImportSpec | undefined> => {
 				const mount = await ctx.resolve(self.slots.queueHandler);
 				if (!mount) return undefined;
-				return { source: QUEUE_IMPORT_SOURCE, default: mount.identifier };
+				return { source: importSource(QUEUE_FILE), default: mount.identifier };
 			},
 		),
 		self.slots.workerImports.contribute(
 			async (ctx): Promise<TsImportSpec | undefined> => {
 				const mount = await ctx.resolve(self.slots.scheduledHandler);
 				if (!mount) return undefined;
-				return { source: SCHEDULED_IMPORT_SOURCE, default: mount.identifier };
+				return {
+					source: importSource(SCHEDULED_FILE),
+					default: mount.identifier,
+				};
 			},
 		),
 
 		// Consumer middleware convention files: docs/architecture/runtime.md, "Middleware".
 		self.slots.middlewareEntries.contribute(async (ctx) => {
-			const hasMiddleware = await ctx.fileExists("src/worker/middleware.ts");
-			if (!hasMiddleware) return undefined;
+			if (!(await ctx.fileExists(MIDDLEWARE_FILE))) return undefined;
 			return {
 				imports: [
-					{
-						source: "../src/worker/middleware.ts",
-						default: "middleware",
-					},
+					{ source: importSource(MIDDLEWARE_FILE), default: "middleware" },
 				],
 				call: { kind: "identifier", name: "middleware" },
 				phase: "before-routes",
@@ -705,12 +700,11 @@ export const api = plugin("api", {
 
 		// `middleware.context.ts` runs after context injection: docs/architecture/runtime.md, "Middleware".
 		self.slots.middlewareEntries.contribute(async (ctx) => {
-			const has = await ctx.fileExists("src/worker/middleware.context.ts");
-			if (!has) return undefined;
+			if (!(await ctx.fileExists(CONTEXT_MIDDLEWARE_FILE))) return undefined;
 			return {
 				imports: [
 					{
-						source: "../src/worker/middleware.context.ts",
+						source: importSource(CONTEXT_MIDDLEWARE_FILE),
 						default: "contextMiddleware",
 					},
 				],
@@ -722,17 +716,12 @@ export const api = plugin("api", {
 
 		// The `virtual:stack-procedure` alias: docs/architecture/runtime.md, "`virtual:stack-procedure`".
 		cliSlots.tsconfigPaths.contribute(() => ({
-			"virtual:stack-procedure": ["./.stack/procedure.ts"],
+			"virtual:stack-procedure": [`./${PROCEDURE_FILE}`],
 		})),
 
-		// Emit the rendered worker file into cli.slots.artifactFiles. Null
-		// source (no runtimes in the config) skips the emission.
-		emitArtifact(".stack/worker.ts", self.slots.workerSource),
-
-		// Emit the `virtual:stack-procedure` target — the consumer-facing
-		// `procedure` factory route files import. Same null-skip gate as
-		// workerSource (no runtimes, no artifact).
-		emitArtifact(".stack/procedure.ts", self.slots.procedureSource),
+		// Both are null, and so not written, with no runtime and no route.
+		emitArtifact(WORKER_FILE, self.slots.workerSource),
+		emitArtifact(PROCEDURE_FILE, self.slots.procedureSource),
 
 		// `.stack/schema.ts` and `.stack/server.json`: docs/architecture/plugins/api.md, "Schema".
 		cliSlots.postWrite.contribute(async (ctx) => {
@@ -750,7 +739,7 @@ export const api = plugin("api", {
 
 		// A client app's copies of the server's schema and router type.
 		emitArtifact(SERVER_SCHEMA, self.slots.serverSchemaSource),
-		emitArtifact(".stack/server.ts", self.slots.serverTypesSource),
+		emitArtifact(SERVER_TYPES, self.slots.serverTypesSource),
 		cliSlots.devWatchers.contribute((ctx) => {
 			const { server } = self.options;
 			if (server === undefined) return undefined;
@@ -759,7 +748,7 @@ export const api = plugin("api", {
 				paths: posix.join(posix.normalize(server), SERVER_SCHEMA),
 				debounce: 300,
 				async handler() {
-					await writeFile(
+					await writeArtifact(
 						join(ctx.cwd, SERVER_SCHEMA),
 						await readServerFile(ctx, server, SERVER_SCHEMA),
 					);
@@ -768,38 +757,31 @@ export const api = plugin("api", {
 			};
 		}),
 
-		// Emit the route barrel via the universal source-slot pattern. The
-		// source returns null when there are no routable files, in which
-		// case emitArtifact skips the write — no more header-only stub
-		// landing in worker-only / no-routes consumer trees on every
-		// generate. routesHandler shares the same `hasRoutableFiles`
-		// predicate so import + handler + barrel agree on emission.
-		emitArtifact("src/worker/routes/index.ts", self.slots.routeBarrelSource),
+		// The route barrel: docs/architecture/plugins/api.md, "Routes barrel".
+		emitArtifact(ROUTES_BARREL, self.slots.routeBarrelSource),
 
-		// Route watcher — regenerates the barrel when route files appear/disappear.
+		// In dev the barrel follows the directory, an emptied one included: the
+		// running worker imports it until the next generate.
 		cliSlots.devWatchers.contribute((ctx) => ({
 			name: "routes",
-			paths: "src/worker/routes/**",
+			paths: `${ROUTES_DIR}/**`,
 			ignore: ["**/index.ts"],
 			debounce: 300,
 			async handler(_path, type) {
-				if (type === "add" || type === "unlink") {
-					const barrelContent = generateRouteBarrel(ctx.cwd);
-					writeFileSync(
-						join(ctx.cwd, "src/worker/routes/index.ts"),
-						barrelContent,
-					);
-					ctx.log.info("Route barrel regenerated");
-				}
+				if (type !== "add" && type !== "unlink") return;
+				await writeArtifact(
+					join(ctx.cwd, ROUTES_BARREL),
+					generateRouteBarrel(ctx.cwd),
+				);
+				ctx.log.info("Route barrel regenerated");
 			},
 		})),
 
 		// Remove: clean the routes directory on `stack remove api`.
-		cliSlots.removeFiles.contribute(() => "src/worker/routes/"),
+		cliSlots.removeFiles.contribute(() => `${ROUTES_DIR}/`),
 	],
 });
 
 export { ApiError } from "./error.ts";
 export type { CallbackSpec, PluginRuntimeEntry } from "./node/types.ts";
 export type { Middleware } from "./procedure.ts";
-export type { InferRouter } from "./types.ts";

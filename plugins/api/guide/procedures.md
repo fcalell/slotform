@@ -44,8 +44,8 @@ export const projects = {
 - A procedure with a `scope` or `paginated` takes an object input schema, which keeps its
   unknown-key policy (`.strict()` refuses extras) and refinements. Another schema, or one
   declaring a key the config adds, throws when the route loads.
-- Use `.query()` for a read and `.mutation()` for a write. They run identically with
-  `.handler()`; the name carries intent.
+- Use `.query()` for a read and `.mutation()` for a write: a query travels as a `GET`, and MCP
+  marks it read-only. `.handler()` is a mutation.
 - Declare `reads` on every query and `writes` on every mutation that touches an entity. The client
   invalidates caches from them, and a procedure that declares nothing invalidates nothing.
 - Prefer `can: [action, resource]` to `rbac: [resource, actions[]]`; both check the same thing,
@@ -65,7 +65,7 @@ export const projects = {
 | `paginated: true` | Adds `cursor` and `limit` to the input; `limit` defaults to 20 and a value outside 1 to `maxLimit` answers `BAD_REQUEST` |
 | `paginated: "window"` | Adds `offset` and `limit` instead of `cursor`; the handler answers `{ data, total, offset }` (`paginateWindow`, [utilities](./utilities.md)) |
 | `maxLimit` | With `paginated`: the most rows one call may ask for, 100 unless named (at most 10000); the default `limit` is 20 or `maxLimit` if lower |
-| `sort` | With `paginated`: the columns a caller may order by (`sort: ["createdAt", "title"]`); the input gains `sort?: { column, direction }`, typed to them, and a `Table` over the read sends its header sort there |
+| `sort` | With `paginated` (without it the procedure throws when built): the columns a caller may order by (`sort: ["createdAt", "title"]`); the input gains `sort?: { column, direction }`, typed to them, and a `Table` over the read sends its header sort there |
 | `reads` / `writes` | The entities the procedure reads or writes, autocompleting from the Drizzle schema's exports, auth's tables and the names `api`'s `entities` option adds. On success the response carries `x-stack-reads` / `x-stack-writes`; a thrown error carries neither |
 
 ## Input and output
@@ -90,7 +90,6 @@ procedure({ auth: true })
   .query(({ context }) => context.project);
 ```
 
-A read's `NOT_FOUND` travels as a success status with an `x-stack-not-found` header that the
-stack client restores to a 404, so the browser console stays clean; a mutation's stays a 404.
+How the screen tells it from another failure is under [not found](./client.md#not-found).
 
 **Check:** `pnpm check` passes.

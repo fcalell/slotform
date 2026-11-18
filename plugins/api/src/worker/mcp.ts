@@ -9,7 +9,9 @@ import { call, isProcedure, ORPCError } from "@orpc/server";
 import type { Context } from "hono";
 import { z } from "zod";
 import type { McpDefinition } from "../mcp.ts";
+import { MCP_PATH } from "../mcp-path.ts";
 import { inputJsonSchema } from "../schema.ts";
+import { ipLimited, isForbiddenOrigin } from "./guards.ts";
 
 // The MCP endpoint: `POST /mcp` over the consumer's procedures. The SDK loads
 // on the first request, so a worker without `src/worker/mcp.ts` never reads it.
@@ -44,8 +46,7 @@ function children(schema: z.ZodType): z.ZodType[] {
 			found.push(...Object.values(def.shape as Record<string, unknown>));
 			break;
 		case "array":
-		case "set":
-			found.push(def.element ?? def.valueType);
+			found.push(def.element);
 			break;
 		case "optional":
 		case "nullable":
@@ -63,7 +64,6 @@ function children(schema: z.ZodType): z.ZodType[] {
 			found.push(def.in);
 			break;
 		case "record":
-		case "map":
 			found.push(def.keyType, def.valueType);
 			break;
 		case "tuple":
@@ -361,15 +361,6 @@ export function createMcpEndpoint(options: {
 	};
 }
 
-// The two guards live in ./index.ts, which imports this module, so they come in as dependencies.
-interface McpRouteDeps {
-	endpoint: McpEndpoint;
-	// A browser Origin the worker's CORS list does not carry.
-	isForbiddenOrigin(c: Context): boolean;
-	// Draws the per-IP budget; true when it refuses.
-	ipLimited(c: Context, ctx: Record<string, unknown>): Promise<boolean>;
-}
-
 interface VerifiedCaller {
 	user: unknown;
 	session: { expiresAt: Date };
@@ -384,12 +375,12 @@ function jsonRpcError(code: number, message: string, status: number): Response {
 	);
 }
 
-export function createMcpRoute(deps: McpRouteDeps) {
+export function createMcpRoute(endpoint: McpEndpoint) {
 	return async (
 		c: Context,
 		ctx: Record<string, unknown>,
 	): Promise<Response> => {
-		if (deps.isForbiddenOrigin(c)) {
+		if (isForbiddenOrigin(c)) {
 			return c.json({ code: "FORBIDDEN" }, 403);
 		}
 		const oauth = ctx.oauth as
@@ -408,13 +399,13 @@ export function createMcpRoute(deps: McpRouteDeps) {
 			// A forged `kid` costs a key refetch, so a refused token draws the
 			// per-IP budget. An accepted token never does: hosted clients share
 			// egress, and `verify` limits per grant.
-			if (verified.status === 401 && (await deps.ipLimited(c, ctx))) {
+			if (verified.status === 401 && (await ipLimited(c, ctx))) {
 				return c.json({ code: "TOO_MANY_REQUESTS" }, 429);
 			}
 			return verified;
 		}
 
-		const text = await deps.endpoint.readBody(request);
+		const text = await endpoint.readBody(request);
 		if (text === null) {
 			return jsonRpcError(-32000, "Request body too large", 413);
 		}
@@ -449,7 +440,7 @@ export function createMcpRoute(deps: McpRouteDeps) {
 			scopes: verified.grant.scopes,
 			expiresAt: Math.floor(verified.session.expiresAt.getTime() / 1000),
 			...(typeof appUrl === "string"
-				? { resource: new URL(`${appUrl.replace(/\/+$/, "")}/mcp`) }
+				? { resource: new URL(`${appUrl.replace(/\/+$/, "")}${MCP_PATH}`) }
 				: {}),
 			extra: {
 				context: {
@@ -468,7 +459,7 @@ export function createMcpRoute(deps: McpRouteDeps) {
 				organizationId: verified.grant.organizationId,
 			} satisfies CallExtra,
 		};
-		return deps.endpoint.fetch(
+		return endpoint.fetch(
 			new Request(request.url, {
 				method: request.method,
 				headers: request.headers,

@@ -1,11 +1,19 @@
-import type {
-	MiddlewareSpec,
-	TsExpression,
-	TsImportSpec,
-} from "@fcalell/cli/ast";
+import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
 
-// The route barrel's import source: docs/architecture/plugins/api.md, "Routes barrel".
-export const ROUTES_BARREL_IMPORT_SOURCE = "../src/worker/routes/index.ts";
+// The generated files: docs/architecture/plugins/api.md, "Generated files".
+export const WORKER_FILE = ".stack/worker.ts";
+export const PROCEDURE_FILE = ".stack/procedure.ts";
+
+// The route barrel: docs/architecture/plugins/api.md, "Routes barrel".
+export const ROUTES_DIR = "src/worker/routes";
+export const ROUTES_BARREL = `${ROUTES_DIR}/index.ts`;
+
+// How a file generated into `.stack/` imports a consumer source file.
+export function importSource(file: string): string {
+	return `../${file}`;
+}
+
+export const ROUTES_BARREL_IMPORT_SOURCE = importSource(ROUTES_BARREL);
 
 // A plugin's runtime contribution to the worker chain. Captured structurally
 // so the worker derivation can attach callbacks and render options uniformly.
@@ -33,7 +41,7 @@ export interface CallbackSpec {
 // The input type of the `aggregateWorker` pure function.
 export interface WorkerPayload {
 	imports: TsImportSpec[];
-	base: TsExpression | null;
+	base: TsExpression;
 	pluginRuntimes: PluginRuntimeEntry[];
 	middlewareChain: MiddlewareCall[];
 	handler: { identifier: string } | null;
@@ -52,10 +60,4 @@ export interface WorkerPayload {
 export interface MiddlewareCall {
 	call: TsExpression;
 	method: "use" | "useAfterContext";
-}
-
-// The aggregator sorts entries by phase then `order` and feeds the result
-// into WorkerPayload's middlewareChain.
-export interface MiddlewarePayload {
-	entries: MiddlewareSpec[];
 }

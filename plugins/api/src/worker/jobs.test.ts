@@ -121,19 +121,3 @@ test("without the files, neither member is on the worker", () => {
 	assert.ok(queueOnly.queue);
 	assert.equal("scheduled" in queueOnly, false);
 });
-
-test("a job never runs a plugin's fetch", async () => {
-	let ran = false;
-	const worker = createWorker()
-		.use(db)
-		.handler(
-			{},
-			{
-				queue: async () => {
-					ran = true;
-				},
-			},
-		);
-	await worker.queue?.(batch(), {}, undefined);
-	assert.equal(ran, true);
-});

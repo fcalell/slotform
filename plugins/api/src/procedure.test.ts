@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { noSuch, type ProcedureConfig } from "./procedure.ts";
+import { createProcedure, noSuch, type ProcedureConfig } from "./procedure.ts";
+import { routerSchema } from "./schema.ts";
 
 test("a scope's refusal is a NOT_FOUND naming the scope in lower-case words", () => {
 	const said = (name: string) => noSuch({ name }).message;
@@ -20,4 +21,18 @@ test("an rbac request names at least one action", () => {
 	// @ts-expect-error an empty action list is refused at the type
 	const empty: Request = ["task", []];
 	assert.deepEqual([named[0], empty[0]], ["task", "task"]);
+});
+
+test("a bare handler is a mutation", () => {
+	const procedure = createProcedure<Record<string, unknown>>();
+	const schema = routerSchema({ save: procedure().handler(() => "saved") });
+	assert.equal(schema.save?.kind, "mutation");
+});
+
+test("a sort without pagination is refused", () => {
+	const procedure = createProcedure<Record<string, unknown>>();
+	assert.throws(
+		() => procedure({ sort: ["title"] }),
+		/`sort` needs `paginated`/,
+	);
 });

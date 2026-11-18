@@ -9,42 +9,24 @@ import { type Context, Hono, type MiddlewareHandler } from "hono";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import { isLocalOrigin } from "../lib/local-origin.ts";
 import type { McpDefinition } from "../mcp.ts";
+import { MCP_PATH } from "../mcp-path.ts";
 import {
 	createProcedure,
-	extractIp,
 	type JobBatch,
 	type JobScheduledEvent,
-	type RateLimitBinding,
 } from "../procedure.ts";
 import {
 	listenerOrigin,
 	STACK_EXPOSED_HEADERS,
 	STACK_NOT_FOUND_HEADER,
 } from "../wire.ts";
+import { ipLimited, ORIGINS_VAR } from "./guards.ts";
 import { buildMcpTools, createMcpEndpoint, createMcpRoute } from "./mcp.ts";
 import { requestLogger } from "./request-log.ts";
 
-export type { InferRouter } from "../types.ts";
-
-// The `/rpc` limiter's binding name, the contract with plugin-cloudflare: docs/architecture/plugins/api.md, "Rate limiting".
-export const RATE_LIMITER_RPC = "RATE_LIMITER_RPC";
-
-// The path the MCP endpoint answers at, beside the RPC prefix.
-const MCP_PATH = "/mcp";
-
-// The blanket per-IP `/rpc` limiter: docs/architecture/plugins/api.md, "Rate limiting". True when the limiter refuses.
-async function ipLimited(
-	c: Context,
-	ctx: Record<string, unknown>,
-): Promise<boolean> {
-	const limiter = (c.env as Record<string, unknown> | null | undefined)?.[
-		RATE_LIMITER_RPC
-	] as RateLimitBinding | undefined;
-	if (!limiter || ctx._devMode) return false;
-	const result = await limiter.limit({ key: extractIp(c.req.raw.headers) });
-	return !result.success;
-}
+export { isForbiddenOrigin, RATE_LIMITER_RPC } from "./guards.ts";
 
 export interface WorkerExport<
 	TRouter extends Record<string, unknown> = Record<string, unknown>,
@@ -238,12 +220,6 @@ function isDevMode(env: unknown): boolean {
 	return (env as Record<string, unknown> | null | undefined)?.STACK_DEV === "1";
 }
 
-const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "[::1]", "0.0.0.0"]);
-
-function isLocalHostname(hostname: string): boolean {
-	return LOCAL_HOSTNAMES.has(hostname) || hostname.endsWith(".localhost");
-}
-
 // Asserts every baked env check against the live env. Throws the first
 // violation by var name; the caller runs this once per isolate.
 function assertEnvChecks(checks: EnvCheckSpec[], env: unknown): void {
@@ -269,7 +245,7 @@ function assertEnvChecks(checks: EnvCheckSpec[], env: unknown): void {
 				if (!check.url) continue;
 				throw new Error(`Env var ${check.name} must be a valid URL`);
 			}
-			if (check.devLocalhost && devMode && !isLocalHostname(parsed.hostname)) {
+			if (check.devLocalhost && devMode && !isLocalOrigin(value)) {
 				throw new Error(
 					`Env var ${check.name} points at ${parsed.hostname} while STACK_DEV is set; refusing to serve. Unset STACK_DEV outside local dev.`,
 				);
@@ -431,15 +407,13 @@ function createAppBuilder<
 			// Resolved at construction, so a tool the endpoint cannot serve fails
 			// the boot, naming the tool.
 			const mcpRoute = mount?.mcp
-				? createMcpRoute({
-						endpoint: createMcpEndpoint({
+				? createMcpRoute(
+						createMcpEndpoint({
 							tools: buildMcpTools(consumerRoutes, mount.mcp),
 							instructions: mount.mcp.instructions,
 							name: mount.name,
 						}),
-						isForbiddenOrigin,
-						ipLimited,
-					})
+					)
 				: null;
 
 			// biome-ignore lint/suspicious/noExplicitAny: oRPC RPCHandler expects internal router type
@@ -450,7 +424,7 @@ function createAppBuilder<
 			const app = new Hono<{
 				Variables: {
 					__stackCtx: Record<string, unknown>;
-					__stackOrigins: string[];
+					[ORIGINS_VAR]: string[];
 				};
 			}>();
 
@@ -551,7 +525,7 @@ function createAppBuilder<
 					if (claimed) return claimed;
 				}
 
-				c.set("__stackOrigins", effectiveOrigins(env));
+				c.set(ORIGINS_VAR, effectiveOrigins(env));
 				c.set("__stackCtx", ctx);
 				await next();
 			});
@@ -699,20 +673,4 @@ export function stackContext<
 		);
 	}
 	return ctx;
-}
-
-// The CSRF guard for raw routes: docs/architecture/plugins/api.md, "At runtime".
-export function isForbiddenOrigin(c: Context): boolean {
-	const origin = c.req.header("origin");
-	if (!origin) return false;
-	const allowed = c.get("__stackOrigins") as string[] | undefined;
-	// Wildcard CORS admits every origin; the guard must agree with the CORS
-	// layer instead of judging all real browser origins forbidden.
-	if (allowed?.includes("*")) return false;
-	if (!allowed) {
-		throw new Error(
-			"isForbiddenOrigin: no origin list on this request. Register the middleware with .useAfterContext() (src/worker/middleware.context.ts), not .use().",
-		);
-	}
-	return !allowed.includes(origin);
 }

@@ -115,8 +115,8 @@ remove: procedure({ auth: true, writes: ["tasks"] })
 ```
 
 Build the list's `where` from the same `query` function, so the selection and the table mean the
-same rows. `chosenIds(db, selection, options)` returns the ids instead, for work that is not one
-statement. The client passes the table's `picked` whole: `mutateAsync({ tasks: picked })`.
+same rows. Each id list binds one value, so a selection of any length fits a D1 statement. The
+client passes the table's `picked` whole: `mutateAsync({ tasks: picked })`.
 
 ## Slugs
 
@@ -129,8 +129,7 @@ isReservedSlug("admin");     // true
 ```
 
 `slugify` never refuses. A procedure checks `isReservedSlug(slug)` and answers a reserved slug as
-its own field error. `RESERVED_SLUGS` is `admin`, `api`, `system`, `auth`, `new`, `settings`;
-`createSlugify(reserved)` returns `{ slugify, isReserved }` over your own list. An organization's
-slug is refused on the server by auth: these words, plus every top-level route of the app.
+its own field error; the words are `RESERVED_SLUGS`. An organization's slug is refused on the server
+by auth (`node_modules/@fcalell/plugin-auth/guide/organizations.md`).
 
 **Check:** `pnpm check` passes, and a list call pages past the first `nextCursor`.

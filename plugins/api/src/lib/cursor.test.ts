@@ -246,18 +246,47 @@ test("each statement of a page seeks a range on the sort column, with no sort", 
 	}
 });
 
-test("a cursor page takes the sorts map", async () => {
+test("a cursor page sorts by the sorts map, else by the column of the key's name", async () => {
+	// The keys a procedure declaring `sort: ["name", "points"]` hands over.
+	type Key = "name" | "points";
 	const { counted } = setup();
-	const page = await paginate(counted, {
+	const base = {
 		idColumn: tasks.id,
-		orderBy: { column: tasks.id, direction: "asc" },
+		orderBy: { column: tasks.id, direction: "asc" as const },
 		sorts: { name: tasks.title },
-		sort: { column: "name", direction: "asc" },
 		limit: 2,
+	};
+	const byName = await paginate(counted, {
+		...base,
+		sort: { column: "name" as Key, direction: "desc" },
 	});
 	assert.deepEqual(
-		page.data.map((row) => row.id),
-		["t0", "t1"],
+		byName.data.map((row) => row.id),
+		["t7", "t6"],
 	);
-	assert.ok(page.nextCursor);
+	assert.ok(byName.nextCursor);
+	const byPoints = await paginate(counted, {
+		...base,
+		sort: { column: "points" as Key, direction: "desc" },
+	});
+	assert.deepEqual(
+		byPoints.data.map((row) => row.id),
+		["t5", "t2"],
+	);
+});
+
+test("a cursor value of another type than its column answers BAD_REQUEST", async () => {
+	const { counted } = setup();
+	const options = {
+		idColumn: tasks.id,
+		orderBy: { column: tasks.due, direction: "asc" as const },
+	};
+	for (const values of [[new Date(1)], ["3"]]) {
+		await assert.rejects(
+			paginate(counted, { ...options, cursor: encodeCursor(values, "t1") }),
+			(error) => error instanceof ApiError && error.code === "BAD_REQUEST",
+		);
+	}
+	const unbounded = btoa('[[{"$date":1e999}],"t1"]');
+	assert.throws(() => decodeCursor(unbounded), ApiError);
 });
