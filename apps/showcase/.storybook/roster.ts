@@ -60,9 +60,7 @@ function moduleFor(entry: RosterComponent): string {
 	].join("\n");
 }
 
-// One CSF module per roster component, written only when its text changes so
-// an unchanged module is neither re-indexed nor
-// re-run by a test watcher.
+// The story modules: docs/architecture/ui-core/showcase.md, "Story generation".
 export function writeStories(): void {
 	mkdirSync(STORIES_DIR, { recursive: true });
 	const wanted = new Map<string, string>();

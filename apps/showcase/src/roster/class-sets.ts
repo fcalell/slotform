@@ -12,7 +12,7 @@ export type ShowcaseMode = (typeof MODES)[number];
 export const DENSITIES = ["touch", "desktop"] as const;
 export type ShowcaseDensity = (typeof DENSITIES)[number];
 
-export interface ShowcaseClassSet {
+interface ShowcaseClassSet {
 	// `BUTTON.act.primary`, or `base` for a component that draws no matrix.
 	name: string;
 	classes: readonly string[];
@@ -44,7 +44,7 @@ const DRAWN_STATES = [
 	"streaming",
 	"more",
 ] as const satisfies readonly State[];
-export type DrawnState = (typeof DRAWN_STATES)[number];
+type DrawnState = (typeof DRAWN_STATES)[number];
 const isDrawn = (state: State): state is DrawnState =>
 	DRAWN_STATES.some((drawn) => drawn === state);
 
@@ -64,13 +64,15 @@ function componentClassSets(entry: RosterEntry): ShowcaseClassSet[] {
 	return classSets.length > 0 ? classSets : [BASE];
 }
 
-const FIRST = new Map<string, string>();
+const FIRST = new Map(
+	Array.from(rosterEntries(), ([, component, entry]): [string, string] => [
+		component,
+		componentClassSets(entry)[0]?.name ?? BASE.name,
+	]),
+);
 
 /** Whether the scene's class set is the first its component draws: the one a state whose form no class set changes (a collection's failed shape, a control's options failing) draws on, once. */
 export function isFirstClassSet(scene: ShowcaseScene): boolean {
-	if (FIRST.size === 0)
-		for (const [, component, entry] of rosterEntries())
-			FIRST.set(component, componentClassSets(entry)[0]?.name ?? BASE.name);
 	return FIRST.get(scene.component) === scene.classSet.name;
 }
 
@@ -99,9 +101,4 @@ export function showcaseScenes(): ShowcaseScene[] {
 		}
 	}
 	return scenes;
-}
-
-// Every scene's `data-cell` id: `<component>/<class set>/<state>/<mode>/<density>`.
-export function showcaseSceneIds(): string[] {
-	return showcaseScenes().map((scene) => scene.id);
 }

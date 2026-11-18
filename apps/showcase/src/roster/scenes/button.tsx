@@ -14,8 +14,8 @@ import { FILLED, GIVEN, SAVED } from "./form.tsx";
 import { STAND_INS, Wide } from "./layout-context.tsx";
 import { beside, isPaint } from "./painted.tsx";
 import { hang, Pressed } from "./pending.tsx";
+import { act } from "./section-rows.ts";
 
-const act = () => {};
 const LABEL: Record<ButtonAct, string> = {
 	primary: "Save",
 	danger: "Delete",

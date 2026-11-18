@@ -1,8 +1,6 @@
 import { showcaseScenes } from "../src/roster/class-sets.ts";
 
-// Runs in a child process so each listing reads the roster fresh: Node caches
-// an ES module for the life of a process, and the roster is edited while
-// Storybook runs.
+// The roster, listed in a child process: docs/architecture/ui-core/showcase.md, "Story generation".
 const components = new Map<
 	string,
 	{ layer: string; component: string; states: Set<string> }

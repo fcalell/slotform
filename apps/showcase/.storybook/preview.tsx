@@ -19,8 +19,6 @@ const DEV_CHECK = /returned no promise|nothing drew its failure/;
 const tripped: string[] = [];
 const logged = console.error;
 
-// The painted fills' breath is still (`--pulse-name: none`): docs/architecture/ui-core/showcase.md, "Storybook config".
-
 const preview: Preview = {
 	beforeEach: () => {
 		tripped.length = 0;
@@ -54,6 +52,7 @@ const preview: Preview = {
 			document.documentElement.dataset.density = String(
 				context.globals.density,
 			);
+			// The painted fills' breath is still: docs/architecture/ui-core/showcase.md, "Storybook config".
 			document.documentElement.style.setProperty("--pulse-name", "none");
 			return (
 				<Providers>

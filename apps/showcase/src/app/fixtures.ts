@@ -1,8 +1,9 @@
 import { ApiError } from "@fcalell/plugin-api/error";
 import { defineFixtures } from "@fcalell/plugin-screens/fixtures";
 import type { AppRouter } from "../../.stack/worker";
+import { ago } from "../roster/ago.ts";
+import { dayAfter } from "../roster/day.ts";
 import { HOURS, WEEKS } from "./fixtures/activity.ts";
-import { ago } from "./fixtures/ago.ts";
 import { CHANGES, DEPLOYS, STEPS } from "./fixtures/deploys.ts";
 import { requests } from "./fixtures/requests.ts";
 import { BANDS, OWNERS, SPRINT_TASKS } from "./fixtures/sprints.ts";
@@ -24,11 +25,12 @@ type Sort = { column: "at" | "path" | "took"; direction: "asc" | "desc" };
 // The whole set in the order asked for, kept: the same order is asked for once
 // per page the view lands on.
 const ordered = new Map<string, ReturnType<typeof requests>>();
-function requestsBy(sort: Sort | undefined) {
-	const key = sort ? `${sort.column}/${sort.direction}` : "at/desc";
+function requestsBy(
+	{ column, direction }: Sort = { column: "at", direction: "desc" },
+) {
+	const key = `${column}/${direction}`;
 	let rows = ordered.get(key);
 	if (!rows) {
-		const { column, direction } = sort ?? { column: "at", direction: "desc" };
 		const sign = direction === "asc" ? 1 : -1;
 		rows = [...requests()].sort((a, b) =>
 			column === "took"
@@ -91,11 +93,7 @@ const MINUTES = [
 	180, 170, 200, 130, 120, 170, 180, 210, 190, 180, 120, 110, 160, 170, 150,
 ];
 const DAYS: Day[] = MINUTES.map((value, index) => {
-	const day = new Date(Date.UTC(2026, 8, 3 + index)).toLocaleDateString("en", {
-		month: "short",
-		day: "numeric",
-		timeZone: "UTC",
-	});
+	const day = dayAfter(index);
 	return { day, value, at: day };
 });
 

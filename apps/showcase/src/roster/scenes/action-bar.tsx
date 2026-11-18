@@ -16,9 +16,8 @@ const refuse = () =>
 	);
 
 import { Column } from "./place.tsx";
+import { act } from "./section-rows.ts";
 import { Publish } from "./table.tsx";
-
-const change = () => {};
 
 interface Drawn {
 	// Drawn in a sign-in column, where the bar stacks its acts.
@@ -30,42 +29,42 @@ interface Drawn {
 const SAVE: Drawn = {
 	column: false,
 	acts: [
-		{ label: "Cancel", onAct: change },
-		{ label: "Save", onAct: change },
+		{ label: "Cancel", onAct: act },
+		{ label: "Save", onAct: act },
 	],
 	reason: "Describe the change first.",
 };
 const CONFIRM: Drawn = {
 	column: false,
 	acts: [
-		{ label: "Cancel", onAct: change },
-		{ label: "Delete project", onAct: change, destructive: true },
+		{ label: "Cancel", onAct: act },
+		{ label: "Delete project", onAct: act, destructive: true },
 	],
 	reason: "Type the project's name first.",
 };
 const ROW_ACTS: Drawn = {
 	column: false,
 	acts: [
-		{ label: "Remove member", onAct: change, destructive: true },
-		{ label: "Save", onAct: change },
+		{ label: "Remove member", onAct: act, destructive: true },
+		{ label: "Save", onAct: act },
 	],
 	reason: "Choose a role first.",
 };
 // Four acts in the narrowest column an end bar stands in above touch: they
 // wrap to a further row, the filled act last, and stay inside the column.
 const WRAPPED: Act[] = [
-	{ label: "Cut the scope in the thread", onAct: change },
-	{ label: "Split the work in its thread", onAct: change },
-	{ label: "Accept the flags as known limits", onAct: change },
-	{ label: "Continue refining", onAct: change },
+	{ label: "Cut the scope in the thread", onAct: act },
+	{ label: "Split the work in its thread", onAct: act },
+	{ label: "Accept the flags as known limits", onAct: act },
+	{ label: "Continue refining", onAct: act },
 ];
 // A sign-in column's two ways in: at its width one a row, the filled act
 // first.
 const LOGIN: Drawn = {
 	column: true,
 	acts: [
-		{ label: "Use a recovery code", onAct: change },
-		{ label: "Continue with email", onAct: change },
+		{ label: "Use a recovery code", onAct: act },
+		{ label: "Continue with email", onAct: act },
 	],
 	reason: "Enter your email address first.",
 };
@@ -95,15 +94,15 @@ function drawnOf(classSet: string): Drawn {
 const PENDING = { sentence: "Merging the change" };
 // A bar of one, two and three acts, each swapped for its pending form.
 const SWAPPED: Act[][] = [
-	[{ label: "Merge", onAct: change }],
+	[{ label: "Merge", onAct: act }],
 	[
-		{ label: "Close", onAct: change },
-		{ label: "Merge", onAct: change },
+		{ label: "Close", onAct: act },
+		{ label: "Merge", onAct: act },
 	],
 	[
-		{ label: "Decline", onAct: change, destructive: true },
-		{ label: "Close", onAct: change },
-		{ label: "Merge", onAct: change },
+		{ label: "Decline", onAct: act, destructive: true },
+		{ label: "Close", onAct: act },
+		{ label: "Merge", onAct: act },
 	],
 ];
 
@@ -148,17 +147,17 @@ export function drawActionBar(scene: ShowcaseScene) {
 	}
 	const { column, acts, reason } = drawnOf(scene.classSet.name);
 	const last = acts.length - 1;
-	const drawn = acts.map((act, at) =>
+	const drawn = acts.map((one, at) =>
 		at !== last
-			? act
+			? one
 			: {
-					...act,
+					...one,
 					onAct:
 						scene.state === "pending"
 							? hang
 							: scene.state === "error"
 								? fail
-								: act.onAct,
+								: one.onAct,
 					failed: "That change could not be saved.",
 					blocked: scene.state === "disabled" ? reason : undefined,
 				},

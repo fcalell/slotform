@@ -7,6 +7,7 @@ import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { orpc } from "../../lib/api.ts";
+import { NAME, PLAN_USED } from "../../lib/assistant.ts";
 
 export const Route = createFileRoute("/_app/home")({
 	loader: ({ context }) => preload(context.queryClient, orpc.tasks.list.read()),
@@ -22,11 +23,9 @@ const LATEST = [
 	{
 		id: "l2",
 		author: "other" as const,
-		body: "`acme-web` serves 412,000 requests this month, 41 % of the Team plan.",
+		body: PLAN_USED,
 	},
 ];
-
-const NAME = { you: "You", other: "Assistant" } as const;
 
 // An assistant's home, its ask field docked at the Pane's foot on touch: docs/architecture/ui-core/layout.md, "Foot".
 function Home() {

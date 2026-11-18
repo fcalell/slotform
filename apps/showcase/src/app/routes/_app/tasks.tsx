@@ -47,14 +47,16 @@ const COLUMNS: TableColumn<Task>[] = [
 // A task's one act is its completion: an icon at its end, the same act on
 // Shift+Enter, with the sentence toasted once it has run. The rest of its acts
 // are its menu, where each board that takes a dragged task is also an entry.
+const complete = (task: Task) => ({
+	icon: "Check" as const,
+	label: `Complete ${task.title}`,
+	onAct: act,
+	done: `Completed ${task.title}`,
+});
+
 const ROW = {
 	id: (task: Task) => task.id,
-	act: (task: Task) => ({
-		icon: "Check" as const,
-		label: `Complete ${task.title}`,
-		onAct: act,
-		done: `Completed ${task.title}`,
-	}),
+	act: complete,
 	more: (task: Task) => [
 		{ icon: "Copy" as const, label: `Copy ${task.title}`, onAct: act },
 	],
@@ -68,12 +70,7 @@ const toRow = (task: Task): Row => ({
 	facts: [task.owner, `${task.points} points`],
 	drag: { kind: "task", picked: { ids: [task.id] } },
 	onOpen: act,
-	act: {
-		icon: "Check",
-		label: `Complete ${task.title}`,
-		onAct: act,
-		done: `Completed ${task.title}`,
-	},
+	act: complete(task),
 });
 
 // The queue moves by a drag to the line between two rows (or Alt with an

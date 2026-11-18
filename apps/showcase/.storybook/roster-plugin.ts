@@ -20,7 +20,17 @@ export function rosterPlugin(): Plugin {
 			const regenerate = (file: string) => {
 				if (!watched.some((dir) => file.startsWith(dir))) return;
 				clearTimeout(timer);
-				timer = setTimeout(writeStories, 200);
+				timer = setTimeout(() => {
+					// A roster that does not load (a syntax error, a half-built dist) keeps
+					// the stories it last wrote; the next save that loads rewrites them.
+					try {
+						writeStories();
+					} catch (error) {
+						server.config.logger.error(
+							`Roster stories not rewritten: ${error instanceof Error ? error.message : String(error)}`,
+						);
+					}
+				}, 200);
 			};
 			for (const event of ["add", "change", "unlink"] as const)
 				server.watcher.on(event, regenerate);

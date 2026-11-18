@@ -38,8 +38,6 @@ const BAR: BarRegions<Day> = {
 
 const METERS = [0, 1, 2];
 
-const PROJECTS = ["acme-web", "acme-api", "acme-docs"];
-
 // Each section reads its own query and holds it as its frame, so a failure
 // stays in its section.
 function Usage() {
@@ -50,6 +48,8 @@ function Usage() {
 	const plan = orpc.usage.plan.read();
 	const upgrade = useMutation(orpc.usage.upgrade.mutationOptions());
 	const today = useRead(minutes)?.at(-1)?.day;
+	// The projects a day's requests are split by, in the order their series stack.
+	const projects = useRead(requests)?.[0]?.parts;
 	return (
 		<Pane>
 			<Section
@@ -72,7 +72,7 @@ function Usage() {
 			>
 				<BarChart
 					label="Requests per day this week, by project"
-					keys={PROJECTS}
+					keys={projects && Object.keys(projects)}
 					items={requests}
 					bar={BAR}
 					unit="requests"
@@ -85,7 +85,7 @@ function Usage() {
 				read={minutes}
 			>
 				<BarChart
-					label="Build minutes per day, Sep 3 to Oct 2"
+					label="Build minutes per day, the last 30 days"
 					items={minutes}
 					bar={{ ...BAR, partial: (day) => day.day === today }}
 					unit="minutes"

@@ -4,6 +4,7 @@ import { Stats } from "@fcalell/plugin-react-ui/components/stats";
 import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import type { AppRouter } from "../../../../.stack/worker";
 import { act } from "../../lib/act.ts";
 import { orpc } from "../../lib/api.ts";
 
@@ -11,7 +12,9 @@ export const Route = createFileRoute("/_app/releases")({
 	component: Releases,
 });
 
-type Stage = "review" | "staging" | "production";
+type Stage = NonNullable<AppRouter["releases"]["list"]["__input"]["stage"]>;
+
+const STAGES: readonly Stage[] = ["review", "staging", "production"];
 
 // A Pane that holds no read: the Promote act is blocked by the quota's own
 // selection and a stage's description is the count its own read answers, each
@@ -70,7 +73,7 @@ function Releases() {
 				filters={[
 					{
 						label: "Stage",
-						options: ["review", "staging", "production"].map((value) => ({
+						options: STAGES.map((value) => ({
 							value,
 							label: value[0]?.toUpperCase() + value.slice(1),
 							description: stages.at((all) => {

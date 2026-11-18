@@ -10,6 +10,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import type { AppRouter } from "../../../../.stack/worker";
 import { orpc } from "../../lib/api.ts";
+import { NAME, PLAN_USED } from "../../lib/assistant.ts";
 
 export const Route = createFileRoute("/_app/assistant")({
 	loader: ({ context }) =>
@@ -19,17 +20,12 @@ export const Route = createFileRoute("/_app/assistant")({
 
 type Turn = AppRouter["assistant"]["history"]["__output"][number];
 
-const ANSWER =
-	"`acme-web` serves 412,000 requests this month, 41 % of the Team plan. Most come from `acme-web` itself; the rest from `acme-api`.";
+const ANSWER = `${PLAN_USED} Most come from \`acme-web\` itself; the rest from \`acme-api\`.`;
 
 // The answer arrives a word at a time, after a first wait.
 const WORDS = ANSWER.split(/(?<= )/);
 const FIRST = 900;
 const PACE = 90;
-// A message that begins so gets an answer whose stream breaks part way, which
-// draws the stopped line with its Retry.
-const BREAKS = "/break";
-const BREAKS_AT = 4;
 
 const pause = (ms: number, signal: AbortSignal) =>
 	new Promise<void>((resolve) => {
@@ -45,27 +41,22 @@ const pause = (ms: number, signal: AbortSignal) =>
 	});
 
 // The words of one answer, ending where the read is cancelled.
-async function* spoken(signal: AbortSignal, breaks: boolean) {
+async function* spoken(signal: AbortSignal) {
 	for (const [at, word] of WORDS.entries()) {
 		await pause(at === 0 ? FIRST : PACE, signal);
 		if (signal.aborted) return;
-		if (breaks && at === BREAKS_AT) throw new Error("The stream broke.");
 		yield word;
 	}
 }
-
-const NAME = { you: "You", other: "Assistant" } as const;
 
 // The composer's draft attachment and notice, drawn in every state: neither
 // is part of the query.
 const ATTACHED: Attachment[] = [{ id: "log", name: "build-0c5e4aa.log" }];
 
-function notice(): Notice {
-	return {
-		sentence: "12 of 50 answers left this month.",
-		act: { label: "See usage", href: "/usage" },
-	};
-}
+const NOTICE: Notice = {
+	sentence: "12 of 50 answers left this month.",
+	act: { label: "See usage", href: "/usage" },
+};
 
 // While an answer comes, the notice says what becomes of a message sent then.
 const QUEUED: Notice = {
@@ -75,14 +66,10 @@ const QUEUED: Notice = {
 // One answer as a stream read: the turn grows a word at a time in the read's
 // own data, so a word renders the Thread's reply turn and nothing else. When
 // the stream ends, `done` gets the whole turn, which the history then holds.
-function answerOf(
-	id: string,
-	breaks: boolean,
-	done: (turn: Turn) => void,
-): StreamRead<Turn> {
+function answerOf(id: string, done: (turn: Turn) => void): StreamRead<Turn> {
 	return streamRead<string, Turn>({
 		queryKey: ["assistant", "answer", id],
-		stream: (signal) => spoken(signal, breaks),
+		stream: spoken,
 		reducer: (turn, word) => ({ ...turn, body: turn.body + word }),
 		initialValue: {
 			id,
@@ -103,7 +90,8 @@ function Assistant() {
 	const [working, setWorking] = useState(false);
 	const [answer, setAnswer] = useState<StreamRead<Turn>>();
 	const asked = useRef(0);
-	const queued = useRef<string>(undefined);
+	// The messages sent while an answer came, each answered in turn.
+	const queued = useRef(0);
 	const record = (turn: Turn) =>
 		queryClient.setQueryData<readonly Turn[]>(
 			history.options.queryKey,
@@ -117,16 +105,17 @@ function Assistant() {
 				{ ...turn, id: `s${all.length + 1}`, at: new Date().toISOString() },
 			],
 		);
-	const reply = (question: string) => {
+	const reply = () => {
 		setWorking(true);
 		asked.current += 1;
 		setAnswer(
-			answerOf(`a${asked.current}`, question.startsWith(BREAKS), (turn) => {
+			answerOf(`a${asked.current}`, (turn) => {
 				record(turn);
-				const next = queued.current;
-				queued.current = undefined;
-				if (next === undefined) setWorking(false);
-				else reply(next);
+				if (queued.current === 0) setWorking(false);
+				else {
+					queued.current -= 1;
+					reply();
+				}
 			}),
 		);
 	};
@@ -171,14 +160,14 @@ function Assistant() {
 						setAttachments((all) => all.filter((each) => each.id !== id));
 					},
 					placeholder: "Ask about your deploys",
-					notice: working ? QUEUED : notice(),
+					notice: working ? QUEUED : NOTICE,
 					working,
 					onSend: () => {
 						say({ author: "you", body: value });
 						setValue("");
 						setAttachments([]);
-						if (working) queued.current = value;
-						else reply(value);
+						if (working) queued.current += 1;
+						else reply();
 					},
 					onStop: async () => {
 						// The words so far stay in the conversation, then the line
@@ -186,7 +175,7 @@ function Assistant() {
 						const partial = await answer?.stop();
 						if (partial?.body) record(partial);
 						setAnswer(undefined);
-						queued.current = undefined;
+						queued.current = 0;
 						setWorking(false);
 						say({ author: "system", body: "Answer stopped" });
 						toast("Answer stopped");

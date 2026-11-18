@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 import { TASKS } from "../fixtures/tasks.ts";
 
 // The work's state, held in the page: the queue in the order the tasks are done
-// and the ids each board holds. A write answers after a beat, as a server's would.
+// and the ids each board holds, none for a board it does not name. A write answers after a beat, as a server's would.
 interface Work {
 	queue: readonly string[];
 	boards: Readonly<Record<string, readonly string[]>>;
@@ -13,7 +13,7 @@ interface Work {
 
 const work = createStore<Work>({
 	queue: ["t5", "t2", "t9", "t1", "t7"],
-	boards: { someday: ["t3"], web: [], platform: [], beta: [] },
+	boards: { someday: ["t3"] },
 });
 
 const later = () => new Promise<void>((resolve) => setTimeout(resolve, 200));

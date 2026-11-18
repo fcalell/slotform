@@ -227,9 +227,9 @@ function Record(props: {
 // The step is a selection of the deploy's read, so a step that is gone draws the empty shape.
 export function DeployStep(props: { deployId: string; stepId: string }) {
 	const deploy = deployRead(props.deployId);
-	const step = deploy.at((each) =>
-		each.steps.find((one) => one.id === props.stepId),
-	);
+	const stepOf = (each: OpenDeploy) =>
+		each.steps.find((one) => one.id === props.stepId);
+	const step = deploy.at(stepOf);
 	const open = useRead(step);
 	return (
 		<>
@@ -245,7 +245,7 @@ export function DeployStep(props: { deployId: string; stepId: string }) {
 				)}
 				empty={{ sentence: "This step is not in the deploy." }}
 				items={deploy.at((each) => {
-					const one = each.steps.find((it) => it.id === props.stepId);
+					const one = stepOf(each);
 					return one
 						? [
 								{

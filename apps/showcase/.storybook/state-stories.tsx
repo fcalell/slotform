@@ -8,9 +8,7 @@ interface Args {
 	classSet: string;
 }
 
-// One story per component and state: every class set the component draws in that
-// state, light and dark side by side, at the toolbar's density. The `rest`
-// story takes a `classSet` arg to browse one class set.
+// A component's stories: docs/architecture/ui-core/showcase.md, "The roster in Storybook".
 export function stateStories(component: string, draw?: Draw) {
 	const own = SCENES.filter((scene) => scene.component === component);
 	return (state: string): StoryObj<Args> => {

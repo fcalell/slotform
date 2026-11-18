@@ -69,7 +69,8 @@ function Requests() {
 	const [q, setQ] = useState("");
 	const [picked, setPicked] = useState<Picked<Query>>({ ids: [] });
 	const remove = useMutation(orpc.requests.remove.mutationOptions());
-	const requests = orpc.requests.list.window(q ? { q } : {});
+	const query: Query = q ? { q } : {};
+	const requests = orpc.requests.list.window(query);
 	// The count the foot's chosen bar says: the ids ticked, or the query's
 	// rows less those unticked, out of every row the filter matches.
 	const total = useWindow(requests)?.total ?? 0;
@@ -77,7 +78,6 @@ function Requests() {
 		"ids" in picked
 			? picked.ids.length
 			: Math.max(0, total - picked.except.length);
-	const query: Query = q ? { q } : {};
 	return (
 		<Pane
 			foot={
@@ -98,7 +98,10 @@ function Requests() {
 								title: "Delete the chosen requests?",
 								sentence: "Their logs go with them.",
 							},
-							onAct: () => remove.mutateAsync({ requests: picked }),
+							onAct: async () => {
+								await remove.mutateAsync({ requests: picked });
+								setPicked({ ids: [] });
+							},
 							done: "Requests deleted",
 						},
 					]}

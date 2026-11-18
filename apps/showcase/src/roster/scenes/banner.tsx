@@ -5,8 +5,8 @@ import { TONES } from "@fcalell/ui-core/tokens";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { Wide } from "./layout-context.tsx";
 import { hang, Pressed } from "./pending.tsx";
+import { act } from "./section-rows.ts";
 
-const act = () => {};
 // A touched form, so a blocked act shows its reason.
 const TOUCHED = { touched: true, touch: act, leave: createLeave() };
 const TRIAL = "Your trial ends in 3 days.";

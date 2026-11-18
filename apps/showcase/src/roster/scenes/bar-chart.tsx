@@ -3,7 +3,13 @@ import {
 	type BarRegions,
 } from "@fcalell/plugin-react-ui/components/bar-chart";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
+import { CHART_SERIES } from "@fcalell/ui-core/tokens";
+import {
+	HOURS as BY_HOUR,
+	WEEKS as BY_WEEK,
+} from "../../app/fixtures/activity.ts";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
+import { dayAfter } from "../day.ts";
 import { endedAt, itemsAt } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
@@ -31,14 +37,12 @@ const MINUTES = [
 	20, 70, 80, 110, 90, 80, 20, 10, 60, 70, 50,
 ];
 const DAYS: Day[] = MINUTES.map((value, index) => {
-	const day = new Date(Date.UTC(2026, 8, 3 + index)).toLocaleDateString("en", {
-		month: "short",
-		day: "numeric",
-		timeZone: "UTC",
-	});
+	const day = dayAfter(index);
 	return { day, value, at: day };
 });
 
+// The fills in series order, to find a `CHART_FILL` class set's hue in.
+const SERIES: readonly string[] = CHART_SERIES;
 const SERVICES = ["api", "web", "worker", "cron", "queue", "mail"];
 // Board 54's requests by service, a week of days; `wide` stacks all six
 // services, so every series mark stands.
@@ -162,24 +166,17 @@ const SPEND = [3.2, 4.15, 5.1, 6, 4.27, 3.5, 4.75].map(
 	}),
 );
 
-// Buckets named by a category, not timed: tasks closed by week (twenty-four
+// Buckets named by a category, not timed, the activity screen's: tasks closed by week (twenty-four
 // bars, so the names thin where they would touch) and closed by
 // time of day (six, every one named).
-const WEEKS: Day[] = [
-	42, 31, 58, 24, 66, 19, 73, 38, 81, 27, 64, 33, 55, 22, 47, 29, 61, 36, 52,
-	18, 44, 26, 39, 15,
-].map((value, index) => ({
-	day: `W${index + 1}`,
-	value,
+const WEEKS: Day[] = BY_WEEK.map(({ week, count }) => ({
+	day: week,
+	value: count,
 }));
-const HOURS: Day[] = [
-	["00h", 12],
-	["04h", 6],
-	["08h", 28],
-	["12h", 51],
-	["16h", 64],
-	["20h", 47],
-].map(([day, value]) => ({ day: String(day), value: Number(value) }));
+const HOURS: Day[] = BY_HOUR.map(({ hour, count }) => ({
+	day: hour,
+	value: count,
+}));
 const NAMED: BarRegions<Day> = { ...BAR, label: (day) => day.day };
 
 // A `CHART_FILL.series` class set past the first stacks by service (past the
@@ -224,7 +221,7 @@ function Chart(props: {
 			read={minutes}
 		>
 			<BarChart
-				label="Build minutes per day, Sep 3 to Oct 2"
+				label={`Build minutes per day, ${dayAfter(0)} to ${dayAfter(MINUTES.length - 1)}`}
 				items={minutes}
 				bar={BAR}
 				unit="minutes"
@@ -253,9 +250,10 @@ export function drawBarChart(scene: ShowcaseScene) {
 			</Wide>
 		) : undefined;
 	const classSet = scene.classSet.name;
-	const wide = ["pink", "green", "red"].some((hue) => classSet.endsWith(hue));
-	const stacked =
-		wide || ["violet", "amber"].some((hue) => classSet.endsWith(hue));
+	const [group, , hue] = classSet.split(".");
+	const series = group === "CHART_FILL" && hue ? SERIES.indexOf(hue) : -1;
+	const stacked = series >= 1;
+	const wide = series >= 3;
 	const quiet = classSet.startsWith("CHART_BAND") && scene.state === "rest";
 	const keys = SERVICES.slice(0, wide ? SERVICES.length : 3);
 	if (isPaint(scene)) {
