@@ -319,9 +319,9 @@ export const db = plugin("db", {
 			}
 			return push;
 		};
-		const migrationsPath = posix
-			.normalize(self.options.migrations)
-			.replace(/\/$/, "");
+		// Read when a slot resolves: the init prompt graph runs contributes over unparsed `{}` options.
+		const migrationsPath = () =>
+			posix.normalize(self.options.migrations).replace(/\/$/, "");
 		const d1 = self.options.dialect === "d1";
 
 		return [
@@ -638,11 +638,11 @@ export const db = plugin("db", {
 					]
 				: []),
 
-			cliSlots.removeFiles.contribute(() => ["src/schema/", migrationsPath]),
+			cliSlots.removeFiles.contribute(() => ["src/schema/", migrationsPath()]),
 
 			// drizzle-kit writes the migrations (snapshots, journal) in its own
 			// format: generated, so Biome skips them.
-			cliSlots.lintIgnore.contribute(() => migrationsPath),
+			cliSlots.lintIgnore.contribute(() => migrationsPath()),
 		];
 	},
 });
