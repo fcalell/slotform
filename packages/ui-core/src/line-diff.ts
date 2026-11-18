@@ -21,10 +21,10 @@ interface Op {
 // of context around each change, as git shows them. Where an added or removed
 // block could stand at more than one place at the same cost (its last line
 // repeats the line before it, or its first the line after), it stands where
-// git's indent heuristic puts it, so the block reads whole and balanced; and a
-// block added after the last member of a list, which gives the closing line
-// before it a comma, draws that closing line changed, so the block shows with
-// its own close (`readable`).
+// git's indent heuristic puts it, so the block reads whole and balanced
+// (`slid`); and a block added after the last member of a list, which gives the
+// closing line before it a comma, draws that closing line changed, so the block
+// shows with its own close (`commaClosed`).
 export function lineHunks(before: string, after: string): Hunk[] {
 	const ops: Op[] = [];
 	for (const change of diffLines(before, after)) {
@@ -35,7 +35,7 @@ export function lineHunks(before: string, after: string): Hunk[] {
 				: "context";
 		for (const raw of splitLines(change.value)) ops.push({ kind, raw });
 	}
-	return hunksOf(readable(ops));
+	return hunksOf(commaClosed(slid(ops)));
 }
 
 // A text's lines, each with its line end; the last one without when the text
@@ -46,12 +46,6 @@ function splitLines(text: string): string[] {
 	const last = lines.pop() as string;
 	if (last !== "\n") lines.push(last.slice(0, -1));
 	return lines;
-}
-
-// The ops with each pure block slid to its best place, then each closing line
-// a block hangs a comma on drawn changed.
-function readable(ops: readonly Op[]): Op[] {
-	return commaClosed(slid(ops));
 }
 
 // ── Sliding (git's indent heuristic, xdiff's `xdl_change_compact`) ──

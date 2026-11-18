@@ -1,4 +1,4 @@
-// What a part draws while its data is not here, free of any framework: docs/architecture/ui-core/reads.md, "Paint".
+// What a part draws while its data is not here, free of any framework, and the live motion knobs its timing reads: docs/architecture/ui-core/reads.md, "Paint".
 
 import { record } from "./record.ts";
 import { createTicker, groupZeros } from "./scramble.ts";
@@ -60,14 +60,9 @@ export function kindOf(role: PaintRole): LoadingRegion {
 // line, so these always pulse, each of their lines a bar.
 const WRAPS: ReadonlySet<PaintRole> = new Set(["sentence", "paragraph"]);
 
-// Whether a role's region can be scrambled: the one-line ones.
-function scrambles(role: PaintRole): boolean {
-	return !WRAPS.has(role);
-}
-
 // Whether a role's waiting region is scrambled, not pulsing: docs/architecture/ui-core/reads.md, "Waiting paint".
 export function scrambled(role: PaintRole): boolean {
-	return loading[kindOf(role)] === "scramble" && scrambles(role);
+	return loading[kindOf(role)] === "scramble" && !WRAPS.has(role);
 }
 
 // The page's one clock for every scramble and busy glyph, ticking at

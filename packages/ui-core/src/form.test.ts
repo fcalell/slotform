@@ -28,7 +28,9 @@ const input = (minItems?: number) => ({
 });
 
 test("a pick of several with no pick holds the empty list", () => {
-	assert.equal(isEmpty(derive(input(), "helpers", undefined), []), false);
+	const helpers = derive(input(), "helpers", undefined);
+	assert.equal(isEmpty(helpers, toShown(helpers, undefined)), false);
+	assert.deepEqual(toInput(helpers, [], ENGLISH), { value: [] });
 });
 
 test("a pick of several that asks for one is empty with no pick", () => {
@@ -143,7 +145,16 @@ test("a value the schema's checks refuse is the field's issue before the send", 
 		value: "https://example.org",
 	});
 	// A moment is sent as a `Date`, which the string's pattern does not judge.
-	assert.ok(!("issue" in Object(made("when", "2024-05-01", "date"))));
+	assert.deepEqual(made("when", "2024-05-01", "date"), {
+		value: new Date("2024-05-01"),
+	});
+	assert.equal(made("count", "Infinity"), "invalid");
+	assert.equal(made("count", "1e999"), "invalid");
+});
+
+test("a hint the schema does not fit throws", () => {
+	assert.throws(() => derive(checks, "count", "mono"), /not a string/);
+	assert.throws(() => derive(checks, "when", "secret"), /date-time/);
 });
 
 test("a whole number and exclusive bounds are checked; a bare pattern is the server's", () => {

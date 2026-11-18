@@ -67,8 +67,10 @@ function roots(): string[] {
 
 test("no consumer's names in stack's sources, guides or docs", () => {
 	const hits: string[] = [];
+	const scanned = new Set<string>();
 	for (const root of roots()) {
 		for (const file of files(root)) {
+			scanned.add(relative(ROOT, file));
 			const lines = readFileSync(file, "utf8").split("\n");
 			lines.forEach((line, i) => {
 				for (const word of CONSUMER_WORDS)
@@ -77,5 +79,12 @@ test("no consumer's names in stack's sources, guides or docs", () => {
 			});
 		}
 	}
+	// A scan that reaches nothing finds nothing: it reaches a source, a guide and a doc.
+	for (const known of [
+		"packages/ui-core/src/form.ts",
+		"plugins/react-ui/guide/rules.md",
+		"docs/index.md",
+	])
+		assert.ok(scanned.has(known), known);
 	assert.deepEqual(hits, []);
 });

@@ -1,10 +1,10 @@
 import { sizeOf, sizePx, spacingOf, widthPx } from "./scales.ts";
 import { KNOB_DEFAULTS, MEASURE_CHARACTERS, SANS_ADVANCE } from "./tokens.ts";
+import { ROW_TEXT_FLOOR } from "./variants.ts";
 
 // The one overflow rule for acts side by side: docs/architecture/ui-core/layout.md, "Overflow rules".
 const ACTS_STAND = 1;
 
-// The acts that stand and those the more menu holds, in their order.
 export function actsSplit<T>(acts: readonly T[]): {
 	standing: readonly T[];
 	folded: readonly T[];
@@ -16,7 +16,14 @@ export function actsSplit<T>(acts: readonly T[]): {
 }
 
 // A row's one-line form, a rule of its width: docs/architecture/ui-core/layout.md, "Overflow rules".
-const TEXT_FLOOR = 2 / 5;
+// The text group's share of the row, read from its floor's `basis-<a>/<b>`.
+const TEXT_FLOOR = (() => {
+	const [, over, under] = /\bbasis-(\d+)\/(\d+)\b/.exec(ROW_TEXT_FLOOR) ?? [];
+	if (over === undefined || under === undefined) {
+		throw new Error("ROW_TEXT_FLOOR holds no fractional basis");
+	}
+	return Number(over) / Number(under);
+})();
 const CHARACTERS = MEASURE_CHARACTERS["measure-short"] * SANS_ADVANCE;
 export function rowOneLine(size = KNOB_DEFAULTS.size): number {
 	const gap = spacingOf("desktop", "gap", size);

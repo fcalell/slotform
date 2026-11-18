@@ -83,7 +83,7 @@ The subpaths:
   attempt asks once while the form stands edited. Both plugins' forms drive it.
 - `@fcalell/ui-core/form`: what a `Form` is made of on both platforms: the `FieldSpec`, `FormFields`,
   `FormGroupOf`, `Can` and `FormSubmit` types, `pathOf` (a procedure's dotted path, from its mutation key), and the derivation of a field from a procedure's input JSON Schema
-  (`derive`: its control, whether it is required, its values; `toHeld`, `isEmpty` and `toInput`:
+  (`derive`: its control, whether it is required, its values; `toShown`, `isEmpty` and `toInput`:
   what the control shows, whether it is empty and the value the input takes; `readPicked`: a picked
   file as the text or base64 a `file` field sends). No React.
 - `@fcalell/ui-core/route`: where an address stands among a shell's places, by plain string

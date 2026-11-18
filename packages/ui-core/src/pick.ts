@@ -1,4 +1,4 @@
-// What a picker derives from its options and its value, in any of its fits: the search's threshold, the one-or-several split of a value, the option groups, the rows painted while they wait, whether segments are links and the link segment a location selects. Both platforms' `Picker` draws from it.
+// What a picker derives from its options and its value, in any of its fits: the search's threshold, the one-or-several split of a value, the option groups, the rows painted while they wait, whether segments are links and the link segment a location selects, the ends a segmented track holds more at than it shows. Both platforms' `Picker` draws from it.
 import type {
 	ChoiceSegment,
 	LinkSegment,
@@ -67,7 +67,6 @@ export function paintedGroups<V extends string | null>(
 	return regions.group === undefined ? options : [{ label: "", options }];
 }
 
-/** The path of a location or an href: its query and its hash set aside. */
 const pathOf = (route: string) => route.replace(/[?#].*$/, "");
 
 /** Whether the segments are links: the tabs of a place. */

@@ -5,6 +5,7 @@ import type {
 	ChangeKind,
 	ChipMark,
 	ChoiceRegions,
+	ColumnWidth,
 	Drop,
 	IconAct,
 	IconLinkAct,
@@ -30,6 +31,7 @@ import type {
 } from "./descriptors.ts";
 import { formatterFor } from "./format.ts";
 import { painting } from "./paint.ts";
+import type { Several } from "./pick.ts";
 import { isSelection, type Selection } from "./read.ts";
 import { nounOf } from "./rules.ts";
 import { partText } from "./runs.ts";
@@ -295,16 +297,9 @@ export interface OneChoice<V extends string> {
 	onChange: (value: V) => void;
 }
 
-// A list Picker's several choices: check rows, each toggling the set.
-export interface SetChoice<V extends string> {
-	// The chosen options' values.
-	value: readonly V[];
-	// Hears the whole chosen set after a toggle.
-	onChange: (value: V[]) => void;
-}
-
-// A list Picker's choice in either form.
-export type OptionChoice<V extends string> = OneChoice<V> | SetChoice<V>;
+// A list Picker's choice in either form: radio rows, or check rows each
+// toggling the set.
+export type OptionChoice<V extends string> = OneChoice<V> | Several<V>;
 
 // The form a value picks: a set is several choices, one value or null one.
 function isOneChoice<V extends string>(
@@ -479,7 +474,6 @@ export function cellLocked(
 	return leading || column.edit !== undefined;
 }
 
-// The rows a tick reaches: every row with no blocked reason.
 export function tickable(rows: readonly TableRecord[]): TableRecord[] {
 	return rows.filter((row) => row.blocked === undefined);
 }
@@ -629,8 +623,7 @@ export function isPick<T, Q>(
 	return "picked" in choose;
 }
 
-// The reason a row's tick stands as it does, drawn under its leading cell: why
-// it cannot be ticked, else why a rule moved it.
+// The reason a row's tick stands as it does, drawn under its leading cell.
 export function chooseReason(row: TableRecord): string | undefined {
 	return row.blocked ?? row.moved;
 }
@@ -736,8 +729,9 @@ export function isTouchSplit(
 	);
 }
 
-// The share of the table's width a fractional column takes.
-const FRACTION: Record<string, number> = {
+// The share of the table's width a fractional column takes; a measure is none.
+const FRACTION: Record<ColumnWidth, number | undefined> = {
+	"measure-short": undefined,
 	"1/4": 1 / 4,
 };
 
@@ -781,7 +775,7 @@ function figureWidth(
 // (`CHIP_DOT`, `gap`), and the cell's inset, so a chip is never cut while
 // another column has room. The grid is fixed, so the column is given the width
 // it will need.
-export function chipWidth(
+function chipWidth(
 	column: Partial<Pick<TableColumn, "width" | "kind">>,
 	fit: number,
 ): string {
@@ -832,7 +826,8 @@ export function columnAsked(
 	age: number,
 	fit = 0,
 ): string | undefined {
-	if (column.width !== undefined && column.width in FRACTION) return undefined;
+	if (column.width !== undefined && FRACTION[column.width] !== undefined)
+		return undefined;
 	const floor = columnFloor(column, age, fit);
 	return floor === SHORT ? undefined : floor;
 }
@@ -1053,8 +1048,8 @@ export function order(
 	if (cell === null || cell === undefined) return "";
 	if (typeof cell === "number") return finite(cell);
 	if (isChangeCell(cell)) return cell.after ?? "";
-	if (typeof cell === "object")
-		return "tone" in cell ? (cell.label ?? cell.tone) : cell.label;
+	if (isStatusFact(cell)) return cell.label ?? cell.tone;
+	if (typeof cell === "object") return cell.label;
 	if (column.kind === "age") return finite(Date.parse(cell));
 	return cell;
 }
@@ -1125,7 +1120,7 @@ export function chipOf(
 	return undefined;
 }
 
-// A table cell that holds a status (the object with a `state`).
+// A table cell that holds a status (the object with a `tone`).
 export function isStatusCell(cell: TableCell | undefined): cell is StatusMark {
 	return typeof cell === "object" && cell !== null && "tone" in cell;
 }
@@ -1294,8 +1289,7 @@ export function isCopy(
 /** The words a title names, which name the row where it has no label. */
 export function titleWords(title: RowTitle): string {
 	if (isAbsent(title)) return title.absent;
-	if (typeof title === "object" && !Array.isArray(title) && "tone" in title)
-		return title.label ?? "";
+	if (isStatusFact(title)) return title.label ?? "";
 	return partText(title as Parameters<typeof partText>[0]);
 }
 
@@ -1338,7 +1332,7 @@ export function factKey<V extends string | null>(fact: RecordFact<V>): string {
 	return partText(fact);
 }
 
-/** A list of facts by kind: its status (the first one, which leads the line and takes the row's lock after it; a further status is a badge in the list's own order), its warnings, chips and boolean marks in the order given, and its words, each one fact. */
+/** A list of facts by kind: its status (the first one, which leads the line and takes the row's lock after it; a further status is in no part), its warnings, chips and boolean marks in the order given, and its words, each one fact. */
 export interface FactParts {
 	status: StatusMark | undefined;
 	warnings: string[];

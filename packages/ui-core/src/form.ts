@@ -341,6 +341,13 @@ function deriveField(
 		}
 		return { ...base, control: "json" };
 	}
+	const typed =
+		schema.type === "string" &&
+		schema.enum === undefined &&
+		schema.const === undefined;
+	if (hint !== undefined && !typed) {
+		throw new Error(`is a ${hint} field whose schema is not a string`);
+	}
 	if (schema.const !== undefined && !schema.enum) {
 		return {
 			...base,
@@ -354,6 +361,9 @@ function deriveField(
 	switch (schema.type) {
 		case "string":
 			if (schema.format === "date-time") {
+				if (hint !== undefined && hint !== "date") {
+					throw new Error(`is a ${hint} field whose schema is a date-time`);
+				}
 				return { ...base, control: "date", instant: true };
 			}
 			if (hint === "mono" || hint === "prose" || hint === "source") {
@@ -415,8 +425,7 @@ export type Held = string | boolean | readonly string[] | PickedFile | null;
 
 const day = (date: Date) => date.toISOString().slice(0, 10);
 
-/** What the control shows for the input's value (a number as typed, a date as `YYYY-MM-DD`). Nothing where the input has none. */
-export function toHeld(derived: Derived, value: unknown): Held | undefined {
+function toHeld(derived: Derived, value: unknown): Held | undefined {
 	if (value === undefined) value = derived.fallback;
 	if (value === undefined || value === null) return undefined;
 	switch (derived.control) {
@@ -438,14 +447,15 @@ export function toHeld(derived: Derived, value: unknown): Held | undefined {
 	}
 }
 
-/** What a field's control is handed: `toHeld`, and for a control that types (text, a number, a date, lines, code, json) the empty string where the input has none, so its box is controlled from its first render and never flips from uncontrolled once a value lands. A switch, a pick, several and a file keep nothing as nothing. */
+/** What a field's control is handed for the input's value (a number as typed, a date as `YYYY-MM-DD`), and where the input has none: for a control that types (text, a number, a date, lines, code, json) the empty string, so its box is controlled from its first render and never flips from uncontrolled once a value lands; for a required pick of several the empty list, the one empty value its key takes. A switch, a pick, an optional several and a file keep nothing as nothing. */
 export function toShown(derived: Derived, value: unknown): Held | undefined {
 	const held = toHeld(derived, value);
 	if (held !== undefined) return held;
 	switch (derived.control) {
+		case "several":
+			return derived.required ? [] : undefined;
 		case "switch":
 		case "pick":
-		case "several":
 		case "file":
 			return undefined;
 		default:
@@ -565,7 +575,7 @@ function converted(
 			}
 		case "number": {
 			const value = Number(shown.trim());
-			return Number.isNaN(value) ? "invalid" : { value };
+			return Number.isFinite(value) ? { value } : "invalid";
 		}
 		case "date": {
 			const text = shown.trim();

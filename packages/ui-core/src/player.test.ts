@@ -239,3 +239,38 @@ test("the volume is kept, and a muted track unmutes when the volume rises", () =
 	assert.equal(store.view().muted, false);
 	assert.deepEqual(kept, [[0.8, false]]);
 });
+
+test("a track that ends plays the next, and the queue's last one stops", async () => {
+	const store = createPlayer(host);
+	let report: PlayerReport | undefined;
+	store.connect((made) => {
+		report = made;
+		return silent();
+	});
+	store.player.play(track(0), [track(0), track(1)]);
+	report?.ended();
+	assert.equal(store.view().track?.title, "T1");
+	assert.equal(store.view().playing, true);
+	report?.ended();
+	assert.equal(store.view().playing, false);
+
+	const provider: QueueProvider = {
+		next: () => undefined,
+		previous: () => undefined,
+	};
+	store.player.play(track(5), provider);
+	report?.ended();
+	await settle();
+	assert.equal(store.view().playing, false);
+});
+
+test("a seek or a volume that is not a number moves nothing", () => {
+	const store = createPlayer(host);
+	store.connect(silent);
+	store.player.load({ ...track(0), duration: 100 });
+	store.player.seek(20);
+	store.player.seek(Number.NaN);
+	assert.equal(store.clock().time, 20);
+	store.player.setVolume(Number.NaN);
+	assert.equal(store.view().volume, 1);
+});

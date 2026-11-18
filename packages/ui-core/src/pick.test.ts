@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { optionRows, pickCurrent } from "./pick.ts";
+import { optionRows, pickCurrent, scrollEdges } from "./pick.ts";
 
 const options = [
 	{ value: null, label: "None" },
@@ -35,4 +35,11 @@ test("a long list puts each group's label ahead of its options and drops an empt
 		],
 	);
 	assert.deepEqual(optionRows([{ options: [a] }]), [{ option: a, index: 0 }]);
+});
+
+test("a track that scrolls sideways says which ends hold more", () => {
+	assert.deepEqual(scrollEdges(0, 288, 288), { start: false, end: false });
+	assert.deepEqual(scrollEdges(0, 288, 400), { start: false, end: true });
+	assert.deepEqual(scrollEdges(60, 288, 400), { start: true, end: true });
+	assert.deepEqual(scrollEdges(112, 288, 400), { start: true, end: false });
 });

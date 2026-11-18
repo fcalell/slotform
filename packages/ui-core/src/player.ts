@@ -1,7 +1,7 @@
 // The audio player's rules, free of any framework and of the sound: docs/architecture/ui-core/sound.md, "Player".
 import type { Track } from "./descriptors.ts";
 import { createStore } from "./store.ts";
-import { SEEK } from "./waveform.ts";
+import { clamp, SEEK } from "./waveform.ts";
 
 // Past this many seconds in, Previous returns to the track's start; before it,
 // it goes to the track before.
@@ -171,9 +171,6 @@ export interface PlayerStore {
 	subscribeClock(listener: () => void): () => void;
 	clock(): PlayerTime;
 }
-
-const clamp = (value: number, min: number, max: number) =>
-	Math.min(max, Math.max(min, value));
 
 const same = (a: Track | undefined, b: Track | undefined): boolean =>
 	a !== undefined && b !== undefined && keyOf(a) === keyOf(b);
@@ -356,6 +353,17 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 		else none?.();
 	};
 
+	// Plays the track after the loaded one; `none` runs at the queue's end.
+	const advance = (none?: () => void) => {
+		if (provider) {
+			void step("next", none);
+			return;
+		}
+		const next = neighbour(queue, track, 1);
+		if (next) open(next, undefined, true);
+		else none?.();
+	};
+
 	const commands: PlayerCommands = {
 		play(next, tracks) {
 			if (!next) {
@@ -381,8 +389,9 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			if (playing) commands.pause();
 			else commands.play();
 		},
+		// A seek or a volume that is not a number moves nothing.
 		seek(seconds) {
-			if (!track) return;
+			if (!track || Number.isNaN(seconds)) return;
 			const length =
 				timeline.get().duration > 0
 					? timeline.get().duration
@@ -396,6 +405,7 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			commands.seek(timeline.get().time + seconds);
 		},
 		setVolume(next) {
+			if (Number.isNaN(next)) return;
 			volume = clamp(next, 0, 1);
 			if (volume > 0) muted = false;
 			sync();
@@ -409,12 +419,7 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			emit();
 		},
 		playNext() {
-			if (provider) {
-				void step("next");
-				return;
-			}
-			const next = neighbour(queue, track, 1);
-			if (next) open(next, undefined, true);
+			advance();
 		},
 		playPrevious() {
 			if (provider) {
@@ -474,25 +479,10 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			emit();
 		},
 		ended() {
-			if (provider) {
-				const current = track;
-				void ahead?.next.answer.then((found) => {
-					if (track !== current || !provider) return;
-					if (found) open(found, undefined, true);
-					else {
-						playing = false;
-						emit();
-					}
-				});
-				return;
-			}
-			const next = neighbour(queue, track, 1);
-			if (next) {
-				open(next, undefined, true);
-				return;
-			}
-			playing = false;
-			emit();
+			advance(() => {
+				playing = false;
+				emit();
+			});
 		},
 		failed() {
 			failed = true;

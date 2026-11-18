@@ -2,9 +2,10 @@
 
 import type { Token, Tokens } from "marked";
 
-// A link's target, unless its scheme runs script.
+// A link's target, unless its scheme runs script. A URL parser drops control
+// characters and spaces around and inside a scheme, so the test drops them too.
 export function safeHref(href: string): string | undefined {
-	const scheme = href.replaceAll(/\s/g, "").toLowerCase();
+	const scheme = href.replaceAll(/[\p{Cc}\s]/gu, "").toLowerCase();
 	return /^(?:javascript|vbscript|data):/.test(scheme) ? undefined : href;
 }
 
