@@ -71,7 +71,7 @@ export function Form<P extends ProcedureCall>(props: FormProps<P>) {
 }
 
 /** What a derived form draws: the structure `FormRows` and `useFormBar` take, the reads its bar paints under besides the form's own (the ability its `can` asks), and `clear`, which drops the viewer's edits and the refusals they drew. */
-export interface DerivedFrame {
+interface DerivedFrame {
 	frame: FormFrameProps;
 	outer: readonly unknown[];
 	clear: () => void;
@@ -84,7 +84,7 @@ interface NoFrame {
 	clear: () => void;
 }
 
-/** The derivation of a form over its procedure: its fields, its bar and its read, as the structure a `Form`, a `Gate` or a `Sheet` draws. Without props (a sheet with no form) it draws nothing. `stays`: the form stays on its page after a send (a `Form`, a `Gate`'s), so its fields go back to `values` unless its submit goes `to` a page; a sheet's does not, and the sheet calls `clear` as it opens again. Outside the package's exports. */
+/** The derivation of a form over its procedure: its fields, its bar and its read,  as the structure a `Form`, a `Gate` or a `Sheet` draws. Without props (a sheet with no form) it draws nothing. `stays`: the form stays on its page after a send (a `Form`, a `Gate`'s), so its fields go back to `values` unless its submit goes `to` a page; a sheet's does not, and the sheet calls `clear` as it opens again. */
 export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P>,
 	stays: boolean,

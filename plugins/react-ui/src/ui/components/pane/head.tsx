@@ -37,6 +37,7 @@ import { Painted } from "../../lib/paint.tsx";
 import { BusyMark, FrameLine } from "../../lib/read.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Button } from "../button/index.tsx";
+import { drawsNoName } from "../item-header/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
 import type { PickOneProps } from "../picker/index.tsx";
@@ -231,11 +232,7 @@ export function PaneHead(props: {
 				}
 			/>
 		) : null;
-	// A name whose read ended draws nothing of its own.
-	// A name that landed empty is none either: the page's empty shape says what it
-	// is, and an empty heading would only be one for a screen reader to land on.
-	const vacant = !name.painted && partText(name.value) === "";
-	const nameless = (name.painted && !paints(name)) || vacant;
+	const nameless = drawsNoName(name);
 	// A Pane whose read answered not found has no name to draw, no back act (the
 	// missing shape's Back is its one way out) and no acts, and beside another its
 	// bar stands the line its neighbours' bars do: it names what is missing, the

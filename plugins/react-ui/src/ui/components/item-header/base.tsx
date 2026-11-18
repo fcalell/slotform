@@ -17,7 +17,7 @@ import {
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { type Datum, type Drawn, paints } from "@fcalell/ui-core/read";
 import {
 	factParts,
 	filled,
@@ -85,9 +85,9 @@ const COLUMN = "min-w-0 grow";
 // its picker's pill, and a fact that opens a sheet is the outlined pill with its
 // chevron, so nothing outlined in the head is inert. A fact that links is a
 // badge whose words are underlined, inside the hit box (`ITEM_FACT_HIT`) the
-// target floor needs, the badge inside it carrying the washes.
+// target floor needs, the badge inside it carrying the washes. The pill and
+// the hit box around it are one inline box.
 const PILL = "inline-flex items-center min-w-0 max-w-full";
-const HIT = "inline-flex items-center min-w-0 max-w-full";
 const WORDS = cn("truncate", FIGURES);
 // A pick is its own control and its own pill (the picker's `fact` fit): one box,
 // the state pill itself where the chosen option carries a state, never a pill
@@ -106,9 +106,6 @@ export interface ItemHeaderParts<V extends string | null = string> {
 	image?: { src: Datum<string>; alt: string };
 }
 
-// A mark that does not hold (a ring that is false) says no fact.
-const isMark = isMarkFact;
-
 // A fact is a block of the line, fading in if it came on its own once the
 // header was drawn, held from the first render. A status is the Status's own.
 function FactPart<V extends string | null>({
@@ -126,7 +123,7 @@ function FactPart<V extends string | null>({
 			<a
 				href={fact.href}
 				onClick={follow}
-				className={cn(ITEM_FACT_HIT, HIT, fades && BLOCK_IN)}
+				className={cn(ITEM_FACT_HIT, PILL, fades && BLOCK_IN)}
 			>
 				<Badge hit>
 					<RunText runs={partRuns(fact.label)} fit="name" />
@@ -138,64 +135,44 @@ function FactPart<V extends string | null>({
 			<BaseButton
 				onClick={fact.onOpen}
 				aria-haspopup="dialog"
-				className={cn(ITEM_FACT_HIT, HIT, fades && BLOCK_IN)}
+				className={cn(ITEM_FACT_HIT, PILL, fades && BLOCK_IN)}
 			>
 				<OpenPill label={fact.label} />
 			</BaseButton>
 		);
+	return (
+		<span className={cn(PICK, fades && BLOCK_IN)}>
+			<FactBadge fact={fact} />
+		</span>
+	);
+}
+
+// A fact that neither links nor opens: its own box on the line.
+function FactBadge<V extends string | null>({ fact }: { fact: RecordFact<V> }) {
 	if (typeof fact === "object" && "pick" in fact)
-		return (
-			<span className={cn(PICK, fades && BLOCK_IN)}>
-				<HeldPicker {...fact.pick} fit="fact" />
-			</span>
-		);
+		return <HeldPicker {...fact.pick} fit="fact" />;
 	// A status is a badge: its tone's mark inside, then its word, the tone's
 	// where it brings none.
-	if (isStatusFact(fact))
-		return (
-			<span className={cn(PICK, fades && BLOCK_IN)}>
-				<StatusBadge status={fact} />
-			</span>
-		);
+	if (isStatusFact(fact)) return <StatusBadge status={fact} />;
 	// What is wrong: the warn glyph and its phrase, a badge.
-	if (isWarningFact(fact))
-		return (
-			<span className={cn(PICK, fades && BLOCK_IN)}>
-				<WarningBadge warning={fact.warning} />
-			</span>
-		);
+	if (isWarningFact(fact)) return <WarningBadge warning={fact.warning} />;
 	// A data value's tag: the family's dot (none for neutral) and its value.
-	if (isChipFact(fact))
-		return (
-			<span className={cn(PICK, fades && BLOCK_IN)}>
-				<ChipBadge chip={fact} />
-			</span>
-		);
+	if (isChipFact(fact)) return <ChipBadge chip={fact} />;
 	// A count is a badge: its word and its figure.
 	if (typeof fact === "object" && "count" in fact)
 		return (
-			<span className={cn(PICK, fades && BLOCK_IN)}>
-				<Badge>
-					{fact.label} <Count value={fact.count} />
-				</Badge>
-			</span>
+			<Badge>
+				{fact.label} <Count value={fact.count} />
+			</Badge>
 		);
 	if (isMarkFact(fact))
-		return (
-			<span className={cn(PICK, fades && BLOCK_IN)}>
-				{fact.words === false ? (
-					<Badge glyph={<EndMark mark={fact} />} />
-				) : (
-					<MarkBadge mark={fact} />
-				)}
-			</span>
+		return wordless(fact) ? (
+			<Badge glyph={<EndMark mark={fact} />} />
+		) : (
+			<MarkBadge mark={fact} />
 		);
 	// Every other kind of fact is told apart above: what is left is words.
-	return (
-		<span className={cn(PICK, fades && BLOCK_IN)}>
-			<WordsBadge fact={fact as Run} />
-		</span>
-	);
+	return <WordsBadge fact={fact as Run} />;
 }
 
 // A quiet fact beside the name: the glyph alone, fading in if it came on its
@@ -251,7 +228,14 @@ function PaintedFact({ fact, at }: { fact: unknown; at: number }) {
 	);
 }
 
-/** A record's head: its place (the overline, led on touch by where the record lives, which the bar holds on the desktop), its name and its facts, a pair apart; the bar holds the acts, so the head holds none. The name is the Pane's title, drawn whole and wrapping as the `h2` that names the Pane, its filler inside it while its read waits; given none, the head is the overline and the facts. A name, a part or a fact that is a selection paints in its place, and the facts take no press, until its read lands. Outside the package's exports: a Pane draws it for its `record`, and `ItemHeader` is the head with no name. */
+// A record's name draws none where its read ended or it landed empty: the
+// page's shape says why, and an empty heading would only be one for a screen
+// reader to land on.
+export function drawsNoName(name: Drawn<Run>): boolean {
+	return name.painted ? !paints(name) : partText(name.value) === "";
+}
+
+/** A record's head: its place (the overline, led on touch by where the record lives, which the bar holds on the desktop), its name and its facts, a pair apart; the bar holds the acts, so the head holds none. The name is the Pane's title, drawn whole and wrapping as the `h2` that names the Pane, its filler inside it while its read waits; a name that draws none leaves the head the overline and the facts. A name, a part or a fact that is a selection paints in its place, and the facts take no press, until its read lands. Outside the package's exports: a Pane draws it for its `record`. */
 export function ItemHeaderBase<V extends string | null = string>({
 	name: title,
 	nameId,
@@ -264,22 +248,17 @@ export function ItemHeaderBase<V extends string | null = string>({
 	/** Where the record lives (its Pane's `record.within`): on touch, where the bar holds the name alone, it leads the overline, so the place is given once and stands once at every density. */
 	within?: Datum<Run>;
 	/** The record's name: the Pane's title. */
-	name?: Datum<Run>;
+	name: Datum<Run>;
 	/** The id the name carries, which names the Pane. */
 	nameId?: string;
 }) {
-	// `name` draws `title`: where `title` is given, a loaded name is a `Run`,
-	// which the casts below name.
 	const [name] = useSelections([title]);
 	// On touch the bar drops the place for the name, so the overline leads with
 	// it; a name whose read ended leaves the place in the bar.
 	const touch = useTouch();
-	// A name that landed empty is none, as one whose read ended is none.
-	const nameless =
-		title !== undefined &&
-		(name.painted ? !paints(name) : partText(name.value as Run) === "");
+	const named = !drawsNoName(name);
 	const overline =
-		touch && within !== undefined && !nameless ? [within, ...given] : given;
+		touch && within !== undefined && named ? [within, ...given] : given;
 	// One subscription draws the overline's parts, then the facts, so every
 	// value types as the union of both: the casts name the slice's own, a
 	// `Run` in the overline's and a `RecordFact` in the facts'.
@@ -305,15 +284,13 @@ export function ItemHeaderBase<V extends string | null = string>({
 				(each.painted ||
 					typeof each.value !== "string" ||
 					filled(each.value as Run)) &&
-				(each.painted || !isMark(each.value) || says(each.value)),
+				(each.painted || !isMarkFact(each.value) || says(each.value)),
 		);
 	const painted = drawn.some(paints) || paints(name) || paints(about);
 	// A quiet fact stands beside the name where the head draws one; a head with
 	// no name keeps it in the facts line.
-	const named =
-		title !== undefined && (name.painted ? paints(name) : !nameless);
 	const aside = (each: (typeof stood)[number]) =>
-		named && !each.painted && isMark(each.value) && wordless(each.value);
+		named && !each.painted && isMarkFact(each.value) && wordless(each.value);
 	// A filter keeps no narrowing: `quiet` holds marks alone (`aside`).
 	const quiet = stood.filter(aside);
 	const line = stood.filter((each) => !aside(each));
@@ -326,10 +303,9 @@ export function ItemHeaderBase<V extends string | null = string>({
 	// The name is the Pane's heading in every form it draws: a waiting name
 	// paints inside it, named by the waiting word since its filler is hidden,
 	// so the page keeps its heading while the record loads.
-	const Name = "h2" as const;
 	const words = useWords();
 	const heading = named ? (
-		<Name
+		<h2
 			id={nameId}
 			aria-label={name.painted ? words.waiting : undefined}
 			className={cn(
@@ -341,14 +317,12 @@ export function ItemHeaderBase<V extends string | null = string>({
 		>
 			{name.painted ? (
 				<Painted role="title" />
-			) : isCode(name.value as Run) ? (
-				<code className={TITLE_CODE}>
-					{(name.value as { code: string }).code}
-				</code>
+			) : isCode(name.value) ? (
+				<code className={TITLE_CODE}>{name.value.code}</code>
 			) : (
-				<RunText runs={partRuns(name.value as Run)} wraps fit="name" />
+				<RunText runs={partRuns(name.value)} wraps fit="name" />
 			)}
-		</Name>
+		</h2>
 	) : null;
 	const column = (
 		<div className={cn(ITEM_HEADER, HEAD, image && COLUMN)}>

@@ -11,13 +11,13 @@ import {
 import { useHeldDraft } from "../../lib/act.ts";
 import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";
-import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
+import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
+import { BOX_HOVER } from "./base.tsx";
 import type { ProseProps } from "./index.tsx";
 
 // The box draws the field's states, as `Input`'s does.
 const BOX = "flex flex-col";
-const BOX_HOVER = `not-has-focus-visible:hover:border-edge-hover ${FOCUS_EDGE}`;
 const BOX_DISABLED = "bg-fill-disabled";
 const VALUE =
 	"block w-full resize-none field-sizing-content outline-none placeholder:text-ink-meta disabled:text-ink-disabled";

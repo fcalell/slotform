@@ -5,17 +5,16 @@ import { useAttempt } from "@fcalell/ui-core/react/acts";
 import { usePort } from "@fcalell/ui-core/react/port";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
-	FIELD_ERROR_LINE,
 	FLOW_IN,
 	OTP,
 	OTP_DIGIT,
 	otpBox,
 	text,
 } from "@fcalell/ui-core/variants";
-import { useId, useState } from "react";
 import { Spinner } from "../../atoms/spinner/index.tsx";
 import { useModality } from "../../lib/modality.ts";
 import type { CodeInputProps } from "./index.tsx";
+import { useRefusal } from "./refusal.tsx";
 
 // The checking line stands one `pair` under the row.
 const STACK = "flex flex-col gap-gap";
@@ -41,9 +40,7 @@ export function CodeField({
 	const words = useWords();
 	const acting = useAttempt();
 	const port = usePort();
-	// The check's refusal stands in the control's own line until the next digit.
-	const [refused, refuse] = useState<string>();
-	const line = useId();
+	const { refused, refuse, wired, line } = useRefusal();
 	const checking = acting.pending !== undefined;
 	const active = Math.min(value.length, length - 1);
 	// The attempt a Retry runs again: its promise, so the toast's act holds it.
@@ -69,24 +66,15 @@ export function CodeField({
 			inputMode="numeric"
 			autoComplete="one-time-code"
 			maxLength={length}
-			disabled={checking}
+			// Read-only, not disabled, while the check runs: a disabled input
+			// drops its focus, so the digit after a refusal would go nowhere.
+			readOnly={checking}
 			// Base UI's Field wires the input; the render function hands over its
 			// props and state so the boxes draw the field's error.
 			render={(control, state) => (
 				<div className={STACK}>
 					<div className={cn(OTP, ROW)}>
-						<input
-							{...control}
-							aria-invalid={refused ? true : control["aria-invalid"]}
-							aria-describedby={
-								refused
-									? [control["aria-describedby"], line]
-											.filter(Boolean)
-											.join(" ")
-									: control["aria-describedby"]
-							}
-							className={INPUT}
-						/>
+						<input {...control} {...wired(control)} className={INPUT} />
 						{Array.from({ length }, (_, index) => (
 							<span
 								key={index}
@@ -112,16 +100,7 @@ export function CodeField({
 							<span>{words.checking}</span>
 						</p>
 					) : null}
-					{refused ? (
-						<p
-							id={line}
-							key={refused}
-							role="alert"
-							className={cn(FIELD_ERROR_LINE, FLOW_IN)}
-						>
-							{refused}
-						</p>
-					) : null}
+					{line}
 				</div>
 			)}
 		/>

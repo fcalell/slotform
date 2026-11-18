@@ -135,6 +135,9 @@ function GroupBox(props: { group: FormGroup; arrived: boolean }) {
 	);
 }
 
+// A group's identity among the form's groups: its title, else its place.
+const keyOf = (group: FormGroup, index: number) => group.title ?? String(index);
+
 /** A form's rows: its fields (`children`, or `groups` each under its band) in the frame of the form's own `read`, then what follows them (`after`) at the card inset. Outside the package's exports: a `Form`, a `Sheet`'s form and a `Gate`'s form stand them in their `FormShell`. */
 export function FormRows({
 	children,
@@ -149,7 +152,7 @@ export function FormRows({
 	frame: Frame;
 }) {
 	const arrived = useArrivals(
-		groups?.map((group, index) => group.title ?? String(index)) ?? [],
+		groups?.map(keyOf) ?? [],
 		frame.shape === "ready",
 	);
 	return (
@@ -160,9 +163,9 @@ export function FormRows({
 					{groups
 						? groups.map((group, index) => (
 								<GroupBox
-									key={group.title ?? index}
+									key={keyOf(group, index)}
 									group={group}
-									arrived={arrived.has(group.title ?? String(index))}
+									arrived={arrived.has(keyOf(group, index))}
 								/>
 							))
 						: children}
@@ -184,7 +187,6 @@ export function useFormBar(
 	/** The holder of the bar's run, when the form stands in one that holds more than the bar (a sheet's dismissal). */
 	acting?: Acting<number>,
 ): ReactNode {
-	// A group's read is the group's, not the bar's.
 	const words = useWords();
 	const { waiting, ended } = submitOf(words, frame.shape);
 	const outerWaits = usePainted(outer);

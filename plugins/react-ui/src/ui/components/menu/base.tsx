@@ -52,15 +52,18 @@ const blockedOf = (item: MenuEntry) =>
 const destructiveOf = (item: MenuEntry) =>
 	"destructive" in item && item.destructive === true;
 
+// Each item keeps its place in the list, which keys it: two items may share
+// a label.
 function groupsOf(items: readonly MenuEntry[]) {
+	const placed = items.map((item, at) => ({ item, at }));
 	return [
 		{
 			kind: "acts" as const,
-			items: items.filter((item) => !destructiveOf(item)),
+			items: placed.filter(({ item }) => !destructiveOf(item)),
 		},
 		{
 			kind: "destructive" as const,
-			items: items.filter((item) => destructiveOf(item)),
+			items: placed.filter(({ item }) => destructiveOf(item)),
 		},
 	].filter((group) => group.items.length > 0);
 }
@@ -114,7 +117,8 @@ function rowOf(item: MenuEntry, highlighted: boolean): string {
 // The row each key moves the focus to, from the row at `at` of `count`.
 const MOVES: Record<string, (at: number, count: number) => number> = {
 	ArrowDown: (at, count) => (at + 1) % count,
-	ArrowUp: (at, count) => (at - 1 + count) % count,
+	// From the first row or from none, ArrowUp lands on the last.
+	ArrowUp: (at, count) => (at <= 0 ? count : at) - 1,
 	Home: () => 0,
 	End: (_, count) => count - 1,
 };
@@ -135,7 +139,7 @@ function moveFocus(event: KeyboardEvent<HTMLElement>): void {
 
 function Groups(props: {
 	items: readonly MenuEntry[];
-	item: (item: MenuEntry) => ReactNode;
+	item: (item: MenuEntry, at: number) => ReactNode;
 }) {
 	return groupsOf(props.items).map((group, index) => (
 		<div
@@ -145,7 +149,7 @@ function Groups(props: {
 				GROUP,
 			)}
 		>
-			{group.items.map(props.item)}
+			{group.items.map(({ item, at }) => props.item(item, at))}
 		</div>
 	));
 }
@@ -172,11 +176,11 @@ export function MenuBase({
 	const touch = useTouch();
 	const container = use(PortalContainer);
 	useQuietGuards();
-	// Each item runs under its label, so the sheet that opens is its item's.
-	const acting = useAct<string>("toast");
+	// Each item runs under its place, so the sheet that opens is its item's.
+	const acting = useAct<number>("toast");
 	const pending = acting.pending !== undefined;
-	const sheetOf = (label: string) => {
-		const item = items.find((one) => one.label === label);
+	const sheetOf = (at: number) => {
+		const item = items[at];
 		return item && "sheet" in item ? item.sheet : undefined;
 	};
 	const [open, setOpen] = useState(false);
@@ -211,10 +215,10 @@ export function MenuBase({
 					>
 						<Groups
 							items={items}
-							item={(item) =>
+							item={(item, at) =>
 								"href" in item ? (
 									<a
-										key={item.label}
+										key={at}
 										href={item.href}
 										role="menuitem"
 										onClick={(event) => {
@@ -228,7 +232,7 @@ export function MenuBase({
 									</a>
 								) : (
 									<button
-										key={item.label}
+										key={at}
 										type="button"
 										role="menuitem"
 										aria-disabled={item.blocked !== undefined || undefined}
@@ -236,7 +240,7 @@ export function MenuBase({
 											if (item.blocked !== undefined) return;
 											rememberOpener(expandedTrigger());
 											setOpen(false);
-											acting.attempt(item.label, item);
+											acting.attempt(at, item);
 										}}
 										className={cn(rowOf(item, false), BUTTON)}
 									>
@@ -280,10 +284,10 @@ export function MenuBase({
 					>
 						<Groups
 							items={items}
-							item={(item) =>
+							item={(item, at) =>
 								"href" in item ? (
 									<Control.LinkItem
-										key={item.label}
+										key={at}
 										label={item.label}
 										href={item.href}
 										// A link entry closes its menu as the touch sheet's does: the
@@ -299,11 +303,11 @@ export function MenuBase({
 									</Control.LinkItem>
 								) : (
 									<Control.Item
-										key={item.label}
+										key={at}
 										label={item.label}
 										onClick={() => {
 											rememberOpener(expandedTrigger());
-											acting.attempt(item.label, item);
+											acting.attempt(at, item);
 										}}
 										disabled={item.blocked !== undefined}
 										className={(state) => rowOf(item, state.highlighted)}

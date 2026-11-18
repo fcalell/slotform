@@ -207,7 +207,6 @@ export function Pane<
 	// read draws its form and not the head, and the bar's title is then the
 	// Pane's heading. An empty read is a record with nothing in it: its head
 	// stands, whole and wrapping, and the empty shape under it.
-	const headless = isEnded(frame.shape);
 	const head = record ? (
 		<ItemHeaderBase
 			name={title}
@@ -267,7 +266,7 @@ export function Pane<
 								context={context}
 								state={state}
 								frame={frame}
-								headed={record !== undefined && !headless}
+								headed={record !== undefined && !isEnded(frame.shape)}
 								noun={noun}
 							/>
 							{bodied || footed ? (

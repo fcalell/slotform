@@ -29,7 +29,6 @@ import {
 import {
 	type ChangeEvent,
 	type ClipboardEvent,
-	type DragEvent,
 	type KeyboardEvent,
 	type MouseEvent,
 	type ReactNode,
@@ -42,17 +41,18 @@ import { useAct, wiringOf } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import { ActInert } from "../../lib/form.ts";
 import { useTouch } from "../../lib/media.ts";
-import { BOX_FOCUS, FOCUS_EDGE, useModality } from "../../lib/modality.ts";
+import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { attachedFrom } from "../../lib/picked.ts";
 import { ButtonBase } from "../button/base.tsx";
 import { Button } from "../button/index.tsx";
+import { BOX_HOVER_VALUE } from "../input/base.tsx";
+import { chosenFiles, fileDrop } from "../input/drop.ts";
 import { Attachments } from "../message/attachments.tsx";
 
 const ROOT = "flex flex-col w-full";
 const STACK = "flex flex-col";
 // The box draws the field's states, as `Input`'s does: the acts inside it
 // answer their own pointer and ring on their own focus.
-const BOX_HOVER = `not-has-[button:hover]:not-has-focus-visible:hover:border-edge-hover ${FOCUS_EDGE}`;
 const BOX_DISABLED = "bg-fill-disabled";
 const FIELD_BOX = "flex flex-col justify-center grow min-w-0";
 const VALUE =
@@ -141,11 +141,8 @@ export function MessageInput({
 	const take = (files: ArrayLike<File>) => {
 		if (files.length > 0) onAttach?.(Array.from(files, attachedFrom));
 	};
-	const choose = (event: ChangeEvent<HTMLInputElement>) => {
-		take(event.currentTarget.files ?? []);
-		// The same file chosen again is a change the input would not report.
-		event.currentTarget.value = "";
-	};
+	const choose = (event: ChangeEvent<HTMLInputElement>) =>
+		take(chosenFiles(event));
 	// A pasted screenshot is a file; pasted text stays the text area's, even
 	// when the clipboard carries an image beside it (copied from an office
 	// document).
@@ -158,28 +155,7 @@ export function MessageInput({
 		event.preventDefault();
 		take(event.clipboardData.files);
 	};
-	const dropping =
-		onAttach && !disabled
-			? {
-					onDragOver: (event: DragEvent<HTMLDivElement>) => {
-						if (!event.dataTransfer.types.includes("Files")) return;
-						event.preventDefault();
-						setOver(true);
-					},
-					onDragLeave: (event: DragEvent<HTMLDivElement>) => {
-						const next = event.relatedTarget;
-						if (next instanceof Node && event.currentTarget.contains(next))
-							return;
-						setOver(false);
-					},
-					onDrop: (event: DragEvent<HTMLDivElement>) => {
-						setOver(false);
-						if (event.dataTransfer.files.length === 0) return;
-						event.preventDefault();
-						take(event.dataTransfer.files);
-					},
-				}
-			: undefined;
+	const dropping = onAttach && !disabled ? fileDrop(setOver, take) : undefined;
 	// A press on the box that lands on no act or chip puts the focus in the text,
 	// the caret at its end: the box is the field, not its one line. The text
 	// area itself is the textarea (it fills the box's text and the touch field's
@@ -201,7 +177,11 @@ export function MessageInput({
 		event.preventDefault();
 		if (sendable && !sending) send();
 	};
-	const box = cn(BOX_FOCUS, disabled ? BOX_DISABLED : BOX_HOVER, over && OVER);
+	const box = cn(
+		BOX_FOCUS,
+		disabled ? BOX_DISABLED : BOX_HOVER_VALUE,
+		over && OVER,
+	);
 	// A disabled input keeps its attach act, inert, so the field stands at one
 	// x and width in both forms.
 	const attach = onAttach ? (

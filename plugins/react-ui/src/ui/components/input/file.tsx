@@ -6,23 +6,23 @@ import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { filled } from "@fcalell/ui-core/tokens";
 import {
-	FIELD_ERROR_LINE,
 	FIELD_GLYPH,
 	FIELD_PLACEHOLDER,
 	FIGURES,
-	FLOW_IN,
 	field,
 	fieldValue,
 	text,
 	YIELDS_FIRST,
 } from "@fcalell/ui-core/variants";
-import { type ChangeEvent, type DragEvent, useId, useState } from "react";
+import { type ChangeEvent, useState } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { pickedFrom } from "../../lib/picked.ts";
 import { Button } from "../button/index.tsx";
 import { BOX, BOX_DISABLED, BOX_HOVER_VALUE } from "./base.tsx";
+import { chosenFiles, fileDrop } from "./drop.ts";
 import type { FilePickProps } from "./index.tsx";
+import { useRefusal } from "./refusal.tsx";
 
 // The native file input lies over the whole box, unseen: a press anywhere
 // opens the system dialog and the keyboard reaches it, so the box rings on its
@@ -59,9 +59,7 @@ function Name(props: { name: string }) {
 export function FileField({ value, onChange, accept }: FilePickProps) {
 	useModality();
 	const words = useWords();
-	// What the box refused stands in its own line until the next pick.
-	const [refused, refuse] = useState<string>();
-	const line = useId();
+	const { refused, refuse, wired, line } = useRefusal();
 	const [over, setOver] = useState(false);
 	const take = (file: File | undefined) => {
 		if (!file) return;
@@ -77,22 +75,10 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 		refuse(undefined);
 		onChange(pickedFrom(file));
 	};
-	const pick = (event: ChangeEvent<HTMLInputElement>) => {
-		take(event.currentTarget.files?.[0]);
-		// The same file chosen again is a change the input would not report.
-		event.currentTarget.value = "";
-	};
-	const leave = (event: DragEvent<HTMLDivElement>) => {
-		const next = event.relatedTarget;
-		if (next instanceof Node && event.currentTarget.contains(next)) return;
-		setOver(false);
-	};
-	const drop = (event: DragEvent<HTMLDivElement>, disabled: boolean) => {
-		// A file dropped past the box would open in the tab.
-		event.preventDefault();
-		setOver(false);
-		if (!disabled) take(event.dataTransfer.files[0]);
-	};
+	const pick = (event: ChangeEvent<HTMLInputElement>) =>
+		take(chosenFiles(event)[0]);
+	const drops = (disabled: boolean) =>
+		fileDrop(setOver, disabled ? undefined : (files) => take(files[0]));
 	return (
 		<div className={STACK}>
 			<Control
@@ -101,15 +87,9 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 				onChange={pick}
 				// Base UI's Field wires the control: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
 				render={(control, state) => (
-					// biome-ignore lint/a11y/noStaticElementInteractions: the box only takes a drop; the file input inside it is the control the keyboard reaches
 					<div
 						aria-disabled={state.disabled || undefined}
-						onDragOver={(event) => {
-							event.preventDefault();
-							if (!state.disabled) setOver(true);
-						}}
-						onDragLeave={leave}
-						onDrop={(event) => drop(event, state.disabled)}
+						{...drops(state.disabled)}
 						className={cn(
 							field({
 								trailing: value ? "act" : "none",
@@ -125,18 +105,7 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 								: state.valid !== false && !refused && BOX_HOVER_VALUE,
 						)}
 					>
-						<input
-							{...control}
-							aria-invalid={refused ? true : control["aria-invalid"]}
-							aria-describedby={
-								refused
-									? [control["aria-describedby"], line]
-											.filter(Boolean)
-											.join(" ")
-									: control["aria-describedby"]
-							}
-							className={PICK}
-						/>
+						<input {...control} {...wired(control)} className={PICK} />
 						<Icon name={value ? "File" : "FileUp"} fit="control" />
 						<span
 							className={cn(
@@ -179,16 +148,7 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 					</div>
 				)}
 			/>
-			{refused ? (
-				<p
-					id={line}
-					key={refused}
-					role="alert"
-					className={cn(FIELD_ERROR_LINE, FLOW_IN)}
-				>
-					{refused}
-				</p>
-			) : null}
+			{line}
 		</div>
 	);
 }

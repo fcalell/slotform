@@ -131,7 +131,7 @@ function SystemMessage(props: {
 	);
 }
 
-/** One turn as every Message draws it: a thread's `Message`, or `painted` (a turn while a thread's items are not here, inert: yours a bubble of one phrase's filler over the time's; the other author's its head, the name's filler and the time's, over one clipped line of filler where `name` is set, else that line over the time's filler). A named turn's time stands in its head beside the name; another's unnamed turn stands its time under it, as yours does. `arrives` is a turn that came to the end of a log on its own, which rises in (`STREAM_IN`). Memoised on its props: a thread's re-render skips each message whose author, body and time are unchanged. Outside the package's exports. */
+/** One turn as every Message draws it: a thread's `Message`, or `painted` (a turn while a thread's items are not here, inert: yours a bubble of one phrase's filler over the time's; the other author's its head, the name's filler and the time's, over one clipped line of filler where `name` is set, else that line over the time's filler). A named turn's time stands in its head beside the name; another's unnamed turn stands its time under it, as yours does. `arrives` is a turn that came to the end of a log on its own, which rises in (`STREAM_IN`). Memoised on its props, each compared by reference: a thread's re-render skips each message whose props are the same values as before. Outside the package's exports. */
 export const MessageBase = memo(function MessageBase(
 	props:
 		| (Message & { arrives?: boolean })

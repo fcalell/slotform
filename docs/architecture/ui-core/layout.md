@@ -101,7 +101,9 @@ one centred column at the `auth` width holding the step, a fields gap between ev
 3. the title, required, the page's one `h1`;
 4. the description, its strong runs at 500;
 5. a `Banner`;
-6. the step's body.
+6. the step's body;
+7. the `form`, its fields a card and its bar after it;
+8. the `acts`, an `ActionBar`.
 
 It hosts `toast()` and `confirm()` as the Shell does and draws no word of its own. On touch it spans
 the viewport inside the page inset on the surface and the step stands at the top; the phone keeps

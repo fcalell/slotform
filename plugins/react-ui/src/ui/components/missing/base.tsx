@@ -5,7 +5,8 @@ import { use } from "react";
 import { BackRoute, PlaceRoute } from "../../lib/container.ts";
 import { EmptyBase, type EmptyFit } from "../../lib/empty.tsx";
 
-/** The Back link of a Pane's read that answers not found: to the Pane's `back`, else the Panes's route; none with neither, and none where the Pane's `back` is `false`. */
+// The Back link of a Pane's read that answers not found: to the route its
+// Pane gives (`BackRoute`), else the Panes' route; none with neither.
 function useBackAct(): LinkAct | undefined {
 	const words = useWords();
 	const screen = use(BackRoute);

@@ -36,12 +36,16 @@ export interface GalleryProps extends Closed {
 
 /** Pictures side by side: each a tile a fixed height at its aspect (no narrower than three to four, cropped from its top; no wider than the container), its caption cut under it, the tiles wrapping a gap apart. A tile paints, waits and fails as an Image does. Pressed, the full view opens on that picture over the scrim, contain-fit inside the page inset, with Previous and Next beside it (and the arrow keys) stepping through the others, a lifted Close act, Escape and a press outside. */
 export function Gallery({ items }: GalleryProps) {
-	// The picture open, by its place in the list.
-	const [open, setOpen] = useState<number>();
-	const shown = open === undefined ? undefined : items[open];
+	// The picture open, by its key: a list that changes under the view keeps it
+	// on its picture, and a picture that leaves the list closes it.
+	const [open, setOpen] = useState<string>();
+	const at = items.findIndex((item) => item.key === open);
+	const shown = items[at];
+	const previous = items[at - 1];
+	const next = items[at + 1];
 	return (
 		<div data-wide="" className={GALLERY}>
-			{items.map((item, at) => {
+			{items.map((item) => {
 				const ratio = imageAspect("tile", item.aspect);
 				return (
 					<div key={item.key} className={GALLERY_TILE}>
@@ -50,7 +54,7 @@ export function Gallery({ items }: GalleryProps) {
 							alt={item.alt}
 							fit="tile"
 							box={{ aspectRatio: ratio }}
-							onOpen={() => setOpen(at)}
+							onOpen={() => setOpen(item.key)}
 						/>
 						{item.caption ? (
 							<span className={cn(text({ role: "meta" }), CAPTION)}>
@@ -66,12 +70,11 @@ export function Gallery({ items }: GalleryProps) {
 				src={shown?.src ?? ""}
 				alt={shown?.alt ?? ""}
 				steps={
-					open === undefined
+					shown === undefined
 						? undefined
 						: {
-								onPrevious: open > 0 ? () => setOpen(open - 1) : undefined,
-								onNext:
-									open < items.length - 1 ? () => setOpen(open + 1) : undefined,
+								onPrevious: previous && (() => setOpen(previous.key)),
+								onNext: next && (() => setOpen(next.key)),
 							}
 				}
 			/>

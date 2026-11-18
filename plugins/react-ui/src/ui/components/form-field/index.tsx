@@ -197,7 +197,6 @@ type FormFieldProps<
 
 // The props a field body reads, its descriptors at their widest.
 type Body = FormFieldBase & {
-	change?: ChangeKind;
 	field?: FieldBinding<unknown>;
 	error?: Run | Runs;
 	children?: ReactNode | ((control: FieldControl<unknown>) => ReactNode);
@@ -209,18 +208,122 @@ type Body = FormFieldBase & {
 	onLeave?: () => void;
 } & Partial<Controls<string | null, string, unknown>>;
 
-// The one descriptor set, if any.
-function kindOf(props: Body): ControlKind | undefined {
-	if (props.input) return "input";
-	if (props.textArea) return "textArea";
-	if (props.picker) return "picker";
-	if (props.switch) return "switch";
-	if (props.checkbox) return "checkbox";
-	if (props.slider) return "slider";
-	if (props.options) return "options";
-	if (props.segments) return "segments";
-	return undefined;
+// What a descriptor's control is drawn over: the draft the field holds and
+// the field's label, disabled state and error.
+interface Held {
+	draft: Draft<unknown>;
+	label: string;
+	disabled: boolean | undefined;
+	error: string | undefined;
 }
+
+// Each descriptor's control: the value it saves, which the field holds the
+// draft of; how it draws over that draft; and whether a `split` field stands
+// it beside its text (a text area, a slider and a group of options keep their
+// form). The field holds one draft for whichever control its props name, so
+// the draft is `unknown` and each control reads it as its own value; a pick's
+// `onChange` is read at its widest, as `FormField` reads the descriptors.
+const CONTROLS: Record<
+	ControlKind,
+	{
+		saved: (props: Body) => Datum<unknown>;
+		draw: (props: Body, held: Held) => ReactNode;
+		splits: boolean;
+	}
+> = {
+	input: {
+		saved: ({ input }) => input?.value,
+		draw: ({ input }, { draft }) =>
+			input && <InputBase {...input} draft={draft as Draft<string>} />,
+		splits: true,
+	},
+	textArea: {
+		saved: ({ textArea }) => textArea?.value,
+		draw: ({ textArea }, { draft }) =>
+			textArea && <ProseBase {...textArea} draft={draft as Draft<string>} />,
+		splits: false,
+	},
+	picker: {
+		saved: ({ picker }) => picker?.value,
+		draw: ({ picker }, { draft, label, disabled, error }) =>
+			picker && (
+				<PickerBase<string | null>
+					{...picker}
+					label={label}
+					form={{ invalid: Boolean(error), disabled: disabled === true }}
+					draft={
+						draft as Draft<
+							string | null | readonly (string | null)[] | undefined
+						>
+					}
+					onChange={
+						picker.onChange as (
+							next: string | null | (string | null)[],
+						) => unknown
+					}
+				/>
+			),
+		splits: true,
+	},
+	switch: {
+		saved: (props) => props.switch?.checked,
+		draw: (props, { draft, label }) =>
+			props.switch && (
+				<SwitchBase
+					{...props.switch}
+					draft={draft as Draft<boolean>}
+					label={label}
+				/>
+			),
+		splits: true,
+	},
+	checkbox: {
+		saved: ({ checkbox }) => checkbox?.checked,
+		draw: ({ checkbox }, { draft, label }) =>
+			checkbox && (
+				<CheckboxBase
+					{...checkbox}
+					draft={draft as Draft<boolean | "mixed">}
+					label={label}
+				/>
+			),
+		splits: true,
+	},
+	slider: {
+		saved: ({ slider }) => slider?.value,
+		draw: ({ slider }, { draft, label }) =>
+			slider && (
+				<SliderBase {...slider} draft={draft as Draft<number>} label={label} />
+			),
+		splits: false,
+	},
+	options: {
+		saved: ({ options }) => options?.value,
+		draw: ({ options }, { draft, label }) =>
+			options && (
+				<PickerListBase
+					{...options}
+					label={label}
+					draft={draft as Draft<string | null | readonly string[]>}
+					onChange={options.onChange as (next: string | string[]) => unknown}
+				/>
+			),
+		splits: false,
+	},
+	segments: {
+		saved: ({ segments }) => segments?.value,
+		draw: ({ segments }, { draft, label }) =>
+			segments && (
+				<SegmentsBase
+					{...segments}
+					draft={draft as Draft<string>}
+					label={label}
+				/>
+			),
+		splits: false,
+	},
+};
+const KINDS = Object.keys(CONTROLS) as ControlKind[];
 
 // The field's form follows which descriptor is set: a switch or a checkbox at
 // the value line's end, any other filling it; a slider's head is its own
@@ -228,106 +331,14 @@ function kindOf(props: Body): ControlKind | undefined {
 // on their own.
 type Form = "field" | ControlKind;
 
-// The value the descriptor's control saves, which the field holds the draft of.
-function savedOf(props: Body, kind: ControlKind | undefined): Datum<unknown> {
-	switch (kind) {
-		case "input":
-			return props.input?.value;
-		case "textArea":
-			return props.textArea?.value;
-		case "picker":
-			return props.picker?.value;
-		case "switch":
-			return props.switch?.checked;
-		case "checkbox":
-			return props.checkbox?.checked;
-		case "slider":
-			return props.slider?.value;
-		case "options":
-			return props.options?.value;
-		case "segments":
-			return props.segments?.value;
-		default:
-			return undefined;
-	}
-}
-
 // The control a field draws: the descriptor's control over the draft the field
-// holds, or its children, bound drawn from the field's value. The field holds
-// one draft for whichever control its props name, so the draft is `unknown`
-// and each control reads it as its own value; a pick's `onChange` is read at
-// its widest, as `FormField` reads the descriptors.
+// holds, or its children, bound drawn from the field's value.
 function controlOf(
 	props: Body,
 	kind: ControlKind | undefined,
-	draft: Draft<unknown>,
-	error: string | undefined,
+	held: Held,
 ): ReactNode {
-	const { label, disabled } = props;
-	if (props.input)
-		return <InputBase {...props.input} draft={draft as Draft<string>} />;
-	if (props.textArea)
-		return <ProseBase {...props.textArea} draft={draft as Draft<string>} />;
-	if (props.picker)
-		return (
-			<PickerBase<string | null>
-				{...props.picker}
-				label={label}
-				form={{ invalid: Boolean(error), disabled: disabled === true }}
-				draft={
-					draft as Draft<string | null | readonly (string | null)[] | undefined>
-				}
-				onChange={
-					props.picker.onChange as (
-						next: string | null | (string | null)[],
-					) => unknown
-				}
-			/>
-		);
-	if (props.switch)
-		return (
-			<SwitchBase
-				{...props.switch}
-				draft={draft as Draft<boolean>}
-				label={label}
-			/>
-		);
-	if (props.checkbox)
-		return (
-			<CheckboxBase
-				{...props.checkbox}
-				draft={draft as Draft<boolean | "mixed">}
-				label={label}
-			/>
-		);
-	if (props.slider)
-		return (
-			<SliderBase
-				{...props.slider}
-				draft={draft as Draft<number>}
-				label={label}
-			/>
-		);
-	if (props.options)
-		return (
-			<PickerListBase
-				{...props.options}
-				label={label}
-				draft={draft as Draft<string | null | readonly string[]>}
-				onChange={
-					props.options.onChange as (next: string | string[]) => unknown
-				}
-			/>
-		);
-	if (props.segments)
-		return (
-			<SegmentsBase
-				{...props.segments}
-				draft={draft as Draft<string>}
-				label={label}
-			/>
-		);
-	if (kind !== undefined) return null;
+	if (kind !== undefined) return CONTROLS[kind].draw(props, held);
 	// The field names what it holds: a control among its children draws no
 	// field of its own.
 	const { field, children } = props;
@@ -363,12 +374,12 @@ export function FieldBody(props: Body) {
 	} = props;
 	const words = useWords();
 	const folded = answered !== undefined;
-	// One name for the field folded or not, so the browser moves the summary
-	// into the field and back.
 	// The field hosts its control's save: a save the server refused stands in
 	// the error line until the control's next change.
-	const kind = kindOf(props);
-	const { draft, refused } = useFieldDraft(savedOf(props, kind));
+	const kind = KINDS.find((each) => props[each]);
+	const { draft, refused } = useFieldDraft(
+		kind === undefined ? undefined : CONTROLS[kind].saved(props),
+	);
 	// The error as runs, a refused save's own message too (the server's
 	// backticks box a machine name), and its words, which key its line and
 	// say whether it stands. The error is a sentence read whole, so a code run
@@ -384,7 +395,9 @@ export function FieldBody(props: Body) {
 	const errorLine =
 		given === undefined ? null : <RunText runs={partRuns(given)} whole />;
 	// A folded field draws no control, so the consumer's function is not called.
-	const control = folded ? null : controlOf(props, kind, draft, error);
+	const control = folded
+		? null
+		: controlOf(props, kind, { draft, label, disabled, error });
 	const form: Form = kind ?? "field";
 	const root = useRef<HTMLDivElement>(null);
 	const wasFolded = useRef(folded);
@@ -432,12 +445,7 @@ export function FieldBody(props: Body) {
 	// An optional field on one line: its word hangs under a name as high as the
 	// control (a text area's name hangs from its top, a slider names itself).
 	const splits =
-		split === true &&
-		!alone &&
-		!area &&
-		form !== "slider" &&
-		form !== "options" &&
-		form !== "segments";
+		split === true && !alone && (kind === undefined || CONTROLS[kind].splits);
 	const stacked =
 		optional === true && !area && form !== "slider" && !alone && !splits;
 	// The name on the first line, the word `optional` under it.
@@ -491,8 +499,20 @@ export function FieldBody(props: Body) {
 		</Field.Description>
 	) : null;
 	const mark = change ? <ChangeMark kind={change} /> : null;
-	// A group takes no field context: its label names the group, never the
-	// controls inside.
+	// A group takes no field context (its label names the group, never the
+	// controls inside), so its line under is its own.
+	const groupLine = (place?: string) =>
+		error || description ? (
+			<p
+				key={error}
+				className={cn(
+					error ? cn(FIELD_ERROR_LINE, FLOW_IN) : text({ role: "meta" }),
+					place,
+				)}
+			>
+				{error ? errorLine : description}
+			</p>
+		) : null;
 	if (answered)
 		return (
 			<div ref={root} className={cn(row({ state: "rest" }), SUMMARY)}>
@@ -551,22 +571,12 @@ export function FieldBody(props: Body) {
 		) : atEnd ? null : (
 			control
 		);
-		// A group takes no field context, so its line under is its own.
 		if (group)
 			return (
 				<div ref={root} className={FIELD_ALONE}>
 					{head}
 					{body}
-					{error || description ? (
-						<p
-							key={error}
-							className={
-								error ? cn(FIELD_ERROR_LINE, FLOW_IN) : text({ role: "meta" })
-							}
-						>
-							{error ? errorLine : description}
-						</p>
-					) : null}
+					{groupLine()}
 				</div>
 			);
 		return (
@@ -593,18 +603,6 @@ export function FieldBody(props: Body) {
 				{labelled}
 			</p>
 		);
-		const under =
-			error || description ? (
-				<p
-					key={error}
-					className={cn(
-						error ? cn(FIELD_ERROR_LINE, FLOW_IN) : text({ role: "meta" }),
-						DEFINITION_UNDER,
-					)}
-				>
-					{error ? errorLine : description}
-				</p>
-			) : null;
 		return (
 			<div
 				ref={root}
@@ -628,7 +626,7 @@ export function FieldBody(props: Body) {
 						<GroupName value={groupName}>{control}</GroupName>
 					</div>
 				</div>
-				{under}
+				{groupLine(DEFINITION_UNDER)}
 			</div>
 		);
 	}

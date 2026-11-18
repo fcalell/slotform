@@ -198,14 +198,13 @@ interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classL
 ### Gate
 
 `Gate` is the layout container of a page outside the shell, a sign-in or a consent step
-([Gate](../ui-core/layout.md#gate)): one column at the `auth` width on the surface, centred across and
-down the viewport, the app's lockup ([App lockup](#app-lockup)) at its top and its `acts` an `ActionBar`; its props
+([Gate](../ui-core/layout.md#gate)), the app's lockup drawn by [App lockup](#app-lockup); its props
 are the guide's [Gate](../../../plugins/react-ui/guide/containers.md#gate). It mounts
 the same `ContainerHost` as the `Shell` (`components/shell/host.tsx`: the `toast()` queue, the
 `confirm()` decisions). The first field of a step takes focus as the page opens and as `title`
 changes (`focusFirst` in `./lib/focus`). Its `form` (a `Form`'s props, over the step's procedure) is
 drawn in the column by the Gate (`components/gate/index.tsx`, a `FormShell` from
-`components/form/base.tsx` in the auth column), its bar set `full`.
+`components/form/base.tsx` in the auth column), its bar laid out by the column's width as every `ActionBar` is.
 
 ## App lockup
 

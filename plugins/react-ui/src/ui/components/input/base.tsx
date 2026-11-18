@@ -234,37 +234,12 @@ export function InputBase({
 /** An Input that holds its own draft, as a bare one, a cell and a rule's term do; a rejection toasts. Outside the package's exports. */
 export function HeldInput({
 	value,
-	kind,
-	onChange,
-	onCommit,
-	placeholder,
-	unit,
-	act,
-	autoFocus,
-	cell,
-	inline,
-	named,
-	painted,
+	...rest
 }: TextInputProps & {
 	cell?: CellFit;
 	inline?: InlineFit;
 	named?: string;
 	painted?: boolean;
 }) {
-	return (
-		<InputBase
-			draft={useHeldDraft(value)}
-			kind={kind}
-			onChange={onChange}
-			onCommit={onCommit}
-			placeholder={placeholder}
-			unit={unit}
-			act={act}
-			autoFocus={autoFocus}
-			cell={cell}
-			inline={inline}
-			named={named}
-			painted={painted}
-		/>
-	);
+	return <InputBase draft={useHeldDraft(value)} {...rest} />;
 }
