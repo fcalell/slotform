@@ -23,7 +23,8 @@ const REJECTED = [
 	{ label: "Live", state: "later" },
 ] as const;
 
-// A rail whose later stages stand mid-rail, one after another.
+// A rail whose later stages stand mid-rail, one after another: each one meta
+// line, standing at a dated stage's pitch.
 const IN_SPEC = [
 	{ label: "Submitted", state: "done", at: "2026-09-14T09:12:00Z" },
 	{ label: "In spec", state: "current", at: "2026-09-16T15:40:00Z" },

@@ -2,10 +2,15 @@ import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
 import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Panes } from "@fcalell/plugin-react-ui/components/shell";
+import { Panes, Shell } from "@fcalell/plugin-react-ui/components/shell";
 import { Text } from "@fcalell/plugin-react-ui/components/text";
 import { Composer, Thread } from "@fcalell/plugin-react-ui/components/thread";
-import type { Option, RecordFact, Run } from "@fcalell/ui-core/descriptors";
+import type {
+	Option,
+	PlaceSpec,
+	RecordFact,
+	Run,
+} from "@fcalell/ui-core/descriptors";
 import type { Datum, Selection } from "@fcalell/ui-core/read";
 import { BREAKPOINT_PX, TONES, type Tone } from "@fcalell/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -56,6 +61,56 @@ function Record() {
 				<StandInRows />
 			</Section>
 		</Pane>
+	);
+}
+
+// The page stands four places deep, under a folder whose label is long: each
+// bar stands the top place, the places between (whole where the Pane is
+// `trailWhole` wide, at 1920; below it one act folding them, whose menu lists
+// the page among them, never the folder) and, on a record's bar, the record's
+// place, a slash after each. On touch the place's bar and the
+// record's head stand the trail as an overline, cut at its start so the nearest
+// place shows, the record's own parts after it.
+function trailOf(here: string): PlaceSpec[] {
+	return [
+		{
+			route: "/boards",
+			label: "Boards",
+			icon: "ListChecks",
+			children: [
+				{
+					route: "#regions",
+					label: "Teams across every region of the company",
+					icon: "Folder",
+					children: [
+						{
+							route: "/boards/storefront",
+							label: "Storefront web and checkout",
+							icon: "ListChecks",
+							children: [{ route: here, label: "Releases", icon: "Rocket" }],
+						},
+					],
+				},
+			],
+		},
+	];
+}
+
+function Trailed(props: { record?: boolean }) {
+	return (
+		<Shell places={trailOf(location.pathname)}>
+			<Pane acts={ACTIONS}>
+				<StandInList />
+			</Pane>
+			{props.record ? (
+				<Pane
+					title="Release 2.4.1 of the storefront"
+					record={{ overline: ["main", "v2.4.1"] }}
+				>
+					<StandInList />
+				</Pane>
+			) : null}
+		</Shell>
 	);
 }
 
@@ -1056,6 +1111,12 @@ export function drawPane(scene: ShowcaseScene) {
 				</Column>
 				<Column>
 					<Two />
+				</Column>
+				<Column>
+					<Trailed record />
+				</Column>
+				<Column>
+					<Trailed />
 				</Column>
 				<Column>
 					<Facted />
