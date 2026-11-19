@@ -50,26 +50,11 @@ function Project() {
 
 ## Preloading a route's data
 
-A route warms what its screen reads in its `loader`, through `preload` from
-`@fcalell/plugin-query/preload`, which takes the app's query client from the loader's
-`context` (the root route is made with `createRootRouteWithContext`, and the entry hands the router
-the client the providers hold). One function builds the read, and the loader and the
-component both call it, so the key is written once. The loader returns nothing, so navigation
-never waits on it; the component reads as it always does and finds the data already there.
-
-```tsx
-const project = (id: string) => orpc.projects.get.read({ id });
-
-export const Route = createFileRoute("/projects/$projectId")({
-  loader: ({ context, params }) => preload(context.queryClient, project(params.projectId)),
-  component: () => <ProjectPane id={Route.useParams().projectId} />,
-});
-```
+A route warms what its screen reads from its `loader` with `preload` (`node_modules/@fcalell/plugin-query/guide/preload.md`).
 
 With `reactUi()` in the config, a pointer or focus resting 50 ms on a link to a route runs its
 loader and fetches its code, so the open that follows is often a cache hit; the query cache's `staleTime` decides whether a
 request goes out.
-Streams, idle reads and reads that take their input from another read's data are not preloaded.
 A search-driven input goes in the route's `loaderDeps`.
 
 ## Typed routes
