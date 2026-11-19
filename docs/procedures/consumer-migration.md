@@ -179,6 +179,12 @@ These are not visible to the import check. Search for each.
 | Showcase scenes | `src/roster/frames/`, `Frame`, `ShowcaseFrame`, `FRAMES_DIR` | `src/roster/scenes/`, `Scene`, `ShowcaseScene`, `SCENES_DIR` |
 | `@fcalell/plugin-screens` options | `ScreensMainOptions.floors` | `checks` |
 | CLI guide | `gap.md`, guide key `gap` | `shortfall.md`, guide key `shortfall` |
+| `Draft` (`@fcalell/ui-core/react/acts`) | `ended` (`"failed" \| "missing" \| undefined`) | `ended` is a boolean; the reason is `endedBy` |
+| `splitFacts` (`@fcalell/ui-core/list-state`) | `{ status, warnings, chips, marks, words }` | `{ facts, quiet }`: every fact in order, tagged by `kind`, every status kept |
+| `@fcalell/ui-core/variants` | `summaryContentTone()`, `rowWarningContentTone()` | `toneOf(FORM_FIELD_SUMMARY_GLYPH)`, `toneOf(ROW_WARNING)` |
+| `Leave` (`@fcalell/ui-core/leave`) | `press()` then `settle(failed)` | `run(fn)` |
+| `useReasonShown` result | none | `{ host, reason }` |
+| Guide pages | one `rules.md`, `containers.md`, `content.md`, `canvas.md`, `screens.md` per plugin; ui-core `voice.md` and `critique.md` whole | split by topic, each under 600 words; `.stack/guide.md` lists the new pages after `stack generate`, and a consumer's own link to a moved section follows its page |
 | Scaffold import alias (a new `stack init` project) | none | `"imports": { "#/*": "./src/*" }` in `package.json` |
 
 A consumer that keeps its own alias (such as `#src/*`) keeps working. Taking the scaffold's
@@ -222,6 +228,16 @@ Each bullet is what the consumer does.
 - A phone sheet's `onClose` hears only the viewer's closes. A caller that closed the sheet itself
   and relied on the second call drops that.
 - The phone's slider steps from its `min` as the web's does: `min=1 step=3` offers 1, 4, 7, 10.
+- A row's facts draw every status, the first leading the line, on both platforms. A consumer that
+  relied on a second status being dropped removes it from `facts`.
+- A row's text group gives way at its two-fifths floor at the default weight on both platforms, the
+  Pane head's included. Look at a headed row and a phone row with a long title.
+- A `QrCode` whose value is too long to encode draws the failed tile and logs in dev, where it threw.
+  Shorten the value.
+- Prose decodes character references (`&amp;`, `&copy;`, `&#38;`) in text. Text that showed one
+  literally on purpose writes it as code.
+- On the phone a failing document or photo pick draws `pickFailed`. A consumer that supplies a full
+  translation adds the key.
 
 **Api, auth and database**
 
