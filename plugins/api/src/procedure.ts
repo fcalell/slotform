@@ -928,3 +928,8 @@ export function createJobs<TContext>(): {
 		defineScheduled: (run) => run,
 	};
 }
+
+// The app's `JobContext`, which `.stack/procedure.ts` registers for code that
+// cannot import it (a plugin's node service): docs/architecture/runtime.md, "Background handlers".
+// biome-ignore lint/suspicious/noEmptyInterface: an interface so `.stack/procedure.ts` can merge into it
+export interface Register {}

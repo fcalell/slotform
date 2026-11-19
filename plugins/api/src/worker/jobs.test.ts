@@ -130,6 +130,37 @@ test("the env checks run before a job", async () => {
 	);
 });
 
+test("every worker builds the job context, afresh on each call", async () => {
+	const worker = createWorker()
+		.use(db)
+		.use((ctx: { db: string }) => ({ seen: ctx.db }))
+		.handler();
+	const env = { STACK_DEV: "1" };
+	const first = await worker.jobContext(env);
+	const again = await worker.jobContext(env);
+	assert.notEqual(first, again);
+	assert.equal(first.db, "the database");
+	assert.equal(first.seen, "the database");
+	assert.equal(first.env, env);
+	assert.equal(first._devMode, true);
+	for (const key of ["httpRequest", "reqHeaders", "resHeaders"])
+		assert.equal(key in first, false, key);
+	// No Workers context: waitUntil is a no-op, not a throw.
+	(first.executionCtx as { waitUntil(p: Promise<unknown>): void }).waitUntil(
+		Promise.resolve(),
+	);
+});
+
+test("the env checks run before a job context is built", async () => {
+	const worker = createWorker({
+		envChecks: [{ name: "AUTH_SECRET", minLength: 32 }],
+	}).handler();
+	await assert.rejects(
+		() => worker.jobContext({}),
+		/Missing env var: AUTH_SECRET/,
+	);
+});
+
 test("without the files, neither member is on the worker", () => {
 	const worker = createWorker().handler();
 	assert.equal("queue" in worker, false);

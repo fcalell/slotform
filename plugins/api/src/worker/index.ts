@@ -38,6 +38,8 @@ export interface WorkerExport<
 	) => Response | Promise<Response>;
 	// `checkEnv`: docs/architecture/plugins/api.md, "Env vars".
 	checkEnv: (env: unknown) => void;
+	// The job context, built afresh on each call: docs/architecture/runtime.md, "Background handlers".
+	jobContext: (env: unknown, ctx?: unknown) => Promise<Record<string, unknown>>;
 	// `queue` and `scheduled`: plugins/api/guide/background.md, "The context".
 	queue?: (batch: JobBatch, env: unknown, ctx: unknown) => Promise<void>;
 	scheduled?: (
@@ -625,8 +627,8 @@ function createAppBuilder<
 				}
 			};
 
-			// A job's context is a request's without the request: plugins/api/guide/background.md, "The context".
-			const jobContext = (env: unknown, ctx: unknown) =>
+			// A job's context is a request's without the request: docs/architecture/runtime.md, "Background handlers".
+			const jobContext = (env: unknown, ctx?: unknown) =>
 				buildContext(env, {
 					executionCtx: workersContext(ctx),
 				});
@@ -638,6 +640,7 @@ function createAppBuilder<
 			return {
 				fetch: (request, env, ctx) => honoFetch(request, env, ctx as undefined),
 				checkEnv,
+				jobContext,
 				...(queueRun
 					? {
 							queue: async (batch: JobBatch, env: unknown, ctx: unknown) =>

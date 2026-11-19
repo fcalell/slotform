@@ -113,6 +113,9 @@ to fix, and a new term enters this page in the change that introduces it.
   stands. [plugin-query](architecture/plugins/query.md#acts)
 - **background handler**: Consumer code the worker runs outside a request: a scheduled job or a queue
   consumer. [runtime](architecture/runtime.md#background-handlers)
+- **job context**: The plugin context of work no request started (a queue batch, a cron event, a
+  node service's call): `env` and what the plugins provide, with no request and no caller. Avoid:
+  background context. [runtime](architecture/runtime.md#background-handlers)
 - **push**: How local dev applies the schema: written straight into the local database, with no
   migration. [plugin-db](architecture/plugins/db.md#local-dev-push)
 - **deploy check**: A check a deploy runs before it builds or migrates, which stops it on a placeholder

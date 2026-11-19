@@ -1,10 +1,11 @@
 # Background work
 
-Two files in `src/worker/` run work outside a request. `queue.ts` answers a Cloudflare queue batch
-and `scheduled.ts` answers a cron event. A file's existence is the switch: `stack generate` mounts
-each one on the worker, and no option turns either on. Both run on the Cloudflare target only (on
-node, use a service in `src/server/services`), and both need a worker, a routable file in
-`src/worker/routes` or a plugin runtime; `generate` refuses a file without one, naming it.
+Two files in `src/worker/` run work outside a request on the Cloudflare target. `queue.ts` answers
+a queue batch and `scheduled.ts` answers a cron event. A file's existence is the switch:
+`stack generate` mounts each one on the worker, and no option turns either on. Both need a worker,
+a routable file in `src/worker/routes` or a plugin runtime; `generate` refuses a file without one,
+naming it. On node, background work is a service in `src/server/services`, whose `jobContext()`
+gives it this same context (plugin-node's `services.md`, "Writing to the database").
 
 ## A queue handler
 
@@ -65,7 +66,7 @@ The second argument is `JobContext`, the context a procedure gets without its re
 session, because nothing called the job as someone. Check what the job may do in the job, not in
 a scope: a job reads and writes the whole database. No plugin `fetch` and no middleware run for
 it, and the env checks run first, so a worker missing a var fails the batch the way it fails a
-request.
+request. A node service gets the same context from `jobContext()`, built afresh on each call.
 
 ## Enqueueing and bindings
 

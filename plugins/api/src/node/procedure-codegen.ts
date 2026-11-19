@@ -106,9 +106,10 @@ declare module "@fcalell/plugin-api/query-invalidation" {
 	}
 }
 
-// What a queue or cron handler receives: a request's context without the
-// request (no \`httpRequest\`, headers or user). A mapped type, not \`Omit\`: the
-// base context's index signature would make \`Omit\` drop every named key.
+// What a queue or cron handler and a node service's \`jobContext()\` receive: a
+// request's context without the request (no \`httpRequest\`, headers or user). A
+// mapped type, not \`Omit\`: the base context's index signature would make
+// \`Omit\` drop every named key.
 export type JobContext = {
 	[K in keyof WorkerContext as string extends K
 		? never
@@ -117,6 +118,13 @@ export type JobContext = {
 			: K]: WorkerContext[K];
 };
 export const { defineQueue, defineScheduled } = createJobs<JobContext>();
+
+// Types a node service's \`jobContext()\`, which imports nothing of the app.
+declare module "@fcalell/plugin-api/procedure" {
+	interface Register {
+		jobContext: JobContext;
+	}
+}
 
 export const procedure = createProcedure<WorkerContext, RbacStatements, Entity>();
 `;

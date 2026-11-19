@@ -56,6 +56,12 @@ test("the handler slots are null without their files", async () => {
 		assert.equal(await graph.resolve(slots.scheduledHandler), null);
 		const worker = await graph.resolve(slots.workerSource);
 		assert.match(worker ?? "", /\.handler\(routes\)/);
+		// The job context is registered with or without a handler file.
+		const procedure = (await graph.resolve(slots.procedureSource)) ?? "";
+		assert.match(
+			procedure,
+			/declare module "@fcalell\/plugin-api\/procedure" \{\n\tinterface Register \{\n\t\tjobContext: JobContext;/,
+		);
 	} finally {
 		rmSync(cwd, { recursive: true, force: true });
 	}

@@ -165,25 +165,37 @@ Hono middleware exports it as is, unwrapped.
 
 ## Background handlers
 
-With `src/worker/queue.ts` and `src/worker/scheduled.ts`, `.handler(routes, { …, queue, scheduled })`
-(each key only for a file that exists; a worker with plugins and no routes passes `{}` for the
-routes) adds `queue(batch, env, ctx)` and `scheduled(controller, env, ctx)` to the exported worker,
-present only when mounted, so Cloudflare's queue and cron events reach the same module its fetch
-does. A mount is set when its convention file exists, and the file is refused unless the app has a
-worker to mount it on (a routes directory or a plugin runtime).
+Work no request started gets the **job context**: the plugin context of one invocation with no
+request in it. The worker export's `jobContext(env, ctx?)` builds it with the function the request
+path uses (the env checks, each runtime's `validateEnv`, then every plugin's `context(env, ctx)` and
+every context-injecting `use(fn)` in dependency order), afresh on each call. It holds `env`,
+`executionCtx` (`waitUntil` only, a no-op when the caller gave no context, as on node), `_devMode`
+and what the plugins provide (`db`, the `auth` runtime, `tenancy`); it has no `httpRequest`,
+`reqHeaders` or `resHeaders`, no user or session, and no plugin `fetch` or middleware runs for it.
+`jobContext` is on every worker export, as `checkEnv` is, whether or not a handler is mounted. Two
+callers use it:
 
-Both build their context with the function the request path uses (the env checks, each runtime's
-`validateEnv`, then every plugin's `context(env, ctx)` and every context-injecting `use(fn)` in
-dependency order). The job context holds `env`, `executionCtx` (`waitUntil` only, a no-op when the
-runtime gave no context), `_devMode` and what the plugins provide (`db`, `auth` runtime, `tenancy`);
-it has no `httpRequest`, `reqHeaders` or `resHeaders`, no user or session, and no plugin `fetch` or
-middleware runs for it. `.stack/procedure.ts` exports `JobContext` (`WorkerContext` without those
-three keys, as a mapped type: the base context's index signature would make `Omit` drop every named
-key) and `defineQueue` / `defineScheduled`, from `createJobs` typed against it. Each returns its
-handler as given; `defineQueue<Body>(run)` is the plain function, and the generated worker mounts
-it. A handler's throw is rethrown: the queue redelivers the batch (messages the handler acked first
-stay acked), a cron invocation is logged as failed. Plugin-node refuses both files, since a Node
-server never calls them.
+- **Cloudflare's handlers.** With `src/worker/queue.ts` and `src/worker/scheduled.ts`,
+  `.handler(routes, { …, queue, scheduled })` (each key only for a file that exists; a worker with
+  plugins and no routes passes `{}` for the routes) adds `queue(batch, env, ctx)` and
+  `scheduled(controller, env, ctx)` to the exported worker, present only when mounted, so
+  Cloudflare's queue and cron events reach the same module its fetch does. Each calls
+  `jobContext(env, ctx)` once per batch or event. A mount is set when its convention file exists,
+  and the file is refused unless the app has a worker to mount it on (a routes directory or a plugin
+  runtime). Plugin-node refuses both files, since a Node server never calls them.
+- **Node's services.** The node server hands each service `jobContext()`, bound to the server's env
+  ([services](./plugins/node.md#services)).
+
+`.stack/procedure.ts` exports `JobContext` (`WorkerContext` without the three request keys, as a
+mapped type: the base context's index signature would make `Omit` drop every named key) and
+`defineQueue` / `defineScheduled`, from `createJobs` typed against it. It registers `JobContext` in
+`@fcalell/plugin-api/procedure`'s `Register`, so a service's `jobContext()` carries the app's type
+with no import; the program that compiles the worker's sources holds `.stack/procedure.ts` in every
+layout ([TypeScript projects](./consumer-project.md#typescript-projects)), so the registration
+applies whether or not a route imports it. Each define returns its handler as given;
+`defineQueue<Body>(run)` is the plain function, and the generated worker mounts it. A handler's
+throw is rethrown: the queue redelivers the batch (messages the handler acked first stay acked), a
+cron invocation is logged as failed.
 
 ## MCP endpoint
 
@@ -236,7 +248,7 @@ type ContextOf<B> = B extends AppBuilder<infer C> ? C : never;
 export type WorkerContext = ContextOf<typeof __chain>;
 type RbacStatements = Record<never, never>; // or auth's contributed statements
 export type Entity = string; // or a contributed "projects" | "tasks" union
-// … JobContext, defineQueue, defineScheduled
+// … JobContext, defineQueue, defineScheduled, the Register entry
 export const procedure = createProcedure<WorkerContext, RbacStatements, Entity>();
 ```
 
@@ -289,7 +301,7 @@ read by nothing and grow every emitted declaration.
 ## In the code
 
 - `packages/cli/src/runtime.ts`: the `RuntimePlugin` protocol, `dependsOn`, `fetch`, `routes`.
-- `plugins/api/src/worker/index.ts`: `createWorker`, the request order, the `dependsOn` sort, the invocation context, `checkEnv`, middleware dispatch, the MCP and job mounts.
+- `plugins/api/src/worker/index.ts`: `createWorker`, the request order, the `dependsOn` sort, the invocation context, `checkEnv`, middleware dispatch, the MCP endpoint, the job context and the job mounts.
 - `plugins/api/src/node/codegen.ts`: the worker chain's emit order and the middleware ordering.
 - `plugins/api/src/node/procedure-codegen.ts`: `.stack/procedure.ts` and its rebuilt chain.
 - `plugins/api/src/node/types.ts`: the middleware entry type both files share.
