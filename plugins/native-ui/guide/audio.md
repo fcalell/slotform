@@ -4,11 +4,13 @@ Sound the phone plays is the player, never an audio call in a screen. The app pa
 output, calls `player` with a `Track`, and gives the `Shell` a `Dock` for its `foot`; the dock stands
 above the tab bar while one is loaded, so the sound goes on through navigation, in the background and
 on the lock screen. It is the web's player (`node_modules/@fcalell/plugin-react-ui/guide/audio.md`)
-with the same store and commands, `@fcalell/ui-core/player`'s rules. Nothing here mounts by default.
+with the same store and commands, `@fcalell/ui-core/player`'s rules. A waveform on its own is a
+`Waveform`. Nothing here mounts by default.
 
 ```tsx
 import { audioOutput } from "@fcalell/plugin-native-ui/audio/expo";
 import { Dock } from "@fcalell/plugin-native-ui/components/dock";
+import { Waveform } from "@fcalell/plugin-native-ui/components/waveform";
 import { connectOutput, player, usePlayer, windowQueue } from "@fcalell/plugin-native-ui/lib/player";
 ```
 
@@ -42,6 +44,7 @@ const toTrack = (t: Song): Track => ({
   line: t.artist,
   image: t.cover,
   duration: t.seconds,
+  peaks: { values: t.peaks },
 });
 
 <Section items={songs.map((s) => ({ key: s.id, title: s.title, onOpen: () => player.play(toTrack(s), songs.map(toTrack)) }))} />
@@ -62,7 +65,8 @@ const toTrack = (t: Song): Track => ({
   again.
 - The dock is one bar: the picture, the name over its line, play or pause (the primary glyph) and next,
   with a hairline of progress along its top. A press on the picture and the name opens a `Sheet` with
-  the full player: the picture, the seek, previous, play or pause, next, and a Close that puts the
+  the full player: the picture, the seek (a `Waveform` where the track has `peaks` and a length, a
+  slider where not), previous, play or pause, next, and a Close that puts the
   player away. It has no volume: the device's buttons set it, and `setVolume` and `mute` act on the
   player only. An `image` given as a selection paints the picture until its read lands.
 - The lock screen and the system's media controls show the title and the line, and the picture once
@@ -71,3 +75,26 @@ const toTrack = (t: Song): Track => ({
 
 **Check:** the dock stands above the tab bar across a route change, with the audio uninterrupted,
 and the lock screen shows the track.
+
+## A waveform on its own
+
+```tsx
+<Waveform
+  label="Seek the track"
+  peaks={{ values: song.peaks }}
+  duration={song.seconds}
+  at={time}
+  onSeek={player.seek}
+/>
+```
+
+It takes the web's props (`node_modules/@fcalell/plugin-react-ui/guide/audio.md`, "A waveform on its
+own"): `label`, `peaks` (one 0..1 magnitude per value, or with `paired: true` each pair a stretch's
+lowest and highest sample, -1..1), `duration`, `at`, `onSeek` and `fit` (`bar` at the control height,
+the default at the waveform size in a `Pane` or a `Card`). It does not move itself: `at` is the
+playhead, so a standalone waveform takes `usePlayerTime().time` or the app's own clock. A drag holds
+the finger as the playhead and `onSeek` hears one second, on release; a screen reader's increment and
+decrement seek five seconds at once.
+
+**Check:** a drag on the waveform moves the playhead and seeks once on release, and the screen
+reader's swipe up and down move it five seconds.

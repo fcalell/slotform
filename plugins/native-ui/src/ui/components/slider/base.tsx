@@ -13,8 +13,9 @@ import {
 	SLIDER_VALUE,
 } from "@fcalell/ui-core/variants";
 import { useContext, useRef, useState } from "react";
-import { PanResponder, Text as RNText, View } from "react-native";
+import { Text as RNText, View } from "react-native";
 import { useResolveClassNames } from "uniwind";
+import { adjustActions, useTrackDrag } from "../../lib/adjustable";
 import { useTokenPx } from "../../lib/container";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import type { SliderProps } from "./index";
@@ -64,17 +65,21 @@ export function SliderBase({
 		return Math.min(max, min + Math.round((raw - min) / quantum) * quantum);
 	}
 
+	function reach(next: number): void {
+		reached.current = next;
+		draft.change(next);
+		if (!ended) onChange(next);
+	}
+
 	// The thumb sits in the row between the fill and the rest, so its centre
 	// travels the track less its own width; a touch maps through the same span.
 	function pick(x: number): void {
+		setPressed(true);
 		const size = typeof thumb === "number" ? thumb : 0;
 		const span = width.current - size;
 		if (span <= 0) return;
 		const ratio = Math.min(Math.max((x - size / 2) / span, 0), 1);
-		const next = settle(min + ratio * (max - min));
-		reached.current = next;
-		draft.change(next);
-		if (!ended) onChange(next);
+		reach(settle(min + ratio * (max - min)));
 	}
 
 	// The thumb let go: the last value it reached is the one committed.
@@ -87,28 +92,15 @@ export function SliderBase({
 		}
 	}
 
-	// A drag reads `locationX` once, at the grant on the `box-only` track, and
-	// follows the gesture's travel from there, since a moving finger's
-	// `locationX` is relative to whatever view is under it.
-	const latest = useRef({ pick, finish, disabled });
-	latest.current = { pick, finish, disabled };
-	const origin = useRef(0);
-	const responder = useRef(
-		PanResponder.create({
-			onStartShouldSetPanResponder: () => !latest.current.disabled,
-			onMoveShouldSetPanResponder: () => !latest.current.disabled,
-			onPanResponderTerminationRequest: () => false,
-			onPanResponderGrant: (event) => {
-				origin.current = event.nativeEvent.locationX;
-				setPressed(true);
-				latest.current.pick(origin.current);
-			},
-			onPanResponderMove: (_, gesture) =>
-				latest.current.pick(origin.current + gesture.dx),
-			onPanResponderRelease: () => latest.current.finish(),
-			onPanResponderTerminate: () => latest.current.finish(),
-		}),
-	).current;
+	const drag = useTrackDrag({ disabled, onMove: pick, onEnd: finish });
+	// A screen reader's step moves the thumb one step and lets it go there.
+	const adjust = adjustActions({
+		disabled,
+		onStep: (direction) => {
+			reach(settle(Math.max(min, at + direction * quantum)));
+			finish();
+		},
+	});
 
 	const formatted = formatterFor(
 		"number",
@@ -150,6 +142,7 @@ export function SliderBase({
 				{...inertProps(painted)}
 				accessible
 				accessibilityRole="adjustable"
+				{...adjust}
 				accessibilityLabel={label}
 				accessibilityState={{ disabled: disabled || ended }}
 				accessibilityValue={{
@@ -168,7 +161,7 @@ export function SliderBase({
 					"flex-row items-center",
 					painted && PAINT_CONTROL,
 				)}
-				{...responder.panHandlers}
+				{...drag}
 			>
 				{painted ? null : (
 					<>

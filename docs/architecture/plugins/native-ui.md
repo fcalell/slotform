@@ -264,6 +264,11 @@ failed read keeps the label, shows the failure mark and the retry icon in the sh
 "This didn't load." under the bar, and a press retries. React Native has no meter role, so it is a
 progress bar.
 
+### Waveform
+
+An `Svg` of the web's columns under a played layer clipped to the playhead's share, dragged and
+stepped as the `Slider` is: [Waveform](../ui-core/sound.md#waveform).
+
 ## Long collections
 
 A collection windows on the phone where it owns a scroll: it mounts only the rows near the view, and
@@ -488,4 +493,5 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 - `plugins/native-ui/src/ui/lib/not-found.tsx`: the not-found page.
 - `plugins/native-ui/src/ui/components/bar-chart/index.tsx`, `diff/index.tsx`, `table/index.tsx`, `thread/index.tsx`: the phone's charts, diffs, tables and threads.
 - `plugins/native-ui/src/ui/atoms/stats/meter.tsx`: the meter form of a stat.
+- `plugins/native-ui/src/ui/components/waveform/index.tsx`, `plugins/native-ui/src/ui/lib/adjustable.ts`: the phone's `Waveform`, and the track drag and screen-reader steps it shares with the `Slider`.
 - `apps/phone/src/lib/auth.ts`, `apps/phone/src/lib/api.ts`: the phone app's clients.

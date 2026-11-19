@@ -1,5 +1,7 @@
 import { trackTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
+import type { Track } from "@fcalell/ui-core/descriptors";
+import { dockSeek } from "@fcalell/ui-core/player";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
@@ -23,6 +25,7 @@ import { Button } from "../button";
 import { PictureTile } from "../image/base";
 import { Sheet } from "../sheet";
 import { SliderBase } from "../slider/base";
+import { Waveform } from "../waveform";
 
 // The dock is one bar above the tab bar, which keeps the home indicator clear:
 // the picture and the name (a press on them opens the full player), play or
@@ -75,7 +78,7 @@ export function Dock() {
 
 	return (
 		<View accessibilityLabel={words.player} className={DOCK}>
-			<Hairline duration={track.duration} />
+			<Hairline track={track} />
 			<View className={cn(DOCK_BAR, BAR)}>
 				<Press
 					accessibilityRole="button"
@@ -132,7 +135,7 @@ export function Dock() {
 						fit="thumb"
 						box={undefined}
 					/>
-					<Progress duration={track.duration} />
+					<Progress track={track} />
 					<View className={TRANSPORT}>
 						{state.queued ? (
 							<Button
@@ -162,9 +165,9 @@ export function Dock() {
 // The progress along the bar's top: the played share in the toggle ink over the
 // bar's border. The time is its own reader, so only this part draws again as the
 // track moves.
-function Hairline({ duration }: { duration?: number }) {
-	const { time, duration: known } = usePlayerTime();
-	const share = shareOf(time, known > 0 ? known : (duration ?? 0));
+function Hairline({ track }: { track: Track }) {
+	const { time, duration } = usePlayerTime();
+	const share = shareOf(time, dockSeek(track, duration).length);
 	return (
 		<View pointerEvents="none" className={HAIRLINE}>
 			<View className={DOCK_PROGRESS} style={{ flexGrow: share }} />
@@ -173,30 +176,50 @@ function Hairline({ duration }: { duration?: number }) {
 	);
 }
 
-function Progress({ duration }: { duration?: number }) {
+// The elapsed time, the seek and the total: the seek is the track's waveform
+// where it has peaks, else a slider.
+function Progress({ track }: { track: Track }) {
 	const words = useWords();
-	const { time, duration: known } = usePlayerTime();
-	const length = known > 0 ? known : (duration ?? 0);
-	const draft = useHeldDraft(Math.floor(time));
+	const { time, duration } = usePlayerTime();
+	const { length, peaks } = dockSeek(track, duration);
 	return (
 		<View className={PROGRESS}>
 			<RNText className={cn(DOCK_TIME, TIME, ELAPSED)}>
 				{trackTime(time)}
 			</RNText>
 			<View className={SEEK}>
-				<SliderBase
-					bare
-					label={words.seek}
-					draft={draft}
-					onChange={NOOP}
-					onCommit={player.seek}
-					min={0}
-					max={Math.max(1, Math.floor(length))}
-					step={1}
-					said={trackTime}
-				/>
+				{peaks ? (
+					<Waveform
+						fit="bar"
+						label={words.seek}
+						peaks={peaks}
+						duration={length}
+						at={time}
+						onSeek={player.seek}
+					/>
+				) : (
+					<Seek time={time} length={length} />
+				)}
 			</View>
 			<RNText className={cn(DOCK_TIME, TIME)}>{trackTime(length)}</RNText>
 		</View>
+	);
+}
+
+function Seek({ time, length }: { time: number; length: number }) {
+	const words = useWords();
+	const draft = useHeldDraft(Math.floor(time));
+	return (
+		<SliderBase
+			bare
+			label={words.seek}
+			draft={draft}
+			onChange={NOOP}
+			onCommit={player.seek}
+			min={0}
+			max={Math.max(1, Math.floor(length))}
+			step={1}
+			said={trackTime}
+		/>
 	);
 }

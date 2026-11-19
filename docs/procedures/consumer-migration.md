@@ -277,6 +277,12 @@ Each bullet is what the consumer does.
 - `matrixClasses()` takes no argument, `planFrame`'s `enclosing` is required, and the cli css
   helpers' `label` is required.
 - `Badge` takes `hit` in place of `underlined` plus `className`.
+- On the phone, the dock's full player seeks on a `Waveform` for a track with `peaks` and a known
+  length. An app that drew its own waveform in that sheet drops it. A phone page that shows a
+  track's waveform alone imports `Waveform` from `@fcalell/plugin-native-ui/components/waveform`.
+- The phone `Slider` answers a screen reader's increment and decrement: each step calls `onChange`
+  and then `onCommit`, as a let-go drag does. A handler that expects a drag first holds no state
+  across the two calls.
 
 ## After
 
