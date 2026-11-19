@@ -80,35 +80,31 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 - Payload shapes with two defensible forms: node `payload.workerFile` beside `hasWorker` (`plugins/node/src/types.ts`; one worker module field replaces both), cloudflare `payload.serve` (its `main` override and `clientDir` in `src/node/codegen.ts`), auth `createTenancy`'s `pin` (a predicate inside the shared organization resolver, `worker/tenancy.ts`), and db's `assertSqliteDriver` before `runDrizzleKit` (folding it in moves where `pushSchemaLocal` fails, `node/push.ts`).
 - `plugins/query/src/read.ts`'s window read compiles only without its explicit type argument, while the same line compiled inside plugin-api; why is not known.
 
-## Owner decisions
+## Decided, to build
 
-- The act-sheet value cycle (Button, Sheet, Form, FormField, Input; 24 files in react-ui, 22 in native-ui): the recommendation is to accept it as real recursion and document the group as one unit. A host-drawn sheet loses its context, since an act sheet opens under a scope boundary below the Shell.
-- Edges no consumer can draw, whether a component offers each:
-  - a form group with a read of its own: `plugins/react-ui/guide/rules.md` says a group can be given its read, while the public `Form`'s groups (`FormGroupOf`, `packages/ui-core/src/form.ts`) take none;
-  - a field's `answered` fold, `change` mark and a checkbox field (FormField is outside the exports);
-  - a control disabled while placed alone (`Input`, `Picker`, `Switch` take no `disabled`);
-  - a `confirm()` or a toast staged beside others on one page;
-  - a file pick shown chosen and disabled, a painted file row, the painted mini image tile;
-  - a popup outside a root frame drawing its frame's mode.
-- A Pane bar's breadcrumb holds one level, the place's name (`plugins/react-ui/src/ui/components/pane/head.tsx`); whether it shows every parent of the page is open.
-- The type mark's box is `size-icon-control` (`ROW_MARK`, 20 px on touch): a two-character mark fits, and the touch box wants 22.
-- `useDerivedForm` on native keeps `open`: native clears after every send, and react-ui keeps the values when a form leaves its page.
-- `onUpdateRequired` (`plugins/expo/src/client/index.ts`) has no reader in stack: the update wall stays the app's, or it goes.
-- The dead public signature types (`Hint`, `LineKind`, `FormatterKind` and the like in ui-core): keep or drop.
-- `pickChooser`'s mixed head rule in query mode, and whether blocked rows count (`packages/ui-core/src/list-state.ts`).
-- react-ui's canvas `useLayout` split (view policy from the run): build it or cut it.
-- `textSize` on `@fcalell/plugin-react-ui/lib/media` is a public name the owner has not confirmed.
-- The phone's spot place (`#activity`) tab behaviour.
-- The stage rows' 48 and 64 px floor.
-- The screens story probe router (`plugins/screens/src/ui/stories.tsx`, `bindRouter` in a `useState` initialiser): building one router without a probe needs a Storybook run.
-- The screens state dir (`stateDir`, `plugins/screens/src/node/browser.ts`) and db's `sqliteFile` (`plugins/db/src/node/push.ts`) read `process.env` below the entry; whether the environment is threaded from the entries.
-- The `Specimen` story that `packages/ui-core/guide/voice.md` ("How the face is held") and `screen.md` name does not exist: build it or rewrite those lines.
-- The phone's `Waveform` is not built, and `docs/architecture/ui-core/sound.md` "Scope" names no cost.
-- Docs layout between guides and architecture pages: which page owns each native-ui component's prop list (`rules.md` or `containers.md`, `blocks.md`, `content.md`); the floors stated in both `voice.md` and `docs/architecture/ui-core/tokens.md`; the rules `node.md`, `runtime.md` (job context, MCP order) and `screens.md` own that their guides restate.
-- `docs/architecture/plugin-authoring.md` sets a guide page at about 600 words at most, and most guide pages exceed it: the rule changes or the pages do.
-- `CLAUDE.md` says "screen run", which `docs/glossary.md` lists under Avoid.
-- The showcase's static copy repeats its places and dates (Frankfurt in 7 files, Oct 31 in 3, Oct 14 in 2).
-- Consumer migration ([procedure](procedures/consumer-migration.md)) follows stack, on the owner's word.
+Each item is decided and waits to be built. One that adds a part or crosses packages is designed first (an architecture section and a change map), then built.
+
+- A sheet outlet: ui-core gives `ScopeBoundary` and the `Shell` a sheet outlet, an act calls `open(sheet)` and never imports `Sheet`, and the outlet draws the stack of open sheets on both platforms. It ends the Button, Sheet, Form, FormField and Input import cycle. A sheet inherits from its opener only the scope and what stands above the Shell; `ReasonHostContext`, `SubmitContext` and `FieldDisabled` stay the opener's.
+- A form group's `read` and `empty` join `FormGroupOf` (`packages/ui-core/src/form.ts`), so the group frame both form bases draw is reachable and `plugins/react-ui/guide/rules.md` holds.
+- The derived `Form` draws the three FormField shapes it has no way to reach today: a boolean with a `checkbox` hint, a field's `answered` fold, and a field's `change` mark.
+- Scenes for the states no scene stages: `confirm()` and a toast in a single-stage story, a file pick chosen (a `File` put on the input in `ready`) and disabled (a locked field), a painted file row and a painted mini image tile through waiting reads. The popup branch for no root frame is deleted once nothing else reaches it.
+- A record's breadcrumb is its place's path in the Shell's tree, every ancestor place and then the record's name; a folder is text, a page a link, and the middle levels fold into one `…` when the bar runs short.
+- A `mark` size in `packages/ui-core/src/scales.ts`, two mono characters at the caption size plus the chip's inner pad, sizes `ROW_MARK` in place of `size-icon-control`.
+- native-ui draws the update wall: its root hears the version gate's `426` and draws a closed Gate with the store link; `onUpdateRequired` leaves `@fcalell/plugin-expo/client`.
+- Of the 36 ui-core types named nowhere outside their own file, a type in an exported signature stays exported and one only internal code names loses `export`.
+- `pickChooser` in query mode: the head tick is chosen while every excepted id is a blocked one, mixed only once the viewer unticks a row that can be ticked; the count stays `of − except`.
+- The canvas's `useLayout` splits into the layout run (measure, ELK, route) and the view policy (anchor, opening view, `minZoom`, `fitTo`), which reads only the run's output and the viewport.
+- `textSize` and `spacing` move from the public `./lib/media` to an internal module; `./lib/media` keeps the consumer hooks.
+- native-ui's `tabsOf` leaves spot places (`#activity`) out of the tab bar and the More page.
+- A stage's minimum height is a two-line stage's own height, derived from the type scale, so the rail keeps one pitch past the current stage.
+- The environment is threaded from the entries: the CLI's command context and each server entry carry `env`, and none of the 23 reads below an entry (16 files) keeps a `process.env` default.
+- A generated `Specimen` story draws every component's `rest` scene, light and dark, on one page, from `showcaseScenes()`; the overlay scenes stand one stage each at its end.
+- The phone's `Waveform` on `react-native-svg`, over ui-core's waveform arithmetic, with a seek gesture and the adjustable action, in the dock's full player.
+- Guide and architecture pages: a component's props live on its topic page (`containers.md`, `blocks.md`, `content.md`) and `rules.md` keeps the choosing rule and links there; the floors live in `packages/ui-core/guide/voice.md` and `docs/architecture/ui-core/tokens.md` links to them; a rule a consumer follows lives in its guide page and `node.md`, `runtime.md` and `screens.md` keep the mechanism.
+- Guide pages hold at most 600 words of prose (code and tables not counted), checked in `pnpm check`; the 26 pages over it split by topic, the two `rules.md` along their `##` sections.
+- "screen run" becomes "test run" in its 7 uses, `CLAUDE.md` included.
+- The showcase app's region list, plan reset date and billing date each have one home in its fixtures, which the settings, deploys, usage and releases screens read.
+- Consumer migration: once the items above land, stead and martechthings move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md), which every breaking item above extends in its own commit.
 
 ## Not verified on a device or browser
 
