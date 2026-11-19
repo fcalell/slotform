@@ -121,8 +121,9 @@ Plugin-db adds `db`; plugin-auth's runtime adds `auth`, `tenancy` and `_rateLimi
 with `mcp`), and its auth middleware `user` and `session`; the MCP endpoint adds `_caller`. A scoped
 procedure then writes each resolved tier's row under its scope's name, `organization` and `member`
 at the root. The raw request is `httpRequest`, not `request`, because a consumer's scope takes its
-table's name and `request` is a common one. `defineScope` refuses every one of these keys as a scope
-name, since the row would overwrite it; its list checks plugin-api's `BaseContext` keys by type, so
+table's name and `request` is a common one. `defineScope` throws on a scope named after one of these
+keys, since the row would overwrite it ([scopes' rules](../../plugins/auth/guide/scopes.md#rules));
+its list checks plugin-api's `BaseContext` keys by type, so
 a key added there fails to compile until it is listed.
 
 ### Dev mode
@@ -146,11 +147,11 @@ both are plugin-api's ([env vars](./plugins/api.md#env-vars)). Binding presence 
 The consumer's middleware is an implicit contribution through two convention files, each published
 through `api.slots.middlewareEntries` so third-party plugins can interleave middleware around them:
 
-- `src/worker/middleware.ts` runs before context injection: the cheap, context-free guards (a
-  header check, a redirect) that reject a request before the worker pays for a db client.
+- `src/worker/middleware.ts` runs before context injection, with no context.
 - `src/worker/middleware.context.ts` runs after it, registered with `.useAfterContext()`, so it and
-  the raw Hono routes it registers reach `db` and `auth` through `stackContext(c)` instead of
-  rebuilding their own clients.
+  the raw Hono routes it registers read `db` and `auth` through `stackContext(c)`.
+
+What belongs in each file is the guide's [worker middleware](../../plugins/api/guide/middleware.md).
 
 An entry is a middleware call plus the builder method that mounts it: `use` before the worker
 injects its plugin context, `useAfterContext` after (the only side that can read `db` and `auth`).
@@ -160,8 +161,8 @@ then by `order` ascending, stable within ties; the ordered calls feed `api.slots
 and their deduplicated imports `api.slots.middlewareImports`, which join `workerImports`.
 
 `.use(fn)` dispatches on the function's arity: Hono middleware is `(c, next) => Promise<Response |
-void>` (arity 2), a context-injecting fn is `(ctx) => extra` (arity 1). A consumer writing native
-Hono middleware exports it as is, unwrapped.
+void>` (arity 2), a context-injecting fn is `(ctx) => extra` (arity 1). How a consumer exports middleware
+is the guide's [rules](../../plugins/api/guide/middleware.md#rules).
 
 ## Background handlers
 
@@ -170,7 +171,8 @@ With `src/worker/queue.ts` and `src/worker/scheduled.ts`, `.handler(routes, { â€
 routes) adds `queue(batch, env, ctx)` and `scheduled(controller, env, ctx)` to the exported worker,
 present only when mounted, so Cloudflare's queue and cron events reach the same module its fetch
 does. A mount is set when its convention file exists, and the file is refused unless the app has a
-worker to mount it on (a routes directory or a plugin runtime).
+worker to mount it on (a routes directory or a plugin runtime). Writing the files is the guide's
+[background work](../../plugins/api/guide/background.md).
 
 Both build their context with the function the request path uses (the env checks, each runtime's
 `validateEnv`, then every plugin's `context(env, ctx)` and every context-injecting `use(fn)` in
@@ -260,12 +262,11 @@ the chain is only typed.
 The file takes the full `workerImports` list, since a runtime option value can reference an
 identifier that needs its own import (db's `schema`, contributed beside the `pluginRuntimes` entry,
 not on it), minus the route barrel: route files import `virtual:stack-procedure`, so this file
-importing the barrel back would be a cycle. For the same reason a consumer's
-`src/worker/middleware.ts` never imports from `src/worker/routes/*`: middleware, routes,
-`procedure.ts`, middleware is a cycle and no supported pattern, and the barrel exclusion guards
-only the routes-to-`procedure.ts` direction. `WorkerContext` is exported so post-context middleware
-types `stackContext<WorkerContext>(c)`, and that middleware imports it type-only: `procedure.ts`
-imports the middleware file back, and only erasure keeps that from being a real cycle.
+importing the barrel back would be a cycle. The exclusion guards only the routes-to-`procedure.ts`
+direction. `WorkerContext` is exported so post-context middleware types
+`stackContext<WorkerContext>(c)`. `procedure.ts` imports the middleware files, so a middleware file
+that imports a route, or imports `WorkerContext` as a value, closes a cycle; the guide's
+[rules](../../plugins/api/guide/middleware.md#rules) keep both out.
 
 `TStatements` (the autocomplete of `procedure({ rbac })` and `procedure({ can })`) comes from
 `api.slots.rbacStatements`, a plain-JSON handoff `auth` contributes; its source and the

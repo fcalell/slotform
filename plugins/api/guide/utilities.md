@@ -89,8 +89,8 @@ return paginateWindow(db.query.tasks, {
 A key `sorts` does not name sorts by the column of that name (and an unknown key answers
 `BAD_REQUEST`). The page is read ids first: one statement orders and pages the ids alone (a sorter
 holding a key and an id, not every column of a wide row), then the rows are read by id, so a deep
-offset over tens of thousands of rows stays a narrow sort. The first page of a query with no `join`
-is one statement. Keep the filter's columns indexed: the count scans the matches.
+offset over tens of thousands of rows stays a narrow sort. Keep the filter's columns indexed: the
+count scans the matches.
 
 `paginate` takes `sorts` too, columns only: a keyset reads the order values off the row, which an
 expression is not. Order a cursor list by a column, or window it.

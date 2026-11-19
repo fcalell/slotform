@@ -10,7 +10,7 @@ Two optional files hold plain Hono middleware, and the worker mounts both on its
 Put a guard that needs no database in the first, so it rejects before the worker pays for a db
 client. Put anything that needs `db` or `auth` in the second, including a raw Hono route outside
 the RPC tree (a multipart upload, a webhook), which then reaches the same clients the procedures
-use. Type the context with the generated `WorkerContext`, imported type-only.
+use. Type the context with the generated `WorkerContext`.
 
 A raw route answers under a prefix the worker owns, since the deploy target forwards only those
 paths to it (the dev server proxies them, the deployed assets let them reach the worker first;
@@ -36,6 +36,10 @@ export default createMiddleware(async (c, next) => {
 
 ## Rules
 
+- Export Hono middleware as it is, `(c, next) => …` or `createMiddleware(…)`, never wrapped: the
+  worker tells it by its two parameters from a function that adds to the context.
+- Neither file imports from `src/worker/routes/`, and `WorkerContext` comes in with `import type`:
+  the generated `.stack/procedure.ts` imports these files back, so either import is a cycle.
 - Every raw route that changes state calls `isForbiddenOrigin(c)` first. The RPC tree gets its
   CSRF guard from its JSON content type on a `POST` (a `GET` reaches queries only and has no
   body); a multipart upload has no such guard. It refuses a request whose browser `Origin` is off
