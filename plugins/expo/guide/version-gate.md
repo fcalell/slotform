@@ -12,6 +12,25 @@ Raise the floor by hand, in the same change as the breaking API change. A platfo
 floors at `0`, so every build of it passes. Without `minNativeBuild`, or with both platforms at
 `0`, the gate is off and nothing of it lands in the worker.
 
+## The update wall
+
+With `nativeUi()`, the first `426` replaces the whole app with the update wall: a page titled
+"Update required" that tells the viewer to update from the store. It cannot be dismissed and stays
+until the app restarts. Its Update act opens the platform's store page, which the app config
+holds:
+
+- Android: the Play Store page of the app's Android package, always written.
+- iOS: the App Store page, written only when `appStoreId` is set. It is the numeric Apple ID App
+  Store Connect shows under App information.
+
+```ts
+expo({ minNativeBuild: { ios: 42, android: 40 }, appStoreId: 1385361527 });
+```
+
+Without a store page for the platform the wall keeps its sentence and draws no act. Set
+`appStoreId` once the app has an App Store record; a build carries its app config, so a build
+made before it opens nothing on iOS.
+
 ## What it reads
 
 | Header | Value |

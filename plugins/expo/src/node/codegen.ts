@@ -145,9 +145,16 @@ export function aggregateExpoConfig(payload: CodegenExpoConfigPayload): string {
 		`\tios: {`,
 		`\t\tsupportsTablet: false,`,
 		`\t\tbundleIdentifier: ${JSON.stringify(payload.bundleIdentifier)},`,
+		// The store URLs the update wall opens: docs/architecture/plugins/expo.md, "Version gate".
+		...(payload.appStoreId === undefined
+			? []
+			: [
+					`\t\tappStoreUrl: ${JSON.stringify(`https://apps.apple.com/app/id${payload.appStoreId}`)},`,
+				]),
 		`\t},`,
 		`\tandroid: {`,
 		`\t\tpackage: ${JSON.stringify(payload.androidPackage)},`,
+		`\t\tplayStoreUrl: ${JSON.stringify(`https://play.google.com/store/apps/details?id=${payload.androidPackage}`)},`,
 		`\t},`,
 	];
 

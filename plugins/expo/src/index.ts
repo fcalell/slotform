@@ -235,6 +235,7 @@ const expoConfig = slot.derived({
 			scheme: deepLinkScheme(ctx),
 			bundleIdentifier: bundleId,
 			androidPackage: bundleId,
+			appStoreId: ctx.options.appStoreId,
 			plugins: basePlugins,
 		});
 	},

@@ -17,7 +17,7 @@ of them carry an ordering rule:
   independent of plugin iteration order.
 - `providers`, wrapped around the expo-router root in `.stack/entry.tsx`, is sorted ascending by
   `order`, so a lower-order provider is an outer wrapper. native-ui contributes its words, the query
-  provider and auth here ([native-ui's provider order](native-ui.md#provider-order)).
+  provider, auth and the update wall here ([native-ui's provider order](native-ui.md#provider-order)).
 
 `routesPagesDir` drives the entry's `require.context` path and the expo-router config plugin, so its
 `null` turns expo-router wiring off.
@@ -159,8 +159,16 @@ consumer's half is the guide's [version gate](../../../plugins/expo/guide/versio
 - **Fail open.** The wall is a UX nudge, not a security control. The client stamps no header it
   cannot read and never throws over one, and the middleware lets through anything it cannot read as a
   stale native client ([what it walls](../../../plugins/expo/guide/version-gate.md#what-it-walls)). An
-  undetectable build degrades to unwalled rather than breaking every request. The client only carries the signal: `onUpdateRequired` lets the app draw an
-  update wall.
+  undetectable build degrades to unwalled rather than breaking every request.
+- **The update wall.** The client only carries the signal: `createVersionGatedFetch` emits on a
+  `426` and `onUpdateRequired` subscribes. native-ui subscribes and draws the wall
+  ([update wall](native-ui.md#update-wall)), so the app writes no subscription of its own.
+- **The store URLs.** The wall opens the platform's store page, which it reads from the app config
+  at run time (`Constants.expoConfig`): `.stack/app.config.cjs` writes `android.playStoreUrl`
+  (`https://play.google.com/store/apps/details?id=<package>`) from the Android package, and
+  `ios.appStoreUrl` (`https://apps.apple.com/app/id<id>`, Apple's form) from the `appStoreId`
+  option, only when it is set: the numeric App Store id is assigned by App Store Connect and cannot
+  be derived.
 - **Dormant.** Without a floor above 0 the plugin contributes neither the middleware nor the binding,
   so the gate is absent from the emitted worker.
 - **Order.** The middleware is `after-cors`, `order: 0`, so it runs before any other middleware, a
@@ -179,7 +187,7 @@ consumer's half is the guide's [version gate](../../../plugins/expo/guide/versio
 
 - `plugins/expo/src/index.ts`: the plugin, its slots, commands, pinned dependencies and every contribution.
 - `plugins/expo/src/types.ts`: the options and the Metro config specs.
-- `plugins/expo/src/node/codegen.ts`: the Metro config, the app config and the entry.
+- `plugins/expo/src/node/codegen.ts`: the Metro config, the app config with its store URLs, and the entry.
 - `plugins/expo/src/node/routes.ts`: `.stack/routes.d.ts`.
 - `plugins/expo/src/node/not-found.ts`: the `+not-found` route file.
 - `plugins/expo/src/version-gate-shared.ts`: the gate's header names and binding name.

@@ -35,22 +35,14 @@ build time: never put a secret in one. A server chosen while the app runs
 
 `createVersionGatedFetch()` stamps the build number and platform on every request, whether or
 not a floor is set, so the [version gate](./version-gate.md) can turn on later without a client
-release. `@fcalell/plugin-expo/client` exports:
-
-| Export | What it does |
-| --- | --- |
-| `createVersionGatedFetch(base?)` | Wraps `fetch` (the global unless given): merges the two headers, read from `expo-application`'s `nativeBuildVersion` and `Platform.OS` and left out when either is unknown, into each request's own, and signals `onUpdateRequired` subscribers on a `426`. |
-| `onUpdateRequired(cb)` | Subscribes to the `426` signal; returns the unsubscribe function. |
-
-The update wall itself is the app's screen: subscribe with `onUpdateRequired` where the app
-decides how to show it, and route there.
-
-```tsx
-useEffect(() => onUpdateRequired(() => router.replace("/update")), []);
-```
+release. `createVersionGatedFetch(base?)` from `@fcalell/plugin-expo/client` wraps `fetch` (the
+global unless given): it merges the two headers, read from `expo-application`'s
+`nativeBuildVersion` and `Platform.OS` and left out when either is unknown, into each request's
+own. On a `426`, `nativeUi()` draws the update wall
+([the update wall](./version-gate.md#the-update-wall)); the app writes no code for it.
 
 ## Without `nativeUi()`
 
 `nativeUi()` installs `@tanstack/react-query`, requires `query()` (which installs `@orpc/tanstack-query`), and wraps the app in the
-`QueryProvider` the hooks need. An app on `expo()` alone installs both and mounts the provider
-itself.
+`QueryProvider` the hooks need, and draws the update wall. An app on `expo()` alone installs both
+and mounts the provider itself, and shows no update wall.

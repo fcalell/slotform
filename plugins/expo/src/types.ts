@@ -31,6 +31,9 @@ export const expoOptionsSchema = z.object({
 	// both platforms at/under 0, keeps the gate dormant and out of the
 	// emitted worker.
 	minNativeBuild: minNativeBuildSchema.optional(),
+	// The app's numeric App Store id, from which the app config's iOS store URL
+	// is written: plugins/expo/guide/version-gate.md.
+	appStoreId: z.number().int().positive().optional(),
 	// File-based routing. `false` disables expo-router wiring entirely (rare —
 	// a bare-RN consumer). Otherwise `appDir` overrides the routes directory
 	// (default `src/app`).
@@ -96,6 +99,7 @@ export interface CodegenExpoConfigPayload {
 	scheme: string;
 	bundleIdentifier: string;
 	androidPackage: string;
+	appStoreId: number | undefined;
 	plugins: ExpoConfigPlugin[];
 }
 

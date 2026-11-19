@@ -15,6 +15,7 @@ its Expo app config, its entry and its route types into `.stack/`. Every native 
 | `updateChannel` | `"production"` | The default EAS Update channel. |
 | `configPlugins` | `[]` | Expo config plugins for native modules: `{ name, options?, dependencies? }`. |
 | `minNativeBuild` | both platforms `0` | The oldest native build the API serves; see [version gate](./version-gate.md). |
+| `appStoreId` | none | The numeric App Store id; the update wall's iOS store link ([the update wall](./version-gate.md#the-update-wall)). |
 
 ```ts
 expo({
@@ -42,7 +43,8 @@ portrait orientation, `userInterfaceStyle: "automatic"` and phone-only iOS
 (`supportsTablet: false`). The iOS bundle
 identifier and the Android package are `app.domain` reversed plus the slug (`example.com` and
 `my-app` give `com.example.myapp`); when the domain's last label already is the slug, the slug is
-not repeated (`acme.app` and `acme` give `app.acme`). `expo-router` is always the first config
+not repeated (`acme.app` and `acme` give `app.acme`). The store URLs are the Android package's Play
+Store page and, with `appStoreId`, the App Store page. `expo-router` is always the first config
 plugin while routing is on.
 
 ## The root files

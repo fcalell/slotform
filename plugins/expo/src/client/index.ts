@@ -26,8 +26,8 @@ function versionHeaders(): Record<string, string> {
 
 const updateRequired = createStore(undefined);
 
-// Rendering the update wall (a screen, a modal) is app/native-ui territory;
-// this module only carries the signal.
+// This module only carries the signal; native-ui draws the update wall:
+// docs/architecture/plugins/native-ui.md, "Update wall".
 export function onUpdateRequired(cb: () => void): () => void {
 	return updateRequired.subscribe(cb);
 }

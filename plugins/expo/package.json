@@ -46,7 +46,8 @@
 		"build": "tsc -p tsconfig.build.json",
 		"prepare": "node ../../scripts/prepare.ts",
 		"check-types": "tsc --noEmit --pretty",
-		"clear": "rm -rf dist node_modules .turbo"
+		"clear": "rm -rf dist node_modules .turbo",
+		"test": "node --test 'src/**/*.test.ts'"
 	},
 	"dependencies": {
 		"@fcalell/cli": "workspace:^",
