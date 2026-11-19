@@ -17,7 +17,10 @@ const CHILD = fileURLToPath(
 );
 
 /** The source of `.stack/schema.ts` (null for a project without routes): every procedure of the app's router (the runtime plugins' routes too) with its input as JSON Schema, its kind and its scope key, which the client reads. The router loads in a child node process, so a long-lived `stack dev` never writes a stale schema; a procedure that fails to load or convert fails `generate`, naming its path. */
-export async function schemaSource(cwd: string): Promise<string | null> {
+export async function schemaSource(
+	cwd: string,
+	env: NodeJS.ProcessEnv,
+): Promise<string | null> {
 	if (
 		!existsSync(join(cwd, PROCEDURE_FILE)) ||
 		!existsSync(join(cwd, WORKER_FILE)) ||
@@ -29,6 +32,7 @@ export async function schemaSource(cwd: string): Promise<string | null> {
 	try {
 		const { stdout } = await run(process.execPath, [CHILD, cwd], {
 			maxBuffer: 256 * 1024 * 1024,
+			env,
 		});
 		schema = JSON.parse(stdout);
 	} catch (error) {

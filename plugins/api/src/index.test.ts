@@ -22,6 +22,7 @@ function project(files: Record<string, string>) {
 	const graph = buildGraph([{ name: "api", slots, contributes }], {
 		app,
 		cwd,
+		env: {},
 		log: console as never,
 		ctxForPlugin: () => ({
 			options: { prefix: "/rpc", env: [], entities: [] },

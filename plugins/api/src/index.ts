@@ -727,7 +727,7 @@ export const api = plugin("api", {
 		cliSlots.postWrite.contribute(async (ctx) => {
 			const auth = await ctx.resolve(self.slots.serverAuth);
 			return async () => {
-				const source = await schemaSource(ctx.cwd);
+				const source = await schemaSource(ctx.cwd, ctx.env);
 				if (source === null) return;
 				await writeArtifact(join(ctx.cwd, SERVER_SCHEMA), source);
 				await writeArtifact(
