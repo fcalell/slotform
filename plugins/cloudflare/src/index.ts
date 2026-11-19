@@ -306,20 +306,26 @@ export const cloudflare = plugin("cloudflare", {
 						join(serve.dir, ".dev.vars"),
 						`${devValues}\n${overrides}\n`,
 					);
-					return startServer(serve, "wrangler", "npx", [
+					return startServer(
+						serve,
 						"wrangler",
-						"dev",
-						"--config",
-						config,
-						"--tsconfig",
-						tsconfig,
-						"--ip",
-						"127.0.0.1",
-						"--port",
-						String(serve.port),
-						"--persist-to",
-						serve.state,
-					]);
+						"npx",
+						[
+							"wrangler",
+							"dev",
+							"--config",
+							config,
+							"--tsconfig",
+							tsconfig,
+							"--ip",
+							"127.0.0.1",
+							"--port",
+							String(serve.port),
+							"--persist-to",
+							serve.state,
+						],
+						ctx.env,
+					);
 				},
 			};
 		}),
@@ -381,7 +387,7 @@ export const cloudflare = plugin("cloudflare", {
 			const result = spawnSync(
 				"npx",
 				["wrangler", "types", WORKER_TYPES, "-c", WRANGLER_CONFIG],
-				{ cwd: ctx.cwd, stdio: "pipe" },
+				{ cwd: ctx.cwd, stdio: "pipe", env: ctx.env },
 			);
 			if (result.error) {
 				removeStaleDts();
