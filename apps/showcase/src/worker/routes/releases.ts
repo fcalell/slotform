@@ -23,10 +23,10 @@ export const releases = {
 		.output(z.array(release))
 		.query(() => []),
 
-	// How many promotions the plan still allows this month.
+	// How many promotions the plan still allows this month, and the day it resets.
 	quota: procedure({ reads: ["releases"] })
-		.output(z.object({ left: z.number() }))
-		.query(() => ({ left: 0 })),
+		.output(z.object({ left: z.number(), resets: z.string() }))
+		.query(() => ({ left: 0, resets: "" })),
 
 	// The stages a release moves through, each with how many stand in it.
 	stages: procedure({ reads: ["releases"] })

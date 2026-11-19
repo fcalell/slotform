@@ -1,6 +1,7 @@
 import { Dock } from "@fcalell/plugin-react-ui/components/dock";
 import { connectOutput, player } from "@fcalell/plugin-react-ui/lib/player";
 import type { Engine } from "@fcalell/ui-core/player";
+import type { Datum } from "@fcalell/ui-core/read";
 import { useEffect } from "react";
 import { MADE_DURATION, madePeaks, silence } from "../peaks.ts";
 import { Column } from "./place.tsx";
@@ -21,10 +22,15 @@ const still =
 		paused: () => true,
 		level: () => ({ volume: 1, muted: false }),
 		apply: () => {},
+		cover: () => {},
+		steps: () => {},
 	});
 
 // A track is loaded, paused a third in (`failing`: told to play and failed), for a dock to stand with; the player is the page's, so the scene puts it away when it goes.
-export function useLoadedTrack(options: { image?: string; failing?: boolean }) {
+export function useLoadedTrack(options: {
+	image?: Datum<string>;
+	failing?: boolean;
+}) {
 	const { image, failing = false } = options;
 	useEffect(() => {
 		const src = silence(MADE_DURATION);
@@ -51,7 +57,7 @@ export function useLoadedTrack(options: { image?: string; failing?: boolean }) {
 }
 
 // A dock under a place's column, its track loaded with `image` (`failing`: told to play and failed).
-export function Standing(props: { image?: string; failing?: boolean }) {
+export function Standing(props: { image?: Datum<string>; failing?: boolean }) {
 	useLoadedTrack(props);
 	return (
 		<Column>

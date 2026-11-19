@@ -4,7 +4,7 @@ import {
 } from "@fcalell/plugin-react-ui/components/stats";
 import type { StatSpec } from "@fcalell/ui-core/descriptors";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
-import { readsAt, waiting } from "../waiting.ts";
+import { readsAt, waiting, waitingText } from "../waiting.ts";
 import { Judged } from "./judged.tsx";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
@@ -126,11 +126,15 @@ const LEVELS: Record<string, readonly StatSpec[]> = {
 	],
 };
 
-// The strips whose figures never arrive: each cell paints its figure, or its
-// share.
+// The strips whose figures and lines never arrive: each cell paints its figure,
+// or its share, and the line under it.
 const waitingFigure = waiting.at(() => 0);
 const painted = (items: readonly StatSpec[]): readonly StatsItem[] =>
-	items.map((item) => ({ ...item, value: waitingFigure }));
+	items.map((item) => ({
+		...item,
+		value: waitingFigure,
+		line: item.line === undefined ? undefined : waitingText,
+	}));
 
 // The shares over a read that failed, no frame above holding it: each is the
 // failed shape itself, one with a line under its bar and one with counts.

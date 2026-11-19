@@ -87,6 +87,10 @@ const STAGES = {
 	],
 };
 
+// The day the plan's month resets: the usage meters and the promotions
+// left both answer it.
+const RESETS = "Oct 31";
+
 // Build minutes a day, the last 30 days, each day timed.
 const MINUTES = [
 	140, 160, 170, 150, 120, 110, 150, 170, 180, 160, 170, 120, 110, 160, 190,
@@ -315,7 +319,7 @@ export default defineFixtures<AppRouter>(
 		releases: {
 			list: ({ stage }) =>
 				RELEASES.filter((release) => !stage || release.stage === stage),
-			quota: () => ({ left: 2 }),
+			quota: () => ({ left: 2, resets: RESETS }),
 			stages: () => [
 				{ value: "review", label: "In review", count: 3 },
 				{ value: "staging", label: "Staging", count: 2 },
@@ -333,7 +337,7 @@ export default defineFixtures<AppRouter>(
 		},
 		usage: {
 			month: () => ({
-				resets: "Oct 31",
+				resets: RESETS,
 				meters: [
 					{
 						label: "Requests",

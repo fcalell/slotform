@@ -629,25 +629,21 @@ function drawPart(scene: ShowcaseScene, name: PartName, pair: boolean) {
 
 // Every shape a row holds, loaded, then each shape painted: a Section of its
 // own over items that never arrive, whose selector maps a record to that row,
-// so its waiting rows paint in the row's regions. A file row paints no form of
-// its own (the sheet paints the roster's title over a facts line for it), so
-// the painted run holds the list rows alone.
+// so its waiting rows paint in the row's regions, a file row's as a file row.
 const SHAPED = [...SHAPES, ...FACTS, ...REVIEW, ...CHIPPED, ...LINES];
 
 function Shapes(props: { id: string }) {
 	return (
 		<>
 			<Section items={SHAPED} />
-			{SHAPED.map((row, at) =>
-				"path" in row ? null : (
-					<Section
-						key={row.key ?? `row-${at}`}
-						items={itemsAt<Row>(`${props.id}/shape-${at}`, "loading", []).at(
-							(list) => list.map(() => row),
-						)}
-					/>
-				),
-			)}
+			{SHAPED.map((row, at) => (
+				<Section
+					key={row.key ?? `row-${at}`}
+					items={itemsAt<Row>(`${props.id}/shape-${at}`, "loading", []).at(
+						(list) => list.map(() => row),
+					)}
+				/>
+			))}
 		</>
 	);
 }

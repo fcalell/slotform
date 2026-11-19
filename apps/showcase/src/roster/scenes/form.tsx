@@ -116,6 +116,56 @@ function Grouped(props: { read: Selection<unknown> }) {
 	);
 }
 
+// A form of two groups whose second reads its own `values`: the region's
+// field paints while that read waits, and its failure or a missing record
+// stands in its place, while the first group stands.
+function GroupValues(props: { read: Selection<unknown> }) {
+	return (
+		<Derived
+			act={NEVER}
+			given={UNSHOWN}
+			values={{ title: "Acme Inc" }}
+			groups={[
+				{ title: "General", fields: { title: { label: "Workspace name" } } },
+				{
+					title: "Region",
+					values: props.read.at(
+						(): Partial<Request> => ({ owner: "Frankfurt, eu-central-1" }),
+					),
+					fields: { owner: { label: "Region" } },
+				},
+			]}
+			submit={{ label: "Save" }}
+		/>
+	);
+}
+
+// A form that asks one step at a time, its first step answered: Continue is
+// pressed once mounted, so the first step folds to its summary row (its title,
+// then each answer a middle dot apart, and Edit), the second stands open over
+// the bar's Continue and the third is not drawn yet.
+function Stepped() {
+	return (
+		<Submitted>
+			<Derived
+				act={SAVED}
+				given={GIVEN}
+				steps
+				values={{ title: FILLED.title, kind: "change" }}
+				groups={[
+					{ title: "The request", fields: { title: TITLE, kind: KIND } },
+					{ title: "Limits", fields: { seats: SEATS, due: DUE } },
+					{
+						title: "Notifications",
+						fields: { urgent: URGENT, channels: CHANNELS },
+					},
+				]}
+				submit={{ label: "Send request" }}
+			/>
+		</Submitted>
+	);
+}
+
 // A form's controls show their placeholder or value whole: docs/architecture/ui-core/layout.md, "Definition rows".
 // The scene logs an error where one is cut or a toggle falls under its name or off its name's line (a description beneath).
 const SETTLE = 60;
@@ -367,6 +417,8 @@ export function drawForm(scene: ShowcaseScene) {
 				<Over read={reads.failing} />
 				<Over read={reads.missing} />
 				<Grouped read={readsAt(`${scene.id}/3`).failing} />
+				<GroupValues read={readsAt(`${scene.id}/4`).failing} />
+				<GroupValues read={readsAt(`${scene.id}/4`).missing} />
 			</div>
 		);
 	if (scene.state === "empty")
@@ -401,6 +453,7 @@ export function drawForm(scene: ShowcaseScene) {
 				<Optional />
 				<Defaulted />
 				<LongLabels />
+				<Stepped />
 			</div>
 		</Judged>
 	) : settings ? (
@@ -415,6 +468,7 @@ export function drawForm(scene: ShowcaseScene) {
 				{drawn}
 				<Over read={reads.waiting} />
 				<Grouped read={other.waiting} />
+				<GroupValues read={readsAt(`${scene.id}/4`).waiting} />
 			</div>
 		);
 	return (

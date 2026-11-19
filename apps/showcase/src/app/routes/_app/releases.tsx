@@ -63,7 +63,7 @@ function Releases() {
 						{
 							label: "Promotions left",
 							value: quota.at((q) => q.left),
-							line: "Resets on Oct 31.",
+							line: quota.at((q) => `Resets on ${q.resets}.`),
 						},
 					]}
 				/>

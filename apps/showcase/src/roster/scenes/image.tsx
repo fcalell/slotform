@@ -26,10 +26,8 @@ function drawn(fit: ImageFit, state: ShowcaseScene["state"]) {
 	const shown = state === "loading" ? waitingText : src;
 	if (fit === "thumb") return <Image src={shown} alt={ALT} fit="thumb" />;
 	// The mini tile is the dock's: a picture to look at, which presses nothing,
-	// drawn in the dock of a loaded track. A track's picture is an address, never
-	// a read, so the mini tile has no painted shape.
-	if (fit === "mini")
-		return state === "loading" ? undefined : <Standing image={src} />;
+	// drawn in the dock of a loaded track.
+	if (fit === "mini") return <Standing image={shown} />;
 	const code = state === "rest" ? CODE : shown;
 	return (
 		<div className={COLUMN}>

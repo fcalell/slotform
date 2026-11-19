@@ -8,6 +8,8 @@ import {
 	FILLED,
 	GIVEN,
 	GIVEN_ALL,
+	GIVEN_BUT_KIND,
+	KIND,
 	refusing,
 	SAVED,
 	Submitted,
@@ -74,6 +76,75 @@ function Unread(props: { id: string }) {
 	);
 }
 
+// The choice hints: one choice as the option list (`list`) and as the
+// segmented row (`segments`, over a pick whose schema defaults), and several
+// as the option list with a checkbox per option.
+function Choices() {
+	return (
+		<Form
+			act={SAVED}
+			given={GIVEN_BUT_KIND}
+			values={{ kind: "measurement", channels: ["email"] }}
+			fields={{
+				kind: { ...KIND, control: "list" },
+				density: {
+					label: "Density",
+					description: "How much each row shows.",
+					control: "segments",
+				},
+				channels: {
+					label: "Channels",
+					description: "Where the requester hears about it.",
+					control: "list",
+				},
+			}}
+		/>
+	);
+}
+
+// Sets a typed control's value as the viewer's typing does, through the
+// element's own setter, so React hears the input.
+function typeInto(field: HTMLInputElement | HTMLTextAreaElement, text: string) {
+	const own = Object.getOwnPropertyDescriptor(
+		Object.getPrototypeOf(field),
+		"value",
+	);
+	own?.set?.call(field, text);
+	field.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+// Fields edited once mounted, each against its first value: the URL changed,
+// the note added where it was empty, the switch turned off (its empty), and
+// another kind chosen, so each draws its change mark.
+function Edited() {
+	const host = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const form = host.current;
+		if (!form) return;
+		const line = form.querySelector("input");
+		const note = form.querySelector("textarea");
+		if (line) typeInto(line, "acme-labs");
+		if (note) typeInto(note, "Moved to the new domain.");
+		form.querySelector<HTMLElement>("[role=switch]")?.click();
+		form.querySelectorAll<HTMLElement>("[role=radio]")[2]?.click();
+	}, []);
+	return (
+		<div ref={host} className="contents">
+			<Form
+				act={SAVED}
+				given={{ ...GIVEN, seats: FILLED.seats }}
+				values={{ title: "acme-inc", urgent: true, kind: "change" }}
+				fields={{
+					title: { label: "Workspace URL" },
+					why: { label: "Note", control: "prose" },
+					urgent: { label: "Require two-factor" },
+					kind: { ...KIND, control: "list" },
+				}}
+			/>
+		</div>
+	);
+}
+
 // Board 41's fields as a form's rows: a typed field, a pick and a switch, each
 // described; in error the server's messages take the descriptions' places (the
 // submit pressed once mounted), and disabled each field is locked, its reason
@@ -134,6 +205,12 @@ export function drawFormField(scene: ShowcaseScene) {
 		<Wide>
 			{error ? <Submitted>{form}</Submitted> : form}
 			{error && isFirstClassSet(scene) ? <Unread id={scene.id} /> : null}
+			{state === "rest" && isFirstClassSet(scene) ? (
+				<>
+					<Choices />
+					<Edited />
+				</>
+			) : null}
 		</Wide>
 	);
 }
