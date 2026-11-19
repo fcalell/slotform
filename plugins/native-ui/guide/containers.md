@@ -6,7 +6,7 @@ A container holds the rest of a screen: the `Shell` around the app, the `Pane` t
 
 The container of the app: the tab bar over the home indicator, the app's `foot`, the toasts and the `confirm()` sheets.
 
-- `places`: the tab bar's places, in order. Past five, four stand and a More tab opens a page of the rest.
+- `places`: the tab bar's places, in order. Past five, four stand and a More tab opens a page of the rest. A spot place (`#activity`) is no tab: it stays on its page.
 - `groups`: `{ label, switcher? }`, named by a place's `group`; the More page draws a group's switcher over its places.
 - `switcher`: what the app is looking at and what it can switch to. Its trigger starts the bar of each place's Pane.
 - `banner`: a `Banner` under the status bar.

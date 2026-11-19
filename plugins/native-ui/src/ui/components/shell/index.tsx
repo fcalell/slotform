@@ -52,11 +52,13 @@ const TAB_LABEL = "max-w-full";
 const TAB_SPACE = 5;
 
 // The places the tab bar draws as tabs, and the rest, which the More page holds.
+// A spot place (`#activity`) is no page, so it is no tab: expo-router serves no hash.
 function tabsOf(places: readonly PlaceSpec[]) {
-	if (places.length <= TAB_SPACE) return { shown: places, rest: [] };
+	const pages = places.filter((spec) => isRoute(spec.route));
+	if (pages.length <= TAB_SPACE) return { shown: pages, rest: [] };
 	return {
-		shown: places.slice(0, TAB_SPACE - 1),
-		rest: places.slice(TAB_SPACE - 1),
+		shown: pages.slice(0, TAB_SPACE - 1),
+		rest: pages.slice(TAB_SPACE - 1),
 	};
 }
 
@@ -68,7 +70,7 @@ const TAB_INK: Record<PlaceTabState, ContentTone> = {
 };
 
 export interface ShellProps extends Closed {
-	/** The tab bar's places, in order; the one at the current route is selected. Past five, four stand and a More tab opens a page of the rest. */
+	/** The tab bar's places, in order; the one at the current route is selected. Past five, four stand and a More tab opens a page of the rest. A spot place (`#activity`) draws no tab. */
 	places: readonly PlaceSpec[];
 	/** The groups the places name, for the ones that carry a switcher: the More page draws a group's switcher over its places. */
 	groups?: readonly GroupSpec[];

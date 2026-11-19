@@ -95,7 +95,6 @@ Each item is decided and waits to be built. One that adds a part or crosses pack
 - `pickChooser` in query mode: the head tick is chosen while every excepted id is a blocked one, mixed only once the viewer unticks a row that can be ticked; the count stays `of − except`.
 - The canvas's `useLayout` splits into the layout run (measure, ELK, route) and the view policy (anchor, opening view, `minZoom`, `fitTo`), which reads only the run's output and the viewport.
 - `textSize` and `spacing` move from the public `./lib/media` to an internal module; `./lib/media` keeps the consumer hooks.
-- native-ui's `tabsOf` leaves spot places (`#activity`) out of the tab bar and the More page.
 - A stage's minimum height is a two-line stage's own height, derived from the type scale, so the rail keeps one pitch past the current stage.
 - The environment is threaded from the entries: the CLI's command context and each server entry carry `env`, and none of the 23 reads below an entry (16 files) keeps a `process.env` default.
 - A generated `Specimen` story draws every component's `rest` scene, light and dark, on one page, from `showcaseScenes()`; the overlay scenes stand one stage each at its end.
