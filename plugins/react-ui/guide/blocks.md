@@ -1,6 +1,6 @@
-# Blocks: text, figures and pictures
+# Blocks: text, code and pictures
 
-The parts that read as a block in a `Section`'s body. `Stats` and `BarChart` draw a card of their own; [`Card`](./containers.md#card) names the ones that stand in a `Card`. The lists, tables and threads are `content.md`; `Waveform` is `audio.md` and `Canvas` is `canvas.md`. This page is what each takes.
+The parts that read as a block in a `Section`'s body, and the pictures. [`Card`](./containers.md#card) names the ones that stand in a `Card`. `Stats` and `BarChart` are [figures](./figures.md), a `Waveform` is [dock](./dock.md) and a `Canvas` is [canvas](./canvas.md). This page is what each takes.
 
 ## Text
 
@@ -31,24 +31,6 @@ A rail of fixed states.
 - `steps`: `{ label, state, at? }`. `state` is `done`, `current` or `later`; `at` is the ISO moment a done or current stage was reached.
 - `ended`: `{ label, reason? }`, the terminal row that stands in place of every stage after the last done one.
 
-## Stats
-
-Figures in cells. `items` are cells `{ label, value, line? }`, the `line` a sentence under the figure (a selection paints until its read lands), each one of:
-
-- plain, with a `unit` after the figure's last digit (the spare space stands after the pair).
-- a link: `href` makes the whole cell a link; `counts` makes sub-counts links of their own. Never both.
-- a meter: `bound` is the limit, so `value` is drawn as a share of it, with sub-counts (`counts`) but no `unit` or `href`. `mark` is a tick on the track where the fill turns amber; `goal` makes the bound a target reached, not a limit.
-
-## BarChart
-
-Columns over time, or over buckets (hours, plans, countries).
-
-- `label`: what the chart counts, read aloud and never drawn.
-- `items` and `bar`: the bars oldest first and the regions that read each (`key`, `value`, `parts`, `at`, `label`, `partial`, `selected`). `bar.label` names a bucket under its bar, in the time line's place; `bar.partial` hatches a bar whose period is not over; `bar.selected` stands the bar of the open record in the selection wash.
-- `keys`: the names a bar's parts stack by, bottom first. Present, the chart is stacked and the names are its legend.
-- `unit`: what the values count, drawn after the total. `{ one, other }` for a plural, `{ currency: "USD" }` for money.
-- `level`: the bars are a level, not a flow (open flags per round): the head draws the last bar's value, never a sum.
-
 ## Image
 
 A picture that opens full size on a press.
@@ -61,3 +43,40 @@ A picture that opens full size on a press.
 ```tsx
 <Image src={cover} alt="Cover art" aspect={16 / 9} />
 ```
+
+## Gallery
+
+Pictures side by side (`node_modules/@fcalell/ui-core/guide/pictures.md` says when). `items` are the pictures, in the order the full view steps through them:
+
+| Field | Is |
+| --- | --- |
+| `key` | tells the picture apart, kept while the list changes |
+| `src` | the address; a selection paints the tile, inert, until its read lands |
+| `alt` | what it shows: the tile's accessible name and the full view's name, a sentence |
+| `aspect` | the width over the height (`16 / 10`) |
+| `caption` | a line under the tile, cut to its width (a file's name, a page's address) |
+
+Each tile stands a fixed height at its picture's `aspect`, held no narrower than three to four (a phone's page is cropped to its top, where its head is) and no wider than the container, and the tiles wrap a gap apart. A tile paints, waits and fails as an `Image` does. A press opens the full view on that picture, with Previous and Next beside it stepping through the others in the list's order (and the arrow keys).
+
+```tsx
+<Gallery
+  items={shots.map((shot) => ({
+    key: shot.path,
+    src: shot.url,
+    alt: `Screenshot ${shot.path}`,
+    aspect: shot.width / shot.height,
+    caption: shot.path,
+  }))}
+/>
+```
+
+## QrCode
+
+A code a camera reads (`node_modules/@fcalell/ui-core/guide/pictures.md#a-code-a-camera-reads-is-a-qrcode`).
+
+| Prop | Is |
+| --- | --- |
+| `value` | the text it carries (an address), a constant or a selection, which paints the tile until its read lands; never drawn nor read aloud |
+| `label` | what it is for, its accessible name ("Code that adds a device") |
+
+It draws its modules dark on a light tile in both modes, inside a four-module quiet zone, a square at its container's width down to the image cap and centred, so it is never cropped.

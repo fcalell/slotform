@@ -10,6 +10,7 @@ import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
 	FIELD_PLACEHOLDER,
+	PRESS_WASH,
 	placeRow,
 	placeRowGlyph,
 	SHELL_RAIL_ENTRY,
@@ -24,7 +25,7 @@ import type { IconAct } from "../../lib/act.ts";
 import { Painted } from "../../lib/paint.tsx";
 import { Avatar } from "../avatar/index.tsx";
 import { HeldPicker } from "../picker/base.tsx";
-import { GLYPH, ROW_PRESS } from "./row.ts";
+import { GLYPH } from "./row.ts";
 
 const END = "flex shrink-0 text-ink-mark";
 // The trigger is a place row: its leading region holds the glyph the caller
@@ -105,7 +106,7 @@ export function SwitcherPick(props: {
 						placeRow({ state: open ? "active" : "rest" }),
 						TRIGGER,
 						rail && SHELL_RAIL_ENTRY,
-						!open && !pending && ROW_PRESS,
+						!open && !pending && PRESS_WASH,
 					)}
 				>
 					<span

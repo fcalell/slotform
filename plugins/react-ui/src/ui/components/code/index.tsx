@@ -15,6 +15,7 @@ import {
 	CODE_UNDER_HEAD,
 	codeText,
 	lineBox,
+	PRESS_WASH,
 	text,
 } from "@fcalell/ui-core/variants";
 import { Fragment, useId, useState } from "react";
@@ -39,8 +40,11 @@ const TEXT_BESIDE = "grow min-w-0";
 const ACT = "shrink-0";
 const LINE = "flex items-center h-lh";
 const ACTS = "gap-gap";
-const FOLD =
-	"flex items-center w-full hover:bg-wash-hover active:bg-wash-press in-data-[modality=keyboard]:focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring";
+const FOLD = cn(
+	"flex items-center w-full",
+	PRESS_WASH,
+	"in-data-[modality=keyboard]:focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+);
 
 /** Text a machine reads, in mono, whole. */
 export interface CodeProps extends Closed {

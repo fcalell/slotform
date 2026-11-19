@@ -57,7 +57,7 @@ export function HeldCheckbox({
 }) {
 	const draft = useHeldDraft(checked);
 	// A read that ended leaves the box empty and blocked.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = given || (draft.painted && !ended);
 	const absent = painted || ended;
 	const value = draft.value;

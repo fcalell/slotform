@@ -77,13 +77,3 @@ export function EndMark({ mark }: { mark: RowMark }) {
 		</Named>
 	);
 }
-
-/** Whether a boolean mark says a fact: a ring says one only while it holds. */
-export function says(mark: RowMark): boolean {
-	return !("ring" in mark) || mark.ring;
-}
-
-/** Whether a boolean mark draws no words: its glyph stands in the row's end group, its label the name. */
-export function wordless(mark: RowMark): boolean {
-	return mark.words === false;
-}

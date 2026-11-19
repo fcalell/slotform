@@ -1,4 +1,5 @@
 import { cn } from "@fcalell/ui-core/cn";
+import { initials } from "@fcalell/ui-core/format";
 import { avatar, avatarLabel, avatarStep } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import { PAINT_BOX } from "../../lib/paint.tsx";
@@ -6,19 +7,6 @@ import { PAINT_BOX } from "../../lib/paint.tsx";
 const CIRCLE =
 	"inline-flex items-center justify-center shrink-0 overflow-hidden";
 const IMAGE = "shrink-0 object-cover";
-
-// A name's first two words, parted by spaces, dots, underscores and hyphens;
-// an email address stands for a name by its local part ("ada.lovelace@…"
-// reads AL).
-function initials(name: string): string {
-	const [local] = name.split("@", 1);
-	return (local ?? "")
-		.split(/[\s._-]+/)
-		.filter(Boolean)
-		.slice(0, 2)
-		.map((word) => word[0]?.toUpperCase() ?? "")
-		.join("");
-}
 
 /** The image, else (none, or one that failed to load) the name's initials on the fill step its hash picks, so one name keeps one fill. `painted` is the circle while its person is not here: its box filled, nothing drawn in it. Outside the package's exports. */
 export function AvatarBase({

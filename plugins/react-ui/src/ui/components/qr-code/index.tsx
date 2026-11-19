@@ -1,9 +1,16 @@
 import { cn } from "@fcalell/ui-core/cn";
-import { qrModules } from "@fcalell/ui-core/qr";
+import { qrModules, qrTooLong } from "@fcalell/ui-core/qr";
 import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
-import { QR_CODE, QR_CODE_INK } from "@fcalell/ui-core/variants";
-import { useMemo } from "react";
+import { type Datum, dev, paints } from "@fcalell/ui-core/read";
+import {
+	IMAGE_FAILED_INK,
+	QR_CODE,
+	QR_CODE_FAILED,
+	QR_CODE_FAILED_GLYPH,
+	QR_CODE_INK,
+} from "@fcalell/ui-core/variants";
+import { useEffect, useMemo } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 
 // The drawing fills the tile edge to edge, the quiet zone inside its view box.
@@ -25,10 +32,24 @@ export function QrCode({ value: given, label }: QrCodeProps) {
 		() => (text === undefined ? undefined : qrModules(text)),
 		[text],
 	);
+	useEffect(() => {
+		if (text !== undefined && code === undefined && dev())
+			console.error(qrTooLong(text));
+	}, [text, code]);
 	// An ended read draws no code; the region that holds it says why.
 	if (named.painted && !paints(named)) return null;
-	if (code === undefined)
+	if (text === undefined)
 		return <div aria-hidden inert className={cn(QR_CODE, PAINT_BOX)} />;
+	if (code === undefined)
+		return (
+			<div
+				role="img"
+				aria-label={label}
+				className={cn(QR_CODE, QR_CODE_FAILED, IMAGE_FAILED_INK)}
+			>
+				<Icon name={QR_CODE_FAILED_GLYPH} />
+			</div>
+		);
 	return (
 		<div role="img" aria-label={label} className={cn(QR_CODE, QR_CODE_INK)}>
 			<svg

@@ -134,36 +134,107 @@ export const reactUi = plugin("react-ui", {
 		{
 			page: "reference",
 			trigger:
-				"Importing a web component, or setting the theme, words or fonts, or reasoning about density, dark mode or the page container",
+				"Importing a web component, or setting the theme, words, fonts or mode",
+		},
+		{
+			page: "density",
+			trigger:
+				"Reasoning about density, a screen read from across a room, the page container or a phone's safe areas",
+		},
+		{
+			page: "shots",
+			trigger: "Shooting or auditing the app's screens with a browser driver",
+		},
+		{ page: "shell", trigger: "Giving a `Shell` or `Panes` a prop" },
+		{
+			page: "sidebar",
+			trigger:
+				"Nesting places with `children`, or reviewing how the sidebar's groups open and fold",
+		},
+		{
+			page: "pane",
+			trigger:
+				"Giving a `Pane` a prop, its record's head, its body or its foot",
+		},
+		{
+			page: "pane-bar",
+			trigger: "Giving a `Pane` its acts, its context pick or its way back",
 		},
 		{
 			page: "containers",
-			trigger:
-				"Giving a `Shell`, `Pane`, `Gate`, `Sheet`, `Columns` or `Card` a prop",
+			trigger: "Giving a `Gate`, `Sheet`, `Banner`, `Columns` or `Card` a prop",
 		},
 		{
 			page: "controls",
 			trigger:
 				"Giving a `Button`, `Input`, `Picker`, `Switch` or `Slider` a prop",
 		},
+		{ page: "section", trigger: "Giving a `Section` a prop or its rows" },
+		{
+			page: "table",
+			trigger: "Giving a `Table` a prop, its columns or its row regions",
+		},
 		{
 			page: "content",
-			trigger:
-				"Giving a `Section`, `Table`, `Toolbar`, `Rules` or `Thread` a prop",
+			trigger: "Giving a `Toolbar`, `Rules` or `Thread` a prop",
 		},
+		{ page: "drag", trigger: "Making rows drag, drop or reorder" },
 		{
 			page: "blocks",
 			trigger:
-				"Giving a `Text`, `Prose`, `Code`, `Diff`, `Stages`, `Stats`, `BarChart` or `Image` a prop",
+				"Giving a `Text`, `Prose`, `Code`, `Diff`, `Stages`, `Image`, `Gallery` or `QrCode` a prop",
+		},
+		{ page: "figures", trigger: "Giving a `Stats` or `BarChart` a prop" },
+		{
+			page: "forms",
+			trigger: "Writing a `Form`, its fields, its steps or how it commits",
+		},
+		{
+			page: "acts",
+			trigger:
+				"Giving an `ActionBar` its acts, a `Table`'s chosen bar, or calling `toast()` or `confirm()`",
 		},
 		{
 			page: "canvas",
 			trigger: "Drawing a graph of nodes and edges, a workflow or a journey",
 		},
 		{
-			page: "audio",
+			page: "canvas-view",
 			trigger:
-				"Playing sound, drawing a track's waveform or reading what is playing",
+				"Reviewing how a canvas pans and zooms by pointer, wheel or touch",
+		},
+		{
+			page: "canvas-opening",
+			trigger:
+				"Reviewing where a canvas's view opens, or keeping a chosen node in view as the canvas resizes",
+		},
+		{
+			page: "canvas-overview",
+			trigger:
+				"Giving canvas nodes their titles, or reviewing a canvas zoomed out",
+		},
+		{
+			page: "canvas-layout",
+			trigger:
+				"Placing a canvas's nodes, standing a canvas in a `Pane`, or giving it a read",
+		},
+		{
+			page: "canvas-editing",
+			trigger: "Giving a canvas `onMove` or `onConnect`",
+		},
+		{
+			page: "canvas-states",
+			trigger:
+				"Giving a canvas node `off`, a `warning`, a `status`, or a run's `path`",
+		},
+		{
+			page: "canvas-choosing",
+			trigger: "Giving a canvas `onSelect`, `selected`, groups or an `act`",
+		},
+		{ page: "audio", trigger: "Playing sound or reading what is playing" },
+		{
+			page: "dock",
+			trigger: "Placing the `Dock` or drawing a track's waveform",
 		},
 	],
 

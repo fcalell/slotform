@@ -26,6 +26,7 @@ import {
 	DIFF_HANG,
 	DIFF_HUNK,
 	DIFF_MARK,
+	DIFF_MARKS,
 	diffLine,
 } from "@fcalell/ui-core/variants";
 import { Fragment, useMemo } from "react";
@@ -55,12 +56,6 @@ const ELIDED = "\u2506";
 const GUTTER = "text-end align-top";
 const MARK = "align-top";
 const CODE = "w-full align-top";
-// The marker a line's kind reads by without its ground's hue.
-const MARKS: Record<DiffLine["kind"], string> = {
-	context: " ",
-	added: "+",
-	removed: "−",
-};
 
 interface DiffBase extends Closed {
 	/** What the diff shows (the file's path), its table's accessible name (a short phrase; read aloud, never drawn). */
@@ -97,7 +92,7 @@ function Gutters(props: { line?: DiffLine; numbers: Numbers }) {
 				<td className={cn(DIFF_GUTTER, GUTTER)}>{props.line?.after}</td>
 			) : null}
 			<td className={cn(DIFF_MARK, MARK)}>
-				{MARKS[props.line?.kind ?? "context"]}
+				{DIFF_MARKS[props.line?.kind ?? "context"]}
 			</td>
 		</>
 	);

@@ -1,7 +1,6 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { markedRuns } from "@fcalell/ui-core/form";
-import { usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { useReasonShown } from "@fcalell/ui-core/react/reason";
 import { partRuns } from "@fcalell/ui-core/runs";
 import { FIELD_ERROR_LINE, FLOW_IN, text } from "@fcalell/ui-core/variants";
 import { RunText } from "../../lib/code.tsx";
@@ -59,13 +58,11 @@ export function useReasonLine(
 	blocked: string | undefined,
 	end?: boolean | "desktop",
 ) {
-	const { touched } = useTouched();
-	const [pressed, press] = usePressed(blocked);
-	const host = blocked === undefined ? undefined : press;
+	const { host, reason } = useReasonShown(blocked);
 	const line =
-		blocked === undefined ? null : (
-			<Reason shown={pressed || touched} end={end}>
-				{blocked}
+		reason === undefined ? null : (
+			<Reason shown end={end}>
+				{reason}
 			</Reason>
 		);
 	return { host, line };

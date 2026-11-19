@@ -33,11 +33,12 @@ export default defineConfig({
 
 How to build on the plugin lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
 [`rules.md`](./guide/rules.md), what every web `.tsx` follows;
-[`reference.md`](./guide/reference.md), the components' subpaths, the options, density, the page
-container and the modes; [`containers.md`](./guide/containers.md), [`controls.md`](./guide/controls.md),
-[`content.md`](./guide/content.md) and [`blocks.md`](./guide/blocks.md), what each component takes;
-[`canvas.md`](./guide/canvas.md), a graph of nodes and edges; and [`audio.md`](./guide/audio.md),
-the player. The screen recipe and the design standard are ui-core's pages.
+[`reference.md`](./guide/reference.md), the components' subpaths, the options and the modes;
+[`density.md`](./guide/density.md), density and the page container; a page per component or group of
+components, what each takes (starting from [`shell.md`](./guide/shell.md) and [`pane.md`](./guide/pane.md));
+[`canvas.md`](./guide/canvas.md) and its pages, a graph of nodes and edges; and
+[`audio.md`](./guide/audio.md), the player. The full list, with when to open each page, is the plugin's
+`guide` in `src/index.ts`. The screen recipe and the design standard are ui-core's pages.
 
 ## License
 

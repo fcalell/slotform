@@ -14,6 +14,7 @@ import {
 	MESSAGE_LINE,
 	MESSAGE_OPEN,
 	message,
+	PRESS_WASH,
 	STREAM_IN,
 	text,
 	textStrong,
@@ -39,8 +40,7 @@ const SYSTEM = "flex flex-col items-center justify-center text-center";
 const DETAIL = "self-stretch text-start whitespace-pre-wrap";
 const FRAMED = "flex flex-col overflow-hidden";
 const LINE_TEXT = "inline-flex flex-wrap justify-center min-w-0";
-const OPEN =
-	"inline-flex items-center min-w-0 hover:bg-wash-hover active:bg-wash-press";
+const OPEN = cn("inline-flex items-center min-w-0", PRESS_WASH);
 const HEAD = "flex items-baseline";
 const BUBBLE = "max-w-4/5";
 // A token too long for the line (a link, a hash) breaks anywhere.

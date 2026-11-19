@@ -1,4 +1,4 @@
-import { isThenable } from "@fcalell/ui-core/acts";
+import { afterRun } from "@fcalell/ui-core/acts";
 import type { Moved, Reorder } from "@fcalell/ui-core/descriptors";
 import { moveEntry, type Step, stepOf } from "@fcalell/ui-core/drag";
 import type { Words } from "@fcalell/ui-core/tokens";
@@ -67,20 +67,13 @@ export function useMovable<T>(args: {
 		}));
 		now.acting.attempt(true, {
 			done: spec.done,
-			onAct: () => {
-				const undo = () => hold(undefined);
-				try {
-					const result = spec.onMove(id, to);
-					if (!isThenable(result)) return result;
-					return Promise.resolve(result).catch((error: unknown) => {
-						undo();
-						throw error;
-					});
-				} catch (error) {
-					undo();
-					throw error;
-				}
-			},
+			onAct: () =>
+				afterRun(
+					() => spec.onMove(id, to),
+					(failed) => {
+						if (failed) hold(undefined);
+					},
+				),
 		});
 	}, []);
 	const movable = useMemo<Movable>(

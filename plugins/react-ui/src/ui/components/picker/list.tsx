@@ -9,6 +9,7 @@ import {
 	type OptionChoice,
 	type OptionRegions,
 	optionBlocked,
+	optionMeta,
 	optionsOf,
 } from "@fcalell/ui-core/list-state";
 import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
@@ -29,6 +30,7 @@ import {
 	OPTION_RADIO_DOT,
 	OPTION_ROW,
 	optionRadio,
+	PRESS_WASH,
 	row,
 	text,
 } from "@fcalell/ui-core/variants";
@@ -59,7 +61,6 @@ const FIELDSET = "min-w-0";
 // The row is the label of its box or radio: a press anywhere toggles or
 // chooses it, except while it is blocked.
 const OPTION = "flex items-center";
-const PRESS = "hover:bg-wash-hover active:bg-wash-press";
 // A blocked option's label and reason.
 const BLOCKED_INK = "text-ink-disabled";
 // A label is the whole text of a choice: it wraps, and an unmarked row keeps
@@ -122,7 +123,7 @@ function OptionRowBase<V extends string>(props: OptionRowProps<V>) {
 	const words = useWords();
 	const drawn = useDrawn();
 	const blocked = optionBlocked(option, chosen);
-	const meta = blocked ?? option.line;
+	const meta = optionMeta(option, chosen);
 	// The recommended mark leads the meta line, so a recommended
 	// option is two lines, its label keeping the row's width at every size.
 	const recommended = !rowsPaint && option.recommended === true;
@@ -158,7 +159,7 @@ function OptionRowBase<V extends string>(props: OptionRowProps<V>) {
 					row(),
 					OPTION_ROW,
 					OPTION,
-					blocked === undefined && !painted && PRESS,
+					blocked === undefined && !painted && PRESS_WASH,
 					!marked && OPTION_WHOLE,
 				)}
 			>
@@ -327,7 +328,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	// value does, the labels then standing. A value whose read ended leaves the
 	// marks empty and blocked: a press says why and chooses nothing.
 	const rowsPaint = given.painted;
-	const painted = rowsPaint || (draft.painted && draft.ended === undefined);
+	const painted = rowsPaint || (draft.painted && !draft.ended);
 	// The placeholder is no array, so a painted value is one choice.
 	const one = !Array.isArray(draft.value);
 	// The value and `onChange` are typed apart, so the compiler cannot see

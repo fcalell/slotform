@@ -1,4 +1,4 @@
-import type { ButtonAct } from "@fcalell/ui-core/variants";
+import { type ButtonAct, PRESS_WASH } from "@fcalell/ui-core/variants";
 import type { ComponentProps } from "react";
 import type { Closed } from "../../lib/closed.ts";
 
@@ -13,9 +13,9 @@ export const LABEL = "truncate";
 export const PRESS: Record<ButtonAct, string> = {
 	primary: "hover:bg-act-accent-hover active:bg-act-accent-press",
 	danger: "hover:bg-act-danger-hover active:bg-act-danger-press",
-	secondary: "hover:bg-wash-hover active:bg-wash-press",
-	destructive: "hover:bg-wash-hover active:bg-wash-press",
-	quiet: "hover:bg-wash-hover active:bg-wash-press",
+	secondary: PRESS_WASH,
+	destructive: PRESS_WASH,
+	quiet: PRESS_WASH,
 };
 
 export const BLOCKED: Record<ButtonAct, string> = {

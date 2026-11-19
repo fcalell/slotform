@@ -1,5 +1,10 @@
 import { Collapsible } from "@base-ui/react/collapsible";
-import { moreMenu, type Offered, offered } from "@fcalell/ui-core/acts";
+import {
+	moreMenu,
+	type Offered,
+	offered,
+	offerOf,
+} from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import {
@@ -34,7 +39,6 @@ import { BusyMark, FrameLine } from "../../lib/read.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Count } from "../count/index.tsx";
 import { MenuBase } from "../menu/base.tsx";
-import { offerOf } from "../row/acts.tsx";
 import { Text } from "../text/index.tsx";
 
 // A waiting description is one line, clipped where it ends: the loaded one is

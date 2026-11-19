@@ -1,17 +1,10 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type {
 	ChipMark,
-	Fact,
 	RowMark,
 	Run,
 	StatusMark,
 } from "@fcalell/ui-core/descriptors";
-import {
-	isChipFact,
-	isMarkFact,
-	isStatusFact,
-	isWarningFact,
-} from "@fcalell/ui-core/list-state";
 import type { PaintRole } from "@fcalell/ui-core/paint";
 import { paintText } from "@fcalell/ui-core/paint";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -34,7 +27,7 @@ import { follow } from "../../lib/navigate.ts";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 import { IconBase } from "../icon/index.tsx";
 import { StatusDot } from "../status/dot.tsx";
-import { flagGlyph, says, warnGlyph, wordless } from "./marks.tsx";
+import { flagGlyph, warnGlyph } from "./marks.tsx";
 
 // A badge is a flex box of its glyph and its words: the box never breaks, the
 // words are cut inside it. A glyph is one box that keeps its size.
@@ -230,20 +223,4 @@ export function WordsBadge({ fact }: { fact: Run }) {
 			<RunText runs={partRuns(fact)} fit="name" />
 		</Badge>
 	);
-}
-
-/** One base fact (`Fact`) as the badge its kind draws: a status its tone's mark and word, a warning the warn glyph and phrase, a chip the family's dot and value, a boolean mark with words its glyph and label, words their text. `painted` draws the filler of what the kind keeps painted: a status's and a warning's glyph and phrase, a word's phrase; a chip and a boolean mark are the item's data, which a painted row cannot know, and draw nothing. A boolean mark whose words are not drawn, or that does not hold, draws nothing: it is no badge. */
-export function FactBadge(props: { fact: Fact; painted?: boolean }) {
-	const { fact, painted = false } = props;
-	if (isStatusFact(fact))
-		return <StatusBadge status={fact} painted={painted} />;
-	if (isWarningFact(fact))
-		return <WarningBadge warning={fact.warning} painted={painted} />;
-	if (isChipFact(fact)) return painted ? null : <ChipBadge chip={fact} />;
-	if (isMarkFact(fact)) {
-		if (painted || wordless(fact) || !says(fact)) return null;
-		return <MarkBadge mark={fact} />;
-	}
-	if (painted) return <Badge painted />;
-	return <WordsBadge fact={fact} />;
 }

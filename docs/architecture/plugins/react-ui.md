@@ -75,7 +75,7 @@ re-points it to the strong edge. The token side of grounds and edges is
 
 The **density rule** is one query (`./density`), built once and read by the density layer, the
 `touch:` variant and `useTouch` (`lib/media`); what it draws and the `data-density` pin are the
-guide's [Density](../../../plugins/react-ui/guide/reference.md#density). The pin is how the showcase and a board address a
+guide's [Density](../../../plugins/react-ui/guide/density.md#density). The pin is how the showcase and a board address a
 density. The token sets themselves are [density and room](../ui-core/tokens.md#density-and-room).
 
 - **Desktop set.** It draws under the rule's desktop query and overrides the seeded touch set in
@@ -269,7 +269,7 @@ Who holds focus is tracked by the page's own focus and press events, never read 
 a render: the React compiler memoizes a render-time ref read, so the answer would be the mount's.
 
 - **Pane.** A `Pane` opened from a press in another `Pane` takes the keyboard on its head's first
-  control, as the guide's [rules](../../../plugins/react-ui/guide/rules.md) say, and a `Pane` hidden by the opening (below
+  control, as the guide's [Pane bar](../../../plugins/react-ui/guide/pane-bar.md) says, and a `Pane` hidden by the opening (below
   `tablet` of the Panes) keeps no focus. A `Pane` drawn with the page, focus on the
   body, takes nothing.
 - **Foot region.** A foot region hands focus to its first field when what held it leaves with its own
@@ -323,7 +323,7 @@ anchor: a place's `foot` (a Pane's docked foot, which spans the body that scroll
 measure column at every density, and draws nothing, border and inset included, while it holds nothing, such as a chosen bar with no row
 ticked), a filling `Thread`'s input, and on touch an open bottom sheet. The layer stands above the
 anchor by layout as it grows, and at `main`'s foot without one, so a toast covers what the guide's
-[rules](../../../plugins/react-ui/guide/rules.md#an-act-holds-its-attempt) say it may.
+[acts](../../../plugins/react-ui/guide/acts.md#toasts) say it may.
 
 The layer is fixed, as the sheet is: an anchor resolves only for a layer whose containing block is
 the anchor's own, and an absolute layer in `main` (relative) cannot reach a fixed sheet in the
@@ -403,7 +403,7 @@ each line. The runs themselves are [text runs](../ui-core/words.md#text-runs).
 
 A file attached to a message (`lib/picked`) that is an image also carries `src`, an object URL made
 for its thumbnail. Nothing in the package knows when the consumer is done showing it, so the
-consumer revokes it, as the guide's [rules](../../../plugins/react-ui/guide/rules.md) say.
+consumer revokes it, as the guide's [content](../../../plugins/react-ui/guide/content.md#thread) says.
 
 ## Canvas
 
@@ -449,7 +449,7 @@ and a reader draws again.
   unmounted mid-drag ends its pan. The band's entry and steps are `bandAt`'s; its pans are the
   viewer's move.
 - **Keyboard move.** A node that can move is a button, with `onSelect` or without. An arrow moves the
-  focused one by `keyStep` (the step the guide's [Editing](../../../plugins/react-ui/guide/canvas.md#editing) gives) through `drop`,
+  focused one by `keyStep` (the step the guide's [Editing](../../../plugins/react-ui/guide/canvas-editing.md) gives) through `drop`,
   the path a release takes. Nothing is announced ([product](../../product.md)).
 - **Ground.** The region's ground is the region, its layer or its grid (which carries
   `data-ground`). Everything else inside (a node, the zoom stack, the act) is a part.

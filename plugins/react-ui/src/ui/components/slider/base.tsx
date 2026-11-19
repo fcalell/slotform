@@ -64,7 +64,7 @@ export function SliderBase({
 	/** The thumb's value as words (`3:07`), where the number's own is not what a viewer reads. */
 	said?: (value: number) => string;
 }) {
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = draft.painted && !ended;
 	// Painted or ended, the thumb rests at the start: the value is the placeholder.
 	const at = draft.painted ? min : draft.value;

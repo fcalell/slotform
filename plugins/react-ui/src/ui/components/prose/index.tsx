@@ -1,6 +1,12 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { keyed, type Part, parts, safeHref } from "@fcalell/ui-core/prose";
+import {
+	decodeHTML,
+	keyed,
+	type Part,
+	parts,
+	safeHref,
+} from "@fcalell/ui-core/prose";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { type Datum, paints } from "@fcalell/ui-core/read";
 import {
@@ -95,7 +101,7 @@ function run(token: Token, key: string): ReactNode {
 			return (token as Tokens.Image).text;
 		case "text": {
 			const words = token as Tokens.Text;
-			return words.tokens ? inline(words.tokens, key) : words.text;
+			return words.tokens ? inline(words.tokens, key) : decodeHTML(words.text);
 		}
 		case "escape":
 			return (token as Tokens.Escape).text;

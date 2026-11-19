@@ -1,6 +1,5 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { chosenAbsent, kindOf, NO_FAILURE } from "@fcalell/ui-core/action-bar";
-import { isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { ChosenCount, LinkAct } from "@fcalell/ui-core/descriptors";
 import { formatterFor } from "@fcalell/ui-core/format";
@@ -16,6 +15,7 @@ import {
 	ACTION_BAR_ALL,
 	ACTION_BAR_CHOSEN,
 	ACTION_BAR_CHOSEN_COLUMN,
+	PRESS_WASH,
 	text,
 } from "@fcalell/ui-core/variants";
 import { useState } from "react";
@@ -31,8 +31,8 @@ import { MenuBase } from "../menu/base.tsx";
 import type { ActionBarProps } from "./index.tsx";
 
 // The bar is the `acts` container, its acts laid out by its width alone
-// (`acts-stacked:`): plugins/react-ui/guide/rules.md, "A record's decision is
-// an `ActionBar`". The tree holds the acts in reading order, the filled act
+// (`acts-stacked:`): plugins/react-ui/guide/acts.md, "ActionBar". The tree
+// holds the acts in reading order, the filled act
 // last, so a stacked bar runs in reverse to draw it on top.
 const BAR = "@container/acts flex flex-col w-full";
 const ACTS =
@@ -54,8 +54,10 @@ const GHOST = "invisible";
 const SELECTION = "flex flex-wrap items-center justify-between self-stretch";
 const CHOSEN_ACTS = "flex items-center";
 const COUNT = "flex items-center shrink-0";
-const ALL =
-	"inline-flex shrink-0 items-center whitespace-nowrap text-ink-meta hover:bg-wash-hover active:bg-wash-press";
+const ALL = cn(
+	"inline-flex shrink-0 items-center whitespace-nowrap text-ink-meta",
+	PRESS_WASH,
+);
 const ALL_LABEL = "whitespace-nowrap";
 const SENTENCE = "shrink-0 whitespace-nowrap tabular-nums";
 const NUMBER = formatterFor("number");
@@ -169,35 +171,13 @@ export function ActionBarBase({
 	const ordered = acts.map((act, at) => [act, at] as const);
 	// The press ends the form's edit before the filled act runs, so an act that
 	// navigates is not asked; a rejection puts the edit back.
-	const ending = (run: () => unknown) => () => {
-		leave.press();
-		let ran: unknown;
-		try {
-			ran = run();
-		} catch (error) {
-			leave.settle(true);
-			throw error;
-		}
-		if (!isThenable(ran)) {
-			leave.settle(false);
-			return ran;
-		}
-		return Promise.resolve(ran).then(
-			(done) => {
-				leave.settle(false);
-				return done;
-			},
-			(error: unknown) => {
-				leave.settle(true);
-				throw error;
-			},
-		);
-	};
-	const press = (act: Act, at: number) =>
-		acting.attempt(at, {
+	const press = (act: Act, at: number) => {
+		const { onAct } = act;
+		return acting.attempt(at, {
 			...act,
-			onAct: at === lastAt && act.onAct ? ending(act.onAct) : act.onAct,
+			onAct: at === lastAt && onAct ? () => leave.run(onAct) : onAct,
 		});
+	};
 	// The bar under a `PendingBar` is drawn with no act that submits or presses.
 	// A link (a way back, a way home) goes to its route as an anchor, quiet
 	// unless it is the filled act; blocked, it stands as a blocked act does,

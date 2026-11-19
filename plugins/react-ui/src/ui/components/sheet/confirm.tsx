@@ -1,4 +1,4 @@
-import { isThenable } from "@fcalell/ui-core/acts";
+import { afterRun } from "@fcalell/ui-core/acts";
 import {
 	type ConfirmEntry,
 	dismissConfirmation,
@@ -28,11 +28,10 @@ export function ConfirmSheet(props: {
 	// The sheet's bar holds the act's attempt: a rejection stays in the bar's line,
 	// the sheet open and the act ready; an act that returns no promise is done
 	// at once.
-	const run = () => {
-		const ran = entry.act.onAct();
-		if (!isThenable(ran)) return onDone();
-		return Promise.resolve(ran).then(onDone);
-	};
+	const run = () =>
+		afterRun(entry.act.onAct, (failed) => {
+			if (!failed) onDone();
+		});
 	const words = useWords();
 	const name = entry.confirmName;
 	const blocked = name && typed !== name.value ? name.blocked : undefined;

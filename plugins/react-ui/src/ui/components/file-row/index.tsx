@@ -10,11 +10,13 @@ import {
 import { isCurrent } from "@fcalell/ui-core/route";
 import { sameBy } from "@fcalell/ui-core/same-by";
 import {
+	DIFF_MARKS,
 	FILE_COUNT_YIELD,
 	FILE_COUNTS,
 	FILE_PATH,
 	fileCount,
 	filePathPart,
+	PRESS_WASH,
 	ROW_LEADING,
 	row,
 	YIELDS_FIRST,
@@ -29,7 +31,6 @@ import { Roll, Swap } from "../../lib/swap.tsx";
 
 // A row's floor, as a list row's: on touch it stands at the target.
 const ROW = "relative flex items-center min-h-row";
-const PRESS = "hover:bg-wash-hover active:bg-wash-press";
 const CHOSEN_PRESS = "hover:bg-wash-selected-hover active:bg-wash-press";
 // The hit covers the row and rings inset.
 const HIT = "absolute inset-0 focus-visible:-outline-offset-2";
@@ -137,7 +138,7 @@ function FileRowBase({
 			className={cn(
 				row({ state: current ? "selected" : "rest" }),
 				ROW,
-				hit && (current ? CHOSEN_PRESS : PRESS),
+				hit && (current ? CHOSEN_PRESS : PRESS_WASH),
 			)}
 		>
 			{hit}
@@ -190,7 +191,7 @@ function FileRowBase({
 					{painted ? (
 						<Painted role="figure" at={at + 1} />
 					) : removed > 0 ? (
-						<Roll text={`−${removed}`} of={removed} />
+						<Roll text={`${DIFF_MARKS.removed}${removed}`} of={removed} />
 					) : null}
 				</span>
 			</span>

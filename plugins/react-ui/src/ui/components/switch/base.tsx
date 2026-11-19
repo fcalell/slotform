@@ -30,7 +30,7 @@ export function SwitchBase({
 	painted?: boolean;
 	disabled?: boolean;
 }) {
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = given || (draft.painted && !ended);
 	const absent = painted || ended;
 	const on = draft.value && !absent;

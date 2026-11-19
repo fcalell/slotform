@@ -5,11 +5,8 @@ import type { RowTitle, RowTrailing, Run } from "@fcalell/ui-core/descriptors";
 import { stepOf } from "@fcalell/ui-core/drag";
 import {
 	isAbsent,
-	isChipFact,
 	isCopy,
-	isMarkFact,
 	isStatusFact,
-	isWarningFact,
 	splitFacts,
 	titleWords,
 	valueCut,
@@ -33,6 +30,7 @@ import {
 	FIELD_ERROR_LINE,
 	FIGURES,
 	FLOW_IN,
+	PRESS_WASH,
 	ROW_ACTS,
 	ROW_CURRENT_BAR,
 	ROW_END,
@@ -66,8 +64,11 @@ import { useReasonLine } from "../../atoms/button/reason.tsx";
 import {
 	Badge,
 	BadgesLine,
-	FactBadge,
+	ChipBadge,
 	LockBadge,
+	MarkBadge,
+	StatusBadge,
+	WarningBadge,
 	WordsBadge,
 } from "../../atoms/row/badges.tsx";
 import {
@@ -77,7 +78,7 @@ import {
 	TreeLead,
 	treeFold,
 } from "../../atoms/row/leading.tsx";
-import { EndMark, says, wordless } from "../../atoms/row/marks.tsx";
+import { EndMark } from "../../atoms/row/marks.tsx";
 import { StatusBase } from "../../atoms/status/base.tsx";
 import { ChangeMark } from "../../atoms/status/change.tsx";
 import { StatusDot } from "../../atoms/status/dot.tsx";
@@ -159,7 +160,6 @@ const TEXT_FIRST = "min-h-line-body justify-center";
 const LABEL = "wrap-normal text-start";
 // A row that opens washes under the pointer and the press; the chosen one a
 // step darker under the pointer.
-const PRESS = "hover:bg-wash-hover active:bg-wash-press";
 const CHOSEN_PRESS = "hover:bg-wash-selected-hover active:bg-wash-press";
 // The hit covers the row, under its pick and its acts, and rings inset.
 const HIT = "absolute inset-0 focus-visible:-outline-offset-2";
@@ -202,11 +202,8 @@ const BADGES_APART = "[contain:inline-size]";
 const BADGES_APART_ADAPTS = "row-two-line:[contain:inline-size]";
 // The text group, one class list per form: docs/architecture/ui-core/layout.md, "Text group and end group".
 const TEXT_LINES = "flex flex-col grow min-w-0 gap-badge";
-// `ROW_TEXT_FLOOR`'s basis at the default weight, since the floor's own
-// `shrink-0` would stand against the end group's yielding.
-const TEXT_AT_FLOOR = "basis-2/5 shrink";
 const TEXT_LISTS = {
-	plain: `${TEXT_LINES} ${TEXT_AT_FLOOR}`,
+	plain: `${TEXT_LINES} ${ROW_TEXT_FLOOR}`,
 	reads: `${TEXT_LINES} ${TEXT_READS} ${YIELDS_FIRST}`,
 	controlled: `${TEXT_LINES} ${YIELDS_FIRST}`,
 	whole: `${TEXT_LINES} ${TEXT_WORDS}`,
@@ -527,24 +524,32 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 				.filter((fact) => !fact.painted || paints(fact))
 				.map((fact) => fact.value);
 	const split = splitFacts(drawn);
-	const { status, warnings } = split;
+	const status = split.facts.flatMap((part) =>
+		part.kind === "status" ? [part.fact] : [],
+	)[0];
+	const warnings = split.facts.filter((part) => part.kind === "warning");
+	const factWords = split.facts.flatMap((part) =>
+		part.kind === "words" ? [part.fact] : [],
+	);
 	// A chip and the boolean marks are the item's data, which the painted shape
 	// cannot know: never painted (the loaded rows that have none would land
 	// narrower).
-	const chips = painted ? [] : split.chips;
+	const chips = painted
+		? []
+		: split.facts.filter((part) => part.kind === "chip");
 	let told: Run[];
 	if (ended) told = [endedSentence(words, ended)];
-	else if (waitsFacts) told = split.words;
-	else told = split.words.filter(filled);
+	else if (waitsFacts) told = factWords;
+	else told = factWords.filter(filled);
 	const hasTitle = title !== undefined && !ended;
 	const hasMeta = told.length > 0;
-	// A ring that does not hold says no fact, so it draws nothing. A mark whose
-	// words are not drawn (`words: false`) stands in the end group, a glyph
-	// named by its label, so it is no mark of the facts line: a row with only
-	// such marks has no second line for them.
-	const booleans = painted ? [] : split.marks.filter(says);
-	const endFacts = booleans.filter(wordless);
-	const metaFacts = booleans.filter((mark) => !wordless(mark));
+	// A mark whose words are not drawn (`words: false`) stands in the end
+	// group, a glyph named by its label, so it is no mark of the facts line: a
+	// row with only such marks has no second line for them.
+	const endFacts = painted ? [] : split.quiet;
+	const metaFacts = painted
+		? []
+		: split.facts.filter((part) => part.kind === "mark");
 	// The marks lead the facts line; an entry or the steps stand in its place, as
 	// the facts' words do.
 	const marking =
@@ -671,7 +676,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 	) : null;
 	// The badges, in the order the facts are given: a blocked tick's reason first,
 	// the status, the lock right after it (first where there is no status), then
-	// each fact its kind draws (`FactBadge`). A status that stands in the end
+	// each fact its kind draws. A status that stands in the end
 	// group (a room row's) is no badge. A fact that waits, or a row that is
 	// painted, draws the filler of what the kind keeps painted: every word one
 	// filler badge, whether the region gave words or the placeholder whole.
@@ -693,28 +698,34 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 		// status is a badge of its own, its tone mark before its word, where it
 		// stands in the list.
 		let led = false;
-		drawn.forEach((fact, index) => {
-			if (fact === undefined || fact === null || fact === false) return;
+		split.facts.forEach((part, index) => {
+			// The chips and marks are the item's data, never painted.
+			if (painted && (part.kind === "chip" || part.kind === "mark")) return;
 			const key = `fact-${index}`;
-			if (isStatusFact(fact)) {
+			if (part.kind === "status") {
+				const badge = (
+					<StatusBadge key={key} status={part.fact} painted={painted} />
+				);
 				if (led) {
-					badges.push(<FactBadge key={key} fact={fact} painted={painted} />);
+					badges.push(badge);
 					return;
 				}
 				led = true;
 				if (stated) return;
-				badges.push(<FactBadge key={key} fact={fact} painted={painted} />);
+				badges.push(badge);
 				if (!locked) badges.push(lockBadge);
 				locked = true;
-			} else if (isWarningFact(fact) || isChipFact(fact) || isMarkFact(fact)) {
-				badges.push(<FactBadge key={key} fact={fact} painted={painted} />);
-			} else if (waitsFacts) badges.push(<Badge key={key} painted />);
-			else {
-				// What no guard above took is a `Run`; the drawn list's type does not
-				// narrow to it.
-				const run = fact as Run;
-				if (filled(run)) badges.push(<WordsBadge key={key} fact={run} />);
-			}
+			} else if (part.kind === "warning")
+				badges.push(
+					<WarningBadge key={key} warning={part.fact} painted={painted} />,
+				);
+			else if (part.kind === "chip")
+				badges.push(<ChipBadge key={key} chip={part.fact} />);
+			else if (part.kind === "mark")
+				badges.push(<MarkBadge key={key} mark={part.fact} />);
+			else if (waitsFacts) badges.push(<Badge key={key} painted />);
+			else if (filled(part.fact))
+				badges.push(<WordsBadge key={key} fact={part.fact} />);
 		});
 	}
 	// The title, in the form its data takes: words (they wrap in a row with a
@@ -1233,7 +1244,7 @@ export function RowBase<V extends string | null = string>(props: RowProps<V>) {
 						)
 					: cn(
 							current && ROW_CURRENT_BAR,
-							live && (current ? CHOSEN_PRESS : PRESS),
+							live && (current ? CHOSEN_PRESS : PRESS_WASH),
 						),
 				tree && TREE_ITEM,
 				draggable && "touch:select-none",

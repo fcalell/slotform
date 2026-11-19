@@ -13,6 +13,7 @@ import {
 } from "@fcalell/ui-core/read";
 import {
 	lineBox,
+	PRESS_WASH,
 	STATS,
 	STATS_CELL,
 	STATS_EDGE,
@@ -45,7 +46,6 @@ const CELL =
 // of the label's first line (the lane a row's status dot stands in).
 const LABEL_LINE = "flex items-start gap-gap";
 const GLYPH = "flex items-center h-[1lh]";
-const OPENS = "hover:bg-wash-hover active:bg-wash-press";
 const HIT = "absolute inset-0 focus-visible:-outline-offset-2";
 const UNIT = "shrink-0 whitespace-nowrap";
 
@@ -114,7 +114,7 @@ function Cell({
 	return (
 		<li
 			inert={painted || undefined}
-			className={cn(STATS_CELL, CELL, opens && OPENS)}
+			className={cn(STATS_CELL, CELL, opens && PRESS_WASH)}
 		>
 			{opens ? (
 				// biome-ignore lint/a11y/useAnchorContent: the hit covers the cell, named by its label

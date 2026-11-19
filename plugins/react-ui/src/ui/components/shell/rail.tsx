@@ -1,6 +1,7 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconName } from "@fcalell/ui-core/descriptors";
 import {
+	PRESS_WASH,
 	placeRow,
 	placeRowGlyph,
 	SHELL_RAIL_ENTRY,
@@ -11,7 +12,7 @@ import type { PointerEvent } from "react";
 import { Named } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { follow } from "../../lib/navigate.ts";
-import { GLYPH, LABEL, ROW_BOX, ROW_PRESS, ROW_SELECTED_PRESS } from "./row.ts";
+import { GLYPH, LABEL, ROW_BOX, ROW_SELECTED_PRESS } from "./row.ts";
 
 // The group's entry is a place row cut to an icon: the current bar and wash
 // when the current place is in the group, the selected ink alone when its
@@ -20,7 +21,7 @@ function look(current: boolean) {
 	return cn(
 		placeRow({ state: current ? "selected" : "rest" }),
 		ROW_BOX,
-		current ? ROW_SELECTED_PRESS : ROW_PRESS,
+		current ? ROW_SELECTED_PRESS : PRESS_WASH,
 	);
 }
 

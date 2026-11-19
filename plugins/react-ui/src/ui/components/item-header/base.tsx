@@ -13,6 +13,8 @@ import {
 	isMarkFact,
 	isStatusFact,
 	isWarningFact,
+	says,
+	wordless,
 } from "@fcalell/ui-core/list-state";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useSelections } from "@fcalell/ui-core/react/read";
@@ -49,7 +51,7 @@ import {
 	WarningBadge,
 	WordsBadge,
 } from "../../atoms/row/badges.tsx";
-import { EndMark, says, wordless } from "../../atoms/row/marks.tsx";
+import { EndMark } from "../../atoms/row/marks.tsx";
 import { RunText } from "../../lib/code.tsx";
 import { useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";

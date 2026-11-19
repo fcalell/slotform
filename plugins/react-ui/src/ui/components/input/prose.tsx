@@ -37,7 +37,7 @@ export function ProseBase({
 	useModality();
 	// A read that ended leaves the box empty and blocked: a keystroke says why
 	// and changes nothing.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = draft.painted && !ended;
 	const shown = draft.painted ? "" : draft.value;
 	const edit = (next: string) => {

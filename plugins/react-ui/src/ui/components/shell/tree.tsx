@@ -7,6 +7,7 @@ import { placesFolded } from "@fcalell/ui-core/route";
 import {
 	DROP_ON,
 	PLACE_NEST,
+	PRESS_WASH,
 	placeRow,
 	placeRowGlyph,
 	text,
@@ -23,7 +24,6 @@ import {
 	LABEL,
 	PLACE_COUNT,
 	ROW_BOX,
-	ROW_PRESS,
 	ROW_SELECTED_PRESS,
 } from "./row.ts";
 
@@ -199,7 +199,7 @@ function TreeRow(props: {
 			className={cn(
 				placeRow({ state }),
 				ROW_BOX,
-				current ? ROW_SELECTED_PRESS : ROW_PRESS,
+				current ? ROW_SELECTED_PRESS : PRESS_WASH,
 				over && DROP_ON,
 			)}
 		>

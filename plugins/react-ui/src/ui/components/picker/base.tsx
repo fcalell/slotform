@@ -6,6 +6,7 @@ import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
 import {
 	optionBlocked,
 	optionLeading,
+	optionMeta,
 	toggled,
 } from "@fcalell/ui-core/list-state";
 import {
@@ -49,6 +50,7 @@ import {
 	PICKER_VALUE,
 	type PickerFit,
 	POPOVER,
+	PRESS_WASH,
 	picker,
 	ROW_LEADING,
 	row,
@@ -129,8 +131,10 @@ const SEVERAL_TRIGGER =
 // wash and the chevron takes the body ink too. Its cap counts the pull-back, so a value
 // with room stays whole and a long one still stops at its column. Its box is
 // the control height, the row's, as an icon act's beside it is.
-const ROW_TRIGGER =
-	"relative inline-flex min-w-0 min-h-control max-w-[calc(100%+var(--spacing-gap))] self-center items-center -me-gap hover:bg-wash-hover active:bg-wash-press";
+const ROW_TRIGGER = cn(
+	"relative inline-flex min-w-0 min-h-control max-w-[calc(100%+var(--spacing-gap))] self-center items-center -me-gap",
+	PRESS_WASH,
+);
 const ROW_OPEN = "bg-wash-press text-ink-body";
 const ROW_VALUE = "truncate";
 // A pick standing as a fact of a record's head (`fact`) is one pill, the
@@ -192,8 +196,11 @@ const LISTBOX = "flex flex-col min-h-0 overflow-y-auto overscroll-contain";
 // The act that ends the list stands under a hairline across it, a float
 // inset below the line.
 const ACT_REGION = "flex flex-col border-t pt-gap";
-const ACT_ROW =
-	"flex items-center text-start hover:bg-wash-hover active:bg-wash-press focus-visible:-outline-offset-2";
+const ACT_ROW = cn(
+	"flex items-center text-start",
+	PRESS_WASH,
+	"focus-visible:-outline-offset-2",
+);
 const ACT_GLYPH = "flex shrink-0 text-ink-meta";
 
 const NO_MATCHES = "flex items-center";
@@ -242,7 +249,7 @@ const optionLook = (blocked: string | undefined, highlighted = false) =>
 function OptionText(props: { option: Option<string | null>; chosen: boolean }) {
 	const { option } = props;
 	const blocked = optionBlocked(option, props.chosen);
-	const meta = blocked ?? option.line;
+	const meta = optionMeta(option, props.chosen);
 	const lead = optionLeading(option);
 	return (
 		<>
@@ -434,7 +441,7 @@ export function PickerBase<V extends string | null = string>(
 	const flat = groups.flatMap((group) => group.options);
 	// A value whose read ended leaves the box empty and blocked: opening it
 	// says why and opens nothing, so nothing can be picked.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = given.painted || (draft.painted && !ended) || waiting.painted;
 	// The draft's value and the given `onChange` are typed apart, so the
 	// compiler cannot see that a set's value comes with a set's `onChange`.
