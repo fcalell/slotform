@@ -216,7 +216,8 @@ sets of globals and they collide: the Workers runtime declares HTMLRewriter's `E
 interface, so DOM's `Element.append` takes only `string | ReadableStream | Response`. The two are
 split into projects under a solution `tsconfig.json`, so `tsc -b` checks both and editors pick the
 right environment per file; `tsc --noEmit` on the solution checks nothing. Every other consumer
-keeps a single config over `["src", ".stack/*.d.ts"]`.
+keeps a single config over `["src", ".stack/*.d.ts"]`, plus `.stack/worker.ts` and
+`.stack/procedure.ts` when it has a worker.
 
 - **`tsconfig.worker.json`** holds the worker's sources, the schema, `src/shared`, the generated
   worker files and the `Env` declarations, with no ambient package types; on the node target it
@@ -239,9 +240,11 @@ keeps a single config over `["src", ".stack/*.d.ts"]`.
   so they read the declarations, as `tsc -b` does, current as of the last build. `tsc -b` writes
   the build info even under `noEmit`; it lands in `node_modules/.tmp`, ignored already.
 
-Of the generated files, only the declarations at the `.stack/` root (`Env`, typed routes) are
-loaded by the consumer's type-check; the rest are bundler inputs that reach `tsc` only through an
-import (`virtual:stack-procedure`, `worker-configuration.d.ts`'s `import("./worker")`). A bare
+Of the generated files, the consumer's type-check loads the declarations at the `.stack/` root
+(`Env`, typed routes) and, in the program that compiles the worker's sources, `.stack/worker.ts`
+and `.stack/procedure.ts`, so `procedure.ts`'s type registrations (the entity names, the job
+context a node service's `jobContext()` returns) apply even where no route imports
+`virtual:stack-procedure`. The rest are bundler inputs that reach `tsc` only through an import. A bare
 `.stack` include matches nothing: `tsc` reads an include whose last segment holds a `.` as a file
 name, not a directory.
 

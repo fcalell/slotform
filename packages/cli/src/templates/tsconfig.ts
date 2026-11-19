@@ -33,6 +33,10 @@ export function workerTsconfig(layout: TsconfigLayout): string {
 	return isSplit(layout) ? "tsconfig.worker.json" : "tsconfig.json";
 }
 
+// The generated worker files the program that compiles the worker's sources
+// holds, so `.stack/procedure.ts`'s augmentations apply with no route importing it.
+const WORKER_FILES = [".stack/worker.ts", ".stack/procedure.ts"];
+
 interface TsconfigOptions extends TsconfigLayout {
 	// `cliSlots.tsconfigPaths` entries: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 	procedurePaths: Record<string, string[]>;
@@ -65,8 +69,8 @@ export function tsconfigTemplate(
 		compilerOptions: options.worker
 			? { paths: options.procedurePaths }
 			: undefined,
-		// Only the `.stack/*.d.ts` declarations are type-checked: docs/architecture/consumer-project.md, "TypeScript projects".
-		include: ["src", ".stack/*.d.ts"],
+		// The `.stack/*.d.ts` declarations and, with a worker, its generated files: docs/architecture/consumer-project.md, "TypeScript projects".
+		include: ["src", ".stack/*.d.ts", ...(options.worker ? WORKER_FILES : [])],
 	};
 	return [["tsconfig.json", render(single)]];
 }
@@ -127,8 +131,7 @@ function workerProject(options: TsconfigOptions): Project {
 			"src/worker",
 			"src/schema",
 			"src/shared",
-			".stack/worker.ts",
-			".stack/procedure.ts",
+			...WORKER_FILES,
 			...(options.node ? ["src/server"] : [".stack/worker-configuration.d.ts"]),
 		],
 	};

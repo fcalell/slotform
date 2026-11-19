@@ -143,6 +143,8 @@ function echoWorker(): NodeWorker {
 				env: id,
 			});
 		},
+		checkEnv() {},
+		jobContext: async () => ({}),
 	};
 }
 

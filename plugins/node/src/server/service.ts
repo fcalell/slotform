@@ -1,4 +1,6 @@
+import type { Register } from "@fcalell/plugin-api/procedure";
 import type { ServiceLogger } from "./log.ts";
+import type { NodeWorker } from "./worker.ts";
 import type { ConnectionSession, WsHub } from "./ws-hub.ts";
 
 export interface ServiceHttp {
@@ -24,6 +26,12 @@ export interface ServiceContext {
 	// Raw fetch-style route mounts and the listen port, for services that host
 	// their own HTTP surface (e.g. an in-process MCP server).
 	http: ServiceHttp;
+	// The worker's job context, built afresh on each call; null when the app has
+	// no worker. Typed by the app's registered `JobContext` where one is
+	// registered: docs/architecture/plugins/node.md, "Services".
+	jobContext: Register extends { jobContext: infer TContext }
+		? () => Promise<TContext>
+		: (() => ReturnType<NodeWorker["jobContext"]>) | null;
 }
 
 export type ServiceStop = () => void | Promise<void>;

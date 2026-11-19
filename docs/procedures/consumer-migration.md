@@ -243,6 +243,11 @@ Each bullet is what the consumer does.
 
 - Services bind by position in the generated barrel (`src/server/services/index.ts`), so any file
   name binds. Run `stack generate` and commit the rewritten barrel.
+- A service's `start` and `ready` receive `jobContext()`, the app's job context; a service that
+  opened its own database or called the app's procedures over HTTP writes through it instead. A
+  node app with a single `tsconfig.json` adds `.stack/worker.ts` and `.stack/procedure.ts` to its
+  `include`, which `stack init` writes, so `jobContext()` is typed where no route imports
+  `virtual:stack-procedure`.
 - `http.session` resolves through `AsyncLocalStorage`, not request identity: a session read on a
   second listener after the request is rebuilt now finds it.
 - A socket `send` after `close()` throws. Guard it, or stop sending once the handle is closed.
