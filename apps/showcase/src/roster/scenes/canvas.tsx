@@ -2,9 +2,9 @@ import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
 import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
 import { Shell } from "@fcalell/plugin-react-ui/components/shell";
-import { spacing } from "@fcalell/plugin-react-ui/lib/media";
 import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
 import { useWords } from "@fcalell/ui-core/react/words";
+import type { SpacingRole } from "@fcalell/ui-core/tokens";
 import { useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import {
@@ -36,6 +36,15 @@ import {
 import { meets, onceStanding } from "../judge.ts";
 import { endedAt, waiting } from "../waiting.ts";
 import { Stage } from "./overlay-stage.tsx";
+
+// A spacing role in pixels at the density in force, read off the root's token
+// as the canvas places its graph by it.
+const spacing = (role: SpacingRole): number =>
+	Number.parseFloat(
+		getComputedStyle(document.documentElement).getPropertyValue(
+			`--spacing-${role}`,
+		),
+	);
 
 // The canvas fills its region and has no height of its own. It stands on the
 // page's ground, `surface`, as it does on a Shell column or a Gate, so it steps

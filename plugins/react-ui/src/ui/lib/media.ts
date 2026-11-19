@@ -1,6 +1,5 @@
 import { DESKTOP_MEDIA } from "@fcalell/plugin-react-ui/density";
 import { createStore } from "@fcalell/ui-core/store";
-import type { Size, SpacingRole } from "@fcalell/ui-core/tokens";
 import { createContext, use, useSyncExternalStore } from "react";
 
 // The density rule, read by one store: docs/architecture/plugins/react-ui.md, "Density".
@@ -61,25 +60,4 @@ export const reducedNow = (): boolean => matchMedia(REDUCED).matches;
 // (a Web Animation, which CSS cannot still) reads it here.
 export function useReducedMotion(): boolean {
 	return useSyncExternalStore(reduced.subscribe, reducedNow, () => false);
-}
-
-// A spacing role or a size in pixels at the current density (a popup's
-// offset, a glyph's side), read off the root so it follows the density.
-export function spacing(role: SpacingRole | Size): number {
-	return Number.parseFloat(
-		getComputedStyle(document.documentElement).getPropertyValue(
-			`--spacing-${role}`,
-		),
-	);
-}
-
-// A type role's size in pixels at the current density, read off `node` (the
-// root by default) so the theme's size knob moves it.
-export function textSize(
-	role: "meta",
-	node: Element = document.documentElement,
-): number {
-	return Number.parseFloat(
-		getComputedStyle(node).getPropertyValue(`--text-${role}`),
-	);
 }

@@ -15,7 +15,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { spacing } from "../../lib/media.ts";
+import { spacing } from "../../lib/measure.ts";
 import {
 	type ElkInput,
 	elkGraph,
@@ -25,7 +25,7 @@ import {
 	layerGap,
 	wrapParts,
 } from "./elk.ts";
-import { glyphTier, minZoomFor, routeSide } from "./floor.ts";
+import { glyphTier, routeSide } from "./floor.ts";
 import {
 	type Box,
 	hollowRow,
@@ -34,8 +34,8 @@ import {
 	routeEdges,
 	type Size,
 } from "./geometry.ts";
-import { fitView, type Opening, openingView } from "./open.ts";
-import { type Places, place, standIn, standsIn } from "./view.ts";
+import type { Opening } from "./open.ts";
+import { type Places, place } from "./view.ts";
 import {
 	type About,
 	clearanceOf,
@@ -161,11 +161,11 @@ function boxesOf(
 
 // One run of the layout. Each is its own object, so a rerun for the same
 // structure (Arrange) is reported again.
-interface Laid {
+export interface Laid {
 	positions: ReadonlyMap<string, CanvasPoint>;
 	// ELK's own output, whose top parts wrap in a narrow room (`wrapParts`).
 	output: ElkNode;
-	// It came from Arrange, which fits the view once it is reported.
+	// It came from Arrange, which fits the view to it once it lands.
 	arranged: boolean;
 	// The nodes and empty groups it was run for (`setOf`).
 	set: string;
@@ -175,7 +175,7 @@ interface Laid {
 // lays the graph out afresh and opens its view on the new one.
 const setOf = (ids: readonly string[]): string => [...ids].sort().join("\0");
 
-interface LayoutArgs {
+interface RunArgs {
 	nodes: readonly CanvasNode[];
 	edges: readonly CanvasEdge[];
 	groups: readonly CanvasGroup[];
@@ -199,13 +199,9 @@ interface LayoutArgs {
 	// A glyph's size on screen at the density: under the text floor the routes
 	// and the frames follow it.
 	glyph: number;
-	// The widest a node's name stands beside its glyph on screen (`nameCap`).
-	names: number;
-	// The node the viewer chose: a resized pane keeps it in view.
-	selected?: string;
 }
 
-export interface Layout {
+export interface GraphRun extends Pick<Opening, "tierAt" | "routeTier"> {
 	// The nodes' boxes, as placed.
 	boxes: ReadonlyMap<string, Box>;
 	// Where each node draws at the zoom in force: as placed above the text
@@ -217,16 +213,21 @@ export interface Layout {
 	about: (id: string) => About;
 	routed: Routes;
 	space: Space;
-	// The lowest scale the pan and zoom allow (`minZoomFor`).
-	minZoom: number;
-	// The graph is placed and the first view set, so it may show.
-	ready: boolean;
-	// The Fit act's view: the whole graph in the room the pane leaves, at the
-	// scale that holds it down to the lowest the boxes allow. The graph opens
-	// (and opens again when its pane resizes) at the same view floored at
-	// `FIT_FLOOR`, framed at its first node where it holds only under it.
-	fit: () => void;
-	// Runs the layout again, every position ignored, and fits the view to it.
+	// The last run, `null` until one lands.
+	laid: Laid | null;
+	// The node set the graph holds now (`setOf`), which `laid.set` is compared to.
+	set: string;
+	// No node has a position, so the layout places them all.
+	placing: boolean;
+	// Every node has its size.
+	measured: boolean;
+	// Every node is measured, the probe read and the graph placed: a view can be
+	// set on it.
+	placed: boolean;
+	// What wraps the parts: the room and the gaps the layout leaves between
+	// them. It moves when the parts wrap again for a resized room.
+	room: string;
+	// Runs the layout again, every position ignored.
 	arrange: () => void;
 	// How far the zoom stack's column reaches in from the pane's start, a
 	// `pair` past it: a group head's words start past it (`headShift`).
@@ -269,12 +270,12 @@ export function tiers(
 	};
 }
 
-// Measures, decides, runs, reports, routes and opens the first view. ELK
-// places nodes when no node has a position, once every node is measured and
-// the probe read, and not again for the same input (`graphKey`); Arrange runs it again
-// whatever the positions. Its worker is imported when first wanted: a graph
-// the consumer placed never loads it.
-export function useLayout({
+// Measures, runs, reports and routes. ELK places nodes when no node has a
+// position, once every node is measured and the probe read, and not again for
+// the same input (`graphKey`); Arrange runs it again whatever the positions. Its
+// worker is imported when first wanted: a graph the consumer placed never loads
+// it.
+export function useGraphRun({
 	nodes,
 	edges,
 	groups,
@@ -290,9 +291,7 @@ export function useLayout({
 	onMove,
 	ports,
 	glyph,
-	names,
-	selected,
-}: LayoutArgs): Layout {
+}: RunArgs): GraphRun {
 	const placing =
 		(nodes.length > 0 || hollow.length > 0) &&
 		nodes.every((node) => !node.position);
@@ -348,7 +347,6 @@ export function useLayout({
 	);
 	const key = useMemo(() => (input ? graphKey(input) : null), [input]);
 	const [laid, setLaid] = useState<Laid | null>(null);
-	const [ready, setReady] = useState(false);
 	// A run that failed (its chunk did not load, or ELK threw) is thrown where the
 	// canvas renders, for the error boundary above it.
 	const [failure, setFailure] = useState<{ error: unknown } | null>(null);
@@ -428,9 +426,6 @@ export function useLayout({
 		[laid, edges, wrapSpace, across, down],
 	);
 
-	// The latest fit, so Arrange fits the bounds the consumer's positions
-	// produced and not the ones the run was asked from.
-	const latest = useRef<(() => void) | null>(null);
 	useEffect(() => {
 		if (!onMove || !laid || !computed || reported.current === laid) return;
 		reported.current = laid;
@@ -438,12 +433,6 @@ export function useLayout({
 			const at = computed.get(id);
 			if (at && !hollow.includes(id)) onMove(id, at);
 		}
-		// The consumer's positions commit before the frame; no event marks that
-		// commit.
-		if (laid.arranged)
-			requestAnimationFrame(() => {
-				latest.current?.();
-			});
 	}, [laid, computed, onMove, order, hollow]);
 
 	const boxes = useMemo(
@@ -523,206 +512,30 @@ export function useLayout({
 		[tierAt, glyph, pair],
 	);
 
-	// The node the opening view stands on: the first one that is running or has
-	// failed (where the run is), else the graph's first.
-	const anchor = useMemo(
-		() =>
-			order.find((id) => {
-				const tone = nodes.find((node) => node.id === id)?.status?.tone;
-				return tone === "running" || tone === "failed";
-			}) ?? order[0],
-		[nodes, order],
-	);
-
-	// What the views that hold the whole graph (`openingView`, `fitView`) take:
-	// the pane, the chrome and the density are read here, off the page.
-	const opening = useCallback((): Opening | null => {
-		if (!region.current) return null;
-		// A node's icon stands past its inline padding, in a box no wider than a
-		// control (a decision's diamond).
-		const inline = spacing("pad");
-		return {
-			pane: viewport.size(),
-			inset: spacing("page"),
-			clear: viewport.clearance(),
-			icon: { start: inline, end: inline + spacing("control") },
-			glyph,
-			pair,
-			names,
-			boxes,
-			anchor,
-			tierAt,
-			routeTier,
-		};
-	}, [region, viewport, tierAt, routeTier, glyph, names, pair, boxes, anchor]);
-	// The lowest zoom at which no two glyphs stand closer than the gap the edges
-	// between them need: the lowest scale the pan and zoom allow, set as the boxes
-	// move, and by a fit before its view, which must not meet the last graph's.
-	const minZoom = useMemo(
-		() => minZoomFor([...boxes.values()], glyph, pair),
-		[boxes, glyph, pair],
-	);
-	useEffect(() => {
-		viewport.limit(minZoom);
-	}, [viewport, minZoom]);
-	const fitTo = useCallback(
-		(whole: boolean) => {
-			const o = opening();
-			if (!o) return;
-			const view = whole ? fitView(o, minZoom) : openingView(o);
-			viewport.limit(minZoom);
-			viewport[whole ? "go" : "set"](view);
-			// The view is the canvas's own again, until the viewer moves it.
-			viewport.settle();
-		},
-		[opening, viewport, minZoom],
-	);
-	// The opening view and the one an Arrange fits to land at once, as the nodes
-	// they follow do; the Fit act is the viewer's, fits the whole graph and travels.
-	const open = useCallback(() => fitTo(false), [fitTo]);
-	const fit = useCallback(() => fitTo(true), [fitTo]);
-	useLayoutEffect(() => {
-		latest.current = open;
-	}, [open]);
-
-	const placed = !placing || laid !== null;
 	// The box a node or a group's frame stands in, by its id.
 	const standing = useCallback(
 		(id: string | undefined) =>
 			id === undefined ? undefined : (drawn.get(id) ?? routed.frames.get(id)),
 		[drawn, routed],
 	);
-	// The node set the view was last opened on.
 	const set = useMemo(() => setOf(order), [order]);
-	const opened = useRef(set);
-	useLayoutEffect(() => {
-		const element = region.current;
-		if (ready || !element || !measured || !placed || !measures) return;
-		// The graph opens as Fit shows it: whole in the room the pane leaves.
-		open();
-		// A node or frame chosen as the canvas mounts is where the view stands:
-		// the opening view fits the graph, and the view is then set, at once and at
-		// the scale it opened at, to stand the chosen box in the pane.
-		const box = standing(selected);
-		const view = viewport.get();
-		const size = viewport.size();
-		const clear = viewport.clearance();
-		const inset = spacing("page");
-		if (box && !standsIn(box, view, size, inset, clear)) {
-			viewport.set(standIn(box, view.k, size, inset, clear));
-			viewport.settle();
-		}
-		opened.current = set;
-		setReady(true);
-	}, [
-		ready,
-		measured,
-		placed,
-		measures,
-		region,
-		open,
-		set,
-		selected,
-		standing,
-		viewport,
-	]);
-	// The opening view stands for the room it was set in. When the pane's size
-	// changes (a Pane beside it opens or closes, the window resizes) the graph
-	// opens again in the new room, at once; with a node chosen the view keeps
-	// its scale and pans only as far as the chosen node needs to stand in the new
-	// room (`centreOn`), so a sheet docked beside it leaves it in sight. The view
-	// is a transform the script sets, so CSS cannot follow the room: the
-	// region's size is read here.
-	const chosen = useRef<Box | undefined>(undefined);
-	useLayoutEffect(() => {
-		chosen.current = standing(selected);
-	}, [selected, standing]);
-	// The view opens again in the room it now has, or pans to the chosen box.
-	const refit = useCallback(() => {
-		const box = chosen.current;
-		if (box) viewport.centreOn(box);
-		else latest.current?.();
-	}, [viewport]);
-	useEffect(() => {
-		const element = region.current;
-		if (!ready || !element) return;
-		let last = viewport.size();
-		const watch = new ResizeObserver(() => {
-			const size = viewport.size();
-			if (size.width === last.width && size.height === last.height) return;
-			last = size;
-			refit();
-		});
-		watch.observe(element);
-		return () => watch.disconnect();
-	}, [ready, region, viewport, refit]);
-	// Parts wrapped again for a resized room stand elsewhere: the graph opens
-	// again on their boxes once they are drawn, or pans to the chosen node's new
-	// place. A new layout is not this: its first view is the opening one, or
-	// Arrange's fit.
-	const wrappedFor = useRef<{ laid: Laid | null; wrapSpace: string } | null>(
-		null,
-	);
-	useLayoutEffect(() => {
-		if (!ready || !computed) return;
-		// What wraps the parts: the room and the gaps the layout leaves between
-		// them. A new set of edges over the layout it was not run on is not a new
-		// room, and the view the viewer left stays (a new set opens again once its
-		// own layout lands, below).
-		const wrap = `${wrapSpace}|${across}|${down}`;
-		const was = wrappedFor.current;
-		if (was && was.laid === laid && was.wrapSpace !== wrap) {
-			refit();
-		}
-		wrappedFor.current = { laid, wrapSpace: wrap };
-	}, [ready, computed, laid, wrapSpace, across, down, refit]);
-
-	// A new set of nodes is a new graph: once the layout has placed it, the view
-	// opens on it again (or pans to the chosen node, as a resize does), unless the
-	// viewer has panned or zoomed since the view was last the canvas's own. A graph
-	// the consumer placed is not laid out, and a node it adds lands where the
-	// viewer looks, so it never opens again.
-	useLayoutEffect(() => {
-		if (!ready || opened.current === set) return;
-		if (!placing) {
-			opened.current = set;
-			return;
-		}
-		if (!measured || laid?.set !== set) return;
-		opened.current = set;
-		if (viewport.moved()) return;
-		refit();
-	}, [ready, set, placing, measured, laid, viewport, refit]);
-
-	// What the view was opened on: the layout and the nodes' sizes. A late font
-	// or a node that grows after the first view moves the boxes the view was set
-	// for, and a layout that lands again for the same nodes (the probe read a
-	// second time) moves them too, so the view opens again on them, or pans to the
-	// chosen node, unless the viewer has since moved it. Without this the first view
-	// stands whenever the second layout lands, and which it is is a race.
-	const basis = useRef<{ laid: Laid | null; sizes: typeof sizes } | null>(null);
-	useLayoutEffect(() => {
-		if (!ready) return;
-		const was = basis.current;
-		basis.current = { laid, sizes };
-		if (!was || (was.laid === laid && was.sizes === sizes)) return;
-		// An Arrange fits the view itself, once it is reported.
-		if (laid?.arranged && was.laid !== laid) return;
-		if (!measured || viewport.moved()) return;
-		refit();
-	}, [ready, laid, sizes, measured, viewport, refit]);
 
 	if (failure) throw failure.error;
 	return {
-		minZoom,
 		boxes,
 		drawn,
 		standing,
 		about,
 		routed,
+		tierAt,
+		routeTier,
 		space,
-		ready,
-		fit,
+		laid,
+		set,
+		placing,
+		measured,
+		placed: measured && measures !== null && (!placing || laid !== null),
+		room: `${wrapSpace}|${across}|${down}`,
 		arrange,
 		clearLeft,
 		clearStack,

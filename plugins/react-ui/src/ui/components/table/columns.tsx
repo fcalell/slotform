@@ -21,7 +21,7 @@ import { use } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { useQuietGuards } from "../../lib/guards.ts";
-import { spacing } from "../../lib/media.ts";
+import { spacing } from "../../lib/measure.ts";
 import { PortalContainer } from "../../lib/portal.ts";
 
 const POPUP = "flex flex-col max-h-(--available-height) overflow-y-auto";

@@ -58,7 +58,7 @@ import {
 	useState,
 } from "react";
 import type { Closed } from "../../lib/closed.ts";
-import { textSize } from "../../lib/media.ts";
+import { textSize } from "../../lib/measure.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/region.tsx";

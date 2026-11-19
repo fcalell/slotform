@@ -45,7 +45,7 @@ const WELCOME: Graph = {
 };
 
 // The graph laid out as the canvas lays it out (ELK, the unlinked parts wrapped
-// to the room) and its opening drawn at a routing side as `useLayout` draws it
+// to the room) and its opening drawn at a routing side as `useGraphRun` draws it
 // (`tiers`).
 async function opening(
 	graph: Graph,

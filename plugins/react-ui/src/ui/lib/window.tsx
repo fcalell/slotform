@@ -20,7 +20,7 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { spacing } from "./media.ts";
+import { spacing } from "./measure.ts";
 
 /** The nearest element that scrolls vertically, which a long collection windows against; none draws every row. A Pane's body, a Sheet's body, a Gate's page, a Thread's log, a sheet's listbox of options, a popover's list of options and a long BarChart's plot (which scrolls sideways) provide it, the nearest one winning, so a Section's sheet in a portaled Sheet never windows against the Pane under it. The `holder` is the same from the first render, its element attached with the commit, so a collection mounting with the Pane windows in its first draw; `node` is the element as state, so what measures against it renders once it has arrived. */
 export const Scroller = createContext<{

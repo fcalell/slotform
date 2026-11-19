@@ -13,7 +13,8 @@ import {
 	TOOLTIP_CUT,
 } from "@fcalell/ui-core/variants";
 import { type ReactElement, type ReactNode, use, useContext } from "react";
-import { spacing, useTouch } from "../../lib/media.ts";
+import { spacing } from "../../lib/measure.ts";
+import { useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 import { PortalContainer } from "../../lib/portal.ts";

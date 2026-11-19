@@ -148,7 +148,8 @@ consumer that does has no named successor: it stops using them, or copies the fe
   (the org-rules query is internal to `useAbility`), `schemaOf` (the provider answers it through
   the port), `draftFor`, the `./node/codegen`, `./node/types` and `./lib/selection` subpaths.
 - **plugin-react-ui:** `useDerivedForm`, `DerivedFrame`, `WithReads`, `PickerListShape`, `Wiring`,
-  `plexSans` (off `./node/fonts`), the `./components/toast` and `./showcase/*` subpaths.
+  `plexSans` (off `./node/fonts`), `spacing` and `textSize` (off `./lib/media`), the
+  `./components/toast` and `./showcase/*` subpaths.
 - **plugin-native-ui:** `ThemeName`, `Wiring`, `WithReads`, `PickerListShape`, the `./app` subpath
   and the `appCssImports` slot.
 - **ui-core:** `asChip`, `ROSTER`, `componentDir`, `PLATFORMS`, `WAIT_DELAY`, `ACT_DELAY`,

@@ -29,7 +29,8 @@ import {
 } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { spacing, textSize, useTouch } from "../../lib/media.ts";
+import { spacing, textSize } from "../../lib/measure.ts";
+import { useTouch } from "../../lib/media.ts";
 import { FrameBody, FrameLine } from "../../lib/read.tsx";
 import { ConnectionLine } from "./connection.tsx";
 import { EdgeLayer } from "./edges.tsx";
@@ -45,9 +46,10 @@ import { GROUND, Grid, PaintedNodes } from "./ground.tsx";
 import { GroupBox } from "./group.tsx";
 import { isGround } from "./hit.ts";
 import { EdgeLabel } from "./label.tsx";
-import { useLayout } from "./layout.ts";
+import { useGraphRun } from "./layout.ts";
 import { type EdgeTone, edgeLook, nodeLook } from "./look.ts";
 import { type NodeEdit, NodeView } from "./node.tsx";
+import { useOpeningView } from "./opening.ts";
 import { landAt, place, whole } from "./view.ts";
 import { useViewport, useViewportValue } from "./viewport.ts";
 import { ActFoot, ZoomPainted, ZoomStack } from "./zoom.tsx";
@@ -182,20 +184,7 @@ function CanvasGraph({
 	// density in force.
 	const glyph = spacing("control");
 	const names = nameCap(textSize("meta"));
-	const {
-		minZoom,
-		boxes,
-		drawn,
-		standing,
-		about,
-		routed,
-		space,
-		ready,
-		fit,
-		arrange,
-		clearLeft,
-		clearStack,
-	} = useLayout({
+	const run = useGraphRun({
 		nodes,
 		edges,
 		groups,
@@ -210,6 +199,24 @@ function CanvasGraph({
 		landed,
 		onMove,
 		ports: Boolean(onConnect),
+		glyph,
+	});
+	const {
+		boxes,
+		drawn,
+		standing,
+		about,
+		routed,
+		space,
+		arrange,
+		clearLeft,
+		clearStack,
+	} = run;
+	const { minZoom, ready, fit } = useOpeningView(run, viewport, {
+		region,
+		nodes,
+		order,
+		sizes,
 		glyph,
 		names,
 		selected,

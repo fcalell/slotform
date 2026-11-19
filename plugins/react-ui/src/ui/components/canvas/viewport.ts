@@ -10,7 +10,7 @@ import {
 	useSyncExternalStore,
 } from "react";
 import { travel } from "../../lib/follow.ts";
-import { spacing } from "../../lib/media.ts";
+import { spacing } from "../../lib/measure.ts";
 import type { Box } from "./geometry.ts";
 import {
 	autoPan,
