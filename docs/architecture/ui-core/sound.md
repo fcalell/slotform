@@ -15,14 +15,15 @@ What both platforms run lives in ui-core, free of any framework and of the sound
 
 - `@fcalell/ui-core/clock` holds `trackTime`, a time as the dock words it (`3:07`, `1:02:03`).
 - `@fcalell/ui-core/player`: the player's rules (the queue's
-  neighbours, `neighbour`; the global `shortcut`s) and the store itself. `createPlayer` holds the
+  neighbours, `neighbour`; the global `shortcut`s; the dock's seek, `dockSeek`: the length and, where it is known, the peaks a waveform draws in place of a slider) and the store itself. `createPlayer` holds the
   track, its queue or `QueueProvider`, the play state, the volume, the clock and the rules that move
   them (Previous returns to the track's start past `PREVIOUS_RESTART`, 3 seconds in). It drives the
   `Output` that the `Engine` the app passes through `connect` makes, and takes a `PlayerHost` for the kept volume and the
   frame. `windowQueue` is the `QueueProvider` for a list too long to hold.
 - `@fcalell/ui-core/waveform`: a waveform's arithmetic, free of the canvas: the peaks reduced to the
-  columns a width draws (`columns`), the moment a pointer or a key names (`momentAt`, `seekKey`) and
-  the keyboard's steps (`SEEK`).
+  columns a width draws (`columnCount`, `columns`), each column's box and the playhead's place on
+  the device's pixels (`columnBoxes`, `headAt`, at the widths `COLUMN` holds), the moment a pointer
+  or a key names (`momentAt`, `seekKey`) and the keyboard's steps (`SEEK`).
 
 Each plugin's `lib/player` is one store over `createPlayer` (made in `lib/player-store`) that the app calls and reads, with
 `connectOutput` to pass the sound once: the web's `audioOutput()`, the phone's from
@@ -39,8 +40,8 @@ stands under the place at the column's width, a hairline over the surface, and h
   name keeps its place);
 - the name over its line;
 - previous, play or pause (the primary glyph) and next;
-- the elapsed time, the seek (on the web the waveform where the track has peaks, else a slider; on
-  the phone a slider) and the total;
+- the elapsed time, the seek (the waveform where the track has peaks and a known length, else a
+  slider) and the total;
 - mute and volume, not on touch, where the device's own buttons set the volume;
 - a close.
 
@@ -76,12 +77,13 @@ Space on a cell of a table that chooses nothing is the dock's.
 
 ## Waveform
 
-`Waveform` is a component nothing mounts by default. The web `Waveform` is a canvas that reads its
-colours off its element once per mode.
-
-## Scope
-
-The phone's `Waveform` is not built.
+`Waveform` is a component nothing mounts by default. On the web it is a canvas that reads its
+colours off its element once per mode. On the phone it is an `Svg` of the same columns:
+`columns(peaks, count)` for the count its width holds, with a played layer over a rest layer. The
+played layer is clipped to the playhead's share, so a tick moves one clip and redraws no column. Both
+take the same props. A drag holds the playhead and seeks once on release, through the same track drag
+as the phone's `Slider`. A screen reader's increment and decrement move it by `SEEK.step`. The phone
+dock's full player draws it where the track has peaks and a known length, else the slider.
 
 ## In the code
 
@@ -89,6 +91,8 @@ The phone's `Waveform` is not built.
 - `packages/ui-core/src/waveform.ts`: the waveform's arithmetic.
 - `packages/ui-core/src/roster/dock.ts`: the `Dock` roster entry.
 - `plugins/react-ui/src/ui/components/dock/index.tsx`: the web dock and its keys.
+- `plugins/react-ui/src/ui/components/waveform/index.tsx`, `plugins/native-ui/src/ui/components/waveform/index.tsx`: each platform's `Waveform`.
+- `plugins/native-ui/src/ui/lib/adjustable.ts`: the track drag and the screen reader's steps the phone's `Slider` and `Waveform` share.
 - `plugins/react-ui/src/ui/lib/player-store.ts`, `plugins/native-ui/src/ui/lib/player-store.ts`: each platform's player store and its host.
 - `plugins/react-ui/src/ui/lib/player.ts`, `plugins/native-ui/src/ui/lib/player.ts`: the commands and hooks an app calls, and the web's `audioOutput`.
 - `plugins/native-ui/src/ui/audio/expo.ts`: the phone's output over `expo-audio`.

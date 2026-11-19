@@ -137,7 +137,7 @@ The subpaths:
 - `@fcalell/ui-core/scramble`: the glyph region's scramble, pure over the tick it is given: `frame`, `decode`, `lockedAt`, `seedOf`, `busy` and `createTicker`, the one ticker every region of a page shares.
 - `@fcalell/ui-core/window`: how a long collection windows: `windowEntries`, `ranged`, `pagesCovering`, `VIRTUAL_FROM` and `OVERSCAN`.
 - `@fcalell/ui-core/drag`: drag and drop, free of any framework: when a press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands (`movedTo`, `moveOf`, `stepOf`, `moveEntry`), how deep a drag stands in a scroller's edge band and the distance a frame carries it there (`edgeDepth`, `edgeSpeed`), the band's entry and steps (`bandAt`) and the drop a drag is accepted by (`accepts`).
-- `@fcalell/ui-core/waveform`: a waveform's arithmetic: the peaks reduced to columns (`columns`), the moment a pointer or key names (`momentAt`, `seekKey`, `shareOf`) and the keyboard's steps (`SEEK`).
+- `@fcalell/ui-core/waveform`: a waveform's arithmetic: the peaks reduced to columns (`columnCount`, `columns`), each column's box and the playhead's place (`columnBoxes`, `headAt`, `COLUMN`), the moment a pointer or key names (`momentAt`, `seekKey`, `shareOf`) and the keyboard's steps (`SEEK`).
 - `@fcalell/ui-core/player`: the audio player's rules, free of the sound: `createPlayer` over a `PlayerHost`, the store an app connects its `Engine` to (the `Engine` makes the `Output`), `windowQueue`, `keyOf`, `neighbour` and `shortcut`, with `QueueProvider` and the player's types.
 - `@fcalell/ui-core/qr`: `qrModules`, a QR code's modules as one SVG path, so both platforms draw the same code.
 - `@fcalell/ui-core/manifest`: `uiCoreGuide`, the package's `guide/` pages with their load

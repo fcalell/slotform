@@ -1,5 +1,5 @@
 // The audio player's rules, free of any framework and of the sound: docs/architecture/ui-core/sound.md, "Player".
-import type { Track } from "./descriptors.ts";
+import type { Peaks, Track } from "./descriptors.ts";
 import { type Drawn, shownText } from "./read.ts";
 import { createStore } from "./store.ts";
 import { clamp, SEEK } from "./waveform.ts";
@@ -9,6 +9,17 @@ import { clamp, SEEK } from "./waveform.ts";
 const PREVIOUS_RESTART = 3;
 
 export const keyOf = (track: Track): string => track.key ?? track.src;
+
+// The dock's seek: the track's length, the output's once it knows one (`known`)
+// and else the track's own, and its peaks where that length is known, which
+// the dock draws as a waveform in place of a slider.
+export function dockSeek(
+	track: Track,
+	known: number,
+): { length: number; peaks?: Peaks } {
+	const length = known > 0 ? known : (track.duration ?? 0);
+	return { length, peaks: length > 0 ? track.peaks : undefined };
+}
 
 // The track `delta` places from `track` in the queue, none past either end (and
 // none for a track the queue does not hold).
