@@ -20,7 +20,7 @@ import {
 	isSelection,
 	paints,
 } from "@fcalell/ui-core/read";
-import { flatPlaces, placeAt, placeTrail } from "@fcalell/ui-core/route";
+import { flatPlaces, placeTrail, trailEnds } from "@fcalell/ui-core/route";
 import {
 	LAYER_CARD,
 	placeRow,
@@ -53,7 +53,7 @@ import {
 import { type ReactNode, type Ref, useMemo, useState } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";
-import { PlaceRoute, ShellMenu } from "../../lib/container.ts";
+import { PlaceTrail, ShellMenu } from "../../lib/container.ts";
 import { useDocked } from "../../lib/folds.ts";
 import { type AppLockup, useLockup } from "../../lib/lockup.tsx";
 import { useTouch } from "../../lib/media.ts";
@@ -160,10 +160,11 @@ export function Shell({
 	const drawn = useSelections(owned);
 	const grouped = drawn.flatMap((each) => (each.painted ? [] : each.value));
 	const spec = [...places, ...grouped];
-	// A place's children are places too: the address is owned by the deepest.
-	const flat = flatPlaces(spec);
-	const route = placeAt(flat, at);
+	// A place's children are places too: the address is owned by the deepest,
+	// the trail's last.
 	const trail = placeTrail(spec, at);
+	const { here } = trailEnds(trail);
+	const route = here?.route;
 	const lockup = useLockup();
 	// A place that is a spot on its page (`#activity`) leads nowhere from an
 	// address nothing serves, so home is the first place that is a route.
@@ -426,18 +427,13 @@ export function Shell({
 					<ContainerMain>
 						<ShellHome value={home}>
 							<ShellMenu value={menu}>
-								<PlaceRoute value={route}>
+								<PlaceTrail value={trail}>
 									<div className={cn(PAGE, SHELL_PAGE_SLIDE)}>
-										<Panes
-											title={
-												flat.find((one) => one.route === route)?.label ??
-												lockup?.name
-											}
-										>
+										<Panes title={here?.label ?? lockup?.name}>
 											{children}
 										</Panes>
 									</div>
-								</PlaceRoute>
+								</PlaceTrail>
 							</ShellMenu>
 						</ShellHome>
 					</ContainerMain>
@@ -494,7 +490,7 @@ function PlacesBody(props: {
 	lead?: ReactNode;
 	ends: readonly PlaceSpec[];
 	route: string | undefined;
-	trail: readonly string[];
+	trail: readonly PlaceSpec[];
 	end?: ReactNode;
 	onPlace?: () => void;
 	children?: ReactNode;
@@ -531,7 +527,7 @@ function Groups(props: {
 	ref?: Ref<HTMLDivElement>;
 	rows: readonly Group[];
 	route: string | undefined;
-	trail: readonly string[];
+	trail: readonly PlaceSpec[];
 	onPlace?: () => void;
 }) {
 	const { ref, rows, route, trail, onPlace } = props;
@@ -687,7 +683,7 @@ function GroupPlaces(props: {
 	label: string | undefined;
 	places: Datum<readonly PlaceSpec[]>;
 	route: string | undefined;
-	trail: readonly string[];
+	trail: readonly PlaceSpec[];
 	onPlace?: () => void;
 }) {
 	const { label, route, trail, onPlace } = props;

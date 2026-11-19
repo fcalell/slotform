@@ -105,6 +105,7 @@ density. The token sets themselves are [density and room](../ui-core/tokens.md#d
 | `row` (a list row that may stand one line) | `row-two-line:` | below `rowOneLine` of the row, where its meta stands under the title |
 | `rules` (a rules list) | `rules-stacked:` | below `rulesOneRow` of the list, where each rule stacks its terms |
 | `page` | `definitions-stacked:` | below `definitionsOneRow` of a Pane, where a definition row stands its value under its label |
+| `page` | `trail-whole:` | from `trailWhole` of a Pane, where its bar stands the whole trail instead of folding the places between |
 | `acts` (an action bar) | `acts-stacked:` | up to `actsStackedMax` of the bar, where its acts stack one per row |
 | `time` (a bar chart's time between its ends) | `time-fits:` | where the space holds the times |
 

@@ -1,8 +1,13 @@
 import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Route, Run } from "@fcalell/ui-core/descriptors";
+import type {
+	IconLinkAct,
+	LinkAct,
+	Route,
+	Run,
+} from "@fcalell/ui-core/descriptors";
 import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { actsSplit } from "@fcalell/ui-core/overflow";
+import { actsSplit, trailSplit } from "@fcalell/ui-core/overflow";
 import {
 	type Frame,
 	useDrawsFailure,
@@ -15,9 +20,11 @@ import {
 	isEnded,
 	paints,
 } from "@fcalell/ui-core/read";
+import type { TrailPart } from "@fcalell/ui-core/route";
 import { isCode, partRuns, partText } from "@fcalell/ui-core/runs";
 import type { Tone } from "@fcalell/ui-core/tokens";
 import {
+	ITEM_OVERLINE,
 	PAGE_CONTEXT,
 	PAGE_HEAD,
 	PAGE_TITLE_FLOOR,
@@ -27,13 +34,15 @@ import {
 	TITLE_CODE,
 	text,
 } from "@fcalell/ui-core/variants";
-import { use } from "react";
+import { Fragment, use } from "react";
 import { IconButtonBase, IconButtonLink } from "../../atoms/button/glyph.tsx";
 import { type IconAct, type MenuEntry, wiringOf } from "../../lib/act.ts";
 import { RunText } from "../../lib/code.tsx";
 import { ShellMenu } from "../../lib/container.ts";
 import { useTouch } from "../../lib/media.ts";
+import { follow, isPage } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
+import { TrailLine } from "../../lib/parts-line.tsx";
 import { BusyMark, FrameLine } from "../../lib/read.tsx";
 import { IconActFace } from "../button/face.tsx";
 import { Button } from "../button/index.tsx";
@@ -61,28 +70,41 @@ const START = "touch:-ms-icon-inset";
 // chevron whole, at every width.
 const PILL = "flex min-w-0";
 const ACTS = "flex shrink-0 items-center gap-gap ms-auto touch:-me-icon-inset";
-// The heading is the title's line, the busy mark after the title.
-// The title's floor is `PAGE_TITLE_FLOOR`'s min-width: a `min-w-0` here would
-// replace it, so the title would give way to the switcher or the acts to nothing.
+// The title's line: the trail, then the heading, the busy mark after the
+// title. The line's floor is `PAGE_TITLE_FLOOR`'s min-width: a `min-w-0` here
+// would replace it, so the title would give way to the switcher or the acts to
+// nothing. On touch a place's Pane under other places stands its trail as an
+// overline over the heading.
 const TITLE = "flex grow items-center gap-gap";
+const TITLE_UNDER = "touch:flex-col touch:items-stretch touch:gap-0";
+const HEADING = "flex min-w-0 grow items-center gap-gap";
+const OVERLINE = "hidden touch:flex";
 const NAME = "min-w-0 truncate";
 // A record's name under the bar on touch: docs/architecture/ui-core/layout.md, "Record head".
 const NAME_WAITS = "touch:record-name-waits";
-// A record's place stands whole beside its name: it keeps its own width up to
-// three fifths of the title and the name, which the body's head repeats whole,
-// gives way first, so a name that waits (its filler) never cuts the place's
-// word. The slash is a part of its own that is never cut. On touch the bar
-// holds the back act and the name alone, as the phone's holds one part, so
-// the name is never cut to a few letters; a record whose name will not come
-// (its read ended) keeps its place there, the bar's one word.
+// The trail stands whole beside the title: it keeps its own width up to three
+// fifths of the line, and the name, which the body's head repeats whole, gives
+// way first, so a name that waits (its filler) never cuts a place's word. The
+// top place and the current one stand; the places between stand from
+// `trailWhole` of the Pane (`trail-whole:`) and below it fold into one act,
+// the trail's split (`trailSplit`). Each slash is a part of its own that is
+// never cut. On touch the bar holds the back act and the name alone, as
+// the phone's holds one part, so the name is never cut to a few letters; a
+// record whose name will not come (its read ended) keeps its trail there.
 const WITHIN = "flex shrink-0 items-center max-w-3/5";
 const WITHIN_WIDE = "touch:hidden";
 const WITHIN_SEP = "shrink-0";
+const TRAIL_WHOLE = "hidden trail-whole:contents";
+const TRAIL_FOLDED = "contents trail-whole:hidden";
+const CRUMB = "min-w-0 truncate";
+const CRUMB_LINK = "hover:text-ink-body active:text-ink-body";
 
-/** A Pane's bar: the back act, the title, the context pick, the acts and more, and the line of its read's state. The bar is one line: the first act stands as its icon and the rest stand in the more menu, before its own items, at every width; the title keeps two fifths of the row, and the context pick's label truncates before the title is cut below it. It subscribes to the title and the acts itself, so a title or an act's read landing renders the bar and nothing under the Pane's body. A record's bar whose read failed or answered not found draws its place alone, with no slash, and none of the acts; its back act stands where the Pane stands alone, and its close act only where the read failed, a missing record's way back being its Back. Outside the package's exports. */
+/** A Pane's bar: the back act, the title, the context pick, the acts and more, and the line of its read's state. The bar is one line: the first act stands as its icon and the rest stand in the more menu, before its own items, at every width; the title keeps two fifths of the row, and the context pick's label truncates before the title is cut below it. It subscribes to the title and the acts itself, so a title or an act's read landing renders the bar and nothing under the Pane's body. A record's bar whose read failed or answered not found draws its trail at every density, then the record's kind after the slash (its `noun`, else "Failed" or "Not found"), and none of the acts; its back act stands where the Pane stands alone, and its close act only where the read failed, a missing record's way back being its Back. Outside the package's exports. */
 export function PaneHead(props: {
-	/** Where a record lives, drawn before its name in the meta ink and parted from it by a slash, on the desktop (a `{ code }` run bare in the mono, as in the name); on touch the bar holds the name alone, the place standing at the start of the head's overline, and in the bar only once the record's read ended. A selection paints in its place until it lands. */
-	within?: Datum<Run>;
+	/** The places above the Pane's own, the top first: on the desktop each drawn before the title in the meta ink, a slash apart (a place that is a page a link to it, a folder text), the top standing and the rest standing where the Pane is `trailWhole` wide or more, below it folded into one act whose menu lists the pages among them; on touch a place's Pane draws them as an overline over its title, cut at its start. */
+	trail?: readonly TrailPart[];
+	/** Where a record lives, drawn after the trail and before its name, parted from it by a slash, on the desktop; on touch the bar holds the name alone, the trail and the place standing at the start of the head's overline, and in the bar only once the record's read ended. */
+	within?: TrailPart;
 	/** The id of the heading the title stands in, which names the Pane while the title is no filler. A record's Pane (`headed`) leaves it to its head, which holds the heading; the bar holds the id, as a paragraph, only where the name is empty and the head draws none. */
 	titleId?: string;
 	/** What the bar draws: the Pane's title, or the place of a record. */
@@ -107,6 +129,7 @@ export function PaneHead(props: {
 	noun?: string;
 }) {
 	const {
+		trail = [],
 		within,
 		titleId,
 		title,
@@ -131,9 +154,8 @@ export function PaneHead(props: {
 	const menu = use(ShellMenu);
 	const moreOf = offered<readonly MenuEntry[]>(more);
 	const actsOf = (acts ?? []).map((one) => offered<IconAct | IconLinkAct>(one));
-	const [name, place, overflowAt, ...actionAt] = useSelections([
+	const [name, overflowAt, ...actionAt] = useSelections([
 		title,
-		within ?? "",
 		moreOf,
 		...actsOf,
 	]);
@@ -237,8 +259,8 @@ export function PaneHead(props: {
 	// missing shape's Back is its one way out) and no acts, and beside another its
 	// bar stands the line its neighbours' bars do: it names what is missing, the
 	// record's kind, else "Not found". A record's bar whose name will not come
-	// (its read failed, or the name landed empty) names its kind too, after the
-	// place's name and its slash, so the record's line (and the region it names)
+	// (its read failed, or the name landed empty) names its kind too, after its
+	// trail and its slash, so the record's line (and the region it names)
 	// is never the place's Pane's alone.
 	const kind =
 		nameless && (within !== undefined || frame.shape === "missing")
@@ -257,6 +279,49 @@ export function PaneHead(props: {
 	const Title =
 		holds && (!nameless || kind !== undefined) ? ("h2" as const) : "p";
 	const waits = holds && paints(name);
+	// The top place stands; the places between stand where the bar holds the
+	// whole trail and fold below it, their pages listed in the fold's menu (a
+	// folder there leads nowhere).
+	const { top, between } = trailSplit(trail);
+	const pages = between.flatMap((one): readonly LinkAct[] =>
+		isPage(one.route) ? [{ label: one.label, href: one.route }] : [],
+	);
+	const overlined = within === undefined && trail.length > 0;
+	const sep = <span aria-hidden className={cn(PAGE_WITHIN_SEP, WITHIN_SEP)} />;
+	const crumb = (part: TrailPart, at: number) => (
+		<Fragment key={part.route ?? at}>
+			<Crumb part={part} />
+			{sep}
+		</Fragment>
+	);
+	const nav =
+		trail.length > 0 || within ? (
+			<nav
+				aria-label={words.breadcrumb}
+				className={cn(
+					text({ role: "body" }),
+					PAGE_WITHIN,
+					WITHIN,
+					(within === undefined || !(gone || nameless)) && WITHIN_WIDE,
+				)}
+			>
+				{top.map(crumb)}
+				{between.length > 0 ? (
+					<span className={TRAIL_WHOLE}>{between.map(crumb)}</span>
+				) : null}
+				{pages.length > 0 ? (
+					<span className={TRAIL_FOLDED}>
+						<MenuBase
+							label={words.morePlaces}
+							title={words.morePlaces}
+							items={pages}
+						/>
+						{sep}
+					</span>
+				) : null}
+				{within ? crumb(within, trail.length) : null}
+			</nav>
+		) : null;
 	// The head is one tree on both densities, so crossing the density line
 	// keeps its acts and their focus.
 	return (
@@ -264,45 +329,33 @@ export function PaneHead(props: {
 			<div className={cn(PAGE_TOP_BAR, ROW)}>
 				{goBack}
 				{pick}
-				<Title
-					id={holds ? titleId : undefined}
-					aria-label={waits ? words.waiting : undefined}
-					className={cn(text({ role: "heading" }), PAGE_TITLE_FLOOR, TITLE)}
-				>
-					{within === undefined ? null : (
-						<span
-							className={cn(
-								text({ role: "body" }),
-								PAGE_WITHIN,
-								WITHIN,
-								!(gone || nameless) && WITHIN_WIDE,
-							)}
-						>
-							<span className={NAME}>
-								{paints(place) ? (
-									<Painted role="word" />
-								) : place.painted ? null : (
-									<RunText runs={partRuns(place.value)} fit="name" />
-								)}
-							</span>
-							{nameless && kind === undefined ? null : (
-								<span aria-hidden className={cn(PAGE_WITHIN_SEP, WITHIN_SEP)} />
+				<div className={cn(PAGE_TITLE_FLOOR, TITLE, overlined && TITLE_UNDER)}>
+					{nav}
+					{overlined ? (
+						<TrailLine
+							trail={trail.map((one) => one.label)}
+							className={cn(ITEM_OVERLINE, OVERLINE)}
+						/>
+					) : null}
+					<Title
+						id={holds ? titleId : undefined}
+						aria-label={waits ? words.waiting : undefined}
+						className={cn(text({ role: "heading" }), HEADING)}
+					>
+						<span className={cn(NAME, headed && NAME_WAITS)}>
+							{paints(name) ? (
+								<Painted role="title" />
+							) : name.painted || kind !== undefined ? (
+								kind
+							) : isCode(name.value) ? (
+								<code className={TITLE_CODE}>{name.value.code}</code>
+							) : (
+								<RunText runs={partRuns(name.value)} fit="name" />
 							)}
 						</span>
-					)}
-					<span className={cn(NAME, headed && NAME_WAITS)}>
-						{paints(name) ? (
-							<Painted role="title" />
-						) : name.painted || kind !== undefined ? (
-							kind
-						) : isCode(name.value) ? (
-							<code className={TITLE_CODE}>{name.value.code}</code>
-						) : (
-							<RunText runs={partRuns(name.value)} fit="name" />
-						)}
-					</span>
-					<BusyMark frame={frame} />
-				</Title>
+						<BusyMark frame={frame} />
+					</Title>
+				</div>
 				{context ? (
 					<span className={cn(PILL, PAGE_CONTEXT)}>
 						<HeldPicker {...context} fit="pill" state={state} />
@@ -330,4 +383,17 @@ function kindWord(
 		return `${noun.charAt(0).toUpperCase()}${noun.slice(1)}`;
 	if (frame.shape === "failed") return words.failed;
 	return words.notFound;
+}
+
+// A place of the trail: a link to it where it is a page, else (a folder, a
+// place outside a Shell) its words.
+function Crumb({ part }: { part: TrailPart }) {
+	const label = <RunText runs={partRuns(part.label)} fit="name" />;
+	return isPage(part.route) ? (
+		<a href={part.route} onClick={follow} className={cn(CRUMB, CRUMB_LINK)}>
+			{label}
+		</a>
+	) : (
+		<span className={CRUMB}>{label}</span>
+	);
 }

@@ -54,7 +54,7 @@ import { RunText } from "../../lib/code.tsx";
 import { useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { Painted } from "../../lib/paint.tsx";
-import { PartsLine } from "../../lib/parts-line.tsx";
+import { PartsLine, TrailLine } from "../../lib/parts-line.tsx";
 import { Count } from "../count/index.tsx";
 import { PictureTile } from "../image/base.tsx";
 import { HeldPicker } from "../picker/base.tsx";
@@ -62,7 +62,8 @@ import { HeldPicker } from "../picker/base.tsx";
 const HEAD = "flex flex-col";
 // The overline is a text line: one line at every density, cut at its end with
 // an ellipsis, its parts a middle dot apart (`PartsLine`), on touch as
-// on the desktop, its figures tabular (`ITEM_OVERLINE`).
+// on the desktop, its figures tabular (`ITEM_OVERLINE`). On touch the trail
+// leads it, cut at its own start (`TrailLine`).
 const OVERLINE = "truncate";
 // The name draws whole: it wraps between its words.
 const NAME = "min-w-0";
@@ -235,34 +236,33 @@ export function drawsNoName(name: Drawn<Run>): boolean {
 	return name.painted ? !paints(name) : partText(name.value) === "";
 }
 
-/** A record's head: its place (the overline, led on touch by where the record lives, which the bar holds on the desktop), its name and its facts, a pair apart; the bar holds the acts, so the head holds none. The name is the Pane's title, drawn whole and wrapping as the `h2` that names the Pane, its filler inside it while its read waits; a name that draws none leaves the head the overline and the facts. A name, a part or a fact that is a selection paints in its place, and the facts take no press, until its read lands. Outside the package's exports: a Pane draws it for its `record`. */
+/** A record's head: its place (the overline, led on touch by the trail of places the record lives in, which the bar holds on the desktop), its name and its facts, a pair apart; the bar holds the acts, so the head holds none. The name is the Pane's title, drawn whole and wrapping as the `h2` that names the Pane, its filler inside it while its read waits; a name that draws none leaves the head the overline and the facts. A name, a part or a fact that is a selection paints in its place, and the facts take no press, until its read lands. Outside the package's exports: a Pane draws it for its `record`. */
 export function ItemHeaderBase<V extends string | null = string>({
 	name: title,
 	nameId,
-	within,
+	trail = [],
 	overline: given = [],
 	facts = [],
 	description,
 	image,
 }: ItemHeaderParts<V> & {
-	/** Where the record lives (its Pane's `record.within`): on touch, where the bar holds the name alone, it leads the overline, so the place is given once and stands once at every density. */
-	within?: Datum<Run>;
+	/** The labels of the places the record lives in, the nearest last: on touch, where the bar holds the name alone, they lead the overline, so the trail stands once at every density. */
+	trail?: readonly string[];
 	/** The record's name: the Pane's title. */
 	name: Datum<Run>;
 	/** The id the name carries, which names the Pane. */
 	nameId?: string;
 }) {
 	const [name] = useSelections([title]);
-	// On touch the bar drops the place for the name, so the overline leads with
-	// it; a name whose read ended leaves the place in the bar.
+	// On touch the bar drops the trail for the name, so the overline leads with
+	// it; a name whose read ended leaves the trail in the bar.
 	const touch = useTouch();
 	const named = !drawsNoName(name);
-	const overline =
-		touch && within !== undefined && named ? [within, ...given] : given;
+	const led = touch && named && trail.length > 0;
 	// One subscription draws the overline's parts, then the facts, so every
 	// value types as the union of both: the casts name the slice's own, a
 	// `Run` in the overline's and a `RecordFact` in the facts'.
-	const drawn = useSelections([...overline, ...facts]);
+	const drawn = useSelections([...given, ...facts]);
 	const [about] = useSelections([description]);
 	// A part or a fact whose read ended draws nothing; the frame that holds the
 	// read says why.
@@ -270,14 +270,14 @@ export function ItemHeaderBase<V extends string | null = string>({
 	// A loaded part with no text draws nothing, so no separator dangles after
 	// the part before it.
 	const placed = drawn
-		.slice(0, overline.length)
+		.slice(0, given.length)
 		.filter(
 			(each) => draws(each) && (each.painted || filled(each.value as Run)),
 		);
 	// An absent fact (a loaded part with no text) draws nothing: absence says
 	// nothing.
 	const stood = drawn
-		.slice(overline.length)
+		.slice(given.length)
 		.filter(
 			(each) =>
 				draws(each) &&
@@ -324,22 +324,28 @@ export function ItemHeaderBase<V extends string | null = string>({
 			)}
 		</h2>
 	) : null;
+	const parts =
+		placed.length > 0 ? (
+			<PartsLine
+				parts={placed.flatMap((part, at) =>
+					part.painted
+						? [<Painted key={at} role="word" at={at} />]
+						: // A part is one part, a dot inside its string text: every
+							// separator is the line's.
+							factParts([part.value as Run]).map((runs, within) => (
+								<RunText key={`${at}.${within}`} runs={runs} fit="name" />
+							)),
+				)}
+			/>
+		) : null;
 	const column = (
 		<div className={cn(ITEM_HEADER, HEAD, image && COLUMN)}>
-			{placed.length > 0 ? (
-				<p className={cn(ITEM_OVERLINE, OVERLINE)}>
-					<PartsLine
-						parts={placed.flatMap((part, at) =>
-							part.painted
-								? [<Painted key={at} role="word" at={at} />]
-								: // A part is one part, a dot inside its string text: every
-									// separator is the line's.
-									factParts([part.value as Run]).map((runs, within) => (
-										<RunText key={`${at}.${within}`} runs={runs} fit="name" />
-									)),
-						)}
-					/>
-				</p>
+			{led ? (
+				<TrailLine trail={trail} className={ITEM_OVERLINE}>
+					{parts}
+				</TrailLine>
+			) : parts ? (
+				<p className={cn(ITEM_OVERLINE, OVERLINE)}>{parts}</p>
 			) : null}
 			{quiet.length > 0 ? (
 				<div className={NAME_ROW}>

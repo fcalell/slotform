@@ -36,9 +36,14 @@ the place.
 The place's Pane takes no `title`: the place's name, the sidebar's label, which the `Shell` gives the `Panes`,
 titles it. A record's Pane takes `title`, the record's name, and `record`, its head parts. A place whose body is
 one record (a project's overview, a settings record) is the place's Pane, titled by the place; the record's name
-shows in the sidebar's switcher. Only a record's Pane has a breadcrumb, and it is always the place's name, which
-the Pane draws before the record's in the bar on the desktop and at the start of the overline on touch, so
-`overline` never repeats it.
+shows in the sidebar's switcher. A Pane's trail is the place's path in the `Shell`'s tree, which the `Shell` gives
+the Panes, so a route passes none: a record's Pane draws every place above the record's place, then that place, then
+the record's name; a place's own Pane deep in the tree draws the places above it, then its own name as its title; a
+top-level place's Pane draws its title alone. A place that is a page is a link, a folder is text, and on the desktop
+the top place and the current one stay while the places between stand where the Pane is wide enough and fold into
+one `…` act where it is not. On touch the trail stands
+at the start of the record head's overline, or as the overline over a deep place's title, so `overline` never
+repeats it.
 
 The place's Pane has no Back or Close: the sidebar moves between places. A record's Pane has Close at the
 bar's end on the desktop and Back at its start below `tablet` of the place; both return to the place's Pane as it
@@ -77,7 +82,7 @@ const places: PlaceSpec[] = [
 A Pane that opens from a press in another takes the keyboard on its first control, so the next Tab is not the
 list's next row.
 
-A record head's overline is a text line (a breadcrumb is text): one line, its parts a middle dot apart, cut at its end with an ellipsis on touch as on the desktop. A head's `facts` are a `RecordFact`: the facts a
+A record head's overline is a text line (the trail is text there): one line, its parts a middle dot apart, cut at its end with an ellipsis on touch as on the desktop; on touch the trail leads it, cut at its own start so the nearest place shows. A head's `facts` are a `RecordFact`: the facts a
 row's list holds (`Fact`: words, a status, a chip, `{ warning }`, a mark `{ flag, label }` or `{ ring, label }`) and what only a head acts on
 (`{ label, onOpen }`, `{ label, href }`, `{ pick }`, `{ count, label }`). A fact is a badge, a sentence is text (the facts line below holds the
 look): a status is a badge with its tone's mark inside, a link a linked badge, a count a badge with its figure, and a pick stays its own control pill, since it acts, as does a fact that opens a sheet; those pills stand at the badge's height, their hit boxes reaching the target past the line, so the line is one height whichever kinds of fact a head holds, waiting or loaded. A mark with `words: false` is the glyph alone, named by its

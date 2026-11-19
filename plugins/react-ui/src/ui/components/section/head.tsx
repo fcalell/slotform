@@ -10,7 +10,7 @@ import {
 import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useWords } from "@fcalell/ui-core/react/words";
 import { type Datum, paints, shownText } from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
+import { META_TAIL, partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,
 	SECTION_ACTS,
@@ -83,7 +83,7 @@ const ACTS = "relative flex items-center min-w-0 max-w-full";
 // A title's runs with each dot between words bound to the word before it.
 function bindDots(runs: Runs): Runs {
 	return runs.map((run) =>
-		typeof run === "string" ? run.replaceAll(" · ", BOUND_DOT) : run,
+		typeof run === "string" ? run.replaceAll(META_TAIL, BOUND_DOT) : run,
 	);
 }
 

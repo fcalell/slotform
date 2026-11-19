@@ -16,7 +16,7 @@ import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { useDrop, useHold, useListedDrops } from "../../lib/drag.ts";
 import { useFolds } from "../../lib/folds.ts";
-import { follow, isRoute } from "../../lib/navigate.ts";
+import { follow, isPage } from "../../lib/navigate.ts";
 import type { VarStyle } from "../../lib/style.ts";
 import {
 	GLYPH,
@@ -64,7 +64,7 @@ export function PlaceTree(props: {
 	specs: readonly PlaceSpec[];
 	label: string;
 	route: string | undefined;
-	trail: readonly string[];
+	trail: readonly PlaceSpec[];
 	onPlace?: () => void;
 }) {
 	const { specs, label, route, trail, onPlace } = props;
@@ -143,7 +143,7 @@ export function PlaceTree(props: {
 					open={each.open}
 					tabbable={index === stop}
 					current={each.key === route}
-					onPath={trail.includes(each.key)}
+					onPath={trail.some((one) => one.route === each.key)}
 					onToggle={() => choose(each.key, !each.open)}
 					onPlace={onPlace}
 				/>
@@ -181,7 +181,7 @@ function TreeRow(props: {
 	// The place the current one is under keeps the ink of a selected one.
 	const ink = current || onPath ? "selected" : "rest";
 	// A branch that is no page (a spot, `#folder`) only opens and folds.
-	const folder = branch && !isRoute(spec.route);
+	const folder = branch && !isPage(spec.route);
 	const level: VarStyle = { "--level": props.depth };
 	return (
 		<div

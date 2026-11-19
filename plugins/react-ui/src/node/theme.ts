@@ -15,6 +15,7 @@ import {
 	definitionsOneRow,
 	rowOneLine,
 	rulesOneRow,
+	trailWhole,
 } from "@fcalell/ui-core/overflow";
 import {
 	BREAKPOINT_PX,
@@ -143,6 +144,11 @@ export function pageVariants(resolved: ResolvedTheme): CssBlock[] {
 		name: "definitions-stacked",
 		content: `@container page (width < ${definitionsOneRow(size)}px) {\n\t@slot;\n}`,
 	};
+	const trail: CssBlock = {
+		kind: "variant",
+		name: "trail-whole",
+		content: `@container page (width >= ${trailWhole(size)}px) {\n\t@slot;\n}`,
+	};
 	const time: CssBlock = {
 		kind: "variant",
 		name: "time-fits",
@@ -170,7 +176,7 @@ export function pageVariants(resolved: ResolvedTheme): CssBlock[] {
 			];
 		}),
 	);
-	return [...sized, row, rules, definitions, time, acts];
+	return [...sized, row, rules, definitions, trail, time, acts];
 }
 
 // `pb-safe` keeps a bottom bar clear of the home indicator and `pt-safe` the

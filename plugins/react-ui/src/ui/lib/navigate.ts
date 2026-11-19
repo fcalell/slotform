@@ -167,6 +167,12 @@ export function isRoute(href: string): boolean {
 	return /^\/(?!\/)/.test(href);
 }
 
+// A part of a trail is a page (a link) when its route is one, else a folder
+// (text): a `#spot` or no route at all.
+export function isPage(route: string | undefined): route is string {
+	return route !== undefined && isRoute(route);
+}
+
 // Bound, a route opens in the router with no document load, and the promise
 // settles once the router has resolved it; elsewhere the document loads.
 export async function navigate(route: string): Promise<void> {

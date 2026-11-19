@@ -1,3 +1,4 @@
+import type { TrailPart } from "@fcalell/ui-core/route";
 import { DOCKED_LOG_FLOOR_ROWS } from "@fcalell/ui-core/variants";
 import {
 	createContext,
@@ -10,9 +11,10 @@ import type { IconAct } from "./act.ts";
 // The Shell's places-layer act, handed to the Pane: docs/architecture/ui-core/layout.md, "Container context".
 export const ShellMenu = createContext<IconAct | undefined>(undefined);
 
-// The route of the Shell's current place, where a read with no Pane's
-// `back` around it leads back.
-export const PlaceRoute = createContext<string | undefined>(undefined);
+// The Shell's trail (`placeTrail`), the current place last: a Pane draws the
+// places above it, and a read with no Pane's `back` around it leads back to
+// the last.
+export const PlaceTrail = createContext<readonly TrailPart[]>([]);
 
 // The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
 export const BackRoute = createContext<string | undefined>(undefined);
