@@ -117,9 +117,12 @@ new ones.
   - `module: nodenext`, `moduleResolution: nodenext`: an extensionless relative import fails the
     build.
   - `rewriteRelativeImportExtensions`: sources import with `.ts`, output imports `.js`.
+  - `declaration`, `declarationMap`: `tsconfig.build.json` extends this overlay last, so these
+    win over a package's `tsconfig.json`, which may turn them off for its type-check (native-ui's
+    `src/ui` infers types it cannot name); a build without them ships no types.
   - `sourceMap`, `verbatimModuleSyntax`.
-  - `outDir: dist`, `declaration`, `declarationMap` and `isolatedModules` come from `base.json`,
-    which the package's `tsconfig.json` extends.
+  - `outDir: dist` and `isolatedModules` come from `base.json`, which the package's `tsconfig.json`
+    extends.
   - `incremental: false`: a build always emits, so a removed `dist` comes back whatever the build
     info says.
 
