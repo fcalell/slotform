@@ -1,5 +1,14 @@
 // What a Form is made of on both platforms, no React: docs/architecture/ui-core/acts.md, "Forms".
-import type { Option, PickedFile, Run, Runs } from "./descriptors.ts";
+import type {
+	ChangeKind,
+	Option,
+	PickedFile,
+	Run,
+	Runs,
+	StepState,
+} from "./descriptors.ts";
+import { type Datum, isSelection } from "./read.ts";
+import { META_TAIL } from "./runs.ts";
 import { filled, type Words } from "./tokens.ts";
 
 /** The subset of JSON Schema (draft 2020-12) a procedure's input is made of. */
@@ -125,8 +134,10 @@ export type Checks = Pick<
 	| "format"
 >;
 
-/** A field with no control: the hint a mono line, a text area, the code boxes, a date, a file pick, lines or json adds, which the schema cannot say. */
+/** What the schema cannot say about a field: the hint a mono line, a text area, the code boxes, a date, a file pick, lines or json adds, or how a pick draws its choices (`list`, `segments`). */
 export type Hint =
+	| "list"
+	| "segments"
 	| "mono"
 	| "prose"
 	| "source"
@@ -154,7 +165,7 @@ export interface FieldSpec<V = unknown, W = never, I = unknown, D = string> {
 	label: string;
 	/** Under the control (a sentence; wraps). The platform widens it to a `Datum`, so a field can say what a read says ("Saved, ends in 1234" for a secret it holds). */
 	description?: D;
-	/** What the schema cannot say about a string, named as the `Input` that draws it: `mono` (one line in the mono, `Input kind="source"`: a machine name a person types, a path, a host, a flag, an identifier, so it reads as the error under it quotes it), `prose` (many lines), `source` (many lines, mono: `Input kind="prose" source`), `code` (a one-time code's digit boxes, `Input kind="code"`: the schema's `minLength` and `maxLength` are its `length`, so they must be equal or the field throws, and the submit stays blocked until every box is filled), `secret` (a line masked as typed, `Input kind="secret"`: an API key, a token; the field shows no value it was not typed, and the form's value for it is not read into it: a secret the server holds is told by its masked form, the last characters and never the secret, which the box draws as its hint beside a Remove act that sends the field alone, `null` where the schema takes it, else the empty string, so an optional or nullable field), `date` (a day) or `file` (the file pick: the picked file is read into the string, as text, or as base64 where the schema entry has `contentEncoding: "base64"`; it takes `accept`). Two hints draw a shape the schema has no text for. `lines`: a list of strings, numbers, booleans or `null`, in a text area, one item per line; each line is trimmed and blank lines are dropped; the value sent is the array, each line read as the type the schema's `items` allows (`true` or `false` as a boolean, `null` as null, a number as a number, anything else as a string), and a line that fits none of them is the field's issue ("Line 3 isn't a value this list takes."); `values` joins the array with newlines; empty sends `null` where nullable, else `[]`. `json`: an object, a list of objects, or any value (`z.unknown()`), in a mono text area holding the JSON text, parsed when the form commits (the submit, or the field's commit): a parse error stands under the field as its issue, the parser's own message with its position where it gives one; the parsed value is sent; `values` pretty-prints with two-space indent; empty sends `null` where nullable, else the key absent where optional (a required field has nothing to send). A hint the schema does not fit throws naming the key. */
+	/** What the schema cannot say about a string, named as the `Input` that draws it: `mono` (one line in the mono, `Input kind="source"`: a machine name a person types, a path, a host, a flag, an identifier, so it reads as the error under it quotes it), `prose` (many lines), `source` (many lines, mono: `Input kind="prose" source`), `code` (a one-time code's digit boxes, `Input kind="code"`: the schema's `minLength` and `maxLength` are its `length`, so they must be equal or the field throws, and the submit stays blocked until every box is filled), `secret` (a line masked as typed, `Input kind="secret"`: an API key, a token; the field shows no value it was not typed, and the form's value for it is not read into it: a secret the server holds is told by its masked form, the last characters and never the secret, which the box draws as its hint beside a Remove act that sends the field alone, `null` where the schema takes it, else the empty string, so an optional or nullable field), `date` (a day) or `file` (the file pick: the picked file is read into the string, as text, or as base64 where the schema entry has `contentEncoding: "base64"`; it takes `accept`). Two hints draw a shape the schema has no text for. `lines`: a list of strings, numbers, booleans or `null`, in a text area, one item per line; each line is trimmed and blank lines are dropped; the value sent is the array, each line read as the type the schema's `items` allows (`true` or `false` as a boolean, `null` as null, a number as a number, anything else as a string), and a line that fits none of them is the field's issue ("Line 3 isn't a value this list takes."); `values` joins the array with newlines; empty sends `null` where nullable, else `[]`. `json`: an object, a list of objects, or any value (`z.unknown()`), in a mono text area holding the JSON text, parsed when the form commits (the submit, or the field's commit): a parse error stands under the field as its issue, the parser's own message with its position where it gives one; the parsed value is sent; `values` pretty-prints with two-space indent; empty sends `null` where nullable, else the key absent where optional (a required field has nothing to send). Two hints say how a pick draws its choices: on a pick of one, `list` draws the option list (a radio per option) and `segments` the segmented row, both over a field that always holds a value (a required pick, or one with a schema `default`); on a pick of several, `list` draws the option list with a checkbox per option. Their choices are the schema's or a fixed `options` list, never a read or a function of the draft. A hint the schema does not fit throws naming the key. */
 	control?: Hint;
 	/** The types a `control: "file"` field takes: MIME types or families (`text/csv`, `image/*`) and extensions (`.har`). JSON Schema has no form for it, so a file field says it. */
 	accept?: readonly string[];
@@ -176,14 +187,18 @@ export type FormFields<I, W = never, D = string> = {
 	[K in keyof I]?: FieldSpec<I[K], W, I, D>;
 };
 
-/** One titled run of a form's fields. */
-export interface FormGroupOf<I, W = never, D = string> {
+/** One titled run of a form's fields. `E` is the platform's empty state. */
+export interface FormGroupOf<I, W = never, D = string, E = never> {
 	/** The group's name, on its band (a short phrase; wraps). */
 	title: string;
 	/** Under the title (a sentence; wraps). */
 	description?: string;
 	/** The group's fields, keyed by the input's keys in the order they stand. */
 	fields: FormFields<I, W, D>;
+	/** The group's fields' first values, in place of the form's `values`. A selection is the group's frame read: its fields paint while it waits, and its failure or a missing record stands in their place. */
+	values?: Datum<Partial<I>>;
+	/** The fields' sentence when the group's `values` selection is empty. */
+	empty?: E;
 }
 
 /** What the caller must be allowed to do for a form to submit: an ability's action and subject (`["create", "request"]`), checked in the registered scope's organization. */
@@ -286,11 +301,43 @@ export function derive(
 	hint: Hint | undefined,
 	listed = false,
 ): Derived {
-	const derived = deriveField(input, key, hint, listed);
-	const holds = derived.control === "pick" || derived.control === "switch";
-	return holds && !derived.nullable && derived.fallback !== undefined
-		? { ...derived, required: true }
-		: derived;
+	const field = deriveField(
+		input,
+		key,
+		isChoice(hint) ? undefined : hint,
+		listed,
+	);
+	const holds = field.control === "pick" || field.control === "switch";
+	const derived =
+		holds && !field.nullable && field.fallback !== undefined
+			? { ...field, required: true }
+			: field;
+	if (isChoice(hint)) fitsChoice(derived, hint, listed);
+	return derived;
+}
+
+/** Whether a hint says how a pick draws its choices (`list`, `segments`), which only a pick takes. */
+export function isChoice(hint: Hint | undefined): hint is "list" | "segments" {
+	return hint === "list" || hint === "segments";
+}
+
+// A choice hint fits a pick of one that always holds a value (a string with
+// `options` is one, drawn from the `text` control), and `list` a pick of
+// several too.
+function fitsChoice(
+	derived: Derived,
+	hint: "list" | "segments",
+	listed: boolean,
+): void {
+	const one =
+		derived.control === "pick" || (derived.control === "text" && listed);
+	if (one && derived.required) return;
+	if (hint === "list" && derived.control === "several") return;
+	throw new Error(
+		hint === "list"
+			? "is a list field whose schema is not a pick of several or a pick of one that always holds a value"
+			: "is a segments field whose schema is not a pick of one that always holds a value",
+	);
 }
 
 function deriveField(
@@ -709,6 +756,58 @@ export function sameHeld(
 	}
 	const empty = derived.control === "switch" ? false : "";
 	return (a ?? empty) === (b ?? empty);
+}
+
+/** Where a field stands against its first value, `undefined` where it holds that value: `added` where it held nothing and holds a value, `removed` where it held one and holds nothing, `changed` otherwise. Nothing is the control's empty, as `sameHeld` reads it (a switch's off among them). */
+export function changeOf(
+	derived: Derived,
+	first: Held | undefined,
+	now: Held | undefined,
+): ChangeKind | undefined {
+	if (sameHeld(derived, first, now)) return undefined;
+	if (sameHeld(derived, first, undefined)) return "added";
+	if (sameHeld(derived, now, undefined)) return "removed";
+	return "changed";
+}
+
+/** Where a form that asks one step at a time stands at each step: one the viewer answered is `done`, folded to its summary row, unless a refusal names one of its fields (`refused`), which unfolds it; the first step not answered is `current`; any other is `later` and not drawn. */
+export function stepStates(
+	steps: readonly { answered: boolean; refused: boolean }[],
+): StepState[] {
+	const reach = steps.findIndex((step) => !step.answered);
+	return steps.map((step, at) => {
+		if (step.refused || at === reach) return "current";
+		return step.answered ? "done" : "later";
+	});
+}
+
+/** A field's answer in its step's summary row, `undefined` where it holds nothing (the control's empty, as `sameHeld` reads it) or a secret: a chosen option's label (its value where the options are no list in hand), several labels a comma apart, a switch that is on its own label, a file's name, and a typed value on one line. */
+export function answerOf(
+	derived: Derived,
+	held: Held | undefined,
+	options: Datum<readonly Option<string | null>[]>,
+	label: string,
+): string | undefined {
+	if (derived.control === "secret" || sameHeld(derived, held, undefined))
+		return undefined;
+	const named = (value: string) =>
+		(isSelection(options)
+			? undefined
+			: options.find((option) => option.value === value)?.label) ?? value;
+	if (typeof held === "boolean") return label;
+	if (typeof held === "string") return named(held).replace(/\s+/g, " ").trim();
+	if (!held) return undefined;
+	return "name" in held ? held.name : held.map(named).join(", ");
+}
+
+/** A group's identity among a form's groups: its title, else its place. */
+export function groupKey(group: { title?: string }, index: number): string {
+	return group.title ?? String(index);
+}
+
+/** A step's summary: its fields' answers in order, a middle dot apart, a field that holds nothing left out. */
+export function summaryOf(answers: readonly (string | undefined)[]): string {
+	return answers.filter((answer) => answer !== undefined).join(META_TAIL);
 }
 
 /** The fields whose held value differs between two drafts: what the viewer changed since `before` (a submit's send). A field one draft lacks holds nothing there. */

@@ -2,7 +2,7 @@
 
 An `Act` says what happens around its `onAct` as data: `confirm` (`{ title, sentence }`, asked
 before it runs), `done` (the sentence toasted once it resolves), `to` (the route gone to once it
-resolves) and `sheet` (the sheet it opens, whose open state the platform holds and whose props it reads from the act on every render, so a sheet follows what its act holds now; an act that opens a sheet has no
+resolves) and `sheet` (the sheet it opens, with the props the act holds at the press, in the root container's [sheet outlet](../architecture/ui-core/acts.md#sheets-an-act-opens); an act that opens a sheet has no
 `onAct`, the two being exclusive in the type; `sheetOf` types the sheet's form by its procedure). A `LinkAct` takes `blocked` and draws inert with its reason. The platform
 runs them in one order ([act press](../architecture/ui-core/acts.md#act-press)). A consumer writes none of that by hand, and a
 sheet with no act that opens it is addressed by a search param, never by an open flag in a

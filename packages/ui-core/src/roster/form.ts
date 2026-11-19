@@ -17,6 +17,7 @@ export const formEntry: RosterEntry = {
 		"can",
 		"read",
 		"empty",
+		"steps",
 	],
 	draws: [
 		"BLOCK_IN",
@@ -25,7 +26,6 @@ export const formEntry: RosterEntry = {
 		"FORM_FOOT_STUCK",
 		"ROWS",
 		"CARD",
-		"GROUP_ITEM",
 		"LIST_BAND",
 		"TEXT.role.heading",
 		"TEXT.role.meta",
@@ -108,9 +108,6 @@ export const formEntry: RosterEntry = {
 };
 
 export const FORM_GROUP = `${SUBGRID} *:col-span-2`;
-
-// The box of a part that is no row (a form group's lead), at the card's inset.
-export const GROUP_ITEM = "p-pad";
 
 // A form's foot: its action bar, the last row of the form under a hairline
 // across it, at the rows' inset; in a sheet it sticks to the scroller's foot

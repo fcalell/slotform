@@ -201,7 +201,7 @@ interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classL
 ([Gate](../ui-core/layout.md#gate)), the app's lockup drawn by [App lockup](#app-lockup); its props
 are the guide's [Gate](../../../plugins/react-ui/guide/containers.md#gate). It mounts
 the same `ContainerHost` as the `Shell` (`components/shell/host.tsx`: the `toast()` queue, the
-`confirm()` decisions). The first field of a step takes focus as the page opens and as `title`
+sheet outlet, the `confirm()` decisions). The first field of a step takes focus as the page opens and as `title`
 changes (`focusFirst` in `./lib/focus`). Its `form` (a `Form`'s props, over the step's procedure) is
 drawn in the column by the Gate (`components/gate/index.tsx`, a `FormShell` from
 `components/form/base.tsx` in the auth column), its bar laid out by the column's width as every `ActionBar` is.
@@ -300,7 +300,9 @@ empty element.
 
 A root container (the `Shell`, the `Gate`) names an element inside its `main` as the popups' mount
 (`lib/portal`), so an open popup stands inside a landmark, never in the body beside them, and draws
-the mode of the box the container stands in. Base UI's portal waits on a `null` container, so a provider
+the mode of the box the container stands in. The container's host draws the sheet outlet
+(`components/sheet/outlet.tsx`) beside the `confirm()` decisions, so a sheet an act opened mounts in
+this element too, each later one inside the one before it ([sheets an act opens](../ui-core/acts.md#sheets-an-act-opens)). Base UI's portal waits on a `null` container, so a provider
 names `null` until its element mounts; with no provider the container is `undefined` and the popup
 mounts in the body.
 

@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+	answerOf,
 	changedSince,
+	changeOf,
 	derive,
 	emptied,
 	firstRefused,
@@ -10,6 +12,8 @@ import {
 	leftWith,
 	pickWords,
 	sameHeld,
+	stepStates,
+	summaryOf,
 	toInput,
 	toShown,
 } from "./form.ts";
@@ -274,4 +278,91 @@ test("a blank word leaves a name the values do not own as the blank, an inherite
 		"{constructor} of 2",
 	);
 	assert.equal(filled("{toString}", {}), "{toString}");
+});
+
+const choices = {
+	type: "object",
+	properties: {
+		mode: { type: "string", enum: ["a", "b"] },
+		plan: { type: "string", enum: ["a", "b"], default: "a" },
+		maybe: { anyOf: [{ type: "string", enum: ["a", "b"] }, { type: "null" }] },
+		tags: { type: "array", items: { type: "string", enum: ["a", "b"] } },
+		owner: { type: "string" },
+		note: { type: "string" },
+	},
+	required: ["mode", "tags", "owner", "note"],
+};
+
+test("a choice hint draws a pick that always holds a value, or a pick of several as a list", () => {
+	assert.equal(derive(choices, "mode", "segments").control, "pick");
+	assert.equal(derive(choices, "plan", "segments").required, true);
+	assert.equal(derive(choices, "mode", "list").control, "pick");
+	assert.equal(derive(choices, "tags", "list").control, "several");
+	// A string with `options` is a pick of one.
+	assert.equal(derive(choices, "owner", "list", true).control, "text");
+});
+
+test("a choice hint the schema does not fit throws", () => {
+	assert.throws(() => derive(choices, "tags", "segments"), /segments field/);
+	assert.throws(() => derive(choices, "maybe", "segments"), /always holds/);
+	assert.throws(() => derive(choices, "maybe", "list"), /list field/);
+	assert.throws(() => derive(choices, "note", "list"), /list field/);
+});
+
+test("a field's change mark is where it stands against its first value", () => {
+	assert.equal(changeOf(of("note"), "a", "a"), undefined);
+	assert.equal(changeOf(of("note"), undefined, "a"), "added");
+	assert.equal(changeOf(of("note"), "a", ""), "removed");
+	assert.equal(changeOf(of("note"), "a", "b"), "changed");
+	// A switch's off is its empty; a pick of several compares as a set.
+	assert.equal(changeOf(of("on"), undefined, true), "added");
+	assert.equal(changeOf(of("tags"), ["a"], ["b"]), "changed");
+	assert.equal(changeOf(of("tags"), ["a", "b"], ["b", "a"]), undefined);
+});
+
+test("a form of steps folds each answered step and opens the first left", () => {
+	const step = (answered: boolean, refused = false) => ({ answered, refused });
+	assert.deepEqual(stepStates([step(false), step(false), step(false)]), [
+		"current",
+		"later",
+		"later",
+	]);
+	// Continue on the first.
+	assert.deepEqual(stepStates([step(true), step(false), step(false)]), [
+		"done",
+		"current",
+		"later",
+	]);
+	// Edit on the first while the second is answered: the second stays folded.
+	assert.deepEqual(stepStates([step(false), step(true), step(false)]), [
+		"current",
+		"done",
+		"later",
+	]);
+	// A refusal of a field in an answered step unfolds it.
+	assert.deepEqual(stepStates([step(true, true), step(true), step(false)]), [
+		"current",
+		"done",
+		"current",
+	]);
+});
+
+test("a step's summary is each answer a middle dot apart, a field with none left out", () => {
+	const mode = derive(choices, "mode", undefined);
+	const options = [
+		{ value: "a", label: "Alpha" },
+		{ value: "b", label: "Beta" },
+	];
+	assert.equal(answerOf(mode, "b", options, "Mode"), "Beta");
+	assert.equal(
+		answerOf(of("tags"), ["a", "b"], options, "Tags"),
+		"Alpha, Beta",
+	);
+	assert.equal(
+		answerOf(of("on"), true, [], "Require two-factor"),
+		"Require two-factor",
+	);
+	assert.equal(answerOf(of("on"), false, [], "Require two-factor"), undefined);
+	assert.equal(answerOf(of("note"), " two\nlines ", [], "Note"), "two lines");
+	assert.equal(summaryOf(["Beta", undefined, "two lines"]), "Beta · two lines");
 });

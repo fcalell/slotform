@@ -195,7 +195,8 @@ to fix, and a new term enters this page in the change that introduces it.
 - **fact**: One thing a list says of a thing, in the order given: words, a status, a chip, a warning or
   a boolean mark. [roster](architecture/ui-core/roster.md#facts)
 - **change mark**: The mark of where a record, row or field stands in a change set (added, changed,
-  removed, unchanged, stale). [roster](architecture/ui-core/roster.md#marks)
+  removed, unchanged, stale); a Form's field draws it against its first value. Avoid: dirty mark.
+  [roster](architecture/ui-core/roster.md#marks)
 - **`DESIGN.md`**: The contract emitted from ui-core in the DESIGN.md format and shipped in the package;
   never edited by hand. [roster](architecture/ui-core/roster.md#designmd)
 - **words**: Every word a component draws on its own, a closed typed object with English defaults that
@@ -222,8 +223,8 @@ to fix, and a new term enters this page in the change that introduces it.
 
 ### Layout
 
-- **root container**: The layout container a page stands in whole: the `Shell` or the `Gate`. It hosts toasts and
-  confirmations. Avoid: frame, which is the part that draws a read. [layout](architecture/ui-core/layout.md#gate)
+- **root container**: The layout container a page stands in whole: the `Shell` or the `Gate`. It hosts toasts,
+  confirmations and the sheet outlet. Avoid: frame, which is the part that draws a read. [layout](architecture/ui-core/layout.md#gate)
 - **container**: A layout part that stands around the content of a page or a task and holds it in its
   column (a Shell, Gate, Pane or Sheet). Avoid: frame, which is the part that draws a read.
   [layout](architecture/ui-core/layout.md#container-context)
@@ -334,12 +335,17 @@ to fix, and a new term enters this page in the change that introduces it.
   where they belong. [acts](architecture/ui-core/acts.md#rejections)
 - **decision queue**: The queue of confirmations a root container draws one at a time as a Sheet.
   [acts](architecture/ui-core/acts.md#confirm)
+- **sheet outlet**: The part of a root container that draws every sheet an act opened, in the order they opened.
+  [acts](architecture/ui-core/acts.md#sheets-an-act-opens)
 - **save**: A control keeping its new value through a promise until the value's reads refresh, and
   falling back to the datum when it fails. [acts](architecture/ui-core/acts.md#control-saves)
 - **commit moment**: When a typing control's value is final: leaving the field, or Enter on one line,
   having changed it. [acts](architecture/ui-core/acts.md#commit)
 - **Form**: A component made from the procedure it submits and its field labels; its fields, controls
   and checks are derived from the procedure's input schema. [acts](architecture/ui-core/acts.md#forms)
+- **step**: One part of a Form that asks one step at a time, a group or a field of a form with no
+  groups, folded to its summary row once answered. Avoid: stage, which is a rail's fixed state; page.
+  [acts](architecture/ui-core/acts.md#steps)
 - **leave**: The question a Form asks when a viewer leaves it edited: discard the edit or keep
   editing. [acts](architecture/ui-core/acts.md#leave)
 - **ActionBar**: The row of acts that closes a form, a Sheet or a decision, or applies to the chosen

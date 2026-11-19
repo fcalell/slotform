@@ -232,7 +232,6 @@ export {
 	FORM_FOOT,
 	FORM_FOOT_STUCK,
 	FORM_GROUP,
-	GROUP_ITEM,
 } from "./roster/form.ts";
 export { GALLERY, GALLERY_TILE } from "./roster/gallery.ts";
 export {

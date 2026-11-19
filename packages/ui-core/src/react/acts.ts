@@ -11,6 +11,7 @@ import {
 import type { Act } from "../descriptors.ts";
 import { type Datum, endedReason, isEnded, readKey, readsOf } from "../read.ts";
 import { pressStands } from "../reason.ts";
+import { openSheet } from "../sheets.ts";
 import type { Tone, Words } from "../tokens.ts";
 import { ask } from "./confirm.ts";
 import { failedSentence } from "./failed.ts";
@@ -180,22 +181,19 @@ export interface ActPlatform {
 	open(href: string): unknown;
 }
 
-/** What `attempt` takes: the `onAct`, its wiring (`confirm`, `done`, `to`, and the `sheet` it opens instead of running), and the label and `destructive` a `confirm`'s decision draws its act with. */
+/** What `attempt` takes: the `onAct`, its wiring (`confirm`, `done`, `to`, and the `sheet` it opens through `openSheet` instead of running), and the label and `destructive` a `confirm`'s decision draws its act with. */
 export type Attemptable = Partial<
 	Pick<Act, "onAct" | "confirm" | "done" | "to" | "label" | "destructive">
 > & { sheet?: unknown };
 
 // What an act's holder reads: which act pends (inert at once; the pending look
 // comes after `tuned.actDelay`), whether it holds its siblings (while one pends),
-// the line its failure is drawn in, the call that attempts an act, and which act's
-// sheet is open (drawn by the holder through `ActSheet`, from that act's current
-// `sheet`: the open state is all the holder keeps).
+// the line its failure is drawn in, and the call that attempts an act.
 export interface Acting<K> {
 	pending: K | undefined;
 	holds: boolean;
 	line: string | undefined;
 	attempt(key: K, act: Attemptable): void;
-	sheet: { key: K; open: boolean; close: () => void } | undefined;
 }
 
 /** The act hooks over a platform's toast and route opening: `useAct`, a holder's attempt of its acts, and `useHeldDraft`, a bare control's draft. */
@@ -218,12 +216,11 @@ export function createActs(platform: ActPlatform): {
 		});
 	}
 
-	/** A holder's attempt of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one, and the toast has a Retry where the port's `retries` says so; an act refused for the connection: docs/architecture/ui-core/acts.md, "Rejections". */
+	/** A holder's attempt of its acts, and the one sequence every act goes through: its `confirm` asked (declined, nothing runs), then its `onAct`, then its `done` toasted, then its `to` followed; an act with a `sheet` opens it (`openSheet`, with the props it holds at the press) instead of running. `where` is the place a rejection is drawn: the holder's own `line`, or a failed toast whose Retry runs the act again (its `onAct`, `done` and `to`, not asked again). The sentence is the server's refusal, else the generic one, and the toast has a Retry where the port's `retries` says so; an act refused for the connection: docs/architecture/ui-core/acts.md, "Rejections". */
 	function useAct<K = true>(where: "line" | "toast"): Acting<K> {
 		const port = usePort();
 		const words = useWords();
 		const attempt = useAttempt<K>();
-		const [opened, setOpened] = useState<{ key: K; open: boolean }>();
 		const { pending, failure } = attempt;
 		// The act's work: `onAct`, then `done`, then `to`, each once the one before
 		// resolved (at once for an `onAct` that returns nothing).
@@ -244,7 +241,7 @@ export function createActs(platform: ActPlatform): {
 		};
 		const go = (key: K, act: Attemptable) => {
 			if (act.sheet) {
-				setOpened({ key, open: true });
+				openSheet(act.sheet);
 				return;
 			}
 			attempt.attempt(key, () => {
@@ -275,11 +272,6 @@ export function createActs(platform: ActPlatform): {
 				}).then((taken) => {
 					if (taken) go(key, act);
 				});
-			},
-			sheet: opened && {
-				key: opened.key,
-				open: opened.open,
-				close: () => setOpened({ key: opened.key, open: false }),
 			},
 		};
 	}

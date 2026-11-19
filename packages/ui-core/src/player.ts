@@ -1,5 +1,6 @@
 // The audio player's rules, free of any framework and of the sound: docs/architecture/ui-core/sound.md, "Player".
 import type { Track } from "./descriptors.ts";
+import { type Drawn, shownText } from "./read.ts";
 import { createStore } from "./store.ts";
 import { clamp, SEEK } from "./waveform.ts";
 
@@ -67,6 +68,10 @@ export interface Output {
 	/** The volume and mute the sound holds, which the system's own controls may have moved. */
 	level(): { volume: number; muted: boolean };
 	apply(volume: number, muted: boolean): void;
+	/** The loaded track's picture for the system's media controls: its address once the track's `image` has landed, `undefined` for none. A `load` stands the controls with no picture until this gives one. */
+	cover(address: string | undefined): void;
+	/** Which of the system's previous and next controls stand (neither with no track loaded): previous where there is a queue, next where a track follows. */
+	steps(previous: boolean, next: boolean): void;
 }
 
 /** The platform's sound, made when the first track loads (so a page that never plays opens no audio session, and a server render makes none), given the store's `PlayerReport` to pass the sound's events to. An app passes one to `connect`: `audioOutput()` on the web. */
@@ -148,12 +153,16 @@ export interface PlayerReport {
 	failed(): void;
 	/** The platform held the sound back (no press asked for it): the track waits paused. */
 	blocked(): void;
+	/** The system's media controls asked for the next or the previous track. */
+	step(way: "next" | "previous"): void;
 }
 
 export interface PlayerStore {
 	player: PlayerCommands;
 	/** Passes the platform's sound; the store makes it when a track first loads, and replaces one already made. Loading or playing a track before one is passed throws. */
 	connect(engine: Engine): void;
+	/** Hands the output the loaded track's picture as its `image` is drawn: the address once landed and not empty, else none. The platform's dock calls it with what it draws; a picture of a track no longer loaded is dropped. */
+	cover(of: Track, image: Drawn<string>): void;
 	/** The store as an external store: `subscribe` and `view` for the state, `subscribeClock` and `clock` for the time (it draws again on each frame while it plays). */
 	subscribe(listener: () => void): () => void;
 	view(): PlayerView;
@@ -191,6 +200,8 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 	// A start the sound could not take yet (a seek before its metadata).
 	let pending: number | undefined;
 	let cancelFrame: (() => void) | undefined;
+	// The last picture the dock drew, and the track it is of.
+	let covered: { of: Track; address: string | undefined } | undefined;
 
 	const sync = () => output?.apply(volume, muted);
 
@@ -211,6 +222,8 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			output.load(track);
 			loaded = track;
 			running = false;
+			if (same(covered?.of, track) && covered?.address)
+				output.cover(covered.address);
 		}
 		if (playing === running) return;
 		running = playing;
@@ -220,7 +233,9 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 
 	const emit = () => {
 		drive();
-		views.set(build());
+		const view = build();
+		output?.steps(track ? view.queued : false, track ? view.hasNext : false);
+		views.set(view);
 	};
 
 	const setTime = (next: PlayerTime) => {
@@ -483,6 +498,10 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			playing = false;
 			emit();
 		},
+		step(way) {
+			if (way === "next") commands.playNext();
+			else commands.playPrevious();
+		},
 	};
 
 	return {
@@ -496,6 +515,14 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 			running = false;
 			engine = next;
 			drive();
+		},
+		cover(of, image) {
+			if (!same(of, track)) return;
+			const shown = shownText(image);
+			const address = shown?.painted === false ? shown.text : undefined;
+			if (same(covered?.of, of) && covered?.address === address) return;
+			covered = { of, address };
+			if (output && same(loaded, of)) output.cover(address);
 		},
 		subscribe: views.subscribe,
 		view: views.get,

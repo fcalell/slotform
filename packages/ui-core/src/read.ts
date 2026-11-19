@@ -402,6 +402,17 @@ export function paints(drawn: Drawn<unknown>): boolean {
 	);
 }
 
+// What a text region given as a `Datum` draws: its paint while its own read
+// waits, its text once landed, and nothing for an empty text or a read that
+// ended. A constant is landed, so it stands as given whatever paints beside it.
+export function shownText(
+	drawn: Drawn<string | undefined>,
+): { painted: true } | { painted: false; text: string } | undefined {
+	if (paints(drawn)) return { painted: true };
+	if (drawn.painted || !drawn.value) return undefined;
+	return { painted: false, text: drawn.value };
+}
+
 // The stand-in: docs/architecture/ui-core/reads.md, "Stand-in and selectors".
 const NO_KEYS = new Set(["then", "toJSON", "$$typeof"]);
 

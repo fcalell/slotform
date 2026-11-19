@@ -1,3 +1,4 @@
+import type { Datum } from "../read.ts";
 import type { Peaks } from "./descriptors.ts";
 import type { RosterEntry } from "./shared.ts";
 
@@ -67,8 +68,8 @@ export interface Track {
 	title: string;
 	// What stands under the name, an artist or an album (a short phrase; truncates).
 	line?: string;
-	// A picture's address, drawn at the avatar's size in the dock; a track without one stands as a picture that did not load.
-	image?: string;
+	// A picture's address, drawn at the avatar's size in the dock; a selection paints the picture's box while its read waits, and a track without one stands as a picture that did not load.
+	image?: Datum<string>;
 	// The length in seconds, where it is known before the file answers (so the dock draws the total, and a waveform its scale, from the first frame).
 	duration?: number;
 	peaks?: Peaks;

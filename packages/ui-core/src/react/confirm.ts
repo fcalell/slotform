@@ -1,21 +1,16 @@
 import { useSyncExternalStore } from "react";
 import type { Act, Confirmation, Decision } from "../descriptors.ts";
-import { createStore } from "../store.ts";
+import { createIdQueue, type QueueEntry } from "../queue.ts";
 import type { Words } from "../tokens.ts";
 
 // The decision queue: docs/architecture/ui-core/acts.md, "Confirm".
-export interface ConfirmEntry extends Confirmation {
-	id: number;
-}
+export type ConfirmEntry = QueueEntry<Confirmation>;
 
-const queue = createStore<ConfirmEntry[]>([]);
-let nextId = 1;
+const queue = createIdQueue<Confirmation>();
 
 /** Queues a decision; returns its id. */
 export function confirm(confirmation: Confirmation): number {
-	const id = nextId++;
-	queue.set([...queue.get(), { ...confirmation, id }]);
-	return id;
+	return queue.add(confirmation);
 }
 
 // Each asked decision's answer, called once the decision leaves the queue.
@@ -28,7 +23,7 @@ export interface Question extends Decision {
 
 // A decision whose answer the caller waits on: docs/architecture/ui-core/acts.md, "Confirm".
 export function ask(question: Question): Promise<boolean> {
-	if (queue.size === 0) return Promise.resolve(true);
+	if (queue.entries.size === 0) return Promise.resolve(true);
 	return new Promise((resolve) => {
 		let taken = false;
 		const id = confirm({
@@ -62,12 +57,11 @@ export function askDiscard(words: Words): Promise<boolean> {
 // The decision leaves the queue: its act's work resolved, or the sheet was
 // dismissed. A second call is ignored.
 export function dismissConfirmation(id: number): void {
-	if (!queue.get().some((entry) => entry.id === id)) return;
-	queue.set(queue.get().filter((entry) => entry.id !== id));
+	if (!queue.remove(id)) return;
 	answers.get(id)?.();
 	answers.delete(id);
 }
 
 export function useConfirmations(): ConfirmEntry[] {
-	return useSyncExternalStore(queue.subscribe, queue.get);
+	return useSyncExternalStore(queue.entries.subscribe, queue.entries.get);
 }

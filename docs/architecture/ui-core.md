@@ -56,6 +56,9 @@ Each part's page covers its subpaths, the package README lists every subpath wit
   (how many listen) that every `useSyncExternalStore` source over plain state is built on. Its
   optional `source` feeds the value from outside (a timer, a media query, an observer) from the first
   listener to the last.
+- `queue.ts` is `createIdQueue`, a store of entries each given an id as it is added, in the order
+  added, with `add` and `remove` its writers. The decision queue (`react/confirm.ts`) and the sheets
+  acts open (`sheets.ts`) are built on it; it is no subpath of the package.
 - `clock.ts` also holds `createClock`, the coarse clock `useClock` (`./react/clock`) reads
   ([ages and the clock](ui-core/words.md#ages-and-the-clock)).
 - `acts.ts` also holds `moreMenu` and `endedItems`: what a more menu holds, and the one blocked item it
@@ -65,6 +68,9 @@ Each part's page covers its subpaths, the package README lists every subpath wit
 - `react/acts.ts` holds `createActs`, which binds `useAct` and `useHeldDraft` to a platform's
   `ActPlatform` (its `toast` and its `open` of an act's `to`); each plugin's `lib/act.ts` calls it
   once.
+- `sheets.ts` holds the queue of sheets acts open (`openSheet`, `closeSheet`, `openSheets`,
+  `closeOnResolve`), which `useAct` fills, and `react/sheets.ts` holds `useDrawnSheets`, what each
+  plugin's sheet outlet draws ([sheets an act opens](ui-core/acts.md#sheets-an-act-opens)).
 - `react/form.ts` holds `useFormModel`, a form's model over its procedure, read from `FormModelProps`.
   `FormModel` holds its fields' state, each field as a `FieldModel`, the input they make, the bar with
   its submit, the reads the bar paints under and `clear`; each plugin maps every `FieldModel` to its
@@ -118,9 +124,12 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
 ## In the code
 
 - `packages/ui-core/src/store.ts`: `createStore`.
+- `packages/ui-core/src/queue.ts`: `createIdQueue`.
 - `packages/ui-core/src/clock.ts`: `createClock` and the clock's pure parts.
 - `packages/ui-core/src/acts.ts`: `moreMenu` and `endedItems`, with the act model ([acts](ui-core/acts.md)).
 - `packages/ui-core/src/list-state.ts`: `optionReads`, with what a collection decides before it draws.
 - `packages/ui-core/src/react/acts.ts`: `createActs`.
+- `packages/ui-core/src/sheets.ts`: `openSheet`, `closeSheet`, `openSheets`, `closeOnResolve`.
+- `packages/ui-core/src/react/sheets.ts`: `useDrawnSheets`.
 - `packages/ui-core/src/react/form.ts`: `useFormModel`.
 - `packages/ui-core/src/roster/table.ts`: the Table's entry, whose web-only props the limits name.

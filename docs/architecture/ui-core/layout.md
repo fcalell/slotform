@@ -80,7 +80,7 @@ indicator. Past five places the tab bar holds four and a More tab that opens a p
 the content's place. The Shell hands its switcher to each Pane, which draws the switcher's trigger
 at the start of its bar when it has no back act. The tab bar stands under the `Panes` the Shell
 draws around the screen, and the current place's route is handed down for a read that answers not
-found. The sheets' provider, the toasts and the `confirm()` host are `ContainerHost`'s.
+found. The sheets' provider, the toasts, the sheet outlet and the `confirm()` host are `ContainerHost`'s.
 
 ### Toasts
 
@@ -181,6 +181,9 @@ A heading's level comes from where it stands, never from its siblings.
   `title`, or draws none when a Gate in it is the page's `h1`.
 - Every Pane's title is an `h2`, whether it stands alone or beside the other Pane, and hands 3 to
   its body, so a Pane reads nothing of the Panes around it.
+- A sheet's title (its layer's head) is an `h2`, and hands 3 to what the layer holds, whatever
+  opened it; its title is also the name a page title gives (a missing read's sentence draws no second
+  `h2`, and a Table, a Thread's log or a `Columns` row in it is named by the sheet).
 - A Section hands the next level to its body; a `Columns` hands its columns the level it stands
   at. HTML stops at `h6`.
 - React Native exposes no heading level, so on the phone a Section's title is a header at any depth.
@@ -383,7 +386,7 @@ own; a Section with no `read` takes no `empty`.
 
 - Every act a Section draws (its head act and more, a band's act, a row's act and more, an empty
   form's act) carries its `confirm`, `done`, `to` and `sheet` as a Button's act does; a row's act
-  that opens a `sheet` draws the sheet beside the row.
+  that opens a `sheet` opens it in the [sheet outlet](acts.md#sheets-an-act-opens).
 - A row with a `drag` is dragged by a press that moves (a finger after a hold of `DRAG_DELAY`), and
   one with a `drop` takes what is released on it (`DROP_ON`). `reorder` makes the sheet's rows
   movable: a drag lands the row at the line (`DROP_LINE`) between two rows and the sheet scrolls near

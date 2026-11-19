@@ -239,7 +239,7 @@ like the plain one: the label in meta, wrapping at its words, the share in perce
 under it, and the bar under them filling by the share in the meta ink, amber once near full and
 `danger` once over; a `goal` draws the meta ink short of it and the good tone once reached
 ([Stats meter](../ui-core/components.md#stats-meter)). The line under the bar is the `line`, or the
-counts as links. Once its read ended the meter stands empty (no share, no fill) in the same box; a
+counts as links; the `line` paints only while its own read waits, a constant one standing as given while the meter paints. Once its read ended the meter stands empty (no share, no fill) in the same box; a
 failed read keeps the label, shows the failure mark and the retry icon in the share region, reads
 "This didn't load." under the bar, and a press retries. React Native has no meter role, so it is a
 progress bar.
@@ -337,6 +337,9 @@ package's exports) around itself:
 
 - the sheets' provider, the nearest one every sheet inside resolves, which draws the sheets after the
   container;
+- the sheet outlet (`components/sheet/outlet.tsx`), inside the provider before the decisions: the
+  sheets acts open, side by side in the order they opened, which the provider stacks as they are
+  presented ([sheets an act opens](../ui-core/acts.md#sheets-an-act-opens));
 - the `confirm()` decisions, as a sheet;
 - the toast queue. `toast()` is called from anywhere and the `Shell` renders the queue. The queue is
   client-owned, so a toast's act is a route or a retry, never an undo. `tone` says how the act it
@@ -379,7 +382,7 @@ region's focus: it takes focus as it mounts when none holds it, and holds it for
 focused; its `onFocus` and `onBlur` join the control's own handlers. So the first field of a page, or
 of a step that swaps in a fresh body, takes focus, and a second field beside it, or one revealed while
 another is typed in, never does. A sheet's body is the sheet's own claim region; its provider stands
-inside `SheetBase`'s children, which the bottom sheet portals out of the opener's tree.
+inside `SheetBase`'s children, which the bottom sheet portals out of the tree it is drawn in.
 
 ## Routes and preload
 

@@ -145,6 +145,10 @@
 			"types": "./dist/acts.d.ts",
 			"default": "./dist/acts.js"
 		},
+		"./sheets": {
+			"types": "./dist/sheets.d.ts",
+			"default": "./dist/sheets.js"
+		},
 		"./scope": {
 			"types": "./dist/scope.d.ts",
 			"default": "./dist/scope.js"
@@ -196,6 +200,10 @@
 		"./react/confirm": {
 			"types": "./dist/react/confirm.d.ts",
 			"default": "./dist/react/confirm.js"
+		},
+		"./react/sheets": {
+			"types": "./dist/react/sheets.d.ts",
+			"default": "./dist/react/sheets.js"
 		},
 		"./react/frame": {
 			"types": "./dist/react/frame.d.ts",

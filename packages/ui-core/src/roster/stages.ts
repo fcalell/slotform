@@ -58,7 +58,7 @@ export const stagesEntry: RosterEntry = {
 };
 
 // Where a flow stands at one of its steps: done, the current one, or still to
-// come. A step count's segments and a rail's stages both read it.
+// come. A step count's segments, a rail's stages and a form's steps read it.
 export type StepState = "done" | "current" | "later";
 
 // One stage of a rail of fixed states: its label and where the rail stands at

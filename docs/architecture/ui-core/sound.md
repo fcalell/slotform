@@ -24,7 +24,7 @@ What both platforms run lives in ui-core, free of any framework and of the sound
   columns a width draws (`columns`), the moment a pointer or a key names (`momentAt`, `seekKey`) and
   the keyboard's steps (`SEEK`).
 
-Each plugin's `lib/player` is one store over `createPlayer` that the app calls and reads, with
+Each plugin's `lib/player` is one store over `createPlayer` (made in `lib/player-store`) that the app calls and reads, with
 `connectOutput` to pass the sound once: the web's `audioOutput()`, the phone's from
 `@fcalell/plugin-native-ui/audio/expo`. The store makes no sound of its own. On the phone the
 device's own buttons set the volume, so the store keeps none, and the clock follows the frame.
@@ -49,10 +49,25 @@ stands at its centre; on touch the transport and the name stand on one row and t
 On the phone the dock is one bar with a hairline of progress along its top, and a press opens a
 `Sheet` with the full player.
 
+### Media controls
+
+The output shows the loaded track on the system's media controls (the web's media session, the
+phone's lock screen): `Output.load` stands its name and line with no picture, and `Output.cover`
+gives the picture's address. The store's `cover` is the one rule for the picture: each platform's dock
+hands it the cover as its tile draws it (`image` read as a selection is), and the store passes on the
+address once it has landed and is not empty, once per address, drops one for a track no longer
+loaded, and gives it again to an output connected later. The picture reaches the system while a dock
+stands; the name and the line whenever a track is loaded. The output owns the controls' acts too:
+play, pause and seek act on the sound, as `expo-audio` lets the lock screen act on its player, and
+previous and next ask the store (`PlayerReport.step`), which holds the queue, each standing as
+`Output.steps` says: previous with a queue, next while a track follows. `expo-audio` reports no
+system previous or next, so on the phone those two are the dock's alone. Each plugin's store lives in
+`lib/player-store`, outside its exports, so the dock reaches `cover` and an app does not.
+
 ### Dock keys
 
 While it stands the dock takes Space and the horizontal arrows anywhere that is not typing or a
-control that takes those keys itself, and the system's media keys. On the web, Space and the
+control that takes those keys itself ([media controls](#media-controls) are the output's). On the web, Space and the
 horizontal arrows are the page's while nothing that takes them has focus: a field's text, a control a
 press activates (Space) or a widget that moves with the arrows. A Table's grid is the widget that
 moves with the arrows (`role="grid"`), and takes Space, Enter and `x` only where it acts on them (it
@@ -74,4 +89,6 @@ The phone's `Waveform` is not built.
 - `packages/ui-core/src/waveform.ts`: the waveform's arithmetic.
 - `packages/ui-core/src/roster/dock.ts`: the `Dock` roster entry.
 - `plugins/react-ui/src/ui/components/dock/index.tsx`: the web dock and its keys.
-- `plugins/react-ui/src/ui/lib/player.ts`, `plugins/native-ui/src/ui/lib/player.ts`: each platform's player store.
+- `plugins/react-ui/src/ui/lib/player-store.ts`, `plugins/native-ui/src/ui/lib/player-store.ts`: each platform's player store and its host.
+- `plugins/react-ui/src/ui/lib/player.ts`, `plugins/native-ui/src/ui/lib/player.ts`: the commands and hooks an app calls, and the web's `audioOutput`.
+- `plugins/native-ui/src/ui/audio/expo.ts`: the phone's output over `expo-audio`.

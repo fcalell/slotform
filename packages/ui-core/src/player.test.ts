@@ -81,6 +81,8 @@ const silent = (): Output => ({
 	paused: () => true,
 	level: () => ({ volume: 1, muted: false }),
 	apply: () => {},
+	cover: () => {},
+	steps: () => {},
 });
 
 test("a track cannot load before an output is connected", () => {
@@ -179,6 +181,8 @@ test("a seek waits for the sound's length, then lands", () => {
 		paused: () => true,
 		level: () => ({ volume: 1, muted: false }),
 		apply: () => {},
+		cover: () => {},
+		steps: () => {},
 	};
 	let report: PlayerReport | undefined;
 	store.connect((made) => {
@@ -208,6 +212,8 @@ test("the store drives the sound it was given: load, play, pause and unload", ()
 		paused: () => true,
 		level: () => ({ volume: 1, muted: false }),
 		apply: () => {},
+		cover: () => {},
+		steps: () => {},
 	}));
 	assert.deepEqual(calls, []);
 	store.player.play(track(0));
@@ -273,4 +279,39 @@ test("a seek or a volume that is not a number moves nothing", () => {
 	assert.equal(store.clock().time, 20);
 	store.player.setVolume(Number.NaN);
 	assert.equal(store.view().volume, 1);
+});
+
+test("the output hears the loaded track's picture once it lands, once per address", () => {
+	const covers: (string | undefined)[] = [];
+	const store = createPlayer(host);
+	store.connect(() => ({
+		...silent(),
+		cover: (address) => covers.push(address),
+	}));
+	const first = track(0);
+	store.player.play(first);
+	store.cover(first, { painted: true, value: undefined, phase: "waiting" });
+	store.cover(first, { painted: false, value: "/c0.png" });
+	store.cover(first, { painted: false, value: "/c0.png" });
+	store.cover(track(1), { painted: false, value: "/c1.png" });
+	store.cover(first, { painted: false, value: "" });
+	assert.deepEqual(covers, [undefined, "/c0.png", undefined]);
+});
+
+test("the system's controls step the queue, and stand by what it holds", () => {
+	const steps: string[] = [];
+	let report: PlayerReport | undefined;
+	const store = createPlayer(host);
+	store.connect((made) => {
+		report = made;
+		return {
+			...silent(),
+			steps: (previous, next) => steps.push(`${previous} ${next}`),
+		};
+	});
+	store.player.play(track(0), [track(0), track(1)]);
+	report?.step("next");
+	assert.equal(store.view().track?.title, "T1");
+	assert.deepEqual(steps.at(0), "true true");
+	assert.deepEqual(steps.at(-1), "true false");
 });

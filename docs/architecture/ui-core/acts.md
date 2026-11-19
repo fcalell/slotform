@@ -43,7 +43,7 @@ without `onStop`.
 
 A press runs the act's wiring in one order: its `confirm` asked as a decision over the page
 (declined, nothing runs), its `onAct`, its `done` toasted, then its `to` followed. A `sheet` opens in
-place of `onAct` and closes on dismiss or once its submit resolves. The labelled and icon forms take
+place of `onAct` and closes on dismiss or once its submit resolves ([sheets an act opens](#sheets-an-act-opens)). The labelled and icon forms take
 all four, and every host that draws an act hands them on.
 
 ## Link acts
@@ -171,6 +171,46 @@ asked meanwhile waits its turn.
 it was dismissed (the way out, Escape, the scrim). With no host drawing the queue (a Shell or a
 Gate) nothing can ask, so the answer is `true`.
 
+## Sheets an act opens
+
+An act with a `sheet` opens it through a queue in `sheets.ts`: `openSheet(sheet)` adds the sheet
+with the props the act holds at the press and returns its id, `closeSheet(id)` takes it out (an id
+no open sheet has is ignored), and `openSheets` reads the open sheets in the order they opened.
+`useAct` calls `openSheet` on the press, after the act's `confirm`, in place of `onAct`. The
+sheet keeps those props: a later render of the act changes nothing in a sheet already open, and the
+act's holder unmounting (a menu that closes, a row that leaves) leaves it open. ui-core draws no
+sheet, so the queue holds each sheet's props as `unknown`; the platform's act type gives them.
+
+The **sheet outlet** draws the queue. Each root container's host (`ContainerHost`, on both
+platforms) draws one beside the `confirm()` decisions, so no opener imports `Sheet`, and `Sheet`,
+`Form` and `FormField` drawing `Button` makes no import cycle. Every root container mounted on a page
+draws the queue, as it draws the decisions; a page has one. `useDrawnSheets()` (`react/sheets.ts`)
+gives the outlet what it draws: the open sheets, then the last one closed, drawn closed while no
+later one has opened, so it leaves on its own motion. A page with no root container (a room
+`Panes` standing alone) draws no sheet, as it asks no decision.
+
+- **Web.** Base UI dismisses a modal dialog on a press in a sibling modal; a dialog drawn under
+  another's `Dialog.Root` is its nested dialog, which Base UI counts, so only the topmost hears
+  Escape and a press outside. The outlet draws each later sheet inside the one before it, under that
+  sheet's `Dialog.Root` and outside its popup, so none of the parent sheet's own contexts reach it.
+- **Phone.** `BottomSheetModalProvider` stacks its modals in the order they are presented: a sheet
+  presented over another minimizes it, and the one under is restored as the top one leaves. The
+  outlet draws the sheets side by side in the order they opened, each presented as it mounts.
+
+A sheet keeps what stands above the root container (the words, the read port, the query client, the
+router) and the route's scope, which the route registers with the client
+([scope ids](reads.md#scope-ids)). Its distance is its root container's: the Shell draws at its own,
+and a root container standing in a room `Panes` (a `Gate`) holds its outlet in the room set. It
+inherits nothing from its opener: no reason host, submit mark, disabled field, inert act or Pane. On
+the web its own title is the `h2` it heads its body under and the page title its parts are named by
+([headings](layout.md#headings)). It is a frame of its own and holds its
+own reads ([holding a read](reads.md#holding-a-read)).
+
+The sheet closes on its dismissal (Escape, the scrim, the close act, Cancel), and on its run
+(`closeOnResolve`): its `submit`'s `onAct` or its `form`'s `onDone` closes it at once when it
+returns nothing and once its promise resolves, and never on a rejection, which stands in the sheet's
+bar.
+
 ## Control saves
 
 A control that saves its value holds it through `useDraft`'s `change`. A plain edit is kept over a
@@ -230,8 +270,7 @@ Field contexts each plugin's `lib/field.ts` sets:
 - **Group label.** A `FormField` around a group of controls (a list Picker, a segments Picker)
   hands the group its label (the label's id on the web), which names the group. No field context
   reaches the controls inside, so each keeps its own name.
-- **Toggle row.** On the web a toggle a row's label targets (a `FormField`'s checkbox form, a list
-  Picker row) draws its box with no hit box of its own, so the box sits on the label's first line. A
+- **Toggle row.** On the web a toggle a row's label targets (a list Picker row) draws its box with no hit box of its own, so the box sits on the label's first line. A
   row that wraps the toggle in its label names it by its label line, so the row's other text (its
   mark) stays out of the name.
 - **Row entry.** An `Input` a row draws with no `FormField` around it (a list row's entry, a `Rules`
@@ -277,6 +316,9 @@ platform maps a `FieldModel` to its own `FormField` and control.
 
 - `act` is the procedure it submits and `fields` the input's keys it shows, in order, or `groups`,
   each a run of the form's rows under a band, the title at the heading role over the description.
+- A group takes `values`, its fields' first values in place of the form's: a selection is the group's frame
+  read, so its fields paint while it waits and its failure or a missing record stands in their place;
+  `empty` is the sentence when it is empty.
 - `given` is what the screen supplies and `values` the fields' first values (a selection paints
   them until its read lands).
 - `submit` words the form's last row under a hairline across it, the bar whose filled act submits.
@@ -287,6 +329,7 @@ platform maps a `FieldModel` to its own `FormField` and control.
   ([abilities](../plugins/query.md#abilities)): a caller who may not has the fields and the act
   disabled under the word `denied`, the form painted until the ability lands.
 - A field with `locked` stands inert with the reason in the description's place.
+- `steps` asks one step at a time ([steps](#steps)).
 
 ### Field controls
 
@@ -299,12 +342,22 @@ Each field is drawn from the procedure's input schema:
 | string, `code` hint | the one-time code boxes (`Input kind=code`, `length` the schema's fixed length, the submit blocked until every box is filled) |
 | string, `file` hint | a file pick (`Input kind=file`, its `accept`) whose picked file is read into the string, text or base64 |
 | date | a date line (`Input kind=date`) |
-| enum | a pick |
+| enum | a pick (the Select) |
+| enum, `list` hint | the option list, a radio per option |
+| enum, `segments` hint | the segmented row |
 | list of an enum | a pick of several |
+| list of an enum, `list` hint | the option list, a checkbox per option |
 | boolean | a switch |
 | number | a numeric line |
 
-A field's `control` hint draws what the schema cannot say: `lines` draws a list as a line per item
+A field's control is derived from its schema's shape, as the table says; `control` says what the
+shape cannot. For one choice `list` draws the option list and `segments` the segmented row, the
+default being the Select; both need a field that always holds a value (required, or a schema
+`default`), since neither has an empty choice. For several, `list` draws the option list with a
+checkbox per option, the default being the pick of several. A choice hint's options are the
+schema's values or a fixed `options` list, never a read or a function of the draft, and a string
+with `options` is one choice as an enum is; a hint the schema does not fit throws naming the key.
+`lines` draws a list as a line per item
 (blank lines dropped, each line read as the item type, a line that fits none the field's issue) and
 `json` an object as mono JSON source (parsed at commit, a parse error the field's issue). A
 `secret` control is a masked line; the showcase's `/keys` leaves the token out of the form's
@@ -313,6 +366,12 @@ A field's `control` hint draws what the schema cannot say: `lines` draws a list 
 The control decides what a field's held value is (a switch a boolean, a file a `PickedFile`, a pick
 a string or `null`, several picks a list, any other a string), which the descriptor union does not
 follow: each control reads the value as its own.
+
+A field whose value differs from its first draws its change mark ([marks](roster.md#marks)) at its
+value line's start: `added` where it was empty and holds a value, `removed` where it held one and is
+empty, `changed` otherwise (`changeOf` in `form.ts`). Empty is the control's own, as the leave reads
+it (`sameHeld`: a switch's off, the empty box, no pick, the empty set), so the mark follows the same
+by-value edit the leave asks about, and a value put back drops it.
 
 A field the schema makes optional offers the empty choice and, in a submit form, says `optional`
 under its label in the meta ink (a form that commits by field marks no field). A field it requires
@@ -363,6 +422,28 @@ The form's `after` may be a function of the input the fields make, so a read dra
 follows the first values and the viewer's typing (the showcase's `/keys` draws the request it would
 send).
 
+### Steps
+
+A form with `steps` asks one step at a time. A step is a group, or a field when the form has no
+groups (`stepStates` in `form.ts`, the state in `useFormModel`, so both platforms share it). The
+open step's fields stand over the form's bar, whose filled act is Continue (`words.continue`),
+blocked until every field in the step holds a value its schema accepts, with the reason the submit
+would give for the first that does not; a press while a typed issue in the step waits unseen shows
+it and runs nothing, as the submit's does; the last step's act is the form's submit. A
+step not reached yet is not drawn. Pressing Continue folds the step to one summary row: a check, the
+group's title (a field's label), then each answer in field order a middle dot apart (`answerOf`,
+`summaryOf`: an option's label, several labels a comma apart, a switch that is on its own label, a
+file's name, a typed value on one line; a field that holds nothing and a secret say nothing), cut
+with an ellipsis, and an Edit act that unfolds the step and focuses its first control. The next
+step not answered opens and its first control takes focus (the field's `seek`). A refusal that
+names a field of a folded step unfolds it. A step folds and opens at once, as any block the
+viewer's act adds or takes out ([motion](motion.md)). A submit that resolves where the form stays, and a sheet
+opening again, start the steps over. A form that commits by field has no submit to step to, so
+`steps` there throws.
+
+The Continue stands in the form's bar, never at the end of each step: a bar draws one filled act
+(voice.md, **Controls**), and a Continue in the step beside the bar's submit would stand two.
+
 ### Where a form stands
 
 A `Sheet`'s `form` and a `Gate`'s `form` take the same props as a `Form`; a `Gate` step over local
@@ -408,14 +489,18 @@ stands flush on the sheet and asks nothing when it closes.
 - `packages/ui-core/src/read.ts`: `endedReason`
 - `packages/ui-core/src/react/touched.ts`: the touched state of a form or sheet
 - `packages/ui-core/src/react/confirm.ts`: the decision queue, `confirm`, `ask`
+- `packages/ui-core/src/sheets.ts`: the sheets acts open, `openSheet`, `closeSheet`, `openSheets`, `closeOnResolve`
+- `packages/ui-core/src/react/sheets.ts`: `useDrawnSheets`, what a sheet outlet draws
 - `packages/ui-core/src/react/field.ts`: `FieldDisabled`, `FieldOwned`
 - `packages/ui-core/src/roster/input.ts`: the `Input` kinds and the field drawer
 - `packages/ui-core/src/commit.ts`: `commitMoment`
 - `packages/ui-core/src/roster/form.ts`: the `Form` contract
-- `packages/ui-core/src/form.ts`: `FieldSpec` and the schema derivation
-- `packages/ui-core/src/react/form.ts`: `useFormModel`
+- `packages/ui-core/src/form.ts`: `FieldSpec`, the schema derivation, a field's change kind and the step states
+- `packages/ui-core/src/react/form.ts`: `useFormModel`, which holds the steps answered
 - `packages/ui-core/src/leave.ts`: `createLeave`
 - `plugins/react-ui/src/ui/lib/form.ts`: `ActInert`
+- `plugins/react-ui/src/ui/components/sheet/outlet.tsx`: the web sheet outlet
+- `plugins/native-ui/src/ui/components/sheet/outlet.tsx`: the phone sheet outlet
 - `plugins/react-ui/src/ui/lib/field.ts`: the web's field contexts
 - `plugins/react-ui/src/ui/lib/commit.ts`: the web's commit handlers
 - `plugins/react-ui/src/ui/lib/leave.ts`: the web's leave guard

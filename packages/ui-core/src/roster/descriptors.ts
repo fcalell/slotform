@@ -228,14 +228,6 @@ export type RowTrailing =
 	// A word: whole or gone on the web (the row leaves it once the title would hold under half its line), kept whole on the phone.
 	| { value: string };
 
-// A `FormField` whose question is answered: it folds to one summary row with
-// `answer` and an Edit act that `onEdit` hears; clearing it reopens the field.
-export interface Answered {
-	// The answer in the summary row (a short phrase; truncates).
-	answer: string;
-	onEdit: () => void;
-}
-
 // A row's title: words (`Run`, `Runs`), a span of code (`{ code }`, the mono
 // cut in its middle; with `copy` it carries a copy act: an identifier), the
 // word that says there is no value (`{ absent }`, "Any", "None", drawn in the

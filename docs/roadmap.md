@@ -84,10 +84,6 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 
 Each item is decided and waits to be built. One that adds a part or crosses packages is designed first (an architecture section and a change map), then built.
 
-- A sheet outlet: each root container (the Shell, the Gate) draws the sheets acts open, beside the `confirm()` decisions; an act opens its sheet with `openSheet(props)` and never imports `Sheet`, which ends the Button, Sheet, Form, FormField and Input import cycle. Each later sheet is drawn nested in the one before it, as Base UI nests dialogs. A sheet keeps the route's scope (registered with the client) and what stands above the root container, inherits nothing from its opener, and is a frame of its own.
-- A form group's `read` and `empty` join `FormGroupOf` (`packages/ui-core/src/form.ts`), so the group frame both form bases draw is reachable and `plugins/react-ui/guide/rules.md` holds.
-- The derived `Form` draws the three FormField shapes it has no way to reach today: a boolean with a `checkbox` hint, a field's `answered` fold, and a field's `change` mark.
-- Two scenes still need a react-ui change first: a painted file row (Section's `paintOf` returns a file sample and `Rows` types `paint` as a `Row`, `plugins/react-ui/src/ui/components/section/`) and a painted mini image tile (`Track.image` in `packages/ui-core/src/roster/dock.ts` widens to `Datum<string>`, so a Dock's cover can wait).
 - A record's breadcrumb is its place's path in the Shell's tree, every ancestor place and then the record's name; a folder is text, a page a link, and the middle levels fold into one `…` when the bar runs short.
 - A `mark` size in `packages/ui-core/src/scales.ts`, two mono characters at the caption size plus the chip's inner pad, sizes `ROW_MARK` in place of `size-icon-control`.
 - native-ui draws the update wall: its root hears the version gate's `426` and draws a closed Gate with the store link; `onUpdateRequired` leaves `@fcalell/plugin-expo/client`.
@@ -97,7 +93,6 @@ Each item is decided and waits to be built. One that adds a part or crosses pack
 - The phone's `Waveform` on `react-native-svg`, over ui-core's waveform arithmetic, with a seek gesture and the adjustable action, in the dock's full player.
 - Guide and architecture pages: a component's props live on its topic page (`containers.md`, `blocks.md`, `content.md`) and `rules.md` keeps the choosing rule and links there; the floors live in `packages/ui-core/guide/voice.md` and `docs/architecture/ui-core/tokens.md` links to them; a rule a consumer follows lives in its guide page and `node.md`, `runtime.md` and `screens.md` keep the mechanism.
 - Guide pages hold at most 600 words of prose (code and tables not counted), checked in `pnpm check`; the 26 pages over it split by topic, the two `rules.md` along their `##` sections.
-- The plan's reset date has one home once a Stats cell's `line` takes a `Datum<string>` (`plugins/react-ui/src/ui/components/stats/index.tsx`): `releases.quota` then carries it, and `apps/showcase/src/app/routes/_app/releases.tsx` stops writing "Oct 31".
 - Consumer migration: once the items above land, the two consumer apps move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md), which every breaking item above extends in its own commit.
 
 ## Not verified on a device or browser
