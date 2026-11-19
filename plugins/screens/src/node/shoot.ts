@@ -279,6 +279,7 @@ export function printRun(label: string, pages: Page[]): void {
 export async function shoot(
 	flags: Record<string, unknown>,
 	cwd: string,
+	env: NodeJS.ProcessEnv,
 ): Promise<void> {
 	const app = target(flags, cwd);
 	const routes = parseList(flags.route);
@@ -288,7 +289,7 @@ export async function shoot(
 	const modes = parseModes(flags.mode);
 	const open = typeof flags.open === "string" ? flags.open : undefined;
 	const pages: Page[] = [];
-	await withLease(async (lease) => {
+	await withLease(env, async (lease) => {
 		const scope = await lease.context();
 		await signIn(scope, app);
 		for (const mode of modes) {

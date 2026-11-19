@@ -432,7 +432,7 @@ The served app answers four controls under `/fixture`, which exist only under `s
 worker: `fixtureControls(worker, ...extra)` from `@fcalell/plugin-screens/serve`, where each `extra(request,
 { env, ctx, app })` is asked in turn, first of every `/fixture/*` path, so it can answer a generic one (an app with its own sign-in links supplies `link`), and returns undefined to pass to the next and then to the generic controls. `app(request)` asks the app's own worker past the controls.
 
-`--entry <file>` is for a server that needs fakes injected (its own `startNodeServer`, a fake
+`--entry <file>` is for a server that needs fakes injected (its own `startNodeServer`, given `env: process.env`, a fake
 adapter). The command still owns the directory, the port and the printed line, and runs the file
 with `STACK_SERVE_DIR` and `STACK_SERVE_PORT` set; the file puts its state in that directory,
 listens on that port, and wraps its worker with `fixtureControls` (passing `link` from `@fcalell/plugin-auth/serve` for an app with email codes; a Node server lists

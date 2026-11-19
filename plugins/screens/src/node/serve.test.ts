@@ -19,7 +19,7 @@ test("the generated output of an app holds no trace of the served controls", asy
 	// Discovery resolves the config's plugins from the working directory.
 	process.chdir(cwd);
 	const config = (await import(`${cwd}stack.config.ts`)).default;
-	const { graph } = await buildGraphFromConfig({ config, cwd });
+	const { graph } = await buildGraphFromConfig({ config, cwd, env: {} });
 	const files = await graph.resolve(cliSlots.artifactFiles);
 	assert.ok(files.some((file) => file.path === ".stack/wrangler.toml"));
 	assert.ok(files.some((file) => file.path === ".stack/worker.ts"));

@@ -180,12 +180,12 @@ async function run(
 	label: string,
 	script: string,
 	args: string[],
-	env: Record<string, string> = {},
+	env: NodeJS.ProcessEnv,
 ): Promise<void> {
 	const child = spawn(process.execPath, [script, ...args], {
 		cwd,
 		stdio: "inherit",
-		env: { ...process.env, ...env },
+		env,
 	});
 	const forward = (signal: NodeJS.Signals) => child.kill(signal);
 	process.on("SIGINT", forward);
@@ -296,17 +296,18 @@ export const screens = plugin("screens", {
 						"--ci",
 						"--no-open",
 					],
+					ctx.env,
 				);
 			},
 		},
 		browser: {
 			description:
 				"Start the shared Chrome and leave it running; `browser stop` ends it",
-			handler: async () => {
+			handler: async (ctx) => {
 				const word = process.argv[4];
 				if (word === "stop") {
 					console.log(
-						(await stopBrowser())
+						(await stopBrowser(ctx.env))
 							? "stack screens browser: stopped"
 							: "stack screens browser: none running",
 					);
@@ -314,8 +315,8 @@ export const screens = plugin("screens", {
 				}
 				if (word !== undefined)
 					throw new Error(`stack screens browser: ${word} is not stop`);
-				findChrome();
-				const { port, pid } = await startBrowser();
+				findChrome(ctx.env);
+				const { port, pid } = await startBrowser(ctx.env);
 				console.log(`stack screens browser: Chrome ${pid} on port ${port}`);
 			},
 		},
@@ -364,7 +365,7 @@ export const screens = plugin("screens", {
 					description: "A URL opened first, which sets the session",
 				},
 			},
-			handler: (ctx, flags) => shoot(flags, ctx.cwd),
+			handler: (ctx, flags) => shoot(flags, ctx.cwd, ctx.env),
 		},
 		drive: {
 			description:
@@ -400,7 +401,7 @@ export const screens = plugin("screens", {
 					throw new Error(
 						"stack screens drive: name the plan right after drive: drive <plan.json> --url <app>",
 					);
-				return drive(plan, flags, ctx.cwd);
+				return drive(plan, flags, ctx.cwd, ctx.env);
 			},
 		},
 		serve: {
@@ -427,6 +428,7 @@ export const screens = plugin("screens", {
 				const outDir = await ctx.resolve(vite.slots.outDir);
 				await serve({
 					cwd: ctx.cwd,
+					env: ctx.env,
 					flags,
 					steps: await ctx.resolve(serveSteps),
 					envs: await ctx.resolve(serveEnv),
@@ -534,7 +536,7 @@ export const screens = plugin("screens", {
 						`screens ${requested ? files.join(", ") : flags.all ? "all" : `changed${typeof flags.changed === "string" ? ` since ${flags.changed}` : ""}`}`,
 					].join(" "),
 				);
-				findChrome();
+				findChrome(ctx.env);
 				await ctx.generate();
 				const started = Date.now();
 				try {
@@ -560,7 +562,7 @@ export const screens = plugin("screens", {
 											: []),
 									]),
 						],
-						selectionEnv(selection),
+						{ ...ctx.env, ...selectionEnv(selection) },
 					);
 				} finally {
 					// Listed whether or not the run passed: the shots are taken either way.

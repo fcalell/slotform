@@ -92,7 +92,10 @@ class ChromeProvider implements BrowserProvider {
 	private scopes = new Map<string, Scope>();
 	private tabs = new Map<string, Tab>();
 
-	constructor(project: TestProject) {
+	private env: NodeJS.ProcessEnv;
+
+	constructor(project: TestProject, env: NodeJS.ProcessEnv) {
+		this.env = env;
 		// Vitest's internal `__vitest_*` commands are not in its public
 		// `BrowserCommands` type, and `Object.entries` widens the union.
 		for (const [name, command] of Object.entries(commands))
@@ -113,7 +116,7 @@ class ChromeProvider implements BrowserProvider {
 	}
 
 	async openPage(sessionId: string, url: string): Promise<void> {
-		this.lease ??= openLease();
+		this.lease ??= openLease(this.env);
 		const scope = await (await this.lease).context();
 		this.scopes.set(sessionId, scope);
 		const tab = await scope.tab();
@@ -131,11 +134,11 @@ class ChromeProvider implements BrowserProvider {
 	}
 }
 
-// The provider the generated Vitest config names: `provider: chrome()`.
-export function chrome(): BrowserProviderOption {
+// The provider the generated Vitest config names: `provider: chrome(process.env)`.
+export function chrome(env: NodeJS.ProcessEnv): BrowserProviderOption {
 	return defineBrowserProvider({
 		name: "chrome",
 		supportedBrowser: ["chromium"],
-		providerFactory: (project) => new ChromeProvider(project),
+		providerFactory: (project) => new ChromeProvider(project, env),
 	});
 }

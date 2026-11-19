@@ -206,7 +206,7 @@ export default defineConfig({
 						headless: true,
 						// The shared Chrome, with reduced motion, so every transition
 						// snaps and a screen is judged at rest, as the run's walk expects.
-						provider: chrome(),
+						provider: chrome(process.env),
 						commands: inputCommands,
 						instances: [
 							{ browser: "chromium", viewport: { width: ${START_VIEWPORT.width}, height: ${START_VIEWPORT.height} } },

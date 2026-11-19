@@ -12,6 +12,7 @@ const STORYBOOK_VITE_CONFIG = ".stack/storybook.vite.config.ts";
 export async function writeStorybookConfig(options: {
 	config: StackConfig;
 	cwd: string;
+	env: NodeJS.ProcessEnv;
 }): Promise<string> {
 	const { graph } = await buildGraphFromConfig(options);
 	const outDir = await graph.resolve(vite.slots.outDir);

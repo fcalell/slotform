@@ -32,12 +32,11 @@ interface BrowserState {
 	kept?: true;
 }
 
-export const stateDir = (
-	env: Record<string, string | undefined> = process.env,
-): string => join(env.XDG_RUNTIME_DIR || tmpdir(), "stack");
+export const stateDir = (env: NodeJS.ProcessEnv): string =>
+	join(env.XDG_RUNTIME_DIR || tmpdir(), "stack");
 
-const files = () => {
-	const dir = stateDir();
+const files = (env: NodeJS.ProcessEnv) => {
+	const dir = stateDir(env);
 	return {
 		dir,
 		state: join(dir, "chrome.json"),
@@ -82,9 +81,9 @@ function pidAlive(pid: number): boolean {
 	}
 }
 
-const readState = (): BrowserState | undefined => {
+const readState = (env: NodeJS.ProcessEnv): BrowserState | undefined => {
 	try {
-		return parseState(readFileSync(files().state, "utf8"));
+		return parseState(readFileSync(files(env).state, "utf8"));
 	} catch {
 		return undefined;
 	}
@@ -108,8 +107,11 @@ function clearStale(lock: string): void {
 	}
 }
 
-async function withLock<T>(body: () => Promise<T>): Promise<T> {
-	const { dir, lock } = files();
+async function withLock<T>(
+	env: NodeJS.ProcessEnv,
+	body: () => Promise<T>,
+): Promise<T> {
+	const { dir, lock } = files(env);
 	mkdirSync(dir, { recursive: true });
 	const end = Date.now() + 60_000;
 	for (;;) {
@@ -171,17 +173,25 @@ export function runsProfile(command: string, profile: string): boolean {
 // Whether `pid` is the Chrome on `profile`. `ps` reads a command line the same
 // way on Linux and macOS; `-ww` keeps it whole, and a pid that is gone prints
 // nothing.
-function isProfileChrome(pid: number, profile: string): boolean {
+function isProfileChrome(
+	pid: number,
+	profile: string,
+	env: NodeJS.ProcessEnv,
+): boolean {
 	const ps = spawnSync("ps", ["-ww", "-o", "command=", "-p", String(pid)], {
 		encoding: "utf8",
+		env,
 	});
 	if (ps.error) throw ps.error;
 	return runsProfile(ps.stdout, profile);
 }
 
-function discard(state: BrowserState | undefined): void {
-	const { state: file, profile } = files();
-	if (state && isProfileChrome(state.pid, profile)) {
+function discard(
+	env: NodeJS.ProcessEnv,
+	state: BrowserState | undefined,
+): void {
+	const { state: file, profile } = files(env);
+	if (state && isProfileChrome(state.pid, profile, env)) {
 		try {
 			process.kill(state.pid, "SIGKILL");
 		} catch {
@@ -193,17 +203,17 @@ function discard(state: BrowserState | undefined): void {
 }
 
 // The browser's endpoint, started when none runs. The caller holds the lock.
-async function ensure(kept: boolean): Promise<string> {
-	const state = readState();
+async function ensure(env: NodeJS.ProcessEnv, kept: boolean): Promise<string> {
+	const state = readState(env);
 	const url = await liveUrl(state);
 	if (url) {
 		if (kept && !state?.kept)
-			writeFileSync(files().state, JSON.stringify({ ...state, kept: true }));
+			writeFileSync(files(env).state, JSON.stringify({ ...state, kept: true }));
 		return url;
 	}
-	discard(state);
-	const { profile, state: file } = files();
-	const { port, pid } = await launchChrome(findChrome(), profile);
+	discard(env, state);
+	const { profile, state: file } = files(env);
+	const { port, pid } = await launchChrome(findChrome(env), profile, env);
 	writeFileSync(
 		file,
 		JSON.stringify(kept ? { port, pid, kept: true } : { port, pid }),
@@ -213,20 +223,20 @@ async function ensure(kept: boolean): Promise<string> {
 	return started;
 }
 
-export const startBrowser = (): Promise<BrowserState> =>
-	withLock(async () => {
-		await ensure(true);
+export const startBrowser = (env: NodeJS.ProcessEnv): Promise<BrowserState> =>
+	withLock(env, async () => {
+		await ensure(env, true);
 		// `ensure` wrote or confirmed the state file.
-		return readState() as BrowserState;
+		return readState(env) as BrowserState;
 	});
 
 // False when no browser was running.
-export async function stopBrowser(): Promise<boolean> {
-	return withLock(async () => {
-		const state = readState();
+export async function stopBrowser(env: NodeJS.ProcessEnv): Promise<boolean> {
+	return withLock(env, async () => {
+		const state = readState(env);
 		const url = await liveUrl(state);
 		if (!state || !url) {
-			discard(state);
+			discard(env, state);
 			return false;
 		}
 		try {
@@ -240,7 +250,7 @@ export async function stopBrowser(): Promise<boolean> {
 		}
 		// The browser is no child of this process: no exit event to wait on.
 		for (let i = 0; i < 50 && pidAlive(state.pid); i++) await sleep(100);
-		discard(state);
+		discard(env, state);
 		return true;
 	});
 }
@@ -306,9 +316,11 @@ export class Lease {
 	private releasing: Promise<void> | undefined;
 
 	private cdp: Cdp;
+	private env: NodeJS.ProcessEnv;
 
-	constructor(cdp: Cdp, held: Scope) {
+	constructor(cdp: Cdp, held: Scope, env: NodeJS.ProcessEnv) {
 		this.cdp = cdp;
+		this.env = env;
 		this.scopes = [held];
 	}
 
@@ -329,22 +341,22 @@ export class Lease {
 	private async dispose(): Promise<void> {
 		try {
 			await Promise.all(this.scopes.map((scope) => scope.dispose()));
-			await withLock(async () => {
-				if (this.cdp.closed || readState()?.kept) return;
+			await withLock(this.env, async () => {
+				if (this.cdp.closed || readState(this.env)?.kept) return;
 				const { browserContextIds } = await this.cdp
 					.send<{ browserContextIds: string[] }>("Target.getBrowserContexts")
 					// A browser that cannot say what it holds stays up.
 					.catch(() => ({ browserContextIds: ["unknown"] }));
 				if (browserContextIds.length > 0) return;
-				const state = readState();
-				rmSync(files().state, { force: true });
+				const state = readState(this.env);
+				rmSync(files(this.env).state, { force: true });
 				await this.cdp
 					.send("Browser.close", {}, { timeout: 5000 })
 					.catch(ignoreClosed(this.cdp));
 				// The browser is no child of this process: no exit event to wait on.
 				for (let i = 0; state && i < 50 && pidAlive(state.pid); i++)
 					await sleep(100);
-				rmSync(files().profile, { recursive: true, force: true });
+				rmSync(files(this.env).profile, { recursive: true, force: true });
 			});
 		} catch (error) {
 			// A command that already finished does not fail on its release: the
@@ -360,11 +372,11 @@ export class Lease {
 
 // Connects to the shared browser, starting one when none runs, and opens the
 // lease's own context under the same lock as the start.
-export const openLease = (): Promise<Lease> =>
-	withLock(async () => {
-		const cdp = await Cdp.connect(await ensure(false));
+export const openLease = (env: NodeJS.ProcessEnv): Promise<Lease> =>
+	withLock(env, async () => {
+		const cdp = await Cdp.connect(await ensure(env, false));
 		try {
-			return new Lease(cdp, await newScope(cdp));
+			return new Lease(cdp, await newScope(cdp), env);
 		} catch (error) {
 			cdp.close();
 			throw error;
@@ -374,9 +386,10 @@ export const openLease = (): Promise<Lease> =>
 // Runs `body` with a lease it releases at the end, on failure, and on SIGINT
 // or SIGTERM.
 export async function withLease<T>(
+	env: NodeJS.ProcessEnv,
 	body: (lease: Lease) => Promise<T>,
 ): Promise<T> {
-	const lease = await openLease();
+	const lease = await openLease(env);
 	const onSignal = (signal: NodeJS.Signals) => {
 		void lease
 			.release()

@@ -32,7 +32,7 @@ browser.
 | `./vite` | the host's Vite plugins, `screensPlugin` and `storybookHost` |
 | `./storybook` | the Storybook config |
 | `./node` | `writeStorybookConfig` ([Storybook host](#storybook-host)), `startServer` (a deploy target's server under [serve](#serve)), `workspaceTriggers` ([changed runs](#changed-runs)) |
-| `./browser` | Vitest's browser provider over the shared Chrome, `chrome()`, and the input commands it runs, `inputCommands` |
+| `./browser` | Vitest's browser provider over the shared Chrome, `chrome(env)`, and the input commands it runs, `inputCommands` |
 | `./serve` | `defineServeSeed`, `fixtureControls`: run in the served app's worker, web APIs only |
 
 As source the host's Vite compiles: `./fixtures`, `./channels`, `./msw` (`HttpResponse`, `http` and
@@ -65,9 +65,9 @@ plugin joins it to that directory. Both are null without routes.
 
 ### A Storybook that draws components
 
-`writeStorybookConfig({ config, cwd })` from `@fcalell/plugin-screens/node` serves a Storybook that
-draws components, not routes (the showcase's roster). The app's own `.storybook/main.ts` and its
-`vitest.config.ts` call it with the app's `stack.config.ts`. It builds the slot graph
+`writeStorybookConfig({ config, cwd, env })` from `@fcalell/plugin-screens/node` serves a Storybook
+that draws components, not routes (the showcase's roster). The app's own
+`.storybook/main.ts`, Storybook's process entry, calls it with the app's `stack.config.ts` and `process.env`. It builds the slot graph
 (`buildGraphFromConfig`), resolves vite's slots and renders them with `renderViteConfig` as the screens
 host does, with `hosted`'s changes, then writes `.stack/storybook.vite.config.ts`. That file holds the
 app's own plugin calls and values and one host-only plugin call, `storybookHost()`, which starts the
@@ -258,9 +258,10 @@ plugin on `.stack/screens-test/`, whose `main.ts` adds `./checks`.
 ### Vitest config
 
 `vitestConfig` renders `.stack/screens.vitest.config.ts`: the screens host's Vite config with the
-Storybook test plugin on the test run's config directory and one browser project, `chrome()` as its
-provider, headless at 1280x800. Each parallel page is one renderer, so two open at most. The CLI's
-narrowing reaches it in the environment: the tags to leave out go to the storybook plugin, and the
+Storybook test plugin on the test run's config directory and one browser project,
+`chrome(process.env)` as its provider (the shared browser's state directory and `CHROME_PATH` come
+from that env), headless at 1280x800. Each parallel page is one renderer, so two open at most. The
+CLI's narrowing reaches it in the environment: the tags to leave out go to the storybook plugin, and the
 widths and the screenshot directory to the checks, which read them with `inject` (`provide`).
 Without the environment (Vitest run by hand) every story and every width run, and no screenshot is
 saved.

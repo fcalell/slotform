@@ -20,6 +20,8 @@ const SEED_FILE = "src/app/seed.ts";
 
 interface ServeInputs {
 	cwd: string;
+	// The CLI's env, which the client build and an `--entry` server start from.
+	env: NodeJS.ProcessEnv;
 	flags: Record<string, unknown>;
 	steps: ServeStep[];
 	envs: ServeEnv[];
@@ -46,7 +48,11 @@ function freePort(): Promise<number> {
 	});
 }
 
-function buildClient(serve: ServeRun, vite: string): void {
+function buildClient(
+	serve: ServeRun,
+	vite: string,
+	env: NodeJS.ProcessEnv,
+): void {
 	const built = spawnSync(
 		process.execPath,
 		[
@@ -59,7 +65,7 @@ function buildClient(serve: ServeRun, vite: string): void {
 			serve.client as string,
 			"--emptyOutDir",
 		],
-		{ cwd: serve.cwd, encoding: "utf8" },
+		{ cwd: serve.cwd, encoding: "utf8", env },
 	);
 	if (built.status !== 0)
 		throw new Error(
@@ -134,12 +140,18 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 			env: { STACK_SERVE_DIR: dir, STACK_SERVE_PORT: String(port) },
 			controls,
 		};
-		if (vite) buildClient(run, vite);
+		if (vite) buildClient(run, vite, inputs.env);
 		for (const env of envs) Object.assign(run.env, env({ url }));
 		for (const step of steps) await step.run(run);
 
 		if (typeof flags.entry === "string") {
-			stop = await startServer(run, "server", process.execPath, [flags.entry]);
+			stop = await startServer(
+				run,
+				"server",
+				process.execPath,
+				[flags.entry],
+				inputs.env,
+			);
 		} else {
 			// A deploy target is one only: the first contribution starts.
 			const target = targets[0];

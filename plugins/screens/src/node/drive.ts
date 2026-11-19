@@ -144,11 +144,12 @@ export async function drive(
 	file: string,
 	flags: Record<string, unknown>,
 	cwd: string,
+	env: NodeJS.ProcessEnv,
 ): Promise<void> {
 	const plan = parsePlan(readFileSync(file, "utf8"));
 	const app = target(flags, cwd);
 	const pages: Page[] = [];
-	await withLease(async (lease) => {
+	await withLease(env, async (lease) => {
 		const scope = await lease.context();
 		await signIn(scope, app);
 		for (const { width, mode } of plan.each) {

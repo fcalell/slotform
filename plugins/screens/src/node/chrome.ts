@@ -16,7 +16,7 @@ export const NO_CHROME =
 // The Chrome to launch: `CHROME_PATH`, else the first of the usual names on
 // PATH. One actionable line when there is none.
 export function findChrome(
-	env: Record<string, string | undefined> = process.env,
+	env: NodeJS.ProcessEnv,
 	executable: (path: string) => boolean = isExecutable,
 ): string {
 	const chosen = env.CHROME_PATH;
@@ -64,6 +64,7 @@ export const hasCode = (error: unknown, code: string): boolean =>
 export async function launchChrome(
 	executable: string,
 	userDataDir: string,
+	env: NodeJS.ProcessEnv,
 ): Promise<{ port: number; pid: number }> {
 	const child = spawn(
 		executable,
@@ -73,7 +74,7 @@ export async function launchChrome(
 			`--user-data-dir=${userDataDir}`,
 			"about:blank",
 		],
-		{ detached: true, stdio: "ignore" },
+		{ detached: true, stdio: "ignore", env },
 	);
 	let exited: string | undefined;
 	child.on("exit", (code, signal) => {

@@ -22,8 +22,8 @@ function listening(port: number): Promise<boolean> {
 	});
 }
 
-// Runs a command in `serve.cwd` with the run's environment on top of the
-// process's, and resolves once the command's server accepts connections on
+// Runs a command in `serve.cwd` with the run's environment on top of `env`,
+// and resolves once the command's server accepts connections on
 // `serve.port`. A command that exits before that fails with its log's tail.
 // Resolves to what stops it: the command's whole process group, then its files.
 export async function startServer(
@@ -31,14 +31,14 @@ export async function startServer(
 	name: string,
 	command: string,
 	args: string[],
-	env: Record<string, string> = {},
+	env: NodeJS.ProcessEnv,
 ): Promise<() => Promise<void>> {
 	const logFile = join(serve.dir, `${name}.log`);
 	const log = openSync(logFile, "a");
 	const child: ChildProcess = spawn(command, args, {
 		cwd: serve.cwd,
 		stdio: ["ignore", log, log],
-		env: { ...process.env, ...env, ...serve.env },
+		env: { ...env, ...serve.env },
 		detached: true,
 	});
 	closeSync(log);
