@@ -12,6 +12,7 @@ import {
 	levelOf,
 	listedRows,
 	nextSort,
+	pickChooser,
 	type Sort,
 	sheetEntries,
 	sorted,
@@ -472,4 +473,51 @@ test("a sheet with no bands rules every row after the first", () => {
 		),
 		["x", "y|"],
 	);
+});
+
+test("a query pick's head stays checked while only blocked rows are unticked", () => {
+	const rows = [
+		record("a", {}),
+		{ ...record("b", {}), blocked: "Locked" },
+		record("c", {}),
+	];
+	const picks: unknown[] = [];
+	const query = { q: "x" };
+	const span = { query, total: 10 };
+	const all = pickChooser<{ q: string }>(
+		rows,
+		{ ids: [] },
+		(next) => picks.push(next),
+		span,
+	);
+	all.toggleAll();
+	assert.deepEqual(picks, [{ query, except: ["b"] }]);
+	const chosen = pickChooser<{ q: string }>(
+		rows,
+		{ query, except: ["b"] },
+		() => {},
+		span,
+	);
+	assert.equal(chosen.head, true);
+	assert.equal(chosen.count, 9);
+	const unticked = pickChooser<{ q: string }>(
+		rows,
+		{ query, except: ["b", "a"] },
+		() => {},
+		span,
+	);
+	assert.equal(unticked.head, "mixed");
+	assert.equal(unticked.count, 8);
+});
+
+test("a query pick's head is unchecked once every row it reaches is unticked", () => {
+	const rows = [record("a", {}), { ...record("b", {}), blocked: "Locked" }];
+	const none = pickChooser<{ q: string }>(
+		rows,
+		{ query: { q: "x" }, except: ["a", "b"] },
+		() => {},
+		{ query: { q: "x" }, total: 2 },
+	);
+	assert.equal(none.count, 0);
+	assert.equal(none.head, false);
 });

@@ -49,7 +49,7 @@ no machine check exists.
 
 | # | Rule | Ask | Held by |
 | --- | --- | --- | --- |
-| 20 | An act holds its own attempt: `onAct` returns the promise of what it starts, and the pending look, the failure and the wait for a connection come from that promise, never from a flag the app passes in. | Does a prop or a context carry an act's `loading` or `busy` from above? Does an `onAct` start a mutation and return no promise? Does a host leave an act's rejection undrawn, or draw it where it moves the act? | the types (`ActBase` has no `loading`); the `QueryProvider` dev checks (`returned no promise`, `nothing drew its failure`); judged for a host's line |
+| 20 | An act holds its own attempt: `onAct` returns the promise of what it starts, and the pending look, the failure and the wait for a connection come from that promise, never from a flag the app passes in. | Does a prop or a context carry an act's `loading` or `busy` from above? Does an `onAct` start a mutation and return no promise? Does a host leave an act's rejection undrawn, or draw it where it moves the act? | the types (`Act` has no `loading`); the `QueryProvider` dev checks (`returned no promise`, `nothing drew its failure`); judged for a host's line |
 
 ## Adding a measure, a mark or a context
 

@@ -97,8 +97,10 @@ verdict.
 `choose` (`TableChoice`, controlled: `chosen` ids, `onChange` hearing the set a tick makes, the
 consumer applying its rule) leads the grid with a tick column: a checkbox per row named by its
 leading cell, and a head checkbox named by `chooseAll`, unchecked, mixed or checked over the rows
-that can be ticked. A `blocked` row's tick is disabled and a `moved` row says why, each reason a line
-under the leading cell, growing only that row to the two-line row. On touch the tick leads the row
+that can be ticked. Over a read's query (`picked`) the head is checked while every unticked id is a
+`blocked` row's, mixed once a row that can be ticked is unticked, and unchecked when none is chosen.
+A `blocked` row's tick is disabled and a `moved` row says why, each reason a line under the leading
+cell, growing only that row to the two-line row. On touch the tick leads the row
 (a list row's check) and the reason leads its facts.
 
 The acts that apply to the ticked rows are no prop of the table. The route gives the Pane's `foot`

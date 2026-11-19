@@ -565,6 +565,17 @@ export function idsChooser(
 	};
 }
 
+// Over a query, only the viewer's own unticks make the head mixed: a blocked
+// row is excepted by choose all itself.
+function queryHead(
+	count: number,
+	except: readonly string[],
+	blocked: readonly string[],
+): boolean | "mixed" {
+	if (count === 0) return false;
+	return except.every((id) => blocked.includes(id)) ? true : "mixed";
+}
+
 /** A `Picked`, as a `Chooser` over the loaded `rows`. `query` is the read's query when it pages (undefined: the head tick chooses loaded ids, as `idsChooser` does) and `total` the rows it matches when known (a window), which the count and the head tick stand on; without it they stand on the loaded rows. */
 export function pickChooser<Q>(
 	rows: readonly TableRecord[],
@@ -588,11 +599,12 @@ export function pickChooser<Q>(
 		};
 	}
 	const { except } = picked;
+	const blocked = blockedIds(rows);
 	const count = Math.max(0, of - except.length);
 	return {
 		ticked: (id) => !except.includes(id),
 		pick: picked,
-		head: count === 0 ? false : except.length === 0 ? true : "mixed",
+		head: queryHead(count, except, blocked),
 		tick: (id, on) =>
 			pick({
 				query: picked.query,
@@ -610,9 +622,7 @@ export function pickChooser<Q>(
 		count,
 		of,
 		onAll: (all) =>
-			pick(
-				all ? { query: picked.query, except: blockedIds(rows) } : { ids: [] },
-			),
+			pick(all ? { query: picked.query, except: blocked } : { ids: [] }),
 	};
 }
 

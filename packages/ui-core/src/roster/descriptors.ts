@@ -4,7 +4,7 @@ import type { IconName } from "../icon-name.ts";
 import type { ChipFamily, Tone } from "../tokens.ts";
 
 // What every act is: docs/architecture/ui-core/acts.md, "Act model".
-export interface ActBase {
+interface ActBase {
 	onAct: () => unknown;
 }
 
@@ -182,7 +182,7 @@ export type Fact = Run | StatusMark | ChipMark | { warning: string } | RowMark;
 // `onChange` returns holds the viewer's pick while it pends; a refusal puts
 // it back, with its reason.
 // What a pick of one and a pick of several share.
-export interface PickBase<V extends string | null> {
+interface PickBase<V extends string | null> {
 	// The hint drawn while nothing is chosen (a short phrase; truncates).
 	placeholder?: string;
 	options: readonly Option<V>[] | readonly OptionGroup<V>[];
