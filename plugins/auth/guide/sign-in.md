@@ -1,16 +1,15 @@
 # Sign-in
 
 Email one-time codes are on by default; magic links, OAuth and passkeys are options of `auth()`. A web
-app reads the session and signs in and out through the `orpc.auth.*` procedures (see
-[The web app's calls](#the-web-apps-calls)); Better Auth itself serves under `/api/auth` on the
-worker, which the dev server proxies, for the emailed link's verification, OAuth and passkeys.
+app reads the session and signs in and out through the `orpc.auth.*` procedures
+([the web app's calls](#the-web-apps-calls)); Better Auth serves the emailed link's verification,
+OAuth and passkeys under `/api/auth` on the worker.
 
 ## Magic links
 
 `magicLink: true` adds sign-in by emailed link and requires `sendMagicLink({ email, url, token, env })`
-in the callbacks file (see [callbacks](./callbacks.md)). The token expires in 5 minutes, is stored
-hashed and is spent on its first verification. The send is rate limited per email, sharing the
-bucket of the code send. An address with no user signs up when its link is first opened.
+in the callbacks file ([callbacks](./callbacks.md)). The token expires in 5 minutes and is spent on
+its first verification. An address with no user signs up when its link is first opened.
 
 ```ts
 auth({ magicLink: true }),
@@ -26,7 +25,7 @@ spent, unknown or expired link redirects to `callbackURL` with `error=INVALID_TO
 `socialProviders.google` and `.apple` take `true` for the conventional var names
 (`GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`, `APPLE_CLIENT_ID` / `APPLE_CLIENT_SECRET`) or
 `{ clientIdVar, clientSecretVar }` to rename them. Apple takes `appBundleIdentifier` for native
-ID-token sign-in. Only the names reach the worker; it reads the credentials from env per request.
+ID-token sign-in.
 
 ```ts
 auth({ emailOtp: false, socialProviders: { google: true, apple: true } }),
@@ -38,11 +37,10 @@ auth({ emailOtp: false, socialProviders: { google: true, apple: true } }),
 
 `passkey: {}` turns them on with every setting derived: `rpID` from `app.domain`, `rpName` from
 `app.name`, the accepted origins from the production CORS list. Set any of them, or
-`authenticatorSelection`, on the same object. Re-export the `passkey` table (see
-[config](./config.md)). Under `stack dev` the ceremony runs on `localhost`, so a passkey enrolled
-in dev works only in dev. On a Node listener that serves an origin of its own (plugin-node's
-server page), the ceremony runs at that origin: it joins the accepted origins, and becomes the
-`rpID` when `app.domain` does not cover its host. Enrolling needs a session younger than `session.freshAge`: the user
+`authenticatorSelection`, on the same object. Re-export the `passkey` table
+([config](./config.md)). Under `stack dev` the ceremony runs on `localhost`, so a passkey enrolled
+in dev works only in dev. On a Node listener that serves an origin of its own, the ceremony runs at
+that origin. Enrolling needs a session younger than `session.freshAge`: the user
 signs in another way first, calls `passkey.addPasskey()`, and signs in with `signIn.passkey()`
 after.
 
@@ -57,28 +55,24 @@ callback. `signUp` closes that, with one rule for all of them.
 | `"invite"` | it holds a pending, unexpired organization invitation |
 | `"first"` | the app has no account yet; after that, as `"invite"` |
 
-A single-owner app (a homelab) is `signUp: "first"` with `organization: true`: the owner signs in
-first, creates the organization, and invites anyone else from it (see
-[organizations](./organizations.md)); the invited address signs in once with its code and accepts.
-An address that already has an account always signs in. Passkeys make no account: they enroll on a
-signed-in session.
+A single-owner app is `signUp: "first"` with `organization: true`: the owner signs in first,
+creates the organization, and invites anyone else from it ([organizations](./organizations.md)).
+An address that already has an account always signs in.
 
 ```ts
 auth({ organization: true, signUp: "first" }),
 ```
 
-A refused sign-up answers `FORBIDDEN` with code `SIGN_UP_CLOSED` (the `ORPCError`'s `data.code`,
-Better Auth's client `error.code`) and the sentence "Sign-up is closed. Ask for an invitation to
-join." in `message`. The code and link sends refuse it too, before an email goes to an address
-that could not use it; an OAuth callback redirects with it as `error`. A screen shows `message`, or
-its own sentence keyed by the code. Refusing at the send tells a stranger whether an address has
-an account; this is the policy's cost, taken for a closed app.
+A refused sign-up answers `FORBIDDEN` with code `SIGN_UP_CLOSED` (the `ORPCError`'s `data.code`)
+and the sentence "Sign-up is closed. Ask for an invitation to join." in `message`, which a screen
+shows. The code and link sends refuse it before an email goes out, so a closed app tells a stranger
+whether an address has an account; an OAuth callback redirects with it as `error`.
 
 ## The web app's calls
 
 A web app never imports Better Auth's client for what the worker serves as procedures. Each is a
 typed oRPC procedure under `auth`, present while its option is on and a type error to name
-otherwise; a mutation invalidates the queries that read what it writes, with no code in the app.
+otherwise.
 
 ```ts
 const session = useQuery(orpc.auth.session.queryOptions()); // { user, session } | null
@@ -97,15 +91,13 @@ await orpc.auth.signOut.call();
 | `auth.signIn.verifyOtp` | `emailOtp` | `{ email, otp (six digits), name?, image?, oauthQuery? }` | `{ token, user }`, or `{ redirect: true, url }` inside an MCP authorization; writes `session` |
 | `auth.signIn.magicLink` | `magicLink` | `{ email, name?, callbackURL?, newUserCallbackURL?, errorCallbackURL?, metadata?, oauthQuery? }` | `{ status }` |
 
-Both sends take the per-email limit (`TOO_MANY_REQUESTS` when it refuses). A refusal is an
-`ORPCError` whose `code` is the endpoint's (`BAD_REQUEST` for a wrong code or an invalid email) and
-whose `data.code` is Better Auth's own (`INVALID_OTP`). The organization, member and invitation
-calls are in [organizations](./organizations.md). `oauthQuery` exists only with `mcp`, and
-with it the answer may be the redirect that resumes the authorization (see [mcp-oauth](./mcp-oauth.md)).
+Both sends are limited per email (`TOO_MANY_REQUESTS`). A refusal's `code` is the endpoint's
+(`BAD_REQUEST` for a wrong code) and its `data.code` Better Auth's (`INVALID_OTP`). The
+organization calls are in [organizations](./organizations.md); `oauthQuery` is
+[mcp-oauth](./mcp-oauth.md)'s.
 
-What has no procedure stays on `createAuthClient` from `@fcalell/plugin-auth/client`, Better Auth's
-React client: social sign-in and passkeys. Pass the flags the config
-sets, so the client offers what the server serves:
+Social sign-in and passkeys have no procedure and stay on `createAuthClient` from
+`@fcalell/plugin-auth/client`, Better Auth's React client, given the flags the config sets:
 
 ```ts
 // src/app/lib/auth.ts

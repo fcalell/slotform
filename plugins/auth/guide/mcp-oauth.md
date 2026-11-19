@@ -1,7 +1,7 @@
 # MCP connections
 
 `auth({ mcp: true })` makes the worker an authorization server for MCP clients: a member connects
-a client by signing in, choosing an organization (a member of exactly one is not asked) and approving it, and the client holds a 1-hour
+a client by signing in, choosing an organization and approving it, and the client holds a 1-hour
 access token bound to `${APP_URL}/mcp` and a rotating 30-day refresh token. It needs
 `organization`. A client is known by its metadata document
 (the URL it uses as its client id); one that only registers dynamically cannot connect.
@@ -13,11 +13,8 @@ auth({ organization: true, mcp: true }),
 export * from "@fcalell/plugin-auth/schema/oauth"; // the grant and signing-key tables
 ```
 
-The worker serves the discovery documents (`/.well-known/oauth-authorization-server`,
-`/.well-known/oauth-protected-resource`) and binds `RATE_LIMITER_AGENT`, one bucket per grant
-(`rateLimiter.agent`, its limit in [config](./config.md)). On Cloudflare with a web build, the worker answers each prefix bare and
-under `/*`, so `/.well-known/oauth-protected-resource` and `/mcp` reach it before the static
-assets. The scopes are `mcp` (the whole tool list) and
+The worker serves the discovery documents under `/.well-known/` and limits calls per grant
+(`rateLimiter.agent` in [config](./config.md)). The scopes are `mcp` (the whole tool list) and
 `offline_access` (the refresh token); a request without a `resource` gets a token the verifier
 refuses.
 
@@ -32,20 +29,16 @@ The authorization sends the member to three addresses, each carrying a signed qu
 | `/connect/consent` | Reads the client with `orpc.auth.oauth.client({ clientId })`, shows the session's active organization, and calls `auth.oauth.consent({ accept, oauthQuery })` |
 
 `oauthQuery` is the signed part of the page's query string: the `sig` parameter and the parameters
-named by `ba_param`, which Better Auth's OAuth client plugin copies into every non-GET call. A web
-app has none of that plugin, so each of these calls passes it: the app builds it from
-`location.search` and the procedure sends it to the endpoint as `oauth_query`, where the provider
-verifies the signature. `signIn.verifyOtp`, `signIn.magicLink` and `organization.setActive` take it, and
-answer the redirect beside their own result, only while `mcp` is on. A redirect is an address for the
-page to leave to (`window.location.assign(url)`): oRPC does not follow it as Better Auth's client did.
-`auth.oauth.client` and `auth.oauth.consent` exist only with `mcp`.
+named by `ba_param`, which the page builds from `location.search` and passes to each of these calls.
+`signIn.verifyOtp`, `signIn.magicLink` and `organization.setActive` take it, and answer the redirect
+beside their own result, only while `mcp` is on. The page leaves to the redirect itself
+(`window.location.assign(url)`). `auth.oauth.client` and `auth.oauth.consent` exist only with `mcp`.
 
-Consent is asked on every authorization. The grant is for the session's active organization, and
-that organization must still resolve for the member when they allow: if it no longer does (an
-expired external member, an unknown id), the grant is refused `403` with code
-`ORGANIZATION_NOT_RESOLVED`, even when one other organization remains. Only a session with no
-active organization gives a member of exactly one organization that one (the server skips the
-choice for them); with two or none it is refused the same way.
+Consent is asked on every authorization. The grant is for the session's active organization, which
+must still resolve for the member when they allow: if it no longer does (an expired external
+member, an unknown id), the grant is refused `403` with code `ORGANIZATION_NOT_RESOLVED`. A session
+with no active organization gets the member's one organization, and with two or none is refused the
+same way.
 
 ## The endpoint
 
@@ -64,17 +57,16 @@ if (verified instanceof Response) return verified; // 401, 403 or 429, with WWW-
 const { user, session, member, grant, tenancy } = verified;
 ```
 
-`user` is the member's user row with `agent: true`. `session.id` is the grant's id and carries no
-token. `tenancy` resolves the grant's organization for the member and no other. `grant` is
-`{ id, clientId, organizationId, scopes }`. The grant tables store a list as the JSON text better-auth writes, so a drizzle read of a row's `scopes` answers that text; `scopesOf` from `@fcalell/plugin-auth/schema/oauth` returns the list. A token is refused when its signature, issuer,
-audience (exactly the resource), `typ` (`at+jwt`) or expiry fails, when `mcp` is missing (`403`),
-when its grant's consent no longer stands, when the member's membership no longer counts, or when
-it was issued before the consent that now stands. The grant's id keys the limiter, except under
-`STACK_DEV`.
+`user` is the member's user row with `agent: true`, `session.id` is the grant's id, and `tenancy`
+resolves the grant's organization and no other. `grant` is
+`{ id, clientId, organizationId, scopes }`. A drizzle read of a grant row's `scopes` answers JSON
+text; `scopesOf` from `@fcalell/plugin-auth/schema/oauth` returns the list. A token is refused when
+it fails its checks, lacks `mcp` (`403`), or outlives its grant's consent or the member's membership.
 
-`revokeGrant(id)` deletes a grant's consent and tokens and answers whether it existed; `revokeGrant(id, userId)` answers `false` for a grant of another member. `listGrants(userId)` lists a member's grants.
-Removing a member, a member leaving and deleting an organization end their grants there.
-Reconnecting a revoked client starts a new grant; its older tokens stay refused.
+`revokeGrant(id, userId?)` deletes a grant's consent and tokens and answers whether it existed (with
+`userId`, only that member's); `listGrants(userId)` lists a member's grants. Removing a member, a
+member leaving and deleting an organization end their grants there. Reconnecting a revoked client
+starts a new grant.
 
 ## Showing a member their connections
 
@@ -86,20 +78,18 @@ const grants = orpc.auth.oauth.grants.list.read(); // { id, name, uri, organizat
 const revoke = orpc.auth.oauth.grants.revoke.mutationOptions(); // { id }; the list refreshes
 ```
 
-`name` is the client's name, or its client id when it has none; `uri` is its address or `null`. A client's
-secret and redirect URIs are never answered. The list holds the member's grants in every organization, not only the
-session's active one: a grant stands until revoked wherever it was made, and one client connected to two organizations
+`name` is the client's name, or its client id when it has none; `uri` is its address or `null`. The
+list holds the member's grants in every organization, so one client connected to two organizations
 is two rows, told apart by `organizationId`. A grant that is not the caller's, or does not exist, is
-`NOT_FOUND` from `revoke`, so a member cannot learn another's grant ids. Better Auth's own consent routes
-(`/oauth2/get-consent`, `get-consents`, `update-consent`, `delete-consent`) stay closed: they answer raw rows,
-let a consent's scopes change and delete a consent without its tokens.
+`NOT_FOUND` from `revoke`, so a member cannot learn another's grant ids. Better Auth's own consent
+routes (`/oauth2/get-consent` and the others) stay closed.
 
 ## Rules
 
-- One grant per client, member and organization; the same client connected twice to one
-  organization shares it, and both connections' refresh tokens keep working.
+- One grant per client, member and organization: the same client connected twice to one
+  organization shares it.
 - A client holds one token per server address, so connecting it to a second organization replaces
-  the first in the client; both grants stand until revoked.
+  the first in the client; both grants stand.
 - A refresh token reused after its 30-second window revokes every refresh token of that client for
   the member.
 
