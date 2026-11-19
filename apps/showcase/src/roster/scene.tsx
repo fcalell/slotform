@@ -8,9 +8,15 @@ import type { ShowcaseScene } from "./class-sets.ts";
 export type Draw = (scene: ShowcaseScene) => ReactNode | undefined;
 
 // A scene shrinks to the viewport and stands on the canvas: docs/architecture/ui-core/showcase.md, "Roster scenes".
-export function Scene(props: { scene: ShowcaseScene; draw?: Draw }) {
+// `leaveOut` draws nothing for a scene with no form, where the story names it.
+export function Scene(props: {
+	scene: ShowcaseScene;
+	draw?: Draw;
+	leaveOut?: boolean;
+}) {
 	const { scene } = props;
 	const drawn = props.draw?.(scene);
+	if (props.leaveOut && drawn === undefined) return null;
 	return (
 		<div
 			data-cell={scene.id}

@@ -62,7 +62,11 @@ class set, dark only: what it raises into a page-wide queue (`confirm()`, `toast
 container on the page draws, so a page of several stages would show it in each. Its drawer tells
 it by `scene.story`. Pointer and focus states stay in the roster and draw no
 story, since the web variants match only real pseudo-classes: hover, press and focus are driven on
-the real component in its story. `pnpm stories`, from the repo root, builds the workspace chain and
+the real component in its story.
+
+The `Specimen` story is the face on one page (`packages/ui-core/guide/voice.md`, "How the face is held"): every roster component's `rest` story in roster order, each class set light and dark at the toolbar's density; a class set its drawer has no form for, and a component with no drawer, are left out. The lone scenes stand at its end, one frame each, each its own story in an iframe, so its queue stays in its own document.
+
+`pnpm stories`, from the repo root, builds the workspace chain and
 opens Storybook on `:6006`. Nothing runs the stories headlessly; `stack screens test`, run on the
 screens a change works on, is the one machine run.
 
@@ -107,7 +111,7 @@ page draws. A scene outside a stage has no root container, so its popups (a tool
 
 ### Story generation
 
-`.storybook/roster.ts` writes one CSF module per roster component into the gitignored
+`.storybook/roster.ts` writes `Specimen.stories.ts` and one CSF module per roster component into the gitignored
 `apps/showcase/stories/` (Storybook's watcher does not see dot directories), each importing `state-stories.tsx` and that
 component's drawer, and written only when its text changes, so an unchanged module is neither
 re-indexed nor re-run. The roster is read in a child process (`roster-list.ts`), since Node caches ES

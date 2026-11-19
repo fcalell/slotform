@@ -388,6 +388,8 @@ to fix, and a new term enters this page in the change that introduces it.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
 - **lone scene**: A roster scene that is the one scene of a story of its own, for a scene that raises into a page-wide queue (a toast, a decision), which every root container on a page of stages would draw.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
+- **Specimen**: The showcase story that draws every roster component's rest scenes, light and dark, on one page, with the lone scenes at its end, where a class set or token change is judged first. Avoid: style sheet, kitchen sink.
+  [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
 - **screens workbench**: The Storybook host plugin-screens runs that serves every route of an app in
   each state its queries can take, from fixtures, with no backend. [showcase](architecture/ui-core/showcase.md#the-screens-workbench)
 - **fixture**: A typed answer the workbench gives a procedure, plus the example route params and
