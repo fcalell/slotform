@@ -214,7 +214,8 @@ what stands in it decides its form by (a Table its grid).
   while it loads) and the acts and more are the record's acts.
 - The trail before the title is a `nav` landmark named by the `breadcrumb` word, in the meta ink,
   a slash in the mark ink after each place. The slash is drawn, never written: it is a mark at the
-  3:1 floor, and a written slash would be text to the 4.5:1 check and to a reader. A place whose
+  non-text [floor](../../../packages/ui-core/guide/voice.md#floors), and a written slash would be text
+  to the text floor's check and to a reader. A place whose
   route is a page is a link to it; a folder (a spot route) is text. The title, the current page, is
   never a link.
 - On the desktop the trail always keeps the top place and the current place (a record's place, or

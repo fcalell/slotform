@@ -182,7 +182,7 @@ Sections above grew by, or a Section that stood disappears
 **Findings.** A failing check is a finding in the component: it stays failing until the component
 is fixed, never weakened or skipped. Nothing is excluded from axe beyond the document-structure
 rules. A node off a canvas's run path is a button that can be chosen, so its words stay in the meta
-ink and pass the text floor; the showcase's `/flow` draws one. The rules a component's source must
+ink and pass the [text floor](../../../packages/ui-core/guide/voice.md#floors); the showcase's `/flow` draws one. The rules a component's source must
 keep (`packages/ui-core/guide/structure.md`) are judged in review.
 
 **Changed runs.** A change reaches a story file only through its module graph, which `dist/` and
@@ -190,7 +190,7 @@ generated files do not join, so the generated screens config adds `workspaceTrig
 (`@fcalell/plugin-screens/node`) to Vitest's `forceRerunTriggers`, the files no module graph
 reaches ([changed runs](../plugins/screens.md#changed-runs)).
 
-**Voice lengths.** `voice.test.ts` holds `packages/ui-core/guide/voice.md` to its tokens: the page
+**Voice lengths.** `voice.test.ts` holds `packages/ui-core/guide/voice.md` and its `face-*.md` pages to their tokens: a page
 states a length by its token. A px value stands only as the value at the default `size` (or
 `radius`) knob, written "`token` (32 px, 44 px on touch, at the default `size`)", or is a true
 constant the test lists: a number no knob moves. A formula never joins that list.
@@ -198,7 +198,9 @@ constant the test lists: a number no knob moves. A formula never joins that list
 ## The guide
 
 ui-core's `guide/` holds what both platforms share: the screen recipe, the voice (the anchor app,
-its pinned screens, the decisions and the floors), the critic's checklist and the structure rules;
+its pinned screens, the floors, and the decisions on its `face-*.md` pages), the critic's checklist, the structure rules, and
+the rules and shapes both platforms' screens follow, one page per topic (places, controls, pictures,
+tone, acts, sheets, links, forms, rows, facts, frames, waiting, words);
 the package README lists the pages ([README](../../../packages/ui-core/README.md#install)). How a
 screen is judged is the screen recipe's (`packages/ui-core/guide/screen.md`).
 
@@ -206,7 +208,8 @@ screen is judged is the screen recipe's (`packages/ui-core/guide/screen.md`).
 to `cliSlots.guide` ([the guide](../consumer-project.md#the-guide)). Each UI plugin
 adds `@fcalell/ui-core` to the consumer's own `dependencies`, so the index's
 `node_modules/@fcalell/ui-core/guide/` paths resolve. A platform's rules for every `.tsx` are its
-plugin's own page (react-ui's `guide/rules.md`).
+plugin's own page (react-ui's `guide/rules.md`), which links ui-core's topic pages and keeps only
+what differs per platform.
 
 ## In the code
 

@@ -23,7 +23,7 @@ for itself eases the same press three ways and leaves nothing to tune in one pla
 ### What may animate
 
 What may animate is a matter of cost. `transform` and `opacity` run on the compositor; colour,
-`clip-path` and `filter` may transition, each explaining a change (`packages/ui-core/guide/voice.md`,
+`clip-path` and `filter` may transition, each explaining a change (`packages/ui-core/guide/face-motion.md`,
 Motion). A box's size or place never animates through layout (`width`, `height`, insets, margins,
 padding, gap, grid tracks, `font-size`): it moves by transform, or lands at once.
 

@@ -154,7 +154,7 @@ to fix, and a new term enters this page in the change that introduces it.
   else the theme's `defaultMode`, else the system preference.
   [plugin-react-ui](architecture/plugins/react-ui.md#mode-script-and-csp)
 - **contrast floor**: The least contrast a text ink holds on the hardest ground it stands on, in both
-  modes. [tokens](architecture/ui-core/tokens.md#contrast-floors)
+  modes. [voice](../packages/ui-core/guide/voice.md#floors), [tokens](architecture/ui-core/tokens.md#contrast-floors)
 - **density**: The set of type, spacing and sizes a screen draws in, `desktop` or `touch`, decided by
   the pointer and the width, never by a knob. [tokens](architecture/ui-core/tokens.md#density-and-room)
 - **density rule**: The one query that picks a screen's density: `desktop` where the primary pointer
@@ -201,6 +201,12 @@ to fix, and a new term enters this page in the change that introduces it.
   [roster](architecture/ui-core/roster.md#status-and-chips)
 - **fact**: One thing a list says of a thing, in the order given: words, a status, a chip, a warning or
   a boolean mark. [roster](architecture/ui-core/roster.md#facts)
+- **quiet mark**: A boolean mark whose words are not drawn (`words: false`): its glyph stands in the
+  row's end group, named by its label, and it is no badge. [roster](architecture/ui-core/roster.md#facts)
+- **badge**: The box one fact draws in, which never breaks inside and is cut with an ellipsis past
+  its line; a sentence is never a badge. [facts](../packages/ui-core/guide/facts.md#a-fact-is-a-badge-a-sentence-is-text)
+- **lock**: Why a row cannot change here, drawn as a badge after its status; a locked row takes no
+  act or open. [facts](../packages/ui-core/guide/facts.md#the-lock)
 - **change mark**: The mark of where a record, row or field stands in a change set (added, changed,
   removed, unchanged, stale); a Form's field draws it against its first value. Avoid: dirty mark.
   [roster](architecture/ui-core/roster.md#marks)
@@ -333,6 +339,8 @@ to fix, and a new term enters this page in the change that introduces it.
   [acts](architecture/ui-core/acts.md#link-acts)
 - **icon act**: An act drawn as its icon alone, its label its accessible name.
   [acts](architecture/ui-core/acts.md#act-press)
+- **function act**: An act that must run or pend over the surface it stands on (a sheet's submit,
+  an input's act), so it never takes a link act. [links](../packages/ui-core/guide/links.md#acts-that-stay-functions)
 - **inert**: Drawn in its disabled form and ignoring the press, while still focusable.
   [acts](architecture/ui-core/acts.md#act-model)
 - **pending**: An act whose attempt has not settled. [acts](architecture/ui-core/acts.md#blocked-and-pending-acts)
@@ -388,6 +396,12 @@ to fix, and a new term enters this page in the change that introduces it.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
 - **lone scene**: A roster scene that is the one scene of a story of its own, for a scene that raises into a page-wide queue (a toast, a decision), which every root container on a page of stages would draw.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
+- **topic page**: A guide page that holds the props of one group of components (a platform's `containers.md`, `controls.md`, `forms.md`), each component's props on one such page. Avoid: reference page.
+  [consumer project](architecture/consumer-project.md#the-guide)
+- **choosing rule**: A rule in a platform's `rules.md` that says which component or form a screen takes, and when; the props it names live on the topic page. Avoid: usage rule.
+  [consumer project](architecture/consumer-project.md#the-guide)
+- **face page**: One of ui-core's `face-*.md` guide pages, each holding the look decisions of one part of the face (the shell, rows, type, motion); `voice.md` indexes them. Avoid: style page.
+  [showcase](architecture/ui-core/showcase.md#the-guide)
 - **Specimen**: The showcase story that draws every roster component's rest scenes, light and dark, on one page, with the lone scenes at its end, where a class set or token change is judged first. Avoid: style sheet, kitchen sink.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
 - **screens workbench**: The Storybook host plugin-screens runs that serves every route of an app in

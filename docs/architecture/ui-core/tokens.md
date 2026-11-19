@@ -72,8 +72,9 @@ value at its own hue.
 A declared value keeps its chroma inside sRGB at the same lightness, so a re-hued accent keeps its
 luminance and contrast and loses saturation at a hue the gamut cannot carry, never clipping to
 another colour. The token values are in gamut, so at the default hue nothing moves. The
-contracts the token values carry include `accent-ink` on `group` and on `accent-soft` at 4.5:1, the dark
-`accent` on `group` at 3:1 and `act-accent-pending` at 3:1 under `on-act-accent`; they hold on the
+contracts the token values carry include `accent-ink` on `group` and on `accent-soft` at the
+[text floor](../../../packages/ui-core/guide/voice.md#floors), the dark `accent` on `group` and `act-accent-pending` under `on-act-accent` at the
+[non-text floor](../../../packages/ui-core/guide/voice.md#floors); they hold on the
 painted colour at every hue of either knob (`derive.test.ts` sweeps both knobs over 0..359).
 
 The conversions are Björn Ottosson's reference matrices for OKLCH, OKLab and sRGB (`oklch.ts`,
@@ -91,9 +92,9 @@ surface 8.0, group and raised 13.0. The dark table is a full step under the shee
 black (rgb 12 13 15), so it reads as a drawn ground, never as the screen switched off.
 
 Text has two inks, `ink-body` and `ink-meta`. A third ink is a mark, not text: `ink-mark` (a
-separator, a chevron, a neutral dot) holds the non-text floor of 3:1 on the canvas, the surface and
-the group, and on a selected row, in both modes. `ink-disabled` is the one text ink below the floor,
-about 3:1, which WCAG exempts for a disabled control.
+separator, a chevron, a neutral dot) meets the [non-text floor](../../../packages/ui-core/guide/voice.md#floors) on the canvas, the surface and
+the group, and on a selected row, in both modes. `ink-disabled` is the one text ink below the text
+floor, the [disabled floor](../../../packages/ui-core/guide/voice.md#floors).
 
 The accent is a blue between Linear's indigo and Vercel's blue, whose hue the neutrals wear unless
 the cast names another. `accent-ink` is the accent itself in light and lightens in dark, so a link
@@ -108,14 +109,16 @@ on. It is opaque, so it reads the same on every ground.
 
 ## Contrast floors
 
-The grounds a mark stands on are the table (`canvas`), the sheet and the card (`surface`), a tile
-(`group`) and a selected row, and a floor is measured against the hardest of them in each mode.
+The floors are [voice.md's Floors](../../../packages/ui-core/guide/voice.md#floors); this section says which token meets which. The grounds a
+mark stands on are the table (`canvas`), the sheet and the card (`surface`), a tile (`group`) and a
+selected row (the shell's selected place included), and a floor is measured against the hardest of
+them in each mode.
 
-- The faintest text ink holds 4.5:1 on the table, the sheet, a tile and a selected row (the shell's
-  selected place included), and on the neutral state's ground, which it is the ink of, in both modes.
-- A badge's words are the meta ink on the meta ink's own tenth, laid over the ground the row stands
-  on: the text floor holds on every ground, in both modes, and the badge's ground is a step away from
-  the one under it (`badge.test.ts`).
+- `ink-meta`, the faintest text ink, meets the text floor on each of them and on the neutral state's
+  ground, which it is the ink of.
+- A badge's words are `ink-meta` on its own tenth (`fill-badge`), laid over `canvas`, `surface` or
+  `group`, the grounds `badge.test.ts` sweeps at every cast: the badge-words floor holds on each, and
+  the badge's ground is a step away from the one under it.
 
 ## Interaction colours
 
@@ -123,10 +126,10 @@ The grounds a mark stands on are the table (`canvas`), the sheet and the card (`
   both filled acts wear a white label in both modes and move toward black. The danger act in dark is
   a deep red of its own, since the danger ink holds no light label.
 - Pending is inert and recedes 30 %: a filled act toward its label in light and toward the page in
-  dark, held at 3:1 under its label, where the spinner draws. A labelled act's fill takes no ground
+  dark, held at the non-text floor under its label, where the spinner draws. A labelled act's fill takes no ground
   floor in any state: its label names it.
 - A toggle on (a switch's track, a checked box, a slider's fill) has no label to carry it, so it is a
-  boundary at 3:1 on every ground, and its hover moves away from the ground: darker in light,
+  boundary at the non-text floor on every ground, and its hover moves away from the ground: darker in light,
   lighter in dark.
 - A QR code keeps its light tile in dark mode, as a printed one does: a camera reads dark modules on
   a light ground, and some readers fail an inverted code. Its modules are the light mode's body ink
@@ -139,10 +142,10 @@ set separates by lightness as well as hue; light marks are floored at L 0.50 and
 at L 0.75.
 
 A chart series' fill is the chip hue at about 60 % of the mark's chroma, its lightness the nearest to
-the mark's that holds 3:1 on `surface` and `group` (light: the lightest that holds; dark: the
+the mark's that meets the non-text floor on `surface` and `group` (light: the lightest that holds; dark: the
 darkest). A chart's series take the `chart-<hue>` fills in `CHART_SERIES` order: the chip hues, then
 the neutral grey. One series takes the first. The seventh is the neutral family's grey, in the cast
-hue at the neutrals' chroma, at the lightness that holds 3:1, because no seventh hue stands outside
+hue at the neutrals' chroma, at the lightness that meets the non-text floor, because no seventh hue stands outside
 the accent's 215 to 290 band that the six hues leave free. A meter's level turns on `METER_NEAR`.
 Both platforms read these, so they draw the same colour for a value.
 
@@ -150,7 +153,7 @@ Both platforms read these, so they draw the same colour for a value.
 
 The dark hairline is two tokens, since the dark ladder spans more than one hairline can straddle:
 `edge` over canvas and surface, and `edge-raised` inside a group and a lifted layer. In light both
-are one hairline. `edge-strong` is a control's boundary under the pointer and a mark's ring at 3:1;
+are one hairline. `edge-strong` is a control's boundary under the pointer and a mark's ring;
 at rest a control's edge is the hairline.
 
 A part names `edge` and the ground it stands in decides what it draws, so no part picks between the
@@ -161,9 +164,9 @@ hairlines:
 - A soft ground (`SOFT_GROUNDS`: `accent-soft`, `ok-soft`, `warn-soft`, `danger-soft`,
   `chip-neutral-soft`, the tones a banner and a state pill stand on) is no edge for a hairline (a
   tenth or a soft tint from the canvas), so it re-points it to `edge-strong`, the one boundary that
-  holds 3:1 on every one of them (`SOFT_GROUND_TOKENS`). A quiet act on a banner is then an edge.
-  `edge.test.ts` holds the strong edge at 3:1 on every soft ground, in both modes, a veiled ground
-  over each ground it can lie on.
+  meets the [strong-edge floor](../../../packages/ui-core/guide/voice.md#floors) on every one of them (`SOFT_GROUND_TOKENS`). A quiet act on a
+  banner is then an edge. `edge.test.ts` holds it on every soft ground, in both modes, a veiled
+  ground over each ground it can lie on.
 
 The web scopes both by class on the grounds' fill classes (`.bg-<ground>` for each listed ground), after the mode
 scopes, so a ground that is also a mode scope still re-points. Native wraps a raised surface's
@@ -240,8 +243,7 @@ Ink is a colour role, family a font role. `tabular` draws the figures at one wid
 figure are stats. A type-role class set carries its ink, family and figures ([class sets](roster.md#class-sets)).
 
 The body size per density is the knob's on the desktop; touch and the room keep the token values' ratio
-to the desktop, `max(16, round(size × 16 / 13))`, never under 16, the input size below which iOS
-Safari zooms a field on focus (`bodyOf`).
+to the desktop, `max(16, round(size × 16 / 13))`, which holds the [body floor](../../../packages/ui-core/guide/voice.md#floors) (`bodyOf`).
 
 ## Spacing
 
@@ -274,11 +276,11 @@ Heights and squares sit in the `--spacing-*` namespace, so a class set names the
 (`min-h-control`, `size-icon`). The scale is generic: a size names a measure every component may
 stand on, never one component's part. There are eleven:
 
-- `control`: the body line and the gap above and below it, at least the target (a button, a field,
-  a pick, a nav row, a segment);
-- `row`: the same measure as a row's floor (`min-h-row`), never its height: a row is its lines and
+- `control`: the body line and the gap above and below it, meeting the [control floor](../../../packages/ui-core/guide/voice.md#floors) (a
+  button, a field, a pick, a nav row, a segment);
+- `row`: the same measure, as the [row floor](../../../packages/ui-core/guide/voice.md#floors) (`min-h-row`), never its height: a row is its lines and
   the gap above and below them, so one that wraps grows;
-- `target`: the hit floor;
+- `target`: the design hit target of the [hit-target floor](../../../packages/ui-core/guide/voice.md#floors);
 - `line-body`: one body line box;
 - `hairline`: a box's border, which an act inside it reaches across;
 - `icon-meta`, `icon`, `icon-control`: an icon sized by what it sits beside (meta or caption text,
@@ -289,9 +291,9 @@ stand on, never one component's part. There are eleven:
 - `measure`: the width of running text, so a meta line, a paragraph and a form share one width.
 
 Every size is derived from the type and the space (`sizePx`), so the `size` knob moves them all. The
-one declared value is the target, the hit floor of a pointer or a finger, which no knob moves: 28 on
-the desktop, over WCAG's 24, and 44 on touch, so the room set holds 44 of 960, the 32 the ten-foot
-guidance asks, and 88 at 1920. A component's own measure (a switch's track, an avatar, a docked
+one declared value is the target (`TARGET_PX`, one per density), which no knob moves. The room's is
+in room units, so it scales with `u` and stands over the 32 the ten-foot guidance asks of the 960
+canvas. A component's own measure (a switch's track, an avatar, a docked
 sheet's floor, a text area's three body lines) is a sum or multiple of these in its class set, never a
 size of the scale, so the size knob moves every component with the type.
 
@@ -310,7 +312,7 @@ Widths come in two kinds:
 The unit widths are the lifted layers, each at its pattern's range (a layer never stretches to its
 container), the regions of a container (the sidebar, a split's list column, the auth column, an empty
 state's column) and a canvas node's. A split's list holds the `list` width and its record pane takes
-the rest, never under `region-min` ([Pane](layout.md#pane)). `column` is a board column's width and
+the rest, never under `region-min`, 85 units ([Pane](layout.md#pane)). `column` is a board column's width and
 the range of the filters popover. `node`, 60 units, is the width the Canvas's layout reads off the
 rendered theme as a number.
 

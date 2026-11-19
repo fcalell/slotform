@@ -2,24 +2,6 @@
 
 Unbuilt work, one item each; an item moves into the built docs when it lands.
 
-## Shared logic into ui-core
-
-Each item is logic or a constant both UI plugins hold in their own copy. It waits because moving it into ui-core changes ui-core and both plugins in one change.
-
-- Avatar initials: `initials(name)` is written in `plugins/react-ui/src/ui/atoms/avatar/base.tsx` and `plugins/native-ui/src/ui/atoms/avatar/base.tsx`. It moves to ui-core with its edge cases (`@ada`, `Jean-Luc`).
-- A row mark's reading: `says` and `wordless` are in react-ui `atoms/row/marks.tsx` and native-ui `lib/facts.ts`, and `useReasonLine` is in react-ui `atoms/button/reason.tsx` and native-ui `components/row/acts.tsx`.
-- The facts reading: react-ui's Row reads facts through ui-core `splitFacts` (`list-state.ts`), while native-ui builds them in its own `lib/facts.ts` (`badgesOf`). `splitFacts` becomes the one reading on both, and the Facts sentence in `docs/architecture/ui-core/roster.md` follows it.
-- The row text floor: ui-core `ROW_TEXT_FLOOR` (`basis-2/5 shrink-0`) and react-ui's own `TEXT_AT_FLOOR` (`basis-2/5 shrink`, `components/row/index.tsx`) state one floor twice. One constant on both platforms changes the phone's row, which then gives way at the floor.
-- An act's ending: both action bars (`components/action-bar/base.tsx`) call `leave.settle(true | false)` around a press by hand; a `leave.run(fn)` in ui-core `react/touched` takes their place. The close-or-settle after a run in react-ui `sheet/confirm.tsx`, `lib/reorder.ts` and `action-bar/base.tsx` becomes one helper beside `isThenable` in ui-core `acts`.
-- `Draft.ended`: 12 controls across both plugins (`input/base.tsx`, `input/prose.tsx`, `switch`, `picker`, `slider`, `atoms/switch/checkbox.tsx`) write `draft.ended !== undefined`; ui-core `react/acts`'s `Draft` gains a derived `ended` boolean.
-- The removed sign: `removed: "−"` is in both plugins' `components/diff/index.tsx` (and their FileRow); it becomes one ui-core constant.
-- An ended act and an option's second line: the ended act's offer (react-ui `offerOf` in `row/acts.tsx` and `section/head.tsx`, native-ui `row/acts.tsx` and `section/head.tsx`) and `optionBlocked(option, chosen) ?? option.line` (both pickers' base and list) each become one ui-core export, in `acts` and `list-state`.
-- The press wash: `hover:bg-wash-hover active:bg-wash-press` is written in react-ui `table/index.tsx` (`ROW_PRESS`), `shell/row.ts` (`ROW_PRESS`) and `stats/index.tsx` (`OPENS`); it becomes one ui-core `variants` constant.
-- A QR code past version 40 throws during render: ui-core `qrModules` (`qr.ts`) returns a typed failure and both plugins' `QrCode` draw a failed shape.
-- Prose prints a character reference (`&#38;`, `&amp;`) literally: ui-core `prose.ts` gains a decoder for text tokens that both plugins' inline text case calls.
-- The phone's pick failure: `expo-document-picker` throws unhandled in native-ui `components/input/file.tsx` and `components/message-input/index.tsx`. The catch draws a new closed word (`pickFailed`) in ui-core words.
-- The tone helpers: ui-core `variants` exports `summaryContentTone` and `rowWarningContentTone`; one `toneOf` export takes their place in both plugins.
-
 ## Public surface
 
 Each item adds, renames or moves a public name, which a consumer's import follows, or changes a stored shape.
@@ -84,9 +66,7 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 
 Each item is decided and waits to be built. One that adds a part or crosses packages is designed first (an architecture section and a change map), then built.
 
-- Guide and architecture pages: a component's props live on its topic page (`containers.md`, `blocks.md`, `content.md`) and `rules.md` keeps the choosing rule and links there; the floors live in `packages/ui-core/guide/voice.md` and `docs/architecture/ui-core/tokens.md` links to them; a rule a consumer follows lives in its guide page and `node.md`, `runtime.md` and `screens.md` keep the mechanism.
-- Guide pages hold at most 600 words of prose (code and tables not counted), checked in `pnpm check`; the 26 pages over it split by topic, the two `rules.md` along their `##` sections.
-- Consumer migration: once the items above land, the two consumer apps move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md), which every breaking item above extends in its own commit.
+- Consumer migration: the two consumer apps move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md).
 
 ## Not verified on a device or browser
 
