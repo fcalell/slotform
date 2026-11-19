@@ -93,7 +93,8 @@ plugins; `requires` is checked when the config's plugins load
 extracts one plugin's entry, its `options` typed as that plugin's (`DbOptions`).
 
 `stack` loads `stack.config.ts` and `src/schema/seed.ts` with a plain `import()` under Node's type
-stripping, so both stay erasable-only syntax and name the file of every relative import.
+stripping, which takes erasable syntax only; the rule a consumer follows is on each file's guide page
+([config](../../packages/cli/guide/config.md), [seed](../../plugins/db/guide/seed.md)).
 
 ## Project structure
 
@@ -448,12 +449,21 @@ loads no Claude Code settings reads the same ones by path.
 - Every plugin ships pages except vite: a web app is always vite with react (react requires vite),
   so vite's options and its dev server live in react's `web-app` page, the page a step on the web
   app opens.
-- ui-core is no plugin, so its pages (the screen recipe, the voice, the critic's checklist, the structure rules) are listed
+- ui-core is no plugin, so its pages (the screen recipe, the voice, the critic's checklist, the structure rules, the shared topic pages) are listed
   by `@fcalell/ui-core/manifest` and contributed by both UI plugins; the index writes a page two
-  plugins list once. Every listed page exists and every page under `guide/` is listed.
+  plugins list once. Every listed page exists and every page under `guide/` is listed. `packages/repo-checks/src/guide.test.ts` holds the listing and the cap: a page holds at most 600 words of prose (code blocks, table rows and `##` headings are not counted).
 - A page links a page of its own package relatively (`./client.md`) and another package's by the
   path the index uses, `node_modules/@fcalell/<pkg>/guide/<page>.md`, so every link resolves from
   the consumer's root.
+- A topic past the cap splits along its `##` sections into pages of its own, each listed with its
+  trigger.
+- A component's props live on its platform's topic page; a platform's `rules.md` holds the choosing
+  rules and links there. A rule or shape both platforms share (a row, a place, a record's facts, an
+  act) lives once in ui-core's guide, and each platform's page links there.
+- A floor lives in ui-core's `voice.md`, "Floors"; [tokens](ui-core/tokens.md) says which token pair
+  meets which floor and links there.
+- A rule an app author follows lives in its guide page; the architecture pages keep the mechanism
+  and link to the rule.
 - A README keeps install, a pointer to the guide, and the maintainer sections (the plugin's
   implementation, its owned slots); every consumer-facing fact lives on one page.
 

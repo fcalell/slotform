@@ -16,6 +16,7 @@ plugins, how they depend on each other, and every architecture page.
 | [`@fcalell/ui-core`](../packages/ui-core) | The design contract both UI plugins render from: the knob-derived token records, `deriveTheme`, the emit helpers, `words`, `cn()`, the platform-invariant variant matrices and the component roster. Framework-free build-time data |
 | [`@fcalell/typescript-config`](../packages/typescript-config) | `tsconfig` presets (`base`, `node-tsx`, `web-vite`) and the `build` emit overlay |
 | [`@fcalell/biome-config`](../packages/biome-config) | The shared Biome formatter and linter config |
+| [`@fcalell/repo-checks`](../packages/repo-checks) | Private. The tests that read the whole checkout: no consumer's names in sources, guides or docs (`neutral.test.ts`); every guide page at most 600 words of prose, listed by its package and on disk (`guide.test.ts`). Its `test` task's inputs are every root those tests read, so a doc-only change re-runs them. |
 
 ## Plugins
 

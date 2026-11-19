@@ -2,6 +2,7 @@
 
 import { spawnSync } from "node:child_process";
 import {
+	existsSync,
 	mkdirSync,
 	mkdtempSync,
 	readdirSync,
@@ -129,12 +130,21 @@ function targets(value: unknown): string[] {
 
 if (!values["no-build"]) run("build", "pnpm", ["turbo", "run", "build"]);
 
+// A directory with no manifest is no package; private packages (repo-checks) are never packed: pnpm's filters cannot select on `private`.
+const publicDirs = ["packages", "plugins"].flatMap((group) =>
+	readdirSync(group).flatMap((name) => {
+		const dir = `./${group}/${name}`;
+		if (!existsSync(join(dir, "package.json"))) return [];
+		const manifest = JSON.parse(
+			readFileSync(join(dir, "package.json"), "utf8"),
+		) as Manifest;
+		return manifest.private ? [] : ["--filter", dir];
+	}),
+);
+
 const packed = run("pack", "pnpm", [
 	"-r",
-	"--filter",
-	"./packages/*",
-	"--filter",
-	"./plugins/*",
+	...publicDirs,
 	"pack",
 	"--pack-destination",
 	tarballs,
@@ -161,7 +171,6 @@ for (const file of packed
 	const files = walk(pkgDir).map((f) => f.slice(pkgDir.length + 1));
 	const label = manifest.name;
 
-	if (manifest.private) fail(`${label} is private`);
 	if (manifest.license !== "MIT") fail(`${label} has no MIT license field`);
 	if (!files.includes("LICENSE")) fail(`${label} ships no LICENSE`);
 	if (!manifest.repository?.directory)

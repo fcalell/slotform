@@ -1,0 +1,32 @@
+{
+	"name": "@fcalell/repo-checks",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": ">=24.14.0"
+	},
+	"scripts": {
+		"check-types": "tsc --noEmit --pretty",
+		"test": "node --test 'src/**/*.test.ts'",
+		"clear": "rm -rf node_modules .turbo"
+	},
+	"devDependencies": {
+		"@fcalell/cli": "workspace:*",
+		"@fcalell/plugin-api": "workspace:*",
+		"@fcalell/plugin-auth": "workspace:*",
+		"@fcalell/plugin-cloudflare": "workspace:*",
+		"@fcalell/plugin-db": "workspace:*",
+		"@fcalell/plugin-expo": "workspace:*",
+		"@fcalell/plugin-native-ui": "workspace:*",
+		"@fcalell/plugin-node": "workspace:*",
+		"@fcalell/plugin-query": "workspace:*",
+		"@fcalell/plugin-react": "workspace:*",
+		"@fcalell/plugin-react-ui": "workspace:*",
+		"@fcalell/plugin-screens": "workspace:*",
+		"@fcalell/plugin-vite": "workspace:*",
+		"@fcalell/typescript-config": "workspace:*",
+		"@fcalell/ui-core": "workspace:*",
+		"@types/node": "^26.6.6",
+		"typescript": "^7.0.2"
+	}
+}

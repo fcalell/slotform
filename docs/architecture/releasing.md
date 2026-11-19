@@ -18,8 +18,9 @@ The packages below, all `@fcalell/*`, all at one version:
 | `@fcalell/biome-config` | `packages/biome-config` | the scaffold's Biome preset (every app's devDependency outside stack's workspace) |
 | `@fcalell/plugin-api`, `-auth`, `-cloudflare`, `-db`, `-expo`, `-native-ui`, `-node`, `-query`, `-react`, `-react-ui`, `-screens`, `-vite` | `plugins/<name>` | one per domain, named in `stack.config.ts` |
 
-Private, never published: the root (`@fcalell/stack`) and the two apps, `apps/showcase` and
-`apps/phone`, stack consumers inside the checkout (`private`, which changesets never versions). The two
+Private, never published: the root (`@fcalell/stack`), `packages/repo-checks` and the two apps,
+`apps/showcase` and `apps/phone`, stack consumers inside the checkout (`private`, which changesets
+never versions). The two
 presets are public although only a devDependency: `stack init` writes both into every app's
 `package.json`, and `.stack/biome.json` extends the Biome one.
 
@@ -110,7 +111,8 @@ builds. There is no `prepublishOnly`.
 it publishes nothing.
 
 1. It builds every package (`turbo run build`; `--no-build` skips it when they are built).
-2. It packs every public package and checks each tarball: not `private`, MIT, a LICENSE, a
+2. It packs every public package under `packages/` and `plugins/` (a `private` one is skipped) and
+   checks each tarball: MIT, a LICENSE, a
    `repository.directory`, `publishConfig.access: public`, no `workspace:` range left, no test
    file, every `exports` and `bin` target present. Across them: one version, and every plugin
    installed by at least one consumer, since a plugin none installs is never generated or
