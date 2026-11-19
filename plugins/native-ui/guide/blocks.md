@@ -33,7 +33,7 @@ A rail of fixed states.
 
 ## Stats
 
-Figures in cells. `items` are cells `{ label, value, line? }`, `line` the sentence under the figure, each one of:
+Figures in cells. `items` are cells `{ label, value, line? }`, `line` the sentence under the figure (a selection paints until its read lands), each one of:
 
 - plain, with a `unit` after the figure's last digit (the spare space stands after the pair).
 - a link: `href` makes the whole cell a link; `counts` makes sub-counts links of their own. Never both.

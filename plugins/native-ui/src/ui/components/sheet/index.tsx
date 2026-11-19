@@ -13,7 +13,7 @@ import { SheetForm, useClearOnOpen } from "./form";
 
 export type { Acknowledge, SheetSubmit } from "./base";
 
-/** The sheet an act opens, or a `Pane`'s or a `Thread`'s docked one, over the procedure its form submits (`P`, read off the form's `act`, so `onDone` hears that procedure's output): a `Sheet`'s props but the two its holder owns, `open` and `onClose`. */
+/** The sheet an act opens, or a `Pane`'s or a `Thread`'s docked one, over the procedure its form submits (`P`, read off the form's `act`, so `onDone` hears that procedure's output): a `Sheet`'s props but the two its holder owns, `open` and `onClose` (the sheet outlet, for an act's). */
 export interface ActSheetProps<P extends ProcedureCall = ProcedureCall>
 	extends Closed {
 	/** The sheet's heading, which names it (a short phrase; wraps). */

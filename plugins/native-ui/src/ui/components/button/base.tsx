@@ -21,7 +21,6 @@ import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
-import { ActSheet } from "../sheet/act";
 import type { ButtonAttemptProps } from "./index";
 
 const STACK = "items-start gap-gap";
@@ -209,18 +208,12 @@ export function ButtonBase({
 			</Ink.Provider>
 		</Press>
 	);
-	const control = (
-		<>
-			{face}
-			<ActSheet acting={acting} of={() => sheet} />
-		</>
-	);
 	// A host draws the reason, and a failure, on its own line.
-	if (host) return control;
+	if (host) return face;
 	if (muted) {
 		return (
 			<View className={STACK}>
-				{control}
+				{face}
 				{said ? (
 					<FadingText
 						key={blocked}
@@ -233,13 +226,13 @@ export function ButtonBase({
 			</View>
 		);
 	}
-	if (!line) return control;
+	if (!line) return face;
 	// The stack stands from the first render, so the failure's line arriving
 	// never remounts the act it was pressed on (and its focus with it).
 	const under = acting.line;
 	return (
 		<View className={STACK}>
-			{control}
+			{face}
 			{under === undefined ? null : (
 				<FadingText
 					key={under}

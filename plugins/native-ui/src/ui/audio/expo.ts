@@ -1,5 +1,6 @@
 import type { Engine } from "@fcalell/ui-core/player";
 import {
+	type AudioMetadata,
 	type AudioStatus,
 	createAudioPlayer,
 	setAudioModeAsync,
@@ -26,6 +27,8 @@ export function audioOutput(): Engine {
 		let fresh = true;
 		// Whether the store wants sound, as it last told the output.
 		let wanted = false;
+		// What the lock screen shows of the loaded track, beside its picture.
+		let shown: AudioMetadata | undefined;
 		sound.addListener("playbackStatusUpdate", (status: AudioStatus) => {
 			if (status.error) {
 				report.failed();
@@ -55,18 +58,18 @@ export function audioOutput(): Engine {
 				if (!track) {
 					sound.pause();
 					sound.clearLockScreenControls();
+					shown = undefined;
 					sound.replace(null);
 					return;
 				}
 				fresh = true;
 				sound.replace({ uri: track.src });
-				// The system fetches the lock screen's picture itself, from an address
-				// alone.
-				sound.setActiveForLockScreen(
-					true,
-					{ title: track.title, artist: track.line, artworkUrl: track.image },
-					{ showSeekBackward: true, showSeekForward: true },
-				);
+				shown = { title: track.title, artist: track.line };
+				// The picture comes with `cover`, once the store has it.
+				sound.setActiveForLockScreen(true, shown, {
+					showSeekBackward: true,
+					showSeekForward: true,
+				});
 			},
 			play() {
 				wanted = true;
@@ -93,6 +96,14 @@ export function audioOutput(): Engine {
 				sound.volume = volume;
 				sound.muted = muted;
 			},
+			// The system fetches the lock screen's picture itself, from an address
+			// alone.
+			cover(address) {
+				if (shown)
+					sound.updateLockScreenMetadata({ ...shown, artworkUrl: address });
+			},
+			// `expo-audio` reports no system Next or Previous: those two are the dock's.
+			steps: () => {},
 		};
 	};
 }

@@ -6,7 +6,7 @@ import { paintText } from "@fcalell/ui-core/paint";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import type { Datum } from "@fcalell/ui-core/read";
-import { endedSentence, isEnded } from "@fcalell/ui-core/read";
+import { endedSentence, isEnded, shownText } from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,
@@ -100,8 +100,8 @@ interface MeterBase extends Closed {
 // The line under the bar: words, the counts as links, or both.
 interface MeterLine {
 	// A line under the bar: the value in words, when it resets (a sentence;
-	// wraps).
-	line?: string;
+	// wraps). A selection paints until its read lands.
+	line?: Datum<string>;
 	// The line under the bar as links: counts that lead to their lists.
 	counts?: readonly CountLink[];
 }
@@ -121,13 +121,14 @@ export function Meter({
 	at = 0,
 }: MeterProps & { at?: number }) {
 	const words = useWords();
-	const [l, v, m] = useSelections([label, value, max]);
-	const { ended: held, busy, retry } = useRow([label, value, max]);
+	const [l, v, m, n] = useSelections([label, value, max, line]);
+	const { ended: held, busy, retry } = useRow([label, value, max, line]);
 	// A read that ended leaves the meter empty, unpainted: no share, no track
 	// fill, the label standing if its own read answered.
 	const ended = [l, v, m].some((one) => one.painted && isEnded(one.phase));
 	const absent = l.painted || v.painted || m.painted;
 	const painted = absent && !ended;
+	const said = shownText(n);
 	// The drawn numbers are read only once absence is ruled out: a stand-in
 	// is a function proxy.
 	const used = absent ? 0 : v.value;
@@ -212,13 +213,13 @@ export function Meter({
 			) : counts ? (
 				<CountLinks counts={counts} painted={painted} />
 			) : null}
-			{!held && line ? (
+			{!held && said ? (
 				<PaintText
 					fills="phrase"
-					painted={painted}
+					painted={said.painted}
 					className={text({ role: "meta" })}
 				>
-					{painted ? <Painted role="phrase" at={at} /> : line}
+					{said.painted ? <Painted role="phrase" at={at} /> : said.text}
 				</PaintText>
 			) : null}
 			{/* A failed meter is one hit over all of it, after its content. */}

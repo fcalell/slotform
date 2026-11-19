@@ -1,6 +1,5 @@
 import { cn } from "@fcalell/ui-core/cn";
 import { STATES } from "@fcalell/ui-core/controls";
-import type { Draft } from "@fcalell/ui-core/react/acts";
 import { FieldDisabled } from "@fcalell/ui-core/react/field";
 import type { Datum } from "@fcalell/ui-core/read";
 import { ICON_STROKE } from "@fcalell/ui-core/tokens";
@@ -17,8 +16,8 @@ import { markIn, markOut, usePress } from "../../lib/motion";
 import { inertProps, PAINT_CONTROL, PaintView } from "../../lib/paint";
 import { Wash } from "../../lib/press";
 
-/** A choice among others, on, off, or mixed over a set: the tick a row, a table's cell, an option or a field's `checkbox` descriptor draws. Outside the package's exports. */
-export interface CheckboxProps {
+/** A choice among others, on, off, or mixed over a set: the tick a row, a table's cell or an option draws. Outside the package's exports. */
+interface CheckboxProps {
 	/** Whether it is checked; `mixed` when some of the set it stands for are. A selection paints the box, inert, until its read lands and follows it until the viewer toggles it. Once its read ended the control stands with no value and a change says why instead. */
 	checked: Datum<boolean | "mixed">;
 	/** Hears the next value when the viewer toggles it; a mixed box checks. Return the save's promise and the viewer's value holds while it pends; a refusal puts it back, with its reason. */
@@ -37,18 +36,18 @@ const WASH = {
 	mixed: "rounded-chip bg-toggle-on-hover",
 } as const;
 
-/** The tick box every selection renders, on the `draft` its host holds: a field hosts the draft of its checkbox and draws a rejection in its own line. `target` is a row whose label is its target: the box alone, on the label's line; `painted` is the box while its data is not here: filled, unchecked, inert. Outside the package's exports. */
-export function CheckboxBase({
-	draft,
+/** The tick box every selection renders, holding its own draft, as a row's does; a rejection toasts. `target` is a row whose label is its target and takes the press: the box alone, on the label's line; `painted` is the box while its data is not here: filled, unchecked, inert. A read that ended leaves it unchecked and disabled. Outside the package's exports. */
+export function HeldCheckbox({
+	checked,
 	onChange,
 	label,
 	target,
 	painted: given,
-}: Omit<CheckboxProps, "checked"> & {
-	draft: Draft<boolean | "mixed">;
+}: CheckboxProps & {
 	target?: boolean;
 	painted?: boolean;
 }) {
+	const draft = useHeldDraft(checked);
 	// A read that ended leaves the box empty and blocked.
 	const ended = draft.ended !== undefined;
 	const painted = given || (draft.painted && !ended);
@@ -62,7 +61,17 @@ export function CheckboxBase({
 	return (
 		<Pressable
 			{...inertProps(painted === true)}
-			{...checkboxPress({ draft, onChange, label, disabled, painted })}
+			accessibilityRole="checkbox"
+			accessibilityLabel={label}
+			accessibilityState={{
+				checked: absent ? false : value,
+				disabled: disabled || ended,
+			}}
+			disabled={disabled}
+			onPress={() => {
+				const next = value !== true;
+				draft.change(next, () => onChange(next));
+			}}
 			onPressIn={press.onPressIn}
 			onPressOut={press.onPressOut}
 			className="shrink-0 items-center justify-center size-target"
@@ -74,56 +83,6 @@ export function CheckboxBase({
 				painted={painted}
 			/>
 		</Pressable>
-	);
-}
-
-/** The press of a tick box, on the box or on the row whose label is its target: its accessible state, and the toggle that changes `draft` and saves through `onChange`. A read that ended leaves it unchecked and disabled. Outside the package's exports. */
-export function checkboxPress({
-	draft,
-	onChange,
-	label,
-	disabled,
-	painted,
-}: Omit<CheckboxProps, "checked"> & {
-	draft: Draft<boolean | "mixed">;
-	disabled: boolean;
-	painted: boolean;
-}) {
-	const ended = draft.ended !== undefined;
-	return {
-		accessibilityRole: "checkbox" as const,
-		accessibilityLabel: label,
-		accessibilityState: {
-			checked: painted || ended ? false : draft.value,
-			disabled: disabled || ended,
-		},
-		disabled,
-		onPress: () => {
-			const next = draft.value !== true;
-			draft.change(next, () => onChange(next));
-		},
-	};
-}
-
-/** A tick box that holds its own draft, as a row's does; a rejection toasts. Outside the package's exports. */
-export function HeldCheckbox({
-	checked,
-	onChange,
-	label,
-	target,
-	painted,
-}: CheckboxProps & {
-	target?: boolean;
-	painted?: boolean;
-}) {
-	return (
-		<CheckboxBase
-			draft={useHeldDraft(checked)}
-			onChange={onChange}
-			label={label}
-			target={target}
-			painted={painted}
-		/>
 	);
 }
 

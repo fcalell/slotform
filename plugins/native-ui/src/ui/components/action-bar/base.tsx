@@ -36,7 +36,6 @@ import { FadingText, flowIn } from "../../lib/motion";
 import { PendingBar } from "../banner/pending";
 import { ButtonBase } from "../button/base";
 import { MenuBase } from "../menu/base";
-import { ActSheet } from "../sheet/act";
 import type { ActionBarProps } from "./index";
 
 // The touch structure at either fit: one act per row across the container,
@@ -255,9 +254,6 @@ export function ActionBarBase({
 						</ReasonHostContext.Provider>
 					);
 				})}
-				{ghost ? null : (
-					<ActSheet acting={acting} of={(at) => acts[at]?.sheet} />
-				)}
 			</View>
 			{!(held !== undefined || kept || acting.line !== undefined) ? null : (
 				<FadingText

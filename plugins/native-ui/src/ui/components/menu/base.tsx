@@ -2,7 +2,6 @@ import { useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import type { MenuEntry } from "../../lib/act";
 import { asItem, useAct } from "../../lib/act";
-import { ActSheet } from "../sheet/act";
 import { MenuSheet } from "./sheet";
 
 // The more act named `label` and its sheet titled `title`: a row's menu is
@@ -21,12 +20,7 @@ export function MenuBase({
 	painted?: boolean;
 }) {
 	const [open, setOpen] = useState(false);
-	// Each item runs under its label, so the sheet that opens is its item's.
 	const acting = useAct<string>("toast");
-	const sheetOf = (name: string) => {
-		const item = items.find((one) => one.label === name);
-		return item && "sheet" in item ? item.sheet : undefined;
-	};
 	return (
 		<>
 			<IconButtonBase
@@ -47,7 +41,6 @@ export function MenuBase({
 				open={open}
 				onClose={() => setOpen(false)}
 			/>
-			<ActSheet acting={acting} of={sheetOf} />
 		</>
 	);
 }

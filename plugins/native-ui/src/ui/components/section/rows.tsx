@@ -38,8 +38,8 @@ export interface RowsInternal {
 	groups?: readonly Band[];
 	/** The Section's head counts the rows, so a lone band holding every row draws no count of its own: one band, one count. */
 	counted?: boolean;
-	/** The row item the painted rows take their shape from; a title line over a facts line when none is given. */
-	paint?: RowItem;
+	/** The row the painted rows take their shape from, a row item or a file row; a title line over a facts line when none is given. */
+	paint?: Row;
 }
 
 // The painted row: every painted row is a title line over a facts line, whatever
@@ -154,7 +154,13 @@ export function Rows(props: RowsInternal) {
 		// A row's index runs below `visible.length`.
 		const each = visible[entry.index] as (typeof visible)[number];
 		if ("path" in each.item)
-			return <FileRowItem item={each.item} painted={painted} />;
+			return (
+				<FileRowItem
+					item={each.item}
+					index={painted ? entry.index : undefined}
+					painted={painted}
+				/>
+			);
 		return (
 			<RowView
 				item={each.item}

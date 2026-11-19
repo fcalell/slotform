@@ -5,6 +5,7 @@ import { type ReactNode, useRef, useState } from "react";
 import { View, type ViewInstance } from "react-native";
 import { type ToastBox, ToastContainer } from "../../lib/container";
 import { Confirmations } from "../sheet/confirm";
+import { SheetOutlet } from "../sheet/outlet";
 import { ToastList } from "../toast/layer";
 
 const FILL = "flex-1";
@@ -23,6 +24,7 @@ export function ContainerHost({ children }: { children: ReactNode }) {
 				<ToastContainer.Provider value={toastContainer}>
 					{children}
 				</ToastContainer.Provider>
+				<SheetOutlet />
 				<Confirmations />
 			</BottomSheetModalProvider>
 			{box ? (

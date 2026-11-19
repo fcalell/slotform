@@ -7,7 +7,12 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, paints } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	endedReason,
+	paints,
+	shownText,
+} from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,
@@ -115,8 +120,9 @@ export function SectionHead(props: {
 	const heading = named.painted ? undefined : (named.value as Run);
 	const label = heading === undefined ? "" : partText(heading);
 	const waiting = inertProps(paints(named));
+	const described = shownText(said);
 	let sentence: ReactNode = null;
-	if (paints(said))
+	if (described?.painted)
 		sentence = (
 			<PaintText
 				fills="phrase"
@@ -128,8 +134,7 @@ export function SectionHead(props: {
 				<Painted role="phrase" />
 			</PaintText>
 		);
-	else if (!said.painted && said.value)
-		sentence = <Text kind="meta">{said.value}</Text>;
+	else if (described) sentence = <Text kind="meta">{described.text}</Text>;
 	// A count is not drawn until its body has answered: a painted chip would
 	// carry an unseen "0" for a number nobody knows yet, and the count arrives at
 	// the title's end, where it moves nothing. A read of an array gives its length.

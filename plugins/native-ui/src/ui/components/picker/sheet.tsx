@@ -32,7 +32,6 @@ import { Ink } from "../../lib/ink";
 import { Avatar } from "../avatar";
 import { Chip } from "../chip";
 import { Input } from "../input";
-import { ActSheet } from "../sheet/act";
 import { SheetHead } from "../sheet/head";
 import { SheetLayer } from "../sheet/layer";
 
@@ -284,57 +283,51 @@ export function PickSheet<V extends string | null>({
 		</View>
 	) : null;
 	return (
-		<>
-			<SheetLayer
-				open={open}
-				onClose={onClose}
-				title={title}
-				tall={searching}
-				head={
-					<SheetHead
-						title={title}
-						onClose={onClose}
-						above={
-							searching ? (
-								<View className={SEARCH_REGION}>
-									<Input
-										label={words.search}
-										kind="search"
-										value={search}
-										onChange={setSearch}
-									/>
-								</View>
-							) : undefined
-						}
-					/>
-				}
-			>
-				{searching ? (
-					<List
-						data={rows}
-						keyExtractor={keyOf}
-						getItemType={(entry) => ("option" in entry ? "option" : "label")}
-						renderItem={({ item }) => rowOf(item)}
-						ListEmptyComponent={none}
-						ListFooterComponent={foot}
-						renderScrollComponent={scroll}
-						accessibilityLabel={title}
-						contentContainerClassName={ROWS}
-					/>
-				) : (
-					<View accessibilityLabel={title} className={ROWS}>
-						{rows.map((entry) => (
-							<Fragment key={keyOf(entry)}>{rowOf(entry)}</Fragment>
-						))}
-						{rows.length === 0 ? none : null}
-						{foot}
-					</View>
-				)}
-			</SheetLayer>
-			<ActSheet
-				acting={acting}
-				of={() => (act && "sheet" in act ? act.sheet : undefined)}
-			/>
-		</>
+		<SheetLayer
+			open={open}
+			onClose={onClose}
+			title={title}
+			tall={searching}
+			head={
+				<SheetHead
+					title={title}
+					onClose={onClose}
+					above={
+						searching ? (
+							<View className={SEARCH_REGION}>
+								<Input
+									label={words.search}
+									kind="search"
+									value={search}
+									onChange={setSearch}
+								/>
+							</View>
+						) : undefined
+					}
+				/>
+			}
+		>
+			{searching ? (
+				<List
+					data={rows}
+					keyExtractor={keyOf}
+					getItemType={(entry) => ("option" in entry ? "option" : "label")}
+					renderItem={({ item }) => rowOf(item)}
+					ListEmptyComponent={none}
+					ListFooterComponent={foot}
+					renderScrollComponent={scroll}
+					accessibilityLabel={title}
+					contentContainerClassName={ROWS}
+				/>
+			) : (
+				<View accessibilityLabel={title} className={ROWS}>
+					{rows.map((entry) => (
+						<Fragment key={keyOf(entry)}>{rowOf(entry)}</Fragment>
+					))}
+					{rows.length === 0 ? none : null}
+					{foot}
+				</View>
+			)}
+		</SheetLayer>
 	);
 }

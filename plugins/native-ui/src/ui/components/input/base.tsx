@@ -33,7 +33,6 @@ import {
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, PaintPressable } from "../../lib/paint";
 import { useTokenColor } from "../../lib/theme";
-import { ActSheet } from "../sheet/act";
 import { useCommitMoment } from "./commit";
 import type { InputKind, TextInputProps } from "./index";
 
@@ -242,9 +241,6 @@ export function InputBase({
 					pending={acting.pending !== undefined}
 					onAct={() => acting.attempt(true, act)}
 				/>
-			) : null}
-			{act && !painted ? (
-				<ActSheet acting={acting} of={() => act.sheet} />
 			) : null}
 		</PaintPressable>
 	);

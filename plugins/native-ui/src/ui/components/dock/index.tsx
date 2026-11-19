@@ -1,5 +1,6 @@
 import { trackTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
+import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	DOCK,
@@ -11,11 +12,12 @@ import {
 	textStrong,
 } from "@fcalell/ui-core/variants";
 import { shareOf } from "@fcalell/ui-core/waveform";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";
 import { NOOP } from "../../lib/noop";
 import { player, usePlayer, usePlayerTime } from "../../lib/player";
+import { store } from "../../lib/player-store";
 import { Press } from "../../lib/press";
 import { Button } from "../button";
 import { PictureTile } from "../image/base";
@@ -46,6 +48,11 @@ export function Dock() {
 	const words = useWords();
 	const [open, setOpen] = useState(false);
 	const { track } = state;
+	// The cover as the tile draws it is what the lock screen shows.
+	const [cover] = useSelections([track?.image ?? ""]);
+	useEffect(() => {
+		if (track) store.cover(track, cover);
+	}, [track, cover]);
 	if (!track) return null;
 
 	const toggle = (

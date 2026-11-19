@@ -64,9 +64,9 @@ const toTrack = (t: Song): Track => ({
   with a hairline of progress along its top. A press on the picture and the name opens a `Sheet` with
   the full player: the picture, the seek, previous, play or pause, next, and a Close that puts the
   player away. It has no volume: the device's buttons set it, and `setVolume` and `mute` act on the
-  player only.
-- The lock screen and the system's media controls show the title, the line and the picture, and play,
-  pause and seek drive the player. `expo-audio` does not report the system's Next and Previous, so
+  player only. An `image` given as a selection paints the picture until its read lands.
+- The lock screen and the system's media controls show the title and the line, and the picture once
+  the dock draws it (an `image` given as a selection once its read lands), and play, pause and seek drive the player. `expo-audio` does not report the system's Next and Previous, so
   those two are the dock's.
 
 **Check:** the dock stands above the tab bar across a route change, with the audio uninterrupted,

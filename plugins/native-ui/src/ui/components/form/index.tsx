@@ -1,4 +1,4 @@
-import type { PickedFile } from "@fcalell/ui-core/descriptors";
+import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
 import {
 	heldPick,
 	type InputOf,
@@ -33,11 +33,12 @@ interface FormBase<P extends ProcedureCall> extends Closed {
 /** A form is its procedure and its field labels: `fields` or `groups`, never both. */
 export type FormProps<P extends ProcedureCall = ProcedureCall> = FormModelProps<
 	P,
-	Act
+	Act,
+	Empty
 > &
 	FormBase<P>;
 
-/** A form over a procedure: a card of the fields `fields` names, each drawn from the procedure's input schema (a string a line of text, in the mono with the `mono` hint, an enum a pick, a boolean a switch, a number a numeric line, a list of an enum, or of strings with `options`, a pick of several, a date a date line, a string with the `file` hint a file pick whose file is read into the string, a list with the `lines` hint a line per item, an object with the `json` hint mono JSON source), required unless the schema makes it optional (a pick or a switch with a schema `default` always holds a value, so it is required: no empty choice, no optional word) (in a submit form an optional one says so under its label; a form that commits by field marks nothing), with the server's refusal of its value under it, over a bar whose filled act submits the procedure. The act is pending while the procedure runs and while a promise `onDone` returns settles; then, where the form stays (on a page, its submit going nowhere), the fields go back to `values`; a rejection stands in the bar, and the issues the server's schema refused under their fields until the viewer changes them. A field with a `locked` reason stands inert with it under the control. With `commit: "field"` the form draws no bar and each field sends itself. `groups` partition the fields under bands. While the form stands edited (a field holds a value other than its first), leaving its page asks once, "Discard your edit?". A form over no procedure (a filter, a local setting) is not a `Form`: a filter is a `Toolbar`, a setting a `Switch` in a row. A form in a sheet is that `Sheet`'s `form`, these same props. */
+/** A form over a procedure: a card of the fields `fields` names, each drawn from the procedure's input schema (a string a line of text, in the mono with the `mono` hint, an enum a pick (the option list with the `list` hint, the segmented row with `segments`), a boolean a switch, a number a numeric line, a list of an enum, or of strings with `options`, a pick of several (the option list with a checkbox per option with `list`), a date a date line, a string with the `file` hint a file pick whose file is read into the string, a list with the `lines` hint a line per item, an object with the `json` hint mono JSON source), required unless the schema makes it optional (a pick or a switch with a schema `default` always holds a value, so it is required: no empty choice, no optional word) (in a submit form an optional one says so under its label; a form that commits by field marks nothing), with the server's refusal of its value under it, over a bar whose filled act submits the procedure. The act is pending while the procedure runs and while a promise `onDone` returns settles; then, where the form stays (on a page, its submit going nowhere), the fields go back to `values`; a rejection stands in the bar, and the issues the server's schema refused under their fields until the viewer changes them. A field with a `locked` reason stands inert with it under the control. With `commit: "field"` the form draws no bar and each field sends itself. `groups` partition the fields under bands, each with its own `values` and `empty`. A field holding a value other than its first draws its change mark. With `steps` the form asks one group (or one field) at a time: Continue folds the open step to its summary row and opens the next, and the last step's act is the submit. While the form stands edited (a field holds a value other than its first), leaving its page asks once, "Discard your edit?". A form over no procedure (a filter, a local setting) is not a `Form`: a filter is a `Toolbar`, a setting a `Switch` in a row. A form in a sheet is that `Sheet`'s `form`, these same props. */
 export function Form<P extends ProcedureCall>(props: FormProps<P>) {
 	return <StandingForm form={props} />;
 }
@@ -95,7 +96,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P> | undefined,
 	stays: boolean,
 ): DerivedFrame | NoFrame {
-	const model = useFormModel<P, Act>(props, stays, { toast });
+	const model = useFormModel<P, Act, Empty>(props, stays, { toast });
 	if (!props || model.fields === undefined) return { clear: model.clear };
 	const drawn = (field: FieldModel) => (
 		<FieldBody
@@ -104,6 +105,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			description={field.description}
 			error={field.error}
 			optional={field.optional}
+			change={field.change}
 			disabled={field.disabled}
 			seek={field.seek}
 			onLeave={field.leave}
@@ -128,8 +130,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			? {
 					...shared,
 					groups: model.groups.map((group) => ({
-						title: group.title,
-						description: group.description,
+						...group,
 						fields: group.fields.map(drawn),
 					})),
 				}
@@ -231,6 +232,14 @@ function controlOf(field: FieldModel) {
 				),
 			};
 		case "several":
+			if (spec.control === "list")
+				return {
+					options: {
+						options: listedOf(options),
+						value: value as Datum<readonly string[]>,
+						onChange: done,
+					},
+				};
 			return {
 				picker: {
 					options,
@@ -240,28 +249,46 @@ function controlOf(field: FieldModel) {
 				},
 			};
 		case "pick":
-			return {
-				picker: {
-					options,
-					placeholder: said.one,
-					value: value as Datum<string | null>,
-					onChange: done,
-				},
-			};
+			return pickOf(field, value as Datum<string | null>);
 		default:
 			return spec.options
-				? {
-						picker: {
-							options,
-							placeholder: said.one,
-							value: (isSelection(value)
-								? value.at(heldPick)
-								: heldPick(value)) as Datum<string | null>,
-							onChange: done,
-						},
-					}
+				? pickOf(
+						field,
+						(isSelection(value)
+							? value.at(heldPick)
+							: heldPick(value)) as Datum<string | null>,
+					)
 				: {
 						input: { value: text, onChange: set, onCommit: commit },
 					};
 	}
+}
+
+// A choice hint's options: the model holds them to a list in hand with no
+// empty choice (a fixed `options` or the schema's values, on a field that
+// always holds a value or picks several), which its `Datum` does not say.
+const listedOf = (options: FieldModel["options"]) =>
+	options as readonly Option<string>[];
+
+// A pick of one: the menu, or with a choice hint the option list or the
+// segmented row.
+function pickOf(field: FieldModel, value: Datum<string | null>) {
+	const { spec, options, said, set, commit } = field;
+	const onChange = commit ?? set;
+	if (spec.control === "list")
+		return {
+			options: { options: listedOf(options), value, onChange },
+		};
+	if (spec.control === "segments")
+		return {
+			segments: {
+				options: listedOf(options).map(({ value, label }) => ({
+					value,
+					label,
+				})),
+				value: value as Datum<string>,
+				onChange,
+			},
+		};
+	return { picker: { options, placeholder: said.one, value, onChange } };
 }

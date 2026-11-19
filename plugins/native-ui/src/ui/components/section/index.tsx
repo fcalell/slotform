@@ -126,7 +126,7 @@ type Parts = SectionHeadProps & {
 type Sheet<V extends string | null> = SectionHeadProps & {
 	/** The heading (a short phrase; truncates); the head over the sheet is drawn with it, and a Section with no title is the sheet alone. */
 	title?: Datum<Run>;
-	/** The sheet's rows: constants (none draw the empty shape, as an empty read does), or a selection, which paints as many rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the regions its selector gives one record where it maps the records (`list.map(toRow)`), else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty shapes in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
+	/** The sheet's rows: constants (none draw the empty shape, as an empty read does), or a selection, which paints as many rows as it last loaded (`PAINT_ROWS` the first time) until its read lands, each in the regions its selector gives one record where it maps the records (`list.map(toRow)`), a row item or a file row, else a title over a facts line. A selection is the section's own frame: it holds its read and draws the failed, missing and empty shapes in the sheet's place, and the head's count is the loaded rows'. One row given alone, not in an array, is a value (a field that holds one thing), no list: it stands on the sheet as a row of a list does, and the head draws no count. */
 	items: Datum<readonly Row<V>[]> | Row<V>;
 	/** The sheet's bands, in order: a band over the rows of each (their `group` is its `key`), with its label, the count of its rows (none for a lone band holding every row under a counted head, whose count is the same) and its act. Rows whose `group` names no key, or with none, stand before the first band; the painted (waiting) rows stand with no bands. A selection is the section's own read as `items` is: the rows paint with no bands until it lands, and its failed, missing and empty shapes stand in the sheet's place. */
 	groups?: Datum<readonly Band[]>;
@@ -151,13 +151,13 @@ export function Section<V extends string | null = string>(
 }
 
 // The shape the waiting rows paint in: one record as the items' selector maps
-// it, where that is a list row; else the roster's title over a facts line.
+// it, a row item or a file row; else the roster's title over a facts line.
 function paintOf<V extends string | null>(
 	items: Datum<readonly Row<V>[]>,
-): RowItem | undefined {
+): Row | undefined {
 	if (!isSelection(items)) return undefined;
 	const one = sampleOf(items);
-	if (one === undefined || "path" in one) return undefined;
+	if (one === undefined || "path" in one) return one;
 	// The painted rows draw this shape inert, so its pick's `V` never meets a
 	// value: it stands as the default row item.
 	const row = one as RowItem;
@@ -269,7 +269,7 @@ function SheetSection<V extends string | null>(props: Sheet<V>) {
 							paint={() => (
 								<Rows
 									{...rows}
-									paint={paint ?? loaded.find((row) => !("path" in row))}
+									paint={paint ?? loaded[0]}
 									drawn={{
 										painted: true,
 										phase: "waiting",

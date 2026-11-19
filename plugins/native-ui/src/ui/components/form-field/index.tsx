@@ -1,6 +1,5 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type {
-	Answered,
 	ChangeKind,
 	FieldBinding,
 	FieldControl,
@@ -23,30 +22,21 @@ import {
 	FIELD_OPTIONAL,
 	ROW_END,
 	row,
-	summaryContentTone,
 	text,
-	textStrong,
 } from "@fcalell/ui-core/variants";
-import { type ReactNode, useMemo, useState } from "react";
-import { Pressable, Text as RNText, View } from "react-native";
-import { Icon } from "../../atoms/icon";
+import { type ReactNode, useMemo } from "react";
+import { Text as RNText, View } from "react-native";
 import { ChangeMark } from "../../atoms/status/change";
-import type { CheckboxProps } from "../../atoms/switch/checkbox";
-import { CheckboxBase, checkboxPress } from "../../atoms/switch/checkbox";
 import type { Closed } from "../../lib/closed";
 import { RunText } from "../../lib/code";
 import {
 	FieldError,
 	type FieldedKey,
-	FieldFocus,
 	FieldNameContext,
 	FieldTurn,
 	GroupName,
 } from "../../lib/field";
-import { Ink } from "../../lib/ink";
 import { FadingText, flowIn } from "../../lib/motion";
-import { inertProps } from "../../lib/paint";
-import { Button } from "../button";
 import type { ProseProps, TextInputProps } from "../input";
 import { InputBase } from "../input/base";
 import { ProseBase } from "../input/prose";
@@ -70,9 +60,6 @@ const FIELD = "min-w-0";
 const VALUE_LINE = "flex-row items-center min-w-0";
 const END = "flex-row shrink-0 items-center ms-auto";
 const DISABLED = "text-ink-disabled";
-const SUMMARY = "flex-row items-center min-w-0";
-const SUMMARY_LABEL = "shrink min-w-0";
-const SUMMARY_ANSWER = "flex-1 min-w-0";
 // A toggle placed alone stands at the end of its name's line.
 const NAME_GROWS = "grow shrink min-w-0";
 
@@ -80,7 +67,7 @@ interface FormFieldBase extends Closed {
 	// Where the field stands in a change set: its mark at the value line's
 	// start.
 	change?: ChangeKind;
-	/** The control's name, drawn over it (a short phrase; wraps, truncates in an answered field's summary row). */
+	/** The control's name, drawn over it (a short phrase; wraps). */
 	label: string;
 	/** Under the control; disabled, it is the reason (a sentence; wraps). */
 	description?: string;
@@ -89,10 +76,6 @@ interface FormFieldBase extends Closed {
 	// The control takes no input: the label in the disabled ink, the control
 	// its disabled form.
 	disabled?: boolean;
-	// The question is answered: while set the field folds to one summary row
-	// (a check, the label, `answer`, an Edit act) and renders no control.
-	// Clearing it unfolds the field and focuses a typing control.
-	answered?: Answered;
 }
 
 // A pick's props less what the field supplies (its label, description,
@@ -110,7 +93,6 @@ interface Controls<S extends string | null, O extends string, T> {
 	textArea: ProseProps;
 	picker: PickerLess<PickerMenuProps<S>>;
 	switch: Omit<SwitchProps, FieldedKey>;
-	checkbox: Omit<CheckboxProps, "label">;
 	slider: Omit<SliderProps, FieldedKey>;
 	options: PickerLess<PickerListProps<O, T>, FieldedKey | "fit" | "headed">;
 	segments: PickerLess<PickerSegmentsProps, FieldedKey | "fit">;
@@ -121,10 +103,10 @@ type OneOf<C> = {
 	[K in keyof C]: Pick<C, K> & Never<Omit<C, K>>;
 }[keyof C];
 
-// The control is the one descriptor set (`input`, `textArea`, `picker`, `switch`, `checkbox`, `slider`,
+// The control is the one descriptor set (`input`, `textArea`, `picker`, `switch`, `slider`,
 // `options`, `segments`: the component's own props, less the label
-// the field supplies), which the field draws in its value line (a switch or
-// a checkbox at its end); or any other control as `children`. Unbound, the
+// the field supplies), which the field draws in its value line (a switch at
+// its end); or any other control as `children`. Unbound, the
 // consumer gives the error and the control; bound, the form's field gives
 // both, and the control is a function of the field's value:
 // `{(control) => <Input {...control} />}`.
@@ -174,8 +156,7 @@ type Body = FormFieldBase & {
 } & Partial<Controls<string | null, string, unknown>>;
 
 // The descriptor set, if any: its kind, the value its control saves (which
-// the field holds the draft of) and its control over that draft. A checkbox
-// is drawn by its row.
+// the field holds the draft of) and its control over that draft.
 interface Described {
 	kind: ControlKind;
 	saved: Datum<unknown>;
@@ -187,8 +168,7 @@ function describedOf(props: Body): Described | undefined {
 	// The one draft holds the value of whichever control the field draws, and a
 	// pick of one and of several share a handler: each branch names its control's
 	// types, which the compiler cannot tie to the branch.
-	const { input, textArea, picker, checkbox, slider, options, segments } =
-		props;
+	const { input, textArea, picker, slider, options, segments } = props;
 	const toggle = props.switch;
 	if (input)
 		return {
@@ -234,8 +214,6 @@ function describedOf(props: Body): Described | undefined {
 				<SwitchBase {...toggle} draft={draft as Draft<boolean>} label={label} />
 			),
 		};
-	if (checkbox)
-		return { kind: "checkbox", saved: checkbox.checked, draw: () => null };
 	if (slider)
 		return {
 			kind: "slider",
@@ -290,50 +268,8 @@ function childrenOf(props: Body): ReactNode {
 	) : null;
 }
 
-// A checkbox field: the row is the target, so it draws the draft the field
-// holds and the press edits; the box stands at the value line's end.
-function CheckboxRow(props: {
-	checkbox: Body["checkbox"] & object;
-	draft: Draft<boolean | "mixed">;
-	label: string;
-	disabled: boolean;
-	mark: ReactNode;
-	children: ReactNode;
-}) {
-	const { checkbox, draft, label, disabled } = props;
-	const painted = draft.painted && draft.ended === undefined;
-	return (
-		<Pressable
-			{...inertProps(painted)}
-			{...checkboxPress({
-				draft,
-				onChange: checkbox.onChange,
-				label,
-				disabled,
-				painted,
-			})}
-			className={cn(row({ state: "rest" }), FIELD)}
-		>
-			{props.children}
-			<View className={cn(DEFINITION_LINE, VALUE_LINE)}>
-				{props.mark}
-				<View className={cn(ROW_END, END)}>
-					<FieldDisabled.Provider value={disabled}>
-						<CheckboxBase
-							draft={draft}
-							onChange={checkbox.onChange}
-							label={label}
-							target
-						/>
-					</FieldDisabled.Provider>
-				</View>
-			</View>
-		</Pressable>
-	);
-}
-
 // The field itself, one row: the label over the value line, which holds the
-// change mark and the control (a switch or a checkbox at its end), the
+// change mark and the control (a switch at its end), the
 // description or the error under it. The label names a typing control;
 // disabled, the label takes the disabled ink, the control its disabled cells,
 // and the description stays as the reason. Placed alone (`alone`) it stands in
@@ -346,26 +282,16 @@ export function FieldBody(props: Body) {
 		description,
 		optional,
 		disabled = false,
-		answered,
 		change,
 		alone = false,
 	} = props;
 	const words = useWords();
-	const folded = answered !== undefined;
 	const { seek, onLeave } = props;
 	const turn = onLeave && { seek, leave: onLeave };
 	// The field hosts its control's save: a save the server refused stands in
 	// the error line until the control's next change.
 	const described = describedOf(props);
 	const { draft, refused } = useFieldDraft(described?.saved);
-	// A field unfolding mounts its control afresh, which takes focus as it
-	// mounts where `FieldFocus` asks.
-	const [wasFolded, setWasFolded] = useState(folded);
-	const [reopened, setReopened] = useState(false);
-	if (wasFolded !== folded) {
-		setWasFolded(folded);
-		setReopened(wasFolded);
-	}
 	// The error as runs, a refused save's own message too (the server's
 	// backticks set a machine name in the mono), and its words, which key its
 	// line and say whether it stands.
@@ -377,10 +303,7 @@ export function FieldBody(props: Body) {
 			: markedRuns(refused);
 	const worded = given === undefined ? "" : partText(given);
 	const error = worded === "" ? undefined : worded;
-	// A folded field draws no control, so the consumer's function is not called.
-	const drawn = () =>
-		described ? described.draw(draft, error) : childrenOf(props);
-	const control = folded ? null : drawn();
+	const control = described ? described.draw(draft, error) : childrenOf(props);
 	const form = described?.kind ?? "field";
 	// What a group of controls is named by, one value per change.
 	const groupName = useMemo(() => ({ label }), [label]);
@@ -409,58 +332,11 @@ export function FieldBody(props: Body) {
 		<RNText className={text({ role: "meta" })}>{description}</RNText>
 	) : null;
 	const mark = change ? <ChangeMark kind={change} /> : null;
-	if (answered)
-		return (
-			<View className={cn(row({ state: "rest" }), SUMMARY)}>
-				<Ink.Provider value={summaryContentTone()}>
-					<Icon name="Check" />
-				</Ink.Provider>
-				<RNText
-					numberOfLines={1}
-					className={cn(
-						text({ role: "body" }),
-						textStrong({ role: "body" }),
-						SUMMARY_LABEL,
-					)}
-				>
-					{label}
-				</RNText>
-				<RNText
-					numberOfLines={1}
-					className={cn(text({ role: "meta" }), SUMMARY_ANSWER)}
-				>
-					{answered.answer}
-				</RNText>
-				<Button
-					glyph
-					icon="Pencil"
-					label={`${words.edit} ${label}`}
-					onAct={answered.onEdit}
-				/>
-			</View>
-		);
-	// The one draft holds the checkbox's value here, as `describedOf` says of its
-	// controls.
-	if (props.checkbox)
-		return (
-			<CheckboxRow
-				checkbox={props.checkbox}
-				draft={draft as Draft<boolean | "mixed">}
-				label={label}
-				disabled={disabled}
-				mark={mark}
-			>
-				{named}
-				{line}
-			</CheckboxRow>
-		);
 	const held = (
 		<FieldNameContext.Provider value={label}>
 			<FieldDisabled.Provider value={disabled}>
 				<FieldError.Provider value={Boolean(error)}>
-					<FieldFocus.Provider value={reopened}>
-						<FieldTurn.Provider value={turn}>{control}</FieldTurn.Provider>
-					</FieldFocus.Provider>
+					<FieldTurn.Provider value={turn}>{control}</FieldTurn.Provider>
 				</FieldError.Provider>
 			</FieldDisabled.Provider>
 		</FieldNameContext.Provider>

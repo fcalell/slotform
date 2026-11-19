@@ -1,10 +1,8 @@
 import type { Peaks, Track } from "@fcalell/ui-core/descriptors";
 import {
-	createPlayer,
 	type Engine,
 	type Output,
 	type PlayerCommands,
-	type PlayerHost,
 	type PlayerReport,
 	type PlayerState,
 	type PlayerTime,
@@ -15,6 +13,7 @@ import {
 	windowQueue,
 } from "@fcalell/ui-core/player";
 import { useSyncExternalStore } from "react";
+import { store } from "./player-store";
 
 export type {
 	Engine,
@@ -31,18 +30,6 @@ export type {
 	WindowQueueOptions,
 };
 export { windowQueue };
-
-// The phone's side of the store: docs/architecture/ui-core/sound.md, "Player".
-const host: PlayerHost = {
-	recall: () => undefined,
-	keep: () => {},
-	frame(run) {
-		const id = requestAnimationFrame(run);
-		return () => cancelAnimationFrame(id);
-	},
-};
-
-const store = createPlayer(host);
 
 /** The player, from anywhere in the app (a handler, a loader): `player.play({ src, title, line })`. It plays through the output `connectOutput` was given, and a `Dock` in the `Shell`'s `foot` draws it; the store is the app's, so the sound goes on through navigation. */
 export const player: PlayerCommands = store.player;

@@ -7,7 +7,6 @@ import { ButtonLink } from "../../atoms/button/link";
 import { useAct } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import type { ActSheetProps } from "../sheet";
-import { ActSheet } from "../sheet/act";
 import { ButtonBase } from "./base";
 
 interface Named extends Closed {
@@ -105,17 +104,14 @@ function Glyph({
 	const disabled = useContext(FieldDisabled);
 	const acting = useAct("toast");
 	return (
-		<>
-			<IconButtonBase
-				icon={icon}
-				fit={fit}
-				label={label}
-				onAct={() => acting.attempt(true, { onAct, label, ...wiring })}
-				pending={acting.pending !== undefined}
-				disabled={disabled}
-				primary={act === "primary"}
-			/>
-			<ActSheet acting={acting} of={() => wiring.sheet} />
-		</>
+		<IconButtonBase
+			icon={icon}
+			fit={fit}
+			label={label}
+			onAct={() => acting.attempt(true, { onAct, label, ...wiring })}
+			pending={acting.pending !== undefined}
+			disabled={disabled}
+			primary={act === "primary"}
+		/>
 	);
 }

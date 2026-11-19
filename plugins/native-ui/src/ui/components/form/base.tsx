@@ -1,8 +1,8 @@
 import { cn } from "@fcalell/ui-core/cn";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
+import { groupKey, type ProcedureCall } from "@fcalell/ui-core/form";
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import type { FormModel } from "@fcalell/ui-core/react/form";
+import type { FormModel, StepModel } from "@fcalell/ui-core/react/form";
 import {
 	type Frame,
 	submitOf,
@@ -19,22 +19,27 @@ import type { Selection } from "@fcalell/ui-core/read";
 import {
 	CARD,
 	FORM_FOOT,
-	GROUP_ITEM,
 	LIST_BAND,
+	row,
 	SHEET_PARTS,
+	summaryContentTone,
 	text,
+	textStrong,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
+import { Icon } from "../../atoms/icon";
 import type { Act } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import type { Empty } from "../../lib/empty";
 import { between } from "../../lib/group";
+import { Ink } from "../../lib/ink";
 import { useLeaveGuard } from "../../lib/leave";
 import { blockIn, FadingView } from "../../lib/motion";
 import { BusyMark, FrameBody, FrameLine } from "../../lib/read";
 import type { ActionBarProps } from "../action-bar";
 import { ActionBarBase } from "../action-bar/base";
+import { Button } from "../button";
 import { Text } from "../text";
 
 // The form is its rows over its foot; no hairline between fields: docs/architecture/ui-core/layout.md, "Rows grid".
@@ -43,20 +48,25 @@ const ROWS = "min-w-0";
 const BAND = "min-w-0";
 // The legend is a row, the busy mark after its title.
 const LEGEND = "flex-row items-center gap-gap";
+// A folded step's row: the check, the title, the answers cut at the line's
+// end, the Edit act.
+const SUMMARY = "flex-row items-center min-w-0";
+const SUMMARY_TITLE = "shrink min-w-0";
+const SUMMARY_ANSWERS = "flex-1 min-w-0";
 
 interface FormGroup {
 	/** The group's name, its heading (a short phrase; wraps); without it the group draws no heading, for fields that lead or close the form among titled groups. */
 	title?: string;
 	/** Under the title (a sentence; wraps). */
 	description?: string;
-	/** A note ahead of the fields (a `Banner`, a sentence). */
-	lead?: ReactNode;
 	/** The group's `FormField`s. */
 	fields: ReactNode;
 	/** What the group's fields hold, read once for the group's frame: its leaves paint while it waits, and its failure and a missing record stand in the fields' place. */
 	read?: Selection<unknown>;
 	/** The fields' sentence when the group's `read` is empty. */
 	empty?: Empty;
+	/** Where a form that asks one step at a time stands at this group: folded to its summary row, open, or not reached and not drawn. */
+	step?: StepModel;
 }
 
 // A derived form's bar: its acts, and what a press of its blocked submit
@@ -98,8 +108,7 @@ export type FormFrameProps = FormBase &
 		  }
 	);
 
-// One group: a run of the form's rows, its legend a band, then its lead and
-// its fields, which are the group's own frame when it holds a `read`. A block
+// One group: a run of the form's rows, its legend a band, then its fields, which are the group's own frame when it holds a `read`. A block
 // of the form: it fades in as it mounts if it came on its own once the form
 // was drawn.
 function GroupBox(props: { group: FormGroup; arrived: boolean; at: number }) {
@@ -134,11 +143,46 @@ function GroupBox(props: { group: FormGroup; arrived: boolean; at: number }) {
 				</View>
 			) : null}
 			<FrameLine frame={frame} flow />
-			{group.lead ? <View className={GROUP_ITEM}>{group.lead}</View> : null}
 			<FrameBody frame={frame} fit="part" empty={group.empty}>
 				{group.fields}
 			</FrameBody>
 		</FadingView>
+	);
+}
+
+// A folded step: its check, its title, its answers a middle dot apart, and the
+// Edit act that unfolds it.
+function StepSummary(props: { step: StepModel; at: number }) {
+	const { step } = props;
+	const words = useWords();
+	return (
+		<View className={cn(row({ state: "rest" }), SUMMARY, between(props.at))}>
+			<Ink.Provider value={summaryContentTone()}>
+				<Icon name="Check" />
+			</Ink.Provider>
+			<RNText
+				numberOfLines={1}
+				className={cn(
+					text({ role: "body" }),
+					textStrong({ role: "body" }),
+					SUMMARY_TITLE,
+				)}
+			>
+				{step.title}
+			</RNText>
+			<RNText
+				numberOfLines={1}
+				className={cn(text({ role: "meta" }), SUMMARY_ANSWERS)}
+			>
+				{step.summary}
+			</RNText>
+			<Button
+				glyph
+				icon="Pencil"
+				label={`${words.edit} ${step.title}`}
+				onAct={step.edit}
+			/>
+		</View>
 	);
 }
 
@@ -153,8 +197,10 @@ export function FormRows({
 	after,
 	frame,
 }: FormFrameProps & { frame: Frame }) {
+	// A step the viewer opens lands at once: every group's key, a step not
+	// reached included, is the form's from its first draw.
 	const arrived = useArrivals(
-		groups?.map((group, index) => group.title ?? String(index)) ?? [],
+		groups?.map(groupKey) ?? [],
 		frame.shape === "ready",
 	);
 	return (
@@ -163,14 +209,20 @@ export function FormRows({
 				<FrameLine frame={frame} flow />
 				<FrameBody frame={frame} fit="part" empty={empty}>
 					{groups
-						? groups.map((group, index) => (
-								<GroupBox
-									key={group.title ?? index}
-									group={group}
-									arrived={arrived.has(group.title ?? String(index))}
-									at={index}
-								/>
-							))
+						? groups.map((group, index) => {
+								const key = groupKey(group, index);
+								if (group.step?.state === "later") return null;
+								if (group.step?.state === "done")
+									return <StepSummary key={key} step={group.step} at={index} />;
+								return (
+									<GroupBox
+										key={key}
+										group={group}
+										arrived={arrived.has(key)}
+										at={index}
+									/>
+								);
+							})
 						: children}
 				</FrameBody>
 			</View>

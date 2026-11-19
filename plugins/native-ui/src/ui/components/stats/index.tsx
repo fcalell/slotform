@@ -8,6 +8,7 @@ import {
 	endedSentence,
 	isEnded,
 	paints,
+	shownText,
 } from "@fcalell/ui-core/read";
 import {
 	STATS,
@@ -24,7 +25,7 @@ import { Meter } from "../../atoms/stats/meter";
 import type { Closed } from "../../lib/closed";
 import { Ink } from "../../lib/ink";
 import { navigate, useWarm } from "../../lib/navigate";
-import { inertProps } from "../../lib/paint";
+import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { HIT } from "../../lib/press";
 import { FailedMark, RetryMark } from "../../lib/read";
 import { Decoded } from "../../lib/region";
@@ -44,11 +45,12 @@ const FAILED_FIGURE = "flex-row items-center min-h-target";
 // An ended figure an enclosing frame holds keeps its region, drawn nothing.
 const UNSEEN = "opacity-0";
 
-/** A cell: a `StatSpec` whose figure is a constant or a selection. */
+/** A cell: a `StatSpec` whose figure and line are each a constant or a selection. */
 export type StatsItem = StatSpec extends infer S
 	? S extends StatSpec
-		? Omit<S, "value" | "bound" | "label"> & {
+		? Omit<S, "value" | "bound" | "label" | "line"> & {
 				value: Datum<number>;
+				line?: Datum<string>;
 			} & (S extends { bound: number }
 					? { label: Datum<string>; bound: Datum<number> }
 					: { label: string; bound?: never })
@@ -56,7 +58,7 @@ export type StatsItem = StatSpec extends infer S
 	: never;
 
 export interface StatsProps extends Closed {
-	/** The cells, in order: each a label over its figure, or a share of its `bound` drawn as a meter (its label a selection too). A cell whose `value` or `bound` is a selection paints its figure, and takes no touch, until its read lands. */
+	/** The cells, in order: each a label over its figure, or a share of its `bound` drawn as a meter (its label a selection too). A cell whose `value` or `bound` is a selection paints its figure, and takes no touch, until its read lands; a `line` that is a selection paints in its place until its own read lands. */
 	items: readonly StatsItem[];
 }
 
@@ -73,9 +75,10 @@ function Cell({
 }) {
 	const words = useWords();
 	const warm = useWarm();
-	const [figure] = useSelections([item.value]);
-	const { ended: held, busy, retry } = useRow([item.value]);
+	const [figure, sentence] = useSelections([item.value, item.line]);
+	const { ended: held, busy, retry } = useRow([item.value, item.line]);
 	const painted = paints(figure);
+	const line = shownText(sentence);
 	const ended = figure.painted && isEnded(figure.phase);
 	const { href } = item;
 	const { label } = item;
@@ -125,8 +128,14 @@ function Cell({
 				</RNText>
 			) : (
 				<>
-					{item.line ? (
-						<RNText className={text({ role: "meta" })}>{item.line}</RNText>
+					{line ? (
+						<PaintText
+							fills="phrase"
+							painted={line.painted}
+							className={text({ role: "meta" })}
+						>
+							{line.painted ? <Painted role="phrase" at={at} /> : line.text}
+						</PaintText>
 					) : null}
 					{item.counts ? <CountLinks counts={item.counts} /> : null}
 				</>
