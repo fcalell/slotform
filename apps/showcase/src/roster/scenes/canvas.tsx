@@ -276,7 +276,7 @@ function drawn(node: HTMLElement): DOMRect {
 	return (node.querySelector("[data-shape]") ?? node).getBoundingClientRect();
 }
 
-// The faults of a canvas's opening view: plugins/react-ui/guide/canvas.md, "Moving around".
+// The faults of a canvas's opening view: plugins/react-ui/guide/canvas-opening.md.
 // A node wholly out of the pane is the viewer's to pan to.
 function openingFaults(region: Element): string[] {
 	const pane = region.getBoundingClientRect();
