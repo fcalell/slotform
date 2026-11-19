@@ -49,7 +49,7 @@ snapshot that lands just after the paint appears does not flash it. Later messag
 
 The read stays fetching for as long as it is subscribed, and does not count as busy for that:
 only a first wait or a refetch does. Its query carries `meta.stream` (every `kind: "stream"` read
-does), the one marker a screen run leaves such queries out by when it waits for the reads. The subscription lasts while any frame or leaf holds the
+does), the one marker a test run leaves such queries out by when it waits for the reads. The subscription lasts while any frame or leaf holds the
 read. The last one leaving ends it, and the value stays cached for the next.
 
 ## The connection

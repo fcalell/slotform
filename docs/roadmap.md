@@ -102,7 +102,6 @@ Each item is decided and waits to be built. One that adds a part or crosses pack
 - The phone's `Waveform` on `react-native-svg`, over ui-core's waveform arithmetic, with a seek gesture and the adjustable action, in the dock's full player.
 - Guide and architecture pages: a component's props live on its topic page (`containers.md`, `blocks.md`, `content.md`) and `rules.md` keeps the choosing rule and links there; the floors live in `packages/ui-core/guide/voice.md` and `docs/architecture/ui-core/tokens.md` links to them; a rule a consumer follows lives in its guide page and `node.md`, `runtime.md` and `screens.md` keep the mechanism.
 - Guide pages hold at most 600 words of prose (code and tables not counted), checked in `pnpm check`; the 26 pages over it split by topic, the two `rules.md` along their `##` sections.
-- "screen run" becomes "test run" in its 7 uses, `CLAUDE.md` included.
 - The showcase app's region list, plan reset date and billing date each have one home in its fixtures, which the settings, deploys, usage and releases screens read.
 - Consumer migration: once the items above land, stead and martechthings move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md), which every breaking item above extends in its own commit.
 

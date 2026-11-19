@@ -20,7 +20,7 @@
 | | Stack component | Consumer screen |
 | --- | --- | --- |
 | The question | Is this part right wherever it is used? | Is this the right screen for the job? |
-| Automated | `pnpm check`, unit tests for logic and tokens, the screen run on showcase screens that draw the part | `pnpm check`, the screen run on changed routes |
+| Automated | `pnpm check`, unit tests for logic and tokens, the test run on showcase screens that draw the part | `pnpm check`, the test run on changed routes |
 | Look at | the part in each form it has at 320 and 1920 dark: alignment, rhythm, overlap, wrapping | the whole screen at both widths: hierarchy, grouping, one primary act, words, empty states |
 | Do not check | any app's use case | component internals |
 | If it looks wrong | fix the part; add a walk rule if a machine could catch it | fix the composition; if every use would look wrong it is a stack shortfall, filed and not patched in the app |

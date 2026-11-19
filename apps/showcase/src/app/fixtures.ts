@@ -290,7 +290,7 @@ export default defineFixtures<AppRouter>(
 					},
 				],
 				// The build has two ways out, side by side: wider than a phone's pane
-				// at the text floor, so the screen run at 320 opens the overview.
+				// at the text floor, so the test run at 320 opens the overview.
 				links: [
 					{ id: "start-build", from: "start", to: "build" },
 					{ id: "build-ship", from: "build", to: "ship", label: "when green" },

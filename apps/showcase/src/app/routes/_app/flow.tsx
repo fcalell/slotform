@@ -13,7 +13,7 @@ const ICONS = { start: "Play", step: "Cog", end: "Flag" } as const;
 
 // The run stands at its build: the push and the build are its path, and the
 // ship the run has not reached is off it, drawn in a node's quiet ink, which the
-// screen run's axe holds at the text floor.
+// test run's axe holds at the text floor.
 const RUN = { nodes: ["start", "build"], edges: ["start-build"], at: "build" };
 
 function Flow() {

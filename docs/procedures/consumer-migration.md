@@ -276,7 +276,7 @@ Each bullet is what the consumer does.
   own docs link to them.
 - Boot the server once on a seeded database: the services barrel, the auth routes, the organization
   callbacks and the migrations checks only run there.
-- Run the screen run on the changed routes at 320 and 1920 dark; the unit tests do not draw.
+- Run the test run on the changed routes at 320 and 1920 dark; the unit tests do not draw.
 - A phone app has not been run on SDK 58 (the boot, reanimated 4.7, gesture-handler 3.3,
   list windowing with LegendList, the chat mode and the tall picker sheet): run it on a device
   before release.
