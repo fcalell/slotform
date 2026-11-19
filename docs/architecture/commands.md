@@ -248,7 +248,7 @@ unless `--all` ([test run](./plugins/screens.md#test-run), [changed runs](./plug
 It runs on `.stack/screens-test/`, the same Storybook config plus the checks
 (`@fcalell/plugin-screens/checks`): axe with every rule on (`region` and `target-size` included),
 no horizontal overflow at the widths the guide's
-[test run](../../plugins/screens/guide/screens.md#the-test-run) names, and no `console.error`, `console.warn` or window `error`. A test is a story, named for the screen's
+[test run](../../plugins/screens/guide/test-run.md) names, and no `console.error`, `console.warn` or window `error`. A test is a story, named for the screen's
 title, the state and the mode (`Screens/projects/$id`, `Data, dark`). With `--shots`, the checks
 also save a PNG of each story at each width into the directory
 ([screenshots](./plugins/screens.md#screenshots)).
@@ -256,7 +256,7 @@ also save a PNG of each story at each width into the directory
 `stack screens test` also takes:
 
 - `--full`: a shot grows the page to all it holds
-  ([screenshots](../../plugins/screens/guide/screens.md#screenshots)).
+  ([screenshots](../../plugins/screens/guide/shots.md#screenshots)).
 - `--open <control text>`: after a story draws, the checks press the control with that text or
   accessible name through the provider's `press` command, wait for it to settle, then judge and
   shoot with it open ([screenshots](./plugins/screens.md#screenshots)); a screen with no such
@@ -294,7 +294,7 @@ port (or `--port`). The target serves the worker wrapped in `fixtureControls` of
 the scratch directory unless `--keep`, which prints the directory instead. With `--entry <file>`
 the command still owns the directory, the port and the line, but runs `node <file>` with the
 directory and the port in its env, as the guide's
-[seeded server](../../plugins/screens/guide/screens.md#the-seeded-server) names them, and the env of
+[seeded server](../../plugins/screens/guide/seeded-server.md) names them, and the env of
 the steps and contributions, in place of a target, and takes the file listening on the port as ready. Any step or seed that throws stops the
 run with its error.
 

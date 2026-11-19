@@ -12,14 +12,13 @@ the commands' procedures are under [screens](../commands.md#screens); the slots 
 ## Requirements
 
 - **A Chrome.** `stack screens test`, `shoot` and `drive` drive a headless Chrome over the DevTools
-  protocol, with nothing to download. `CHROME_PATH` names the executable, else `chromium`,
-  `google-chrome` or `google-chrome-stable` on PATH; with none, the command fails with one line that
-  says so and exits non-zero. A `CHROME_PATH` that is no executable fails before anything is
-  generated. The commands share one browser per machine ([Shared browser](#shared-browser)).
+  protocol, with nothing to download, and share one browser per machine
+  ([Shared browser](#shared-browser)). Which Chrome they run is the guide's
+  [the screens workbench](../../../plugins/screens/guide/screens.md).
 - **Storybook 10 and Vitest 5.** The host is Storybook `^10.6` (`@storybook/react-vite`,
   `@storybook/addon-a11y`, `@storybook/addon-vitest`) and the run is Vitest `^5.0` with
-  `@vitest/browser`. `stack add screens` writes those majors; an app on an earlier major of either is
-  unsupported.
+  `@vitest/browser`, the ranges `stack add screens` writes. The supported majors are the guide's
+  [the screens workbench](../../../plugins/screens/guide/screens.md).
 
 ## Subpaths
 
@@ -45,8 +44,8 @@ The packages `stack add screens` installs are the plugin's `devDependencies` and
 `peerDependencies`, every one optional: Storybook, its addons, MSW, Vitest and `@vitest/browser`. An
 app that has auth or react-ui without `screens()` installs none of them. `stack add screens` writes
 them into the app, where the host's Storybook config, test config and preview resolve them. The oRPC
-packages the host answers with are this package's own dependencies, not the app's: a second copy of
-`@orpc/client` in the app (plugin-react's tanstack-query pulls one) is a second `ORPCError` class.
+packages the host answers with are this package's own dependencies, not the app's; an app's own
+copy of `@orpc/client` throws a second `ORPCError` class ([Unanswered calls](#unanswered-calls)).
 
 ## Storybook host
 
@@ -142,26 +141,22 @@ a title with the route it indexes.
 A story renders `createRouter({ routeTree, history: createMemoryHistory({ initialEntries }) })` in the
 app's `virtual:stack-providers`, after the entry's own `bindRouter` calls. The URL is the route's full
 path with each param filled from the example values the fixtures give it. A required param without
-one throws, naming the route, the param and where it looked, so the failure is the story's error and never
-a path with `$id` in it.
+one throws ([fixtures](../../../plugins/screens/guide/fixtures.md)), so the failure is the story's error and never a path with
+`$id` in it.
 
 The fixtures are the default export of the app's `src/app/fixtures.ts`,
 `defineFixtures<AppRouter>(procedures, params, channels, search)` from `./fixtures`: `procedures` is
 `Fixtures<AppRouter>` (each procedure optional, `(input) => output` by its `Procedure<I, O>` type),
-`params` the example values below, `channels` the channel fixtures ([Channels](#channels)), and
-`search` an example query string every screen is drawn at. Writing them is the guide's
-[fixtures](../../../plugins/screens/guide/screens.md#fixtures).
-
-The example values are keyed by name. A key that is a route id holds the values of that route and
-every route under it (only their param names), the most specific id winning; the other keys are the
-values of every route (any route's param name). They are typed from the route tree, so a misspelt id
-or name fails the type-check.
+`params` the example values by param name or route id, typed from the route tree, `channels` the
+channel fixtures ([Channels](#channels)), and `search` an example query string every screen is
+drawn at. Writing them, and how a route id's values reach the routes under it, is the guide's
+[fixtures](../../../plugins/screens/guide/fixtures.md).
 
 ## Answers
 
-MSW answers every call under the worker's route prefixes in oRPC's wire format from the fixtures. A
-request or socket outside the answered prefixes that reaches for another origin or a worker path
-fails (`onUnhandledFrame`).
+MSW answers every call under the worker's route prefixes in oRPC's wire format from the fixtures.
+Its `onUnhandledFrame` fails a request or socket that reaches for another origin or a worker path
+no handler answers ([fixtures](../../../plugins/screens/guide/fixtures.md)).
 
 ### States
 
@@ -209,12 +204,10 @@ fixture, a call whose input oRPC cannot decode (answered `BAD_REQUEST`), or a fi
 failed read, so the test run fails the story on it rather than judge an error form as the state asked
 for.
 
-A read that lands on any error in the data state (not found, a refusal such as a bad request or a
-conflict) fails the story: the screen's example record is missing or is the wrong one for the
-procedure, so it would draw an error form as its data. The failure names the procedure, the route
-params whose example value the call sent and the error's code (`notFound` and `error` are the states
-that draw a failure on purpose). A read whose input carries none of them (a setup form's) has no
-example record to blame and is no unanswered call.
+A read that lands on any error in the data state fails the story when its input carries a route
+param's example value: that example record is missing or is the wrong one for the procedure
+(`notFound` and `error` are the states that draw a failure on purpose). What each failure names is
+the guide's [fixtures](../../../plugins/screens/guide/fixtures.md).
 
 An error a fixture threw as oRPC's own may come from any copy of `@orpc/client`: an app with a second
 copy (a version split between this package and the app's tanstack-query) throws an `ORPCError` this
@@ -237,7 +230,8 @@ loading holds it with the queries, and empty applies `emptyOf`. The protocol has
 not-found frame: a channel read fails only when its fold throws on a message type the app defines,
 which no fixture can name, or when the socket is down. So the error story closes the socket as it
 connects, before any subscribe, which the client backs off from and, after `PAUSE_AFTER`, pauses the
-channel's read for; not found sends the snapshot as data. A channel with no fixture sends nothing, logs one console error and is an unanswered call of the test run.
+channel's read for; not found sends the snapshot as data. A channel with no fixture sends nothing,
+logs one console error and is an unanswered call of the test run ([fixtures](../../../plugins/screens/guide/fixtures.md)).
 
 ## Single copies for plugin modules
 
@@ -250,7 +244,7 @@ answer is the one copy the stories set.
 
 `stack screens test` generates, then runs the app's `vitest run --config
 .stack/screens.vitest.config.ts` (`--passWithNoTests`, the story files `--screen`
-names, and `--changed [<ref>]` as the guide's [narrowing a run](../../../plugins/screens/guide/screens.md#narrowing-a-run)
+names, and `--changed [<ref>]` as the guide's [narrowing a run](../../../plugins/screens/guide/test-run.md#narrowing-a-run)
 sets it). The config spreads
 `.stack/screens.vite.config.ts`, so the run's host is the workbench's, and runs the Storybook test
 plugin on `.stack/screens-test/`, whose `main.ts` adds `./checks`.
@@ -346,10 +340,10 @@ so is the move the other way, of a block present while waiting and absent loaded
 ### Screenshots
 
 Where `--shots` puts each file is the guide's
-[screenshots](../../../plugins/screens/guide/screens.md#screenshots). The checks name a file
-(`shotPath`, `src/ui/checks.ts`) from the story's title and name in kebab case (`src/slug.ts`). The
-directory must lie inside the app: Vitest writes a screenshot only where Vite's `server.fs.allow`
-reaches, the workspace.
+[screenshots](../../../plugins/screens/guide/shots.md#screenshots). The checks name a file
+(`shotPath`, `src/ui/checks.ts`) from the story's title and name in kebab case (`src/slug.ts`).
+Vitest writes a screenshot only where Vite's `server.fs.allow` reaches, the workspace, which is why
+the guide keeps the directory inside the app.
 
 ### Test run exit
 
@@ -363,12 +357,12 @@ contract's values, taken from the page's own computed custom properties at the d
 the numbers are the ones the theme emitted and never a second copy. The test run calls it once per
 width after the resize settles. Its checks (`walk-checks.ts`) are each a pure function over plain
 measured data, so a test in node can hand one a bad case and see it found; nothing there reads a
-document. The rules as a consumer meets them are in the guide's [render walk](../../../plugins/screens/guide/screens.md#the-render-walk).
+document. The rules as a consumer meets them are in the guide's [render walk](../../../plugins/screens/guide/test-run.md#the-render-walk).
 
 ### Render walk rules
 
 The rules and what each finds are the table in the guide's
-[render walk](../../../plugins/screens/guide/screens.md#the-render-walk). What the walk reads beyond it:
+[render walk](../../../plugins/screens/guide/test-run.md#the-render-walk). What the walk reads beyond it:
 
 - **Pill.** A radius of at least half the box's shorter side.
 - **Insets that are no spacing role**: a field's border, and the centring insets a recipe spells, half
@@ -469,9 +463,9 @@ the rules the test run turns on.
 | `link[?to=/path]` | signs the browser in as the fixture member: a control extra answers (plugin-auth's), 404 when none does |
 
 A pattern is a part of the path, `*` standing for any run. The rules live in the worker instance.
-`socket` is the node server's, which owns the sockets. A plugin's or an app's own controls are asked
-first of every `/fixture/*` request, in the order given, so one can answer a generic path
-(plugin-auth's `link`); `undefined` passes to the next, then to the generic controls.
+`socket` is the node server's, which owns the sockets. `fixtureControls` asks a plugin's or an app's
+own controls first, in the order given, and the generic controls last
+([the seeded server](../../../plugins/screens/guide/seeded-server.md)).
 
 What `stack dev` and `stack build` write holds no trace of `serve`'s controls: the files generate
 writes are what both run from (`/fixtures` is the workbench's own file, which stays).

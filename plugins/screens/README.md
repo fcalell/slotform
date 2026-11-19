@@ -18,8 +18,8 @@ routes) and `api` (the procedures).
 
 ## Guide
 
-Using the workbench lives in [`guide/screens.md`](./guide/screens.md), indexed into a consumer's
-`.stack/guide.md`.
+Using the workbench starts at [`guide/screens.md`](./guide/screens.md); the full list of pages is the
+plugin's `guide` in `src/index.ts`, indexed into a consumer's `.stack/guide.md`.
 
 ## License
 

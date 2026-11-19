@@ -214,7 +214,32 @@ export const screens = plugin("screens", {
 		{
 			page: "screens",
 			trigger:
-				"Designing or changing a web screen, or checking its data, loading, error, empty and not-found states before calling it done: the fixtures in `src/app/fixtures.ts`, `stack screens dev`, `stack screens test`, or a seeded server for `shoot` and `drive` (`stack screens serve`)",
+				"Designing or changing a web screen, or checking its data, loading, error, empty and not-found states before calling it done (`stack screens dev`)",
+		},
+		{
+			page: "fixtures",
+			trigger:
+				"Writing or changing `src/app/fixtures.ts`, or a story fails on an unanswered call, a missing param or an error in the data state",
+		},
+		{
+			page: "test-run",
+			trigger:
+				"Running `stack screens test`, choosing its flags, or fixing a finding of the render walk",
+		},
+		{
+			page: "read-checks",
+			trigger:
+				"A Loading story fails on a shift, or a test-run finding starts `with <procedure> failed:`",
+		},
+		{
+			page: "shots",
+			trigger:
+				"Saving shots for a critic, opening a popup in a run, or shooting or driving a live app (`stack screens shoot`, `stack screens drive`)",
+		},
+		{
+			page: "seeded-server",
+			trigger:
+				"A screen needs what the real server makes of its data or acts: running `stack screens serve` or writing `src/app/seed.ts`",
 		},
 	],
 

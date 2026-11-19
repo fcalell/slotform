@@ -2,7 +2,7 @@
 // and a bare `$` for the splat (named `_splat`, as TanStack names it).
 const PARAM = /\{(-?)\$(\w*)\}|\$(\w*)/g;
 
-// The example values the fixtures give: plugins/screens/guide/screens.md, "Fixtures".
+// The example values the fixtures give: plugins/screens/guide/fixtures.md, "Params and search".
 type Given = Readonly<
 	Record<string, string | Readonly<Record<string, string>>>
 >;

@@ -2,7 +2,7 @@ import type { Procedure } from "@fcalell/plugin-api/types";
 import type { RegisteredRouter } from "@tanstack/react-router";
 
 // The answers of an app's procedures, by the router's own shape.
-// Fixtures: plugins/screens/guide/screens.md, "Fixtures".
+// Fixtures: plugins/screens/guide/fixtures.md.
 export type Fixtures<TRouter> = {
 	[K in keyof TRouter]?: TRouter[K] extends Procedure<infer I, infer O>
 		? (input: I) => O
@@ -52,7 +52,7 @@ export type RouteParams<Id extends string = RouteId> = string extends Id
 		};
 
 // The opening frame of each channel the app's screens read over plugin-node's socket, by channel name.
-// Channel fixtures: plugins/screens/guide/screens.md, "Fixtures".
+// Channel fixtures: plugins/screens/guide/fixtures.md, "Channels".
 type ChannelFixtures<TSnapshots = Record<string, unknown>> = {
 	[K in keyof TSnapshots]?: (params: ParamValues) => TSnapshots[K];
 };
@@ -67,7 +67,7 @@ export interface ScreenFixtures<TRouter, TSnapshots = Record<string, unknown>> {
 }
 
 // The default export of the app's `src/app/fixtures.ts`.
-// Fixtures: plugins/screens/guide/screens.md, "Fixtures".
+// Fixtures: plugins/screens/guide/fixtures.md.
 export function defineFixtures<TRouter, TSnapshots = Record<string, unknown>>(
 	procedures: Fixtures<TRouter>,
 	params: RouteParams = {},

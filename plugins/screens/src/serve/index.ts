@@ -24,7 +24,7 @@ export type ServeSeed<TRouter> = (
 ) => void | Promise<void>;
 
 // The default export of the app's `src/app/seed.ts`, which `stack screens serve` runs once the server answers.
-// Seed shape: plugins/screens/guide/screens.md, "The seeded server".
+// Seed shape: plugins/screens/guide/seeded-server.md, "The app's seed".
 export function defineServeSeed<TRouter = unknown>(
 	seed: ServeSeed<TRouter>,
 ): ServeSeed<TRouter> {

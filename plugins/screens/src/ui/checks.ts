@@ -281,7 +281,7 @@ async function clean(): Promise<void> {
 	await settle(false);
 }
 
-// `--open`: plugins/screens/guide/screens.md, "Opening a popup, a search for a filter".
+// `--open`: plugins/screens/guide/shots.md, "Opening a popup, a search for a filter".
 async function opened(
 	pins: ReturnType<typeof unpin>,
 	title: string,
