@@ -22,6 +22,8 @@ const config: StorybookConfig = {
 				viteConfigPath: await writeStorybookConfig({
 					config: stackConfig,
 					cwd: fileURLToPath(new URL("..", import.meta.url)),
+					// Storybook's config is its process entry.
+					env: process.env,
 				}),
 			},
 		},
