@@ -84,10 +84,6 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 
 Each item is decided and waits to be built. One that adds a part or crosses packages is designed first (an architecture section and a change map), then built.
 
-- A record's breadcrumb is its place's path in the Shell's tree, every ancestor place and then the record's name; a folder is text, a page a link, and the middle levels fold into one `…` when the bar runs short.
-- A `mark` size in `packages/ui-core/src/scales.ts`, two mono characters at the caption size plus the chip's inner pad, sizes `ROW_MARK` in place of `size-icon-control`.
-- native-ui draws the update wall: its root hears the version gate's `426` and draws a closed Gate with the store link; `onUpdateRequired` leaves `@fcalell/plugin-expo/client`.
-- A stage's minimum height is a two-line stage's own height, derived from the type scale, so the rail keeps one pitch past the current stage.
 - The environment is threaded from the entries: the CLI's command context and each server entry carry `env`, and none of the 23 reads below an entry (16 files) keeps a `process.env` default.
 - A generated `Specimen` story draws every component's `rest` scene, light and dark, on one page, from `showcaseScenes()`; the overlay scenes stand one stage each at its end.
 - The phone's `Waveform` on `react-native-svg`, over ui-core's waveform arithmetic, with a seek gesture and the adjustable action, in the dock's full player.

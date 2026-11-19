@@ -165,9 +165,12 @@ row that draws no bar, and each Pane a flex column.
   (`Panes distance="room"`): the Panes draws the room set and the touch structure, its last Pane
   alone (so the head draws Back and neither of the others) and no menu act. The Shell draws the
   place at its own distance. The room set itself is in [tokens](tokens.md).
-- **The name.** The Panes hands its Panes its name (the place's, the sidebar's label), which titles
-  the place's Pane and stands before a record's name in a record's bar; outside a Panes there is
-  none.
+- **The name and the trail.** The Panes hands its Panes its name (the place's, the sidebar's label),
+  which titles the place's Pane and stands before a record's name in a record's bar; outside a Panes
+  there is none. The Shell hands them its **trail** (`placeTrail` in `route.ts`: each place from the
+  top of its tree down to the current one, its label and route), whose places above the current one
+  stand before the title ([Bar](#bar)); outside a Shell the trail is empty. The trail's last place's
+  route is also where a read with no Pane's way back leads.
 - **On the phone** a route draws one Pane, a deeper one pushed in expo-router's stack with the tab
   bar under it, so the Panes
   reads no child and draws no bar of its own: the Pane carries it.
@@ -200,19 +203,41 @@ what stands in it decides its form by (a Table its grid).
 
 ### Bar
 
-- On a place's Pane the bar holds the title, then the acts and the more menu; on touch the shell's
-  switcher leads it.
-- On a record's Pane the bar holds the place's name, a slash and the record's name, then Expand
+- On a place's Pane the bar holds the trail's places above it, then the title, then the acts and
+  the more menu; on touch the shell's switcher leads it. A top-level place's Pane has no places
+  above it, so its bar holds the title alone.
+- On a record's Pane the bar holds the places above the record's place, the record's place, a slash
+  and the record's name, then Expand
   (which folds the place's Pane away and turns to Collapse) and Close (back to the place's Pane as
   it stood, its tab and filters kept), Back instead of Close where the record's Pane stands alone,
   then the acts and more. The title is the record's name (a `Run`, the generic word for the kind
   while it loads) and the acts and more are the record's acts.
-- The place's name before a record's name is in the meta ink, parted from the name by a slash in
-  the mark ink. The slash is drawn, never written: it is a mark at the 3:1 floor, and a written
-  slash would be text to the 4.5:1 check and to a reader of the heading.
+- The trail before the title is a `nav` landmark named by the `breadcrumb` word, in the meta ink,
+  a slash in the mark ink after each place. The slash is drawn, never written: it is a mark at the
+  3:1 floor, and a written slash would be text to the 4.5:1 check and to a reader. A place whose
+  route is a page is a link to it; a folder (a spot route) is text. The title, the current page, is
+  never a link.
+- On the desktop the trail always keeps the top place and the current place (a record's place, or
+  the place's Pane's own title). The places between stand whole where the Pane is at least
+  `trailWhole` wide (`overflow.ts`, the `trail-whole:` container variant) and below it fold into
+  one `…` act (`morePlaces`), split off as the bar's acts are (`actsSplit`): its menu lists the
+  pages among them, top first, and a folder, which leads nowhere, is left out, so a fold of folders
+  alone draws no act. Both forms are drawn and the container query shows one. `trailWhole` is the
+  shortest trail that folds (three places, each at the short measure with a slash after it) over
+  the share of the bar the title's floor leaves (`1 - PAGE_TITLE_FLOOR`'s fraction), plus the
+  page inset at both ends; past it a longer trail stands whole and its places truncate. The trail keeps
+  its width up to three fifths of the title's line and the record's name gives way first; the
+  title keeps its two fifths of the row.
 - The bar holds one part where it is narrow: on the web's touch density the back act and the name,
-  the place dropped so the name is never cut to a few letters (a record whose read ended keeps its
-  place, having no name); on the phone the place instead of the name.
+  the trail dropped so the name is never cut to a few letters (a record whose read ended keeps its
+  trail, having no name). The record head's overline leads with the trail there, and a place's Pane
+  under other places stands its trail as an overline over its title: the trail's places a middle
+  dot apart, cut at its start with an ellipsis so the nearest place always shows, the head's own
+  parts after it cut at their end. On the phone every bar holds the trail as one text a middle dot apart:
+  a record's bar the places above the record's place and that place, in place of the name; a
+  place's bar the places above it and its own name, the screen's header. Several places are cut at
+  the start, so the nearest stands; one place, a name, is cut at its end. The tab bar is flat, so a
+  trail there has more than one place only where places nest.
 - A bar with a title, a context pick and two acts keeps the title's two fifths of the row, and the
   pick's label truncates before it, at every width.
 - The bar's acts carry the same wiring a Button's act does ([acts](acts.md)).
@@ -263,7 +288,7 @@ what stands in it decides its form by (a Table its grid).
 - A `read` that answers not found fills the page with the missing shape: no mark, the sentence in the
   meta ink (worded by `noun`, "Couldn't find this." without one) and the way back to the place's Pane
   as the hairline act with no plus, on the `error` state's class sets. The way back is the route a Pane's
-  back act returns to, handed down by the container; with none it leads to `PlaceRoute`. How the missing and failed shapes are worded and headed is in
+  back act returns to, handed down by the container; with none it leads to the trail's last place ([Panes](#panes)). How the missing and failed shapes are worded and headed is in
   [reads](reads.md#missing-and-failed-shapes).
 - On the phone every Pane scrolls in a keyboard-aware scroll pane. The bar in flow at a Form's end is
   what the keyboard must never cover. A tap on an act in it reaches the act and leaves the keyboard

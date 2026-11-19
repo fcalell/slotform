@@ -73,6 +73,9 @@ to fix, and a new term enters this page in the change that introduces it.
 - **wire contract**: What travels between the worker and its clients: how a call is encoded, which
   calls go as GET, the entity headers and how not found is answered.
   [plugin-api](architecture/plugins/api.md#wire-contract)
+- **update wall**: The page a phone build below the version gate's floor draws in place of the whole
+  app, which cannot be dismissed and links to the platform's store. Avoid: upgrade screen.
+  [plugin-native-ui](architecture/plugins/native-ui.md#update-wall)
 - **entity**: A name for a piece of state a procedure reads or writes: a table, or state outside any
   table that the consumer names. [plugin-api](architecture/plugins/api.md#entities)
 - **reads / writes**: The entities a procedure declares it reads and writes, which drive cache
@@ -234,6 +237,10 @@ to fix, and a new term enters this page in the change that introduces it.
   the tab bar. [layout](architecture/ui-core/layout.md#places)
 - **branch**: A place with places under it, which opens and folds in the sidebar.
   [layout](architecture/ui-core/layout.md#places)
+- **trail**: The places from the top of the Shell's tree down to the current place, which a Pane's
+  bar draws before its title and a sidebar draws as the current place's path. Avoid: breadcrumb,
+  except as the word that names the trail's landmark; path, which is a route's pathname.
+  [layout](architecture/ui-core/layout.md#bar)
 - **Gate**: The root container of a page outside the Shell (a sign-in, a consent step): one centred column
   holding the step. [layout](architecture/ui-core/layout.md#gate)
 - **Panes**: What the Shell's column holds: a row of at most two Panes, the place's own and a record's.

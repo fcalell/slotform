@@ -129,12 +129,15 @@ export const stageRail = build(STAGE_RAIL);
 // Stages: a rail of fixed states. A stage is its mark beside its words, the
 // words the label with one meta line under it; a hairline in the edge ink
 // runs from each mark to the next (`STAGE_RAIL`), and the room between two
-// stages is the words' own bottom inset, so the rail runs unbroken. A row
-// (`STAGE_ROW`) keeps a gap between its mark and its words and a gap over and
-// under them. A done mark's check stands on its disc in the canvas ink
+// stages is the words' own bottom inset, so the rail runs unbroken. The words
+// of every stage but the last stand at least a two-line stage's: a body line,
+// a meta line's leading and that inset, summed in a `calc`, so a later stage
+// of one meta line keeps the rail's one pitch. A row (`STAGE_ROW`) keeps a gap between its mark
+// and its words and a gap over and under them. A done mark's check stands on its disc in the canvas ink
 // (`STAGE_CHECK`), an ended rail's cross is the danger ink (`STAGE_CROSS`).
 export const STAGE_ROW = "gap-gap py-gap";
-export const STAGE_WORDS = "pb-gap";
+export const STAGE_WORDS =
+	"pb-gap min-h-[calc(var(--spacing-line-body)+var(--leading-meta)+var(--spacing-gap))]";
 export const STAGE_CHECK = "text-canvas";
 export const STAGE_CROSS = "text-danger";
 

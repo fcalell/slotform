@@ -1,6 +1,8 @@
 // Where an address stands among a shell's places. Both platforms' Shells and
 // rows read it: plain string parsing, since React Native's `URL` is partial.
 
+import type { Route } from "./roster/descriptors.ts";
+
 interface Parts {
 	path: string;
 	params: Array<[string, string]>;
@@ -112,24 +114,41 @@ export function flatPlaces<P extends PlaceNode<string>>(
 	return out;
 }
 
-// The routes from a top-level place down to the one that owns the address,
-// the owner last: the places "on the path", which a folded branch draws as
-// the current place's ancestor. Empty when no place owns the address.
+// A place on a Pane's trail: its label, and its route where it has one (a
+// place outside a Shell has none).
+export interface TrailPart {
+	label: string;
+	route?: Route;
+}
+
+// The trail: the places from a top-level place down to the one that owns the
+// address, the owner last. A sidebar draws them as on the current place's path,
+// a Pane's bar as where it stands. Empty when no place owns the address.
 export function placeTrail<P extends PlaceNode<string>>(
 	places: readonly P[],
 	at: string,
-): string[] {
+): P[] {
 	const owner = placeAt(flatPlaces(places), at);
 	if (owner === undefined) return [];
-	const down = (level: readonly PlaceNode<string>[]): string[] | undefined => {
+	const down = (level: readonly PlaceNode<string>[]): P[] | undefined => {
 		for (const place of level) {
-			if (place.route === owner) return [place.route];
+			// `children` holds places of the same kind as their parent, `P`.
+			const one = place as P;
+			if (place.route === owner) return [one];
 			const below = place.children ? down(place.children) : undefined;
-			if (below) return [place.route, ...below];
+			if (below) return [one, ...below];
 		}
 		return undefined;
 	};
 	return down(places) ?? [];
+}
+
+// A trail's two ends: the current place, its last, and the places above it.
+export function trailEnds<P>(trail: readonly P[]): {
+	above: readonly P[];
+	here: P | undefined;
+} {
+	return { above: trail.slice(0, -1), here: trail.at(-1) };
 }
 
 // The keys (routes) of the branches a sidebar draws folded: a branch is open
@@ -139,10 +158,11 @@ export function placeTrail<P extends PlaceNode<string>>(
 export function placesFolded(
 	places: readonly PlaceNode<string>[],
 	chosen: Readonly<Record<string, boolean>>,
-	trail: readonly string[],
+	trail: readonly PlaceNode<string>[],
 ): string[] {
+	const path = new Set(trail.map((place) => place.route));
 	return flatPlaces(places)
 		.filter((place) => (place.children?.length ?? 0) > 0)
-		.filter((place) => !(chosen[place.route] ?? trail.includes(place.route)))
+		.filter((place) => !(chosen[place.route] ?? path.has(place.route)))
 		.map((place) => place.route);
 }

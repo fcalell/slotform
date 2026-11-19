@@ -143,8 +143,8 @@ how much a row carries and where things stand, never for colour, type, corners o
     none and reads as a plain fact); the required ring is an outlined circle with a filled centre,
     never mistaken for a chip's solid dot. The lock is a badge right after the status, a link
     where it has an `href`. A status leads no lane: there is none that leads the whole line. What
-    stays text is a sentence, a caption or a breadcrumb: a record head's overline (one line, cut
-    at its end, on touch too), a message's provenance line, a canvas node's line, warning and
+    stays text is a sentence, a caption or a trail: a record head's overline (one line, cut
+    at its end, on touch too, where the trail leading it is cut at its start), a message's provenance line, a canvas node's line, warning and
     overline (only its status is a badge), a picker option's line (its recommended mark is a
     badge), a stat's line, and a row's `line`: the sentence a row says (a remedy, a schedule, an
     error, what a setting does) is text under its title and badges in the meta ink, wrapping
