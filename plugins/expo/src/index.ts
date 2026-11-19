@@ -272,7 +272,7 @@ interface RunResult {
 function runInherit(
 	args: string[],
 	cwd: string,
-	env: NodeJS.ProcessEnv = process.env,
+	env: NodeJS.ProcessEnv,
 ): RunResult {
 	const result = spawnSync("npx", args, { cwd, stdio: "inherit", env });
 	return { ok: !result.error && result.status === 0 };
@@ -394,7 +394,7 @@ export const expo = plugin("expo", {
 				// Expo's TypeScript setup rewrites the generated tsconfig.json
 				// (`extends`, `include`), which stack owns.
 				const { ok } = runInherit(args, ctx.cwd, {
-					...process.env,
+					...ctx.env,
 					EXPO_NO_TYPESCRIPT_SETUP: "1",
 				});
 				if (!ok) throw new Error("expo start failed");
@@ -419,7 +419,7 @@ export const expo = plugin("expo", {
 				if (typeof flags.platform === "string") {
 					args.push("--platform", flags.platform);
 				}
-				const { ok } = runInherit(args, ctx.cwd);
+				const { ok } = runInherit(args, ctx.cwd, ctx.env);
 				if (!ok) throw new Error("expo prebuild failed");
 			},
 		},
@@ -450,6 +450,7 @@ export const expo = plugin("expo", {
 				const { ok } = runInherit(
 					["eas", "build", "--profile", profile, "--platform", platform],
 					ctx.cwd,
+					ctx.env,
 				);
 				if (!ok) throw new Error("eas build failed");
 			},
@@ -475,7 +476,7 @@ export const expo = plugin("expo", {
 				if (typeof flags.message === "string") {
 					args.push("--message", flags.message);
 				}
-				const { ok } = runInherit(args, ctx.cwd);
+				const { ok } = runInherit(args, ctx.cwd, ctx.env);
 				if (!ok) throw new Error("eas update failed");
 			},
 		},
