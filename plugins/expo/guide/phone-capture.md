@@ -67,7 +67,7 @@ adb shell input text 'Buy%soat%smilk'
 a critic to look at: the screenshots and these files go to a critic who did not build the screen
 ([`critique.md`](../../../packages/ui-core/guide/critique.md)). Nothing is measured from them by hand: a number that
 matters (a height, a size, a contrast) is a rule of the render walk
-([The render walk](../../screens/guide/screens.md#the-render-walk)), and one with no rule there is not taken.
+([The render walk](../../screens/guide/test-run.md#the-render-walk)), and one with no rule there is not taken.
 
 ## Toasts and warnings
 
