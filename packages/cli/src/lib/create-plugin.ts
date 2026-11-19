@@ -73,6 +73,8 @@ export interface PromptContext {
 export interface CommandContext<TOptions> {
 	options: TOptions;
 	cwd: string;
+	// The CLI process's env: docs/architecture/conventions.md, "The environment".
+	env: NodeJS.ProcessEnv;
 	resolve<T>(slot: Slot<T>): Promise<T>;
 	// Runs the pipeline `stack generate` runs, in process: every artifact is
 	// written and every postWrite hook has run when it resolves. `resolve` keeps

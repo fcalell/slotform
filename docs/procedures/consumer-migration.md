@@ -264,6 +264,13 @@ Each bullet is what the consumer does.
   else from `msw` itself.
 - The screens fixture answerer decodes a call's input through oRPC's codec and answers
   `BAD_REQUEST` for an input it cannot decode.
+- The environment is handed down from each process entry
+  ([conventions](../architecture/conventions.md#the-environment)). A server the consumer starts
+  itself (a `stack screens serve --entry` file, an embedding host) passes `env: process.env` to
+  `startNodeServer` or `createNodeServer`, and a boot task reads its `env` argument. A Storybook
+  `main.ts` passes `env: process.env` to `writeStorybookConfig`. A consumer's own plugin reads
+  `ctx.env` in its command handlers and contributions, and passes the env to `startServer` as its
+  last argument.
 
 **Components**
 

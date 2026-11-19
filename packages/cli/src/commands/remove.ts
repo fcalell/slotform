@@ -73,7 +73,7 @@ function configEntry(config: StackConfig, pluginName: string): PluginConfig {
 export async function remove(
 	pluginName: string,
 	configPath: string,
-	options: { yes?: boolean } = {},
+	options: { yes?: boolean; env: NodeJS.ProcessEnv },
 ): Promise<void> {
 	const config = await loadConfig(configPath);
 	const cwd = process.cwd();
@@ -116,13 +116,14 @@ export async function remove(
 		cwd,
 		discovered,
 		yes: options.yes,
+		env: options.env,
 	});
 
 	// A degraded workspace would fail `generate` on the same load error.
 	if (discovered) {
 		const { generate } = await import("./generate.ts");
 		try {
-			await generate(configPath);
+			await generate(configPath, options.env);
 		} catch (error) {
 			log.warn(
 				`Could not regenerate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`stack generate\`.`,
@@ -138,11 +139,13 @@ async function removals(
 	plugins: DiscoveredPlugin[],
 	config: StackConfig,
 	cwd: string,
+	env: NodeJS.ProcessEnv,
 ): Promise<{ files: string[]; deps: string[]; devDeps: string[] }> {
 	const { graph } = buildGraphFromDiscovered({
 		discovered: plugins,
 		app: config.app,
 		cwd,
+		env,
 	});
 	const [files, deps, devDeps] = await Promise.all([
 		graph.resolve(cliSlots.removeFiles),
@@ -162,12 +165,14 @@ export async function uninstall(
 		configPath,
 		cwd,
 		discovered,
+		env,
 		yes = false,
 	}: {
 		config: StackConfig;
 		configPath: string;
 		cwd: string;
 		discovered: DiscoveredPlugin[] | null;
+		env: NodeJS.ProcessEnv;
 		// Deletes the plugin's files without asking. Without it, the paths are
 		// listed and confirmed, and a session with no terminal refuses.
 		yes?: boolean;
@@ -178,7 +183,7 @@ export async function uninstall(
 	const packageName = configEntry(config, pluginName).__package;
 
 	const own = plugin
-		? await removals([plugin], config, cwd)
+		? await removals([plugin], config, cwd, env)
 		: { files: [], deps: [], devDeps: [] };
 	// A dependency a remaining plugin also declares stays.
 	const kept = plugin
@@ -186,6 +191,7 @@ export async function uninstall(
 				(discovered ?? []).filter((p) => p !== plugin),
 				config,
 				cwd,
+				env,
 			)
 		: { files: [], deps: [], devDeps: [] };
 

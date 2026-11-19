@@ -48,7 +48,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
 - [Commands](architecture/commands.md): each `stack` command's procedure, prompts, plugin subcommands.
 - [Consumer project](architecture/consumer-project.md): the generated repo, config, install modes, lint, the guide.
 - [Runtime](architecture/runtime.md): the generated worker chain, its context, middleware and background handlers.
-- [Conventions](architecture/conventions.md): package, build, folder and prop-naming rules.
+- [Conventions](architecture/conventions.md): package, build, folder and prop-naming rules, and where the environment is read.
 - [Releasing](architecture/releasing.md): what is published, the version rule, peers, the check.
 
 ### ui-core

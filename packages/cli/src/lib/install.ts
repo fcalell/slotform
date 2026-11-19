@@ -35,7 +35,7 @@ export function pinnedStackCommit(cwd: string): string | null {
 }
 
 // Brings the app's stack packages in line with its `package.json`, then installs: docs/architecture/consumer-project.md, "Installing stack".
-export function installStack(cwd: string): void {
+export function installStack(cwd: string, env: NodeJS.ProcessEnv): void {
 	const pkgPath = join(cwd, "package.json");
 	const pkg = readManifest(pkgPath);
 	const workspace = stackWorkspaceRoot(cwd);
@@ -72,6 +72,7 @@ export function installStack(cwd: string): void {
 	const result = spawnSync("pnpm", ["install"], {
 		cwd: workspace ?? root,
 		stdio: "inherit",
+		env,
 	});
 	if (isErrno(result.error, "ENOENT")) {
 		throw new StackError(

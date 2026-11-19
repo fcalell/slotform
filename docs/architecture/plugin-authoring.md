@@ -89,8 +89,8 @@ Fields:
   `someSlot.contribute(fn)`. `self` carries the plugin's own slots and typed options, so the plugin
   references them with no forward reference and without stamping its name on every slot
   declaration.
-- `commands`: subcommands routed as `stack <plugin> <command>`
-  ([commands](./commands.md#plugin-subcommands)).
+- `commands`: subcommands routed as `stack <plugin> <command>`, each handler given a
+  `CommandContext` ([commands](./commands.md#plugin-subcommands)).
 - `callbacks`: typed callback slots for consumer callback files.
 - `dependencies`, `devDependencies`, `gitignore`: the plugin's footprint, auto-wired into
   `cliSlots.initDeps`, `cliSlots.initDevDeps` and `cliSlots.gitignore`, and into the matching
@@ -206,6 +206,7 @@ interface ContributionCtx<TOptions = unknown> {
   app: AppConfig;                                   // { name, domain, origins? }
   options: TOptions;                                // see "Options via schema"
   cwd: string;                                      // the consumer's working directory
+  env: NodeJS.ProcessEnv;                           // the CLI process's env
   fileExists(path: string): Promise<boolean>;       // relative to cwd
   readFile(path: string): Promise<string>;          // relative to cwd
   log: { info, warn, success, error };              // Clack-style logging
@@ -214,6 +215,10 @@ interface ContributionCtx<TOptions = unknown> {
   resolve<T>(slot: Slot<T>): Promise<T>;            // pull any slot value
 }
 ```
+
+A contribution and a command handler read the environment from `ctx.env`, the one the CLI read at
+its process entry, and pass it to what they call; a child they spawn takes its env from it
+([conventions](./conventions.md#the-environment)).
 
 `scaffold(name, target)` is `{ source: template(name), target, plugin: thisName }`. `resolve` is for
 sparing use; a value the plugin structurally needs is a derived slot. A plugin that resolves a

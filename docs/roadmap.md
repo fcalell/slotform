@@ -84,7 +84,6 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 
 Each item is decided and waits to be built. One that adds a part or crosses packages is designed first (an architecture section and a change map), then built.
 
-- The environment is threaded from the entries: the CLI's command context and each server entry carry `env`, and none of the 23 reads below an entry (16 files) keeps a `process.env` default.
 - A generated `Specimen` story draws every component's `rest` scene, light and dark, on one page, from `showcaseScenes()`; the overlay scenes stand one stage each at its end.
 - The phone's `Waveform` on `react-native-svg`, over ui-core's waveform arithmetic, with a seek gesture and the adjustable action, in the dock's full player.
 - Guide and architecture pages: a component's props live on its topic page (`containers.md`, `blocks.md`, `content.md`) and `rules.md` keeps the choosing rule and links there; the floors live in `packages/ui-core/guide/voice.md` and `docs/architecture/ui-core/tokens.md` links to them; a rule a consumer follows lives in its guide page and `node.md`, `runtime.md` and `screens.md` keep the mechanism.

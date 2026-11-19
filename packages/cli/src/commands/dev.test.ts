@@ -5,6 +5,7 @@ import { stopAll } from "./dev.ts";
 
 const sleeper = (name: string, code: string) =>
 	supervise({
+		env: {},
 		spec: { name, command: process.execPath, args: ["-e", code] },
 		onOutput: () => {},
 	});
@@ -13,6 +14,7 @@ const sleeper = (name: string, code: string) =>
 // starts `sleep` and prints its pid.
 const launcher = (name: string, prelude = "") =>
 	supervise({
+		env: {},
 		spec: {
 			name,
 			command: "sh",

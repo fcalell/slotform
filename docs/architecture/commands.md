@@ -208,6 +208,7 @@ A subcommand runs after the slot graph is built, and its handler receives a `Com
 interface CommandContext<TOptions> {
   options: TOptions;                   // typed from the plugin's schema
   cwd: string;
+  env: NodeJS.ProcessEnv;              // the CLI process's env
   resolve<T>(slot: Slot<T>): Promise<T>;
   generate(): Promise<void>;
   log: { info, warn, success, error };
@@ -262,7 +263,7 @@ also save a PNG of each story at each width into the directory
   control fails, naming it.
 - `--search <query>`: the search every screen is drawn at, in place of the fixtures' example.
 
-The run's browser is the [shared Chrome](./plugins/screens.md#shared-browser), through the `chrome()` Vitest provider
+The run's browser is the [shared Chrome](./plugins/screens.md#shared-browser), through the `chrome(process.env)` Vitest provider
 (`@fcalell/plugin-screens/browser`); a missing Chrome fails before anything is generated, with one
 line.
 

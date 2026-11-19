@@ -5,6 +5,7 @@ import { supervise } from "./proc.ts";
 test("a missing binary settles with the spawn error instead of hanging", async () => {
 	const events: number[] = [];
 	const proc = supervise({
+		env: {},
 		spec: { name: "ghost", command: "stack-no-such-binary-xyz", args: [] },
 		onOutput: () => {},
 		onLifecycle: () => events.push(1),
@@ -25,6 +26,7 @@ test("stop cancels a pending restart and settles done", async () => {
 		exited = resolve;
 	});
 	const proc = supervise({
+		env: {},
 		spec: {
 			name: "crash",
 			command: process.execPath,
@@ -51,6 +53,7 @@ test("each launch reports its attempt and each line its stream", async () => {
 	const launches: number[] = [];
 	const lines: string[] = [];
 	const proc = supervise({
+		env: {},
 		spec: {
 			name: "twice",
 			command: process.execPath,
@@ -90,6 +93,7 @@ test("a restart relaunches a running process whatever its policy", async () => {
 		printed = resolve;
 	});
 	const proc = supervise({
+		env: {},
 		spec: {
 			name: "server",
 			command: process.execPath,
@@ -116,6 +120,7 @@ test("a restart relaunches a running process whatever its policy", async () => {
 test("a restart after the run ended starts a run with its own done", async () => {
 	const launches: number[] = [];
 	const proc = supervise({
+		env: {},
 		spec: { name: "once", command: process.execPath, args: ["-e", ""] },
 		onOutput: () => {},
 		onLaunch: (attempt) => launches.push(attempt),
@@ -135,6 +140,7 @@ test("a port conflict on stderr is flagged with its port, before or after the ke
 		["Port 8787 is unavailable", 8787],
 	] as const) {
 		const proc = supervise({
+			env: {},
 			spec: {
 				name: "taken",
 				command: process.execPath,
@@ -150,6 +156,7 @@ test("a port conflict on stderr is flagged with its port, before or after the ke
 
 test("stderr that names no port conflict flags none", async () => {
 	const proc = supervise({
+		env: {},
 		spec: {
 			name: "plain",
 			command: process.execPath,
@@ -164,6 +171,7 @@ test("stderr that names no port conflict flags none", async () => {
 
 test("a port conflict line that names no port reports the spec's default port", async () => {
 	const proc = supervise({
+		env: {},
 		spec: {
 			name: "taken",
 			command: process.execPath,

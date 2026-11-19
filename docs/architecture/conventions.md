@@ -1,8 +1,8 @@
 # Coding conventions
 
 The rules every package in the repo follows: where a feature belongs, how a package is shaped, built
-and exported, the TypeScript and Biome presets, a plugin's folder layout, and the one word per
-meaning that names a component's props.
+and exported, the TypeScript and Biome presets, a plugin's folder layout, where the environment is
+read, and the one word per meaning that names a component's props.
 
 ## Where a new feature or config surface belongs
 
@@ -200,6 +200,22 @@ exports for `.` and `./runtime`, no barrel index. Inside stack's own workspace i
 package from the workspace, as `stack init` does for an app
 ([commands](./commands.md#plugin-subcommands)).
 
+## The environment
+
+The environment is read once per process, at its **process entry**, and handed down.
+
+- In the CLI, `cli.ts` puts `process.env` on the `CommandContext` and on the contribute ctx. Every
+  command handler and every slot contribute then reads `ctx.env`, and passes it as a parameter to
+  what it calls. Every spawned child is given an env built from `ctx.env`.
+- On the Node target, the generated `.stack/server.ts` passes `process.env` to `startNodeServer`.
+  Boot tasks take it as their argument.
+- Two kinds of read are process entries themselves, and no others: a file a tool loads as its
+  process's start (the generated `.stack/screens.vitest.config.ts`, Storybook's `.storybook/main.ts`,
+  a repo script such as `scripts/prepare.ts`), and a constant the bundler inlines
+  (`process.env.NODE_ENV`, an `import.meta.env` key under `envPrefix`, an `EXPO_PUBLIC_` key Metro
+  inlines).
+- No function takes `env` with a `process.env` default.
+
 ## Naming a component's props
 
 One word per meaning across both UI plugins and every ui-core descriptor, so a screen reads the same
@@ -242,3 +258,5 @@ a row does (`lock`, `href`, `act`) is a prop, not a fact.
 - `turbo.json`, `apps/*/turbo.json`: the task graph and each task's outputs.
 - `scripts/prepare.ts`: the packages' `prepare`.
 - `packages/cli/src/commands/plugin.ts`: the third-party plugin scaffold.
+- `packages/cli/src/cli.ts`: the CLI's one read of the environment.
+- `plugins/node/src/node/codegen.ts`: the server entry's `env: process.env`.

@@ -6,12 +6,13 @@ import { buildApp } from "./build.ts";
 
 interface DeployOptions {
 	config: string;
+	env: NodeJS.ProcessEnv;
 }
 
 export async function deploy(options: DeployOptions): Promise<void> {
 	intro("stack deploy");
 
-	const graph = await buildApp(options.config);
+	const graph = await buildApp(options.config, options.env);
 	const [checks, steps] = await Promise.all([
 		graph.resolve(cliSlots.deployChecks),
 		graph.resolve(cliSlots.deploySteps),
@@ -44,7 +45,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 
 	for (const step of steps) {
 		log.step(`Deploying: ${step.name}`);
-		await runStep(step);
+		await runStep(step, options.env);
 		log.success(`${step.name} deployed`);
 	}
 

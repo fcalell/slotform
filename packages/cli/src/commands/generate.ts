@@ -13,9 +13,10 @@ import type { GeneratedFile } from "../specs.ts";
 export async function generateFromConfig(
 	config: StackConfig,
 	cwd: string,
+	env: NodeJS.ProcessEnv,
 	log?: LogContext,
 ): Promise<Graph> {
-	const { graph } = await buildGraphFromConfig({ config, cwd, log });
+	const { graph } = await buildGraphFromConfig({ config, cwd, env, log });
 
 	const rawFiles = await graph.resolve(cliSlots.artifactFiles);
 	const postWrite = await graph.resolve(cliSlots.postWrite);
@@ -56,7 +57,10 @@ export async function generateFromConfig(
 }
 
 // `stack generate`, and the `generate` a plugin command's context carries.
-export async function generate(configPath: string): Promise<void> {
+export async function generate(
+	configPath: string,
+	env: NodeJS.ProcessEnv,
+): Promise<void> {
 	const config = await loadConfig(configPath);
-	await generateFromConfig(config, process.cwd());
+	await generateFromConfig(config, process.cwd(), env);
 }

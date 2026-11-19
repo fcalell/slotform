@@ -48,7 +48,7 @@ function displacedBy(
 export async function add(
 	pluginName: string,
 	configPath: string,
-	options: { yes?: boolean } = {},
+	options: { yes?: boolean; env: NodeJS.ProcessEnv },
 ): Promise<void> {
 	assertKnownPlugins([pluginName]);
 
@@ -89,6 +89,7 @@ export async function add(
 				cwd,
 				discovered: configured,
 				yes: options.yes,
+				env: options.env,
 			});
 			configured = configured.filter((p) => p.name !== name);
 			log.info(`Removed ${name}, which ${pluginName} replaces.`);
@@ -103,6 +104,7 @@ export async function add(
 		dir: cwd,
 		existing: existingPluginNames,
 		picked: [pluginName],
+		env: options.env,
 		writeManifest: (plugins) =>
 			patchPackageJson(cwd, {
 				dependencies: stackPluginSpecs(plugins, pinnedStackCommit(cwd)),
@@ -142,10 +144,11 @@ export async function add(
 		discovered: withOptions(available, existingOptions),
 		app,
 		cwd,
+		env: options.env,
 	});
 
 	const answersByPlugin = await askPrompts(graph, pluginsToAdd, nonInteractive);
-	await applyScaffold(graph, pluginsToAdd, cwd);
+	await applyScaffold(graph, pluginsToAdd, cwd, options.env);
 
 	// magicast keeps the config's comments and formatting.
 	if (existingConfig) {
@@ -170,7 +173,7 @@ export async function add(
 
 	const { generate } = await import("./generate.ts");
 	try {
-		await generate(configPath);
+		await generate(configPath, options.env);
 	} catch (error) {
 		log.warn(
 			`Could not run generate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`stack generate\`.`,

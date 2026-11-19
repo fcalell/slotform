@@ -17,6 +17,8 @@ export type OutputStream = "stdout" | "stderr";
 
 interface SuperviseOptions {
 	spec: ProcessSpec;
+	// The env each child starts from; `spec.env` overrides it.
+	env: NodeJS.ProcessEnv;
 	// Each line the child prints, on whichever stream it printed it.
 	onOutput(stream: OutputStream, line: string): void;
 	// Called as each child is spawned: attempt 0, then once per restart.
@@ -99,7 +101,7 @@ export function supervise(opts: SuperviseOptions): SupervisedProcess {
 		// signals as one.
 		const child = spawn(spec.command, spec.args, {
 			stdio: ["ignore", "pipe", "pipe"],
-			env: spec.env ? { ...process.env, ...spec.env } : undefined,
+			env: { ...opts.env, ...spec.env },
 			detached: true,
 		});
 		currentChild = child;

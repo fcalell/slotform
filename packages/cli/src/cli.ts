@@ -35,6 +35,8 @@ const subcommand = positionals[1];
 const string = (value: unknown) =>
 	typeof value === "string" ? value : undefined;
 const configPath = string(values.config) ?? DEFAULT_CONFIG;
+// The process entry's one read of the environment: docs/architecture/conventions.md, "The environment".
+const env = process.env;
 
 function required(name: string | undefined, usage: string): string {
 	if (name) return name;
@@ -69,6 +71,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 				yes: values.yes === true,
 				force: values.force === true,
 				dirGiven: subcommand !== undefined,
+				env,
 			});
 		},
 	},
@@ -79,7 +82,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		run: async () => {
 			const name = required(subcommand, "stack add <plugin>");
 			const { add } = await import("./commands/add.ts");
-			await add(name, configPath, { yes: values.yes === true });
+			await add(name, configPath, { yes: values.yes === true, env });
 		},
 	},
 	remove: {
@@ -89,7 +92,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		run: async () => {
 			const name = required(subcommand, "stack remove <plugin>");
 			const { remove } = await import("./commands/remove.ts");
-			await remove(name, configPath, { yes: values.yes === true });
+			await remove(name, configPath, { yes: values.yes === true, env });
 		},
 	},
 	generate: {
@@ -97,7 +100,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		summary: "Generate .stack/ files",
 		run: async () => {
 			const { generate } = await import("./commands/generate.ts");
-			await generate(configPath);
+			await generate(configPath, env);
 		},
 	},
 	dev: {
@@ -105,7 +108,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		summary: "Start development",
 		run: async () => {
 			const { dev } = await import("./commands/dev.ts");
-			await dev({ config: configPath });
+			await dev({ config: configPath, env });
 		},
 	},
 	build: {
@@ -113,7 +116,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		summary: "Build for production",
 		run: async () => {
 			const { build } = await import("./commands/build.ts");
-			await build(configPath);
+			await build(configPath, env);
 		},
 	},
 	deploy: {
@@ -121,7 +124,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		summary: "Deploy to production",
 		run: async () => {
 			const { deploy } = await import("./commands/deploy.ts");
-			await deploy({ config: configPath });
+			await deploy({ config: configPath, env });
 		},
 	},
 	// `stack plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
@@ -198,6 +201,7 @@ async function main(): Promise<void> {
 	const { graph, plugins } = await buildGraphFromConfig({
 		config,
 		cwd: process.cwd(),
+		env,
 	});
 
 	const pluginClis = plugins.map((p) => p.cli);
@@ -225,8 +229,9 @@ async function main(): Promise<void> {
 		{
 			options: plugin?.options ?? {},
 			cwd,
+			env,
 			resolve: graph.resolve,
-			generate: () => generate(configPath),
+			generate: () => generate(configPath, env),
 			log: createLogContext(),
 			prompt: createPromptContext(),
 		},
@@ -246,9 +251,9 @@ try {
 		process.exit(1);
 	}
 	if (error instanceof Error) {
-		const env = process.env.STACK_DEBUG;
+		const flag = env.STACK_DEBUG;
 		const debug =
-			values.debug === true || (!!env && env !== "0" && env !== "false");
+			values.debug === true || (!!flag && flag !== "0" && flag !== "false");
 		log.error(debug ? (error.stack ?? error.message) : error.message);
 	} else {
 		log.error(String(error));

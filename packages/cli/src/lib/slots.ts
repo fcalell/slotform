@@ -90,6 +90,8 @@ export interface ContributionCtx<TOptions = unknown> {
 	app: AppConfig;
 	options: TOptions;
 	cwd: string;
+	// The CLI process's env: docs/architecture/conventions.md, "The environment".
+	env: NodeJS.ProcessEnv;
 	fileExists(path: string): Promise<boolean>;
 	readFile(path: string): Promise<string>;
 	log: LogContext;

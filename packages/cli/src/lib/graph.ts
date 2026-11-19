@@ -30,6 +30,7 @@ export interface GraphPlugin {
 export interface GraphCtxFactory {
 	app: AppConfig;
 	cwd: string;
+	env: NodeJS.ProcessEnv;
 	log: LogContext;
 	ctxForPlugin(
 		pluginName: string,
@@ -121,6 +122,7 @@ export function buildGraph(
 			app: ctxFactory.app,
 			options: plug.options,
 			cwd: ctxFactory.cwd,
+			env: ctxFactory.env,
 			log: ctxFactory.log,
 			fileExists: plug.fileExists,
 			readFile: plug.readFile,

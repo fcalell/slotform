@@ -30,17 +30,19 @@ export async function installClosure({
 	picked,
 	writeManifest,
 	pick,
+	env,
 }: {
 	dir: string;
 	existing: readonly string[];
 	picked: readonly string[];
 	writeManifest: (plugins: string[]) => void;
 	pick?: ChooseRequirement;
+	env: NodeJS.ProcessEnv;
 }): Promise<{ plugins: string[]; available: DiscoveredPlugin[] }> {
 	let plugins = [...picked];
 	for (;;) {
 		writeManifest(plugins);
-		installStack(dir);
+		installStack(dir, env);
 		const available = await loadInstalledPlugins(
 			[...existing, ...plugins],
 			dir,
@@ -92,6 +94,7 @@ export async function applyScaffold(
 	graph: Graph,
 	plugins: readonly string[],
 	dir: string,
+	env: NodeJS.ProcessEnv,
 ): Promise<string[]> {
 	const [scaffolds, dependencies, gitignore, packageJsonFields] =
 		await Promise.all([
@@ -107,6 +110,6 @@ export async function applyScaffold(
 	announceCreated(created);
 	patchPackageJson(dir, { ...dependencies, fields: packageJsonFields });
 	if (gitignore.length > 0) ensureGitignore(dir, ...gitignore);
-	installStack(dir);
+	installStack(dir, env);
 	return created;
 }

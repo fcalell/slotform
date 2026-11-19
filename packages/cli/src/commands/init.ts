@@ -56,6 +56,7 @@ interface InitOptions {
 	force: boolean;
 	// `dir` was named on the command line rather than defaulted to the cwd.
 	dirGiven: boolean;
+	env: NodeJS.ProcessEnv;
 }
 
 // Refuses a target `init` would scaffold into by accident: the cwd with no
@@ -134,6 +135,7 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 	const plugins = await installPlugins(
 		dir,
 		picked,
+		options.env,
 		nonInteractive ? undefined : chooseRequirement,
 	);
 
@@ -145,12 +147,17 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 	const { scaffold } = (await import(
 		new URL("./commands/init.js", pathToFileURL(installedCli)).href
 	)) as typeof import("./init.ts");
-	await scaffold(dir, { plugins, appName, domain, nonInteractive });
+	await scaffold(
+		dir,
+		{ plugins, appName, domain, nonInteractive },
+		options.env,
+	);
 }
 
 async function installPlugins(
 	dir: string,
 	picked: string[],
+	env: NodeJS.ProcessEnv,
 	pick?: ChooseRequirement,
 ): Promise<string[]> {
 	const manifestPath = join(dir, "package.json");
@@ -161,6 +168,7 @@ async function installPlugins(
 		existing: [],
 		picked,
 		pick,
+		env,
 		writeManifest: (plugins) => {
 			if (ownsManifest) {
 				writeFileSync(
@@ -188,6 +196,7 @@ async function installPlugins(
 export async function scaffold(
 	dir: string,
 	{ plugins: selectedPlugins, appName, domain, nonInteractive }: Selection,
+	env: NodeJS.ProcessEnv,
 ): Promise<void> {
 	const available = await loadInstalledPlugins(selectedPlugins, dir);
 	const app = { name: appName, domain };
@@ -200,6 +209,7 @@ export async function scaffold(
 		discovered: available,
 		app,
 		cwd: dir,
+		env,
 	});
 	const tsconfigPaths = await promptGraph.resolve(cliSlots.tsconfigPaths);
 	const tsconfigTypes = await promptGraph.resolve(cliSlots.tsconfigTypes);
@@ -253,8 +263,9 @@ export async function scaffold(
 		discovered: withOptions(available, pluginAnswers),
 		app,
 		cwd: dir,
+		env,
 	});
-	written.push(...(await applyScaffold(initGraph, selectedPlugins, dir)));
+	written.push(...(await applyScaffold(initGraph, selectedPlugins, dir, env)));
 
 	// Generate precedes the format: docs/architecture/commands.md, "`stack init` and `stack add`".
 	try {
@@ -262,6 +273,7 @@ export async function scaffold(
 		await generateFromConfig(
 			await loadConfig(join(dir, "stack.config.ts")),
 			dir,
+			env,
 		);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
@@ -275,7 +287,7 @@ export async function scaffold(
 		);
 	}
 
-	formatWritten(dir, written);
+	formatWritten(dir, written, env);
 
 	note("stack dev", "Next steps");
 	outro("Done!");
@@ -287,7 +299,11 @@ const chooseRequirement: ChooseRequirement = (req, plugin) =>
 // The templates write plain `JSON.stringify` and unsorted imports; the
 // app's own Biome lays out what init wrote, so its first check changes
 // nothing. A file type Biome does not handle (Markdown, YAML) is skipped.
-function formatWritten(dir: string, files: string[]): void {
+function formatWritten(
+	dir: string,
+	files: string[],
+	env: NodeJS.ProcessEnv,
+): void {
 	if (files.length === 0) return;
 	const result = spawnSync(
 		"pnpm",
@@ -300,7 +316,7 @@ function formatWritten(dir: string, files: string[]): void {
 			"--no-errors-on-unmatched",
 			...files,
 		],
-		{ cwd: dir, stdio: "inherit" },
+		{ cwd: dir, stdio: "inherit", env },
 	);
 	if (result.status !== 0) {
 		throw new StackError(

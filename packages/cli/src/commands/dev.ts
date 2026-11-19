@@ -16,6 +16,7 @@ import { generateFromConfig } from "./generate.ts";
 
 interface DevOptions {
 	config: string;
+	env: NodeJS.ProcessEnv;
 }
 
 // One fs.watch handle per WatcherSpec, with its own debounce, so a sibling
@@ -119,12 +120,13 @@ export async function dev(options: DevOptions): Promise<void> {
 	const screen =
 		process.stdin.isTTY === true &&
 		process.stdout.isTTY === true &&
-		process.env.TERM !== "dumb";
+		options.env.TERM !== "dumb";
 	const restarts = new Map<string, () => void>();
 	const view: DevView = screen
 		? createScreenView({
 				onQuit: () => void shutdown(0),
 				onRestart: (name) => restarts.get(name)?.(),
+				env: options.env,
 			})
 		: createStreamView();
 	const shutdown = async (exitCode: number) => {
@@ -144,14 +146,14 @@ export async function dev(options: DevOptions): Promise<void> {
 		// Reload: ESM caches the config module by URL, so a plain import would
 		// regenerate from the config as it was at startup.
 		const config = await loadConfig(options.config, { reload: true });
-		return generateFromConfig(config, cwd, log);
+		return generateFromConfig(config, cwd, options.env, log);
 	};
 	// A piped child sees no terminal and prints no colour; the screen draws
 	// colour, so it asks the children for it.
 	const forceColor =
 		screen &&
-		process.env.NO_COLOR === undefined &&
-		process.env.FORCE_COLOR === undefined;
+		options.env.NO_COLOR === undefined &&
+		options.env.FORCE_COLOR === undefined;
 
 	// The CLI exits on a thrown error without waiting for anything, so a step
 	// that throws stops the processes and gives the terminal back first.
@@ -186,6 +188,7 @@ export async function dev(options: DevOptions): Promise<void> {
 				);
 			}
 			const proc = supervise({
+				env: options.env,
 				spec: forceColor
 					? { ...spec, env: { FORCE_COLOR: "1", ...spec.env } }
 					: spec,

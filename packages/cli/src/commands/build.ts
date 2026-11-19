@@ -13,21 +13,28 @@ const PHASE_LABEL = {
 } satisfies Record<Phase, string>;
 
 // Generates, then runs the build steps; answers the graph for `deploy`.
-export async function buildApp(configPath: string): Promise<Graph> {
+export async function buildApp(
+	configPath: string,
+	env: NodeJS.ProcessEnv,
+): Promise<Graph> {
 	const graph = await generateFromConfig(
 		await loadConfig(configPath),
 		process.cwd(),
+		env,
 	);
 	// The slot sorts the steps by phase.
 	for (const step of await graph.resolve(cliSlots.buildSteps)) {
 		log.step(`${PHASE_LABEL[step.phase]}: ${step.name}`);
-		await runStep(step);
+		await runStep(step, env);
 	}
 	return graph;
 }
 
-export async function build(configPath: string): Promise<void> {
+export async function build(
+	configPath: string,
+	env: NodeJS.ProcessEnv,
+): Promise<void> {
 	intro("stack build");
-	await buildApp(configPath);
+	await buildApp(configPath, env);
 	outro("Build complete");
 }

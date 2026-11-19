@@ -51,6 +51,10 @@ to fix, and a new term enters this page in the change that introduces it.
   `.stack/` and runs the hooks that follow; every other command runs it first.
   [commands](architecture/commands.md#stack-generate)
 - **artifact**: A file `generate` writes from a slot's value. [codegen](architecture/codegen.md#artifact-emit)
+- **process entry**: The file a process starts from: `cli.ts` for the CLI, the generated
+  `.stack/server.ts` for the Node server, a file a tool loads as its process's start. The one place
+  that reads `process.env` and hands it down. Avoid: entry (alone), entry point.
+  [conventions](architecture/conventions.md#the-environment)
 - **guide page**: A page a package ships under `guide/` on how a consumer builds on stack, read at the
   version the consumer installs. [consumer project](architecture/consumer-project.md#the-guide)
 - **guide index**: `.stack/guide.md`, the list of every guide page of the consumer's plugins, each

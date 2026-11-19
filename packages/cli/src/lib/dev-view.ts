@@ -204,10 +204,10 @@ const OPENERS: Partial<Record<NodeJS.Platform, string[]>> = {
 	win32: ["rundll32", "url.dll,FileProtocolHandler"],
 };
 
-function openUrl(url: string, log: DevLog): void {
+function openUrl(url: string, log: DevLog, env: NodeJS.ProcessEnv): void {
 	const [command = "xdg-open", ...args] = OPENERS[process.platform] ?? [];
 	log.info(`Opening ${url}`);
-	spawn(command, [...args, url], { stdio: "ignore", detached: true })
+	spawn(command, [...args, url], { stdio: "ignore", detached: true, env })
 		.on("error", (error) => log.warn(`Could not open ${url}: ${error.message}`))
 		.unref();
 }
@@ -251,6 +251,8 @@ const SCROLLBACK = 2000;
 export function createScreenView(opts: {
 	onQuit(): void;
 	onRestart(name: string): void;
+	// The env the `o` key's opener runs with.
+	env: NodeJS.ProcessEnv;
 }): DevView {
 	const { stdin, stdout } = process;
 	const stack: Pane = {
@@ -382,7 +384,7 @@ export function createScreenView(opts: {
 		o: () => {
 			const { status } = selected;
 			if (status?.kind === "ready" && status.url) {
-				openUrl(status.url, screenLog);
+				openUrl(status.url, screenLog, opts.env);
 			}
 		},
 		q: () => opts.onQuit(),

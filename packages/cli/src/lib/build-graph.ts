@@ -11,6 +11,7 @@ import type { LogContext } from "./slots.ts";
 export interface BuildGraphFromConfigOptions {
 	config: StackConfig;
 	cwd: string;
+	env: NodeJS.ProcessEnv;
 	log?: LogContext;
 }
 
@@ -32,6 +33,7 @@ export async function buildGraphFromConfig(
 		discovered,
 		app: opts.config.app,
 		cwd: opts.cwd,
+		env: opts.env,
 		log: opts.log,
 	});
 }
@@ -40,6 +42,7 @@ export interface BuildGraphFromDiscoveredOptions {
 	discovered: DiscoveredPlugin[];
 	app: AppConfig;
 	cwd: string;
+	env: NodeJS.ProcessEnv;
 	log?: LogContext;
 }
 
@@ -58,6 +61,7 @@ export function buildGraphFromDiscovered(
 		{
 			app: opts.app,
 			cwd,
+			env: opts.env,
 			log: opts.log ?? createLogContext(),
 			ctxForPlugin: (pluginName) => {
 				const plugin = opts.discovered.find((d) => d.name === pluginName);
