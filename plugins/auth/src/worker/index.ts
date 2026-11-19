@@ -123,8 +123,9 @@ export type {
 	RejectedInvitation,
 } from "./outputs.ts";
 export type { AuthProcedureFactory, OAuthRedirect } from "./procedures.ts";
-// The request context carries a `Tenancy`, so a declaration emit of the
-// consumer's generated `.stack/procedure.ts` names it through this subpath.
+// The request context carries a `Tenancy` and an `AuthRateLimiter`, so a declaration
+// emit of the consumer's generated `.stack/procedure.ts` names them through this subpath.
+export type { AuthRateLimiter } from "./rate-limit.ts";
 export type { Tenancy } from "./tenancy.ts";
 
 // Consumer-implemented hooks: docs/architecture/plugins/auth.md, "Callbacks".
