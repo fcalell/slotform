@@ -20,7 +20,7 @@ export function Scene(props: { scene: ShowcaseScene; draw?: Draw }) {
 			)}
 		>
 			<p className={text({ role: "caption" })}>
-				{scene.classSet.name} · {scene.state} · {scene.mode}
+				{scene.classSet.name} · {scene.story} · {scene.mode}
 			</p>
 			{drawn ?? (
 				<>

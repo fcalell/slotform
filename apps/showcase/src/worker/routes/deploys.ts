@@ -1,7 +1,7 @@
 import { procedure } from "virtual:stack-procedure";
 import { ApiError } from "@fcalell/plugin-api/error";
 import { z } from "@fcalell/plugin-api/schema";
-import { status } from "../schemas.ts";
+import { region, status } from "../schemas.ts";
 
 const deploy = z.object({
 	id: z.string(),
@@ -53,6 +53,8 @@ export const deploys = {
 					.object({ before: z.string(), after: z.string() })
 					.optional(),
 				notes: z.string(),
+				// The region it runs in.
+				region,
 				steps: z.array(step),
 			}),
 		)

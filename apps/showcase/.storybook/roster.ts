@@ -20,7 +20,7 @@ export const SCENES_DIR = path.join(ROSTER_DIR, "scenes");
 interface RosterComponent {
 	layer: string;
 	component: string;
-	states: string[];
+	stories: string[];
 }
 
 const pascal = (word: string) => `${word[0]?.toUpperCase()}${word.slice(1)}`;
@@ -52,9 +52,9 @@ function moduleFor(entry: RosterComponent): string {
 		"",
 		`export default { title: ${JSON.stringify(`${entry.layer}/${entry.component}`)} };`,
 		"",
-		...entry.states.map(
-			(state) =>
-				`export const ${pascal(state)} = story(${JSON.stringify(state)});`,
+		...entry.stories.map(
+			(story) =>
+				`export const ${pascal(story)} = story(${JSON.stringify(story)});`,
 		),
 		"",
 	].join("\n");

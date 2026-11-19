@@ -56,7 +56,11 @@ answers every procedure, with an example value for each route param (`deployId`,
 The roster is in Storybook: one story per roster component and drawn state (`DRAWN_STATES` in
 `class-sets.ts`, each one a prop of the component), every class set of that component in that
 state, light and dark side by side, at the toolbar's density (desktop or touch). The `rest` story
-takes a `classSet` control to browse one class set. Pointer and focus states stay in the roster and draw no
+takes a `classSet` control to browse one class set. A lone scene (`LONE_STORIES` in `class-sets.ts`)
+is the one scene of a story of its own, named for what it stages, at rest on its component's first
+class set, dark only: what it raises into a page-wide queue (`confirm()`, `toast()`) every root
+container on the page draws, so a page of several stages would show it in each. Its drawer tells
+it by `scene.story`. Pointer and focus states stay in the roster and draw no
 story, since the web variants match only real pseudo-classes: hover, press and focus are driven on
 the real component in its story. `pnpm stories`, from the repo root, builds the workspace chain and
 opens Storybook on `:6006`. Nothing runs the stories headlessly; `stack screens test`, run on the
@@ -72,8 +76,8 @@ the component takes as a prop (`disabled` through `blocked`, `loading`, `error`,
 
 `showcaseScenes()` in `class-sets.ts` lists the scenes: one per matrix class set a roster component draws (the
 matrix groups its entry's `draws` names, enumerated by `matrixClasses`) and drawn state its entry's
-`states` lists, in both modes and both densities. Each is drawn in `Scene`, which sets
-`data-cell="<component>/<class set>/<state>/<mode>/<density>"`, its mode's class and the canvas ground. A
+`states` lists, in both modes and both densities, then its lone scenes. Each is drawn in `Scene`, which sets
+`data-cell="<component>/<class set>/<story>/<mode>/<density>"` (the story is the state's, or the lone scene's name), its mode's class and the canvas ground. A
 scene stands on the canvas, since a group ground would re-point the hairline of every surface drawn
 inside it ([edges](tokens.md#edges)). It shrinks to the viewport (`min-w-0`), so a component that
 fits a narrow screen is drawn fitting it. Without a drawer, or when the drawer returns `undefined`,
@@ -82,7 +86,7 @@ it draws its component's name and the class set's strings.
 A scene imports react-ui through its `exports` only, as any consumer does, so a part stands inside
 the public composition that hosts it: a painted control in a host whose read waits, a popup in the
 portal of a `Gate` or a `Shell`, a toast raised by `toast()` into the queue every root container on the
-page draws. An edge no public composition reaches has no scene.
+page draws. A scene outside a stage has no root container, so its popups (a tooltip, a menu) mount in the document body and draw the body's mode. An edge no public composition reaches has no scene.
 
 - **Reads.** `Reads` in `src/roster/waiting.ts` gives a scene's drawer the reads that show each of its forms, each member documented there. None retries, so a failure
   shows at once. A drawer that draws several scenes, or a page of scenes, takes each its own set

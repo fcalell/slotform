@@ -238,7 +238,7 @@ export default defineFixtures<AppRouter>(
 			get: ({ id }) => {
 				const deploy = found(DEPLOYS.find((each) => each.id === id));
 				const { description, notes } = found(CHANGES[id]);
-				return { ...deploy, description, notes, steps: STEPS };
+				return { ...deploy, description, notes, region: "fra", steps: STEPS };
 			},
 			files: ({ id }) => found(CHANGES[id]).files,
 			log: ({ id }) => found(CHANGES[id]).log,
@@ -332,43 +332,51 @@ export default defineFixtures<AppRouter>(
 			assign: () => undefined,
 		},
 		usage: {
-			meters: () => [
-				{
-					label: "Requests",
-					value: 412_000,
-					max: 1_000_000,
-					unit: "requests",
-					meta: "412,000 of 1M requests",
-				},
-				{
-					label: "Build minutes used this billing month",
-					value: 5_640,
-					max: 6_000,
-					unit: "minutes",
-					meta: "5,640 of 6,000 minutes, 360 left",
-				},
-				{
-					label: "Storage",
-					value: 11.8,
-					max: 10,
-					unit: "GB",
-					meta: "1.8 GB over, billed at the end of the month",
-				},
-			],
+			month: () => ({
+				resets: "Oct 31",
+				meters: [
+					{
+						label: "Requests",
+						value: 412_000,
+						max: 1_000_000,
+						unit: "requests",
+						meta: "412,000 of 1M requests",
+					},
+					{
+						label: "Build minutes used this billing month",
+						value: 5_640,
+						max: 6_000,
+						unit: "minutes",
+						meta: "5,640 of 6,000 minutes, 360 left",
+					},
+					{
+						label: "Storage",
+						value: 11.8,
+						max: 10,
+						unit: "GB",
+						meta: "1.8 GB over, billed at the end of the month",
+					},
+				],
+			}),
 			requests: () => REQUESTS,
 			minutes: () => DAYS,
 			// None ran this week.
 			cron: () => [],
-			plan: () => [
-				{ label: "Requests", values: ["1M a month", "10M a month"] },
-				{ label: "Build minutes", values: ["6,000 a month", "25,000 a month"] },
-				{ label: "Storage", values: ["10 GB", "100 GB"] },
-				{ label: "Audit log", values: ["Not included", "Kept 90 days"] },
-				{
+			plan: () => ({
+				billed: {
 					label: "Billed",
 					values: ["$120 a month", "$480 a month, from Oct 14"],
 				},
-			],
+				facts: [
+					{ label: "Requests", values: ["1M a month", "10M a month"] },
+					{
+						label: "Build minutes",
+						values: ["6,000 a month", "25,000 a month"],
+					},
+					{ label: "Storage", values: ["10 GB", "100 GB"] },
+					{ label: "Audit log", values: ["Not included", "Kept 90 days"] },
+				],
+			}),
 			upgrade: () => undefined,
 		},
 		domains: {

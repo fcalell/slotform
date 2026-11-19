@@ -23,9 +23,10 @@ const planFact = z.object({
 });
 
 export const usage = {
-	meters: procedure({ reads: ["usage"] })
-		.output(z.array(meter))
-		.query(() => []),
+	// The billing month: its meters and the day they reset.
+	month: procedure({ reads: ["usage"] })
+		.output(z.object({ resets: z.string(), meters: z.array(meter) }))
+		.query(() => ({ resets: "", meters: [] })),
 
 	requests: procedure({ reads: ["usage"] })
 		.output(z.array(day))
@@ -39,9 +40,13 @@ export const usage = {
 		.output(z.array(day))
 		.query(() => []),
 
+	// What moving to Business changes; `billed` is the price now and after (with from when), the last row the screen draws.
 	plan: procedure({ reads: ["usage"] })
-		.output(z.array(planFact))
-		.query(() => []),
+		.output(z.object({ billed: planFact, facts: z.array(planFact) }))
+		.query(() => ({
+			billed: { label: "Billed", values: ["", ""] },
+			facts: [],
+		})),
 
 	upgrade: procedure({ writes: ["usage"] }).mutation(() => undefined),
 };

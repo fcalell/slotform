@@ -26,6 +26,7 @@ import { type ReactNode, useState } from "react";
 import type { AppRouter } from "../../../.stack/worker";
 import { act } from "../lib/act.ts";
 import { orpc } from "../lib/api.ts";
+import { REGION_LABELS } from "../lib/regions.ts";
 import { DeployChanges } from "./deploy-changes.tsx";
 
 type Deploys = AppRouter["deploys"];
@@ -182,7 +183,7 @@ function Record(props: {
 					},
 					{
 						label: "Region",
-						title: "Frankfurt, eu-central-1",
+						title: deploy.at((each) => REGION_LABELS[each.region]),
 						act: { icon: "Pencil", label: "Change region", onAct: act },
 					},
 					{

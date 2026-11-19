@@ -6,6 +6,7 @@ import {
 	LockupProvider,
 } from "@fcalell/plugin-react-ui/lib/lockup";
 import { toast } from "@fcalell/plugin-react-ui/lib/toast";
+import type { Confirmation } from "@fcalell/ui-core/descriptors";
 import { confirm } from "@fcalell/ui-core/react/confirm";
 import { text } from "@fcalell/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
@@ -32,20 +33,22 @@ const CASES: Record<string, string> = {
 		"labelled picks in the gate's cards, loaded, painted and failed",
 };
 
+// The decision the raising case asks; its act tells once its work resolves,
+// as the layouts' do.
+export const DISCONNECT: Confirmation = {
+	title: "Disconnect Acme?",
+	sentence:
+		"Its deploys stop reading from this workspace until you connect it again.",
+	act: {
+		label: "Disconnect",
+		destructive: true,
+		onAct: async () => toast("Acme disconnected"),
+	},
+};
+
 // The two acts of the raising case, buttons in the body: one tells, one asks.
-// The decision's act tells once its work resolves, as the layouts' do.
 const remind = () => toast("We will ask again tomorrow.");
-const disconnect = () =>
-	confirm({
-		title: "Disconnect Acme?",
-		sentence:
-			"Its deploys stop reading from this workspace until you connect it again.",
-		act: {
-			label: "Disconnect",
-			destructive: true,
-			onAct: async () => toast("Acme disconnected"),
-		},
-	});
+const disconnect = () => confirm(DISCONNECT);
 
 // A consent step's cards of labelled picks: an organization whose name is long
 // and a comparison whose label wraps, once with their options loaded, once

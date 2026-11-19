@@ -367,7 +367,9 @@ to fix, and a new term enters this page in the change that introduces it.
   Storybook draws as a story. [showcase](architecture/ui-core/showcase.md#roster-scenes)
 - **self-judging scene**: A roster scene that checks its own edge and logs an error where it breaks.
   [showcase](architecture/ui-core/showcase.md#roster-scenes)
-- **story**: One Storybook entry: a roster component in a state, or a screen in a state.
+- **story**: One Storybook entry: a roster component in a state, a lone scene, or a screen in a state.
+  [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
+- **lone scene**: A roster scene that is the one scene of a story of its own, for a scene that raises into a page-wide queue (a toast, a decision), which every root container on a page of stages would draw.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
 - **screens workbench**: The Storybook host plugin-screens runs that serves every route of an app in
   each state its queries can take, from fixtures, with no backend. [showcase](architecture/ui-core/showcase.md#the-screens-workbench)

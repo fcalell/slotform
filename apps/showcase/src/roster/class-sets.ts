@@ -22,6 +22,8 @@ export interface ShowcaseScene {
 	component: string;
 	classSet: ShowcaseClassSet;
 	state: DrawnState;
+	// The story the scene stands in: its state's, or its own when it stands alone.
+	story: DrawnState | LoneStory;
 	mode: Mode;
 	density: ShowcaseDensity;
 }
@@ -45,6 +47,19 @@ const DRAWN_STATES = [
 type DrawnState = (typeof DRAWN_STATES)[number];
 const isDrawn = (state: State): state is DrawnState =>
 	DRAWN_STATES.some((drawn) => drawn === state);
+
+// The scenes that stand alone, each the one scene of a story of its own: at
+// rest, on its component's first class set, dark. What they raise into a
+// page-wide queue (a toast's, a decision's) every root container on the page
+// draws, so a page of several stages would show it in each.
+const LONE_STORIES = {
+	Sheet: ["confirm"],
+	Toast: ["overSheet", "overPage"],
+} as const satisfies Record<string, readonly string[]>;
+export type LoneStory =
+	(typeof LONE_STORIES)[keyof typeof LONE_STORIES][number];
+const loneStories = (component: string): readonly LoneStory[] =>
+	Object.entries(LONE_STORIES).find(([name]) => name === component)?.[1] ?? [];
 
 const CLASS_SETS = matrixClasses();
 const BASE: ShowcaseClassSet = { name: "base", classes: [] };
@@ -75,28 +90,52 @@ export function isFirstClassSet(scene: ShowcaseScene): boolean {
 }
 
 // Every scene the showcase draws, in roster order: each component's class sets,
-// each in every drawn state its roster entry lists, every mode and density.
+// each in every drawn state its roster entry lists, every mode and density,
+// then its lone scenes, each in every density.
 export function showcaseScenes(): ShowcaseScene[] {
 	const scenes: ShowcaseScene[] = [];
+	const add = (scene: Omit<ShowcaseScene, "id">) =>
+		scenes.push({
+			...scene,
+			id: [
+				scene.component,
+				scene.classSet.name,
+				scene.story,
+				scene.mode,
+				scene.density,
+			].join("/"),
+		});
 	for (const [layer, component, entry] of rosterEntries()) {
-		for (const classSet of componentClassSets(entry)) {
+		const classSets = componentClassSets(entry);
+		for (const classSet of classSets) {
 			for (const state of entry.states) {
 				if (!isDrawn(state)) continue;
 				for (const density of DENSITIES) {
-					for (const mode of MODES) {
-						scenes.push({
-							id: [component, classSet.name, state, mode, density].join("/"),
+					for (const mode of MODES)
+						add({
 							layer,
 							component,
 							classSet,
 							state,
+							story: state,
 							mode,
 							density,
 						});
-					}
 				}
 			}
 		}
+		const [first = BASE] = classSets;
+		for (const story of loneStories(component))
+			for (const density of DENSITIES)
+				add({
+					layer,
+					component,
+					classSet: first,
+					state: "rest",
+					story,
+					mode: "dark",
+					density,
+				});
 	}
 	return scenes;
 }

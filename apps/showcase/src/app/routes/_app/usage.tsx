@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/usage")({
 	loader: ({ context }) =>
 		preload(
 			context.queryClient,
-			orpc.usage.meters.read(),
+			orpc.usage.month.read(),
 			orpc.usage.requests.read(),
 			orpc.usage.minutes.read(),
 			orpc.usage.cron.read(),
@@ -41,11 +41,13 @@ const METERS = [0, 1, 2];
 // Each section reads its own query and holds it as its frame, so a failure
 // stays in its section.
 function Usage() {
-	const meters = orpc.usage.meters.read();
+	const month = orpc.usage.month.read();
+	const meters = month.at((each) => each.meters);
 	const requests = orpc.usage.requests.read();
 	const minutes = orpc.usage.minutes.read();
 	const cron = orpc.usage.cron.read();
 	const plan = orpc.usage.plan.read();
+	const facts = plan.at((each) => [...each.facts, each.billed]);
 	const upgrade = useMutation(orpc.usage.upgrade.mutationOptions());
 	const today = useRead(minutes)?.at(-1)?.day;
 	// The projects a day's requests are split by, in the order their series stack.
@@ -54,7 +56,7 @@ function Usage() {
 		<Pane>
 			<Section
 				title="This month"
-				description="Team plan, resets on Oct 31."
+				description={month.at((each) => `Team plan, resets on ${each.resets}.`)}
 				read={meters}
 			>
 				<Stats
@@ -102,15 +104,14 @@ function Usage() {
 			<Section
 				title="Plan"
 				description="What moving to Business changes."
-				read={plan}
-				act={{
+				read={facts}
+				act={plan.at((each) => ({
 					icon: "ArrowUpRight",
 					label: "Move to Business",
 					onAct: () =>
 						confirm({
 							title: "Move to Business?",
-							sentence:
-								"The new limits apply at once. You are billed $480 a month from Oct 14.",
+							sentence: `The new limits apply at once. You are billed ${each.billed.values[1]}.`,
 							act: {
 								label: "Move to Business",
 								onAct: async () => {
@@ -119,7 +120,7 @@ function Usage() {
 								},
 							},
 						}),
-				}}
+				}))}
 			>
 				<Table
 					columns={[
@@ -135,7 +136,7 @@ function Usage() {
 							cell: (fact) => fact.values[1] ?? null,
 						},
 					]}
-					items={plan}
+					items={facts}
 					row={{ id: (fact) => fact.label }}
 				/>
 			</Section>

@@ -5,7 +5,7 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
 import { Shell } from "@fcalell/plugin-react-ui/components/shell";
 import { type ToastData, toast } from "@fcalell/plugin-react-ui/lib/toast";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { meets, onceStanding } from "../judge.ts";
 import { JOIN, JOINING } from "./join.ts";
@@ -89,29 +89,34 @@ function OverPage() {
 }
 
 // The app's one toast queue: docs/architecture/ui-core/layout.md, "Toasts".
-// `raise` raises the stack from one frame of the page, after the page's root containers have mounted.
-function Raised(props: { raise: boolean }) {
-	const { raise } = props;
+// The stack is raised from one frame of the page, after the stage's root
+// container has mounted.
+function Raised(props: { children: ReactNode }) {
 	useEffect(() => {
-		if (!raise) return;
 		const scene = requestAnimationFrame(() => {
 			for (const { sentence, ...options } of STACK) toast(sentence, options);
 		});
 		return () => cancelAnimationFrame(scene);
-	}, [raise]);
-	return (
-		<>
-			<OverSheet />
-			<OverPage />
-		</>
-	);
+	}, []);
+	return props.children;
 }
 
-// The stack, oldest on top, raised once into the app's queue (by the light
-// scene) over a Gate's open sheet and over a Shell's page, on the sentence
-// class set. A toast of one tone has no scene of its own: the page's root containers
-// all stand the one queue.
+// The stack, oldest on top, raised into the app's queue, each story the one
+// stage that draws it: over a Gate's open sheet, and over a Shell's page. A
+// toast of one tone has no scene of its own: a root container stands the one
+// queue.
 export function drawToast(scene: ShowcaseScene) {
-	if (scene.classSet.name !== "TEXT.role.body") return undefined;
-	return <Raised raise={scene.mode === "light"} />;
+	if (scene.story === "overSheet")
+		return (
+			<Raised>
+				<OverSheet />
+			</Raised>
+		);
+	if (scene.story === "overPage")
+		return (
+			<Raised>
+				<OverPage />
+			</Raised>
+		);
+	return undefined;
 }

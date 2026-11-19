@@ -13,6 +13,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { act } from "../../lib/act.ts";
 import { orpc } from "../../lib/api.ts";
+import { REGIONS } from "../../lib/regions.ts";
 
 export const Route = createFileRoute("/_app/settings")({
 	loader: ({ context }) =>
@@ -23,12 +24,6 @@ export const Route = createFileRoute("/_app/settings")({
 		),
 	component: Settings,
 });
-
-const REGIONS = [
-	{ value: "fra", label: "Frankfurt, eu-central-1" },
-	{ value: "iad", label: "Washington, us-east-1" },
-	{ value: "sin", label: "Singapore, ap-southeast-1" },
-] as const;
 
 const DIGESTS = [
 	{ value: "day", label: "Daily" },

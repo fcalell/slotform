@@ -1,8 +1,7 @@
 import { procedure } from "virtual:stack-procedure";
 import { ApiError } from "@fcalell/plugin-api/error";
 import { z } from "@fcalell/plugin-api/schema";
-
-const region = z.enum(["fra", "iad", "sin"]);
+import { region } from "../schemas.ts";
 
 export const settings = {
 	// The workspace's general settings as the server holds them.

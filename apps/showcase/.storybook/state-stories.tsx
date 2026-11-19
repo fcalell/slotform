@@ -11,11 +11,11 @@ interface Args {
 // A component's stories: docs/architecture/ui-core/showcase.md, "The roster in Storybook".
 export function stateStories(component: string, draw?: Draw) {
 	const own = SCENES.filter((scene) => scene.component === component);
-	return (state: string): StoryObj<Args> => {
+	return (story: string): StoryObj<Args> => {
 		const classSets = [
 			...new Set(
 				own
-					.filter((scene) => scene.state === state)
+					.filter((scene) => scene.story === story)
 					.map((f) => f.classSet.name),
 			),
 		];
@@ -23,7 +23,7 @@ export function stateStories(component: string, draw?: Draw) {
 			args: { classSet: "all" },
 			argTypes: {
 				classSet:
-					state === "rest"
+					story === "rest"
 						? { control: "select", options: ["all", ...classSets] }
 						: { table: { disable: true } },
 			},
@@ -46,7 +46,7 @@ export function stateStories(component: string, draw?: Draw) {
 										.filter(
 											(scene) =>
 												scene.classSet.name === classSet &&
-												scene.state === state &&
+												scene.story === story &&
 												scene.density === density,
 										)
 										.map((scene) => (

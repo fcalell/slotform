@@ -8,7 +8,13 @@ import { Pane } from "@fcalell/plugin-react-ui/components/pane";
 import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { FieldOwned } from "@fcalell/ui-core/react/field";
 import { text } from "@fcalell/ui-core/variants";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import {
+	type ReactNode,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 import { drawFormField } from "./form-field.tsx";
@@ -328,6 +334,47 @@ const FILE_CLASS_SETS = [
 	"ICON.fit.control",
 ];
 
+// A form's file field locked by its reason, which stands it disabled.
+const LOCKED = (
+	<Form
+		act={SAVED}
+		given={GIVEN_ALL}
+		commit="field"
+		fields={{
+			directory: {
+				label: "Invoices file",
+				control: "file",
+				accept: ACCEPT,
+				locked: "Set by your organisation.",
+			},
+		}}
+	/>
+);
+
+// Puts a file on its form's file input as the scene mounts, as the system
+// dialog would, so the field holds it chosen: a field's chosen file is the
+// viewer's pick, never a value the form is given.
+function Chosen(props: { children: ReactNode }) {
+	const root = useRef<HTMLDivElement>(null);
+	useLayoutEffect(() => {
+		const input = root.current?.querySelector("input[type=file]");
+		if (!(input instanceof HTMLInputElement)) return;
+		const files = new DataTransfer();
+		files.items.add(
+			new File([new Uint8Array(CHOSEN.size)], CHOSEN.name, {
+				type: CHOSEN.type,
+			}),
+		);
+		input.files = files.files;
+		input.dispatchEvent(new Event("change", { bubbles: true }));
+	}, []);
+	return (
+		<div ref={root} className="contents">
+			{props.children}
+		</div>
+	);
+}
+
 function drawFile(scene: ShowcaseScene) {
 	const name = scene.classSet.name;
 	if (!states(scene, "rest", "disabled", "error", "empty")) return undefined;
@@ -341,19 +388,10 @@ function drawFile(scene: ShowcaseScene) {
 	const error = scene.state === "error" || name === "FIELD.state.error";
 	if (scene.state === "disabled")
 		return (
-			<Form
-				act={SAVED}
-				given={GIVEN_ALL}
-				commit="field"
-				fields={{
-					directory: {
-						label: "Invoices file",
-						control: "file",
-						accept: ACCEPT,
-						locked: "Set by your organisation.",
-					},
-				}}
-			/>
+			<>
+				{LOCKED}
+				<Chosen>{LOCKED}</Chosen>
+			</>
 		);
 	return (
 		<Input

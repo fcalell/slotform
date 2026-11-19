@@ -11,10 +11,12 @@ import { Panes } from "@fcalell/plugin-react-ui/components/shell";
 import { Thread } from "@fcalell/plugin-react-ui/components/thread";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Act, Option } from "@fcalell/ui-core/descriptors";
+import { confirm, dismissConfirmation } from "@fcalell/ui-core/react/confirm";
 import { SHELL_BANNER, SHELL_COLUMN } from "@fcalell/ui-core/variants";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { isHeld, readsAt } from "../waiting.ts";
+import { DISCONNECT } from "./gate.tsx";
 import { JOIN, JOINING } from "./join.ts";
 import { StandInRows } from "./layout-context.tsx";
 import { TURN, TURNS } from "./message-fixtures.ts";
@@ -228,6 +230,28 @@ function readOf(scene: ShowcaseScene) {
 	}
 }
 
+// A decision queued by `confirm()` as the stage mounts, which the Gate's host
+// draws as its sheet; it leaves the queue with the story, which the next
+// story's root containers would otherwise draw.
+function Decision() {
+	useLayoutEffect(() => {
+		const id = confirm(DISCONNECT);
+		return () => dismissConfirmation(id);
+	}, []);
+	return null;
+}
+
+function Confirming() {
+	return (
+		<Stage contain>
+			<Gate title="Integrations">
+				<StandInRows />
+				<Decision />
+			</Gate>
+		</Stage>
+	);
+}
+
 // A set of codes shown once, which the viewer acknowledges.
 const CODES = `7k2m-9xq4
 4tpw-h8nz
@@ -246,6 +270,7 @@ c3vd-2rfj
 // the docked foot draws no matrix class set of its own: a conversation with a
 // four-question sheet in its foot at a phone's height.
 export function drawSheet(scene: ShowcaseScene) {
+	if (scene.story === "confirm") return <Confirming />;
 	const classSet = scene.classSet.name;
 	const { state } = scene;
 	const desktop = isFirstClassSet(scene);
