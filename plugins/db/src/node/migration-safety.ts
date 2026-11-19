@@ -118,6 +118,7 @@ export function formatUnacknowledgedDrops(
 export function formatDrift(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 ): string | null {
 	const dir = migrationsDir(cwd, options);
 	const driftAbs = join(cwd, DRIFT_DIR);
@@ -135,14 +136,14 @@ export function formatDrift(
 			out: `./${DRIFT_DIR}`,
 		});
 
-		runDrizzleKit(cwd, ["generate", "--config", configAbs], {
+		runDrizzleKit(cwd, ["generate", "--config", configAbs], env, {
 			createOnConflict: true,
 		});
 
 		const drift =
 			migrationFiles(driftAbs).length > before ||
-			pendingFtsMigrations(loadFtsDefinitions(cwd), migratedFts(dir)).length >
-				0;
+			pendingFtsMigrations(loadFtsDefinitions(cwd, env), migratedFts(dir))
+				.length > 0;
 		return drift
 			? "Schema drift: `src/schema` has changes with no committed migration. Run `stack db generate` and commit the migration."
 			: null;
@@ -156,10 +157,11 @@ export function formatDrift(
 export function formatDeadTriggers(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 ): string | null {
 	const dead = deadFtsTriggers(
 		migrationsDir(cwd, options),
-		loadFtsDefinitions(cwd),
+		loadFtsDefinitions(cwd, env),
 	);
 	if (dead.length === 0) return null;
 	return [

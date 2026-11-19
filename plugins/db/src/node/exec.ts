@@ -7,11 +7,12 @@ export function runCommand(
 	command: string,
 	args: string[],
 	cwd: string,
+	env: NodeJS.ProcessEnv,
 ): { stdout: string; stderr: string } {
 	const result = spawnSync(command, args, {
 		cwd,
 		stdio: "pipe",
-		env: { ...process.env },
+		env,
 	});
 
 	const stdout = result.stdout?.toString().trim() ?? "";

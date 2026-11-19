@@ -42,9 +42,9 @@ test("a table that adds and drops a column generates an add and a drop", async (
 	const cwd = consumer();
 	try {
 		write(cwd, 'old: text("old")');
-		await generateMigrations(cwd, SQLITE);
+		await generateMigrations(cwd, SQLITE, {});
 		write(cwd, 'fresh: text("fresh")');
-		const [migration] = await generateMigrations(cwd, SQLITE);
+		const [migration] = await generateMigrations(cwd, SQLITE, {});
 		assert.ok(migration, "a migration is written, not 'no changes'");
 		assert.match(migration.sql, /ADD `fresh`/);
 		assert.match(migration.sql, /DROP COLUMN `old`/);
@@ -65,7 +65,7 @@ test("a drizzle-kit failure is thrown, not read as no changes", async () => {
 	try {
 		writeFileSync(join(cwd, "src", "schema", "index.ts"), "export const x = ;");
 		await assert.rejects(
-			generateMigrations(cwd, SQLITE),
+			generateMigrations(cwd, SQLITE, {}),
 			// drizzle-kit exits 0 here: the error text on its output is the failure.
 			/Command failed: drizzle-kit generate[\s\S]*Unexpected/,
 		);

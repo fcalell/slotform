@@ -28,7 +28,10 @@ for (const value of Object.values(mod)) {
 process.stdout.write("\\n@@stack-fts@@" + JSON.stringify(defs));
 `;
 
-export function loadFtsDefinitions(cwd: string): FtsDefinition[] {
+export function loadFtsDefinitions(
+	cwd: string,
+	env: NodeJS.ProcessEnv,
+): FtsDefinition[] {
 	const schema = join(cwd, "src", "schema", "index.ts");
 	if (!existsSync(schema)) return [];
 	const { stdout } = runCommand(
@@ -41,6 +44,7 @@ export function loadFtsDefinitions(cwd: string): FtsDefinition[] {
 			FTS_KEY_NAME,
 		],
 		cwd,
+		env,
 	);
 	const at = stdout.lastIndexOf("@@stack-fts@@");
 	if (at < 0) return [];

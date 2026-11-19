@@ -30,9 +30,10 @@ import { executeSql, MIGRATIONS_TABLE, migrationsApply } from "./wrangler.ts";
 export function sqliteFile(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 	scratch?: string,
 ): string {
-	const named = scratch ?? process.env[options.fileVar];
+	const named = scratch ?? env[options.fileVar];
 	const file = named ? named : options.path;
 	if (!file) {
 		throw new Error(
@@ -43,9 +44,13 @@ export function sqliteFile(
 }
 
 // The local database a command works on, as its log names it.
-export function localTarget(cwd: string, options: ResolvedDbOptions): string {
+export function localTarget(
+	cwd: string,
+	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
+): string {
 	return options.dialect === "sqlite"
-		? sqliteFile(cwd, options)
+		? sqliteFile(cwd, options, env)
 		: "the local D1";
 }
 
@@ -55,9 +60,10 @@ export function localTarget(cwd: string, options: ResolvedDbOptions): string {
 function sqliteLocalUrl(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 	scratch?: string,
 ): string {
-	const url = sqliteFile(cwd, options, scratch);
+	const url = sqliteFile(cwd, options, env, scratch);
 	mkdirSync(dirname(url), { recursive: true });
 	return url;
 }
@@ -83,10 +89,14 @@ function miniflareD1Path(cwd: string, databaseId: string): string {
 
 // The sqlite file the running `wrangler dev` worker reads. Miniflare creates
 // it lazily, so a fresh project materializes it with a no-op query first.
-function ensureMiniflareD1(cwd: string, databaseId: string): string {
+function ensureMiniflareD1(
+	cwd: string,
+	databaseId: string,
+	env: NodeJS.ProcessEnv,
+): string {
 	const path = miniflareD1Path(cwd, databaseId);
 	if (existsSync(path)) return path;
-	executeSql(cwd, databaseId, "local", "SELECT 1");
+	executeSql(cwd, databaseId, "local", "SELECT 1", env);
 	if (!existsSync(path)) {
 		throw new Error(
 			"Could not materialize the local D1 database. Run `stack dev` once, then retry.",
@@ -98,6 +108,7 @@ function ensureMiniflareD1(cwd: string, databaseId: string): string {
 export async function pushSchemaLocal(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 ): Promise<void> {
 	assertSqliteDriver();
 	// `drizzle-kit push` writes to the dev SQLite file; the lock serializes it
@@ -111,12 +122,12 @@ export async function pushSchemaLocal(
 		// The local database is disposable (`stack db reset`).
 		const dbUrl =
 			options.dialect === "d1"
-				? ensureMiniflareD1(cwd, options.databaseId ?? "")
-				: sqliteLocalUrl(cwd, options);
+				? ensureMiniflareD1(cwd, options.databaseId ?? "", env)
+				: sqliteLocalUrl(cwd, options, env);
 
 		const configPath = join(configDir, "drizzle.config.ts");
 		// Full-text tables stay out of push's view: docs/architecture/plugins/db.md, "Local dev push".
-		const fts = loadFtsDefinitions(cwd);
+		const fts = loadFtsDefinitions(cwd, env);
 		const ftsNames = new Set([
 			...fts.map((d) => d.name),
 			...(await existingFtsNames(resolve(cwd, dbUrl))),
@@ -128,7 +139,7 @@ export async function pushSchemaLocal(
 			tablesFilter: [`!${MIGRATIONS_TABLE}`, ...ftsTablesFilter([...ftsNames])],
 		});
 
-		runDrizzleKit(cwd, ["push", "--config", configPath]);
+		runDrizzleKit(cwd, ["push", "--config", configPath], env);
 		await applyFtsLocal(cwd, dbUrl, fts);
 	});
 }
@@ -138,6 +149,7 @@ export async function pushSchemaLocal(
 export async function generateMigrations(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 	{ custom = false, name }: { custom?: boolean; name?: string } = {},
 ): Promise<Array<{ name: string; sql: string }>> {
 	// The new migrations are the files the directory gains across the run, so
@@ -164,6 +176,7 @@ export async function generateMigrations(
 			runDrizzleKit(
 				cwd,
 				[...kit, "--custom", ...(name ? ["--name", name] : [])],
+				env,
 				{ createOnConflict: true },
 			);
 			return newSql().map((entry) => ({
@@ -173,11 +186,11 @@ export async function generateMigrations(
 		}
 
 		const before = columnsBefore(dir);
-		runDrizzleKit(cwd, kit, { createOnConflict: true });
+		runDrizzleKit(cwd, kit, env, { createOnConflict: true });
 
 		// Full-text indexes are not in drizzle's snapshot, so they migrate as
 		// custom migrations of their own, after the tables they read.
-		const fts = loadFtsDefinitions(cwd);
+		const fts = loadFtsDefinitions(cwd, env);
 		const after = columnsBefore(dir);
 		for (const entry of newSql()) {
 			const file = join(dir, entry);
@@ -190,7 +203,7 @@ export async function generateMigrations(
 		}
 		for (const pending of pendingFtsMigrations(fts, migratedFts(dir))) {
 			const before = new Set(newSql());
-			runDrizzleKit(cwd, [...kit, "--custom", "--name", pending.name], {
+			runDrizzleKit(cwd, [...kit, "--custom", "--name", pending.name], env, {
 				createOnConflict: true,
 			});
 			const [created] = newSql().filter((f) => !before.has(f));
@@ -209,6 +222,7 @@ export async function generateMigrations(
 export async function applyMigrationsRemote(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 ): Promise<void> {
 	if (options.dialect === "sqlite") {
 		throw new Error("Remote migrations not supported for sqlite dialect");
@@ -223,7 +237,7 @@ export async function applyMigrationsRemote(
 	// pending list. Hold the lock so a concurrent `generateMigrations` can't
 	// write a half-flushed file into the dir while wrangler is enumerating.
 	return withMigrationLock(migrationLockPath(cwd), async () => {
-		migrationsApply(cwd, databaseName, "remote");
+		migrationsApply(cwd, databaseName, "remote", env);
 	});
 }
 
@@ -231,6 +245,7 @@ export async function applyMigrationsRemote(
 export async function applyMigrationsLocal(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 	scratch?: string,
 ): Promise<void> {
 	// Both branches read the migrations dir; the sqlite branch additionally
@@ -246,10 +261,10 @@ export async function applyMigrationsLocal(
 			writeDrizzleConfig(configPath, {
 				schema: "./src/schema/index.ts",
 				out: options.migrations,
-				dbCredentials: { url: sqliteLocalUrl(cwd, options, scratch) },
+				dbCredentials: { url: sqliteLocalUrl(cwd, options, env, scratch) },
 			});
 
-			runDrizzleKit(cwd, ["migrate", "--config", configPath]);
+			runDrizzleKit(cwd, ["migrate", "--config", configPath], env);
 			return;
 		}
 
@@ -261,6 +276,6 @@ export async function applyMigrationsLocal(
 		}
 
 		// Local migrations share wrangler's --config and --persist-to: docs/architecture/plugins/cloudflare.md, "Local state".
-		migrationsApply(cwd, databaseName, "local", scratch);
+		migrationsApply(cwd, databaseName, "local", env, scratch);
 	});
 }

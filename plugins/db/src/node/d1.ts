@@ -12,9 +12,13 @@ type D1CreateResult =
 // Shells `wrangler d1 create` and extracts the new database's id. Returns a
 // discriminated result so the caller owns user-facing messaging (this module
 // stays log-free — it's a pure node helper).
-export function createD1Database(name: string): D1CreateResult {
+export function createD1Database(
+	name: string,
+	env: NodeJS.ProcessEnv,
+): D1CreateResult {
 	if (
-		spawnSync("npx", ["wrangler", "whoami"], { stdio: "pipe" }).status !== 0
+		spawnSync("npx", ["wrangler", "whoami"], { stdio: "pipe", env }).status !==
+		0
 	) {
 		return {
 			ok: false,
@@ -24,7 +28,7 @@ export function createD1Database(name: string): D1CreateResult {
 	const result = spawnSync(
 		"npx",
 		["wrangler", "d1", "create", name, "--json"],
-		{ stdio: "pipe" },
+		{ stdio: "pipe", env },
 	);
 
 	const stdout = result.stdout?.toString().trim() ?? "";

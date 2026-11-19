@@ -23,6 +23,7 @@ export function migrationsApply(
 	cwd: string,
 	databaseName: string,
 	target: "local" | "remote",
+	env: NodeJS.ProcessEnv,
 	persist?: string,
 ): void {
 	const flags = target === "local" ? localD1Flags(persist) : remoteD1Flags();
@@ -30,6 +31,7 @@ export function migrationsApply(
 		"npx",
 		["wrangler", "d1", "migrations", "apply", databaseName, ...flags],
 		cwd,
+		env,
 	);
 }
 
@@ -38,12 +40,14 @@ export function executeSql(
 	databaseName: string,
 	target: "local" | "remote",
 	command: string,
+	env: NodeJS.ProcessEnv,
 ): void {
 	const flags = target === "local" ? localD1Flags() : remoteD1Flags();
 	runCommand(
 		"npx",
 		["wrangler", "d1", "execute", databaseName, ...flags, "--command", command],
 		cwd,
+		env,
 	);
 }
 
@@ -52,6 +56,7 @@ export function executeSqlFile(
 	databaseName: string,
 	target: "local" | "remote",
 	file: string,
+	env: NodeJS.ProcessEnv,
 	persist?: string,
 ): void {
 	const flags = target === "local" ? localD1Flags(persist) : remoteD1Flags();
@@ -59,5 +64,6 @@ export function executeSqlFile(
 		"npx",
 		["wrangler", "d1", "execute", databaseName, ...flags, "--file", file],
 		cwd,
+		env,
 	);
 }

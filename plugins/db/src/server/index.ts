@@ -41,13 +41,13 @@ export default function dbRuntime<
 	};
 }
 
-/** The task the production bundle runs before it listens: applies the committed migrations (`folder`, copied beside the bundle) to the database file the env var `fileVar` names, the ones `stack db apply` would, in the same journal, so a bundle needs no CLI on its box. Run twice it changes nothing. With the var unset it does nothing: the worker's env check names it. */
+/** The task the production bundle runs before it listens: applies the committed migrations (`folder`, copied beside the bundle) to the database file the env var `fileVar` names in the env the server boots with, the ones `stack db apply` would, in the same journal, so a bundle needs no CLI on its box. Run twice it changes nothing. With the var unset it does nothing: the worker's env check names it. */
 export function migrateSqlite(options: {
 	fileVar: string;
 	folder: URL;
-}): () => void {
-	return () => {
-		const file = process.env[options.fileVar];
+}): (env: NodeJS.ProcessEnv) => void {
+	return (env) => {
+		const file = env[options.fileVar];
 		const folder = fileURLToPath(options.folder);
 		// No migration has been generated: there is nothing to apply.
 		if (!file || !existsSync(join(folder, "meta", "_journal.json"))) return;

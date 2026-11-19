@@ -170,7 +170,7 @@ INSERT INTO tasks VALUES ('t', 'b');`,
 	db.close();
 	try {
 		const options = dbOptionsSchema.parse({ dialect: "sqlite", path: file });
-		assert.equal(await applySeed(cwd, options, { remote: false }), true);
+		assert.equal(await applySeed(cwd, options, {}, { remote: false }), true);
 		const check = new Database(file, { readonly: true });
 		try {
 			assert.deepEqual(check.prepare("SELECT id, name FROM projects").all(), [

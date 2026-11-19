@@ -298,6 +298,7 @@ async function buildSeedSqlFromCwd(
 export async function applySeed(
 	cwd: string,
 	options: ResolvedDbOptions,
+	env: NodeJS.ProcessEnv,
 	opts: { remote: boolean; scratch?: string },
 ): Promise<boolean> {
 	const sql = await buildSeedSqlFromCwd(cwd, { remote: opts.remote });
@@ -310,7 +311,7 @@ export async function applySeed(
 			);
 		}
 		const { default: Database } = await import("better-sqlite3");
-		const db = new Database(sqliteFile(cwd, options, opts.scratch));
+		const db = new Database(sqliteFile(cwd, options, env, opts.scratch));
 		try {
 			// The prune relies on the schema's `ON DELETE` actions, which run only with foreign keys on.
 			db.pragma(BUSY_TIMEOUT);
@@ -334,6 +335,7 @@ export async function applySeed(
 		databaseName,
 		opts.remote ? "remote" : "local",
 		seedFile,
+		env,
 		opts.scratch,
 	);
 	return true;

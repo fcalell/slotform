@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { basename, join, posix } from "node:path";
-import { plugin, slot } from "@fcalell/cli";
+import { type ContributionCtx, plugin, slot } from "@fcalell/cli";
 import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
 import { cliSlots } from "@fcalell/cli/cli-slots";
 import { StackError } from "@fcalell/cli/errors";
@@ -134,9 +134,9 @@ export const db = plugin("db", {
 			description: "Push schema to local database",
 			handler: async (ctx) => {
 				ctx.log.info(
-					`Pushing schema to ${localTarget(ctx.cwd, ctx.options)}...`,
+					`Pushing schema to ${localTarget(ctx.cwd, ctx.options, ctx.env)}...`,
 				);
-				await pushSchemaLocal(ctx.cwd, ctx.options);
+				await pushSchemaLocal(ctx.cwd, ctx.options, ctx.env);
 				ctx.log.success("Schema pushed");
 			},
 		},
@@ -161,10 +161,15 @@ export const db = plugin("db", {
 					ctx.log.error("`--name` applies to `--custom` only.");
 					return;
 				}
-				const migrations = await generateMigrations(ctx.cwd, ctx.options, {
-					custom,
-					name,
-				});
+				const migrations = await generateMigrations(
+					ctx.cwd,
+					ctx.options,
+					ctx.env,
+					{
+						custom,
+						name,
+					},
+				);
 				if (migrations.length === 0) {
 					ctx.log.info("No schema changes detected");
 					return;
@@ -186,12 +191,12 @@ export const db = plugin("db", {
 			},
 			handler: async (ctx, flags) => {
 				if (flags.remote) {
-					await applyMigrationsRemote(ctx.cwd, ctx.options);
+					await applyMigrationsRemote(ctx.cwd, ctx.options, ctx.env);
 				} else {
 					ctx.log.info(
-						`Applying migrations to ${localTarget(ctx.cwd, ctx.options)}...`,
+						`Applying migrations to ${localTarget(ctx.cwd, ctx.options, ctx.env)}...`,
 					);
-					await applyMigrationsLocal(ctx.cwd, ctx.options);
+					await applyMigrationsLocal(ctx.cwd, ctx.options, ctx.env);
 				}
 				ctx.log.success("Migrations applied");
 			},
@@ -238,7 +243,7 @@ export const db = plugin("db", {
 				const name =
 					typeof flags.name === "string" ? flags.name : basename(ctx.cwd);
 				ctx.log.info(`Creating D1 database "${name}"...`);
-				const result = createD1Database(name);
+				const result = createD1Database(name, ctx.env);
 				if (!result.ok) {
 					ctx.log.error(result.error);
 					return;
@@ -254,7 +259,7 @@ export const db = plugin("db", {
 			handler: async (ctx) => {
 				const problems: string[] = [];
 				for (const check of MIGRATION_CHECKS) {
-					const problem = check.run(ctx.cwd, ctx.options);
+					const problem = check.run(ctx.cwd, ctx.options, ctx.env);
 					if (problem) {
 						ctx.log.error(problem);
 						problems.push(check.problem);
@@ -281,7 +286,9 @@ export const db = plugin("db", {
 			},
 			handler: async (ctx, flags) => {
 				const remote = Boolean(flags.remote);
-				const seeded = await applySeed(ctx.cwd, ctx.options, { remote });
+				const seeded = await applySeed(ctx.cwd, ctx.options, ctx.env, {
+					remote,
+				});
 				if (seeded) {
 					ctx.log.success(`Seeded${remote ? " remote database" : ""}`);
 				} else {
@@ -294,10 +301,13 @@ export const db = plugin("db", {
 	contributes: (self) => {
 		// One coalescing latch per cwd, scoped to the graph: docs/architecture/plugins/db.md, "Local dev push".
 		const schemaPushes = new Map<string, () => Promise<void>>();
-		const schemaPush = (cwd: string): (() => Promise<void>) => {
+		const schemaPush = ({
+			cwd,
+			env,
+		}: ContributionCtx): (() => Promise<void>) => {
 			let push = schemaPushes.get(cwd);
 			if (!push) {
-				push = coalesce(() => pushSchemaLocal(cwd, self.options));
+				push = coalesce(() => pushSchemaLocal(cwd, self.options, env));
 				schemaPushes.set(cwd, push);
 			}
 			return push;
@@ -478,7 +488,7 @@ export const db = plugin("db", {
 			// The schema push at `stack dev` Ready time, through the latch the
 			// schema watcher below shares.
 			cliSlots.devReadySetup.contribute((ctx) => {
-				const push = schemaPush(ctx.cwd);
+				const push = schemaPush(ctx);
 				return {
 					name: "db-schema-apply",
 					run: async () => {
@@ -493,7 +503,7 @@ export const db = plugin("db", {
 			cliSlots.devReadySetup.contribute((ctx) => ({
 				name: "db-seed",
 				run: async () => {
-					const seeded = await applySeed(ctx.cwd, self.options, {
+					const seeded = await applySeed(ctx.cwd, self.options, ctx.env, {
 						remote: false,
 					});
 					if (seeded) ctx.log.success("Seed applied");
@@ -502,7 +512,7 @@ export const db = plugin("db", {
 
 			// A schema save re-pushes into the local database the running worker reads.
 			cliSlots.devWatchers.contribute((ctx) => {
-				const push = schemaPush(ctx.cwd);
+				const push = schemaPush(ctx);
 				return {
 					name: "schema",
 					paths: "src/schema/**",
@@ -522,7 +532,7 @@ export const db = plugin("db", {
 				debounce: 300,
 				handler: async () => {
 					ctx.log.info("Seed change detected, re-seeding...");
-					const seeded = await applySeed(ctx.cwd, self.options, {
+					const seeded = await applySeed(ctx.cwd, self.options, ctx.env, {
 						remote: false,
 					});
 					if (seeded) ctx.log.success("Seed applied");
@@ -545,8 +555,11 @@ export const db = plugin("db", {
 						scratch = join(serve.dir, "database.sqlite");
 						serve.env[self.options.fileVar] = scratch;
 					}
-					await applyMigrationsLocal(ctx.cwd, self.options, scratch);
-					await applySeed(ctx.cwd, self.options, { remote: false, scratch });
+					await applyMigrationsLocal(ctx.cwd, self.options, ctx.env, scratch);
+					await applySeed(ctx.cwd, self.options, ctx.env, {
+						remote: false,
+						scratch,
+					});
 				},
 			})),
 
@@ -563,7 +576,7 @@ export const db = plugin("db", {
 				...MIGRATION_CHECKS.map((check) =>
 					cliSlots.deployChecks.contribute((ctx) => {
 						if (!d1()) return undefined;
-						const problem = check.run(ctx.cwd, self.options);
+						const problem = check.run(ctx.cwd, self.options, ctx.env);
 						if (problem) throw new StackError(problem, check.code);
 						return undefined;
 					}),
@@ -589,7 +602,8 @@ export const db = plugin("db", {
 						? {
 								name: "Database migrations",
 								phase: "pre",
-								run: () => applyMigrationsRemote(ctx.cwd, self.options),
+								run: () =>
+									applyMigrationsRemote(ctx.cwd, self.options, ctx.env),
 							}
 						: undefined,
 				),
@@ -619,7 +633,9 @@ export const db = plugin("db", {
 						name: "Database seed",
 						phase: "pre",
 						run: async () => {
-							await applySeed(ctx.cwd, self.options, { remote: true });
+							await applySeed(ctx.cwd, self.options, ctx.env, {
+								remote: true,
+							});
 						},
 					};
 				}),

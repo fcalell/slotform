@@ -70,6 +70,7 @@ const FAILED = /^\s*(?:[A-Za-z]*Error\b|ERROR\b)/m;
 export function runDrizzleKit(
 	cwd: string,
 	args: string[],
+	env: NodeJS.ProcessEnv,
 	{ createOnConflict = false }: { createOnConflict?: boolean } = {},
 ): { stdout: string; stderr: string } {
 	const bin = drizzleKitBin();
@@ -81,7 +82,7 @@ export function runDrizzleKit(
 		writeFileSync(preload, ANSWER_CREATE, "utf-8");
 		node = ["--require", preload, ...node];
 	}
-	const result = runCommand(process.execPath, node, cwd);
+	const result = runCommand(process.execPath, node, cwd, env);
 	if (FAILED.test(result.stderr) || FAILED.test(result.stdout)) {
 		throw new Error(
 			`Command failed: drizzle-kit ${args.join(" ")}\n${result.stderr || result.stdout}`,
