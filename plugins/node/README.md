@@ -15,5 +15,5 @@ stack add node
 ## Guide
 
 Using the target in an app lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
-[`server.md`](./guide/server.md), [`services.md`](./guide/services.md) and
+[`server.md`](./guide/server.md), [`bundle.md`](./guide/bundle.md), [`services.md`](./guide/services.md), [`channels.md`](./guide/channels.md) and
 [`live.md`](./guide/live.md).

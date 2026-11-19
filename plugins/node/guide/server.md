@@ -43,10 +43,9 @@ node({
 ```
 
 The server reads its origin (`https://app.example.com`) from `originVar` on each request, so
-setting `process.env.NETWORK_ORIGIN` in the server moves it live; unset, the listener refuses
-everything. It admits that origin's Host alone, and the worker's env there carries
-`STACK_LISTENER` (`"network"`) and `STACK_ORIGIN`, set by the server, unset on the main listener.
-The worker trusts that origin there, and auth signs in at it.
+setting `process.env.NETWORK_ORIGIN` moves it live; unset, the listener refuses everything. It
+admits that origin's Host alone, the worker's env there carries `STACK_LISTENER` (`"network"`) and
+`STACK_ORIGIN`, and auth signs in at that origin.
 
 ## Moving from Cloudflare
 
@@ -55,12 +54,10 @@ Replace `cloudflare()` with `node()`, and the database with `db({ dialect: "sqli
 
 ## Env
 
-The worker's `env` is `process.env`, and `context.env` is untyped (`unknown`) in a handler: there is no
-`Env` declaration here. Every var a plugin declares is checked **when the server starts**, before it
-opens the port or starts a service: a missing or malformed one stops the boot with one message that
-lists them all (`stack node: failed to start: the environment is incomplete: - Missing env var:
-AUTH_SECRET ...`), so a server never listens half configured. A worker on Cloudflare has no start; its
-first request runs the same checks.
+The worker's `env` is `process.env`, and `context.env` is untyped (`unknown`) in a handler. Every var a plugin declares is checked when the server starts, before it
+opens the port or starts a service: a missing or malformed one stops the boot with one message
+listing them all (`stack node: failed to start: the environment is incomplete: - Missing env var:
+AUTH_SECRET ...`).
 
 What a production process needs, by the plugin that declares it (a renamed var, `fileVar`,
 `secretVar` or `appUrlVar`, replaces its default name):
@@ -81,9 +78,8 @@ What a production process needs, by the plugin that declares it (a renamed var, 
 
 ## Framing
 
-The web client's files and its `index.html` fallback carry
-`Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options: DENY`: a stack app is
-never framed. The worker's own paths keep the headers the worker sets.
+The web client's files carry `frame-ancestors 'none'` and `X-Frame-Options: DENY`: a stack app is
+never framed.
 
 ## Dev
 
@@ -93,9 +89,8 @@ one origin as in production.
 
 ## Production
 
-`PORT` and `HOST` set where the process listens, over `port` and `host`, so a container or a
-process manager moves it with no rebuild (a `PORT` that is not a port number stops the boot).
-`stack dev` ignores both, since its proxy aims at the configured port. `HOST` moves the bind
+`PORT` and `HOST` set where the process listens, over `port` and `host`, with no rebuild (a `PORT`
+that is not a port number stops the boot); `stack dev` ignores both. `HOST` moves the bind
 address only: the origins baked from a loopback `host` stay.
 
 ```bash
@@ -103,66 +98,20 @@ pnpm build                       # builds dist/client
 DB_FILE=/var/lib/my-app/app.sqlite AUTH_SECRET=… APP_URL=https://example.com node .stack/server.ts
 ```
 
-Run `node .stack/server.ts` from the app's root under your process manager; Node strips the types
-on load, so there is no compile step, but it needs the project and its dependencies on the box: a
-`link:` dependency resolves into a checkout that must be there too. `stack deploy` has nothing to
-ship here. To ship a directory instead, build a bundle.
-
-## Deploy a bundle
-
-`stack build` bundles the server after the web client is built. Beside the client's directory
-(`dist/client`) it writes `dist/server/`: `server.mjs`, the server, the generated worker, your
-`src/` and every dependency in one file (TypeScript, `link:` and workspace packages and `#/*`
-imports included); `migrations/`, the committed `.sql` files and the journal; `bin/`, the tools of `src/bin/` (below); and `node_modules/`,
-holding only the packages with a native addon (`better-sqlite3`) and what they need to run.
-Copy `dist/` to the box; it needs only `node` 24 or newer, wherever it was built, and no
-checkout, install or CLI. The bundler is esbuild, a build tool the app declares in its
-`devDependencies` (`node()` writes it; an older app adds it with `pnpm add -D esbuild`):
-
-```bash
-PORT=8788 DB_FILE=/var/lib/my-app/app.sqlite AUTH_SECRET=… APP_URL=https://example.com \
-  node dist/server/server.mjs
-```
-
-- It runs from any working directory and finds the client beside itself; a relative `DB_FILE` is
-  relative to where it is started.
-- On the sqlite dialect it applies the committed migrations to `DB_FILE` before it listens (the
-  ones `stack db apply` applies, in the same journal; run twice it changes nothing), so there is
-  no `stack db apply` step. It runs no seed.
-- Build on the box's platform: the native addon is the build machine's installed one, and
-  `better-sqlite3`'s prebuilds for the other platforms ride with it.
-- Code that reads a file by a path relative to its own module (`new URL("./x", import.meta.url)`)
-  reads inside the bundle's directory, not the source's: keep such files out of the server, or
-  copy them with the build. Two idioms are the exception, because the build follows them:
-  a worker thread and a directory of modules.
-- **A worker thread**: write the module's URL in the constructor,
-  `new Worker(new URL("./scan-worker.ts", import.meta.url))` (a `fileURLToPath(...)` around the
-  URL is the same). The build bundles that module on its own to `dist/server/workers/` and the
-  bundle starts it from there; from source Node starts the `.ts` file. A URL held in a variable
-  or built by a helper is not followed.
-- **A directory of modules** (job kinds, importers): list it with `loadModules` from
-  `@fcalell/plugin-node/server`, written as `await loadModules(new URL("./jobs/", import.meta.url))`.
-  It answers each module's exports by file name without the extension. From source it reads the
-  directory; the build lists the directory itself and imports each module into the bundle, so no
-  registry file is kept by hand. A test, a declaration and an `index` are not listed, and the
-  argument must be the literal `new URL(..., import.meta.url)`.
-
-- **A tool run by hand** (a restore, a one-off repair): write it as `src/bin/<name>.ts`. Each module there
-  (a test, a declaration and an `index` excepted) is bundled on its own, the way the server is, to
-  `dist/server/bin/<name>.mjs`, run with `node dist/server/bin/<name>.mjs` on a box that holds only
-  `dist/`. It sees what the server does: `link:` and workspace packages, `#/*`, the kept native
-  addons in `dist/server/node_modules/`, worker threads and `loadModules`. There is no option and no
-  registry; add the folder's `.ts` file and rebuild. `src/bin/` is Node code: keep it out of the web
-  app's `tsconfig` and in the server's.
+Run `node .stack/server.ts` from the app's root under your process manager. Node strips the types
+on load, so there is no compile step, but the box needs the project and its dependencies, a `link:`
+dependency's checkout included. `stack deploy` has nothing to ship here. To ship a directory instead, [deploy a bundle](bundle.md).
 
 `SIGINT` and `SIGTERM` stop the services in reverse order, then the server.
 
 ## Rules
 
 - Never import a Cloudflare binding type or `cloudflare:*` module in worker code that runs here.
+- Keep every file the server loads erasable TypeScript, since Node strips the types: no enums, no
+  parameter properties, no `namespace`, and every relative import that is not type-only names its
+  file (`./types.ts`, `../schema/index.ts`), never `./types` or a directory.
 - Reach the app only at an origin on its CORS list (`app.domain`, `app.origins`) or a listener's:
-  the `/ws` socket refuses a page served from any other, with a 403 (see `services.md`, "Who is
-  connected").
+  the `/ws` socket refuses a page served from any other ([who is connected](channels.md#who-is-connected)).
 - Keep `.stack/` in production: it holds the server entry, generated by `stack build`.
 
 **Check:** `stack generate`, then `pnpm check` passes, and `pnpm dev` logs

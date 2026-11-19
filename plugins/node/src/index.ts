@@ -217,7 +217,17 @@ export const node = plugin("node", {
 		{
 			page: "services",
 			trigger:
-				"Adding a background service, a WebSocket channel or a raw HTTP mount to the Node server",
+				"Adding a background service or a raw HTTP mount to the Node server",
+		},
+		{
+			page: "channels",
+			trigger:
+				"Adding a WebSocket channel to the Node server, subscribing to one from the app, or deciding who a channel or a mount lets in",
+		},
+		{
+			page: "bundle",
+			trigger:
+				"Shipping the Node server as a directory (`dist/server/`), or writing a worker thread, a directory of modules or a `src/bin/` tool the bundle must carry",
 		},
 		{
 			page: "live",

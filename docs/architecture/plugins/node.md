@@ -57,13 +57,12 @@ and stop in reverse order on `SIGINT` or `SIGTERM`; a failed boot logs and exits
 Node has no bindings: the worker gets the `env` the entry passes, `process.env`, `executionCtx`
 degrades to a no-op `waitUntil`, and binding-backed features (rate limiters) skip themselves when the binding is absent.
 
-The consumer's TypeScript (`.stack/`, `src/`) runs directly under Node >= 24.14 (type stripping) while
-the stack packages it imports load compiled from `dist/`. Everything of the consumer's on the
-runtime import path is erasable-only syntax (no parameter properties, no enums) and names the file
-of every value import (`./types.ts`, `../src/schema/index.ts`): node resolves neither a missing
-extension nor a directory (`ERR_UNSUPPORTED_DIR_IMPORT`). The generated worker imports the schema
-in that form for this reason ([db's schema import](db.md#schema-import)), and a node consumer's route
-files name their files the same way.
+The consumer's TypeScript (`.stack/`, `src/`) runs directly under Node's type stripping while the
+stack packages it imports load compiled from `dist/`. Type stripping takes erasable syntax only, and
+Node resolves neither a missing extension nor a directory (`ERR_UNSUPPORTED_DIR_IMPORT`), so the
+generated worker names the schema's file ([db's schema import](db.md#schema-import)). The Node floor
+is the guide's [node server](../../../plugins/node/guide/server.md), and what the consumer's own files follow is its
+[rules](../../../plugins/node/guide/server.md#rules).
 
 ### Worker contract
 
@@ -154,8 +153,8 @@ with no Origin. A browser sends an Origin on every cross-origin request and on a
 changes state, and sends none on the reads it makes from the app's own page (an image, a link, a
 download); a route answers those without changing state, so a cookie on one opens nothing a page
 elsewhere can use. The result is null when there is no credential, it is refused, or the app has no
-auth. A mounted handler calls it first and answers 401 on null; a page elsewhere that posts with the
-user's cookies is anonymous, so the route checks no Origin of its own.
+auth. A page elsewhere that posts with the user's cookies is anonymous. How a mounted handler
+answers is the guide's [who is connected](../../../plugins/node/guide/channels.md#who-is-connected).
 
 ## Services
 
@@ -165,30 +164,33 @@ module directly, with no context plumbing. `start(ctx)` receives `{ log, ws, htt
 stop handle. The consumer's half is the guide's [services](../../../plugins/node/guide/services.md).
 
 - **Order.** The services of `node.slots.services` start first, by name, then the consumer's in
-  file-name order, so a `start` never relies on another service having started. Work that needs the others (enqueueing a job, reading what another service loaded,
-  broadcasting) goes in `ready`, which runs for every service, in the same order, once every `start`
-  has finished and before the server listens. Stops run in reverse order.
+  file-name order. `ready` runs for every service, in the same order, once every `start` has
+  finished and before the server listens. Stops run in reverse order. What goes in `start` and what
+  in `ready` is the guide's [order](../../../plugins/node/guide/services.md#order-start-then-ready).
 - **Mounts.** `http.mount(prefix, handler)` registers a raw fetch-style route: every request whose
   path equals `prefix` or is under `prefix + "/"` goes to `handler`, matched after `/ws` and before
   the worker, static files and SPA. The longest registered prefix wins and a duplicate throws, so a
   service owns its subtree (an in-process MCP endpoint a spawned CLI reaches directly by
-  `http.port`); a consumer mounting a worker prefix is documented, not guarded.
-- **The barrel.** The services directory is flat, as plugin-api's route barrel is
+  `http.port`). Nothing refuses a mount under a worker prefix or `/ws`; the guide's
+  [rules](../../../plugins/node/guide/services.md#rules) forbid one.
+- **The barrel.** The barrel reads the services directory flat, as plugin-api's route barrel does
   ([routes barrel](api.md#routes-barrel)): one module per file `listed.ts` lists
-  ([Directory modules](#services)), subdirectories ignored, so `index.ts`, the barrel, never imports
-  itself. The barrel names each import by its position (`service0`), so any file name binds.
+  ([Directory modules](#services)), subdirectories ignored ([the guide's rules](../../../plugins/node/guide/services.md#rules)),
+  so `index.ts`, the barrel, never imports itself. The barrel names each import by its position (`service0`), so any file name binds.
   `consumerServices` is seeded from the directory's contents, the one value the barrel emission and
   the barrel import both resolve, so they never disagree about whether the directory takes part.
 - **Directory modules.** `loadModules(new URL("./dir/", import.meta.url))` returns the modules of a
   directory by file name without the extension: a registry the code does not list by hand
   (`jobs/*.ts`, `importers/*.ts`). A test, a declaration and an `index` are not modules; `loadModules`
-  at run time and the bundle at build apply that one rule (`listed.ts`). The URL is written in the
-  call because `stack build` reads that argument ([Build and bundle](#build-and-bundle)).
+  at run time and the bundle at build apply that one rule (`listed.ts`). `stack build` reads the
+  argument as written in the call ([Build and bundle](#build-and-bundle)); the form is the guide's
+  [files the build follows](../../../plugins/node/guide/bundle.md#files-the-build-follows).
 
 ## Channels
 
-The channel contract is isomorphic: the consumer defines one `ChannelDef` in a shared module and
-imports it from server code (`hub.channel`) and browser code (`client.subscribe`). Types flow from
+The channel contract is isomorphic: one `ChannelDef` serves server code (`hub.channel`) and browser
+code (`client.subscribe`), from the module the guide's [channels](../../../plugins/node/guide/channels.md) puts it
+in. Types flow from
 the zod schemas, with no codegen. The wire protocol is JSON text frames: `sub`, `unsub`, `msg` and
 `ping` from client to server, `msg` and `pong` from server to client. Every frame is zod-validated at both ends; an
 invalid frame is dropped and logged.
@@ -212,10 +214,10 @@ with more than `MAX_BUFFERED_BYTES` (4 MiB) unsent terminates it, since a stalle
 server's memory without bound; the client reconnects and is snapshotted again.
 
 A connection's session is fixed at the upgrade. A session auth ends (a sign-out, a revoke) closes the
-socket, as does `ws.closeSession(id)` for one the app ends itself; a lost membership changes nothing
-here, so a handler that must honour it re-checks. The session is null only when the app has no auth,
-where every connection is anonymous. A channel's `onSubscribe` and `onMessage` read it to decide what
-the connection may see or do. A socket whose session ends closes with 1008 (a policy violation), so
+socket, as does `ws.closeSession(id)`; a lost membership changes nothing here. The session is null
+only when the app has no auth, where every connection is anonymous. When an app closes a session
+itself, re-checks a membership and decides what a connection sees is the guide's
+[who is connected](../../../plugins/node/guide/channels.md#who-is-connected). A socket whose session ends closes with 1008 (a policy violation), so
 the client's reconnect meets the upgrade's own refusal rather than a socket that just dropped.
 
 `channelRead` (`./live`) makes a channel a read: its frames fold into one value, written to the query
@@ -299,7 +301,7 @@ run time lists the source's files, not the bundle's. A `loadModules` call become
 directory's modules, listed at build; from source the same call reads the directory. The directory
 runs on a box with only `node` on it, wherever the app was built (a `link:` to a checkout, a workspace
 package, TypeScript under `node_modules` are all followed at build). The consumer's half is the
-guide's [deploy a bundle](../../../plugins/node/guide/server.md#deploy-a-bundle).
+guide's [deploy a bundle](../../../plugins/node/guide/bundle.md).
 
 esbuild is loaded inside the step: it is the plugin's optional peer, which the app declares as a
 devDependency (`stack init` and `stack add node` write it), so a config that only reads this plugin,
@@ -315,7 +317,8 @@ relative modules and the app's packages resolve, and go with the run.
 `/fixture/socket?close=1` (`fixtureSockets`, `./serve`) closes the WebSockets of the session the
 request holds, as a server restart or a revoked session does. The other `/fixture` controls are
 `@fcalell/plugin-screens/serve`'s; the sockets are this server's. A serve run starts it; an app's own
-entry lists it in `services`.
+entry adds it as the screens guide's
+[seeded server](../../../plugins/screens/guide/seeded-server.md) says.
 
 The screens workbench answers the app's `/ws` through `screens.slots.handlerModules`:
 `@fcalell/plugin-node/screens` is an MSW `ws.link("*/ws")` handler that answers each `sub` with the
