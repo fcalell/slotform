@@ -1,16 +1,15 @@
 import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { FrameHolds } from "@fcalell/ui-core/react/read";
-import { NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
-import { type ReactNode, useState } from "react";
+import type { Selection } from "@fcalell/ui-core/read";
+import type { ReactNode } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import type { FormProps } from "../form/index.tsx";
-import { SheetBase, type SheetSubmit } from "./base.tsx";
-import { useSheetForm } from "./form.tsx";
+import type { SheetSubmit } from "./base.tsx";
+import { TaskSheet } from "./task.tsx";
 
 export type { Acknowledge, SheetSubmit } from "./base.tsx";
 
-/** The sheet an act opens, or a `Pane`'s or a `Thread`'s docked one, over the procedure its form submits (`P`, read off the form's `act`, so `onDone` hears that procedure's output): a `Sheet`'s props but the two its holder owns, `open` and `onClose`. */
+/** The sheet an act opens, or a `Pane`'s or a `Thread`'s docked one, over the procedure its form submits (`P`, read off the form's `act`, so `onDone` hears that procedure's output): a `Sheet`'s props but the two its holder owns, `open` and `onClose` (the sheet outlet, for an act's). */
 export interface ActSheetProps<P extends ProcedureCall = ProcedureCall>
 	extends Closed {
 	/** The sheet's heading, which names it (a short phrase; wraps). */
@@ -41,32 +40,6 @@ export interface SheetProps<P extends ProcedureCall = ProcedureCall>
 }
 
 /** On the desktop a card centred across the scrim, its top a static inset under the viewport's top at every size, capped at the viewport less the page inset below it with its body scrolling, its head (the title over the description beside the close act) over the body and the foot; on touch a bottom sheet with the close act first and the submit in the foot after the body, a blocked submit's reason under the submit. A closing sheet draws what it last drew open, so its leave plays over that content whatever its holder clears as it closes. Always the modal one: a docked sheet is a `Pane`'s or a `Thread`'s `sheet`. */
-export function Sheet<P extends ProcedureCall>(given: SheetProps<P>) {
-	// The props of the last open render. A set during render re-runs this
-	// component with the same props object, so it settles at once.
-	const [shown, setShown] = useState(given);
-	if (given.open && shown !== given) setShown(given);
-	const { open, onClose } = given;
-	const { title, description, back, submit, read, empty, form, children } = open
-		? given
-		: shown;
-	const { acting, fields } = useSheetForm(form, open, [read]);
-	return (
-		<FrameHolds holds={NO_HOLDS}>
-			<SheetBase
-				acting={acting}
-				open={open}
-				onClose={onClose}
-				title={title}
-				description={description}
-				back={back}
-				submit={submit}
-				read={read}
-				empty={empty}
-				fields={fields}
-			>
-				{children}
-			</SheetBase>
-		</FrameHolds>
-	);
-}
+export const Sheet: <P extends ProcedureCall>(
+	props: SheetProps<P>,
+) => ReactNode = TaskSheet;

@@ -20,7 +20,6 @@ import { useCommit } from "../../lib/commit.ts";
 import type { CellFit, InlineFit } from "../../lib/field.ts";
 import { BOX_FOCUS, useModality } from "../../lib/modality.ts";
 import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
-import { ActSheet } from "../sheet/act.tsx";
 import type { InputKind, TextInputProps } from "./index.tsx";
 
 // The box draws the field's states: docs/architecture/plugins/react-ui.md, "Field box and focus rings".
@@ -225,7 +224,6 @@ export function InputBase({
 								pending={acting.pending !== undefined}
 								onClick={() => acting.attempt(true, act)}
 							/>
-							<ActSheet acting={acting} of={() => act.sheet} />
 						</FieldDisabled>
 					) : null}
 				</div>

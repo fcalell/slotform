@@ -11,7 +11,6 @@ import { IconButtonBase, IconButtonLink } from "../../atoms/button/glyph.tsx";
 import { ButtonLink, TEXT_PRESS } from "../../atoms/button/link.tsx";
 import { type ActSheetProps, useAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
-import { ActSheet } from "../sheet/act.tsx";
 import { ButtonBase } from "./base.tsx";
 
 interface Named extends Closed {
@@ -153,18 +152,15 @@ function AttemptInline(props: ButtonAttemptProps) {
 	const run = () =>
 		acting.attempt(true, { onAct, label, confirm, done, to, sheet });
 	return (
-		<>
-			<button
-				type="button"
-				aria-busy={pending || undefined}
-				aria-disabled={inert || undefined}
-				onClick={inert ? undefined : run}
-				className={cn(link({ fit: "inline" }), TEXT_PRESS.inline, INLINE_INERT)}
-			>
-				{label}
-			</button>
-			<ActSheet acting={acting} of={() => sheet} />
-		</>
+		<button
+			type="button"
+			aria-busy={pending || undefined}
+			aria-disabled={inert || undefined}
+			onClick={inert ? undefined : run}
+			className={cn(link({ fit: "inline" }), TEXT_PRESS.inline, INLINE_INERT)}
+		>
+			{label}
+		</button>
 	);
 }
 
@@ -185,29 +181,26 @@ export function AttemptGlyph({
 	const host = use(ReasonHostContext);
 	const held = blocked !== undefined && host !== undefined;
 	return (
-		<>
-			<IconButtonBase
-				icon={icon}
-				fit={fit}
-				label={label}
-				destructive={act === "destructive"}
-				primary={act === "primary"}
-				disabled={blocked !== undefined && !held}
-				blocked={held || undefined}
-				pending={acting.pending !== undefined}
-				tabIndex={tabIndex}
-				onClick={() =>
-					held
-						? host()
-						: acting.attempt(true, {
-								onAct,
-								label,
-								destructive: act === "destructive",
-								...wiring,
-							})
-				}
-			/>
-			<ActSheet acting={acting} of={() => wiring.sheet} />
-		</>
+		<IconButtonBase
+			icon={icon}
+			fit={fit}
+			label={label}
+			destructive={act === "destructive"}
+			primary={act === "primary"}
+			disabled={blocked !== undefined && !held}
+			blocked={held || undefined}
+			pending={acting.pending !== undefined}
+			tabIndex={tabIndex}
+			onClick={() =>
+				held
+					? host()
+					: acting.attempt(true, {
+							onAct,
+							label,
+							destructive: act === "destructive",
+							...wiring,
+						})
+			}
+		/>
 	);
 }

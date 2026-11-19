@@ -2,6 +2,7 @@ import { trackTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Track } from "@fcalell/ui-core/descriptors";
 import { shortcut } from "@fcalell/ui-core/player";
+import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
 	DOCK,
@@ -17,6 +18,7 @@ import { useHeldDraft } from "../../lib/act.ts";
 import { useTouch } from "../../lib/media.ts";
 import { NOOP } from "../../lib/noop.ts";
 import { player, usePlayer, usePlayerTime } from "../../lib/player.ts";
+import { store } from "../../lib/player-store.ts";
 import { Button } from "../button/index.tsx";
 import { PictureTile } from "../image/base.tsx";
 import { SliderBase } from "../slider/base.tsx";
@@ -78,12 +80,17 @@ function taken(event: KeyboardEvent) {
 	return key;
 }
 
-/** The player's dock, for a `Shell`'s `foot`: while a track is loaded, its name, transport, seek and volume under the place. It draws what `player` holds and plays nothing itself (the app's `connectOutput` is the sound), takes Space and the horizontal arrows anywhere that is not typing or a control that takes them, and puts the track on the system's media keys while it stands. */
+/** The player's dock, for a `Shell`'s `foot`: while a track is loaded, its name, transport, seek and volume under the place. It draws what `player` holds and plays nothing itself (the app's `connectOutput` is the sound), takes Space and the horizontal arrows anywhere that is not typing or a control that takes them. The system's media controls are the output's (`audioOutput`). */
 export function Dock() {
 	const state = usePlayer();
 	const touch = useTouch();
 	const words = useWords();
 	const { track } = state;
+	// The cover as the tile draws it is what the system's media controls show.
+	const [cover] = useSelections([track?.image ?? ""]);
+	useEffect(() => {
+		if (track) store.cover(track, cover);
+	}, [track, cover]);
 	useEffect(() => {
 		if (!track) return;
 		const onKey = (event: KeyboardEvent) => {
@@ -96,41 +103,6 @@ export function Dock() {
 		window.addEventListener("keydown", onKey);
 		return () => window.removeEventListener("keydown", onKey);
 	}, [track]);
-
-	// The system's media keys and lock screen drive the same player.
-	useEffect(() => {
-		if (!track || !("mediaSession" in navigator)) return;
-		const session = navigator.mediaSession;
-		session.metadata = new MediaMetadata({
-			title: track.title,
-			artist: track.line ?? "",
-			artwork: track.image ? [{ src: track.image }] : [],
-		});
-		session.setActionHandler("play", () => player.play());
-		session.setActionHandler("pause", () => player.pause());
-		session.setActionHandler(
-			"previoustrack",
-			state.queued ? () => player.playPrevious() : null,
-		);
-		session.setActionHandler(
-			"nexttrack",
-			state.hasNext ? () => player.playNext() : null,
-		);
-		session.setActionHandler("seekto", (event) => {
-			if (event.seekTime !== undefined) player.seek(event.seekTime);
-		});
-		return () => {
-			for (const action of [
-				"play",
-				"pause",
-				"previoustrack",
-				"nexttrack",
-				"seekto",
-			] as const)
-				session.setActionHandler(action, null);
-			session.metadata = null;
-		};
-	}, [track, state.queued, state.hasNext]);
 
 	if (!track) return null;
 

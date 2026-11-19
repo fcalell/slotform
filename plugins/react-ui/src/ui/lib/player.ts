@@ -1,10 +1,8 @@
 import type { Peaks, Track } from "@fcalell/ui-core/descriptors";
 import {
-	createPlayer,
 	type Engine,
 	type Output,
 	type PlayerCommands,
-	type PlayerHost,
 	type PlayerReport,
 	type PlayerState,
 	type PlayerTime,
@@ -15,7 +13,7 @@ import {
 	windowQueue,
 } from "@fcalell/ui-core/player";
 import { useSyncExternalStore } from "react";
-import { saveChoice, savedChoice } from "./saved.ts";
+import { store } from "./player-store.ts";
 
 export type {
 	Engine,
@@ -32,41 +30,6 @@ export type {
 	WindowQueueOptions,
 };
 export { windowQueue };
-
-const VOLUME_KEY = "stack.player.volume";
-
-// The web's side of the store (`createPlayer`, in ui-core): a viewer's volume is
-// theirs from one visit to the next, a convenience, so a store that is blocked or
-// empty falls back to full; the clock follows the animation frame.
-const host: PlayerHost = {
-	recall() {
-		try {
-			const saved: unknown = JSON.parse(savedChoice(VOLUME_KEY) ?? "null");
-			if (
-				typeof saved === "object" &&
-				saved !== null &&
-				"volume" in saved &&
-				typeof saved.volume === "number" &&
-				"muted" in saved &&
-				typeof saved.muted === "boolean"
-			)
-				return {
-					volume: Math.min(1, Math.max(0, saved.volume)),
-					muted: saved.muted,
-				};
-		} catch {}
-		return undefined;
-	},
-	keep(volume, muted) {
-		saveChoice(VOLUME_KEY, JSON.stringify({ volume, muted }));
-	},
-	frame(run) {
-		const id = requestAnimationFrame(run);
-		return () => cancelAnimationFrame(id);
-	},
-};
-
-const store = createPlayer(host);
 
 /** The player, from anywhere in the app (a handler, a loader): `player.play({ src, title, line })`. It plays through the output `connectOutput` was given, and a `Dock` in the `Shell`'s `foot` draws it; the store is the page's, so the sound goes on through navigation. */
 export const player: PlayerCommands = store.player;
@@ -90,8 +53,37 @@ export function audioOutput(): Engine {
 		audio.addEventListener("volumechange", report.volume);
 		audio.addEventListener("ended", report.ended);
 		audio.addEventListener("error", report.failed);
-		return {
+		// The system's media controls (none in a browser without them) show the
+		// loaded track, its name, its line and its picture once the store hands
+		// it over, and act on the sound as the phone's lock screen does; previous
+		// and next ask the store, which holds the queue.
+		const session =
+			"mediaSession" in navigator ? navigator.mediaSession : undefined;
+		let shown: Track | undefined;
+		const describe = (artwork: string | undefined) => {
+			if (!session) return;
+			session.metadata = shown
+				? new MediaMetadata({
+						title: shown.title,
+						artist: shown.line ?? "",
+						artwork: artwork ? [{ src: artwork }] : [],
+					})
+				: null;
+		};
+		const steps = (previous: boolean, next: boolean) => {
+			session?.setActionHandler(
+				"previoustrack",
+				previous ? () => report.step("previous") : null,
+			);
+			session?.setActionHandler(
+				"nexttrack",
+				next ? () => report.step("next") : null,
+			);
+		};
+		const output: Output = {
 			load(track) {
+				shown = track;
+				describe(undefined);
 				if (track) audio.src = track.src;
 				else {
 					audio.pause();
@@ -124,7 +116,15 @@ export function audioOutput(): Engine {
 				audio.volume = volume;
 				audio.muted = muted;
 			},
+			cover: describe,
+			steps,
 		};
+		session?.setActionHandler("play", () => output.play());
+		session?.setActionHandler("pause", () => output.pause());
+		session?.setActionHandler("seekto", (event) => {
+			if (event.seekTime !== undefined) output.seek(event.seekTime);
+		});
+		return output;
 	};
 }
 

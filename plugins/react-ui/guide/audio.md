@@ -81,14 +81,16 @@ const toTrack = (t: Song): Track => ({
 It draws the picture, the name over its line, previous, play or pause (the primary glyph) and next
 (the first and last only where there is a queue), the elapsed time, the seek, the total, mute with a
 volume slider and a close. The name, the transport and the seek share the bar's width by flex, so the
-transport stands at its centre. A track with no `image`, or one that fails to load, draws the tile's
+transport stands at its centre. An `image` given as a selection paints the tile until its read lands. A track with no `image`, or one that fails to load, draws the tile's
 failed shape, so the name keeps its place. The seek is a `Waveform` where the track has `peaks` and a
 slider where not. On touch the transport and the name stand on a first bar and the seek on a second,
 with no volume: the device's own buttons set it. Volume and mute are kept from one visit to the next.
 
 While it stands the dock takes Space and the horizontal arrows anywhere that is not typing or a
 control that takes the key itself (a `Table`'s grid takes them where it acts on them), and the
-system's media keys and lock screen drive the same player. A `Dock` takes no props.
+system's media keys and lock screen drive the same player. The system's media controls show the
+name and the line, and the picture once the dock draws it (an `image` given as a selection once its
+read lands). A `Dock` takes no props.
 
 ## A waveform on its own
 

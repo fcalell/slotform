@@ -22,7 +22,6 @@ import { spacing } from "../../lib/measure.ts";
 import { useTouch } from "../../lib/media.ts";
 import { follow } from "../../lib/navigate.ts";
 import { PortalContainer } from "../../lib/portal.ts";
-import { ActSheet } from "../sheet/act.tsx";
 import { SheetHead } from "../sheet/head.tsx";
 import { SheetLayer } from "../sheet/layer.tsx";
 
@@ -177,13 +176,8 @@ export function MenuBase({
 	const touch = useTouch();
 	const container = use(PortalContainer);
 	useQuietGuards();
-	// Each item runs under its place, so the sheet that opens is its item's.
 	const acting = useAct<number>("toast");
 	const pending = acting.pending !== undefined;
-	const sheetOf = (at: number) => {
-		const item = items[at];
-		return item && "sheet" in item ? item.sheet : undefined;
-	};
 	const [open, setOpen] = useState(false);
 	const [sheet] = useState(() => Dialog.createHandle<unknown>());
 	if (touch) {
@@ -252,7 +246,6 @@ export function MenuBase({
 						/>
 					</div>
 				</SheetLayer>
-				<ActSheet acting={acting} of={sheetOf} />
 			</>
 		);
 	}
@@ -321,7 +314,6 @@ export function MenuBase({
 					</Control.Popup>
 				</Control.Positioner>
 			</Control.Portal>
-			<ActSheet acting={acting} of={sheetOf} />
 		</Control.Root>
 	);
 }

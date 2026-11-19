@@ -91,6 +91,8 @@ interface SheetBaseProps {
 	children?: ReactNode;
 	/** The body's form (a `SheetForm`), after the parts under a hairline: its rows flush on the sheet, its foot stuck to the body's. */
 	fields?: ReactNode;
+	/** The sheet opened after this one (the sheet outlet's), drawn inside this one's dialog. */
+	nested?: ReactNode;
 }
 
 /** A sheet over the scrim: on touch raised from the bottom edge, its submit alone in the foot after the body, a blocked submit's reason under it; on the desktop a card centred across the page, its top a static inset under the viewport's top, capped at the viewport less the page inset, its body scrolling, with the submit after Cancel in the foot (alone where it acknowledges), or a decision centred. Base UI's dialog traps focus and closes on Escape and on a press outside. */
@@ -111,6 +113,7 @@ export function SheetBase({
 	empty,
 	children,
 	fields,
+	nested,
 }: SheetBaseProps) {
 	const touch = useTouch();
 	const frame = useFrame(read);
@@ -261,6 +264,7 @@ export function SheetBase({
 			// form's change): a bare control holds the app's value, which
 			// the sheet does not drop, so it asks nothing for it.
 			onChange={() => setTouched(true)}
+			nested={nested}
 		>
 			<TouchedContext value={touchedValue}>{content}</TouchedContext>
 		</SheetLayer>

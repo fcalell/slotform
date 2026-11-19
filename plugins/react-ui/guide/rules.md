@@ -219,7 +219,7 @@ schema (`stack generate` writes it to `.stack/schema.ts`) gives everything else.
 ```
 
 `fields` are keyed by the input's keys (a key the input lacks is a type error), in the order they stand;
-`groups` (`{ title, description?, fields }[]`) partition them under bands instead. `given` holds the input
+`groups` (`{ title, description?, fields, values?, empty? }[]`) partition them under bands instead; a group's `values` are its fields' first values in place of the form's, and a selection of them is the group's own read: its fields paint while it waits, its failure or a missing record stands in their place, and `empty` is the sentence when it is empty, while the other groups and the bar stand. `given` holds the input
 keys the screen supplies; a required key that is neither a field nor given throws. `values` are the fields'
 first values (a form about a record: a selection paints the controls until its read lands, and is the form's
 `read`); a submit that resolves hands `onDone` the output and the input it sent, and stays pending while a promise `onDone` returns settles; then, where the form stays (on a page, its submit going nowhere), the fields go back to them, and a sheet drops its edits as it opens again. `after` is a function of the input the fields make now (`given` and each field that holds a value, as the procedure would take it): the form calls it as it draws and the node it returns stands after the fields at the card inset, so a live preview of what the form would send (a bulk edit's before and after) is right with the first values, follows every change and starts over when a sheet reopens, and no screen holds the input in state. In a `Sheet`, `children` stand ahead of its `form`, whose `after` follows its fields with the bar after it, pinned in the foot. `can` is the ability
@@ -230,10 +230,10 @@ form paints, inert, until the ability's read lands.
 | The schema says | The field draws |
 | --- | --- |
 | a string | a line of text (`control: "mono"` the line in the mono, `Input kind="source"`, for a machine name a person types: a path, a host, a flag, an identifier, so the value reads as the issue under it quotes it (voice.md, **Type**); `"prose"` many lines, `"source"` many lines in mono, `"code"` the one-time code boxes (`Input kind="code"`, as many as the schema's fixed length: `z.string().length(n)`, else the field throws naming its key; the submit stays blocked until every box is filled), `"secret"` a masked line (`Input kind="secret"`: an API key, a token; the box is never filled: the secret is never read back. A secret the server holds is told in `values` by its masked form (the last characters, never the secret): the form draws no box for it but the sentence "Saved, ends in 1234" (the last four characters of the masked form, in the meta ink) with a quiet Replace, which opens the empty box with focus, and a quiet Remove that asks first and then sends the field alone as `null` where the schema takes it, else as the empty string (so the field must be optional or nullable); Enter in the box commits and never removes; omit it from `values` and the field stands as unset, and an untouched saved secret is left out of the input), `"date"` a date line; a `format: date` string is one already) |
-| an enum, or a string with `options` | a pick (`options` gives the labels, or the choices of a string the schema does not list; a function of the draft, `(draft) => options`, narrows them by the fields before it as the draft changes, may answer a read so the pick paints while it waits, and a chosen value that is no longer among them is cleared) |
+| an enum, or a string with `options` | one choice: the Select (`control: "list"` the option list, a radio per option; `"segments"` the segmented row; both on a field that always holds a value, required or with a schema `default`, since neither has an empty choice, and over the schema's values or a fixed `options` list, never a read or a function of the draft, else the field throws naming its key) (`options` gives the labels, or the choices of a string the schema does not list; a function of the draft, `(draft) => options`, narrows them by the fields before it as the draft changes, may answer a read so the pick paints while it waits, and a chosen value that is no longer among them is cleared) |
 | a boolean | a switch |
 | a number | a numeric line |
-| a list of an enum, or of strings with `options` | a pick of several |
+| a list of an enum, or of strings with `options` | a pick of several (`control: "list"` the option list, a checkbox per option) |
 | a list of strings, numbers, booleans or `null` with `control: "lines"` | a text area, one item per line (each line trimmed, blank lines dropped); the array is sent, each line read as the item type the schema allows (`true`/`false` a boolean, `null` null, a number a number, else the text), and a line that fits none stands as the field's issue ("Line 3 isn't a value this list takes."); `values` joins the array with newlines; empty sends `null` where nullable, else `[]` |
 | an object, a list of objects, or any value with `control: "json"` | a mono text area (`Input kind="prose" source`) holding the JSON text, parsed when the form commits (the submit, or the field's commit); a parse error stands as the field's issue, the parser's message and position; the parsed value is sent; `values` pretty-prints with two-space indent; empty sends `null` where nullable, else the key absent where optional (a required field has nothing to send) |
 | a date (`date-time`) | a date line (`Input kind="date"`), sent as a `Date` |
@@ -245,6 +245,10 @@ form paints, inert, until the ability's read lands.
 | required | the submit stays blocked while the field is empty, its reason naming the field by its label ("Give the project directory.", "Pick the region."; a label that is a question, "By when?", is its own reason), the words `giveField` and `pickField`; a value of the wrong type (a number that is not one, a date no calendar has) blocks it the same way, "Check the retry limit." (`checkField`), and a saved `secret` the viewer has not touched is left out of the input |
 
 `submit: { label, done, to, destructive }` words the bar's filled act; `destructive` draws it destructive (a form that rejects, abandons or closes something). `acts` are the other acts standing in the bar before it (a Cancel, a destructive Decline with `confirm`), each an act of any bar; a `Gate`'s form passes them through, and with `commit: "field"` they stand in a bar of their own under the fields, the last of them filled.
+
+A field whose value differs from its first draws its change mark at its value line's start: `added` where it was empty and holds a value, `removed` where it held one and is empty (a switch's off is its empty), `changed` otherwise. The mark follows the same by-value edit the leave asks about, so a value put back drops it; the app passes nothing.
+
+`steps` asks one step at a time: a step is a group, or a field when the form has no groups. The open step's fields stand over the bar, whose filled act is Continue, blocked with its reason until every field in the step holds a value its schema accepts; the last step's act is the submit, and a step not reached yet is not drawn. Continue folds the step to one summary row (a check, the group's title or the field's label, then each answer in field order a middle dot apart, cut with an ellipsis, and an Edit act that unfolds the step and focuses its first control) and opens the next, whose first control takes focus. A refusal of a field in a folded step unfolds it. A form that commits by field takes no `steps`.
 
 A typed value the schema's own checks refuse (a string shorter or longer than its `.min` or `.max`, one
 not in its format (`z.email()`, `z.url()`, `z.uuid()` and the other formats), a number under its `.min`,
@@ -568,7 +572,7 @@ failed and the sheet says "This didn't load" with Retry once, over the rows, nev
 read that more than the sheet's picks depend on is the `Pane`'s `read`.
 
 A waiting screen is the loaded tree, never a second tree: a page's outline
-comes from its route and its data fills it. A `Section` with `items` paints as many rows as it last loaded, four
+comes from its route and its data fills it. A `Section` with `items` paints as many rows as it last loaded, each in the shape its selector gives one record (a list row or a file row), four
 (`PAINT_ROWS`) when it has not, so the Sections under it stand where the loaded ones will. A `Section` stands whatever its data holds and draws its
 `empty` when there is none, never gated on the data's length; a block that stands only with its data (a
 Banner) stands where it reads best, and what is under it moves once when it arrives:
@@ -602,12 +606,14 @@ its `label` and `onAct`:
   goes through: `async () => { await remove.mutateAsync({ id }); navigate("/deploys"); }` is
   `{ onAct: () => remove.mutateAsync({ id }), to: "/deploys" }`.
 - `sheet: { title, submit, form, … }` is a `Sheet`'s props but `open` and `onClose`, opened by the press in
-  place of running `onAct` (the two are exclusive; the types forbid both: an act that opens a sheet has no `onAct`). The host that draws
-  the act holds the sheet's open state: it opens on the press and closes when the sheet is dismissed or
-  its `submit` act or its `form` resolves, and the `submit` takes the same `confirm`, `done` and `to`. A sheet
-  that opens from an act holds no `useState(false)` flag in the screen. The sheet draws from the act's
-  current `sheet` on every render, the host re-rendering with its act, so props that change while it is open
-  (a read landing, a field of a record) reach it; only the open state is held. Give the sheet through
+  place of running `onAct` (the two are exclusive; the types forbid both: an act that opens a sheet has no `onAct`). The press opens
+  the sheet in the root container's sheet outlet with the props the act holds at that moment, and it closes
+  when the sheet is dismissed or its `submit` act or its `form` resolves; the `submit` takes the same
+  `confirm`, `done` and `to`. A sheet that opens from an act holds no `useState(false)` flag in the screen.
+  What changes while it is open reaches it through the reads it holds (its `read`, the selections its parts
+  draw), never through a value the act's render computed: the props stay those of the press. The sheet
+  takes nothing from where its act stands (a heading level, a Pane, a disabled field), and the act's host
+  closing or leaving (a menu, a row) leaves it open. Give the sheet through
   `sheetOf({ … })`, which reads the procedure off the form's `act` so `onDone` hears that procedure's
   typed output and the fields are checked against its input; an act's region holds acts of different
   procedures, which no type follows, so `sheetOf` is where the procedure is typed and `sheet` is

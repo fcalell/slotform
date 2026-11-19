@@ -92,7 +92,6 @@ import { Avatar } from "../avatar/index.tsx";
 import { Chip } from "../chip/index.tsx";
 import { BOX_DISABLED, BOX_HOVER } from "../input/base.tsx";
 import { Input } from "../input/index.tsx";
-import { ActSheet } from "../sheet/act.tsx";
 import { SheetHead } from "../sheet/head.tsx";
 import { SheetLayer } from "../sheet/layer.tsx";
 import type {
@@ -291,8 +290,7 @@ function OptionText(props: { option: Option<string | null>; chosen: boolean }) {
 // The act that ends the list under a hairline: its glyph and label on a row,
 // washed under the pointer and the press; it closes the list as it runs.
 // The picker holds its act's attempt (`acting`) past the list's close (the
-// list unmounts with it): a rejection toasts with Retry, and a sheet it opens
-// stands beside the picker.
+// list unmounts with it): a rejection toasts with Retry.
 function PickAct(props: {
 	act: IconAct | IconLinkAct;
 	acting: Acting<true>;
@@ -807,10 +805,6 @@ export function PickerBase<V extends string | null = string>(
 					lone={lone}
 				/>
 			)}
-			<ActSheet
-				acting={acting}
-				of={() => (act && "sheet" in act ? act.sheet : undefined)}
-			/>
 		</>
 	);
 }

@@ -84,7 +84,7 @@ An `Act` (`@fcalell/ui-core/descriptors`) carries its wiring as data: `confirm` 
 first), `done` (a sentence toasted once `onAct` resolves) and `to` (a route gone to after), and the web
 `Act` type (`Act`, `IconAct` and `MenuEntry` from `lib/act`) adds `sheet` (a `Sheet`'s props but `open` and
 `onClose`, opened by the press in place of `onAct`). The host that draws the act sequences them (confirm,
-run, toast, go) and holds the sheet's open state; the app writes none of it by hand. A sheet no act opens
+run, toast, go), and the root container's sheet outlet draws the sheet the press opens; the app writes none of it by hand. A sheet no act opens
 is a `sheet` search param on its route.
 
 ## Options

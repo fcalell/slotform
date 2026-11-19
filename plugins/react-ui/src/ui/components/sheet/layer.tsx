@@ -17,7 +17,9 @@ import {
 	useId,
 	useRef,
 } from "react";
+import { PageTitle } from "../../lib/container.ts";
 import { useReturnFocus } from "../../lib/focus.ts";
+import { HeadingContext } from "../../lib/heading.ts";
 import { useTouch } from "../../lib/media.ts";
 import { PortalContainer } from "../../lib/portal.ts";
 import { SHEET_BACKDROP } from "../../lib/walk-classes.ts";
@@ -69,6 +71,7 @@ export function SheetLayer({
 	label,
 	focus,
 	onChange,
+	nested,
 	children,
 }: {
 	open: boolean;
@@ -90,6 +93,8 @@ export function SheetLayer({
 		| ((popup: HTMLDivElement | null) => HTMLElement | true);
 	/** Hears a field inside taking input. */
 	onChange?: () => void;
+	/** A sheet opened over this one, drawn in this dialog's tree and outside its popup, so it takes none of the popup's contexts. */
+	nested?: ReactNode;
 	children?: ReactNode;
 }) {
 	const touch = useTouch();
@@ -99,6 +104,8 @@ export function SheetLayer({
 	useReturnFocus(open, popup);
 	const centred = place === "centred" && !touch;
 	const view = place === "view";
+	// The head's title names the layer unless a label does (a view).
+	const named = label === undefined ? titleId : undefined;
 	const box = view
 		? cn(BOX_VIEW, LAYER_CARD)
 		: touch
@@ -137,16 +144,25 @@ export function SheetLayer({
 						// leaves the popup unmarked; the role promises it.
 						aria-modal
 						aria-label={label}
-						aria-labelledby={label === undefined ? titleId : undefined}
+						aria-labelledby={named}
 						onChange={onChange}
 						className={box}
 					>
 						<SheetLayerContext value={{ popup, titleId }}>
-							{children}
+							{/* The head's title is the layer's h2: what the layer holds heads under it, and its title names the parts a page title names. */}
+							<PageTitle value={named}>
+								<HeadingContext value={3}>{children}</HeadingContext>
+							</PageTitle>
 						</SheetLayerContext>
 					</Dialog.Popup>
 				</Dialog.Viewport>
 			</Dialog.Portal>
+			{
+				// Base UI dismisses a modal on a press in a sibling modal; a dialog
+				// under this one's root is its nested dialog, and only the topmost
+				// hears Escape and a press outside.
+				nested
+			}
 		</Dialog.Root>
 	);
 }

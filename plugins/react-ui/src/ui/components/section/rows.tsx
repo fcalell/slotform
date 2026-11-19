@@ -51,8 +51,8 @@ interface RowsInternal {
 	groups?: readonly Band[];
 	/** The Section's head counts the rows, so a lone band holding every row draws no count of its own: one band, one count. */
 	counted?: boolean;
-	/** The list item the painted rows take their shape from; a title line over a facts line when none is given. */
-	paint?: RowItemData;
+	/** The row the painted rows take their shape from, a list row or a file row; a title line over a facts line when none is given. */
+	paint?: Row;
 	/** The sheet reorders (the caller has put `drawn` in the order the viewer moved it to): its rows read the order and move by this. A flat, ungrouped sheet only. */
 	movable?: Movable;
 }
@@ -245,7 +245,7 @@ export function Rows(props: RowsInternal) {
 							more={undefined}
 							tail={!nav}
 							// The next page paints in the shape of the rows that stand.
-							paint={props.paint ?? items.find(isList)}
+							paint={props.paint ?? items[0]}
 							drawn={{
 								painted: true,
 								phase: "waiting",

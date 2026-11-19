@@ -1,10 +1,11 @@
-import type { PickedFile } from "@fcalell/ui-core/descriptors";
+import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
 import { heldPick, type ProcedureCall } from "@fcalell/ui-core/form";
 import { type FieldModel, useFormModel } from "@fcalell/ui-core/react/form";
 import { useFrame } from "@fcalell/ui-core/react/read";
 import { useTouchState } from "@fcalell/ui-core/react/touched";
 import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import type { Act } from "../../lib/act.ts";
+import type { Empty } from "../../lib/empty.tsx";
 import { toast } from "../../lib/toast.ts";
 import { FieldBody } from "../form-field/index.tsx";
 import { Input } from "../input/index.tsx";
@@ -39,7 +40,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 	props: FormProps<P> | undefined,
 	stays: boolean,
 ): DerivedFrame | NoFrame {
-	const model = useFormModel<P, Act>(props, stays, { toast });
+	const model = useFormModel<P, Act, Empty>(props, stays, { toast });
 	if (!props || model.fields === undefined) return { clear: model.clear };
 	const byField = model.commit === "field";
 	const drawn = (field: FieldModel) => (
@@ -49,6 +50,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 			description={field.description}
 			error={field.error}
 			optional={field.optional}
+			change={field.change}
 			split={byField}
 			disabled={field.disabled}
 			seek={field.seek}
@@ -72,8 +74,7 @@ export function useDerivedForm<P extends ProcedureCall>(
 					edited: model.edited,
 					empty: props.empty,
 					groups: model.groups.map((group) => ({
-						title: group.title,
-						description: group.description,
+						...group,
 						fields: group.fields.map(drawn),
 					})),
 				}
@@ -195,6 +196,14 @@ function controlOf(field: FieldModel) {
 				),
 			};
 		case "several":
+			if (spec.control === "list")
+				return {
+					options: {
+						options: listedOf(options),
+						value: value as Datum<readonly string[]>,
+						onChange: (next: string[]) => done(next),
+					},
+				};
 			return {
 				picker: {
 					options,
@@ -204,30 +213,50 @@ function controlOf(field: FieldModel) {
 				},
 			};
 		case "pick":
-			return {
-				picker: {
-					options,
-					placeholder: said.one,
-					value: value as Datum<string | null>,
-					onChange: (next: string | null) => done(next),
-				},
-			};
+			return pickOf(field, value as Datum<string | null>);
 		default:
 			return spec.options
-				? {
-						picker: {
-							options,
-							placeholder: said.one,
-							value: (isSelection(value)
-								? value.at(heldPick)
-								: heldPick(value)) as Datum<string | null>,
-							onChange: (next: string | null) => done(next),
-						},
-					}
+				? pickOf(
+						field,
+						(isSelection(value)
+							? value.at(heldPick)
+							: heldPick(value)) as Datum<string | null>,
+					)
 				: {
 						input: { value: text, onChange: onText, onCommit },
 					};
 	}
+}
+
+// A choice hint's options: the model holds them to a list in hand with no
+// empty choice (a fixed `options` or the schema's values, on a field that
+// always holds a value or picks several), which its `Datum` does not say.
+const listedOf = (options: FieldModel["options"]) =>
+	options as readonly Option<string>[];
+
+// A pick of one: the menu, or with a choice hint the option list or the
+// segmented row, whose choices are a list in hand and never the empty one
+// (the model throws otherwise).
+function pickOf(field: FieldModel, value: Datum<string | null>) {
+	const { spec, options, said, set, commit } = field;
+	const done = commit ?? set;
+	const onChange = (next: string | null) => done(next);
+	if (spec.control === "list")
+		return {
+			options: { options: listedOf(options), value, onChange },
+		};
+	if (spec.control === "segments")
+		return {
+			segments: {
+				options: listedOf(options).map(({ value, label }) => ({
+					value,
+					label,
+				})),
+				value: value as Datum<string>,
+				onChange,
+			},
+		};
+	return { picker: { options, placeholder: said.one, value, onChange } };
 }
 
 /** A form that stands on its page (a `Form`, a `Gate`'s): its derivation, its frame over its read, its own touch state and its bar. Outside the package's exports. */

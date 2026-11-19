@@ -28,7 +28,6 @@ import { ActInert, SubmitContext } from "../../lib/form.ts";
 import { PendingBar } from "../banner/pending.tsx";
 import { ButtonBase } from "../button/base.tsx";
 import { MenuBase } from "../menu/base.tsx";
-import { ActSheet } from "../sheet/act.tsx";
 import type { ActionBarProps } from "./index.tsx";
 
 // The bar is the `acts` container, its acts laid out by its width alone
@@ -242,14 +241,9 @@ export function ActionBarBase({
 			</ReasonHostContext>
 		);
 	};
-	const sheetOf = (at: number) => {
-		const act = acts[at];
-		return act && "sheet" in act ? act.sheet : undefined;
-	};
 	const acted = (ghost: boolean) => (
 		<div className={cn(ACTION_BAR_ACTS, ACTS)}>
 			{ordered.map((entry) => button(entry, ghost))}
-			{ghost ? null : <ActSheet acting={acting} of={sheetOf} />}
 		</div>
 	);
 	// A chosen bar's acts: the filled act stands and the others fold into the
@@ -262,7 +256,6 @@ export function ActionBarBase({
 				<MenuBase label={words.more} title={words.more} items={folded} />
 			) : null}
 			{primary ? button(primary, ghost) : null}
-			{ghost ? null : <ActSheet acting={acting} of={sheetOf} />}
 		</div>
 	);
 	// One act clears the rows while any are chosen, one chooses every row while

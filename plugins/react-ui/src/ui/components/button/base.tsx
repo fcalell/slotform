@@ -25,7 +25,6 @@ import { Spinner } from "../../atoms/spinner/index.tsx";
 import { useAct } from "../../lib/act.ts";
 import { ActInert, endSubmit, SubmitContext } from "../../lib/form.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
-import { ActSheet } from "../sheet/act.tsx";
 import type { ButtonAttemptProps } from "./index.tsx";
 
 const STACK =
@@ -185,31 +184,25 @@ export function ButtonBase({
 			) : null}
 		</BaseButton>
 	);
-	const control = (
-		<>
-			{face}
-			<ActSheet acting={acting} of={() => sheet} />
-		</>
-	);
 	// A host draws the reason, and a failure, on its own line. A blocked act's
 	// reason stands before a failure; paused is the wait for a connection, not
 	// a failure.
-	if (host) return control;
+	if (host) return face;
 	if (muted) {
 		return (
 			<div className={STACK}>
-				{control}
+				{face}
 				<Reason shown={said}>{blocked}</Reason>
 			</div>
 		);
 	}
-	if (!line) return control;
+	if (!line) return face;
 	// The stack stands from the first render, so the failure's line arriving
 	// never remounts the act it was pressed on (and its focus with it).
 	const under = acting.line;
 	return (
 		<div className={STACK}>
-			{control}
+			{face}
 			<Reason
 				shown={under !== undefined}
 				failed={acting.holds || acting.pending === undefined}

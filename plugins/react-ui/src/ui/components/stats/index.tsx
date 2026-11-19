@@ -9,6 +9,7 @@ import {
 	endedSentence,
 	isEnded,
 	paints,
+	shownText,
 } from "@fcalell/ui-core/read";
 import {
 	lineBox,
@@ -22,6 +23,7 @@ import {
 import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { follow } from "../../lib/navigate.ts";
+import { Painted } from "../../lib/paint.tsx";
 import { FailedMark, RetryMark } from "../../lib/read.tsx";
 import { Decoded } from "../../lib/region.tsx";
 import { CountLinks } from "./count-links.tsx";
@@ -47,11 +49,12 @@ const OPENS = "hover:bg-wash-hover active:bg-wash-press";
 const HIT = "absolute inset-0 focus-visible:-outline-offset-2";
 const UNIT = "shrink-0 whitespace-nowrap";
 
-/** A cell: a `StatSpec` whose figure is a constant or a selection. */
+/** A cell: a `StatSpec` whose figure and line are each a constant or a selection. */
 export type StatsItem = StatSpec extends infer S
 	? S extends StatSpec
-		? Omit<S, "value" | "bound" | "label"> & {
+		? Omit<S, "value" | "bound" | "label" | "line"> & {
 				value: Datum<number>;
+				line?: Datum<string>;
 			} & (S extends { bound: number }
 					? { label: Datum<string>; bound: Datum<number> }
 					: { label: string; bound?: never })
@@ -60,7 +63,7 @@ export type StatsItem = StatSpec extends infer S
 
 /** A strip of counts. */
 export interface StatsProps extends Closed {
-	/** The cells, in order: each a label over its figure, or a share of its `bound` drawn as a meter (its label a selection too). A cell whose `value` or `bound` is a selection paints its figure, and is inert and no link, until its read lands. */
+	/** The cells, in order: each a label over its figure, or a share of its `bound` drawn as a meter (its label a selection too). A cell whose `value` or `bound` is a selection paints its figure, and is inert and no link, until its read lands; a `line` that is a selection paints in its place until its own read lands. */
 	items: readonly StatsItem[];
 }
 
@@ -82,9 +85,10 @@ function Cell({
 	at: number;
 }) {
 	const words = useWords();
-	const [figure] = useSelections([item.value]);
-	const { ended: held, busy, retry } = useRow([item.value]);
+	const [figure, sentence] = useSelections([item.value, item.line]);
+	const { ended: held, busy, retry } = useRow([item.value, item.line]);
 	const painted = paints(figure);
+	const line = shownText(sentence);
 	const ended = figure.painted && isEnded(figure.phase);
 	const opens = item.href !== undefined && !figure.painted;
 	const unit = item.unit ? (
@@ -155,8 +159,10 @@ function Cell({
 				<p className={text({ role: "meta" })}>{endedSentence(words, held)}</p>
 			) : (
 				<>
-					{item.line ? (
-						<p className={text({ role: "meta" })}>{item.line}</p>
+					{line ? (
+						<p className={text({ role: "meta" })}>
+							{line.painted ? <Painted role="phrase" at={at} /> : line.text}
+						</p>
 					) : null}
 					{item.counts ? <CountLinks counts={item.counts} /> : null}
 				</>

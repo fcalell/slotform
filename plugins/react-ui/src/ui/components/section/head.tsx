@@ -9,7 +9,7 @@ import {
 } from "@fcalell/ui-core/react/read";
 import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { type Datum, paints, shownText } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,
@@ -150,8 +150,9 @@ export function SectionHead(props: {
 	// The act hands its blocked press here, so its reason stands on the head's
 	// own line under the row.
 	const reason = useReasonLine(blocked, true);
+	const described = shownText(said);
 	let sentence: ReactNode = null;
-	if (paints(said))
+	if (described?.painted)
 		sentence = (
 			<Text kind="meta">
 				<span className={PAINTED_LINE}>
@@ -159,8 +160,7 @@ export function SectionHead(props: {
 				</span>
 			</Text>
 		);
-	else if (!said.painted && said.value)
-		sentence = <Text kind="meta">{said.value}</Text>;
+	else if (described) sentence = <Text kind="meta">{described.text}</Text>;
 	// A count is not drawn until its body has answered: a painted chip would
 	// carry an unseen "0" for a number nobody knows yet, and the count arrives at
 	// the title's end, where it moves nothing. A read of an array gives its length.

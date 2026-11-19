@@ -1,7 +1,6 @@
 import { Field } from "@base-ui/react/field";
 import { cn } from "@fcalell/ui-core/cn";
 import type {
-	Answered,
 	ChangeKind,
 	FieldBinding,
 	FieldControl,
@@ -40,11 +39,9 @@ import {
 	FIELD_SPLIT_TEXT,
 	FIELD_SPLIT_VALUE,
 	FLOW_IN,
-	FORM_FIELD_SUMMARY_GLYPH,
 	ROW_END,
 	row,
 	text,
-	textStrong,
 } from "@fcalell/ui-core/variants";
 import {
 	type FocusEvent,
@@ -54,15 +51,11 @@ import {
 	useMemo,
 	useRef,
 } from "react";
-import { Icon } from "../../atoms/icon/index.tsx";
 import { ChangeMark } from "../../atoms/status/change.tsx";
-import type { CheckboxProps } from "../../atoms/switch/checkbox.tsx";
-import { CheckboxBase } from "../../atoms/switch/checkbox.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";
 import { type FieldedKey, GroupName } from "../../lib/field.ts";
 import { focusFirst } from "../../lib/focus.ts";
-import { Button } from "../button/index.tsx";
 import { InputBase } from "../input/base.tsx";
 import type { ProseProps, TextInputProps } from "../input/index.tsx";
 import { ProseBase } from "../input/prose.tsx";
@@ -99,10 +92,6 @@ const VALUE_LINE = "flex items-center min-w-0";
 // than the line overflows it centred.
 const END_GROUP = "flex shrink-0 items-center ms-auto h-line-body";
 const DISABLED = "text-ink-disabled";
-const SUMMARY = "flex items-center min-w-0";
-const SUMMARY_GLYPH = "flex shrink-0";
-const SUMMARY_LABEL = "min-w-0 truncate";
-const SUMMARY_ANSWER = "min-w-0 grow truncate";
 // The field is a definition row of the form's grid: the label in the first
 // column, wrapping inside it, the value line in the second (the change mark,
 // then the control filling the line, or a toggle at its end), the description
@@ -122,7 +111,7 @@ const TOGGLE_UNDER =
 interface FormFieldBase extends Closed {
 	/** Where the field stands in a change set: its mark ahead of the field, on its label's line. */
 	change?: ChangeKind;
-	/** The control's name, drawn over it (beside a switch or a checkbox) (a short phrase; wraps, truncates in an answered field's summary row). */
+	/** The control's name, drawn over it (beside a switch) (a short phrase; wraps). */
 	label: string;
 	/** Under the control; disabled, it is the reason (a sentence; wraps). */
 	description?: string;
@@ -132,8 +121,6 @@ interface FormFieldBase extends Closed {
 	split?: boolean;
 	/** The control takes no input: the label in the disabled ink, the control its disabled form. */
 	disabled?: boolean;
-	/** The question is answered: while set the field folds to one summary row (a check, the label, `answer`, an Edit act) and renders no control. Clearing it unfolds the field and focuses its control. */
-	answered?: Answered;
 }
 
 // A pick's props less what the field supplies (its label, description,
@@ -151,7 +138,6 @@ interface Controls<S extends string | null, O extends string, T> {
 	textArea: ProseProps;
 	picker: PickerLess<PickerMenuProps<S>>;
 	switch: Omit<SwitchProps, FieldedKey>;
-	checkbox: Omit<CheckboxProps, "label">;
 	slider: Omit<SliderProps, FieldedKey>;
 	options: PickerLess<PickerListProps<O, T>, FieldedKey | "fit" | "headed">;
 	segments: PickerLess<PickerSegmentsProps, FieldedKey | "fit">;
@@ -162,7 +148,7 @@ type OneOf<C> = {
 	[K in keyof C]: Pick<C, K> & Never<Omit<C, K>>;
 }[keyof C];
 
-/** One control with its label, its description and its error. The control is the one descriptor set (`input`, `textArea`, `picker`, `switch`, `checkbox`, `slider`, `options`, `segments`: the component's own props, less the label the field supplies), which the field draws in its value line (a switch or a checkbox at its end); or any other control as `children`. Unbound, the consumer gives the error and the control; bound, the form's field gives both, and the control is a function of the field's value: `{(control) => <Input {...control} />}`. */
+/** One control with its label, its description and its error. The control is the one descriptor set (`input`, `textArea`, `picker`, `switch`, `slider`, `options`, `segments`: the component's own props, less the label the field supplies), which the field draws in its value line (a switch at its end); or any other control as `children`. Unbound, the consumer gives the error and the control; bound, the form's field gives both, and the control is a function of the field's value: `{(control) => <Input {...control} />}`. */
 type FormFieldProps<
 	V = unknown,
 	S extends string | null = string,
@@ -279,18 +265,6 @@ const CONTROLS: Record<
 			),
 		splits: true,
 	},
-	checkbox: {
-		saved: ({ checkbox }) => checkbox?.checked,
-		draw: ({ checkbox }, { draft, label }) =>
-			checkbox && (
-				<CheckboxBase
-					{...checkbox}
-					draft={draft as Draft<boolean | "mixed">}
-					label={label}
-				/>
-			),
-		splits: true,
-	},
 	slider: {
 		saved: ({ slider }) => slider?.value,
 		draw: ({ slider }, { draft, label }) =>
@@ -332,7 +306,6 @@ const PRECEDENCE = [
 	"textArea",
 	"picker",
 	"switch",
-	"checkbox",
 	"slider",
 	"options",
 	"segments",
@@ -344,8 +317,8 @@ type Listed<L extends readonly ControlKind[]> = [
 	: never;
 const KINDS: Listed<typeof PRECEDENCE> = PRECEDENCE;
 
-// The field's form follows which descriptor is set: a switch or a checkbox at
-// the value line's end, any other filling it; a slider's head is its own
+// The field's form follows which descriptor is set: a switch at the value
+// line's end, any other filling it; a slider's head is its own
 // label; a group of controls is named by the label and holds controls named
 // on their own.
 type Form = "field" | ControlKind;
@@ -381,18 +354,9 @@ function controlOf(
 // into the control. Outside the package's exports: a control placed alone
 // draws itself through it.
 export function FieldBody(props: Body) {
-	const {
-		label,
-		description,
-		optional,
-		disabled,
-		answered,
-		change,
-		alone,
-		split,
-	} = props;
+	const { label, description, optional, disabled, change, alone, split } =
+		props;
 	const words = useWords();
-	const folded = answered !== undefined;
 	// The field hosts its control's save: a save the server refused stands in
 	// the error line until the control's next change.
 	const kind = KINDS.find((each) => props[each]);
@@ -413,28 +377,9 @@ export function FieldBody(props: Body) {
 	const error = worded === "" ? undefined : worded;
 	const errorLine =
 		given === undefined ? null : <RunText runs={partRuns(given)} whole />;
-	// A folded field draws no control, so the consumer's function is not called.
-	const control = folded
-		? null
-		: controlOf(props, kind, { draft, label, disabled, error });
+	const control = controlOf(props, kind, { draft, label, disabled, error });
 	const form: Form = kind ?? "field";
 	const root = useRef<HTMLDivElement>(null);
-	const wasFolded = useRef(folded);
-	// The field unfolding hands focus to its control, which it owns; folding
-	// over a focused control (focus then falls to the page) hands it to the
-	// summary's Edit act, a frame later: an Enter that commits would otherwise
-	// reach the Edit act's own press.
-	useEffect(() => {
-		const was = wasFolded.current;
-		wasFolded.current = folded;
-		if (was && !folded) focusFirst(root.current);
-		if (was || !folded || document.activeElement !== document.body)
-			return undefined;
-		const frame = requestAnimationFrame(() =>
-			root.current?.querySelector("button")?.focus(),
-		);
-		return () => cancelAnimationFrame(frame);
-	}, [folded]);
 	// A refusal that names this field first hands its control focus, which
 	// scrolls it into view: the line under it may stand below the fold.
 	const { seek, onLeave } = props;
@@ -459,7 +404,7 @@ export function FieldBody(props: Body) {
 	// What a group of controls is named by.
 	const groupName = useMemo(() => ({ labelledBy: labelId }), [labelId]);
 	// A toggle stands at the value line's end; any other control fills it.
-	const atEnd = form === "switch" || form === "checkbox";
+	const atEnd = form === "switch";
 	const area = form === "textArea";
 	// An optional field on one line: its word hangs under a name as high as the
 	// control (a text area's name hangs from its top, a slider names itself).
@@ -532,32 +477,6 @@ export function FieldBody(props: Body) {
 				{error ? errorLine : description}
 			</p>
 		) : null;
-	if (answered)
-		return (
-			<div ref={root} className={cn(row({ state: "rest" }), SUMMARY)}>
-				<span className={cn(FORM_FIELD_SUMMARY_GLYPH, SUMMARY_GLYPH)}>
-					<Icon name="Check" />
-				</span>
-				<p
-					className={cn(
-						text({ role: "body" }),
-						textStrong({ role: "body" }),
-						SUMMARY_LABEL,
-					)}
-				>
-					{label}
-				</p>
-				<p className={cn(text({ role: "meta" }), SUMMARY_ANSWER)}>
-					{answered.answer}
-				</p>
-				<Button
-					glyph
-					icon="Pencil"
-					label={`${words.edit} ${label}`}
-					onAct={answered.onEdit}
-				/>
-			</div>
-		);
 	if (alone) {
 		const group = form === "options" || form === "segments";
 		// A field that fills a line takes the label column: docs/architecture/ui-core/layout.md, "Rows grid".
@@ -726,7 +645,7 @@ export function FieldBody(props: Body) {
 	);
 }
 
-/** One row of its form: the label (the body role) in the label column, as wide as the form's widest, the control filling the value line (a switch or a checkbox at its end) and the description (meta) or the error under the control; on touch, and in a Pane too narrow for a label and a value side by side (`definitionsOneRow`), the label stands over the control, but for a toggle, which keeps its label's line. Base UI's field wires the label, the description, the error, the validity and the disabled state into the control. A `change` draws the change mark at the value line's start. The label and the description are constants and always stand; a control given a selection paints itself, inert, until its read lands. The field hosts the save of its descriptor's control: the viewer's value holds while the save pends, and a refusal stands in the field's error line until the control's next change. */
+/** One row of its form: the label (the body role) in the label column, as wide as the form's widest, the control filling the value line (a switch at its end) and the description (meta) or the error under the control; on touch, and in a Pane too narrow for a label and a value side by side (`definitionsOneRow`), the label stands over the control, but for a toggle, which keeps its label's line. Base UI's field wires the label, the description, the error, the validity and the disabled state into the control. A `change` draws the change mark at the value line's start. The label and the description are constants and always stand; a control given a selection paints itself, inert, until its read lands. The field hosts the save of its descriptor's control: the viewer's value holds while the save pends, and a refusal stands in the field's error line until the control's next change. */
 export function FormField<
 	V,
 	S extends string | null = string,

@@ -1,8 +1,8 @@
 import { cn } from "@fcalell/ui-core/cn";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
+import { groupKey, type ProcedureCall } from "@fcalell/ui-core/form";
 import type { Acting } from "@fcalell/ui-core/react/acts";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import type { FormModel } from "@fcalell/ui-core/react/form";
+import type { FormModel, StepModel } from "@fcalell/ui-core/react/form";
 import {
 	type Frame,
 	submitOf,
@@ -18,14 +18,17 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
 	BLOCK_IN,
+	FORM_FIELD_SUMMARY_GLYPH,
 	FORM_GROUP,
-	GROUP_ITEM,
 	LIST_BAND,
+	row,
 	SHEET_PARTS,
 	text,
+	textStrong,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { useId, useState } from "react";
+import { Icon } from "../../atoms/icon/index.tsx";
 import { DIVIDER } from "../../atoms/section/card.tsx";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
@@ -34,6 +37,7 @@ import { useLeaveGuard } from "../../lib/leave.ts";
 import { BusyMark, FrameBody, FrameLine, stillOf } from "../../lib/read.tsx";
 import { ActionBarBase } from "../action-bar/base.tsx";
 import type { ActionBarProps } from "../action-bar/index.tsx";
+import { Button } from "../button/index.tsx";
 import { Text } from "../text/index.tsx";
 
 // The form is its rows over its foot: docs/architecture/ui-core/layout.md, "Rows grid".
@@ -42,6 +46,12 @@ const BAND = "flex flex-col";
 const AFTER = "flex flex-col";
 // The legend is a line, the busy mark after its title.
 const LEGEND = "flex items-center gap-gap";
+// A folded step's row: the check, the title, the answers cut at the line's
+// end, the Edit act.
+const SUMMARY = "flex items-center min-w-0";
+const SUMMARY_GLYPH = "flex shrink-0";
+const SUMMARY_TITLE = "min-w-0 truncate";
+const SUMMARY_ANSWERS = "min-w-0 grow truncate";
 
 /** One group of fields a `Form` draws as a run of its rows under a band. */
 interface FormGroup {
@@ -49,14 +59,14 @@ interface FormGroup {
 	title?: string;
 	/** Under the title on the band (a sentence; wraps). */
 	description?: string;
-	/** A note ahead of the fields (a `Banner`, a sentence), a row at the card's inset. */
-	lead?: ReactNode;
 	/** The group's `FormField`s, its rows. */
 	fields: ReactNode;
 	/** What the group's fields hold, read once for the group's frame: its leaves paint while it waits, and its failure and a missing record stand in the fields' place. */
 	read?: Selection<unknown>;
 	/** The fields' sentence when the group's `read` is empty. */
 	empty?: Empty;
+	/** Where a form that asks one step at a time stands at this group: folded to its summary row, open, or not reached and not drawn. */
+	step?: StepModel;
 }
 
 // A derived form's bar: its acts, and what a press of its blocked submit
@@ -95,8 +105,7 @@ export type FormFrameProps = FormBase &
 	);
 
 // One group: a run of the form's rows (a subgrid of the form's columns, so its
-// labels align with the rest), its legend a band, then its lead and its
-// fields, which are the group's own frame when it holds a `read`. A block of
+// labels align with the rest), its legend a band, then its fields, which are the group's own frame when it holds a `read`. A block of
 // the form, fading in if it came on its own once the form was drawn (held
 // from the first render, so a later commit does not cut it short).
 function GroupBox(props: { group: FormGroup; arrived: boolean }) {
@@ -127,7 +136,6 @@ function GroupBox(props: { group: FormGroup; arrived: boolean }) {
 				</div>
 			) : null}
 			<FrameLine frame={frame} flow />
-			{group.lead ? <div className={GROUP_ITEM}>{group.lead}</div> : null}
 			<FrameBody frame={frame} fit="part" empty={group.empty}>
 				{group.fields}
 			</FrameBody>
@@ -135,8 +143,51 @@ function GroupBox(props: { group: FormGroup; arrived: boolean }) {
 	);
 }
 
-// A group's identity among the form's groups: its title, else its place.
-const keyOf = (group: FormGroup, index: number) => group.title ?? String(index);
+// A folded step: its check, its title, its answers a middle dot apart, and the
+// Edit act that unfolds it.
+function StepSummary(props: { step: StepModel }) {
+	const { step } = props;
+	const words = useWords();
+	return (
+		<div className={cn(row({ state: "rest" }), SUMMARY)}>
+			<span className={cn(FORM_FIELD_SUMMARY_GLYPH, SUMMARY_GLYPH)}>
+				<Icon name="Check" />
+			</span>
+			<p
+				className={cn(
+					text({ role: "body" }),
+					textStrong({ role: "body" }),
+					SUMMARY_TITLE,
+				)}
+			>
+				{step.title}
+			</p>
+			<p className={cn(text({ role: "meta" }), SUMMARY_ANSWERS)}>
+				{step.summary}
+			</p>
+			<Button
+				glyph
+				icon="Pencil"
+				label={`${words.edit} ${step.title}`}
+				onAct={step.edit}
+			/>
+		</div>
+	);
+}
+
+// A group as the form draws it: a step not reached draws nothing, a folded one
+// its summary row.
+function drawnGroup(
+	group: FormGroup,
+	index: number,
+	arrived: ReadonlySet<string>,
+) {
+	const key = groupKey(group, index);
+	if (group.step?.state === "later") return null;
+	if (group.step?.state === "done")
+		return <StepSummary key={key} step={group.step} />;
+	return <GroupBox key={key} group={group} arrived={arrived.has(key)} />;
+}
 
 /** A form's rows: its fields (`children`, or `groups` each under its band) in the frame of the form's own `read`, then what follows them (`after`) at the card inset. Outside the package's exports: a `Form`, a `Sheet`'s form and a `Gate`'s form stand them in their `FormShell`. */
 export function FormRows({
@@ -151,8 +202,10 @@ export function FormRows({
 	/** The frame of the form's own `read`. */
 	frame: Frame;
 }) {
+	// A step the viewer opens lands at once: every group's key, a step not
+	// reached included, is the form's from its first draw.
 	const arrived = useArrivals(
-		groups?.map(keyOf) ?? [],
+		groups?.map(groupKey) ?? [],
 		frame.shape === "ready",
 	);
 	return (
@@ -161,13 +214,7 @@ export function FormRows({
 				<FrameLine frame={frame} flow />
 				<FrameBody frame={frame} fit="part" empty={empty}>
 					{groups
-						? groups.map((group, index) => (
-								<GroupBox
-									key={keyOf(group, index)}
-									group={group}
-									arrived={arrived.has(keyOf(group, index))}
-								/>
-							))
+						? groups.map((group, index) => drawnGroup(group, index, arrived))
 						: children}
 				</FrameBody>
 			</div>

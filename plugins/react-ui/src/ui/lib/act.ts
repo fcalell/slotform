@@ -16,12 +16,12 @@ export type { ActSheetProps };
 export function sheetOf<P extends ProcedureCall>(
 	sheet: ActSheetProps<P>,
 ): ActSheetProps {
-	// The one place the procedure is forgotten: the host draws the sheet through
+	// The one place the procedure is forgotten: the sheet outlet draws it through
 	// `Sheet`, which reads the form's own procedure, never this type's.
 	return sheet as unknown as ActSheetProps;
 }
 
-/** What an act does when pressed, exclusively: it runs (`onAct`) or it opens a modal task (`sheet`: the holder keeps its open state, opens it on the press and closes it on dismiss or once the sheet's submit resolves). A press that opens a sheet runs nothing. */
+/** What an act does when pressed, exclusively: it runs (`onAct`) or it opens a modal task (`sheet`: the press opens it in the sheet outlet with the props it holds then, and it closes on dismiss or once the sheet's submit resolves). A press that opens a sheet runs nothing. */
 type Pressed<F> =
 	| { onAct: F; sheet?: never }
 	| { sheet: ActSheetProps; onAct?: never };

@@ -6,7 +6,12 @@ import { levelOf } from "@fcalell/ui-core/list-state";
 import { type PaintRole, paintText } from "@fcalell/ui-core/paint";
 import { useRow, useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedSentence, isEnded } from "@fcalell/ui-core/read";
+import {
+	type Datum,
+	endedSentence,
+	isEnded,
+	shownText,
+} from "@fcalell/ui-core/read";
 import {
 	METER,
 	METER_MARK,
@@ -53,8 +58,8 @@ interface MeterBase extends Closed {
 
 /** The line under the bar: words, the counts as links, or both. */
 interface MeterLine {
-	/** A line under the bar: the value in words, when it resets (a sentence; wraps). */
-	line?: string;
+	/** A line under the bar: the value in words, when it resets (a sentence; wraps). A selection paints until its read lands. */
+	line?: Datum<string>;
 	/** The line under the bar as links: counts that lead to their lists. */
 	counts?: readonly CountLink[];
 }
@@ -83,8 +88,8 @@ export function Meter({
 	at,
 }: MeterProps & { at: number }) {
 	const words = useWords();
-	const [l, v, m] = useSelections([label, value, max]);
-	const { ended: held, busy, retry } = useRow([label, value, max]);
+	const [l, v, m, n] = useSelections([label, value, max, line]);
+	const { ended: held, busy, retry } = useRow([label, value, max, line]);
 	// A read that ended leaves the meter empty, unpainted: no share, no track
 	// fill, the label standing if its own read answered. Held by the meter, its
 	// failed shape stands in the same box.
@@ -124,6 +129,7 @@ export function Meter({
 				"aria-valuemax": limit,
 				"aria-valuenow": Math.min(used, limit),
 			};
+	const said = shownText(n);
 	const name = cn(text({ role: "meta" }), LABEL);
 	const named = painted ? (
 		<Painted role="name" at={at} />
@@ -197,9 +203,9 @@ export function Meter({
 			) : counts ? (
 				<CountLinks counts={counts} painted={painted} />
 			) : null}
-			{!held && line ? (
+			{!held && said ? (
 				<p className={text({ role: "meta" })}>
-					{painted ? <Painted role="phrase" at={at} /> : line}
+					{said.painted ? <Painted role="phrase" at={at} /> : said.text}
 				</p>
 			) : null}
 		</div>

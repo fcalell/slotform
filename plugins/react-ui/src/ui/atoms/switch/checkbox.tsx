@@ -1,7 +1,6 @@
 import { Checkbox as Base } from "@base-ui/react/checkbox";
 import { cn } from "@fcalell/ui-core/cn";
 import { STATES } from "@fcalell/ui-core/controls";
-import type { Draft } from "@fcalell/ui-core/react/acts";
 import type { Datum } from "@fcalell/ui-core/read";
 import { ICON_STROKE } from "@fcalell/ui-core/tokens";
 import { ANSWER, CHECKBOX_MARK, checkbox } from "@fcalell/ui-core/variants";
@@ -11,8 +10,8 @@ import { useHeldDraft } from "../../lib/act.ts";
 import type { LabelFit } from "../../lib/field.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
 
-/** A choice among others, on, off, or mixed over a set: the tick a row, a table's cell or head, an option or a field's `checkbox` descriptor draws. Outside the package's exports. */
-export interface CheckboxProps {
+/** A choice among others, on, off, or mixed over a set: the tick a row, a table's cell or head or an option draws. Outside the package's exports. */
+interface CheckboxProps {
 	/** Whether it is checked; `mixed` when some of the set it stands for are. A selection paints the box, inert, until its read lands and follows it until the viewer toggles it. Once its read ended the control stands with no value and a change says why instead. */
 	checked: Datum<boolean | "mixed">;
 	/** Hears the next value when the viewer toggles it; a mixed box checks. Return the save's promise and the viewer's value holds while it pends; a refusal puts it back, with its reason. */
@@ -42,21 +41,21 @@ const GLYPH = "w-full";
 const CHECKED = "in-data-indeterminate:opacity-0";
 const MIXED = "absolute inset-0 opacity-0 in-data-indeterminate:opacity-100";
 
-/** The tick box every selection renders, on the `draft` its host holds: a field hosts the draft of its checkbox and draws a rejection in its own line. `target` is the label a row makes its target; `painted` is the box while its data is not here: filled, unchecked, inert. Outside the package's exports. */
-export function CheckboxBase({
-	draft,
+/** The tick box every selection renders, holding its own draft, as a row's and a cell's do; a rejection toasts. `target` is the label a row makes its target; `painted` is the box while its data is not here: filled, unchecked, inert. Outside the package's exports. */
+export function HeldCheckbox({
+	checked,
 	onChange,
 	label,
 	target,
 	tabIndex,
 	painted: given,
-}: Omit<CheckboxProps, "checked"> & {
-	draft: Draft<boolean | "mixed">;
+}: CheckboxProps & {
 	target?: LabelFit;
 	/** `-1` where the box's host holds the tab stop (a tree's row, a `Table` cell the grid's cursor reaches); absent, it keeps Base UI's own. */
 	tabIndex?: -1;
 	painted?: boolean;
 }) {
+	const draft = useHeldDraft(checked);
 	// A read that ended leaves the box empty and blocked.
 	const ended = draft.ended !== undefined;
 	const painted = given || (draft.painted && !ended);
@@ -98,31 +97,6 @@ export function CheckboxBase({
 				</Base.Indicator>
 			</span>
 		</Base.Root>
-	);
-}
-
-/** A tick box that holds its own draft, as a row's and a cell's do; a rejection toasts. Outside the package's exports. */
-export function HeldCheckbox({
-	checked,
-	onChange,
-	label,
-	target,
-	tabIndex,
-	painted,
-}: CheckboxProps & {
-	target?: LabelFit;
-	tabIndex?: -1;
-	painted?: boolean;
-}) {
-	return (
-		<CheckboxBase
-			draft={useHeldDraft(checked)}
-			onChange={onChange}
-			label={label}
-			target={target}
-			tabIndex={tabIndex}
-			painted={painted}
-		/>
 	);
 }
 
