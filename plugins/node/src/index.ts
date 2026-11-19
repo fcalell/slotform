@@ -182,16 +182,17 @@ const serverSource = slot.derived({
 	},
 });
 
-// A dev run's env: STACK_DEV, and the dev default of each declared var the
-// shell leaves unset.
+// A dev run's env on top of `env`: STACK_DEV, and the dev default of each
+// declared var `env` leaves unset.
 function devEnv(
 	declared: ReadonlyArray<{ name: string; devDefault: string }>,
+	env: NodeJS.ProcessEnv,
 ): Record<string, string> {
-	const env: Record<string, string> = { STACK_DEV: "1" };
+	const dev: Record<string, string> = { STACK_DEV: "1" };
 	for (const spec of declared) {
-		if (process.env[spec.name] === undefined) env[spec.name] = spec.devDefault;
+		if (env[spec.name] === undefined) dev[spec.name] = spec.devDefault;
 	}
-	return env;
+	return dev;
 }
 
 export const node = plugin("node", {
@@ -343,7 +344,7 @@ export const node = plugin("node", {
 						"node",
 						process.execPath,
 						[join(".stack", server)],
-						devEnv(declared),
+						{ ...ctx.env, ...devEnv(declared, ctx.env) },
 					);
 					return async () => {
 						await stop();
@@ -361,7 +362,7 @@ export const node = plugin("node", {
 				return undefined;
 			}
 			const port = await ctx.resolve(self.slots.serverPort);
-			const env = devEnv(await ctx.resolve(api.slots.env));
+			const env = devEnv(await ctx.resolve(api.slots.env), ctx.env);
 			return {
 				name: "node",
 				command: "node",

@@ -25,15 +25,15 @@ export interface NodeServerBootOptions
 	// ... or its place as a URL, which the bundle finds beside itself, so it
 	// runs from any working directory.
 	staticDir?: URL | null;
-	// Tasks run, in order, before the services start and the port opens (the
-	// bundle's: db applies its migrations).
-	boot?: Array<() => void | Promise<void>>;
+	// Tasks run, in order, with the server's env, before the services start and
+	// the port opens (the bundle's: db applies its migrations).
+	boot?: Array<(env: NodeJS.ProcessEnv) => void | Promise<void>>;
 }
 
 /** Where the server listens: the configured port and host, which the `PORT` and `HOST` env vars override when the process runs in production (a container or a process manager sets them, no rebuild). `stack dev` (`STACK_DEV`) ignores both: the dev server's proxy aims at the configured port. A `PORT` that is not a port number stops the boot. */
 export function listenOf(
 	configured: { port: number; host?: string },
-	env: Record<string, string | undefined> = process.env,
+	env: NodeJS.ProcessEnv,
 ): { port: number; host?: string } {
 	if (isDev(env)) return configured;
 	let { port, host } = configured;
@@ -63,7 +63,7 @@ export async function startNodeServer(
 		...rest
 	} = options;
 	try {
-		for (const task of boot ?? []) await task();
+		for (const task of boot ?? []) await task(rest.env);
 		if (procedureModule && !modules) {
 			const href = procedureModule.href;
 			registerHooks({

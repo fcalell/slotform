@@ -53,9 +53,9 @@ export interface NodeServerOptions {
 	// Entries may be a single spec or an array of specs (the generated
 	// consumer barrel hands over its whole `services` array as one entry).
 	services?: ReadonlyArray<ServiceSpec | readonly ServiceSpec[]>;
-	// The env the worker and the Host rule read; the process env by default.
-	// A host that embeds the server passes its own.
-	env?: Record<string, string | undefined>;
+	// The env the worker and the Host rule read: the generated entry passes
+	// `process.env`, a host that embeds the server its own.
+	env: NodeJS.ProcessEnv;
 	// Where the server's lines go; the console by default. A host that embeds
 	// the server captures or silences them.
 	log?: ServiceLogger;
@@ -98,7 +98,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 		workerPaths = [],
 		staticRoot,
 		clientHeaders = {},
-		env = process.env,
+		env,
 		log = consoleLog,
 	} = options;
 	const services = (options.services ?? []).flat();

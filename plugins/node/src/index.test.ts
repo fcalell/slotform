@@ -34,6 +34,7 @@ async function serverSource(files: Record<string, string>) {
 		const graph = buildGraph(plugins, {
 			app,
 			cwd,
+			env: {},
 			log: console as never,
 			ctxForPlugin: (name) => ({
 				options: name === "api" ? options.api : node.cli.schema?.parse({}),

@@ -54,8 +54,8 @@ WebSocket frame over `bounds.frame` bytes closes its socket ([Channels](#channel
 server listens is the guide's [production](../../../plugins/node/guide/server.md#production) (`listenOf`). Services start before it listens
 and stop in reverse order on `SIGINT` or `SIGTERM`; a failed boot logs and exits 1.
 
-Node has no bindings: the worker gets `env = process.env`, `executionCtx` degrades to a no-op
-`waitUntil`, and binding-backed features (rate limiters) skip themselves when the binding is absent.
+Node has no bindings: the worker gets the `env` the entry passes, `process.env`, `executionCtx`
+degrades to a no-op `waitUntil`, and binding-backed features (rate limiters) skip themselves when the binding is absent.
 
 The consumer's TypeScript (`.stack/`, `src/`) runs directly under Node >= 24.14 (type stripping) while
 the stack packages it imports load compiled from `dist/`. Everything of the consumer's on the
@@ -75,7 +75,9 @@ The server calls the worker shape plugin-api's `.stack/worker.ts` emits (its `Wo
 
 `.stack/server.ts` is a thin call into the runtime, so every moving part (module loading, mounting,
 static serving, service lifecycle) lives in `@fcalell/plugin-node/server`, where it is testable, and
-none in generated text.
+none in generated text. The entry is the server's process entry. It passes `env: process.env`, its
+one read of the environment ([conventions](../conventions.md#the-environment)), and the worker, the
+Host rule, `listenOf` and the boot tasks read that argument; `startNodeServer` has no default for it.
 
 The entry hands `startNodeServer` module URLs (`workerModule`, `procedureModule`, `servicesModule`)
 instead of importing them. Route files import `virtual:stack-procedure`
@@ -273,8 +275,8 @@ barrel imported for esbuild to follow (`virtual:stack-procedure` is its alias fo
 `.stack/procedure.ts`), the client's directory found beside the bundle (`staticDir`), and the `boot`
 tasks of `node.slots.bundleEntries` run before it listens. It is null where `serverSource` is. A
 `bundleEntries` entry adds imports, a boot task (an expression evaluating to
-`() => void | Promise<void>`) and files copied beside the bundle for it to read at run time (a source
-that does not exist copies nothing): db
+`(env) => void | Promise<void>`, called with the server's env) and files copied beside the bundle
+for it to read at run time (a source that does not exist copies nothing): db
 applies its committed migrations ([db's contributions](db.md#slots-and-contributions)). Dev runs
 neither, since it runs the sources and db pushes the schema.
 

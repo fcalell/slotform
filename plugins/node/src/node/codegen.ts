@@ -47,6 +47,15 @@ export function aggregateServer(payload: CodegenServerPayload): string {
 
 	const properties: Array<{ key: string; value: TsExpression }> = [
 		{ key: "port", value: { kind: "number", value: payload.port } },
+		// The server's process entry reads its env: docs/architecture/conventions.md, "The environment".
+		{
+			key: "env",
+			value: {
+				kind: "member",
+				object: { kind: "identifier", name: "process" },
+				property: "env",
+			},
+		},
 	];
 	if (payload.host !== null) {
 		properties.push({
