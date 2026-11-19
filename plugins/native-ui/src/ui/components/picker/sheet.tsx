@@ -1,6 +1,10 @@
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
-import { optionBlocked, optionLeading } from "@fcalell/ui-core/list-state";
+import {
+	optionBlocked,
+	optionLeading,
+	optionMeta,
+} from "@fcalell/ui-core/list-state";
 import {
 	type Grouped,
 	groupsOf,
@@ -92,7 +96,7 @@ function OptionText({
 	chosen: boolean;
 }) {
 	const blocked = optionBlocked(option, chosen);
-	const meta = blocked ?? option.line;
+	const meta = optionMeta(option, chosen);
 	const lead = optionLeading(option);
 	return (
 		<>

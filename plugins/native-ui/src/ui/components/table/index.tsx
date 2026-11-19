@@ -53,7 +53,7 @@ import {
 	CARD,
 	FIGURES,
 	ROW_CURRENT_BAR,
-	rowWarningContentTone,
+	ROW_WARNING,
 	TABLE_CELL,
 	TABLE_CHANGE,
 	TABLE_FROZEN,
@@ -66,6 +66,7 @@ import {
 	tableRow,
 	text,
 	textStrong,
+	toneOf,
 } from "@fcalell/ui-core/variants";
 import {
 	memo,
@@ -373,7 +374,7 @@ const LeadRow = memo(function LeadRow(props: {
 			{row.warning === undefined ? null : (
 				// The frozen column is a short measure wide: the glyph alone.
 				<View className={GLYPH}>
-					<Ink.Provider value={rowWarningContentTone()}>
+					<Ink.Provider value={toneOf(ROW_WARNING)}>
 						<Icon name="TriangleAlert" fit="meta" />
 					</Ink.Provider>
 				</View>

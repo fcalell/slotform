@@ -25,6 +25,7 @@ import {
 	DIFF_GUTTER,
 	DIFF_HUNK,
 	DIFF_MARK,
+	DIFF_MARKS,
 	diffLine,
 } from "@fcalell/ui-core/variants";
 import { Fragment, useMemo } from "react";
@@ -53,13 +54,6 @@ const ELIDED = "\u2506";
 // A break opportunity between tokens: React Native has no <wbr>, so a line
 // takes a zero-width space where it may break, never mid-token.
 const BREAK = "\u200b";
-// The marker a line's kind reads by without its ground's hue.
-const MARKS: Record<DiffLine["kind"], string> = {
-	context: " ",
-	added: "+",
-	removed: "−",
-};
-
 interface DiffBase extends Closed {
 	/** What the diff shows (the file's path), the name of its lines (a short phrase; read aloud, never drawn). */
 	label: string;
@@ -99,7 +93,7 @@ function Gutters(props: { line?: DiffLine; numbers: Numbers }) {
 				<RNText className={cn(kind, DIFF_GUTTER, GUTTER)}>{line?.after}</RNText>
 			) : null}
 			<RNText className={cn(kind, DIFF_MARK)}>
-				{MARKS[line?.kind ?? "context"]}
+				{DIFF_MARKS[line?.kind ?? "context"]}
 			</RNText>
 		</>
 	);

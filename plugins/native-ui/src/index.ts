@@ -297,6 +297,36 @@ export const nativeUi = plugin("native-ui", {
 			trigger: "Writing or editing any `.tsx` of the phone app",
 		},
 		{
+			page: "panes",
+			trigger:
+				"Placing a `Pane` on a route, or giving it a bar, a record head, a `foot` or a docked `sheet`",
+		},
+		{
+			page: "rows",
+			trigger:
+				"Writing a phone `toRow`, or giving a row a label, an entry, children or a change",
+		},
+		{
+			page: "collections",
+			trigger:
+				"Placing a comparison `Table`, `Rules`, or a paginated or long collection on a phone screen",
+		},
+		{
+			page: "frames",
+			trigger:
+				"Giving a phone region a read or an `empty`, reading a selection in a part of your own, or owning `+not-found.tsx`",
+		},
+		{
+			page: "waiting",
+			trigger:
+				"Drawing a phone screen while its reads wait or refetch, or setting `theme.loading`",
+		},
+		{
+			page: "motion",
+			trigger:
+				"Drawing a phone part that moves, appears, changes a value or follows a finger",
+		},
+		{
 			page: "reference",
 			trigger:
 				"Importing a phone component, or setting the theme, words or fonts, or the scaffolded query client, or what a client of another app's server needs (`api({ server })`)",
@@ -304,7 +334,7 @@ export const nativeUi = plugin("native-ui", {
 		{
 			page: "containers",
 			trigger:
-				"Giving a `Shell`, `Pane`, `Gate`, `Sheet`, `Columns` or `Card` a prop",
+				"Giving a `Shell`, `Pane`, `Gate`, `Sheet`, `Banner`, `Columns` or `Card` a prop",
 		},
 		{
 			page: "controls",
@@ -313,13 +343,26 @@ export const nativeUi = plugin("native-ui", {
 		},
 		{
 			page: "content",
-			trigger:
-				"Giving a `Section`, `Table`, `Toolbar`, `Rules` or `Thread` a prop",
+			trigger: "Giving a `Section`, `Table`, `Toolbar` or `Rules` a prop",
+		},
+		{
+			page: "thread",
+			trigger: "Placing a `Thread` or a `Composer`, or giving one a prop",
 		},
 		{
 			page: "blocks",
 			trigger:
-				"Giving a `Text`, `Prose`, `Code`, `Diff`, `Stages`, `Stats`, `BarChart` or `Image` a prop",
+				"Giving a `Text`, `Prose`, `Code`, `Diff`, `Stages`, `Stats`, `BarChart`, `Image`, `Gallery` or `QrCode` a prop",
+		},
+		{
+			page: "forms",
+			trigger:
+				"Giving a `Form` a prop or a field, or reading how a field of the procedure's schema draws",
+		},
+		{
+			page: "acts",
+			trigger:
+				"Giving an act its wiring, or placing an `ActionBar`, a `toast()` or a `confirm()`",
 		},
 		{
 			page: "audio",

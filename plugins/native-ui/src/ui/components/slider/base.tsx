@@ -41,7 +41,7 @@ export function SliderBase({
 }) {
 	const disabled = useContext(FieldDisabled);
 	// A read that ended leaves the track with no value, blocked.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = draft.painted && !ended;
 	// Painted or ended, the thumb rests at the start: the value is the
 	// placeholder.

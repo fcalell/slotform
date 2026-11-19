@@ -43,7 +43,7 @@ export function ProseBase({
 }: Omit<ProseProps, "value"> & { draft: Draft<string> }) {
 	// A read that ended leaves the box empty and blocked: a keystroke says why
 	// and changes nothing.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = draft.painted && !ended;
 	const typed = draft.painted ? "" : draft.value;
 	const edit = (next: string) => {

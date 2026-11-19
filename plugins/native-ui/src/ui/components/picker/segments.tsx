@@ -69,7 +69,7 @@ export function SegmentsBase<V extends string = string>({
 	draft: Draft<V>;
 }) {
 	// A read that ended leaves the track with no segment chosen, blocked.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = draft.painted && !ended;
 	const named = useContext(GroupName);
 	// Each segment's place in the track, which the ground stands at.

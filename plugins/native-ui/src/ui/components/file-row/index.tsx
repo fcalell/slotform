@@ -9,6 +9,7 @@ import {
 import { isCurrent } from "@fcalell/ui-core/route";
 import { sameBy } from "@fcalell/ui-core/same-by";
 import {
+	DIFF_MARKS,
 	FILE_COUNTS,
 	FILE_PATH,
 	fileCount,
@@ -195,7 +196,7 @@ function FileRowBase({
 				)}
 				{!painted && removed > 0 ? (
 					<Roll
-						text={`−${removed}`}
+						text={`${DIFF_MARKS.removed}${removed}`}
 						of={removed}
 						className={cn(FILE_COUNTS, fileCount({ kind: "removed" }), COUNT)}
 					/>

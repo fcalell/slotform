@@ -1,23 +1,11 @@
 import { cn } from "@fcalell/ui-core/cn";
+import { initials } from "@fcalell/ui-core/format";
 import { avatar, avatarLabel, avatarStep } from "@fcalell/ui-core/variants";
 import { useState } from "react";
 import { Image, Text as RNText, View } from "react-native";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 
 const CIRCLE = "items-center justify-center overflow-hidden";
-
-// A name's first two words; an email address stands for a name by its local
-// part, whose dots, underscores and hyphens part words ("ada.lovelace@…"
-// reads AL).
-function initials(name: string): string {
-	const [local] = name.split("@", 1);
-	return (local ?? "")
-		.split(/[\s._-]+/)
-		.filter(Boolean)
-		.slice(0, 2)
-		.map((word) => word[0]?.toUpperCase() ?? "")
-		.join("");
-}
 
 // The image, else (none, or one that failed to load) the name's initials on
 // the fill step its hash picks, so one name keeps one fill. `painted` is the

@@ -101,7 +101,7 @@ export function InputBase({
 	const acting = useAct("toast");
 	// A read that ended leaves the box empty and blocked: a keystroke says why
 	// and changes nothing.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = given || (draft.painted && !ended);
 	const typed = painted || ended ? "" : (draft.value ?? "");
 	const date = kind === "date";

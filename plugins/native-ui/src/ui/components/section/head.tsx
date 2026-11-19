@@ -1,4 +1,9 @@
-import { moreMenu, type Offered, offered } from "@fcalell/ui-core/acts";
+import {
+	moreMenu,
+	type Offered,
+	offered,
+	offerOf,
+} from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
 import {
@@ -7,12 +12,7 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import {
-	type Datum,
-	endedReason,
-	paints,
-	shownText,
-} from "@fcalell/ui-core/read";
+import { type Datum, paints, shownText } from "@fcalell/ui-core/read";
 import { partRuns, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,
@@ -33,7 +33,6 @@ import { titleBound } from "../../lib/bind";
 import { RunText } from "../../lib/code";
 import { useTokenPx } from "../../lib/container";
 import { Ink } from "../../lib/ink";
-import { NOOP } from "../../lib/noop";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { BusyMark, FrameLine } from "../../lib/read";
 import { Button } from "../button";
@@ -149,18 +148,9 @@ export function SectionHead(props: {
 	// its accessible name, never drawn beside the title.
 	// Its glyph and name went with the read, so it is the alert glyph named by
 	// the sentence, blocked: a press says why.
-	const ended = shownAct.painted
-		? endedReason(words, shownAct.phase)
-		: undefined;
-	const given: IconAct | IconLinkAct | undefined =
-		ended !== undefined
-			? { label: ended, icon: "CircleAlert", blocked: ended, onAct: NOOP }
-			: shownAct.painted
-				? undefined
-				: shownAct.value;
+	const { waits, given } = offerOf(words, shownAct);
 	let actNode: ReactNode = null;
-	if (shownAct.painted && ended === undefined)
-		actNode = <IconButtonBase icon="Plus" label="" painted />;
+	if (waits) actNode = <IconButtonBase icon="Plus" label="" painted />;
 	else if (given !== undefined)
 		actNode = <Button glyph {...asIconAct(given)} />;
 	const menu = moreMenu(words, shownMore);

@@ -4,6 +4,7 @@ import {
 	chosenOf,
 	type OptionChoice,
 	optionBlocked,
+	optionMeta,
 	optionsOf,
 } from "@fcalell/ui-core/list-state";
 import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
@@ -125,7 +126,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 	// value does, the labels then standing. A value whose read ended leaves the
 	// marks empty and blocked: a press says why and chooses nothing.
 	const rowsPaint = given.painted;
-	const painted = rowsPaint || (draft.painted && draft.ended === undefined);
+	const painted = rowsPaint || (draft.painted && !draft.ended);
 	// The placeholder is no array, so a painted value is one choice.
 	const one = !Array.isArray(draft.value);
 	const value = draft.painted ? (one ? null : []) : draft.value;
@@ -157,7 +158,7 @@ export function PickerListBase<V extends string = string, T = unknown>(
 					{group.options.map((option, place) => {
 						const chosen = chosenValues.includes(option.value);
 						const blocked = optionBlocked(option, chosen);
-						const meta = blocked ?? option.line;
+						const meta = optionMeta(option, chosen);
 						// The recommended mark is a badge under the label (docs/architecture/ui-core/components.md, "List"), and
 						// the option's line plain text under it, so a recommended option
 						// is two lines at least, its label keeping the row's width at

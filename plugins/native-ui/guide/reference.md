@@ -15,12 +15,11 @@ import { toast } from "@fcalell/plugin-native-ui/lib/toast";
 import { useWords } from "@fcalell/ui-core/react/words";
 ```
 
-A component's props, each with what it draws on the phone, are its props type in
+A component's props are its topic page (`containers.md`, `content.md`, `thread.md`, `blocks.md`,
+`controls.md`, `forms.md`, `acts.md`, `audio.md`), and each prop's whole doc is its props type in
 `node_modules/@fcalell/plugin-native-ui/src/ui/components/<dir>/index.tsx`.
 
-`toast(sentence, { tone, act })` queues a toast for what no act started (an act's `done` toasts its own; `tone` how the thing it reports ended: `done` by default, `attention` or `failed`) and `confirm(confirmation)` (`@fcalell/ui-core/react/confirm`) asks
-for a decision no act starts (an act's `confirm` asks its own); the `Shell` draws each decision as a bottom sheet and the toasts at the screen's
-foot, over any open sheet. `age(moment, now)` (`lib/age`) words an ISO moment as its age from `now`
+`age(moment, now)` (`lib/age`) words an ISO moment as its age from `now`
 ("2 minutes ago") and `ageShort(moment, now)` in its short form ("2 min"). `setTheme("light" | "dark" | "system")` (`lib/theme`) switches the mode at runtime. The
 icon set is Lucide, drawn from `lucide-react-native`: every `icon` a component takes is an
 `IconName`, a Lucide PascalCase name.
@@ -31,26 +30,6 @@ The phone has no window
 events, so `nativeUi()` wires TanStack's online and focus managers itself (`expo-network` and
 `AppState`, through `QueryProvider listen`): a read pauses offline, shows the paused line, and
 refetches when the app returns to the foreground. Pass nothing.
-
-## Long collections
-
-A `Thread`, a searching Picker's sheet, and a `Section` or `Table` that is a Pane's only child show
-only the rows near the view; put a long list alone in its Pane to get that. Next to other content a
-list draws every row. A long list that stands alone loads its next page as you scroll near its end;
-next to other content, or under 50 rows, it ends in Show more for you to press.
-
-## Acts
-
-`refusal(error)` comes from `@fcalell/plugin-query/acts`; `useAttempt()` and
-`useDraft` from `@fcalell/ui-core/react/acts`. The pending look waits `tuned.actDelay` (300 ms, from
-`@fcalell/ui-core/paint`; the phone's fill snaps in).
-
-An `Act` (`@fcalell/ui-core/descriptors`) carries its wiring as data: `confirm` (`{ title, sentence }`, asked
-first), `done` (a sentence toasted once `onAct` resolves) and `to` (a route gone to after), and the phone
-`Act` type (`Act`, `IconAct` and `MenuEntry` from `lib/act`) adds `sheet` (a `Sheet`'s props but `open` and
-`onClose`, opened by the press in place of `onAct`). The host that draws the act sequences them (confirm,
-run, toast, go), and the root container's sheet outlet draws the sheet the press opens; the app writes none of it by hand. A sheet no act opens
-is a `sheet` search param on its route.
 
 ## Options
 
@@ -123,11 +102,9 @@ export const orpc = createApiQueryUtils(client);
 The phone draws the touch density set at every width, and the room set inside a place that
 states `distance="room"` (the `Shell` takes none): the touch set at a 960 × 540 canvas scaled to the window, which
 `RoomScope` (`lib/room`) computes from the window's size and scopes with uniwind's
-`ScopedVariables`. The roster's structure follows the phone:
-the `Shell` draws a tab bar and no sidebar, a route renders one `Pane` (a record's is a deeper route
-pushed in expo-router's stack, its bar leading with Back to the page above and the place's name), `Sheet` is a bottom sheet as tall as its content up to the screen under the top inset, the body scrolling past it, `Columns` scrolls sideways at `board` (its sections at their own width, not the web's column width) and stacks at `half`, and `Diff` is unified.
-The `Table` alone reads the window: from `tablet` wide it is a grid, below it one row per
-record.
+`ScopedVariables`. The roster's structure follows the phone: the `Shell` draws a tab bar and no
+sidebar, a route renders one `Pane` (`panes.md`), and the `Table` alone reads the window
+(`collections.md`).
 
 ## Modes
 

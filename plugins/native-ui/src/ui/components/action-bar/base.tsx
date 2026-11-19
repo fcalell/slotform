@@ -4,7 +4,6 @@ import {
 	kindOf,
 	NO_FAILURE,
 } from "@fcalell/ui-core/action-bar";
-import { isThenable } from "@fcalell/ui-core/acts";
 import { cn } from "@fcalell/ui-core/cn";
 import type { ChosenCount } from "@fcalell/ui-core/descriptors";
 import { markedRuns } from "@fcalell/ui-core/form";
@@ -178,34 +177,11 @@ export function ActionBarBase({
 	const lastAt = acts.length - 1;
 	// The press ends the form's edit before the filled act runs, so an act that
 	// navigates is not asked; a rejection puts the edit back.
-	const ending = (run: () => unknown) => () => {
-		leave.press();
-		let ran: unknown;
-		try {
-			ran = run();
-		} catch (error) {
-			leave.settle(true);
-			throw error;
-		}
-		if (!isThenable(ran)) {
-			leave.settle(false);
-			return ran;
-		}
-		return Promise.resolve(ran).then(
-			(done) => {
-				leave.settle(false);
-				return done;
-			},
-			(error: unknown) => {
-				leave.settle(true);
-				throw error;
-			},
-		);
-	};
 	const press = (act: Act, at: number) =>
 		acting.attempt(at, {
 			...act,
-			onAct: at === lastAt && act.onAct ? ending(act.onAct) : act.onAct,
+			onAct:
+				at === lastAt && act.onAct ? () => leave.run(act.onAct) : act.onAct,
 		});
 	// The bar under a `PendingBar` is drawn with no act that presses.
 	const shown = acting.line !== undefined || standing !== undefined || pressed;

@@ -91,7 +91,7 @@ export function PickerBase<V extends string | null = string>(
 	const { drawn: waiting, retry } = useOptions(given.options);
 	// A value whose read ended leaves the box empty and blocked: opening it
 	// says why and opens nothing, so nothing can be picked.
-	const ended = draft.ended !== undefined;
+	const ended = draft.ended;
 	const painted = given.painted || (draft.painted && !ended) || waiting.painted;
 	// The value is the viewer's pick once made, else the selection's; a painted
 	// pick draws as a single one, as the placeholder is no array.

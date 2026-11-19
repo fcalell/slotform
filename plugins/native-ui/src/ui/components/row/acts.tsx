@@ -1,11 +1,15 @@
 import { moreMenu } from "@fcalell/ui-core/acts";
 import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
 import { paintText } from "@fcalell/ui-core/paint";
+import { useOffer } from "@fcalell/ui-core/react/acts";
 import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
+import {
+	ReasonHostContext,
+	useReasonShown,
+} from "@fcalell/ui-core/react/reason";
 import { useTouched } from "@fcalell/ui-core/react/touched";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, isSelection } from "@fcalell/ui-core/read";
+import { type Datum, isSelection } from "@fcalell/ui-core/read";
 import { pressStands } from "@fcalell/ui-core/reason";
 import { text } from "@fcalell/ui-core/variants";
 import { Text as RNText } from "react-native";
@@ -13,7 +17,6 @@ import { IconButtonBase } from "../../atoms/button/glyph";
 import type { Act, IconAct, MenuEntry } from "../../lib/act";
 import { asIconAct, wiringOf } from "../../lib/act";
 import { FadingText, flowIn } from "../../lib/motion";
-import { NOOP } from "../../lib/noop";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
 import { MenuBase } from "../menu/base";
@@ -21,17 +24,15 @@ import { MenuBase } from "../menu/base";
 // A blocked act's reason draws on the row's own line, so the act keeps its
 // place; the act is handed the host.
 export function useReasonLine(blocked: string | undefined) {
-	const { touched } = useTouched();
-	const [pressed, press] = usePressed(blocked);
-	const host = blocked === undefined ? undefined : press;
+	const { host, reason } = useReasonShown(blocked);
 	const line =
-		blocked !== undefined && (pressed || touched) ? (
+		reason !== undefined ? (
 			<FadingText
-				key={blocked}
+				key={reason}
 				entering={flowIn()}
 				className={text({ role: "meta" })}
 			>
-				{blocked}
+				{reason}
 			</FadingText>
 		) : null;
 	return { host, line };
@@ -54,26 +55,6 @@ export function PaintedAct({
 }) {
 	if (icon) return <IconButtonBase icon="Ellipsis" label="" painted />;
 	return <ButtonBase act="secondary" label={paintText("word", at)} painted />;
-}
-
-// The row's act as its own datum draws it: waiting while the read lands, the
-// act once it did, and blocked with the sentence once the read ended, never a
-// false yes.
-function useOffer(act: Datum<IconAct | IconLinkAct | undefined>) {
-	const [offer] = useSelections([act]);
-	const words = useWords();
-	const ended = offer.painted ? endedReason(words, offer.phase) : undefined;
-	const given: IconAct | IconLinkAct | undefined =
-		ended === undefined
-			? offer.painted
-				? undefined
-				: offer.value
-			: { label: ended, icon: "CircleAlert", blocked: ended, onAct: NOOP };
-	return {
-		waits: offer.painted && ended === undefined,
-		given,
-		blocked: (given && "blocked" in given ? given.blocked : undefined) ?? ended,
-	};
 }
 
 // The row's act at its end, its icon; a press on it while blocked tells the

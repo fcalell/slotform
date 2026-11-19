@@ -9,9 +9,10 @@ import {
 	chipDot,
 	FIGURES,
 	icon,
-	rowWarningContentTone,
+	ROW_WARNING,
 	statusDot,
 	text,
+	toneOf,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
@@ -127,7 +128,7 @@ function Mark({ spec }: { spec: BadgeSpec }) {
 			return spec.tone ? <StatusDot tone={spec.tone} /> : null;
 		case "warning":
 			return (
-				<Ink.Provider value={rowWarningContentTone()}>
+				<Ink.Provider value={toneOf(ROW_WARNING)}>
 					<IconBase name="TriangleAlert" fit="meta" stroke="line" />
 				</Ink.Provider>
 			);

@@ -21,10 +21,14 @@ It adds `nativeUi()` to `stack.config.ts`, beside `expo()`, `api()` and `query()
 
 How to build on the plugin lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
 [`rules.md`](./guide/rules.md), what every phone `.tsx` follows;
+[`panes.md`](./guide/panes.md), [`rows.md`](./guide/rows.md),
+[`collections.md`](./guide/collections.md), [`frames.md`](./guide/frames.md),
+[`waiting.md`](./guide/waiting.md) and [`motion.md`](./guide/motion.md), how the phone draws each;
 [`reference.md`](./guide/reference.md), the components' subpaths, the options, the scaffolded
 clients, the phone layout and the modes; [`containers.md`](./guide/containers.md),
-[`controls.md`](./guide/controls.md), [`content.md`](./guide/content.md) and
-[`blocks.md`](./guide/blocks.md), what each component takes; and [`audio.md`](./guide/audio.md), the
+[`controls.md`](./guide/controls.md), [`content.md`](./guide/content.md),
+[`thread.md`](./guide/thread.md), [`blocks.md`](./guide/blocks.md), [`forms.md`](./guide/forms.md)
+and [`acts.md`](./guide/acts.md), what each component takes; and [`audio.md`](./guide/audio.md), the
 player. The screen recipe and the design standard are ui-core's pages; the plugin hands the CLI
 those too (`cliSlots.guide`), as react-ui does.
 

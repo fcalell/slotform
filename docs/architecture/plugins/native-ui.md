@@ -252,6 +252,9 @@ replaced in place when the reply's item arrives. The turn being written is the l
 component. The rest is
 [Thread](../ui-core/components.md#thread).
 
+A document or photo picker that fails draws the closed word `pickFailed`: the file `Input` shows it as
+the field's error line, and the composer toasts it.
+
 ### Stats meter
 
 The meter form of a bound stat (`atoms/stats/meter.tsx`, outside the package's exports) is a cell

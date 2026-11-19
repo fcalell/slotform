@@ -6,7 +6,13 @@ import type {
 	RowMark,
 	Run,
 } from "@fcalell/ui-core/descriptors";
-import { factKey, isMarkFact, isStatusFact } from "@fcalell/ui-core/list-state";
+import {
+	factKey,
+	isMarkFact,
+	isStatusFact,
+	says,
+	wordless,
+} from "@fcalell/ui-core/list-state";
 import { useArrivals } from "@fcalell/ui-core/react/arrive";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
@@ -34,7 +40,7 @@ import { Badge, BadgeWords, FactBadge } from "../../atoms/row/badges";
 import { EndMark } from "../../atoms/row/marks";
 import { RunText } from "../../lib/code";
 import { useTokenPx } from "../../lib/container";
-import { badgesOf, says, wordless } from "../../lib/facts";
+import { badgesOf } from "../../lib/facts";
 import { Ink } from "../../lib/ink";
 import { blockIn, FadingView } from "../../lib/motion";
 import { navigate, useWarm } from "../../lib/navigate";

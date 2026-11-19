@@ -50,10 +50,8 @@ const toTrack = (t: Song): Track => ({
 <Section items={songs.map((s) => ({ key: s.id, title: s.title, onOpen: () => player.play(toTrack(s), songs.map(toTrack)) }))} />
 ```
 
-- `play(track, queue?)`, `load`, `pause`, `toggle`, `seek`, `skip`, `setVolume`, `mute`, `playNext`,
-  `playPrevious` and `close` are the web's, and so are `usePlayer()` (`track`, `playing`, `failed`,
-  `queued`, `hasNext`, …) and `usePlayerTime()` (`{ time, duration }`, drawing again on each frame
-  while it plays: use it only where the time is drawn). A row draws its playing state by
+- The commands (`play(track, queue?)` and the rest), `usePlayer()` and `usePlayerTime()` are the
+  web's. A row draws its playing state by
   `usePlayer().track?.src === row.src`.
 - The queue is a list, or a provider for a list too long to hold: over a window read,
   `windowQueue(read, { track, at })` fetches the rows beside the playing one through the read's own
@@ -88,10 +86,8 @@ and the lock screen shows the track.
 />
 ```
 
-It takes the web's props (`node_modules/@fcalell/plugin-react-ui/guide/audio.md`, "A waveform on its
-own"): `label`, `peaks` (one 0..1 magnitude per value, or with `paired: true` each pair a stretch's
-lowest and highest sample, -1..1), `duration`, `at`, `onSeek` and `fit` (`bar` at the control height,
-the default at the waveform size in a `Pane` or a `Card`). It does not move itself: `at` is the
+It takes the web's props (`node_modules/@fcalell/plugin-react-ui/guide/dock.md`, "A waveform on its
+own"): `label`, `peaks`, `duration`, `at`, `onSeek` and `fit`. It does not move itself: `at` is the
 playhead, so a standalone waveform takes `usePlayerTime().time` or the app's own clock. A drag holds
 the finger as the playhead and `onSeek` hears one second, on release; a screen reader's increment and
 decrement seek five seconds at once.

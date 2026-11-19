@@ -18,13 +18,14 @@ import { useWords } from "@fcalell/ui-core/react/words";
 import type { Selection } from "@fcalell/ui-core/read";
 import {
 	CARD,
+	FORM_FIELD_SUMMARY_GLYPH,
 	FORM_FOOT,
 	LIST_BAND,
 	row,
 	SHEET_PARTS,
-	summaryContentTone,
 	text,
 	textStrong,
+	toneOf,
 } from "@fcalell/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
@@ -157,7 +158,7 @@ function StepSummary(props: { step: StepModel; at: number }) {
 	const words = useWords();
 	return (
 		<View className={cn(row({ state: "rest" }), SUMMARY, between(props.at))}>
-			<Ink.Provider value={summaryContentTone()}>
+			<Ink.Provider value={toneOf(FORM_FIELD_SUMMARY_GLYPH)}>
 				<Icon name="Check" />
 			</Ink.Provider>
 			<RNText

@@ -35,6 +35,7 @@ import { FootReturn } from "../../lib/container";
 import { FadingView, flowIn } from "../../lib/motion";
 import { pickedFromDocument, pickedFromImage } from "../../lib/picked";
 import { useTokenColor } from "../../lib/theme";
+import { toast } from "../../lib/toast";
 import { Button } from "../button";
 import { ButtonBase } from "../button/base";
 import { MenuSheet } from "../menu/sheet";
@@ -115,19 +116,33 @@ export function MessageInput({
 	// rejection toasts with Retry.
 	const acting = useAct<"send" | "stop">("toast");
 	const sendable = value.trim() !== "" && !disabled;
+	// A picker that throws toasts, and answers nothing.
+	const picking = async <R extends { canceled: boolean }>(
+		pick: () => Promise<R>,
+	) => {
+		try {
+			return await pick();
+		} catch {
+			toast(words.pickFailed, { tone: "failed" });
+			return undefined;
+		}
+	};
 	const photos = async () => {
-		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ["images"],
-			allowsMultipleSelection: true,
-		});
-		if (!result.canceled) onAttach?.(result.assets.map(pickedFromImage));
+		const result = await picking(() =>
+			ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ["images"],
+				allowsMultipleSelection: true,
+			}),
+		);
+		if (result && !result.canceled)
+			onAttach?.(result.assets.map(pickedFromImage));
 	};
 	const files = async () => {
-		const result = await DocumentPicker.getDocumentAsync({
-			type: "*/*",
-			multiple: true,
-		});
-		if (!result.canceled) onAttach?.(result.assets.map(pickedFromDocument));
+		const result = await picking(() =>
+			DocumentPicker.getDocumentAsync({ type: "*/*", multiple: true }),
+		);
+		if (result && !result.canceled)
+			onAttach?.(result.assets.map(pickedFromDocument));
 	};
 	return (
 		<View className={cn(MESSAGE_INPUT, ROOT)}>

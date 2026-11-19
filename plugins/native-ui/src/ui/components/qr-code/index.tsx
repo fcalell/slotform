@@ -1,12 +1,19 @@
 import { cn } from "@fcalell/ui-core/cn";
-import { qrModules } from "@fcalell/ui-core/qr";
+import { qrModules, qrTooLong } from "@fcalell/ui-core/qr";
 import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
-import { QR_CODE, QR_CODE_INK } from "@fcalell/ui-core/variants";
-import { useMemo } from "react";
+import { type Datum, dev, paints } from "@fcalell/ui-core/read";
+import {
+	QR_CODE,
+	QR_CODE_FAILED,
+	QR_CODE_FAILED_GLYPH,
+	QR_CODE_INK,
+} from "@fcalell/ui-core/variants";
+import { useEffect, useMemo } from "react";
 import { View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useResolveClassNames } from "uniwind";
+import { Icon } from "../../atoms/icon";
+import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";
 
 /** A code a camera reads. */
@@ -30,12 +37,30 @@ export function QrCode({ value: given, label }: QrCodeProps) {
 		() => (text === undefined ? undefined : qrModules(text)),
 		[text],
 	);
+	const failed = text !== undefined && code === undefined;
+	useEffect(() => {
+		if (text !== undefined && code === undefined && dev())
+			console.error(qrTooLong(text));
+	}, [text, code]);
 	// react-native-svg takes values, so the modules' ink is resolved. It has
 	// no crisp-edge hint; the modules are one path, so two that touch draw no
 	// seam between them.
 	const { color } = useResolveClassNames(QR_CODE_INK);
 	// An ended read draws no code; the region that holds it says why.
 	if (named.painted && !paints(named)) return null;
+	if (failed)
+		return (
+			<View
+				accessible
+				accessibilityRole="image"
+				accessibilityLabel={label}
+				className={cn(QR_CODE, QR_CODE_FAILED)}
+			>
+				<Ink.Provider value="ink-meta">
+					<Icon name={QR_CODE_FAILED_GLYPH} />
+				</Ink.Provider>
+			</View>
+		);
 	if (code === undefined)
 		return (
 			<PaintView

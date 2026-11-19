@@ -1,17 +1,6 @@
 import type { IconName, RowMark, Runs } from "@fcalell/ui-core/descriptors";
-import {
-	isChipFact,
-	isMarkFact,
-	isStatusFact,
-	isWarningFact,
-} from "@fcalell/ui-core/list-state";
-import {
-	filled,
-	isCode,
-	isRun,
-	partRuns,
-	partText,
-} from "@fcalell/ui-core/runs";
+import { splitFacts } from "@fcalell/ui-core/list-state";
+import { filled, isCode, partRuns, partText } from "@fcalell/ui-core/runs";
 import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
 
 // The words of a line of facts, free of any view: docs/architecture/plugins/native-ui.md, "Type-checking". No import here is relative.
@@ -76,16 +65,6 @@ interface BadgeInput {
 	painted?: boolean;
 }
 
-/** Whether a boolean mark says a fact: a ring says one only while it holds. */
-export function says(mark: RowMark): boolean {
-	return !("ring" in mark) || mark.ring;
-}
-
-/** Whether a boolean mark draws no words: its glyph stands in the row's end group, its label the name. */
-export function wordless(mark: RowMark): boolean {
-	return mark.words === false;
-}
-
 const NONE: Runs = [];
 
 const words = (runs: Runs): BadgeSpec => ({
@@ -106,11 +85,11 @@ const filler = (kind: BadgeKind, spec: Partial<BadgeSpec> = {}): BadgeSpec => ({
 export function badgesOf(input: BadgeInput): Badges {
 	const { facts, word, lock, href, blocked, fillers, painted } = input;
 	const badges: BadgeSpec[] = [];
-	const quiet: RowMark[] = [];
+	const parts = splitFacts(facts);
 	let status = -1;
-	for (const fact of facts) {
-		if (fact === undefined || fact === null || fact === false) continue;
-		if (isStatusFact(fact)) {
+	for (const part of parts.facts) {
+		if (part.kind === "status") {
+			const { fact } = part;
 			if (status < 0) status = badges.length;
 			// A status with no word of its own (`label: ""`) is its mark alone.
 			const said = fact.label ?? word(fact.tone);
@@ -124,26 +103,24 @@ export function badgesOf(input: BadgeInput): Badges {
 							runs: said === "" ? NONE : [said],
 						},
 			);
-		} else if (isWarningFact(fact)) {
+		} else if (part.kind === "warning") {
 			badges.push(
 				painted
 					? filler("warning")
-					: { kind: "warning", name: fact.warning, runs: [fact.warning] },
+					: { kind: "warning", name: part.fact, runs: [part.fact] },
 			);
-		} else if (isChipFact(fact)) {
+		} else if (part.kind === "chip") {
 			if (painted) continue;
+			const { fact } = part;
 			badges.push({
 				kind: "chip",
 				family: fact.family,
 				name: fact.label,
 				runs: [fact.label],
 			});
-		} else if (isMarkFact(fact)) {
-			if (painted || !says(fact)) continue;
-			if (wordless(fact)) {
-				quiet.push(fact);
-				continue;
-			}
+		} else if (part.kind === "mark") {
+			if (painted) continue;
+			const { fact } = part;
 			badges.push(
 				"ring" in fact
 					? { kind: "ring", name: fact.label, runs: [fact.label] }
@@ -156,8 +133,8 @@ export function badgesOf(input: BadgeInput): Badges {
 			);
 		} else if (fillers) {
 			badges.push(filler("words"));
-		} else if (isRun(fact) && filled(fact)) {
-			badges.push(words(partRuns(fact)));
+		} else if (filled(part.fact)) {
+			badges.push(words(partRuns(part.fact)));
 		}
 	}
 	if (lock !== undefined) {
@@ -171,7 +148,7 @@ export function badgesOf(input: BadgeInput): Badges {
 		);
 	}
 	if (blocked !== undefined) badges.unshift(words([blocked]));
-	return { badges, quiet };
+	return { badges, quiet: painted ? [] : parts.quiet };
 }
 
 /** The code a list of badges is when it is one lone `{ code }` run: a row's value in the mono, cut in its middle, no badge. */

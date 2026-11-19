@@ -27,7 +27,7 @@ import type { FilePickProps } from "./index";
 // document picker, which names MIME types alone, so a type `accept` spells as
 // an extension is checked on the file picked. Empty it reads Choose file,
 // chosen it shows the file's name and size with an act that removes it. A file
-// of another type is refused in a line under the box and never reaches
+// of another type, or a picker that fails, is refused in a line under the box and never reaches
 // `onChange`; the line clears on the next pick. The phone has no drop.
 // `edge-error` when its `FormField` is in error, the disabled fill when its
 // field is disabled.
@@ -40,9 +40,15 @@ export function FileField({ value, onChange, accept }: FilePickProps) {
 	// What the box refused stands in its own line until the next pick.
 	const [refused, refuse] = useState<string>();
 	const choose = async () => {
-		const result = await DocumentPicker.getDocumentAsync({
-			type: pickerTypes(accept),
-		});
+		let result: DocumentPicker.DocumentPickerResult;
+		try {
+			result = await DocumentPicker.getDocumentAsync({
+				type: pickerTypes(accept),
+			});
+		} catch {
+			refuse(words.pickFailed);
+			return;
+		}
 		const asset = result.canceled ? undefined : result.assets[0];
 		if (!asset) return;
 		touch();
