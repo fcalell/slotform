@@ -5,6 +5,7 @@ import type { ProcedureCall } from "@fcalell/ui-core/form";
 import { useDrawn } from "@fcalell/ui-core/react/arrive";
 import { FrameHolds, hasBody, useFrame } from "@fcalell/ui-core/react/read";
 import { type Datum, NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
+import { trailEnds } from "@fcalell/ui-core/route";
 import {
 	FOOT_DOCKED,
 	PAGE_BODY,
@@ -29,6 +30,7 @@ import {
 	DistanceContext,
 	FootReturn,
 	PlaceName,
+	PlaceTrail,
 	useFootRegion,
 } from "../../lib/container";
 import type { Empty } from "../../lib/empty";
@@ -107,7 +109,7 @@ export type PaneProps<P extends ProcedureCall = ProcedureCall> = PaneBase<P> &
 		  }
 	);
 
-/** A page of a Panes, on the phone one screen, of two kinds: the place's own, titled by the place's name, and a record's, pushed after it and titled by the record's name. A bar (on a record's Pane a Back act to the page above and the place's name, on the place's the shell's switcher and its title, then its acts: docs/architecture/ui-core/layout.md, "Bar"), a body that scrolls, its children a sections gap apart, and a `foot` that docks under the body over the keyboard, a `sheet` in its place while it is open, and the `empty` of its `read` standing in place of the children. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping as the screen's header, between the overline and the facts of a head at the body's top, and a `read` that answers not found fills the page with the missing shape in place of the head, its sentence worded by `noun` and its way back the page above, while an empty one keeps the head over its empty shape. The toasts stand over the body, above the foot. */
+/** A page of a Panes, on the phone one screen, of two kinds: the place's own, titled by the place's name, and a record's, pushed after it and titled by the record's name. A bar (on a record's Pane a Back act to the page above and its trail, the places above the current one and that place a middle dot apart, cut at its start so the nearest stands; on the place's the shell's switcher and its trail, the places above it and its own name, the screen's header; then its acts: docs/architecture/ui-core/layout.md, "Bar"), a body that scrolls, its children a sections gap apart, and a `foot` that docks under the body over the keyboard, a `sheet` in its place while it is open, and the `empty` of its `read` standing in place of the children. On a record's Pane the acts and more are the record's acts; its `record` puts the name, whole and wrapping as the screen's header, between the overline and the facts of a head at the body's top, and a `read` that answers not found fills the page with the missing shape in place of the head, its sentence worded by `noun` and its way back the page above, while an empty one keeps the head over its empty shape. The toasts stand over the body, above the foot. */
 export function Pane<P extends ProcedureCall = ProcedureCall>({
 	title: name,
 	record,
@@ -130,9 +132,12 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 			: held;
 	// A Pane in a room Panes stands its head off the top on the table.
 	const far = useContext(DistanceContext);
-	// The place's Pane is titled by the place's name; a record's bar holds it.
+	// The place's Pane is titled by the place's name; both bars draw the places
+	// above the current one, then that place's name.
 	const place = useContext(PlaceName);
 	const title = name ?? place ?? "";
+	const { above } = trailEnds(useContext(PlaceTrail));
+	const trail = [...above.map((one) => one.label), place ?? ""];
 	// Only a record's Pane has a way back in its bar; a missing read of the
 	// place's Pane leads to the page above.
 	const toward = useParentRoute();
@@ -189,7 +194,8 @@ export function Pane<P extends ProcedureCall = ProcedureCall>({
 				className={cn(PANE, far && PAGE_HEAD_SPACE)}
 			>
 				<PaneHead
-					title={record ? (place ?? "") : title}
+					title={title}
+					trail={trail}
 					heading={!record}
 					back={record ? toward : undefined}
 					acts={acts}

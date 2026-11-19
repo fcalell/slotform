@@ -201,6 +201,9 @@ Each bullet is what the consumer does.
   sentence. Delete workarounds for either.
 - Every `read(..., { kind: "stream" })` returns `StreamRead<T>` with `stop()`. An app that wrote its
   own streaming reducer uses `streamRead` from `@fcalell/plugin-query/read`.
+- A phone app with `nativeUi()` draws the update wall on the version gate's `426` by itself. Delete
+  the app's own `onUpdateRequired` subscription and the screen it routed to, and set `expo({
+  appStoreId })` for the iOS store link.
 - A phone app's `auth()` takes `expo: true`, which trusts the app's deep-link scheme. With no
   `expo()` in the config it needs `expo: { scheme }`; generate throws otherwise.
 

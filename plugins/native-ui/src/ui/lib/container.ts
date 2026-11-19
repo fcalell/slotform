@@ -1,4 +1,5 @@
 import type { OptionPick } from "@fcalell/ui-core/descriptors";
+import type { TrailPart } from "@fcalell/ui-core/route";
 import { DOCKED_LOG_FLOOR_ROWS } from "@fcalell/ui-core/variants";
 import {
 	createContext,
@@ -49,9 +50,9 @@ export function useToastBox() {
 	return { ref: box, onLayout };
 }
 
-// The route of the Shell's current place, where a read with no Pane's `back`
-// around it leads back.
-export const PlaceRoute = createContext<Route | undefined>(undefined);
+// The Shell's trail (`placeTrail`), the current place last: a record's bar
+// draws it, and a read with no Pane's `back` around it leads back to the last.
+export const PlaceTrail = createContext<readonly TrailPart[]>([]);
 
 // The route a Pane's back act returns to: docs/architecture/ui-core/layout.md, "Body".
 export const BackRoute = createContext<Route | undefined>(undefined);

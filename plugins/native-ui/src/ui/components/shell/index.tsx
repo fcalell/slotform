@@ -7,7 +7,7 @@ import type {
 } from "@fcalell/ui-core/descriptors";
 import { ShellHome } from "@fcalell/ui-core/react/frame";
 import { useWords } from "@fcalell/ui-core/react/words";
-import { placeAt } from "@fcalell/ui-core/route";
+import { placeTrail, trailEnds } from "@fcalell/ui-core/route";
 import { tabCount } from "@fcalell/ui-core/tokens";
 import {
 	type ContentTone,
@@ -26,7 +26,7 @@ import { Icon } from "../../atoms/icon";
 import type { Closed } from "../../lib/closed";
 import {
 	PlaceName,
-	PlaceRoute,
+	PlaceTrail,
 	ShellSwitcher,
 	ShellTabs,
 } from "../../lib/container";
@@ -98,11 +98,11 @@ export function Shell({
 	// The More page stands at the route it opened on: going to a place closes it.
 	const [moreAt, setMoreAt] = useState<string>();
 	const more = moreAt === pathname;
-	const route = placeAt(places, pathname);
+	// The tab is the top of the trail: a route under a branch selects its tab.
+	const trail = placeTrail(places, pathname);
+	const route = trail[0]?.route;
 	const words = useWords();
-	const name = more
-		? words.more
-		: places.find((spec) => spec.route === route)?.label;
+	const name = more ? words.more : trailEnds(trail).here?.label;
 	const split = useMemo(() => tabsOf(places), [places]);
 	// A place that is a spot on its page (`#activity`) leads nowhere from an
 	// address nothing serves, so home is the first place that is a route.
@@ -136,7 +136,7 @@ export function Shell({
 					<ShellHome.Provider value={home}>
 						<ShellSwitcher.Provider value={switcher}>
 							<ShellTabs.Provider value={tabs}>
-								<PlaceRoute.Provider value={route}>
+								<PlaceTrail.Provider value={trail}>
 									<PlaceName.Provider value={name}>
 										<Panes>
 											{more ? (
@@ -146,7 +146,7 @@ export function Shell({
 											)}
 										</Panes>
 									</PlaceName.Provider>
-								</PlaceRoute.Provider>
+								</PlaceTrail.Provider>
 							</ShellTabs.Provider>
 						</ShellSwitcher.Provider>
 					</ShellHome.Provider>

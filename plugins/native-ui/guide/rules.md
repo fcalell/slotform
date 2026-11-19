@@ -39,12 +39,12 @@ says why. The body
 scrolls under the bar and its children stand a `section` gap apart at the page inset: never wrap
 sections in a `View` to space them. A `foot` docks under the body.
 
-The place's `Pane` gives no `title`: the place's name, the tab's label, titles it. A record's `Pane` gives `title`, the record's name as a selection of the record's read
-(`title={deploy.at((d) => d.commit)}`), and a `record`: its bar holds Back to the page above and the place's name
-(the record's breadcrumb, always the place's name), with the acts (`acts` and `more`,
+The place's `Pane` gives no `title`: the place's name, the tab's label, titles it; a place deep in the `Shell`'s tree draws the places above it before its name, one text cut at its start. A record's `Pane` gives `title`, the record's name as a selection of the record's read
+(`title={deploy.at((d) => d.commit)}`), and a `record`: its bar holds Back to the page above and the trail
+(the places above the record's place, then that place, a middle dot apart and cut at its start so the nearest shows), with the acts (`acts` and `more`,
 each a constant or a selection, painted and inert while the `Pane`'s read waits), and the body opens
 with the record's head, where the `title` stands once, whole and wrapping, as the screen's header,
-between `record.overline` (the record's project, key or cycle; never the place's name, which the bar
+between `record.overline` (the record's project, key or cycle; never a place of the trail, which the bar
 holds) and `record.facts` in a wrapping
 line, each part a constant or a selection that paints in its place until it lands. A record's `Pane` always draws its name, so the name has one source, the `title`; the place's `Pane` is titled by the place's name. A fact that opens a
 sheet is `{ label, onOpen }` and one that goes to another route is `{ label, href }`. The first acts, so it

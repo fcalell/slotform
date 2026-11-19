@@ -120,6 +120,18 @@ const safeAreaProvider: ProviderSpec = {
 	order: 20,
 };
 
+// The update wall takes the app's place: docs/architecture/plugins/native-ui.md, "Update wall".
+const updateWallProvider: ProviderSpec = {
+	imports: [
+		{
+			source: "@fcalell/plugin-native-ui/lib/update-wall",
+			named: ["UpdateWall"],
+		},
+	],
+	wrap: { identifier: "UpdateWall" },
+	order: 28,
+};
+
 const bottomSheetProvider: ProviderSpec = {
 	imports: [
 		{ source: "@gorhom/bottom-sheet", named: ["BottomSheetModalProvider"] },
@@ -396,6 +408,7 @@ export const nativeUi = plugin("native-ui", {
 				? undefined
 				: authProvider(self.options),
 		),
+		expo.slots.providers.contribute(() => updateWallProvider),
 		expo.slots.providers.contribute(() => bottomSheetProvider),
 
 		// The page for an address no route serves: expo writes it as the app's

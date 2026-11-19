@@ -9,13 +9,8 @@ import {
 	useSelections,
 } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
-import {
-	type Datum,
-	endedReason,
-	isEnded,
-	paints,
-} from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
+import { type Datum, endedReason, isEnded } from "@fcalell/ui-core/read";
+import { META_TAIL, partText } from "@fcalell/ui-core/runs";
 import {
 	PAGE_HEAD,
 	PAGE_TITLE_FLOOR,
@@ -25,13 +20,11 @@ import {
 	text,
 } from "@fcalell/ui-core/variants";
 import { useContext } from "react";
-import { View } from "react-native";
+import { Text as RNText, View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { asIconAct, type IconAct, type MenuEntry } from "../../lib/act";
-import { RunText } from "../../lib/code";
 import { ShellSwitcher } from "../../lib/container";
 import { navigate } from "../../lib/navigate";
-import { inertProps, Painted, PaintText } from "../../lib/paint";
 import { BusyMark, FrameLine } from "../../lib/read";
 import type { Route } from "../../lib/route";
 import { Button } from "../button";
@@ -52,9 +45,15 @@ const NAME = "shrink";
 // itself, so one of those reads landing renders the bar and nothing under the
 // Pane's body. Outside the package's exports.
 export function PaneHead(props: {
-	// What the bar draws: the Pane's title, or the place of a record.
+	// The Pane's title, which names its more menu's sheet.
 	title: Datum<Run>;
-	// Whether it is the screen's header: a record's place is not, its head holds the name.
+	// What the bar's text draws: the places from the top of the trail down to
+	// the current one, the nearest last (a record's head holds the record's
+	// name). One text, a middle dot between the places; a trail of several is
+	// cut at its start so the nearest stands, one place at its end as a name is.
+	trail: readonly string[];
+	// Whether the text is the screen's header: a place's Pane's is, a record's
+	// is not, its head holding the name.
 	heading: boolean;
 	back?: Route;
 	acts?: readonly Offered<IconAct | IconLinkAct>[];
@@ -62,7 +61,7 @@ export function PaneHead(props: {
 	// The Pane's frame, whose busy mark and state line the bar draws.
 	frame: Frame;
 }) {
-	const { title, heading, back, acts, more, frame } = props;
+	const { title, trail, heading, back, acts, more, frame } = props;
 	const words = useWords();
 	// A Pane whose own read failed or answered not found draws none of its acts:
 	// the page below the bar is the failed or missing shape, whose Retry (or way
@@ -134,20 +133,14 @@ export function PaneHead(props: {
 			<View className={cn(PAGE_TOP_BAR, TOP_BAR)}>
 				{lead ? <View className={PAGE_TOP_BAR_START}>{lead}</View> : null}
 				<View className={cn(TITLE, PAGE_TITLE_FLOOR)}>
-					<PaintText
-						fills="title"
-						painted={paints(name)}
+					<RNText
 						accessibilityRole={heading ? "header" : undefined}
 						numberOfLines={1}
-						{...inertProps(name.painted)}
+						ellipsizeMode={trail.length > 1 ? "head" : "tail"}
 						className={cn(text({ role: "title" }), NAME)}
 					>
-						{paints(name) ? (
-							<Painted role="title" />
-						) : name.painted ? null : (
-							<RunText runs={partRuns(name.value)} fit="name" />
-						)}
-					</PaintText>
+						{trail.join(META_TAIL)}
+					</RNText>
 					<BusyMark frame={frame} />
 				</View>
 				<View className={cn(ACTS, PAGE_TOP_BAR_END)}>

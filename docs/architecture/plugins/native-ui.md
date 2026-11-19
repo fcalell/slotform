@@ -20,6 +20,7 @@ server has auth ([Provider order](#provider-order)).
 imports `expo-network` and `expo-web-browser`. They are optional peers there, but Metro bundles every
 import, dynamic ones included, so a native consumer cannot bundle without them: they are among the
 plugin's `dependencies`, which the consumer declares ([Native client](./auth.md#native-client)).
+The [update wall](#update-wall) imports `expo-constants` itself, so it is a peer too.
 
 `@legendapp/list` is a dependency, not a peer: it is JavaScript only, with `react` its one peer, so a
 consumer has nothing of its own to resolve ([releasing](../releasing.md#peers-one-copy-of-each-stack-package)).
@@ -90,7 +91,7 @@ turns adaptive theming back on.
 
 `.stack/entry.tsx` composes the providers around `<ExpoRoot>`, outer to inner by `order`:
 `GestureHandlerRootView` → `KeyboardProvider` → `SafeAreaProvider` → `WordsProvider` (only when
-`words` is set) → `QueryProvider` → `AuthProvider` → `BottomSheetModalProvider`.
+`words` is set) → `QueryProvider` → `AuthProvider` → `UpdateWall` → `BottomSheetModalProvider`.
 
 - `GestureHandlerRootView` is outermost.
 - The gorhom bottom-sheet modal host is innermost, inside the gesture and safe-area context: gorhom
@@ -102,6 +103,25 @@ turns adaptive theming back on.
   the app wrote.
 - There is no theme provider: uniwind theming is CSS-first (a global `Uniwind.setTheme`), never
   context-based.
+
+## Update wall
+
+`UpdateWall` (`lib/update-wall`, `order: 28`) is the provider that draws the version gate's wall
+([version gate](./expo.md#version-gate)). It subscribes to `onUpdateRequired` from
+`@fcalell/plugin-expo/client` and draws the app until the first `426`. From then on it draws a
+`Gate` in the app's place until the app restarts: the closed words `updateRequired` as its title,
+`updateFromStore` as its sentence, and one act, `update`, that opens the platform's store URL with
+`Linking.openURL`. The URL is `ios.appStoreUrl` or `android.playStoreUrl` read from
+`Constants.expoConfig`; with none for the platform, the Gate draws the sentence and no act.
+
+- **In place of the app.** The wall replaces the expo-router root, so the Shell, every sheet and every
+  toast are unmounted with it and nothing behind it runs or takes a press. Its `Gate` mounts its own
+  `ContainerHost`. The act is a labelled `Button` with `onAct`, never an `href`: a route link reads
+  expo-router's context, which no longer stands above the wall.
+- **Inside the context it reads.** It stands inside `WordsProvider`, so a consumer's words reach it,
+  and inside the gesture, keyboard and safe-area providers the Gate draws in.
+- **Always contributed.** A build carries the wall whether or not the worker has a floor, so a floor
+  raised later walls builds already in the stores.
 
 ## Native clients in src/lib
 
@@ -440,6 +460,7 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 ## In the code
 
 - `plugins/native-ui/src/index.ts`: the plugin, its requires, providers, generated files and scaffolds.
+- `plugins/native-ui/src/ui/lib/update-wall.tsx`: the update wall.
 - `plugins/native-ui/src/types.ts`: the options, the client module shape.
 - `plugins/native-ui/src/node/theme.ts`: the uniwind stylesheet's variants and utilities.
 - `plugins/native-ui/src/node/codegen.ts`: `.stack/global.css` and its `@source` roots.
