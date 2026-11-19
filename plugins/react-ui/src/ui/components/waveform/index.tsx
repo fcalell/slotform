@@ -3,8 +3,12 @@ import { cn } from "@fcalell/ui-core/cn";
 import type { Peaks } from "@fcalell/ui-core/descriptors";
 import { WAVEFORM_BAR, WAVEFORM_RECORD } from "@fcalell/ui-core/variants";
 import {
+	COLUMN,
 	type Columns,
+	columnBoxes,
+	columnCount,
 	columns,
+	headAt,
 	momentAt,
 	seekKey,
 	shareOf,
@@ -42,11 +46,6 @@ export interface WaveformProps extends Closed {
 const ROOT =
 	"relative w-full cursor-pointer touch-none select-none in-data-[modality=keyboard]:focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 const CANVAS = "absolute inset-0 size-full";
-// The columns' width and the gap between them, and the playhead's, in CSS pixels.
-const COLUMN = 2;
-const GAP = 1;
-const MIN_COLUMN = 1;
-const HEAD = 2;
 
 interface Measured {
 	width: number;
@@ -102,40 +101,25 @@ export function Waveform(props: WaveformProps) {
 			return value;
 		};
 
-		const middle = height / 2;
-		const count = Math.max(
-			MIN_COLUMN,
-			Math.floor((width + GAP) / (COLUMN + GAP)),
-		);
+		const count = columnCount(width);
 		if (reduced.current?.peaks !== now.peaks || reduced.current.count !== count)
 			reduced.current = {
 				peaks: now.peaks,
 				count,
 				value: columns(now.peaks, count),
 			};
-		const { low, high } = reduced.current.value;
-		const step = width / count;
 		const share = shareOf(now.at, now.duration);
-		const snap = (value: number) => Math.round(value * ratio) / ratio;
 		const played = paint("toggle-on");
 		const rest = paint("edge-strong");
-		for (let index = 0; index < count; index++) {
-			const left = snap(index * step);
-			const right = snap((index + 1) * step - GAP);
-			const top = middle + (high[index] ?? 0) * -(height / 2);
-			const bottom = middle + (low[index] ?? 0) * -(height / 2);
-			// A silent column keeps one pixel, so the track reads as a line.
-			const shown = Math.max(bottom - top, 1 / ratio);
-			context.fillStyle = (index + 0.5) / count <= share ? played : rest;
-			context.fillRect(left, top, Math.max(1 / ratio, right - left), shown);
-		}
-
-		const head = Math.min(
-			width - HEAD,
-			Math.max(0, snap(share * width - HEAD / 2)),
+		columnBoxes(reduced.current.value, width, height, ratio).forEach(
+			(box, index) => {
+				context.fillStyle = (index + 0.5) / count <= share ? played : rest;
+				context.fillRect(box.left, box.top, box.width, box.height);
+			},
 		);
+
 		context.fillStyle = paint("ink-body");
-		context.fillRect(head, 0, HEAD, height);
+		context.fillRect(headAt(share, width, ratio), 0, COLUMN.head, height);
 	}, []);
 
 	const schedule = useCallback(() => {

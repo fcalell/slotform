@@ -1,7 +1,7 @@
 import { trackTime } from "@fcalell/ui-core/clock";
 import { cn } from "@fcalell/ui-core/cn";
 import type { Track } from "@fcalell/ui-core/descriptors";
-import { shortcut } from "@fcalell/ui-core/player";
+import { dockSeek, shortcut } from "@fcalell/ui-core/player";
 import { useSelections } from "@fcalell/ui-core/react/read";
 import { useWords } from "@fcalell/ui-core/react/words";
 import {
@@ -191,16 +191,16 @@ export function Dock() {
 function Progress({ track }: { track: Track }) {
 	const words = useWords();
 	const { time, duration } = usePlayerTime();
-	const length = duration > 0 ? duration : (track.duration ?? 0);
+	const { length, peaks } = dockSeek(track, duration);
 	return (
 		<div className={ZONE}>
 			<span className={cn(DOCK_TIME, TIME, ELAPSED)}>{trackTime(time)}</span>
 			<div className={SEEK}>
-				{track.peaks && length > 0 ? (
+				{peaks ? (
 					<Waveform
 						fit="bar"
 						label={words.seek}
-						peaks={track.peaks}
+						peaks={peaks}
 						duration={length}
 						at={time}
 						onSeek={player.seek}
