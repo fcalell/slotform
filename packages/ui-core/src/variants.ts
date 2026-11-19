@@ -215,6 +215,7 @@ export {
 	DIFF_HANG,
 	DIFF_HUNK,
 	DIFF_MARK,
+	DIFF_MARKS,
 	diffLine,
 	PROSE_DIFF_BODY,
 	PROSE_DIFF_TEXT,
@@ -314,7 +315,12 @@ export {
 	PROSE_STRIKE,
 	proseMarker,
 } from "./roster/prose.ts";
-export { QR_CODE, QR_CODE_INK } from "./roster/qr-code.ts";
+export {
+	QR_CODE,
+	QR_CODE_FAILED,
+	QR_CODE_FAILED_GLYPH,
+	QR_CODE_INK,
+} from "./roster/qr-code.ts";
 export {
 	RULE_CARD,
 	RULE_ROW,
@@ -355,6 +361,7 @@ export {
 	ROWS_HOST,
 	SUBGRID,
 	text,
+	toneOf,
 } from "./roster/shared.ts";
 export {
 	DOCKED_FLOOR_ROWS,
@@ -814,7 +821,9 @@ export const YIELDS_LAST = "shrink-[0.0001]";
 export const YIELDS_LAST_EACH = "*:shrink-[0.0001]";
 export const ROW_END = "gap-gap";
 // The text group's floor: docs/architecture/ui-core/layout.md, "Text group and end group".
-export const ROW_TEXT_FLOOR = "basis-2/5 shrink-0";
+export const ROW_TEXT_FLOOR = "basis-2/5 shrink";
+// The wash a pressable surface takes under the pointer and while pressed.
+export const PRESS_WASH = "hover:bg-wash-hover active:bg-wash-press";
 // A glyph and its words a gap apart: a table cell's warning (a warn glyph and
 // its phrase) and a row's boolean marks in the end group. A row's facts are
 // badges (`BADGE`), not marks: its status, warning, lock, chip, ring, flag and
@@ -1091,14 +1100,6 @@ export function imageAspect(
 	if (fit === "thumb" || fit === "mini") return undefined;
 	if (fit === "tile") return Math.max(aspect ?? 1, IMAGE_TILE_NARROWEST);
 	return aspect;
-}
-
-export function summaryContentTone(): ContentTone {
-	return toneOf(FORM_FIELD_SUMMARY_GLYPH);
-}
-
-export function rowWarningContentTone(): ContentTone {
-	return toneOf(ROW_WARNING);
 }
 
 // A stable step for a name, so one name keeps one fill everywhere: the key of

@@ -83,9 +83,12 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
 - A matrix class set holds platform-invariant classes only: fills, borders, ink, spacing roles, radius,
   type role, weight, family, sizes and widths. A type-role class set carries its ink; `mono` carries its
   family.
-- Display, alignment, flex sizing, truncation, positioning, overflow, negative bleed margins, fraction
-  widths and every interaction state are platform overlays, composed through `cn()` by each plugin:
-  React Native is flex by default and the web is not, so the same overlay differs per platform.
+- Display, alignment, flex sizing, truncation, positioning, overflow, negative bleed margins and
+  fraction widths are platform overlays, composed through `cn()` by each plugin: React Native is flex by
+  default and the web is not, so the same overlay differs per platform.
+- An interaction look that any web renderer would share (the press wash `PRESS_WASH`, and the segment
+  classes in `roster/picker.ts`) lives in ui-core's variants, since ui-core can serve other web
+  frameworks than React. The phone has no hover, so it composes its own press looks through `cn()`.
 - No framework code lives in ui-core outside the `react/*` subpaths. Logic both platforms run lives in
   a ui-core subpath, free of any framework, so a test holds it once and both platforms give the same
   answer.

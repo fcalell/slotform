@@ -18,9 +18,17 @@ export interface QrModules {
 
 // The modules of `text` at the medium correction (a reader recovers about
 // 15% of a damaged code), the level a screen-shown code takes; a longer text
-// takes a larger version, never a lower level.
-export function qrModules(text: string): QrModules {
-	const code = generate(text, { minCorrectionLevel: correction.M });
+// takes a larger version, never a lower level; none for a text no version
+// holds (past version 40).
+export function qrModules(text: string): QrModules | undefined {
+	let code: ReturnType<typeof generate>;
+	try {
+		code = generate(text, { minCorrectionLevel: correction.M });
+	} catch (error) {
+		// lean-qr throws an Error with `code` 4 where no version holds the data.
+		if ((error as { code?: unknown }).code === 4) return undefined;
+		throw error;
+	}
 	const runs: string[] = [];
 	for (let y = 0; y < code.size; y++) {
 		let start = -1;
@@ -35,4 +43,9 @@ export function qrModules(text: string): QrModules {
 		}
 	}
 	return { side: code.size + 2 * QR_QUIET, path: runs.join("") };
+}
+
+// The dev log for a text `qrModules` gives no code for.
+export function qrTooLong(text: string): string {
+	return `QrCode: no code holds a text of ${text.length} characters`;
 }

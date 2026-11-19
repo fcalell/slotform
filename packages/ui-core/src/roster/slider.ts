@@ -58,7 +58,7 @@ export const sliderEntry: RosterEntry = {
 // measure) over the track, the fill up to the thumb and the rest after it.
 // The label is a field's label, the body role in the meta ink, and the value
 // it names stands in the body ink at the body role, as a fact's value does
-// (`guide/voice.md`, "Type").
+// (`guide/face-type.md`, "Type").
 export const SLIDER = "gap-gap";
 export const SLIDER_HEAD = "gap-stack";
 export const SLIDER_LABEL = "text-body leading-body font-normal text-ink-meta";

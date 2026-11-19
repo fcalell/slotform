@@ -344,6 +344,60 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
 
+  packages/repo-checks:
+    devDependencies:
+      '@fcalell/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@fcalell/plugin-api':
+        specifier: workspace:*
+        version: link:../../plugins/api
+      '@fcalell/plugin-auth':
+        specifier: workspace:*
+        version: link:../../plugins/auth
+      '@fcalell/plugin-cloudflare':
+        specifier: workspace:*
+        version: link:../../plugins/cloudflare
+      '@fcalell/plugin-db':
+        specifier: workspace:*
+        version: link:../../plugins/db
+      '@fcalell/plugin-expo':
+        specifier: workspace:*
+        version: link:../../plugins/expo
+      '@fcalell/plugin-native-ui':
+        specifier: workspace:*
+        version: link:../../plugins/native-ui
+      '@fcalell/plugin-node':
+        specifier: workspace:*
+        version: link:../../plugins/node
+      '@fcalell/plugin-query':
+        specifier: workspace:*
+        version: link:../../plugins/query
+      '@fcalell/plugin-react':
+        specifier: workspace:*
+        version: link:../../plugins/react
+      '@fcalell/plugin-react-ui':
+        specifier: workspace:*
+        version: link:../../plugins/react-ui
+      '@fcalell/plugin-screens':
+        specifier: workspace:*
+        version: link:../../plugins/screens
+      '@fcalell/plugin-vite':
+        specifier: workspace:*
+        version: link:../../plugins/vite
+      '@fcalell/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@fcalell/ui-core':
+        specifier: workspace:*
+        version: link:../ui-core
+      '@types/node':
+        specifier: ^26.6.6
+        version: 26.6.6
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+
   packages/typescript-config: {}
 
   packages/ui-core:
@@ -355,6 +409,9 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       diff:
+        specifier: ^9.0.0
+        version: 9.0.0
+      entities:
         specifier: ^9.0.0
         version: 9.0.0
       lean-qr:
@@ -5391,6 +5448,10 @@ packages:
 
   entities@8.1.0:
     resolution: {integrity: sha512-kxL7msIffSuh9aaFAMD7rxAIuTRMAHMeBtgHW2yUdWw732ZNh4MehkF2gdjvtdmikkaIP9bFDDJOPlsvm7avrA==}
+    engines: {node: '>=20.19.0'}
+
+  entities@9.0.0:
+    resolution: {integrity: sha512-oJFNDJg3kTPwAD1cNn2+WmUq4wFoo09npc3Ydf1D7ED4smRiWrsKnaLxykrTWgyGEcusc87P5dxlAleol9kpkg==}
     engines: {node: '>=20.19.0'}
 
   error-stack-parser-es@1.0.5:
@@ -12087,6 +12148,8 @@ snapshots:
   entities@4.5.0: {}
 
   entities@8.1.0: {}
+
+  entities@9.0.0: {}
 
   error-stack-parser-es@1.0.5: {}
 

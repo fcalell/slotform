@@ -133,7 +133,11 @@ store.
   class set is spelled out: Tailwind reads source text, so a class set built from a template compiles to nothing
   in a consumer build.
 - The tint a plugin hands to its own glyph or spinner is read back off a class set's colour, since the
-  matrices already carry it; it is never written a second time.
+  matrices already carry it; it is never written a second time. `toneOf(classSet)` (`./variants`) reads
+  it: the first contract colour a `text-`, `bg-` or `border-` class names, else `ink-body`.
+- `PRESS_WASH` (`./variants`) is the wash a pressable web surface takes under the pointer and while
+  pressed (`hover:bg-wash-hover active:bg-wash-press`): one class set for every row, cell, figure and
+  quiet act that washes, the web's overlay held where both its washes are said once.
 - Space is a margin on a box that draws, never an empty element: a picker's grouped children stand in
   past the box by the box's width (the group's margin) and the gap after it (the body's).
 
@@ -194,8 +198,11 @@ these kinds (a row's `facts`, a message detail's row, a record head's `facts` am
 
 The kinds are told apart by the keys their members carry, so a fact needs no tag. `splitFacts`
 (`@fcalell/ui-core/list-state`, with `isStatusFact`, `isWarningFact`, `isChipFact`, `isMarkFact`) is
-the one reading of a list; a component's drawing takes its facts through it, which hands the kinds
-apart in the order each draws them. A list may hold several statuses, each its own badge with its tone
+the one reading of a list; a component's drawing takes its facts through it. It hands back `facts`,
+every fact the line draws in the order given, each a `FactPart` tagged with its `kind` (`status`,
+`warning`, `chip`, `mark` or `words`), and `quiet`, the boolean marks whose words are not drawn
+(`wordless`: `words: false`), which stand in the row's end group. A ring that does not hold says no
+fact (`says`) and is in neither. A list may hold several statuses, each its own badge with its tone
 mark; the first leads the line, and the row's lock follows it.
 
 Each plugin reads a list of facts as the badges a line draws, free of any view, so a test holds its

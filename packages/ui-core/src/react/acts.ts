@@ -6,6 +6,7 @@ import {
 	isPlaced,
 	isThenable,
 	keepSave,
+	offerOf,
 	startAttempt,
 } from "../acts.ts";
 import type { Act } from "../descriptors.ts";
@@ -24,7 +25,9 @@ export interface Draft<T> {
 	/** The value is not here (its read waits, stands still or ended): `value` is the stand-in. */
 	painted: boolean;
 	/** The read the value is a selection over ended: the control stands with no value and blocked, a change saying so instead of changing. */
-	ended: "failed" | "missing" | undefined;
+	ended: boolean;
+	/** How that read ended, while `ended`. */
+	endedBy: "failed" | "missing" | undefined;
 	value: T;
 	// `change` and how a save settles: docs/architecture/ui-core/acts.md, "Control saves".
 	change: (next: T, save?: () => unknown) => Promise<void> | undefined;
@@ -83,10 +86,12 @@ export function useDraft<T>(
 			() => undefined,
 		);
 	};
+	const endedBy =
+		!live && drawn.painted && isEnded(drawn.phase) ? drawn.phase : undefined;
 	return {
 		painted: !live && drawn.painted,
-		ended:
-			!live && drawn.painted && isEnded(drawn.phase) ? drawn.phase : undefined,
+		ended: endedBy !== undefined,
+		endedBy,
 		value: live ? live.value : (drawn.value as T),
 		change,
 	};
@@ -121,7 +126,7 @@ export function useFieldDraft<T>(value: Datum<T>): {
 	const draft = useDraft(value, (error) =>
 		refuse(failedSentence(port, words, error)),
 	);
-	const reason = endedReason(words, draft.ended);
+	const reason = endedReason(words, draft.endedBy);
 	const [pressed, press] = usePressed(reason);
 	return {
 		draft: blocked(
@@ -283,7 +288,7 @@ export function createActs(platform: ActPlatform): {
 		const draft = useDraft(value, (error, again) =>
 			failedToast(port, words, error, again),
 		);
-		const reason = endedReason(words, draft.ended);
+		const reason = endedReason(words, draft.endedBy);
 		// One sentence stands at a time: a drag or a run of keystrokes over it does
 		// not stack toasts, and it is said again once its toast has left (or the
 		// read has answered).
@@ -300,4 +305,12 @@ export function createActs(platform: ActPlatform): {
 	}
 
 	return { useAct, useHeldDraft };
+}
+
+/** A host's icon act given as its own datum, as it draws: `offerOf` over the read. */
+export function useOffer<A extends { blocked?: string }>(
+	act: Datum<A | undefined>,
+) {
+	const [offer] = useSelections([act]);
+	return offerOf(useWords(), offer);
 }

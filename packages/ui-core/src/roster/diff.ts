@@ -65,6 +65,14 @@ export interface DiffLine {
 	after?: number;
 }
 
+// The sign a line's kind reads by without its ground's hue; the removed sign
+// is the minus (U+2212), never a hyphen.
+export const DIFF_MARKS: Readonly<Record<DiffLine["kind"], string>> = {
+	context: " ",
+	added: "+",
+	removed: "−",
+};
+
 export interface Hunk {
 	// The hunk's header in git's form (`@@ -12,7 +12,9 @@ export function total`),
 	// optional. Its ranges are never drawn: the lines' numbers say where a hunk

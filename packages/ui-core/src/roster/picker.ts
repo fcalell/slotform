@@ -239,7 +239,7 @@ export const OPTION_GROUP_LABEL = "px-pad pt-gap";
 export const PICKER_EMPTY = "text-ink-meta";
 // The value a row's pick shows in its box (`PICKER {fit: row}`), bounded as a
 // status' label is so a long one truncates before the title beside it does,
-// in the body ink: it is the value the row's label names (`guide/voice.md`, "Type"), as a
+// in the body ink: it is the value the row's label names (`guide/face-type.md`, "Type"), as a
 // plain value beside it is, its chevron alone in the trigger's meta ink. The
 // field fit's value is `FIELD_VALUE`'s.
 export const PICKER_VALUE =
@@ -261,7 +261,7 @@ export const ITEM_PILL_HIT = `group min-h-target min-w-target -my-[calc((var(--s
 // A head's pick fact whose chosen option carries a state is the state pill
 // itself (`STATE_CHIP`) with its chevron, one box: under the pointer and
 // pressed its hairline darkens to the state's ink, as an outlined control's
-// darkens to the strong edge (`guide/voice.md`, "Controls"), so its soft fill keeps its hue.
+// darkens to the strong edge (`guide/face-surfaces.md`, "Controls"), so its soft fill keeps its hue.
 export const ITEM_PILL_STATE_ACT = `gap-gap group-hover:border-current group-active:border-current in-data-[modality=keyboard]:group-focus-visible:outline-2 group-focus-visible:outline-ring ${ANSWER}`;
 // In a head a pill, outlined or a state's, stands at the badge's height, the
 // meta line, its hairlines inside it; in a row it is a chip's, the caption

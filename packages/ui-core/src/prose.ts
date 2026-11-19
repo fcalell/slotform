@@ -2,6 +2,11 @@
 
 import type { Token, Tokens } from "marked";
 
+// marked's lexer leaves character references in a text token's text
+// (`&amp;`, `&copy;`, `&nbsp;`, a numeric one written `&amp;`): a platform
+// draws the text through this decoder, as a browser would.
+export { decodeHTML } from "entities/decode";
+
 // A link's target, unless its scheme runs script. A URL parser drops control
 // characters and spaces around and inside a scheme, so the test drops them too.
 export function safeHref(href: string): string | undefined {

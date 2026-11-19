@@ -295,6 +295,7 @@
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"diff": "^9.0.0",
+		"entities": "^9.0.0",
 		"lean-qr": "2.7.4",
 		"marked": "^18.2.0",
 		"tailwind-merge": "^3.7.0"

@@ -58,7 +58,7 @@ export const TOOLBAR_LINE =
 export const TOOLBAR_TABS = "min-w-0 touch:w-full";
 // The search grows from a basis of the short measure up to the `column`
 // width (the filters' range), so the row wraps only when the search cannot
-// keep that measure beside the acts (`guide/voice.md`, "Rows": one row, the search leading and
+// keep that measure beside the acts (`guide/face-panes.md`, "Phone": one row, the search leading and
 // the filters a glyph), never on the input's own width. On the desktop the
 // acts keep the row's end past it; on touch it takes the width they leave.
 export const TOOLBAR_SEARCH =

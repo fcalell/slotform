@@ -234,8 +234,9 @@ test("a leave tells its subscribers each time whether it asks may turn", async (
 	const seen: boolean[] = [];
 	const stop = leave.subscribe(() => seen.push(leave.asks()));
 	leave.edit(true);
-	leave.press();
-	leave.settle(true);
+	await assert.rejects(async () =>
+		leave.run(() => Promise.reject(new Error("no"))),
+	);
 	await leave.attempt(async () => true);
 	stop();
 	leave.edit(true);

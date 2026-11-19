@@ -12,10 +12,12 @@ import {
 	levelOf,
 	listedRows,
 	nextSort,
+	optionMeta,
 	pickChooser,
 	type Sort,
 	sheetEntries,
 	sorted,
+	splitFacts,
 	type TableRecord,
 	TOUCH_FACT_FITS,
 	touchFacts,
@@ -520,4 +522,32 @@ test("a query pick's head is unchecked once every row it reaches is unticked", (
 	);
 	assert.equal(none.count, 0);
 	assert.equal(none.head, false);
+});
+
+test("a list of facts keeps every status in the order given among its other facts", () => {
+	const done = { tone: "done" } as const;
+	const failed = { tone: "failed", label: "Broken" } as const;
+	assert.deepEqual(
+		splitFacts([done, "v2", { warning: "Late" }, failed, undefined]).facts,
+		[
+			{ kind: "status", fact: done },
+			{ kind: "words", fact: "v2" },
+			{ kind: "warning", fact: "Late" },
+			{ kind: "status", fact: failed },
+		],
+	);
+});
+
+test("a ring that does not hold says nothing, and a wordless mark is quiet", () => {
+	const held = { ring: true, label: "Required" };
+	const quiet = { flag: "Star", label: "Starred", words: false } as const;
+	const parts = splitFacts([{ ring: false, label: "Required" }, held, quiet]);
+	assert.deepEqual(parts.facts, [{ kind: "mark", fact: held }]);
+	assert.deepEqual(parts.quiet, [quiet]);
+});
+
+test("an option's line is its blocked reason until it is chosen", () => {
+	const option = { value: "a", label: "A", line: "Shared", blocked: "Full" };
+	assert.equal(optionMeta(option, false), "Full");
+	assert.equal(optionMeta(option, true), "Shared");
 });

@@ -1,5 +1,5 @@
 // The act model, pure so the hooks and the binding share one core: docs/architecture/ui-core/acts.md, "Act model".
-import type { Act } from "./descriptors.ts";
+import type { Act, IconAct } from "./descriptors.ts";
 import {
 	type Datum,
 	type Drawn,
@@ -24,6 +24,34 @@ export function isThenable(v: unknown): v is PromiseLike<unknown> {
 		(typeof v === "object" || typeof v === "function") &&
 		v !== null &&
 		typeof (v as { then?: unknown }).then === "function"
+	);
+}
+
+/** Runs `run` and settles once it ends: `settle(true)` where it threw or its promise rejected, `settle(false)` where it returned or resolved. Its result, or a promise of it, is returned, and a failure is thrown on. */
+export function afterRun(
+	run: () => unknown,
+	settle: (failed: boolean) => void,
+): unknown {
+	let ran: unknown;
+	try {
+		ran = run();
+	} catch (error) {
+		settle(true);
+		throw error;
+	}
+	if (!isThenable(ran)) {
+		settle(false);
+		return ran;
+	}
+	return Promise.resolve(ran).then(
+		(done) => {
+			settle(false);
+			return done;
+		},
+		(error: unknown) => {
+			settle(true);
+			throw error;
+		},
 	);
 }
 
@@ -152,4 +180,27 @@ const NEVER_PRESSED = (): void => undefined;
 /** The one blocked item a menu stands as while its read has ended: nothing can be taken from it, and its reason says why. */
 export function endedItems(words: Words, reason: string): readonly Act[] {
 	return [{ label: words.more, blocked: reason, onAct: NEVER_PRESSED }];
+}
+
+/** An icon act given as its own datum as its host draws it: waiting while the read lands, the act once it did, and once the read ended the alert glyph named and blocked by the sentence, never a false yes. */
+export function offerOf<A extends { blocked?: string }>(
+	words: Words,
+	offer: Drawn<A | undefined>,
+): {
+	waits: boolean;
+	given: A | IconAct | undefined;
+	blocked: string | undefined;
+} {
+	if (!offer.painted)
+		return { waits: false, given: offer.value, blocked: offer.value?.blocked };
+	const ended = endedReason(words, offer.phase);
+	if (ended === undefined)
+		return { waits: true, given: undefined, blocked: undefined };
+	const given: IconAct = {
+		label: ended,
+		icon: "CircleAlert",
+		blocked: ended,
+		onAct: NEVER_PRESSED,
+	};
+	return { waits: false, given, blocked: ended };
 }

@@ -50,6 +50,9 @@ the platform's own relative-time and date words speak them in the reader's langu
   alone today, the day's word and the time a day either side, the date and time within `now`'s year,
   and the year with them only in another. A platform with no relative words reads the day either side
   as its date; a moment that does not parse reads as itself.
+- `initials(name)` (`./format`) is the letters an avatar draws without its image: the first letter of
+  a name's first two words, parted by spaces, dots, underscores and hyphens, an email address read by
+  its local part (`ada.lovelace@…` reads `AL`).
 - `ageWords` (`./clock`) words a moment as its age from `now` ("2 minutes ago", "yesterday").
 - `fileSize(bytes)` (`@fcalell/ui-core/file`) words a file's size in the viewer's language: whole
   bytes below a thousand ("39 bytes"), then kilobytes, megabytes and gigabytes at one decimal below

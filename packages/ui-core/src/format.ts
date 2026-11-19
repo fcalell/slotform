@@ -69,3 +69,16 @@ export function momentWords(iso: string, now: Date, lang?: string): string {
 		minute: "2-digit",
 	}).format(at);
 }
+
+// A name's first two words' first letters, parted by spaces, dots,
+// underscores and hyphens; an email address stands for a name by its local
+// part ("ada.lovelace@…" reads AL).
+export function initials(name: string): string {
+	const [local] = name.split("@", 1);
+	return (local ?? "")
+		.split(/[\s._-]+/)
+		.filter(Boolean)
+		.slice(0, 2)
+		.map((word) => word[0]?.toUpperCase() ?? "")
+		.join("");
+}

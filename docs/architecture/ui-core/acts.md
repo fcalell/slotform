@@ -14,11 +14,15 @@ settles; a rejection draws the server's refusal when the server words one, else 
 `actFailed` word.
 
 `acts.ts` holds what an act is made of apart from how it is drawn and what runs it: whether an
-`onAct` hands back its promise so the act can hold it (`isThenable`), an act as a region takes it
+`onAct` hands back its promise so the act can hold it (`isThenable`), what follows a run once it ends
+(`afterRun(run, settle)`: `settle(true)` on a throw or a rejection, `settle(false)` otherwise, the
+result passed on and a failure thrown on), an act as a region takes it
 (`Offered`, made whole by `offered`), the attempt and save logic the hooks wrap (`startAttempt`,
 `keepSave`), the marks a host leaves on a rejection it drew (`drew`, `wasDrawn`, `placed`,
-`isPlaced`), and what a more menu holds (`moreMenu`, `endedItems`). It is pure, so the hooks and the
-binding share one core.
+`isPlaced`), what a more menu holds (`moreMenu`, `endedItems`), and an icon act given as its own
+datum as its host draws it (`offerOf`: waiting while its read lands, the act once it did, the alert
+glyph blocked by the sentence once the read ended). It is pure, so the hooks and the binding share
+one core.
 
 `react/acts.ts` holds the hooks a host holds its acts' attempts with and a control its saves with, over
 the binding's port ([the port](reads.md#the-port)), and `createActs`, which binds the act sequence
@@ -128,7 +132,9 @@ or `words.missing`. There is none while the read waits, stands still or answered
 A molecule that keeps its row still (an `ActionBar`'s acts, a Section's head, a sheet's head, a
 pending bar) is a **reason host**: it draws the reason on its own line and hands the act its press
 through `ReasonHostContext` (`react/reason.ts`). The act calls it when pressed while blocked; the
-host shows the reason from then on, or once its form is touched.
+host shows the reason from then on, or once its form is touched. `useReasonShown(blocked)`
+(`react/reason.ts`) is that rule for a host: the `host` press it hands the act (none while unblocked)
+and the `reason`, the blocked sentence once it shows and none before; each platform draws the line itself.
 
 ## Touched
 
@@ -230,7 +236,8 @@ an act that saves again holds the attempt.
 A field's value is its selection until the viewer edits it, the edit after. An edit belongs to the
 read it was made over, so a selection over another read drops it (`draftFor`). A constant is the
 app's own state: it passes through, so a value the app changes shows, and a plain edit has nothing
-to keep.
+to keep. A draft over a read that ended is `ended`, and `endedBy` says how (`failed` or `missing`), the
+reason its control stands blocked under (`endedReason`).
 
 ## Fields
 
@@ -442,7 +449,7 @@ opening again, start the steps over. A form that commits by field has no submit 
 `steps` there throws.
 
 The Continue stands in the form's bar, never at the end of each step: a bar draws one filled act
-(voice.md, **Controls**), and a Continue in the step beside the bar's submit would stand two.
+([controls](../../../packages/ui-core/guide/face-surfaces.md#controls)), and a Continue in the step beside the bar's submit would stand two.
 
 ### Where a form stands
 
@@ -457,8 +464,9 @@ the field it draws for each key and the bar of acts that submits, are no app's t
 
 `createLeave()` (`leave.ts`) decides whether leaving a form asks, with one question per leave. A
 `Form` holds one `Leave`: the form's edit by value writes it (`edit`, [touched](#touched)), the filled
-act's press hands the edit to the act, and a leave attempt asks the viewer while the form stands edited: discard the edit, or keep
-editing.
+act's `run(fn)` takes the edit and holds no question until the run ends, a throw or a rejection
+putting the edit back, and a leave attempt asks the viewer while the form stands edited: discard the
+edit, or keep editing.
 Both plugins' `Form` and `ActionBar` drive it, so the web and the phone ask under the same rules.
 
 - **Web.** A leave is a router navigation, the back button, a reload or a closed tab. Bound to the

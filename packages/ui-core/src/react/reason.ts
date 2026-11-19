@@ -2,6 +2,7 @@
 // model is `../reason.ts`).
 import { createContext, useCallback, useState } from "react";
 import { pressStands } from "../reason.ts";
+import { useTouched } from "./touched.ts";
 
 // Where a blocked act's reason draws when not under the act: docs/architecture/ui-core/acts.md, "Blocked reasons".
 export const ReasonHostContext = createContext<(() => void) | undefined>(
@@ -16,4 +17,19 @@ export function usePressed(
 	const [under, setUnder] = useState<string>();
 	const press = useCallback(() => setUnder(blocked), [blocked]);
 	return [pressStands(blocked, under), press];
+}
+
+// A blocked act's reason drawn on its host's own line, so the act keeps its
+// place: the act is handed the `host`, and the `reason` is the blocked sentence
+// once the act was pressed while blocked, or its form is touched, else none.
+export function useReasonShown(blocked: string | undefined): {
+	host: (() => void) | undefined;
+	reason: string | undefined;
+} {
+	const { touched } = useTouched();
+	const [pressed, press] = usePressed(blocked);
+	return {
+		host: blocked === undefined ? undefined : press,
+		reason: pressed || touched ? blocked : undefined,
+	};
 }

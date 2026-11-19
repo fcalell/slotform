@@ -337,6 +337,15 @@ export function optionBlocked(
 	return chosen ? undefined : option.blocked;
 }
 
+// The line under an option's label: why it cannot be chosen now, else its
+// own `line`.
+export function optionMeta(
+	option: Option<string | null>,
+	chosen: boolean,
+): string | undefined {
+	return optionBlocked(option, chosen) ?? option.line;
+}
+
 // A press on an option: one choice hears it unless it is already chosen; a
 // set hears itself with the option toggled.
 export function choose<V extends string>(
@@ -1317,6 +1326,16 @@ export const isChipFact = (fact: unknown): fact is ChipMark =>
 export const isMarkFact = (fact: unknown): fact is RowMark =>
 	keyed(fact, "ring", "flag");
 
+/** Whether a boolean mark says a fact: a ring says one only while it holds. */
+export function says(mark: RowMark): boolean {
+	return !("ring" in mark) || mark.ring;
+}
+
+/** Whether a boolean mark draws no words: its glyph stands in the row's end group, its label the name. */
+export function wordless(mark: RowMark): boolean {
+	return mark.words === false;
+}
+
 /** A record head's fact as its key among the facts it stands with: its kind and its words. */
 export function factKey<V extends string | null>(fact: RecordFact<V>): string {
 	if (typeof fact === "object" && "pick" in fact) return fact.pick.label;
@@ -1331,32 +1350,36 @@ export function factKey<V extends string | null>(fact: RecordFact<V>): string {
 	return partText(fact);
 }
 
-/** A list of facts by kind: its status (the first one, which leads the line and takes the row's lock after it; a further status is in no part), its warnings, chips and boolean marks in the order given, and its words, each one fact. */
+/** One fact of a line by its kind. */
+export type FactPart =
+	| { kind: "status"; fact: StatusMark }
+	| { kind: "warning"; fact: string }
+	| { kind: "chip"; fact: ChipMark }
+	| { kind: "mark"; fact: RowMark }
+	| { kind: "words"; fact: Run };
+
+/** A list of facts as a line draws it: `facts` in the order given, each by its kind (every status among them, the first leading the line and taking the row's lock after it), and `quiet`, the boolean marks whose words are not drawn, which stand in the row's end group. */
 export interface FactParts {
-	status: StatusMark | undefined;
-	warnings: string[];
-	chips: ChipMark[];
-	marks: RowMark[];
-	words: Run[];
+	facts: FactPart[];
+	quiet: RowMark[];
 }
 
-/** A list of facts by kind. A member that is none of the marks is words (a stand-in too, which a painted list counts as one filler); an absent member says nothing. */
+/** A list of facts by kind. A member that is none of the marks is words (a stand-in too, which a painted list counts as one filler); an absent member and a ring that does not hold say nothing. */
 export function splitFacts(facts: readonly unknown[] | undefined): FactParts {
-	const parts: FactParts = {
-		status: undefined,
-		warnings: [],
-		chips: [],
-		marks: [],
-		words: [],
-	};
+	const parts: FactParts = { facts: [], quiet: [] };
 	for (const fact of facts ?? []) {
 		if (fact === undefined || fact === null || fact === false) continue;
-		if (isStatusFact(fact)) parts.status ??= fact;
-		else if (isWarningFact(fact)) parts.warnings.push(fact.warning);
-		else if (isChipFact(fact)) parts.chips.push(fact);
-		else if (isMarkFact(fact)) parts.marks.push(fact);
+		if (isStatusFact(fact)) parts.facts.push({ kind: "status", fact });
+		else if (isWarningFact(fact))
+			parts.facts.push({ kind: "warning", fact: fact.warning });
+		else if (isChipFact(fact)) parts.facts.push({ kind: "chip", fact });
+		else if (isMarkFact(fact)) {
+			if (!says(fact)) continue;
+			if (wordless(fact)) parts.quiet.push(fact);
+			else parts.facts.push({ kind: "mark", fact });
+		}
 		// Every member that is no mark is words.
-		else parts.words.push(fact as Run);
+		else parts.facts.push({ kind: "words", fact: fact as Run });
 	}
 	return parts;
 }

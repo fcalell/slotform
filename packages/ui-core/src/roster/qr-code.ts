@@ -1,3 +1,4 @@
+import type { IconName } from "../icon-name.ts";
 import type { RosterEntry } from "./shared.ts";
 
 // A code a camera reads: `value` is the text it carries, `label` what it
@@ -10,7 +11,7 @@ import type { RosterEntry } from "./shared.ts";
 // takes no press: the act beside it (a copy of the link) carries the text.
 export const qrCodeEntry: RosterEntry = {
 	props: ["value", "label"],
-	draws: ["PAINT.kind.box", "QR_CODE", "QR_CODE_INK"],
+	draws: ["PAINT.kind.box", "QR_CODE", "QR_CODE_INK", "QR_CODE_FAILED"],
 	states: ["rest", "loading"],
 	motion: ["wait"],
 	owns: {
@@ -27,3 +28,8 @@ export const qrCodeEntry: RosterEntry = {
 export const QR_CODE =
 	"w-full max-w-[calc(20*var(--spacing-line-body))] aspect-square self-center rounded-card bg-qr-tile";
 export const QR_CODE_INK = "text-qr-ink";
+
+// A text no code holds: the tile with the image's failed glyph in the image's
+// failed ink (`IMAGE_FAILED_INK`), centred.
+export const QR_CODE_FAILED = "flex items-center justify-center";
+export const QR_CODE_FAILED_GLYPH: IconName = "ImageOff";

@@ -166,7 +166,9 @@ and its name starts with its visible text (WCAG 2.5.3).
 
 An option's `chip` draws after its label in the list and on the trigger. An option's `blocked`
 reason stands in place of its `line` in the disabled ink and the option takes no pick (its box or radio
-disabled in a list) until it is in the value.
+disabled in a list) until it is in the value. `optionBlocked(option, chosen)` (`list-state.ts`) is
+that reason, and `optionMeta(option, chosen)` the line drawn under the label: the reason, else the
+option's `line`.
 
 `value` an array makes it a pick of several: the rows tick and the list stays open, and the box holds
 one removable neutral chip per value. The chips are pills inset in their box, never edge to edge:
@@ -282,6 +284,10 @@ what is returned), because the next character decides whether it opens a run: `*
 `**a**`, `2 * 3 *` as `2 * 3`. The closers of the runs still open go before any trailing
 whitespace, which is dropped, because a closer after a space closes nothing: `**bold ` and
 `**bold **` both draw as `**bold**`.
+
+marked's lexer leaves character references in a text token's text: `&amp;`, `&copy;` and `&nbsp;`
+stand as written, and a numeric one (`&#38;`) as `&amp;`. `decodeHTML` (`prose.ts`, entities'
+decoder) turns a text token's text into what a browser draws, `a &amp; b` into `a & b`.
 
 ## Charts
 
@@ -409,6 +415,10 @@ than its box breaks between tokens. `tokenParts` (`line-diff.ts`) cuts a line in
 at one such place; a platform joins them with its break opportunity (a web `<wbr>`, a zero-width
 space on the phone).
 
+A diff line's kind reads by its sign as well as its ground's hue: `DIFF_MARKS` (`roster/diff.ts`,
+through `./variants`) is a space for context, `+` for added and the minus sign `−` (U+2212) for
+removed, the sign a file row's removed count is written with too.
+
 ## Canvas
 
 `Canvas` draws graphs and is web only: its viewport is d3-zoom's and its layout elkjs's, both
@@ -421,6 +431,10 @@ passes its own objects.
 `QrCode` draws a code a camera reads. `qrModules` (`qr.ts`) gives its modules as one SVG path, free
 of any framework, so both platforms draw the same code. The encoding is lean-qr's (ISO 18004, no
 dependencies of its own, pinned to an exact version in ui-core's manifest); the drawing is ui-core's.
+A text no version holds (past version 40, where lean-qr throws its error 4) has no modules:
+`qrModules` returns `undefined` for it.
+Both platforms then draw the tile with the image's failed glyph (`QR_CODE_FAILED_GLYPH`) in the image's
+failed ink and log `qrTooLong` in dev.
 
 ## In the code
 
@@ -437,8 +451,10 @@ dependencies of its own, pinned to an exact version in ui-core's manifest); the 
 - `packages/ui-core/src/file.ts`: `accepts`, `pickerTypes`
 - `packages/ui-core/src/roster/image.ts`: the `Image` contract
 - `packages/ui-core/src/line-diff.ts`: `tokenParts`
+- `packages/ui-core/src/roster/diff.ts`: `DIFF_MARKS`
 - `packages/ui-core/src/canvas.ts`: the canvas's graph logic
 - `packages/ui-core/src/qr.ts`: `qrModules`
+- `packages/ui-core/src/prose.ts`: `decodeHTML`
 - `apps/showcase/src/app/routes/_app/requests.tsx`: a windowed `Table` sorted by the server
 - `apps/showcase/src/app/routes/_app/assistant.tsx`: a streamed conversation
 - `apps/showcase/src/roster/scenes/table.tsx`: the comparison and wrapping column scenes
