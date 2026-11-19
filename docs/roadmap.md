@@ -84,25 +84,21 @@ Each item crosses a package boundary, so it changes two or more packages in one 
 
 Each item is decided and waits to be built. One that adds a part or crosses packages is designed first (an architecture section and a change map), then built.
 
-- A sheet outlet: ui-core gives `ScopeBoundary` and the `Shell` a sheet outlet, an act calls `open(sheet)` and never imports `Sheet`, and the outlet draws the stack of open sheets on both platforms. It ends the Button, Sheet, Form, FormField and Input import cycle. A sheet inherits from its opener only the scope and what stands above the Shell; `ReasonHostContext`, `SubmitContext` and `FieldDisabled` stay the opener's.
+- A sheet outlet: each root container (the Shell, the Gate) draws the sheets acts open, beside the `confirm()` decisions; an act opens its sheet with `openSheet(props)` and never imports `Sheet`, which ends the Button, Sheet, Form, FormField and Input import cycle. Each later sheet is drawn nested in the one before it, as Base UI nests dialogs. A sheet keeps the route's scope (registered with the client) and what stands above the root container, inherits nothing from its opener, and is a frame of its own.
 - A form group's `read` and `empty` join `FormGroupOf` (`packages/ui-core/src/form.ts`), so the group frame both form bases draw is reachable and `plugins/react-ui/guide/rules.md` holds.
 - The derived `Form` draws the three FormField shapes it has no way to reach today: a boolean with a `checkbox` hint, a field's `answered` fold, and a field's `change` mark.
-- Scenes for the states no scene stages: `confirm()` and a toast in a single-stage story, a file pick chosen (a `File` put on the input in `ready`) and disabled (a locked field), a painted file row and a painted mini image tile through waiting reads. The popup branch for no root frame is deleted once nothing else reaches it.
+- Two scenes still need a react-ui change first: a painted file row (Section's `paintOf` returns a file sample and `Rows` types `paint` as a `Row`, `plugins/react-ui/src/ui/components/section/`) and a painted mini image tile (`Track.image` in `packages/ui-core/src/roster/dock.ts` widens to `Datum<string>`, so a Dock's cover can wait).
 - A record's breadcrumb is its place's path in the Shell's tree, every ancestor place and then the record's name; a folder is text, a page a link, and the middle levels fold into one `…` when the bar runs short.
 - A `mark` size in `packages/ui-core/src/scales.ts`, two mono characters at the caption size plus the chip's inner pad, sizes `ROW_MARK` in place of `size-icon-control`.
 - native-ui draws the update wall: its root hears the version gate's `426` and draws a closed Gate with the store link; `onUpdateRequired` leaves `@fcalell/plugin-expo/client`.
-- Of the 36 ui-core types named nowhere outside their own file, a type in an exported signature stays exported and one only internal code names loses `export`.
-- `pickChooser` in query mode: the head tick is chosen while every excepted id is a blocked one, mixed only once the viewer unticks a row that can be ticked; the count stays `of − except`.
-- The canvas's `useLayout` splits into the layout run (measure, ELK, route) and the view policy (anchor, opening view, `minZoom`, `fitTo`), which reads only the run's output and the viewport.
-- `textSize` and `spacing` move from the public `./lib/media` to an internal module; `./lib/media` keeps the consumer hooks.
 - A stage's minimum height is a two-line stage's own height, derived from the type scale, so the rail keeps one pitch past the current stage.
 - The environment is threaded from the entries: the CLI's command context and each server entry carry `env`, and none of the 23 reads below an entry (16 files) keeps a `process.env` default.
 - A generated `Specimen` story draws every component's `rest` scene, light and dark, on one page, from `showcaseScenes()`; the overlay scenes stand one stage each at its end.
 - The phone's `Waveform` on `react-native-svg`, over ui-core's waveform arithmetic, with a seek gesture and the adjustable action, in the dock's full player.
 - Guide and architecture pages: a component's props live on its topic page (`containers.md`, `blocks.md`, `content.md`) and `rules.md` keeps the choosing rule and links there; the floors live in `packages/ui-core/guide/voice.md` and `docs/architecture/ui-core/tokens.md` links to them; a rule a consumer follows lives in its guide page and `node.md`, `runtime.md` and `screens.md` keep the mechanism.
 - Guide pages hold at most 600 words of prose (code and tables not counted), checked in `pnpm check`; the 26 pages over it split by topic, the two `rules.md` along their `##` sections.
-- The showcase app's region list, plan reset date and billing date each have one home in its fixtures, which the settings, deploys, usage and releases screens read.
-- Consumer migration: once the items above land, stead and martechthings move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md), which every breaking item above extends in its own commit.
+- The plan's reset date has one home once a Stats cell's `line` takes a `Datum<string>` (`plugins/react-ui/src/ui/components/stats/index.tsx`): `releases.quota` then carries it, and `apps/showcase/src/app/routes/_app/releases.tsx` stops writing "Oct 31".
+- Consumer migration: once the items above land, the two consumer apps move onto stack in one pass each, in their own repos, by the [procedure](procedures/consumer-migration.md), which every breaking item above extends in its own commit.
 
 ## Not verified on a device or browser
 
