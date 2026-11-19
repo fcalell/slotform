@@ -1,6 +1,7 @@
-# Pages, streams and preload
+# Pages and streams
 
-Three reads beyond the plain one ([reads](./reads.md)), and a route's way to warm them.
+Three reads beyond the plain one ([reads](./reads.md)): a paginated list, a window over a total,
+and a stream; a route warms them with [preload](./preload.md).
 
 ## Paginated procedures
 
@@ -21,8 +22,7 @@ remains, the next page painted while it loads, and "Couldn't load more." with Re
 failed. The viewer presses it below `VIRTUAL_FROM` rows; a collection that windows (a `Table` or
 `Section` past that many rows; on the phone, only one that is its Pane's only child) loads the next page as the end of the loaded rows nears, so nothing
 asks for it. The frame is not busy for a next page, draws no count while more remain, and an empty
-first page that has more fetches the next. A `Section`'s count is therefore the loaded rows only
-once the last page is in.
+first page that has more fetches the next.
 
 `usePort().useNextPage(read)` (`usePort` from `@fcalell/ui-core/react/port`) is what that row builds on (`{ next, fetching, failed, fetch }`, `fetch` returning
 its promise); reach for it only for a control of your own, since it never fetches by mounting. A
@@ -77,30 +77,5 @@ the partial turn with `const partial = await answer.stop()`. `onDone` never runs
 
 A WebSocket channel is a stream read too: `channelRead` in `@fcalell/plugin-node/live`
 (`plugins/node/guide/live.md`).
-
-## Preloading a route
-
-A route warms its reads before its components mount with `preload`
-(`@fcalell/plugin-query/preload`), from its TanStack Router
-`loader`, which gets the app's query client in its `context`. Write each handle once, as a function
-both the loader and the component call, so the key is the same:
-
-```tsx
-const project = (id: string) => orpc.projects.get.read({ id });
-export const Route = createFileRoute("/projects/$projectId")({
-  loader: ({ context, params }) => preload(context.queryClient, project(params.projectId)),
-  component: () => <ProjectPane id={Route.useParams().projectId} />,
-});
-```
-
-`preload(client, ...selections)` starts each distinct read and returns at once, so navigation is never held;
-the component builds its own handle and draws what landed, or paints and settles if it is still in
-flight. A fresh read costs no request (`staleTime` decides), a `pages` read fetches its first page,
-and a failed prefetch is dropped. Streams, idle reads (`skipToken`, `enabled: false`) and reads
-whose input comes from another read's data are not preloaded. It warms the client it is given: on
-the web the router's `context` carries the one `QueryProvider` holds, and on the phone a route
-file exports `preload(client, params)`, and a press-in on a row, link, stat or fact that opens the
-route calls it with the app's query client and the href's params, so there is no `loader`
-(`node_modules/@fcalell/plugin-expo/guide/routes.md`).
 
 **Check:** `pnpm check` passes, and under `pnpm dev` the list shows "Show more" until the last page.

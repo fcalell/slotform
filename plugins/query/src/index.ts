@@ -23,7 +23,12 @@ export const query = plugin("query", {
 		{
 			page: "pages-and-streams",
 			trigger:
-				"Showing a paginated procedure's list (scrolled, windowed over a total, or behind \"Show more\"), streaming a reply into a `Thread`, or `preload`ing a route's reads",
+				'Showing a paginated procedure\'s list (scrolled, windowed over a total, or behind "Show more"), or streaming a reply into a `Thread`',
+		},
+		{
+			page: "preload",
+			trigger:
+				"A route should warm its reads before its screen mounts: `preload` from a `loader`",
 		},
 		{
 			page: "acts",

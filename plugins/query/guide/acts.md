@@ -1,7 +1,8 @@
 # Acts and saves
 
 An act's `onAct` returns the promise of the work it starts, and the host that draws the act holds
-the attempt (pending, failure); the app passes no `loading`:
+the attempt and draws its rejection (`node_modules/@fcalell/ui-core/guide/acts.md`). This page is
+the query side: the mutation's promise, the refusal's sentence, and a value that saves as it changes.
 
 ```tsx
 const create = useMutation(orpc.projects.create.mutationOptions());
@@ -11,12 +12,10 @@ const add = {
 };
 ```
 
-- Return `mutateAsync`'s promise, never `mutate()`, and `.catch` nothing: the host draws the
-  rejection, in its line or a failed toast with Retry, and the toast's Retry runs `onAct` again.
-  `retries(error)` decides the Retry: a refusal the server answered (a 4xx other than 408 and
-  429) and an out connection (`Unreached`) have none, as the same act would fail the same way.
-- The sentence is `refusal(error)` from `@fcalell/plugin-query/acts`, else the
-  generic one; an act has no sentence of its own. `refusal` is an `ORPCError`'s own message, capitalised and stopped, for a 4xx
+- Return `mutateAsync`'s promise, never `mutate()`, and `.catch` nothing. `retries(error)` decides
+  the toast's Retry: a refusal the server answered and an out connection (`Unreached`) have none.
+- The sentence is `refusal(error)` from `@fcalell/plugin-query/acts`, else the generic one.
+  `refusal` is an `ORPCError`'s own message, capitalised and stopped, for a 4xx
   other than 401, 403, 404 and 429 whose message is neither blank nor the code's stock text
   (`new ApiError("BAD_REQUEST", { message: "That name is taken" })` reads "That name is taken.");
   anything else is `undefined`.
@@ -26,21 +25,10 @@ const add = {
   every issue as `{ path, message }` in the schema's order (`path` is `["address", "city"]` for a
   nested field, empty for the input as a whole), none for any other error, so a form says each
   on its field: `error={issues(error).find((i) => i.path[0] === "name")?.message}`.
-- A machine name in a refusal stands between backticks in the message
-  (``"No project at `apps/billing`"``), the one marker a sentence carries; a field's `error`
-  takes runs, and `markedRuns(message)` from `@fcalell/ui-core/form` turns the backticked span
-  into a `{ code }` run (a `Form` does it for the issues it draws).
-- Nothing queues for a connection that is not there. `createQueryClient`'s mutation cache runs
-  `guardReach` before every mutation: while `onlineManager` is offline, or a cached read's
-  `meta.reach` says the server is out of reach (`ws.connection` from
-  `@fcalell/plugin-node/client`), the mutation rejects with `Unreached` before any fetch, so
-  it never pauses and never fires on reconnect. The host draws the generic sentence with no Retry; the
-  connection's reason is the app's offline banner's. A `mutationCache` you supply yourself must call `guardReach(client)` in its
-  `onMutate`.
-- An act given as a selection (`rules.at((a) => …)`) is the viewer's to press only when its read
-  answered: it paints while the read waits and stands blocked once the read has failed or is
-  missing, with the failed sentence (`words.missing` when missing). A constant act is live in every
-  frame shape.
+- A mutation rejects with `Unreached` before any fetch while the browser is offline or a cached
+  read's `meta.reach` says the server is out of reach (`ws.connection` from
+  `@fcalell/plugin-node/client`). A `mutationCache` you supply yourself must call
+  `guardReach(client)` in its `onMutate`.
 - Invalidation is not awaited, so what the act changed shows through the reads it refetches (their
   busy mark); there is no done mark.
 
@@ -70,11 +58,10 @@ const draft = useDraft(notify, (error, again) =>
   onChange={(e) => draft.change(e.target.checked, () => save.mutateAsync({ notify: e.target.checked }))} />
 ```
 
-While a save pends the draft holds `next`, a selection's or a constant's. Each change supersedes the
-one before and only the latest's outcome counts: resolved, the hold waits for the refetch that the
-write's invalidation started on the draft's reads, then follows its datum unless it was edited
-since; rejected, it falls back to the datum and `failed` hears the error with `again`, a way to save
-the same value. `change` returns the save's promise (never rejecting, since `failed` draws the
+While a save pends the draft holds `next`. Each change supersedes the one before and only the
+latest's outcome counts: resolved, the hold waits for the refetch the write started, then follows
+its datum unless it was edited since; rejected, it falls back to the datum and `failed` hears the
+error with `again`, a way to save the same value. `change` returns the save's promise (never rejecting, since `failed` draws the
 rejection), so an act that saves again holds the attempt. react-ui and native-ui's controls do all of
 this: hand one the promise from `onChange`, or from `onCommit` for an `Input` or
 `Slider`. A form field hosts its control's save: the field holds the draft and a refusal draws in

@@ -17,7 +17,7 @@ It requires `api`. The consumer declares `@orpc/tanstack-query` (the plugin's `d
 ## Guide
 
 Drawing the api's reads lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
-[`reads.md`](./guide/reads.md), [`pages-and-streams.md`](./guide/pages-and-streams.md),
+[`reads.md`](./guide/reads.md), [`pages-and-streams.md`](./guide/pages-and-streams.md), [`preload.md`](./guide/preload.md),
 [`acts.md`](./guide/acts.md), [`abilities.md`](./guide/abilities.md) and
 [`provider.md`](./guide/provider.md). Building the typed client is plugin-api's
 [`client.md`](../api/guide/client.md).
