@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import type { StackConfig } from "../config.ts";
+import type { SlotformConfig } from "../config.ts";
 import { ConfigLoadError } from "./errors.ts";
 
 let reloads = 0;
@@ -13,11 +13,11 @@ export function configUrl(configPath: string, reload = false): string {
 }
 
 // `reload` re-evaluates the config file instead of answering the cached
-// module, for a config edited while the process lives (`stack dev`).
+// module, for a config edited while the process lives (`slotform dev`).
 export async function loadConfig(
 	configPath: string,
 	{ reload = false }: { reload?: boolean } = {},
-): Promise<StackConfig> {
+): Promise<SlotformConfig> {
 	const resolved = resolve(configPath);
 
 	let mod: Record<string, unknown>;
@@ -32,14 +32,14 @@ export async function loadConfig(
 
 	const config: unknown = mod.default;
 
-	if (!isStackConfig(config)) {
+	if (!isSlotformConfig(config)) {
 		throw new ConfigLoadError(`Invalid config at ${resolved}`);
 	}
 
 	return config;
 }
 
-function isStackConfig(value: unknown): value is StackConfig {
+function isSlotformConfig(value: unknown): value is SlotformConfig {
 	if (typeof value !== "object" || value === null) return false;
 	if (!("plugins" in value) || !Array.isArray(value.plugins)) return false;
 	if (!("validate" in value) || typeof value.validate !== "function")

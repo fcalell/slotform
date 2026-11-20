@@ -1,15 +1,15 @@
 import type { ValidationError } from "../config.ts";
 
-export class StackError extends Error {
+export class SlotformError extends Error {
 	readonly code: string;
 	constructor(message: string, code: string) {
 		super(message);
 		this.code = code;
-		this.name = "StackError";
+		this.name = "SlotformError";
 	}
 }
 
-export class ConfigLoadError extends StackError {
+export class ConfigLoadError extends SlotformError {
 	readonly cause?: unknown;
 	constructor(message: string, cause?: unknown) {
 		super(message, "CONFIG_LOAD");
@@ -18,7 +18,7 @@ export class ConfigLoadError extends StackError {
 	}
 }
 
-export class ConfigValidationError extends StackError {
+export class ConfigValidationError extends SlotformError {
 	readonly errors: ValidationError[];
 	constructor(errors: ValidationError[]) {
 		super(
@@ -30,7 +30,7 @@ export class ConfigValidationError extends StackError {
 	}
 }
 
-export class StepFailedError extends StackError {
+export class StepFailedError extends SlotformError {
 	constructor(step: string, exitCode: number | null, command: string) {
 		super(
 			`Step "${step}" (${command}) failed${exitCode !== null ? ` with exit code ${exitCode}` : ""}.`,
@@ -40,7 +40,7 @@ export class StepFailedError extends StackError {
 	}
 }
 
-export class MissingPluginError extends StackError {
+export class MissingPluginError extends SlotformError {
 	constructor(pluginName: string, message?: string) {
 		super(
 			message ?? `Plugin "${pluginName}" is not available.`,

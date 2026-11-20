@@ -49,7 +49,7 @@ export const cliSlots = {
 		sortBy: (a, b) => a.domain.localeCompare(b.domain),
 	}),
 	// The Biome plugins the consumer's lint runs on its own sources, from the
-	// package that owns the rules. Rendered into `.stack/biome.json`.
+	// package that owns the rules. Rendered into `.slotform/biome.json`.
 	lintPlugins: slot.list<LintPlugin>({
 		source: SOURCE,
 		name: "lintPlugins",
@@ -100,7 +100,7 @@ export const cliSlots = {
 	removeFiles: slot.list<string>({ source: SOURCE, name: "removeFiles" }),
 	removeDeps: slot.list<string>({ source: SOURCE, name: "removeDeps" }),
 	removeDevDeps: slot.list<string>({ source: SOURCE, name: "removeDevDeps" }),
-	// tsconfig `paths`, read once by `stack init`: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
+	// tsconfig `paths`, read once by `slotform init`: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 	tsconfigPaths: slot.map<string[]>({ source: SOURCE, name: "tsconfigPaths" }),
 	// tsconfig `types`, read where `tsconfigPaths` is: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 	tsconfigTypes: slot.list<string>({ source: SOURCE, name: "tsconfigTypes" }),

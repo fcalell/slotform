@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { stackConfigTemplate } from "./stack-config.ts";
+import { slotformConfigTemplate } from "./slotform-config.ts";
 
 // Evaluates the template's `defineConfig` argument, each plugin call answering
 // its name and options.
@@ -26,7 +26,7 @@ test("the app and each plugin's options evaluate back to the values given", () =
 		nested: { empty: {}, list: [1, "two"], none: null },
 		"dashed-key": "x",
 	};
-	const source = stackConfigTemplate({
+	const source = slotformConfigTemplate({
 		name,
 		domain,
 		plugins: ["db", "auth"],
@@ -45,7 +45,7 @@ test("the app and each plugin's options evaluate back to the values given", () =
 });
 
 test("a config with no plugins holds an empty plugin list", () => {
-	const source = stackConfigTemplate({
+	const source = slotformConfigTemplate({
 		name: "a",
 		domain: "a.com",
 		plugins: [],

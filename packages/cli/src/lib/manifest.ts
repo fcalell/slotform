@@ -10,7 +10,7 @@ export type Manifest = z.infer<typeof manifestSchema>;
 
 // The `package.json` at `path`, its dependency maps checked. The file's own
 // object is returned, never the schema's copy: zod puts the keys a schema names
-// first, and `installStack` writes this object back.
+// first, and `installSlotform` writes this object back.
 export function readManifest(path: string): Manifest {
 	const manifest: unknown = JSON.parse(readFileSync(path, "utf8"));
 	manifestSchema.parse(manifest);
@@ -36,12 +36,12 @@ export const cliManifest = z
 	);
 
 // The ts-morph range an app declares as a devDependency: the CLI's optional peer, which prints the
-// TypeScript `stack generate` writes.
+// TypeScript `slotform generate` writes.
 export const TS_MORPH_SPEC = cliManifest.peerDependencies["ts-morph"];
 
-// The TypeScript and Node types an app or a plugin the CLI scaffolds compiles with: the ones stack's
+// The TypeScript and Node types an app or a plugin the CLI scaffolds compiles with: the ones Slotform's
 // own sources, which an app's `tsc` also reads, are checked with.
 export const TYPESCRIPT_SPEC = cliManifest.devDependencies.typescript;
 export const TYPES_NODE_SPEC = cliManifest.devDependencies["@types/node"];
-// The Biome binary a consumer outside stack's workspace lints with.
+// The Biome binary a consumer outside the Slotform workspace lints with.
 export const BIOME_SPEC = cliManifest.devDependencies["@biomejs/biome"];

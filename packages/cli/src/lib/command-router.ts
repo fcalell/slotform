@@ -1,6 +1,6 @@
 import { type ParseArgsOptionDescriptor, parseArgs } from "node:util";
 import type { CommandDefinition, InternalCliPlugin } from "./create-plugin.ts";
-import { StackError } from "./errors.ts";
+import { SlotformError } from "./errors.ts";
 import type { Slot } from "./slots.ts";
 
 type AnyCliPlugin = InternalCliPlugin<
@@ -17,7 +17,7 @@ interface PluginCommandMatch {
 	commandName: string;
 }
 
-export const DEFAULT_CONFIG = "stack.config.ts";
+export const DEFAULT_CONFIG = "slotform.config.ts";
 
 // The flags every command takes, a plugin's own included: docs/architecture/commands.md, "Plugin subcommands".
 export const GLOBAL_OPTIONS: Record<
@@ -102,7 +102,7 @@ export function parseCommandFlags(
 			continue;
 		const def = canonical === undefined ? undefined : defs[canonical];
 		if (canonical === undefined || def === undefined) {
-			throw new StackError(
+			throw new SlotformError(
 				`Unknown flag "${token.rawName}" for command "${command.description}". Available: ${flagList(command)}`,
 				"UNKNOWN_FLAG",
 			);
@@ -110,7 +110,7 @@ export function parseCommandFlags(
 		const { value } = token;
 		if (def.type === "boolean") {
 			if (value !== undefined) {
-				throw new StackError(
+				throw new SlotformError(
 					`Flag "${token.rawName}" takes no value.`,
 					"INVALID_FLAG_VALUE",
 				);
@@ -120,14 +120,14 @@ export function parseCommandFlags(
 			value === undefined ||
 			(!token.inlineValue && value.startsWith("-"))
 		) {
-			throw new StackError(
+			throw new SlotformError(
 				`Flag "${token.rawName}" requires a ${def.type} value.`,
 				"MISSING_FLAG_VALUE",
 			);
 		} else if (def.type === "number") {
 			const parsed = Number(value);
 			if (value.trim() === "" || Number.isNaN(parsed)) {
-				throw new StackError(
+				throw new SlotformError(
 					`Flag "${token.rawName}" expects a number, got "${value}".`,
 					"INVALID_FLAG_VALUE",
 				);

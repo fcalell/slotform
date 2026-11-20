@@ -20,11 +20,11 @@ test("the required third-party peers are derived", () => {
 		requiredPeers(
 			[
 				{
-					name: "@fcalell/plugin-db",
+					name: "@slotform/db",
 					peerDependencies: {
 						"drizzle-kit": "^0.31.11",
 						"drizzle-orm": "^0.45.4",
-						"@fcalell/plugin-api": "^0.1.0",
+						"@slotform/api": "^0.1.0",
 					},
 					peerDependenciesMeta: { "drizzle-kit": { optional: true } },
 				},
@@ -40,7 +40,7 @@ test("an explicit contribution wins over a derived peer", () => {
 		requiredPeers(
 			[
 				{
-					name: "@fcalell/plugin-native-ui",
+					name: "@slotform/native-ui",
 					peerDependencies: { react: "^19.3.0", uniwind: "^1.13.2" },
 				},
 			],
@@ -54,8 +54,8 @@ test("the first manifest naming a peer gives its range", () => {
 	assert.deepEqual(
 		requiredPeers(
 			[
-				{ name: "@fcalell/plugin-api", peerDependencies: { zod: "^4.6.7" } },
-				{ name: "@fcalell/plugin-db", peerDependencies: { zod: "^4.0.0" } },
+				{ name: "@slotform/api", peerDependencies: { zod: "^4.6.7" } },
+				{ name: "@slotform/db", peerDependencies: { zod: "^4.0.0" } },
 			],
 			{},
 		),
@@ -65,52 +65,52 @@ test("the first manifest naming a peer gives its range", () => {
 
 test("a peer goes only when no package left requires it", () => {
 	const api = {
-		name: "@fcalell/plugin-api",
+		name: "@slotform/api",
 		peerDependencies: { "drizzle-orm": "^0.45.4", hono: "^4.13.19" },
 	};
 	const db = {
-		name: "@fcalell/plugin-db",
+		name: "@slotform/db",
 		peerDependencies: { "drizzle-orm": "^0.45.4", "drizzle-kit": "^0.31.11" },
 		peerDependenciesMeta: { "drizzle-kit": { optional: true } },
 	};
 	const ui = {
-		name: "@fcalell/ui-core",
+		name: "@slotform/ui-core",
 		peerDependencies: { clsx: "^2.1.1", zod: "^4.6.7" },
 	};
 	assert.deepEqual(droppedPeers([api, db, ui], [api, db]), ["clsx", "zod"]);
 	assert.deepEqual(droppedPeers([api, db], [api]), []);
 });
 
-// The app names plugin-vite, whose closure is cli, plugin-api and plugin-vite.
+// The app names the vite plugin, whose closure is cli, api and vite.
 test("the app's closure is read beside the package that depends on each", () => {
-	const app = mkdtempSync(join(tmpdir(), "stack-peers-"));
-	const store = join(app, "node_modules/.pnpm/vite/node_modules/@fcalell");
+	const app = mkdtempSync(join(tmpdir(), "slotform-peers-"));
+	const store = join(app, "node_modules/.pnpm/vite/node_modules/@slotform");
 	const install = (name: string, peers: Record<string, string>) => {
 		mkdirSync(join(store, name), { recursive: true });
 		writeFileSync(
 			join(store, name, "package.json"),
-			JSON.stringify({ name: `@fcalell/${name}`, peerDependencies: peers }),
+			JSON.stringify({ name: `@slotform/${name}`, peerDependencies: peers }),
 		);
 	};
-	install("plugin-vite", { zod: "^4.6.7" });
-	install("plugin-api", { hono: "^4.13.19" });
+	install("vite", { zod: "^4.6.7" });
+	install("api", { hono: "^4.13.19" });
 	install("cli", {});
-	mkdirSync(join(app, "node_modules/@fcalell"));
+	mkdirSync(join(app, "node_modules/@slotform"));
 	symlinkSync(
-		join(store, "plugin-vite"),
-		join(app, "node_modules/@fcalell/plugin-vite"),
+		join(store, "vite"),
+		join(app, "node_modules/@slotform/vite"),
 		"dir",
 	);
 	writeFileSync(
 		join(app, "package.json"),
-		JSON.stringify({ dependencies: { "@fcalell/plugin-vite": "^0.1.0" } }),
+		JSON.stringify({ dependencies: { "@slotform/vite": "^0.1.0" } }),
 	);
 	try {
 		assert.deepEqual(requiredPeers(appClosureManifests(app), {}), {
 			hono: "^4.13.19",
 			zod: "^4.6.7",
 		});
-		assert.deepEqual(appClosureManifests(app, ["@fcalell/plugin-vite"]), []);
+		assert.deepEqual(appClosureManifests(app, ["@slotform/vite"]), []);
 	} finally {
 		rmSync(app, { recursive: true, force: true });
 	}

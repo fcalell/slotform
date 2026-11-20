@@ -3,17 +3,17 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { StackError } from "../lib/errors.ts";
+import { SlotformError } from "../lib/errors.ts";
 import { assertInitTarget } from "./init.ts";
 
 const ok = { dirGiven: true, force: false, tty: false };
 
 test("init refuses the cwd without a terminal", () => {
-	const dir = mkdtempSync(join(tmpdir(), "stack-init-"));
+	const dir = mkdtempSync(join(tmpdir(), "slotform-init-"));
 	try {
 		assert.throws(
 			() => assertInitTarget(dir, { ...ok, dirGiven: false }),
-			StackError,
+			SlotformError,
 		);
 		assertInitTarget(dir, { ...ok, dirGiven: false, tty: true });
 		assertInitTarget(dir, ok);
@@ -23,13 +23,13 @@ test("init refuses the cwd without a terminal", () => {
 });
 
 test("init refuses a directory with a project unless forced", () => {
-	for (const file of ["package.json", "stack.config.ts"]) {
-		const dir = mkdtempSync(join(tmpdir(), "stack-init-"));
+	for (const file of ["package.json", "slotform.config.ts"]) {
+		const dir = mkdtempSync(join(tmpdir(), "slotform-init-"));
 		try {
 			writeFileSync(join(dir, file), "");
 			assert.throws(
 				() => assertInitTarget(dir, ok),
-				/already has a project; use `stack add <plugin>`/,
+				/already has a project; use `slotform add <plugin>`/,
 			);
 			assertInitTarget(dir, { ...ok, force: true });
 		} finally {

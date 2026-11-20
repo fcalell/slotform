@@ -1,12 +1,12 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import { log, outro } from "@clack/prompts";
-import { StackError } from "../lib/errors.ts";
-import { stackWorkspaceRoot, toWorkspaceSpecs } from "../lib/install.ts";
+import { SlotformError } from "../lib/errors.ts";
+import { slotformWorkspaceRoot, toWorkspaceSpecs } from "../lib/install.ts";
 import { TYPES_NODE_SPEC, TYPESCRIPT_SPEC } from "../lib/manifest.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import { writeIfMissingString } from "../lib/scaffold.ts";
-import { PACKAGE_MANAGER, stackSpec } from "../lib/stack-packages.ts";
+import { PACKAGE_MANAGER, slotformSpec } from "../lib/slotform-packages.ts";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 
 interface InitPluginOptions {
@@ -18,7 +18,7 @@ interface InitPluginOptions {
 interface PluginFilesOptions {
 	name: string;
 	packageName: string;
-	// The plugin sits in stack's own workspace, which installs it: no
+	// The plugin sits in the Slotform workspace, which installs it: no
 	// `pnpm-workspace.yaml` of its own.
 	workspace: boolean;
 }
@@ -45,8 +45,8 @@ function pluginFiles(options: PluginFilesOptions): Array<[string, string]> {
 		files.push([
 			"pnpm-workspace.yaml",
 			pnpmWorkspaceTemplate(null, [
-				"@fcalell/cli",
-				"@fcalell/typescript-config",
+				"@slotform/cli",
+				"@slotform/typescript-config",
 			]),
 		]);
 	}
@@ -55,24 +55,24 @@ function pluginFiles(options: PluginFilesOptions): Array<[string, string]> {
 
 // Scaffolds a plugin skeleton a third-party author can publish as-is.
 // Layout: docs/architecture/conventions.md, "Plugin folder structure".
-// Inside stack's workspace it takes each stack package from the workspace: docs/architecture/consumer-project.md, "Inside stack's workspace".
+// Inside the Slotform workspace it takes each Slotform package from the workspace: docs/architecture/consumer-project.md, "Inside Slotform's workspace".
 export async function initPlugin(options: InitPluginOptions): Promise<void> {
 	const name = options.name.trim();
 	if (!name) {
-		throw new StackError(
-			"Plugin name is required. Usage: stack plugin init <name>",
+		throw new SlotformError(
+			"Plugin name is required. Usage: slotform plugin init <name>",
 			"PLUGIN_INIT_INVALID_NAME",
 		);
 	}
 
 	if (!/^[a-z][a-z0-9-]*$/.test(name)) {
-		throw new StackError(
+		throw new SlotformError(
 			`Invalid plugin name: "${name}". Use lowercase letters, digits, and dashes (e.g. "my-plugin").`,
 			"PLUGIN_INIT_INVALID_NAME",
 		);
 	}
 
-	const packageName = options.package ?? `stack-plugin-${name}`;
+	const packageName = options.package ?? `slotform-plugin-${name}`;
 	const targetDir = options.dir
 		? resolve(options.dir)
 		: resolve(process.cwd(), "plugins", name);
@@ -80,7 +80,7 @@ export async function initPlugin(options: InitPluginOptions): Promise<void> {
 	if (!existsSync(targetDir)) {
 		mkdirSync(targetDir, { recursive: true });
 	}
-	const workspace = stackWorkspaceRoot(targetDir) !== null;
+	const workspace = slotformWorkspaceRoot(targetDir) !== null;
 
 	// The skeleton's paths are relative to the plugin's directory.
 	const created: string[] = [];
@@ -119,7 +119,7 @@ function toPascalCase(name: string): string {
 interface PluginPackageJsonOptions {
 	name: string;
 	packageName: string;
-	// The plugin sits in stack's own workspace: it takes each stack package
+	// The plugin sits in the Slotform workspace: it takes each Slotform package
 	// from the workspace and the root's package manager.
 	workspace: boolean;
 }
@@ -148,10 +148,10 @@ function pluginPackageJsonTemplate(options: PluginPackageJsonOptions): string {
 			check: "pnpm check-types && biome check",
 		},
 		dependencies: {
-			"@fcalell/cli": stackSpec(),
+			"@slotform/cli": slotformSpec(),
 		},
 		devDependencies: {
-			"@fcalell/typescript-config": stackSpec(),
+			"@slotform/typescript-config": slotformSpec(),
 			"@types/node": TYPES_NODE_SPEC,
 			typescript: TYPESCRIPT_SPEC,
 		},
@@ -163,7 +163,7 @@ function pluginPackageJsonTemplate(options: PluginPackageJsonOptions): string {
 
 function pluginTsconfigTemplate(): string {
 	const config = {
-		extends: "@fcalell/typescript-config/node-tsx.json",
+		extends: "@slotform/typescript-config/node-tsx.json",
 		include: ["src"],
 	};
 	return `${JSON.stringify(config, null, "\t")}\n`;
@@ -171,7 +171,7 @@ function pluginTsconfigTemplate(): string {
 
 function pluginTsconfigBuildTemplate(): string {
 	const config = {
-		extends: ["./tsconfig.json", "@fcalell/typescript-config/build.json"],
+		extends: ["./tsconfig.json", "@slotform/typescript-config/build.json"],
 	};
 	return `${JSON.stringify(config, null, "\t")}\n`;
 }
@@ -185,7 +185,7 @@ interface PluginIndexOptions {
 function pluginIndexTemplate(options: PluginIndexOptions): string {
 	const { name, packageName, label } = options;
 	const varName = toCamelCase(name);
-	return `import { plugin, slot } from "@fcalell/cli";
+	return `import { plugin, slot } from "@slotform/cli";
 
 export interface ${toPascalCase(name)}Options {
 \t// Add plugin-specific options here.
@@ -222,11 +222,11 @@ interface PluginRuntimeOptions {
 function pluginRuntimeTemplate(options: PluginRuntimeOptions): string {
 	const { name } = options;
 	const varName = toCamelCase(name);
-	return `import type { RuntimePlugin } from "@fcalell/cli/runtime";
+	return `import type { RuntimePlugin } from "@slotform/cli/runtime";
 
 export interface ${toPascalCase(name)}RuntimeOptions {
 \t// Runtime options live here. They are plain values read at generate time
-\t// and inlined into .stack/worker.ts as JS literals.
+\t// and inlined into .slotform/worker.ts as JS literals.
 }
 
 export default function ${varName}Runtime(
@@ -252,7 +252,7 @@ function pluginReadmeTemplate(options: PluginReadmeOptions): string {
 	const { name, packageName, label } = options;
 	return `# ${packageName}
 
-${label} plugin for [\`@fcalell/stack\`](https://github.com/fcalell/stack).
+${label} plugin for [\`slotform\`](https://github.com/fcalell/slotform).
 
 ## Install
 
@@ -263,8 +263,8 @@ pnpm add ${packageName}
 ## Usage
 
 \`\`\`ts
-// stack.config.ts
-import { defineConfig } from "@fcalell/cli";
+// slotform.config.ts
+import { defineConfig } from "@slotform/cli";
 import { ${toCamelCase(name)} } from "${packageName}";
 
 export default defineConfig({

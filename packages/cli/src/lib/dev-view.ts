@@ -19,7 +19,7 @@ type ProcessStatus =
 	| { kind: "ready"; url?: string }
 	| { kind: "exited"; code: number | null; signal: NodeJS.Signals | null };
 
-// Where `stack dev` shows its processes' output and its own log.
+// Where `slotform dev` shows its processes' output and its own log.
 export interface DevView {
 	log: DevLog;
 	output(name: string, stream: OutputStream, line: string): void;
@@ -62,9 +62,9 @@ export function createStreamView(): DevView {
 export interface Pane {
 	name: string;
 	lines: string[];
-	// Null on the stack pane, which holds the CLI's own log.
+	// Null on the `slotform` pane, which holds the CLI's own log.
 	status: ProcessStatus | null;
-	// A warning or error the stack pane took while another pane showed.
+	// A warning or error the `slotform` pane took while another pane showed.
 	notice: "warn" | "error" | null;
 	// Rows scrolled up from the newest; 0 follows the output.
 	offset: number;
@@ -246,7 +246,7 @@ export function frame({ panes, selected, cols, rows }: ScreenModel): {
 const SCROLLBACK = 2000;
 
 // The full-screen view, as turbo draws its tasks: a list of the processes
-// and the stack pane beside the selected one's output. It holds the
+// and the `slotform` pane beside the selected one's output. It holds the
 // terminal's alternate screen and its keys until `close`.
 export function createScreenView(opts: {
 	onQuit(): void;
@@ -255,8 +255,8 @@ export function createScreenView(opts: {
 	env: NodeJS.ProcessEnv;
 }): DevView {
 	const { stdin, stdout } = process;
-	const stack: Pane = {
-		name: "stack",
+	const slotformPane: Pane = {
+		name: "slotform",
 		lines: [],
 		status: null,
 		notice: null,
@@ -264,12 +264,12 @@ export function createScreenView(opts: {
 	};
 	const processes = new Map<string, Pane>();
 	const errors: string[] = [];
-	let selected = stack;
+	let selected = slotformPane;
 	let picked = false;
 	let pending: ReturnType<typeof setTimeout> | undefined;
 	let open = true;
 
-	const panes = () => [...processes.values(), stack];
+	const panes = () => [...processes.values(), slotformPane];
 	const size = () => ({ cols: stdout.columns || 80, rows: stdout.rows || 24 });
 
 	const draw = () => {
@@ -317,14 +317,14 @@ export function createScreenView(opts: {
 		};
 		processes.set(name, pane);
 		// The first process shows until a key picks another pane.
-		if (!picked && selected === stack) selected = pane;
+		if (!picked && selected === slotformPane) selected = pane;
 		return pane;
 	};
 
 	const entry =
 		(symbol: string, level?: "warn" | "error") => (message: string) => {
 			append(
-				stack,
+				slotformPane,
 				message
 					.split("\n")
 					.map((line, i) => (i === 0 ? `${symbol} ${line}` : `  ${line}`))
@@ -332,7 +332,8 @@ export function createScreenView(opts: {
 			);
 			if (level === undefined) return;
 			if (level === "error") errors.push(message);
-			if (selected !== stack && stack.notice !== "error") stack.notice = level;
+			if (selected !== slotformPane && slotformPane.notice !== "error")
+				slotformPane.notice = level;
 		};
 
 	const screenLog: DevLog = {
@@ -352,7 +353,7 @@ export function createScreenView(opts: {
 		if (next === undefined || next === selected) return;
 		picked = true;
 		selected = next;
-		if (next === stack) stack.notice = null;
+		if (next === slotformPane) slotformPane.notice = null;
 		schedule();
 	};
 	const scroll = (rows: number) => {
@@ -379,7 +380,7 @@ export function createScreenView(opts: {
 		end: bottom,
 		G: bottom,
 		r: () => {
-			if (selected !== stack) opts.onRestart(selected.name);
+			if (selected !== slotformPane) opts.onRestart(selected.name);
 		},
 		o: () => {
 			const { status } = selected;

@@ -5,37 +5,41 @@ import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 import { isErrno } from "./errno.ts";
-import { StackError } from "./errors.ts";
+import { SlotformError } from "./errors.ts";
+import { GENERATED_DIR } from "./generated-dir.ts";
 import { leaves } from "./inside-project.ts";
 import { isRecord } from "./is-record.ts";
 import { type Manifest, readManifest } from "./manifest.ts";
-import { isStackPackage, type StackPackage } from "./stack-packages.ts";
+import {
+	isSlotformPackage,
+	type SlotformPackage,
+} from "./slotform-packages.ts";
 
 // This package's root, from `src/lib/` or `dist/lib/`.
 const CLI_DIR = fileURLToPath(new URL("../..", import.meta.url));
 
-// The app's install files as they were before `stack link`, under the app.
+// The app's install files as they were before `slotform link`, under the app.
 // Its presence is what makes the app linked.
-export const LINK_DIR = join(".stack", "link");
+export const LINK_DIR = join(GENERATED_DIR, "link");
 
 // Fails when the app is linked: the backup under `LINK_DIR` is the committed
-// state, and `stack unlink` restores it over any later install or build.
+// state, and `slotform unlink` restores it over any later install or build.
 export function assertUnlinked(cwd: string): void {
 	if (existsSync(join(cwd, LINK_DIR))) {
-		throw new StackError(
-			"The app is linked to a stack checkout; run `stack unlink` first.",
+		throw new SlotformError(
+			"The app is linked to a Slotform checkout; run `slotform unlink` first.",
 			"APP_LINKED",
 		);
 	}
 }
 
-// Brings the app's stack packages in line with its `package.json`, then installs: docs/architecture/consumer-project.md, "Installing stack".
-export function installStack(cwd: string, env: NodeJS.ProcessEnv): void {
+// Brings the app's Slotform packages in line with its `package.json`, then installs: docs/architecture/consumer-project.md, "Installing Slotform".
+export function installSlotform(cwd: string, env: NodeJS.ProcessEnv): void {
 	assertUnlinked(cwd);
 	const pkgPath = join(cwd, "package.json");
 	const pkg = readManifest(pkgPath);
-	const workspace = stackWorkspaceRoot(cwd);
-	// Inside stack's workspace its root carries the build verdicts by hand.
+	const workspace = slotformWorkspaceRoot(cwd);
+	// Inside the Slotform workspace its root carries the build verdicts by hand.
 	if (workspace) {
 		const next = JSON.stringify(toWorkspaceSpecs(pkg), null, "\t");
 		if (next !== JSON.stringify(pkg, null, "\t")) {
@@ -50,16 +54,16 @@ export function installStack(cwd: string, env: NodeJS.ProcessEnv): void {
 		workspacePath,
 		pnpmWorkspaceTemplate(
 			existsSync(workspacePath) ? readFileSync(workspacePath, "utf8") : null,
-			namedStackPackages(pkg),
+			namedSlotformPackages(pkg),
 		),
 	);
 	pnpmInstall(root, [], env);
 }
 
-// The stack packages the app's `dependencies` and `devDependencies` name.
-export function namedStackPackages(pkg: Manifest): StackPackage[] {
+// The Slotform packages the app's `dependencies` and `devDependencies` name.
+export function namedSlotformPackages(pkg: Manifest): SlotformPackage[] {
 	return Object.keys({ ...pkg.dependencies, ...pkg.devDependencies }).filter(
-		isStackPackage,
+		isSlotformPackage,
 	);
 }
 
@@ -75,31 +79,31 @@ export function pnpmInstall(
 		env,
 	});
 	if (isErrno(result.error, "ENOENT")) {
-		throw new StackError(
+		throw new SlotformError(
 			"pnpm is not installed; install it with `corepack enable` or `npm i -g pnpm`.",
 			"INSTALL_FAILED",
 		);
 	}
 	if (result.status !== 0) {
-		throw new StackError(
+		throw new SlotformError(
 			`pnpm install failed (exit ${result.status ?? "signal"}).`,
 			"INSTALL_FAILED",
 		);
 	}
 }
 
-// The manifest with each stack package in `dependencies` and
+// The manifest with each Slotform package in `dependencies` and
 // `devDependencies` given `spec(name)`.
-export function withStackSpecs(
+export function withSlotformSpecs(
 	pkg: Manifest,
-	spec: (name: StackPackage) => string,
+	spec: (name: SlotformPackage) => string,
 ): Manifest {
 	const rewrite = (deps?: Record<string, string>) =>
 		deps &&
 		Object.fromEntries(
 			Object.entries(deps).map(([name, current]) => [
 				name,
-				isStackPackage(name) ? spec(name) : current,
+				isSlotformPackage(name) ? spec(name) : current,
 			]),
 		);
 	return {
@@ -110,7 +114,7 @@ export function withStackSpecs(
 }
 
 export function toWorkspaceSpecs(pkg: Manifest): Manifest {
-	return withStackSpecs(pkg, () => "workspace:*");
+	return withSlotformSpecs(pkg, () => "workspace:*");
 }
 
 // `path` with POSIX separators, as specs and workspace globs take it.
@@ -162,8 +166,8 @@ function workspaceOf(
 }
 
 // The root of the pnpm workspace `dir` belongs to, when this CLI's package
-// (`CLI_DIR`) is a project of that workspace too: stack's own checkout.
-export function stackWorkspaceRoot(dir: string): string | null {
+// (`CLI_DIR`) is a project of that workspace too: the Slotform checkout.
+export function slotformWorkspaceRoot(dir: string): string | null {
 	const workspace = workspaceOf(dir);
 	return workspace?.isProject(realpathSync(CLI_DIR)) ? workspace.root : null;
 }

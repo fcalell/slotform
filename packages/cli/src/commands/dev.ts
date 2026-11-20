@@ -34,7 +34,7 @@ function attachWatcher(args: {
 	let pendingFilename: string | null = null;
 	const handle = watch(fullPath, { recursive: true }, (_event, filename) => {
 		if (!filename) return;
-		// Directory events are skipped: docs/architecture/commands.md, "`stack dev`".
+		// Directory events are skipped: docs/architecture/commands.md, "`slotform dev`".
 		try {
 			if (statSync(join(fullPath, filename)).isDirectory()) return;
 		} catch {
@@ -135,7 +135,7 @@ export async function dev(options: DevOptions): Promise<void> {
 		process.exit(exitCode);
 	};
 	const { log } = view;
-	if (!screen) intro("stack dev");
+	if (!screen) intro("slotform dev");
 	// The processes lead process groups of their own, so the terminal's signals
 	// (Ctrl+C, a closed terminal's SIGHUP) reach them only through `dev`.
 	for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const) {

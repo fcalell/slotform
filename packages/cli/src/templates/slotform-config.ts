@@ -1,15 +1,15 @@
 import { pluginPackage } from "../lib/first-party.ts";
 import { toCamelCase } from "../lib/naming.ts";
 
-interface StackConfigOptions {
+interface SlotformConfigOptions {
 	name: string;
 	domain: string;
 	plugins: string[];
 	pluginAnswers: Map<string, Record<string, unknown>>;
 }
 
-export function stackConfigTemplate(options: StackConfigOptions): string {
-	const imports = ['import { defineConfig } from "@fcalell/cli";'];
+export function slotformConfigTemplate(options: SlotformConfigOptions): string {
+	const imports = ['import { defineConfig } from "@slotform/cli";'];
 
 	for (const name of options.plugins) {
 		const id = toCamelCase(name);

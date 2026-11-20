@@ -10,7 +10,7 @@ interface DeployOptions {
 }
 
 export async function deploy(options: DeployOptions): Promise<void> {
-	intro("stack deploy");
+	intro("slotform deploy");
 
 	const graph = await buildApp(options.config, options.env);
 	const [checks, steps] = await Promise.all([

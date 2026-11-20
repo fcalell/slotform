@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { log, outro } from "@clack/prompts";
-import type { PluginConfig, StackConfig } from "../config.ts";
+import type { PluginConfig, SlotformConfig } from "../config.ts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
@@ -13,7 +13,7 @@ import {
 	requirementOptions,
 } from "../lib/discovery.ts";
 import { isErrno } from "../lib/errno.ts";
-import { MissingPluginError, StackError } from "../lib/errors.ts";
+import { MissingPluginError, SlotformError } from "../lib/errors.ts";
 import { insideProject } from "../lib/inside-project.ts";
 import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
@@ -63,7 +63,7 @@ function pruneObjectField(
 	return changed;
 }
 
-function configEntry(config: StackConfig, pluginName: string): PluginConfig {
+function configEntry(config: SlotformConfig, pluginName: string): PluginConfig {
 	const entry = config.plugins.find((p) => p.__plugin === pluginName);
 	if (!entry) {
 		throw new MissingPluginError(
@@ -94,7 +94,7 @@ export async function remove(
 			}`,
 		);
 		log.warn(
-			`Proceeding with a degraded removal of "${pluginName}" — only the package and the config call will be cleaned up. Run \`stack generate\` after fixing the workspace.`,
+			`Proceeding with a degraded removal of "${pluginName}" — only the package and the config call will be cleaned up. Run \`slotform generate\` after fixing the workspace.`,
 		);
 	}
 
@@ -107,7 +107,7 @@ export async function remove(
 		);
 		if (dependents.length > 0) {
 			const names = dependents.map((p) => p.name).join(", ");
-			throw new StackError(
+			throw new SlotformError(
 				`Cannot remove "${pluginName}" — required by: ${names}. Remove those first.`,
 				"PLUGIN_HAS_DEPENDENTS",
 			);
@@ -130,7 +130,7 @@ export async function remove(
 			await generate(configPath, options.env);
 		} catch (error) {
 			log.warn(
-				`Could not regenerate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`stack generate\`.`,
+				`Could not regenerate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`slotform generate\`.`,
 			);
 		}
 	}
@@ -141,7 +141,7 @@ export async function remove(
 // The removals the graph of `plugins` contributes.
 async function removals(
 	plugins: DiscoveredPlugin[],
-	config: StackConfig,
+	config: SlotformConfig,
 	cwd: string,
 	env: NodeJS.ProcessEnv,
 ): Promise<{ files: string[]; deps: string[]; devDeps: string[] }> {
@@ -172,7 +172,7 @@ export async function uninstall(
 		env,
 		yes = false,
 	}: {
-		config: StackConfig;
+		config: SlotformConfig;
 		configPath: string;
 		cwd: string;
 		discovered: DiscoveredPlugin[] | null;
@@ -209,14 +209,14 @@ export async function uninstall(
 			.map(({ target }) => `  ${relative(cwd, target)}`)
 			.join("\n");
 		if (!process.stdin.isTTY) {
-			throw new StackError(
+			throw new SlotformError(
 				`Removing "${pluginName}" deletes:\n${listing}\nPass --yes to delete them without a terminal.`,
 				"REMOVE_NEEDS_CONFIRMATION",
 			);
 		}
 		log.warn(`Removing "${pluginName}" deletes:\n${listing}`);
 		if (!(await confirm("Delete these paths?"))) {
-			throw new StackError(
+			throw new SlotformError(
 				"Cancelled; nothing was removed.",
 				"REMOVE_CANCELLED",
 			);
@@ -250,7 +250,7 @@ export async function uninstall(
 	}
 	const pkg: unknown = manifest === null ? null : JSON.parse(manifest);
 	if (isRecord(pkg)) {
-		// A required peer no stack package left in the closure requires goes:
+		// A required peer no Slotform package left in the closure requires goes:
 		// docs/architecture/commands.md, "Removing a plugin".
 		const peers = plugin
 			? droppedPeers(

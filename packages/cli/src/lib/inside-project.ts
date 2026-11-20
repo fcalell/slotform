@@ -1,5 +1,5 @@
 import { isAbsolute, relative, resolve, sep } from "node:path";
-import { StackError } from "./errors.ts";
+import { SlotformError } from "./errors.ts";
 
 // Whether `rel`, a path relative to some directory, leaves it (`..foo` stays).
 export function leaves(rel: string): boolean {
@@ -12,7 +12,7 @@ export function insideProject(cwd: string, path: string): string {
 	const absolute = resolve(cwd, path);
 	const rel = relative(cwd, absolute);
 	if (rel === "" || leaves(rel)) {
-		throw new StackError(
+		throw new SlotformError(
 			`Refusing path "${path}": it is not inside the project (${cwd}).`,
 			"PATH_OUTSIDE_PROJECT",
 		);

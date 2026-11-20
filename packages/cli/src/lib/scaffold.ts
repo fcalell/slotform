@@ -4,11 +4,11 @@ import { dirname, join } from "node:path";
 import { log } from "@clack/prompts";
 import type { ScaffoldSpec } from "../ast/index.ts";
 import { gitignoreTemplate } from "../templates/gitignore.ts";
-import { StackError } from "./errors.ts";
+import { SlotformError } from "./errors.ts";
 import { insideProject } from "./inside-project.ts";
 import { isRecord } from "./is-record.ts";
 
-class ScaffoldError extends StackError {
+class ScaffoldError extends SlotformError {
 	constructor(message: string) {
 		super(message, "SCAFFOLD");
 		this.name = "ScaffoldError";

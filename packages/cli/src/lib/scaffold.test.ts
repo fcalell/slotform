@@ -6,7 +6,7 @@ import { test } from "node:test";
 import { patchPackageJson } from "./scaffold.ts";
 
 test("a dependency either block declares keeps the app's range", () => {
-	const dir = mkdtempSync(join(tmpdir(), "stack-patch-"));
+	const dir = mkdtempSync(join(tmpdir(), "slotform-patch-"));
 	writeFileSync(
 		join(dir, "package.json"),
 		JSON.stringify({

@@ -28,7 +28,7 @@ export function installedRoot(pkg: string, dir: string): string | null {
 }
 
 // Only a found package is memoized: one not found yet may be installed later
-// in the same process (`stack init` installs, then loads).
+// in the same process (`slotform init` installs, then loads).
 const cache = new Map<string, PackageInfo>();
 
 // `pkg` as the app at `cwd` resolves it, else as the CLI does.

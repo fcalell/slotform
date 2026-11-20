@@ -1,11 +1,12 @@
+import { GENERATED_DIR } from "../lib/generated-dir.ts";
 import type { LintPlugin } from "../specs.ts";
 
-export const LINT_PATH = ".stack/biome.json";
+export const LINT_PATH = `${GENERATED_DIR}/biome.json`;
 
-// An app in stack's workspace extends the checkout's root config: docs/architecture/consumer-project.md, "Inside stack's workspace".
+// An app in the Slotform workspace extends the checkout's root config: docs/architecture/consumer-project.md, "Inside Slotform's workspace".
 //
 // TODO: Biome 2.4 takes the `//` shorthand for the root only as a lone `extends` string. Use
-// `["//", "./.stack/biome.json"]` once an `extends` array takes it.
+// `["//", "./.slotform/biome.json"]` once an `extends` array takes it.
 export function biomeTemplate(options: { rootConfig: string | null }): string {
 	const lint = `./${LINT_PATH}`;
 	const config = options.rootConfig
@@ -13,13 +14,13 @@ export function biomeTemplate(options: { rootConfig: string | null }): string {
 		: {
 				// The installed biome's own schema, so it never lags the version.
 				$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-				extends: ["@fcalell/biome-config/shared.json", lint],
+				extends: ["@slotform/biome-config/shared.json", lint],
 			};
 
 	return `${JSON.stringify(config, null, "\t")}\n`;
 }
 
-// `.stack/biome.json`, the plugins' rules and ignores: docs/architecture/consumer-project.md, "Lint".
+// `.slotform/biome.json`, the plugins' rules and ignores: docs/architecture/consumer-project.md, "Lint".
 //
 // TODO: Biome 2.6 reads a package name in a plugin `path` as a Biome plugin package, which needs a
 // `biome-manifest.json` at its root, so a package's `.grit` file is spelled under `node_modules/`.

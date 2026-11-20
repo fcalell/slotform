@@ -1,3 +1,5 @@
+import { GENERATED_DIR } from "../lib/generated-dir.ts";
+
 // The environments a consumer spans: docs/architecture/consumer-project.md, "TypeScript projects".
 interface TsconfigLayout {
 	// A DOM app built by Vite: `vite` in the config.
@@ -42,7 +44,7 @@ interface TsconfigOptions extends TsconfigLayout {
 
 // Returns `[filename, content]` pairs.
 // The app and worker projects under a solution config: docs/architecture/consumer-project.md, "TypeScript projects".
-// The `virtual:stack-procedure` alias: docs/architecture/runtime.md, "`virtual:stack-procedure`".
+// The `virtual:slotform-procedure` alias: docs/architecture/runtime.md, "`virtual:slotform-procedure`".
 export function tsconfigTemplate(
 	options: TsconfigOptions,
 ): Array<[string, string]> {
@@ -60,13 +62,13 @@ export function tsconfigTemplate(
 
 	const single = {
 		extends: options.web
-			? "@fcalell/typescript-config/web-vite.json"
-			: "@fcalell/typescript-config/node-tsx.json",
+			? "@slotform/typescript-config/web-vite.json"
+			: "@slotform/typescript-config/node-tsx.json",
 		compilerOptions: options.worker
 			? { paths: options.procedurePaths }
 			: undefined,
-		// Only the `.stack/*.d.ts` declarations are type-checked: docs/architecture/consumer-project.md, "TypeScript projects".
-		include: ["src", ".stack/*.d.ts"],
+		// Only the `.slotform/*.d.ts` declarations are type-checked: docs/architecture/consumer-project.md, "TypeScript projects".
+		include: ["src", `${GENERATED_DIR}/*.d.ts`],
 	};
 	return [["tsconfig.json", render(single)]];
 }
@@ -107,9 +109,9 @@ function appProject(config: Project, node: boolean): Project {
 // The worker project: docs/architecture/consumer-project.md, "TypeScript projects".
 function workerProject(options: TsconfigOptions): Project {
 	return {
-		extends: "@fcalell/typescript-config/node-tsx.json",
+		extends: "@slotform/typescript-config/node-tsx.json",
 		compilerOptions: {
-			// The Workers' globals come from `.stack/worker-configuration.d.ts`; the node target keeps
+			// The Workers' globals come from `.slotform/worker-configuration.d.ts`; the node target keeps
 			// the preset's `node`.
 			...(options.node ? {} : { types: [] }),
 			paths: options.procedurePaths,
@@ -120,25 +122,27 @@ function workerProject(options: TsconfigOptions): Project {
 			noEmit: false,
 			emitDeclarationOnly: true,
 			declarationMap: true,
-			outDir: "./.stack/types",
-			tsBuildInfoFile: "./.stack/types/tsconfig.worker.tsbuildinfo",
+			outDir: `./${GENERATED_DIR}/types`,
+			tsBuildInfoFile: `./${GENERATED_DIR}/types/tsconfig.worker.tsbuildinfo`,
 		},
 		include: [
 			"src/worker",
 			"src/schema",
 			"src/shared",
-			".stack/worker.ts",
-			".stack/procedure.ts",
-			...(options.node ? ["src/server"] : [".stack/worker-configuration.d.ts"]),
+			`${GENERATED_DIR}/worker.ts`,
+			`${GENERATED_DIR}/procedure.ts`,
+			...(options.node
+				? ["src/server"]
+				: [`${GENERATED_DIR}/worker-configuration.d.ts`]),
 		],
 	};
 }
 
 function webApp(): Project {
 	return {
-		extends: "@fcalell/typescript-config/web-vite.json",
+		extends: "@slotform/typescript-config/web-vite.json",
 		compilerOptions: {},
-		include: ["src", ".stack/routes.d.ts"],
+		include: ["src", `${GENERATED_DIR}/routes.d.ts`],
 	};
 }
 
@@ -155,9 +159,9 @@ function nativeApp(types: string[]): Project {
 		},
 		include: [
 			"src",
-			".stack/entry.tsx",
-			".stack/routes.d.ts",
-			".stack/expo-env.d.ts",
+			`${GENERATED_DIR}/entry.tsx`,
+			`${GENERATED_DIR}/routes.d.ts`,
+			`${GENERATED_DIR}/expo-env.d.ts`,
 		],
 	};
 }

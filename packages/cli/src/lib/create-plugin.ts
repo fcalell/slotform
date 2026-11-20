@@ -4,7 +4,7 @@ import type { z } from "zod";
 import type { ScaffoldSpec } from "../ast/index.ts";
 import type { AppConfig } from "../config.ts";
 import { cliSlots } from "./cli-slots.ts";
-import { StackError } from "./errors.ts";
+import { SlotformError } from "./errors.ts";
 import { pluginPackage } from "./first-party.ts";
 import { findPackageInfo } from "./package-info.ts";
 import type { Contribution, LogContext, Slot } from "./slots.ts";
@@ -76,7 +76,7 @@ export interface CommandContext<TOptions> {
 	// The CLI process's env: docs/architecture/conventions.md, "The environment".
 	env: NodeJS.ProcessEnv;
 	resolve<T>(slot: Slot<T>): Promise<T>;
-	// Runs the pipeline `stack generate` runs, in process: every artifact is
+	// Runs the pipeline `slotform generate` runs, in process: every artifact is
 	// written and every postWrite hook has run when it resolves. `resolve` keeps
 	// answering from the graph built before.
 	generate(): Promise<void>;
@@ -312,7 +312,7 @@ export function plugin<
 		Object.keys(definition.callbacks).length > 0;
 	const callbackTarget = `src/worker/plugins/${name}.ts`;
 	const declared = definition.requires ?? [];
-	// `stack init` and `stack add` pass `{}`, which the schema fills with its
+	// `slotform init` and `slotform add` pass `{}`, which the schema fills with its
 	// defaults.
 	const requires = (options: unknown): readonly Requirement[] => {
 		if (typeof declared !== "function") return declared;
@@ -326,7 +326,7 @@ export function plugin<
 	const template = (templateName: string, cwd: string): URL => {
 		const root = packageInfo(cwd)?.root;
 		if (!root) {
-			throw new StackError(
+			throw new SlotformError(
 				`Plugin "${name}" attempted to resolve template ${JSON.stringify(templateName)} but its package "${pkg}" could not be located. Ensure it is installed in the consumer workspace.`,
 				"PLUGIN_CONFIG_INVALID",
 			);
@@ -443,7 +443,7 @@ export function plugin<
 						return `${path}: ${issue.message}`;
 					})
 					.join("; ");
-				throw new StackError(
+				throw new SlotformError(
 					`Invalid options for plugin "${name}": ${summary}`,
 					"PLUGIN_CONFIG_INVALID",
 				);

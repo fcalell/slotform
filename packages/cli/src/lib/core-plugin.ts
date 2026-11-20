@@ -6,7 +6,7 @@ import { cliGuide, GUIDE_PATH, renderGuide } from "./guide.ts";
 import { cliManifest } from "./manifest.ts";
 
 // The CLI's own contributions: facts only core knows (which tsconfig
-// `stack init` wrote for the worker), its guide pages, the guide's index and
+// `slotform init` wrote for the worker), its guide pages, the guide's index and
 // the lint config.
 export function corePlugin(pluginNames: readonly string[]): GraphPlugin {
 	const layout = tsconfigLayout(pluginNames);

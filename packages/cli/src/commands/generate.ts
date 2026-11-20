@@ -1,4 +1,4 @@
-import type { StackConfig } from "../config.ts";
+import type { SlotformConfig } from "../config.ts";
 import { buildGraphFromConfig } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
 import { loadConfig } from "../lib/config.ts";
@@ -11,7 +11,7 @@ import type { GeneratedFile } from "../specs.ts";
 // Writes the config's artifacts and runs the post-write hooks; answers the
 // graph, which the calling command resolves its own slots from.
 export async function generateFromConfig(
-	config: StackConfig,
+	config: SlotformConfig,
 	cwd: string,
 	env: NodeJS.ProcessEnv,
 	log?: LogContext,
@@ -56,7 +56,7 @@ export async function generateFromConfig(
 	return graph;
 }
 
-// `stack generate`, and the `generate` a plugin command's context carries.
+// `slotform generate`, and the `generate` a plugin command's context carries.
 export async function generate(
 	configPath: string,
 	env: NodeJS.ProcessEnv,

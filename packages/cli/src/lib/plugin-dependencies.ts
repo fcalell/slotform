@@ -2,17 +2,17 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { cliSlots } from "./cli-slots.ts";
-import { StackError } from "./errors.ts";
+import { SlotformError } from "./errors.ts";
 import type { Graph } from "./graph.ts";
-import { namedStackPackages } from "./install.ts";
+import { namedSlotformPackages } from "./install.ts";
 import { readManifest } from "./manifest.ts";
 import { installedRoot } from "./package-info.ts";
 import {
-	isStackPackage,
-	type StackPackage,
-	stackClosure,
-	stackPluginSpecs,
-} from "./stack-packages.ts";
+	isSlotformPackage,
+	type SlotformPackage,
+	slotformClosure,
+	slotformPluginSpecs,
+} from "./slotform-packages.ts";
 
 interface PluginDependencies {
 	dependencies: Record<string, string>;
@@ -29,8 +29,8 @@ const peerManifestSchema = z.object({
 
 type PeerManifest = z.infer<typeof peerManifestSchema>;
 
-// The dependencies `stack init` and `stack add` write: docs/architecture/consumer-project.md, "Installing stack".
-// Runs after the install, since the peers are read off the installed stack
+// The dependencies `slotform init` and `slotform add` write: docs/architecture/consumer-project.md, "Installing Slotform".
+// Runs after the install, since the peers are read off the installed Slotform
 // packages; `patchPackageJson` keeps what the app's `package.json` declares.
 export async function pluginDependencies(
 	graph: Graph,
@@ -46,7 +46,7 @@ export async function pluginDependencies(
 		...devDependencies,
 	});
 	return {
-		dependencies: { ...peers, ...deps, ...stackPluginSpecs(plugins) },
+		dependencies: { ...peers, ...deps, ...slotformPluginSpecs(plugins) },
 		devDependencies,
 	};
 }
@@ -63,7 +63,7 @@ export function requiredPeers(
 			manifest.peerDependencies ?? {},
 		)) {
 			if (manifest.peerDependenciesMeta?.[name]?.optional) continue;
-			if (isStackPackage(name)) continue;
+			if (isSlotformPackage(name)) continue;
 			if (Object.hasOwn(explicit, name) || Object.hasOwn(peers, name)) continue;
 			peers[name] = range;
 		}
@@ -72,7 +72,7 @@ export function requiredPeers(
 }
 
 // The required peers `manifests` hold that `remaining` no longer require: the
-// ones `stack remove` prunes.
+// ones `slotform remove` prunes.
 export function droppedPeers(
 	manifests: readonly PeerManifest[],
 	remaining: readonly PeerManifest[],
@@ -83,16 +83,16 @@ export function droppedPeers(
 	);
 }
 
-// The installed manifest of every stack package in the closure of those the
+// The installed manifest of every Slotform package in the closure of those the
 // app at `dir` names in its `package.json`, `without` left out of the named.
 export function appClosureManifests(
 	dir: string,
 	without: readonly string[] = [],
 ): PeerManifest[] {
-	const named = namedStackPackages(
+	const named = namedSlotformPackages(
 		readManifest(join(dir, "package.json")),
 	).filter((name) => !without.includes(name));
-	return installedManifests(dir, stackClosure(named));
+	return installedManifests(dir, slotformClosure(named));
 }
 
 // The manifest of each of `names` as installed under the app at `dir`. pnpm
@@ -100,13 +100,13 @@ export function appClosureManifests(
 // reaches is found beside the real directory of a package found before it.
 function installedManifests(
 	dir: string,
-	names: readonly StackPackage[],
+	names: readonly SlotformPackage[],
 ): PeerManifest[] {
 	const roots: string[] = [];
 	let pending = [...names];
 	while (pending.length > 0) {
 		const from = [dir, ...roots];
-		const left: StackPackage[] = [];
+		const left: SlotformPackage[] = [];
 		for (const name of pending) {
 			const root = from
 				.map((base) => installedRoot(name, base))
@@ -115,7 +115,7 @@ function installedManifests(
 			else roots.push(root);
 		}
 		if (left.length === pending.length) {
-			throw new StackError(
+			throw new SlotformError(
 				`${left.join(", ")} not installed under ${dir}: run pnpm install, then retry.`,
 				"NOT_INSTALLED",
 			);

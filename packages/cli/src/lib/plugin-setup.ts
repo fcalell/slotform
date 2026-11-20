@@ -1,4 +1,4 @@
-// The steps `stack init` and `stack add` share: docs/architecture/commands.md, "`stack init` and `stack add`".
+// The steps `slotform init` and `slotform add` share: docs/architecture/commands.md, "`slotform init` and `slotform add`".
 import { cliSlots } from "./cli-slots.ts";
 import {
 	type ChooseRequirement,
@@ -7,7 +7,7 @@ import {
 	resolveRequiresClosure,
 } from "./discovery.ts";
 import type { Graph } from "./graph.ts";
-import { installStack } from "./install.ts";
+import { installSlotform } from "./install.ts";
 import { pluginDependencies } from "./plugin-dependencies.ts";
 import { createPromptContext } from "./prompt.ts";
 import {
@@ -42,7 +42,7 @@ export async function installClosure({
 	let plugins = [...picked];
 	for (;;) {
 		writeManifest(plugins);
-		installStack(dir, env);
+		installSlotform(dir, env);
 		const available = await loadInstalledPlugins(
 			[...existing, ...plugins],
 			dir,
@@ -110,6 +110,6 @@ export async function applyScaffold(
 	announceCreated(created);
 	patchPackageJson(dir, { ...dependencies, fields: packageJsonFields });
 	if (gitignore.length > 0) ensureGitignore(dir, ...gitignore);
-	installStack(dir, env);
+	installSlotform(dir, env);
 	return created;
 }

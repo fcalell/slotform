@@ -1,5 +1,5 @@
 import { pathToFileURL } from "node:url";
-import type { StackConfig } from "../config.ts";
+import type { SlotformConfig } from "../config.ts";
 import type {
 	InternalCliPlugin,
 	OneOfRequirement,
@@ -99,7 +99,7 @@ export type ChooseRequirement = (
 
 const chooseFirst: ChooseRequirement = async (req) => req.oneOf[0];
 
-// Transitive `requires` closure, shared by `stack init` and `stack add`: docs/architecture/commands.md, "Installing the requires closure".
+// Transitive `requires` closure, shared by `slotform init` and `slotform add`: docs/architecture/commands.md, "Installing the requires closure".
 export async function resolveRequiresClosure(
 	names: readonly string[],
 	available: readonly DiscoveredPlugin[],
@@ -130,7 +130,7 @@ export async function resolveRequiresClosure(
 }
 
 export async function discoverPlugins(
-	config: StackConfig,
+	config: SlotformConfig,
 	cwd: string,
 ): Promise<DiscoveredPlugin[]> {
 	const plugins: DiscoveredPlugin[] = [];

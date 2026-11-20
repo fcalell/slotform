@@ -59,7 +59,7 @@ export function buildGraph(
 		const held = slotByName.get(name);
 		if (held !== undefined && held !== s.id) {
 			throw new SlotError(
-				`Slot '${name}' is defined twice: two copies of its package are installed. Every @fcalell/* package must resolve to one copy; remove pnpm-lock.yaml and node_modules, then run pnpm install.`,
+				`Slot '${name}' is defined twice: two copies of its package are installed. Every @slotform/* package must resolve to one copy; remove pnpm-lock.yaml and node_modules, then run pnpm install.`,
 				"SLOT_DUPLICATE_COPY",
 			);
 		}

@@ -5,34 +5,34 @@ import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 import { isErrno } from "./errno.ts";
 import { cliManifest } from "./manifest.ts";
 import {
-	STACK_PACKAGES,
-	stackClosure,
-	stackPluginSpecs,
-	stackSpec,
-} from "./stack-packages.ts";
+	SLOTFORM_PACKAGES,
+	slotformClosure,
+	slotformPluginSpecs,
+	slotformSpec,
+} from "./slotform-packages.ts";
 
 test("a spec is the caret of the CLI's version", () => {
-	assert.equal(stackSpec(), `^${cliManifest.version}`);
+	assert.equal(slotformSpec(), `^${cliManifest.version}`);
 });
 
 test("plugin specs name only first-party plugins", () => {
-	assert.deepEqual(stackPluginSpecs(["db", "nope"]), {
-		"@fcalell/plugin-db": stackSpec(),
+	assert.deepEqual(slotformPluginSpecs(["db", "nope"]), {
+		"@slotform/db": slotformSpec(),
 	});
 });
 
-test("the closure holds every stack package the given ones reach", () => {
-	assert.deepEqual(stackClosure(["@fcalell/plugin-vite"]), [
-		"@fcalell/cli",
-		"@fcalell/plugin-api",
-		"@fcalell/plugin-vite",
+test("the closure holds every Slotform package the given ones reach", () => {
+	assert.deepEqual(slotformClosure(["@slotform/vite"]), [
+		"@slotform/api",
+		"@slotform/cli",
+		"@slotform/vite",
 	]);
 });
 
 test("the workspace template carries only the third-party verdicts", () => {
 	const yaml = pnpmWorkspaceTemplate(null, [
-		"@fcalell/plugin-auth",
-		"@fcalell/plugin-react-ui",
+		"@slotform/auth",
+		"@slotform/react-ui",
 	]);
 	assert.doesNotMatch(yaml, /overrides/);
 	assert.match(yaml, /allowBuilds/);
@@ -43,11 +43,11 @@ test("the workspace template carries only the third-party verdicts", () => {
 
 test("the workspace template keeps the entries the yaml has", () => {
 	const yaml = pnpmWorkspaceTemplate("allowBuilds:\n  esbuild: false\n", [
-		"@fcalell/plugin-node",
+		"@slotform/node",
 	]);
 	assert.match(yaml, /esbuild: false/);
 });
-// The two tests below hold STACK_PACKAGES to the checkout's own manifests.
+// The two tests below hold SLOTFORM_PACKAGES to the checkout's own manifests.
 const REPO = new URL("../../../../", import.meta.url);
 
 function manifest(dir: string): {
@@ -58,12 +58,12 @@ function manifest(dir: string): {
 	return JSON.parse(readFileSync(new URL(`${dir}/package.json`, REPO), "utf8"));
 }
 
-test("each STACK_PACKAGES entry lists its manifest's @fcalell dependencies", () => {
-	for (const [name, entry] of Object.entries(STACK_PACKAGES)) {
+test("each SLOTFORM_PACKAGES entry lists its manifest's @slotform dependencies", () => {
+	for (const [name, entry] of Object.entries(SLOTFORM_PACKAGES)) {
 		const pkg = manifest(entry.dir);
 		assert.equal(pkg.name, name);
 		const declared = Object.keys(pkg.dependencies ?? {})
-			.filter((dep) => dep.startsWith("@fcalell/"))
+			.filter((dep) => dep.startsWith("@slotform/"))
 			.sort();
 		assert.deepEqual(
 			[...entry.dependencies].sort(),
@@ -79,7 +79,7 @@ test("every public package of the repo has an entry", () => {
 			.filter((entry) => entry.isDirectory())
 			.map((entry) => `${group}/${entry.name}`),
 	);
-	const listed = new Set<string>(Object.keys(STACK_PACKAGES));
+	const listed = new Set<string>(Object.keys(SLOTFORM_PACKAGES));
 	for (const dir of dirs) {
 		let pkg: ReturnType<typeof manifest>;
 		try {

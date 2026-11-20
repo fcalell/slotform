@@ -1,6 +1,6 @@
 import { access, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { AppConfig, StackConfig } from "../config.ts";
+import type { AppConfig, SlotformConfig } from "../config.ts";
 import { corePlugin } from "./core-plugin.ts";
 import { type DiscoveredPlugin, discoverPlugins } from "./discovery.ts";
 import { ConfigValidationError } from "./errors.ts";
@@ -9,7 +9,7 @@ import { createLogContext } from "./prompt.ts";
 import type { LogContext } from "./slots.ts";
 
 export interface BuildGraphFromConfigOptions {
-	config: StackConfig;
+	config: SlotformConfig;
 	cwd: string;
 	env: NodeJS.ProcessEnv;
 	log?: LogContext;

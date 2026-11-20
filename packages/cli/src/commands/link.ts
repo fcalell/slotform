@@ -1,4 +1,4 @@
-// `stack link` and `stack unlink`: docs/architecture/consumer-project.md, "A linked app".
+// `slotform link` and `slotform unlink`: docs/architecture/consumer-project.md, "A linked app".
 import {
 	cpSync,
 	existsSync,
@@ -10,25 +10,25 @@ import {
 import { join, posix, relative } from "node:path";
 import { log } from "@clack/prompts";
 import { parseDocument } from "yaml";
-import { StackError } from "../lib/errors.ts";
+import { SlotformError } from "../lib/errors.ts";
 import {
 	installRoot,
 	LINK_DIR,
-	namedStackPackages,
+	namedSlotformPackages,
 	pnpmInstall,
-	stackWorkspaceRoot,
+	slotformWorkspaceRoot,
 	toPosix,
-	withStackSpecs,
+	withSlotformSpecs,
 } from "../lib/install.ts";
 import { isRecord } from "../lib/is-record.ts";
 import { type Manifest, readManifest } from "../lib/manifest.ts";
 import {
-	STACK_PACKAGES,
-	type StackPackage,
-	stackClosure,
-} from "../lib/stack-packages.ts";
+	SLOTFORM_PACKAGES,
+	type SlotformPackage,
+	slotformClosure,
+} from "../lib/slotform-packages.ts";
 
-// Each file `stack link` changes, by its name in `LINK_DIR`, at its place:
+// Each file `slotform link` changes, by its name in `LINK_DIR`, at its place:
 // the app's manifest, and the workspace yaml and lockfile at the install root.
 function installFiles(cwd: string, root: string) {
 	return {
@@ -38,41 +38,47 @@ function installFiles(cwd: string, root: string) {
 	};
 }
 
-// The app's manifest with each stack package it names taken from the checkout
-// and injected, and the overrides that take every stack package those reach
+// The app's manifest with each Slotform package it names taken from the checkout
+// and injected, and the overrides that take every Slotform package those reach
 // from it too. `fromApp` and `fromRoot` are the checkout's path relative to the
 // app and to the install root.
 export function linkedInstall(
 	pkg: Manifest,
 	checkout: { fromApp: string; fromRoot: string },
-): { manifest: Manifest; overrides: Partial<Record<StackPackage, string>> } {
-	const direct = namedStackPackages(pkg);
-	const spec = (from: string, name: StackPackage) =>
-		`file:${posix.join(from, STACK_PACKAGES[name].dir)}`;
+): { manifest: Manifest; overrides: Partial<Record<SlotformPackage, string>> } {
+	const direct = namedSlotformPackages(pkg);
+	const spec = (from: string, name: SlotformPackage) =>
+		`file:${posix.join(from, SLOTFORM_PACKAGES[name].dir)}`;
 	const meta = isRecord(pkg.dependenciesMeta) ? pkg.dependenciesMeta : {};
 	return {
 		manifest: {
-			...withStackSpecs(pkg, (name) => spec(checkout.fromApp, name)),
+			...withSlotformSpecs(pkg, (name) => spec(checkout.fromApp, name)),
 			dependenciesMeta: {
 				...meta,
 				...Object.fromEntries(direct.map((name) => [name, { injected: true }])),
 			},
 		},
 		overrides: Object.fromEntries(
-			stackClosure(direct).map((name) => [name, spec(checkout.fromRoot, name)]),
+			slotformClosure(direct).map((name) => [
+				name,
+				spec(checkout.fromRoot, name),
+			]),
 		),
 	};
 }
 
 // Fails naming the build when a package of the checkout that ships `dist/`
 // has none.
-function assertBuilt(checkout: string, names: readonly StackPackage[]): void {
-	const unbuilt: StackPackage[] = [];
+function assertBuilt(
+	checkout: string,
+	names: readonly SlotformPackage[],
+): void {
+	const unbuilt: SlotformPackage[] = [];
 	for (const name of names) {
-		const dir = join(checkout, STACK_PACKAGES[name].dir);
+		const dir = join(checkout, SLOTFORM_PACKAGES[name].dir);
 		if (!existsSync(join(dir, "package.json"))) {
-			throw new StackError(
-				`${checkout} is no stack checkout: it has no ${STACK_PACKAGES[name].dir}/package.json.`,
+			throw new SlotformError(
+				`${checkout} is no Slotform checkout: it has no ${SLOTFORM_PACKAGES[name].dir}/package.json.`,
 				"LINK_FAILED",
 			);
 		}
@@ -86,7 +92,7 @@ function assertBuilt(checkout: string, names: readonly StackPackage[]): void {
 		}
 	}
 	if (unbuilt.length > 0) {
-		throw new StackError(
+		throw new SlotformError(
 			`The checkout is not built (no dist/ in ${unbuilt.join(", ")}); run \`pnpm turbo run build\` in ${checkout}.`,
 			"LINK_FAILED",
 		);
@@ -98,19 +104,22 @@ export function link(
 	checkout: string,
 	env: NodeJS.ProcessEnv,
 ): void {
-	if (stackWorkspaceRoot(cwd) !== null) {
-		throw new StackError(
-			"An app inside stack's workspace takes each stack package as `workspace:*`; it links nothing.",
+	if (slotformWorkspaceRoot(cwd) !== null) {
+		throw new SlotformError(
+			"An app inside the Slotform workspace takes each Slotform package as `workspace:*`; it links nothing.",
 			"LINK_FAILED",
 		);
 	}
 	const root = installRoot(cwd);
 	const pkg = readManifest(join(cwd, "package.json"));
-	const direct = namedStackPackages(pkg);
+	const direct = namedSlotformPackages(pkg);
 	if (direct.length === 0) {
-		throw new StackError("The app names no stack package.", "LINK_FAILED");
+		throw new SlotformError(
+			"The app names no Slotform package.",
+			"LINK_FAILED",
+		);
 	}
-	assertBuilt(checkout, stackClosure(direct));
+	assertBuilt(checkout, slotformClosure(direct));
 
 	// A re-run keeps the first backup, which holds the files as committed.
 	const files = installFiles(cwd, root);
@@ -140,13 +149,13 @@ export function link(
 	}
 	writeFileSync(yamlPath, String(doc));
 	pnpmInstall(root, [], env);
-	log.success(`Linked ${direct.length} stack packages from ${checkout}.`);
+	log.success(`Linked ${direct.length} Slotform packages from ${checkout}.`);
 }
 
 export function unlink(cwd: string, env: NodeJS.ProcessEnv): void {
 	const backup = join(cwd, LINK_DIR);
 	if (!existsSync(backup)) {
-		throw new StackError("The app is not linked.", "NOT_LINKED");
+		throw new SlotformError("The app is not linked.", "NOT_LINKED");
 	}
 	const root = installRoot(cwd);
 	for (const [name, path] of Object.entries(installFiles(cwd, root))) {

@@ -6,7 +6,7 @@ test("a missing binary settles with the spawn error instead of hanging", async (
 	const events: number[] = [];
 	const proc = supervise({
 		env: {},
-		spec: { name: "ghost", command: "stack-no-such-binary-xyz", args: [] },
+		spec: { name: "ghost", command: "slotform-no-such-binary-xyz", args: [] },
 		onOutput: () => {},
 		onLifecycle: () => events.push(1),
 	});

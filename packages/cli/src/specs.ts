@@ -11,7 +11,7 @@ export interface LintPlugin {
 	includes: string[];
 }
 
-// One line of `.stack/guide.md`: docs/architecture/plugin-authoring.md, "The `plugin()` contract".
+// One line of `.slotform/guide.md`: docs/architecture/plugin-authoring.md, "The `plugin()` contract".
 export interface GuideEntry {
 	domain: string;
 	package: string;
@@ -19,23 +19,23 @@ export interface GuideEntry {
 	trigger: string;
 }
 
-// Restart policy of a supervised dev process: docs/architecture/commands.md, "`stack dev`".
+// Restart policy of a supervised dev process: docs/architecture/commands.md, "`slotform dev`".
 export type ProcessRestartPolicy = "never" | "on-crash" | "always";
 
 export interface ProcessSpec {
 	name: string;
 	command: string;
 	args: string[];
-	// The port the process serves on, shown as its URL: docs/architecture/commands.md, "`stack dev`".
+	// The port the process serves on, shown as its URL: docs/architecture/commands.md, "`slotform dev`".
 	defaultPort?: number;
 	readyPattern?: RegExp;
 	// Extra environment variables merged over the parent process env at
 	// spawn. The generic carrier for per-process dev signals (e.g. a Node
-	// target's STACK_DEV=1, which has no `.dev.vars` equivalent).
+	// target's SLOTFORM_DEV=1, which has no `.dev.vars` equivalent).
 	env?: Record<string, string>;
-	// Default restart policy: docs/architecture/commands.md, "`stack dev`".
+	// Default restart policy: docs/architecture/commands.md, "`slotform dev`".
 	restart?: ProcessRestartPolicy;
-	// Cap on restart attempts: docs/architecture/commands.md, "`stack dev`".
+	// Cap on restart attempts: docs/architecture/commands.md, "`slotform dev`".
 	maxRestarts?: number;
 	// Per-exit hook — method shorthand makes return-type checking bivariant
 	// so callers with side-effect-only handlers (no explicit return) work.

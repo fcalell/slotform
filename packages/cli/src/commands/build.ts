@@ -37,7 +37,7 @@ export async function build(
 	configPath: string,
 	env: NodeJS.ProcessEnv,
 ): Promise<void> {
-	intro("stack build");
+	intro("slotform build");
 	await buildApp(configPath, env);
 	outro("Build complete");
 }

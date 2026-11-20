@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/cli",
+	"name": "@slotform/cli",
 	"version": "0.1.0",
-	"description": "Plugin-driven CLI and configuration system for the @fcalell/stack framework: defineConfig(), plugin(), the slot graph engine, codegen and the `stack` binary.",
+	"description": "Plugin-driven CLI and configuration system for the slotform framework: defineConfig(), plugin(), the slot graph engine, codegen and the `slotform` binary.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "packages/cli"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/packages/cli#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/packages/cli#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -72,7 +72,7 @@
 		}
 	},
 	"bin": {
-		"stack": "./dist/cli.js"
+		"slotform": "./dist/cli.js"
 	},
 	"files": [
 		"dist",
@@ -113,7 +113,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.8",
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"ts-morph": "^28.0.0",
 		"typescript": "^7.0.2",

@@ -1,19 +1,19 @@
 # Config
 
-`stack.config.ts` is the app's one config: its identity and the plugins that make it up. Every
-generated file derives from it, so after an edit run `stack generate` (`stack dev` and
-`stack build` run it first).
+`slotform.config.ts` is the app's one config: its identity and the plugins that make it up. Every
+generated file derives from it, so after an edit run `slotform generate` (`slotform dev` and
+`slotform build` run it first).
 
 ```ts
-// stack.config.ts
-import { defineConfig } from "@fcalell/cli";
-import { api } from "@fcalell/plugin-api";
-import { auth } from "@fcalell/plugin-auth";
-import { cloudflare } from "@fcalell/plugin-cloudflare";
-import { db } from "@fcalell/plugin-db";
-import { react } from "@fcalell/plugin-react";
-import { reactUi } from "@fcalell/plugin-react-ui";
-import { vite } from "@fcalell/plugin-vite";
+// slotform.config.ts
+import { defineConfig } from "@slotform/cli";
+import { api } from "@slotform/api";
+import { auth } from "@slotform/auth";
+import { cloudflare } from "@slotform/cloudflare";
+import { db } from "@slotform/db";
+import { react } from "@slotform/react";
+import { reactUi } from "@slotform/react-ui";
+import { vite } from "@slotform/vite";
 
 export default defineConfig({
   app: { name: "my-app", domain: "example.com" },
@@ -33,7 +33,7 @@ export default defineConfig({
 
 `app` holds only what more than one plugin reads:
 
-- `name` (required): the worker's name, the default of `stack init`'s auth cookie prefix prompt, the fallback `<title>`.
+- `name` (required): the worker's name, the default of `slotform init`'s auth cookie prefix prompt, the fallback `<title>`.
 - `domain` (required): the production origins, `https://<domain>` and `https://app.<domain>`, and
   the URLs auth builds.
 - `origins` (optional): replaces the derived CORS allow-list. A local origin in it (`localhost`,
@@ -58,15 +58,15 @@ that needs another names it, and a missing one fails with the plugin to add:
 | `api()` | one of `cloudflare()` or `node()`, unless its `server` option is set |
 
 Each plugin's options are typed and defaulted; its guide pages list them. Add a
-plugin with `stack add <plugin>` rather than by hand: it also writes the plugin's starter files
+plugin with `slotform add <plugin>` rather than by hand: it also writes the plugin's starter files
 and dependencies.
 
 ## Rules
 
-- Keep `stack.config.ts` erasable TypeScript: `stack` loads it with a plain `import()` under
+- Keep `slotform.config.ts` erasable TypeScript: `slotform` loads it with a plain `import()` under
   Node's type stripping, so no enums, no parameter properties, and every relative import names
   its file's extension (`./theme.ts`).
-- Never edit a generated file under `.stack/` to change behaviour: change the config and
+- Never edit a generated file under `.slotform/` to change behaviour: change the config and
   regenerate.
 
-**Check:** `stack generate` exits cleanly, then `pnpm check` passes.
+**Check:** `slotform generate` exits cleanly, then `pnpm check` passes.

@@ -12,19 +12,21 @@ import { pathToFileURL } from "node:url";
 import { intro, log, note, outro } from "@clack/prompts";
 import { buildGraphFromDiscovered } from "../lib/build-graph.ts";
 import { cliSlots } from "../lib/cli-slots.ts";
+import { DEFAULT_CONFIG } from "../lib/command-router.ts";
 import { loadConfig } from "../lib/config.ts";
 import {
 	type ChooseRequirement,
 	loadInstalledPlugins,
 	validateDependencies,
 } from "../lib/discovery.ts";
-import { StackError } from "../lib/errors.ts";
+import { SlotformError } from "../lib/errors.ts";
 import {
 	assertKnownPlugins,
 	PLUGIN_NAMES,
 	pluginPackage,
 } from "../lib/first-party.ts";
-import { stackWorkspaceRoot } from "../lib/install.ts";
+import { GENERATED_DIR } from "../lib/generated-dir.ts";
+import { slotformWorkspaceRoot } from "../lib/install.ts";
 import { TS_MORPH_SPEC } from "../lib/manifest.ts";
 import {
 	applyScaffold,
@@ -39,13 +41,13 @@ import {
 	patchPackageJson,
 	writeIfMissingString,
 } from "../lib/scaffold.ts";
-import { stackPluginSpecs } from "../lib/stack-packages.ts";
+import { slotformPluginSpecs } from "../lib/slotform-packages.ts";
 import { biomeTemplate } from "../templates/biome.ts";
 import { claudeMdTemplate } from "../templates/claude-md.ts";
 import { editorconfigTemplate } from "../templates/editorconfig.ts";
 import { gitignoreTemplate } from "../templates/gitignore.ts";
 import { packageJsonTemplate } from "../templates/package-json.ts";
-import { stackConfigTemplate } from "../templates/stack-config.ts";
+import { slotformConfigTemplate } from "../templates/slotform-config.ts";
 import { tsconfigLayout, tsconfigTemplate } from "../templates/tsconfig.ts";
 
 interface InitOptions {
@@ -67,18 +69,18 @@ export function assertInitTarget(
 	{ dirGiven, force, tty }: { dirGiven: boolean; force: boolean; tty: boolean },
 ): void {
 	if (!dirGiven && !tty) {
-		throw new StackError(
-			"stack init needs a directory when stdin is not a terminal: `stack init <dir>`.",
+		throw new SlotformError(
+			"slotform init needs a directory when stdin is not a terminal: `slotform init <dir>`.",
 			"INIT_NEEDS_DIR",
 		);
 	}
 	if (
 		!force &&
 		(existsSync(join(dir, "package.json")) ||
-			existsSync(join(dir, "stack.config.ts")))
+			existsSync(join(dir, DEFAULT_CONFIG)))
 	) {
-		throw new StackError(
-			"this directory already has a project; use `stack add <plugin>` (or pass --force to scaffold into it anyway).",
+		throw new SlotformError(
+			"this directory already has a project; use `slotform add <plugin>` (or pass --force to scaffold into it anyway).",
 			"INIT_PROJECT_EXISTS",
 		);
 	}
@@ -105,7 +107,7 @@ interface Selection {
 }
 
 async function run(dir: string, options: InitOptions): Promise<void> {
-	intro(`stack init ${basename(dir)}`);
+	intro(`slotform init ${basename(dir)}`);
 
 	const flagDriven =
 		options.plugins !== undefined ||
@@ -139,9 +141,9 @@ async function run(dir: string, options: InitOptions): Promise<void> {
 		nonInteractive ? undefined : chooseRequirement,
 	);
 
-	// The scaffold runs in the app's own `@fcalell/cli`: docs/architecture/slot-graph.md, "Slot identity".
+	// The scaffold runs in the app's own `@slotform/cli`: docs/architecture/slot-graph.md, "Slot identity".
 	const installedCli = createRequire(join(dir, "package.json")).resolve(
-		"@fcalell/cli",
+		"@slotform/cli",
 	);
 	// The installed copy is this module at another version; the compiler sees only this one's shape.
 	const { scaffold } = (await import(
@@ -162,7 +164,7 @@ async function installPlugins(
 ): Promise<string[]> {
 	const manifestPath = join(dir, "package.json");
 	const ownsManifest = !existsSync(manifestPath);
-	const workspace = stackWorkspaceRoot(dir) !== null;
+	const workspace = slotformWorkspaceRoot(dir) !== null;
 	const { plugins, available } = await installClosure({
 		dir,
 		existing: [],
@@ -177,7 +179,7 @@ async function installPlugins(
 				);
 			} else {
 				patchPackageJson(dir, {
-					dependencies: stackPluginSpecs(plugins),
+					dependencies: slotformPluginSpecs(plugins),
 					devDependencies: { "ts-morph": TS_MORPH_SPEC },
 				});
 			}
@@ -222,8 +224,8 @@ export async function scaffold(
 		}),
 		[".gitignore", gitignoreTemplate()],
 	];
-	// An app in stack's workspace: docs/architecture/consumer-project.md, "Inside stack's workspace".
-	const workspaceRoot = stackWorkspaceRoot(dir);
+	// An app in the Slotform workspace: docs/architecture/consumer-project.md, "Inside Slotform's workspace".
+	const workspaceRoot = slotformWorkspaceRoot(dir);
 	const rootConfig =
 		workspaceRoot === null
 			? null
@@ -247,15 +249,15 @@ export async function scaffold(
 		nonInteractive,
 	);
 
-	const configContent = stackConfigTemplate({
+	const configContent = slotformConfigTemplate({
 		name: appName,
 		domain,
 		plugins: selectedPlugins,
 		pluginAnswers,
 	});
-	if (writeIfMissingString(join(dir, "stack.config.ts"), configContent)) {
-		announceCreated(["stack.config.ts"]);
-		written.push("stack.config.ts");
+	if (writeIfMissingString(join(dir, DEFAULT_CONFIG), configContent)) {
+		announceCreated([DEFAULT_CONFIG]);
+		written.push(DEFAULT_CONFIG);
 	}
 
 	// The second pass runs each factory, which validates the answers.
@@ -267,11 +269,11 @@ export async function scaffold(
 	});
 	written.push(...(await applyScaffold(initGraph, selectedPlugins, dir, env)));
 
-	// Generate precedes the format: docs/architecture/commands.md, "`stack init` and `stack add`".
+	// Generate precedes the format: docs/architecture/commands.md, "`slotform init` and `slotform add`".
 	try {
 		const { generateFromConfig } = await import("./generate.ts");
 		await generateFromConfig(
-			await loadConfig(join(dir, "stack.config.ts")),
+			await loadConfig(join(dir, DEFAULT_CONFIG)),
 			dir,
 			env,
 		);
@@ -279,17 +281,17 @@ export async function scaffold(
 		const message = error instanceof Error ? error.message : String(error);
 		log.info(
 			"Your scaffolded files were written, but generation did not complete. " +
-				"Fix the error above, then run `stack generate` to finish setup.",
+				"Fix the error above, then run `slotform generate` to finish setup.",
 		);
-		throw new StackError(
-			`Failed to generate .stack/ files: ${message}`,
+		throw new SlotformError(
+			`Failed to generate ${GENERATED_DIR}/ files: ${message}`,
 			"INIT_GENERATE_FAILED",
 		);
 	}
 
 	formatWritten(dir, written, env);
 
-	note("stack dev", "Next steps");
+	note("slotform dev", "Next steps");
 	outro("Done!");
 }
 
@@ -319,7 +321,7 @@ function formatWritten(
 		{ cwd: dir, stdio: "inherit", env },
 	);
 	if (result.status !== 0) {
-		throw new StackError(
+		throw new SlotformError(
 			`biome check failed on the scaffold (exit ${result.status ?? "signal"}).`,
 			"INIT_FORMAT_FAILED",
 		);
@@ -334,5 +336,5 @@ function writeClaudeMd(dir: string): void {
 	);
 	if (content === null) return;
 	writeFileSync(path, content);
-	log.success("Imported stack's guide in CLAUDE.md");
+	log.success("Imported Slotform's guide in CLAUDE.md");
 }

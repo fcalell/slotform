@@ -20,7 +20,7 @@ function loadTsMorph(): typeof import("ts-morph") {
 		return require("ts-morph");
 	} catch (cause) {
 		throw new Error(
-			"ts-morph is not installed: `stack` prints the generated TypeScript with it. Add it to the app's devDependencies (`pnpm add -D ts-morph`).",
+			"ts-morph is not installed: `slotform` prints the generated TypeScript with it. Add it to the app's devDependencies (`pnpm add -D ts-morph`).",
 			{ cause },
 		);
 	}

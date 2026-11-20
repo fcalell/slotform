@@ -44,18 +44,18 @@ const plain = (rows: string[]) =>
 
 test("the frame lists the tasks beside the selected one's newest output", () => {
 	const vite = pane("vite", ["one", "two", "three", "four"]);
-	const stack = pane("stack", [], { status: null });
+	const slotformPane = pane("slotform", [], { status: null });
 	const { rows } = frame({
-		panes: [vite, stack],
+		panes: [vite, slotformPane],
 		selected: vite,
 		cols: 40,
 		rows: 5,
 	});
 	assert.deepEqual(plain(rows), [
-		" Tasks     │ vite · ready",
-		" » ● vite  │ two",
-		"   · stack │ three",
-		"           │ four",
+		" Tasks        │ vite · ready",
+		" » ● vite     │ two",
+		"   · slotform │ three",
+		"              │ four",
 		" ↑↓ select  u/d scroll  g/G top/end  r restart  o open  q quit",
 	]);
 });

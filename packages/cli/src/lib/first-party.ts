@@ -18,7 +18,7 @@ export const PLUGIN_NAMES = [
 
 // A first-party plugin's npm name.
 export function pluginPackage(name: string): string {
-	return `@fcalell/plugin-${name}`;
+	return `@slotform/${name}`;
 }
 
 export function assertKnownPlugins(names: readonly string[]): void {

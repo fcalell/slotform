@@ -22,7 +22,7 @@ import {
 } from "../lib/plugin-setup.ts";
 import { confirm } from "../lib/prompt.ts";
 import { patchPackageJson } from "../lib/scaffold.ts";
-import { stackPluginSpecs } from "../lib/stack-packages.ts";
+import { slotformPluginSpecs } from "../lib/slotform-packages.ts";
 import { uninstall } from "./remove.ts";
 
 // The app's plugins that `name` replaces: each one meeting a one-of
@@ -106,7 +106,7 @@ export async function add(
 		env: options.env,
 		writeManifest: (plugins) =>
 			patchPackageJson(cwd, {
-				dependencies: stackPluginSpecs(plugins),
+				dependencies: slotformPluginSpecs(plugins),
 			}),
 	});
 	const pluginInfo = available.find((p) => p.name === pluginName);
@@ -175,7 +175,7 @@ export async function add(
 		await generate(configPath, options.env);
 	} catch (error) {
 		log.warn(
-			`Could not run generate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`stack generate\`.`,
+			`Could not run generate (${error instanceof Error ? error.message : String(error)}); fix it, then run \`slotform generate\`.`,
 		);
 	}
 

@@ -35,9 +35,9 @@ export interface AppConfig {
 	origins?: string[];
 }
 
-// ── Stack config ────────────────────────────────────────────────────
+// ── Slotform config ─────────────────────────────────────────────────
 
-export interface StackConfig<
+export interface SlotformConfig<
 	T extends readonly PluginConfig[] = readonly PluginConfig[],
 > {
 	app: AppConfig;
@@ -53,7 +53,7 @@ export type ExtractPlugin<
 > = Extract<T[number], { __plugin: N }>;
 
 export function getPlugin<T extends readonly PluginConfig[], N extends string>(
-	config: StackConfig<T>,
+	config: SlotformConfig<T>,
 	name: N,
 ): ExtractPlugin<T, N> {
 	const found = config.plugins.find((p) => p.__plugin === name);
@@ -67,7 +67,7 @@ export function getPlugin<T extends readonly PluginConfig[], N extends string>(
 export function defineConfig<const T extends readonly PluginConfig[]>(input: {
 	app: AppConfig;
 	plugins: T;
-}): StackConfig<T> {
+}): SlotformConfig<T> {
 	return {
 		app: input.app,
 		plugins: input.plugins,

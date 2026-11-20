@@ -1,4 +1,4 @@
-// Spec types for the @fcalell/cli/ast surface.
+// Spec types for the @slotform/cli/ast surface.
 // These are the typed inputs consumed by the TS/TSX, TOML, and HTML printers.
 
 export type TsImportSpec =

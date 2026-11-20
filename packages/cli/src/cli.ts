@@ -10,8 +10,9 @@ import {
 	parseCommandFlags,
 } from "./lib/command-router.ts";
 import { ConfigValidationError } from "./lib/errors.ts";
+import { GENERATED_DIR } from "./lib/generated-dir.ts";
 
-// `strict: false` lets plugin-subcommand flags (e.g. `stack db apply --remote`)
+// `strict: false` lets plugin-subcommand flags (e.g. `slotform db apply --remote`)
 // pass through top-level parsing without an "unknown option" error; the
 // command router then parses them from argv. With `strict: false`, `values`
 // is typed as `{ [k: string]: undefined | string | boolean | (string|boolean)[] }`,
@@ -45,19 +46,20 @@ function required(name: string | undefined, usage: string): string {
 }
 
 const PLUGIN_USAGE =
-	"stack plugin init <name> [--package <npm-name>] [--dir <path>]";
+	"slotform plugin init <name> [--package <npm-name>] [--dir <path>]";
 
 interface CoreCommand {
 	usage: string;
 	summary: string;
-	// What `stack <command> --help` adds below the usage; the summary otherwise.
+	// What `slotform <command> --help` adds below the usage; the summary otherwise.
 	help?: string;
 	run(): Promise<void>;
 }
 
 const COMMANDS: Record<string, CoreCommand> = {
 	init: {
-		usage: "stack init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]",
+		usage:
+			"slotform init [dir] [--plugins <csv>] [--domain <d>] [-y] [--force]",
 		summary: "Scaffold a new project",
 		help: "Scaffold a new project in [dir]. Without a terminal, [dir] is required.\n  --force scaffolds into a directory that already has a project.",
 		run: async () => {
@@ -76,35 +78,35 @@ const COMMANDS: Record<string, CoreCommand> = {
 		},
 	},
 	add: {
-		usage: "stack add <plugin> [-y]",
+		usage: "slotform add <plugin> [-y]",
 		summary: "Add a plugin",
 		help: "Add a plugin. -y replaces a displaced plugin's files without asking.",
 		run: async () => {
-			const name = required(subcommand, "stack add <plugin>");
+			const name = required(subcommand, "slotform add <plugin>");
 			const { add } = await import("./commands/add.ts");
 			await add(name, configPath, { yes: values.yes === true, env });
 		},
 	},
 	remove: {
-		usage: "stack remove <plugin> [-y]",
+		usage: "slotform remove <plugin> [-y]",
 		summary: "Remove a plugin",
 		help: "Remove a plugin. Lists the files it deletes and asks; -y skips the\n  question (required without a terminal).",
 		run: async () => {
-			const name = required(subcommand, "stack remove <plugin>");
+			const name = required(subcommand, "slotform remove <plugin>");
 			const { remove } = await import("./commands/remove.ts");
 			await remove(name, configPath, { yes: values.yes === true, env });
 		},
 	},
 	generate: {
-		usage: "stack generate",
-		summary: "Generate .stack/ files",
+		usage: "slotform generate",
+		summary: `Generate ${GENERATED_DIR}/ files`,
 		run: async () => {
 			const { generate } = await import("./commands/generate.ts");
 			await generate(configPath, env);
 		},
 	},
 	dev: {
-		usage: "stack dev",
+		usage: "slotform dev",
 		summary: "Start development",
 		run: async () => {
 			const { dev } = await import("./commands/dev.ts");
@@ -112,7 +114,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		},
 	},
 	build: {
-		usage: "stack build",
+		usage: "slotform build",
 		summary: "Build for production",
 		run: async () => {
 			const { build } = await import("./commands/build.ts");
@@ -120,7 +122,7 @@ const COMMANDS: Record<string, CoreCommand> = {
 		},
 	},
 	deploy: {
-		usage: "stack deploy",
+		usage: "slotform deploy",
 		summary: "Deploy to production",
 		run: async () => {
 			const { deploy } = await import("./commands/deploy.ts");
@@ -128,24 +130,24 @@ const COMMANDS: Record<string, CoreCommand> = {
 		},
 	},
 	link: {
-		usage: "stack link <checkout>",
-		summary: "Install stack from a checkout",
-		help: "Install every stack package of the app from the stack checkout at <checkout>,\n  which is built first. Run it again after a rebuild; `stack unlink` undoes it.",
+		usage: "slotform link <checkout>",
+		summary: "Install Slotform from a checkout",
+		help: "Install every Slotform package of the app from the Slotform checkout at <checkout>,\n  which is built first. Run it again after a rebuild; `slotform unlink` undoes it.",
 		run: async () => {
-			const checkout = required(subcommand, "stack link <checkout>");
+			const checkout = required(subcommand, "slotform link <checkout>");
 			const { link } = await import("./commands/link.ts");
 			link(process.cwd(), resolve(checkout), env);
 		},
 	},
 	unlink: {
-		usage: "stack unlink",
-		summary: "Install stack from the lockfile again",
+		usage: "slotform unlink",
+		summary: "Install Slotform from the lockfile again",
 		run: async () => {
 			const { unlink } = await import("./commands/link.ts");
 			unlink(process.cwd(), env);
 		},
 	},
-	// `stack plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
+	// `slotform plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
 	plugin: {
 		usage: PLUGIN_USAGE,
 		summary: "Scaffold a third-party plugin skeleton",
@@ -226,13 +228,13 @@ async function main(): Promise<void> {
 	const match = findPluginCommand(pluginClis, pluginName, commandName);
 
 	if (!match) {
-		log.error(`Unknown command: stack ${pluginName} ${commandName}`);
+		log.error(`Unknown command: slotform ${pluginName} ${commandName}`);
 		usage();
 	}
 
 	if (values.help === true) {
 		log.info(
-			`Usage:\n  stack ${pluginName} ${commandName}\n  ${match.command.description}\n  Flags: ${flagList(match.command)}`,
+			`Usage:\n  slotform ${pluginName} ${commandName}\n  ${match.command.description}\n  Flags: ${flagList(match.command)}`,
 		);
 		process.exit(0);
 	}
@@ -240,7 +242,7 @@ async function main(): Promise<void> {
 	const flags = parseCommandFlags(match.command, process.argv.slice(2));
 	const plugin = plugins.find((p) => p.name === pluginName);
 
-	// `generate` is the call `stack generate` makes, so a command's
+	// `generate` is the call `slotform generate` makes, so a command's
 	// regeneration and the CLI's never differ.
 	const cwd = process.cwd();
 	await match.command.handler(
@@ -269,7 +271,7 @@ try {
 		process.exit(1);
 	}
 	if (error instanceof Error) {
-		const flag = env.STACK_DEBUG;
+		const flag = env.SLOTFORM_DEBUG;
 		const debug =
 			values.debug === true || (!!flag && flag !== "0" && flag !== "false");
 		log.error(debug ? (error.stack ?? error.message) : error.message);
