@@ -1,9 +1,9 @@
-import { Composer } from "@fcalell/plugin-react-ui/components/thread";
+import { Composer } from "@slotform/react-ui/components/thread";
 import type {
 	Attachment,
 	Notice,
 	PickedFile,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { Wide } from "./layout-context.tsx";

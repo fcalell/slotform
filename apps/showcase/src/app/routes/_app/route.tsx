@@ -1,5 +1,5 @@
-import { Shell } from "@fcalell/plugin-react-ui/components/shell";
-import type { OptionPick, PlaceSpec } from "@fcalell/ui-core/descriptors";
+import { Shell } from "@slotform/react-ui/components/shell";
+import type { OptionPick, PlaceSpec } from "@slotform/ui-core/descriptors";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { BOARD_TREE, type BoardNode } from "../../fixtures/tasks.ts";
 import { act } from "../../lib/act.ts";

@@ -1,13 +1,13 @@
 import {
 	Button,
 	type ButtonAttemptProps,
-} from "@fcalell/plugin-react-ui/components/button";
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Text } from "@fcalell/plugin-react-ui/components/text";
-import { createLeave } from "@fcalell/ui-core/leave";
-import { TouchedContext } from "@fcalell/ui-core/react/touched";
-import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
+} from "@slotform/react-ui/components/button";
+import { Form } from "@slotform/react-ui/components/form";
+import { Section } from "@slotform/react-ui/components/section";
+import { Text } from "@slotform/react-ui/components/text";
+import { createLeave } from "@slotform/ui-core/leave";
+import { TouchedContext } from "@slotform/ui-core/react/touched";
+import type { ButtonAct, ButtonFit } from "@slotform/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
 import { FILLED, GIVEN, SAVED } from "./form-fixtures.tsx";

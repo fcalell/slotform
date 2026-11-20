@@ -1,4 +1,4 @@
-import { Thread } from "@fcalell/plugin-react-ui/components/thread";
+import { Thread } from "@slotform/react-ui/components/thread";
 import type { ReactNode } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";

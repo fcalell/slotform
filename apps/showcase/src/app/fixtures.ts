@@ -1,6 +1,6 @@
-import { ApiError } from "@fcalell/plugin-api/error";
-import { defineFixtures } from "@fcalell/plugin-screens/fixtures";
-import type { AppRouter } from "../../.stack/worker";
+import { ApiError } from "@slotform/api/error";
+import { defineFixtures } from "@slotform/screens/fixtures";
+import type { AppRouter } from "../../.slotform/worker";
 import { ago } from "../roster/ago.ts";
 import { dayAfter } from "../roster/day.ts";
 import { HOURS, WEEKS } from "./fixtures/activity.ts";

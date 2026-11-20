@@ -1,4 +1,4 @@
-import type { AppLockup } from "@fcalell/plugin-react-ui/lib/lockup";
+import type { AppLockup } from "@slotform/react-ui/lib/lockup";
 
 // The app's lockup as the generated providers mount it, inline so the scene
 // needs no asset pipeline: a logo for each mode.

@@ -1,8 +1,8 @@
-import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Panes } from "@fcalell/plugin-react-ui/components/shell";
-import { Table } from "@fcalell/plugin-react-ui/components/table";
+import { ActionBar } from "@slotform/react-ui/components/action-bar";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Panes } from "@slotform/react-ui/components/shell";
+import { Table } from "@slotform/react-ui/components/table";
 import type {
 	CellValue,
 	ChangeCell,
@@ -10,9 +10,9 @@ import type {
 	StatusMark,
 	TableChoice,
 	TableColumn,
-} from "@fcalell/ui-core/descriptors";
-import { nextSort, type Sort } from "@fcalell/ui-core/list-state";
-import type { Read } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/descriptors";
+import { nextSort, type Sort } from "@slotform/ui-core/list-state";
+import type { Read } from "@slotform/ui-core/read";
 import {
 	type ReactNode,
 	useEffect,

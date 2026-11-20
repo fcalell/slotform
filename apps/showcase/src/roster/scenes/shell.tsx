@@ -1,13 +1,13 @@
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { Dock } from "@fcalell/plugin-react-ui/components/dock";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Shell } from "@fcalell/plugin-react-ui/components/shell";
-import { LockupProvider } from "@fcalell/plugin-react-ui/lib/lockup";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { Dock } from "@slotform/react-ui/components/dock";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Shell } from "@slotform/react-ui/components/shell";
+import { LockupProvider } from "@slotform/react-ui/lib/lockup";
 import type {
 	GroupSpec,
 	OptionPick,
 	PlaceSpec,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { StandInList } from "./layout-context.tsx";
 import { MARK } from "./lockup.ts";

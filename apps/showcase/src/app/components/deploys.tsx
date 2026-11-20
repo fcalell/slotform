@@ -2,28 +2,28 @@ import {
 	useMutation,
 	useQueryClient,
 	useRead,
-} from "@fcalell/plugin-query/tanstack-query";
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Code } from "@fcalell/plugin-react-ui/components/code";
-import type { RecordFact } from "@fcalell/plugin-react-ui/components/pane";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
-import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
-import { age } from "@fcalell/plugin-react-ui/lib/age";
-import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
+} from "@slotform/query/tanstack-query";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { Button } from "@slotform/react-ui/components/button";
+import { Code } from "@slotform/react-ui/components/code";
+import type { RecordFact } from "@slotform/react-ui/components/pane";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { type Row, Section } from "@slotform/react-ui/components/section";
+import { Toolbar } from "@slotform/react-ui/components/toolbar";
+import { age } from "@slotform/react-ui/lib/age";
+import { navigate } from "@slotform/react-ui/lib/navigate";
+import { toast } from "@slotform/react-ui/lib/toast";
 import type {
 	Act,
 	ChipMark,
 	IconAct,
 	Option,
-} from "@fcalell/ui-core/descriptors";
-import { confirm } from "@fcalell/ui-core/react/confirm";
-import type { Selection } from "@fcalell/ui-core/read";
-import type { Tone } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/descriptors";
+import { confirm } from "@slotform/ui-core/react/confirm";
+import type { Selection } from "@slotform/ui-core/read";
+import type { Tone } from "@slotform/ui-core/tokens";
 import { type ReactNode, useState } from "react";
-import type { AppRouter } from "../../../.stack/worker";
+import type { AppRouter } from "../../../.slotform/worker";
 import { act } from "../lib/act.ts";
 import { orpc } from "../lib/api.ts";
 import { REGION_LABELS } from "../lib/regions.ts";

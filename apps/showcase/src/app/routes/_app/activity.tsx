@@ -1,11 +1,11 @@
 import {
 	BarChart,
 	type BarRegions,
-} from "@fcalell/plugin-react-ui/components/bar-chart";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
+} from "@slotform/react-ui/components/bar-chart";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
 import { createFileRoute } from "@tanstack/react-router";
-import type { AppRouter } from "../../../../.stack/worker";
+import type { AppRouter } from "../../../../.slotform/worker";
 import { orpc } from "../../lib/api.ts";
 
 export const Route = createFileRoute("/_app/activity")({

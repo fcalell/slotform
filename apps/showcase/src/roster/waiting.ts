@@ -1,5 +1,5 @@
-import { read } from "@fcalell/plugin-query/read";
-import type { Datum, Read, Selection } from "@fcalell/ui-core/read";
+import { read } from "@slotform/query/read";
+import type { Datum, Read, Selection } from "@slotform/ui-core/read";
 import type { ShowcaseScene } from "./class-sets.ts";
 
 // The reads a scene's showcase drawer hands a scene to show each of its shapes: docs/architecture/ui-core/showcase.md, "Roster scenes".

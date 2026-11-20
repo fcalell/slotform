@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { MODES, type Mode } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import { MODES, type Mode } from "@slotform/ui-core/tokens";
 import {
 	SEGMENTED_CONTROL,
 	segment,
 	segmentLabel,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useLayoutEffect, useState } from "react";
 import { DENSITIES, type ShowcaseDensity } from "../roster/class-sets.ts";
 

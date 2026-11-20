@@ -1,5 +1,5 @@
-import "../.stack/app.css";
-import Providers from "virtual:stack-providers";
+import "../.slotform/app.css";
+import Providers from "virtual:slotform-providers";
 import type { Preview } from "@storybook/react-vite";
 import { configure } from "storybook/test";
 
@@ -14,7 +14,7 @@ const painted = () =>
 		requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
 	);
 
-// A story that trips a plugin-query act dev check fails: docs/architecture/ui-core/showcase.md, "Storybook config".
+// A story that trips an act dev check of the `query` plugin fails: docs/architecture/ui-core/showcase.md, "Storybook config".
 const DEV_CHECK = /returned no promise|nothing drew its failure/;
 const tripped: string[] = [];
 const logged = console.error;

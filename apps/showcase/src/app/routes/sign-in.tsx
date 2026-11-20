@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from "@fcalell/plugin-query/tanstack-query";
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import type { Runs } from "@fcalell/ui-core/descriptors";
+import { useMutation, useQuery } from "@slotform/query/tanstack-query";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { toast } from "@slotform/react-ui/lib/toast";
+import type { Runs } from "@slotform/ui-core/descriptors";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { orpc } from "../lib/api.ts";

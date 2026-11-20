@@ -1,10 +1,10 @@
-import type { Row } from "@fcalell/plugin-react-ui/components/section";
+import type { Row } from "@slotform/react-ui/components/section";
 import type {
 	FileItem,
 	IconAct,
 	MenuEntry,
 	RowItem,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import { ago } from "../ago.ts";
 import { hang } from "./pending.tsx";
 

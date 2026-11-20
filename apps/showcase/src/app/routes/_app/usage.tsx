@@ -1,17 +1,17 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { useMutation, useRead } from "@fcalell/plugin-query/tanstack-query";
+import { preload } from "@slotform/query/preload";
+import { useMutation, useRead } from "@slotform/query/tanstack-query";
 import {
 	BarChart,
 	type BarRegions,
-} from "@fcalell/plugin-react-ui/components/bar-chart";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Stats } from "@fcalell/plugin-react-ui/components/stats";
-import { Table } from "@fcalell/plugin-react-ui/components/table";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import { confirm } from "@fcalell/ui-core/react/confirm";
+} from "@slotform/react-ui/components/bar-chart";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Stats } from "@slotform/react-ui/components/stats";
+import { Table } from "@slotform/react-ui/components/table";
+import { toast } from "@slotform/react-ui/lib/toast";
+import { confirm } from "@slotform/ui-core/react/confirm";
 import { createFileRoute } from "@tanstack/react-router";
-import type { AppRouter } from "../../../../.stack/worker";
+import type { AppRouter } from "../../../../.slotform/worker";
 import { orpc } from "../../lib/api.ts";
 
 export const Route = createFileRoute("/_app/usage")({

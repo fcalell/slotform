@@ -2,7 +2,7 @@ test-results/
 storybook-static/
 stories/
 
-.stack
+.slotform
 .wrangler
-stack-screens
+slotform-screens
 .tanstack/

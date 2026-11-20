@@ -1,10 +1,10 @@
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Stats } from "@fcalell/plugin-react-ui/components/stats";
-import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Stats } from "@slotform/react-ui/components/stats";
+import { Toolbar } from "@slotform/react-ui/components/toolbar";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import type { AppRouter } from "../../../../.stack/worker";
+import type { AppRouter } from "../../../../.slotform/worker";
 import { act } from "../../lib/act.ts";
 import { orpc } from "../../lib/api.ts";
 

@@ -1,10 +1,10 @@
 import {
 	Form as Derived,
 	type FormProps,
-} from "@fcalell/plugin-react-ui/components/form";
-import { Text } from "@fcalell/plugin-react-ui/components/text";
-import type { Can, FormFields } from "@fcalell/ui-core/form";
-import type { Selection } from "@fcalell/ui-core/read";
+} from "@slotform/react-ui/components/form";
+import { Text } from "@slotform/react-ui/components/text";
+import type { Can, FormFields } from "@slotform/ui-core/form";
+import type { Selection } from "@slotform/ui-core/read";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { isHeld, readsAt, ready, waiting } from "../waiting.ts";
 import {

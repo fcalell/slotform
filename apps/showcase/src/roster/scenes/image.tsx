@@ -1,6 +1,6 @@
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { Image } from "@fcalell/plugin-react-ui/components/image";
-import type { ImageFit, ImageState } from "@fcalell/ui-core/variants";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { Image } from "@slotform/react-ui/components/image";
+import type { ImageFit, ImageState } from "@slotform/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 import { press, Stage } from "./overlay-stage.tsx";

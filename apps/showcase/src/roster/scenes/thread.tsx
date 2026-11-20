@@ -1,9 +1,9 @@
-import { read } from "@fcalell/plugin-query/read";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Panes } from "@fcalell/plugin-react-ui/components/shell";
-import { Thread } from "@fcalell/plugin-react-ui/components/thread";
-import type { Datum } from "@fcalell/ui-core/read";
+import { read } from "@slotform/query/read";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Panes } from "@slotform/react-ui/components/shell";
+import { Thread } from "@slotform/react-ui/components/thread";
+import type { Datum } from "@slotform/ui-core/read";
 import { useMemo, useState } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { endedAt, itemsAt } from "../waiting.ts";

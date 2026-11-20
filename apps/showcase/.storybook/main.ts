@@ -1,8 +1,8 @@
 import { fileURLToPath } from "node:url";
-import { writeStorybookConfig } from "@fcalell/plugin-screens/node";
+import { writeStorybookConfig } from "@slotform/screens/node";
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
-import stackConfig from "../stack.config.ts";
+import slotformConfig from "../slotform.config.ts";
 import { writeStories } from "./roster.ts";
 import { rosterPlugin } from "./roster-plugin.ts";
 
@@ -20,7 +20,7 @@ const config: StorybookConfig = {
 			// the regions it renders from.
 			builder: {
 				viteConfigPath: await writeStorybookConfig({
-					config: stackConfig,
+					config: slotformConfig,
 					cwd: fileURLToPath(new URL("..", import.meta.url)),
 					// Storybook's config is its process entry.
 					env: process.env,

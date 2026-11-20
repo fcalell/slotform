@@ -1,14 +1,11 @@
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import {
-	type AppLockup,
-	LockupProvider,
-} from "@fcalell/plugin-react-ui/lib/lockup";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import type { Confirmation } from "@fcalell/ui-core/descriptors";
-import { confirm } from "@fcalell/ui-core/react/confirm";
-import { text } from "@fcalell/ui-core/variants";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { Section } from "@slotform/react-ui/components/section";
+import { type AppLockup, LockupProvider } from "@slotform/react-ui/lib/lockup";
+import { toast } from "@slotform/react-ui/lib/toast";
+import type { Confirmation } from "@slotform/ui-core/descriptors";
+import { confirm } from "@slotform/ui-core/react/confirm";
+import { text } from "@slotform/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { readsAt } from "../waiting.ts";
 import { FILLED, GIVEN_BUT_KIND, KIND, SAVED } from "./form-fixtures.tsx";

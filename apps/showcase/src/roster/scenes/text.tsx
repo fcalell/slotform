@@ -1,4 +1,4 @@
-import { Text } from "@fcalell/plugin-react-ui/components/text";
+import { Text } from "@slotform/react-ui/components/text";
 import type { ShowcaseScene } from "../class-sets.ts";
 
 // Code in a sentence at 320: docs/architecture/ui-core/words.md, "Text runs".

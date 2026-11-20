@@ -1,10 +1,10 @@
-import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Code } from "@fcalell/plugin-react-ui/components/code";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
-import { Shell } from "@fcalell/plugin-react-ui/components/shell";
-import { type ToastData, toast } from "@fcalell/plugin-react-ui/lib/toast";
+import { Button } from "@slotform/react-ui/components/button";
+import { Code } from "@slotform/react-ui/components/code";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Sheet } from "@slotform/react-ui/components/sheet";
+import { Shell } from "@slotform/react-ui/components/shell";
+import { type ToastData, toast } from "@slotform/react-ui/lib/toast";
 import { type ReactNode, useEffect, useRef } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { meets, onceStanding } from "../judge.ts";

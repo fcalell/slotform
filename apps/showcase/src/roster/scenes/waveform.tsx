@@ -1,4 +1,4 @@
-import { Waveform } from "@fcalell/plugin-react-ui/components/waveform";
+import { Waveform } from "@slotform/react-ui/components/waveform";
 import { useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { MADE_DURATION, madePeaks } from "../peaks.ts";

@@ -1,6 +1,6 @@
-import { procedure } from "virtual:stack-procedure";
-import { ApiError } from "@fcalell/plugin-api/error";
-import { z } from "@fcalell/plugin-api/schema";
+import { procedure } from "virtual:slotform-procedure";
+import { ApiError } from "@slotform/api/error";
+import { z } from "@slotform/api/schema";
 
 const email = z.object({ email: z.string() });
 

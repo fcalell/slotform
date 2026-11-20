@@ -1,14 +1,11 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { read } from "@fcalell/plugin-query/read";
-import {
-	useMutation,
-	useQueryClient,
-} from "@fcalell/plugin-query/tanstack-query";
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
+import { preload } from "@slotform/query/preload";
+import { read } from "@slotform/query/read";
+import { useMutation, useQueryClient } from "@slotform/query/tanstack-query";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { Form } from "@slotform/react-ui/components/form";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { toast } from "@slotform/react-ui/lib/toast";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { act } from "../../lib/act.ts";

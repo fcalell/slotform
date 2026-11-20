@@ -1,9 +1,9 @@
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { type Row, Section } from "@fcalell/plugin-react-ui/components/section";
-import { Panes } from "@fcalell/plugin-react-ui/components/shell";
-import { Stats } from "@fcalell/plugin-react-ui/components/stats";
-import type { RowMark, StatSpec } from "@fcalell/ui-core/descriptors";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { type Row, Section } from "@slotform/react-ui/components/section";
+import { Panes } from "@slotform/react-ui/components/shell";
+import { Stats } from "@slotform/react-ui/components/stats";
+import type { RowMark, StatSpec } from "@slotform/ui-core/descriptors";
 import { useLayoutEffect } from "react";
 import { applyMode, askedMode } from "./view.tsx";
 

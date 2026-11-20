@@ -1,7 +1,7 @@
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { createLeave } from "@fcalell/ui-core/leave";
-import { TouchedContext } from "@fcalell/ui-core/react/touched";
-import { TONES } from "@fcalell/ui-core/tokens";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { createLeave } from "@slotform/ui-core/leave";
+import { TouchedContext } from "@slotform/ui-core/react/touched";
+import { TONES } from "@slotform/ui-core/tokens";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { Wide } from "./layout-context.tsx";
 import { hang, Pressed } from "./pending.tsx";

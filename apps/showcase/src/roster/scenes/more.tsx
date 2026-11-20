@@ -1,5 +1,5 @@
-import { usePort } from "@fcalell/ui-core/react/port";
-import type { Read } from "@fcalell/ui-core/read";
+import { usePort } from "@slotform/ui-core/react/port";
+import type { Read } from "@slotform/ui-core/read";
 import { type ReactNode, useEffect, useRef } from "react";
 import { HOWS, type MoreState, pagesAt } from "../waiting.ts";
 

@@ -1,6 +1,6 @@
-import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Picker } from "@fcalell/plugin-react-ui/components/picker";
-import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
+import { Button } from "@slotform/react-ui/components/button";
+import { Picker } from "@slotform/react-ui/components/picker";
+import { Toolbar } from "@slotform/react-ui/components/toolbar";
 import { useEffect, useRef } from "react";
 import { act } from "./section-rows.ts";
 

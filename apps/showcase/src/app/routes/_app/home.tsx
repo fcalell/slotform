@@ -1,9 +1,9 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Composer, Thread } from "@fcalell/plugin-react-ui/components/thread";
-import { useTouch } from "@fcalell/plugin-react-ui/lib/media";
-import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
+import { preload } from "@slotform/query/preload";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Composer, Thread } from "@slotform/react-ui/components/thread";
+import { useTouch } from "@slotform/react-ui/lib/media";
+import { navigate } from "@slotform/react-ui/lib/navigate";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { orpc } from "../../lib/api.ts";

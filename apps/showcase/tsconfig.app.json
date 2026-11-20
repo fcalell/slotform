@@ -1,5 +1,5 @@
 {
-	"extends": "@fcalell/typescript-config/web-vite.json",
+	"extends": "@slotform/typescript-config/web-vite.json",
 	"compilerOptions": {
 		// `.storybook/` runs under Node.
 		"types": ["node"],
@@ -9,7 +9,7 @@
 		"disableSourceOfProjectReferenceRedirect": true,
 		"tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
 	},
-	"include": ["src", "stories", ".stack/routes.d.ts", ".storybook"],
+	"include": ["src", "stories", ".slotform/routes.d.ts", ".storybook"],
 	"exclude": ["src/worker"],
 	"references": [{ "path": "./tsconfig.worker.json" }]
 }

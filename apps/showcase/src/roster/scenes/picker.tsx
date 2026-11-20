@@ -1,8 +1,8 @@
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { Picker } from "@fcalell/plugin-react-ui/components/picker";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import type { Option } from "@fcalell/ui-core/descriptors";
+import { Form } from "@slotform/react-ui/components/form";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { Picker } from "@slotform/react-ui/components/picker";
+import { Section } from "@slotform/react-ui/components/section";
+import type { Option } from "@slotform/ui-core/descriptors";
 import { useState } from "react";
 import { ago } from "../ago.ts";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";

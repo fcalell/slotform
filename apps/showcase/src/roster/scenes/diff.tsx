@@ -1,6 +1,6 @@
-import { Diff } from "@fcalell/plugin-react-ui/components/diff";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import type { Hunk } from "@fcalell/ui-core/descriptors";
+import { Diff } from "@slotform/react-ui/components/diff";
+import { Section } from "@slotform/react-ui/components/section";
+import type { Hunk } from "@slotform/ui-core/descriptors";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { endedAt, waitingText } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";

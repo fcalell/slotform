@@ -1,5 +1,5 @@
-import { Prose } from "@fcalell/plugin-react-ui/components/prose";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
+import { Prose } from "@slotform/react-ui/components/prose";
+import { Section } from "@slotform/react-ui/components/section";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";
@@ -30,7 +30,7 @@ Every pull request now gets its own preview URL. The preview builds from the bra
 Rename the flag in your CI before you upgrade:
 
 \`\`\`
-stack deploy --skip-checks
+slotform deploy --skip-checks
 \`\`\`
 
 ---

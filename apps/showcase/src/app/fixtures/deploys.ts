@@ -1,4 +1,4 @@
-import type { AppRouter } from "../../../.stack/worker";
+import type { AppRouter } from "../../../.slotform/worker";
 import { ago } from "../../roster/ago.ts";
 
 type Deploys = AppRouter["deploys"];
@@ -165,10 +165,10 @@ Read [how the cache is keyed](#cache) before you change the install step.`,
 	log: `[10:40:02] Cloning acme/acme-web at a41c9e2
 [10:40:04] Restoring cache for pnpm-lock.yaml
 [10:40:05] Cache hit: node_modules (412 packages)
-[10:40:05] stack generate
-[10:40:06] wrote .stack/app.css
-[10:40:06] wrote .stack/worker.ts
-[10:40:06] wrote .stack/wrangler.jsonc
+[10:40:05] slotform generate
+[10:40:06] wrote .slotform/app.css
+[10:40:06] wrote .slotform/worker.ts
+[10:40:06] wrote .slotform/wrangler.jsonc
 [10:40:07] tsc --noEmit
 [10:40:12] 0 errors
 [10:40:12] vite build

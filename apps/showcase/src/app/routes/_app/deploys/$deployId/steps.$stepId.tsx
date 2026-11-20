@@ -1,4 +1,4 @@
-import { preload } from "@fcalell/plugin-query/preload";
+import { preload } from "@slotform/query/preload";
 import { createFileRoute } from "@tanstack/react-router";
 import { DeployStep, deployRead } from "../../../../components/deploys.tsx";
 

@@ -1,10 +1,10 @@
-import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
-import { Shell } from "@fcalell/plugin-react-ui/components/shell";
-import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { SpacingRole } from "@fcalell/ui-core/tokens";
+import { Canvas } from "@slotform/react-ui/components/canvas";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Sheet } from "@slotform/react-ui/components/sheet";
+import { Shell } from "@slotform/react-ui/components/shell";
+import type { CanvasNode, CanvasPoint } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { SpacingRole } from "@slotform/ui-core/tokens";
 import { useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import {

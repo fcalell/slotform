@@ -1,5 +1,5 @@
-import { z } from "@fcalell/plugin-api/schema";
-import { TONES } from "@fcalell/ui-core/tokens";
+import { z } from "@slotform/api/schema";
+import { TONES } from "@slotform/ui-core/tokens";
 
 // A status mark's state.
 export const status = z.enum(TONES);

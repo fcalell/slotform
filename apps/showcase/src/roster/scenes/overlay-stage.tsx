@@ -1,4 +1,4 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import { type ReactNode, useLayoutEffect, useState } from "react";
 
 // A stage a root container (a `Gate`, a `Shell`) stands in; `contain` and `ready` are described in docs/architecture/ui-core/showcase.md, "Roster scenes".

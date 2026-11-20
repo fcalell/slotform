@@ -1,6 +1,6 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
+import { preload } from "@slotform/query/preload";
+import { Canvas } from "@slotform/react-ui/components/canvas";
+import { Pane } from "@slotform/react-ui/components/pane";
 import { createFileRoute } from "@tanstack/react-router";
 import { orpc } from "../../lib/api.ts";
 

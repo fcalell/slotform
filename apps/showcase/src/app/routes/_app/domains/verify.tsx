@@ -1,8 +1,8 @@
-import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Text } from "@fcalell/plugin-react-ui/components/text";
+import { Button } from "@slotform/react-ui/components/button";
+import { Form } from "@slotform/react-ui/components/form";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Text } from "@slotform/react-ui/components/text";
 import { createFileRoute } from "@tanstack/react-router";
 import { orpc } from "../../../lib/api.ts";
 

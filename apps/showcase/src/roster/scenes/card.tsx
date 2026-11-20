@@ -1,10 +1,10 @@
-import { Card } from "@fcalell/plugin-react-ui/components/card";
-import { Input } from "@fcalell/plugin-react-ui/components/input";
-import { Picker } from "@fcalell/plugin-react-ui/components/picker";
-import { Prose } from "@fcalell/plugin-react-ui/components/prose";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Slider } from "@fcalell/plugin-react-ui/components/slider";
-import { Stats } from "@fcalell/plugin-react-ui/components/stats";
+import { Card } from "@slotform/react-ui/components/card";
+import { Input } from "@slotform/react-ui/components/input";
+import { Picker } from "@slotform/react-ui/components/picker";
+import { Prose } from "@slotform/react-ui/components/prose";
+import { Section } from "@slotform/react-ui/components/section";
+import { Slider } from "@slotform/react-ui/components/slider";
+import { Stats } from "@slotform/react-ui/components/stats";
 import { Wide } from "./layout-context.tsx";
 import { act } from "./section-rows.ts";
 

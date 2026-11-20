@@ -1,6 +1,6 @@
-import { ApiError } from "@fcalell/plugin-api/error";
+import { ApiError } from "@slotform/api/error";
 import { type ReactNode, useEffect, useRef } from "react";
-import type { AppRouter } from "../../../.stack/worker";
+import type { AppRouter } from "../../../.slotform/worker";
 
 // The fixtures the scenes of a form over `forms.submit` share.
 

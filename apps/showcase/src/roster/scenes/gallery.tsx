@@ -1,8 +1,8 @@
 import {
 	Gallery,
 	type GalleryItem,
-} from "@fcalell/plugin-react-ui/components/gallery";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
+} from "@slotform/react-ui/components/gallery";
+import { Gate } from "@slotform/react-ui/components/gate";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 import { press, Stage } from "./overlay-stage.tsx";

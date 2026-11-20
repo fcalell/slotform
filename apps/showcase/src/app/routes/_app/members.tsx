@@ -1,20 +1,20 @@
-import { preload } from "@fcalell/plugin-query/preload";
+import { preload } from "@slotform/query/preload";
 import {
 	useMutation,
 	useQueryClient,
 	useRead,
-} from "@fcalell/plugin-query/tanstack-query";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Sheet } from "@fcalell/plugin-react-ui/components/sheet";
-import { Table } from "@fcalell/plugin-react-ui/components/table";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import type { Option, TableColumn } from "@fcalell/ui-core/descriptors";
-import { confirm } from "@fcalell/ui-core/react/confirm";
-import type { Read } from "@fcalell/ui-core/read";
+} from "@slotform/query/tanstack-query";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Sheet } from "@slotform/react-ui/components/sheet";
+import { Table } from "@slotform/react-ui/components/table";
+import { toast } from "@slotform/react-ui/lib/toast";
+import type { Option, TableColumn } from "@slotform/ui-core/descriptors";
+import { confirm } from "@slotform/ui-core/react/confirm";
+import type { Read } from "@slotform/ui-core/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import type { AppRouter } from "../../../../.stack/worker";
+import type { AppRouter } from "../../../../.slotform/worker";
 import { orpc } from "../../lib/api.ts";
 
 export const Route = createFileRoute("/_app/members")({

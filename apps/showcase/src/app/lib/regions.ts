@@ -1,4 +1,4 @@
-import type { AppRouter } from "../../../.stack/worker";
+import type { AppRouter } from "../../../.slotform/worker";
 
 type Region = AppRouter["settings"]["general"]["__output"]["region"];
 

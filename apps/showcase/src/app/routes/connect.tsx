@@ -1,8 +1,8 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { useQuery } from "@fcalell/plugin-query/tanstack-query";
-import { Banner } from "@fcalell/plugin-react-ui/components/banner";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
+import { preload } from "@slotform/query/preload";
+import { useQuery } from "@slotform/query/tanstack-query";
+import { Banner } from "@slotform/react-ui/components/banner";
+import { Gate } from "@slotform/react-ui/components/gate";
+import { Section } from "@slotform/react-ui/components/section";
 import { createFileRoute } from "@tanstack/react-router";
 import { act } from "../lib/act.ts";
 import { orpc } from "../lib/api.ts";

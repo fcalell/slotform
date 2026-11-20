@@ -1,7 +1,7 @@
-import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { cn } from "@fcalell/ui-core/cn";
-import { deriveTheme } from "@fcalell/ui-core/derive";
+import { Button } from "@slotform/react-ui/components/button";
+import { Form } from "@slotform/react-ui/components/form";
+import { cn } from "@slotform/ui-core/cn";
+import { deriveTheme } from "@slotform/ui-core/derive";
 import {
 	AVATAR_STEPS,
 	CHIP_FAMILIES,
@@ -18,7 +18,7 @@ import {
 	TYPE_SCALE,
 	type TypeRole,
 	WIDTHS,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
 import {
 	button,
 	buttonLabel,
@@ -27,7 +27,7 @@ import {
 	switchThumb,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { orpc } from "../app/lib/api.ts";
 import { hang, Pressed } from "../roster/scenes/pending.tsx";

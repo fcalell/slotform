@@ -3,9 +3,9 @@ import {
 	type RosterEntry,
 	rosterEntries,
 	type State,
-} from "@fcalell/ui-core/roster";
-import { MODES, type Mode } from "@fcalell/ui-core/tokens";
-import { matrixClasses } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/roster";
+import { MODES, type Mode } from "@slotform/ui-core/tokens";
+import { matrixClasses } from "@slotform/ui-core/variants";
 
 export const DENSITIES = ["touch", "desktop"] as const;
 export type ShowcaseDensity = (typeof DENSITIES)[number];

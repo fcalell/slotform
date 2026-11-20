@@ -1,8 +1,8 @@
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import type { Row } from "@fcalell/plugin-react-ui/components/section";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Table } from "@fcalell/plugin-react-ui/components/table";
-import type { TableColumn } from "@fcalell/ui-core/descriptors";
+import { Pane } from "@slotform/react-ui/components/pane";
+import type { Row } from "@slotform/react-ui/components/section";
+import { Section } from "@slotform/react-ui/components/section";
+import { Table } from "@slotform/react-ui/components/table";
+import type { TableColumn } from "@slotform/ui-core/descriptors";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { BOARDS, TASKS, type Task } from "../../fixtures/tasks.ts";

@@ -1,13 +1,13 @@
-import { useMutation } from "@fcalell/plugin-query/tanstack-query";
-import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Table } from "@fcalell/plugin-react-ui/components/table";
-import { Toolbar } from "@fcalell/plugin-react-ui/components/toolbar";
-import type { Picked, TableColumn } from "@fcalell/ui-core/descriptors";
-import { useWindow } from "@fcalell/ui-core/react/read";
+import { useMutation } from "@slotform/query/tanstack-query";
+import { ActionBar } from "@slotform/react-ui/components/action-bar";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Table } from "@slotform/react-ui/components/table";
+import { Toolbar } from "@slotform/react-ui/components/toolbar";
+import type { Picked, TableColumn } from "@slotform/ui-core/descriptors";
+import { useWindow } from "@slotform/ui-core/react/read";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import type { AppRouter } from "../../../../.stack/worker";
+import type { AppRouter } from "../../../../.slotform/worker";
 import { orpc } from "../../lib/api.ts";
 
 export const Route = createFileRoute("/_app/requests")({

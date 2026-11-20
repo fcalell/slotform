@@ -1,4 +1,4 @@
-import type { Peaks } from "@fcalell/ui-core/descriptors";
+import type { Peaks } from "@slotform/ui-core/descriptors";
 
 // A track's amplitude as a decoder would give it, made up: a quiet intro, a
 // build, a loud body with a break in it and an outro, with the grain of a

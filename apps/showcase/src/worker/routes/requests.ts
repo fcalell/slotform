@@ -1,5 +1,5 @@
-import { procedure } from "virtual:stack-procedure";
-import { selector, z } from "@fcalell/plugin-api/schema";
+import { procedure } from "virtual:slotform-procedure";
+import { selector, z } from "@slotform/api/schema";
 import { status } from "../schemas.ts";
 
 const request = z.object({

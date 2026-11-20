@@ -6,13 +6,13 @@ import { CLASS_SETS_FILE, SCENES_DIR, writeStories } from "./roster.ts";
 const require = createRequire(import.meta.url);
 
 // ui-core's built roster and variants: a roster edit lands here.
-const UI_CORE_DIST = path.dirname(require.resolve("@fcalell/ui-core/roster"));
+const UI_CORE_DIST = path.dirname(require.resolve("@slotform/ui-core/roster"));
 
 // Rewrites the generated story modules when the roster, its class sets or a scene
 // drawer change; Storybook re-indexes the modules that changed.
 export function rosterPlugin(): Plugin {
 	return {
-		name: "stack:roster-stories",
+		name: "slotform:roster-stories",
 		configureServer(server) {
 			const watched = [CLASS_SETS_FILE, SCENES_DIR, UI_CORE_DIST];
 			server.watcher.add(watched);

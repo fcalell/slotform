@@ -1,5 +1,5 @@
-import { Stages } from "@fcalell/plugin-react-ui/components/stages";
-import type { Stage } from "@fcalell/ui-core/descriptors";
+import { Stages } from "@slotform/react-ui/components/stages";
+import type { Stage } from "@slotform/ui-core/descriptors";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";

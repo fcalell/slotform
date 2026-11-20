@@ -1,10 +1,10 @@
-import { pathOrder } from "@fcalell/ui-core/canvas";
+import { pathOrder } from "@slotform/ui-core/canvas";
 import type {
 	CanvasEdge,
 	CanvasGroup,
 	CanvasNode,
 	CanvasPath,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 
 // The graphs the roster's canvas scenes draw.
 

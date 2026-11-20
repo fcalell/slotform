@@ -1,7 +1,7 @@
 import { Field } from "@base-ui/react/field";
-import { cn } from "@fcalell/ui-core/cn";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import { text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import { text } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 

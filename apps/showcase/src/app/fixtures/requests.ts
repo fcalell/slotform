@@ -1,4 +1,4 @@
-import type { AppRouter } from "../../../.stack/worker";
+import type { AppRouter } from "../../../.slotform/worker";
 import { ago } from "../../roster/ago.ts";
 
 type Request = AppRouter["requests"]["list"]["__output"]["data"][number];

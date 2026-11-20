@@ -1,6 +1,6 @@
-import { Rules } from "@fcalell/plugin-react-ui/components/rules";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import type { EitherValue, Option, Rule } from "@fcalell/ui-core/descriptors";
+import { Rules } from "@slotform/react-ui/components/rules";
+import { Section } from "@slotform/react-ui/components/section";
+import type { EitherValue, Option, Rule } from "@slotform/ui-core/descriptors";
 import { useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { Judged } from "./judged.tsx";

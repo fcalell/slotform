@@ -1,7 +1,7 @@
-import { Input } from "@fcalell/plugin-react-ui/components/input";
-import { Picker } from "@fcalell/plugin-react-ui/components/picker";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import type { Option } from "@fcalell/ui-core/descriptors";
+import { Input } from "@slotform/react-ui/components/input";
+import { Picker } from "@slotform/react-ui/components/picker";
+import { Section } from "@slotform/react-ui/components/section";
+import type { Option } from "@slotform/ui-core/descriptors";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { endedAt, itemsAt, waitingText } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";

@@ -1,14 +1,14 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { type StreamRead, streamRead } from "@fcalell/plugin-query/read";
-import { useQueryClient } from "@fcalell/plugin-query/tanstack-query";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Thread } from "@fcalell/plugin-react-ui/components/thread";
-import { navigate } from "@fcalell/plugin-react-ui/lib/navigate";
-import { toast } from "@fcalell/plugin-react-ui/lib/toast";
-import type { Attachment, Notice } from "@fcalell/ui-core/descriptors";
+import { preload } from "@slotform/query/preload";
+import { type StreamRead, streamRead } from "@slotform/query/read";
+import { useQueryClient } from "@slotform/query/tanstack-query";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Thread } from "@slotform/react-ui/components/thread";
+import { navigate } from "@slotform/react-ui/lib/navigate";
+import { toast } from "@slotform/react-ui/lib/toast";
+import type { Attachment, Notice } from "@slotform/ui-core/descriptors";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import type { AppRouter } from "../../../../.stack/worker";
+import type { AppRouter } from "../../../../.slotform/worker";
 import { orpc } from "../../lib/api.ts";
 import { NAME, PLAN_USED } from "../../lib/assistant.ts";
 

@@ -5,15 +5,15 @@
 		"generate": {
 			"dependsOn": ["^build"],
 			"outputs": [
-				".stack/**",
-				"!.stack/types/**",
-				"!.stack/node_modules/**",
+				".slotform/**",
+				"!.slotform/types/**",
+				"!.slotform/node_modules/**",
 				"stories/**"
 			]
 		},
 		"check-types": {
 			"dependsOn": ["^build", "generate"],
-			"outputs": [".stack/types/**"]
+			"outputs": [".slotform/types/**"]
 		}
 	}
 }

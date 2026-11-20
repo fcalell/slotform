@@ -1,13 +1,10 @@
 import { Field } from "@base-ui/react/field";
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import {
-	Input,
-	type InputKind,
-} from "@fcalell/plugin-react-ui/components/input";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Panes } from "@fcalell/plugin-react-ui/components/shell";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import { text } from "@fcalell/ui-core/variants";
+import { Form } from "@slotform/react-ui/components/form";
+import { Input, type InputKind } from "@slotform/react-ui/components/input";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Panes } from "@slotform/react-ui/components/shell";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import { text } from "@slotform/ui-core/variants";
 import {
 	type ReactNode,
 	useEffect,

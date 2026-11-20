@@ -1,9 +1,9 @@
 import {
 	BarChart,
 	type BarRegions,
-} from "@fcalell/plugin-react-ui/components/bar-chart";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { CHART_SERIES } from "@fcalell/ui-core/tokens";
+} from "@slotform/react-ui/components/bar-chart";
+import { Section } from "@slotform/react-ui/components/section";
+import { CHART_SERIES } from "@slotform/ui-core/tokens";
 import {
 	HOURS as BY_HOUR,
 	WEEKS as BY_WEEK,

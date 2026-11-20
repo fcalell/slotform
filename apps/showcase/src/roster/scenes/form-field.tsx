@@ -1,6 +1,6 @@
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { Input } from "@fcalell/plugin-react-ui/components/input";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { Form } from "@slotform/react-ui/components/form";
+import { Input } from "@slotform/react-ui/components/input";
+import { useWords } from "@slotform/ui-core/react/words";
 import { useEffect, useRef } from "react";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { endedAt, waitingText } from "../waiting.ts";

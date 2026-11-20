@@ -1,7 +1,7 @@
-import { preload } from "@fcalell/plugin-query/preload";
-import { Columns } from "@fcalell/plugin-react-ui/components/columns";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
+import { preload } from "@slotform/query/preload";
+import { Columns } from "@slotform/react-ui/components/columns";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
 import { createFileRoute } from "@tanstack/react-router";
 import { act } from "../../lib/act.ts";
 import { orpc } from "../../lib/api.ts";

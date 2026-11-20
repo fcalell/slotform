@@ -1,5 +1,5 @@
-import { procedure } from "virtual:stack-procedure";
-import { z } from "@fcalell/plugin-api/schema";
+import { procedure } from "virtual:slotform-procedure";
+import { z } from "@slotform/api/schema";
 import { status } from "../schemas.ts";
 
 const stage = z.enum(["review", "staging", "production"]);

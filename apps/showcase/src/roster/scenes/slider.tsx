@@ -1,6 +1,6 @@
 import { Field } from "@base-ui/react/field";
-import { Card } from "@fcalell/plugin-react-ui/components/card";
-import { Slider } from "@fcalell/plugin-react-ui/components/slider";
+import { Card } from "@slotform/react-ui/components/card";
+import { Slider } from "@slotform/react-ui/components/slider";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
 import { beside, isPaint } from "./painted.tsx";

@@ -1,5 +1,5 @@
-import { Picker } from "@fcalell/plugin-react-ui/components/picker";
-import { ListedRoute } from "@fcalell/plugin-react-ui/lib/navigate";
+import { Picker } from "@slotform/react-ui/components/picker";
+import { ListedRoute } from "@slotform/react-ui/lib/navigate";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 import { Judged } from "./judged.tsx";

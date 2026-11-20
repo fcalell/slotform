@@ -1,6 +1,6 @@
-import type { Moved, Picked } from "@fcalell/ui-core/descriptors";
-import { moveEntry } from "@fcalell/ui-core/drag";
-import { createStore } from "@fcalell/ui-core/store";
+import type { Moved, Picked } from "@slotform/ui-core/descriptors";
+import { moveEntry } from "@slotform/ui-core/drag";
+import { createStore } from "@slotform/ui-core/store";
 import { useSyncExternalStore } from "react";
 import { TASKS } from "../fixtures/tasks.ts";
 

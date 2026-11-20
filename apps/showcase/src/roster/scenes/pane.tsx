@@ -1,18 +1,18 @@
-import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
-import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
-import { Pane } from "@fcalell/plugin-react-ui/components/pane";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Panes, Shell } from "@fcalell/plugin-react-ui/components/shell";
-import { Text } from "@fcalell/plugin-react-ui/components/text";
-import { Composer, Thread } from "@fcalell/plugin-react-ui/components/thread";
+import { ActionBar } from "@slotform/react-ui/components/action-bar";
+import { Canvas } from "@slotform/react-ui/components/canvas";
+import { Pane } from "@slotform/react-ui/components/pane";
+import { Section } from "@slotform/react-ui/components/section";
+import { Panes, Shell } from "@slotform/react-ui/components/shell";
+import { Text } from "@slotform/react-ui/components/text";
+import { Composer, Thread } from "@slotform/react-ui/components/thread";
 import type {
 	Option,
 	PlaceSpec,
 	RecordFact,
 	Run,
-} from "@fcalell/ui-core/descriptors";
-import type { Datum, Selection } from "@fcalell/ui-core/read";
-import { BREAKPOINT_PX, TONES, type Tone } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/descriptors";
+import type { Datum, Selection } from "@slotform/ui-core/read";
+import { BREAKPOINT_PX, TONES, type Tone } from "@slotform/ui-core/tokens";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { WORKFLOW } from "../graphs.ts";

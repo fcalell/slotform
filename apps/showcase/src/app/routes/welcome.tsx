@@ -1,5 +1,5 @@
-import { Button } from "@fcalell/plugin-react-ui/components/button";
-import { Gate } from "@fcalell/plugin-react-ui/components/gate";
+import { Button } from "@slotform/react-ui/components/button";
+import { Gate } from "@slotform/react-ui/components/gate";
 import { createFileRoute } from "@tanstack/react-router";
 import { act } from "../lib/act.ts";
 

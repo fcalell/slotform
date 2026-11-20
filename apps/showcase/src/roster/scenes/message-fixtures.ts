@@ -1,9 +1,9 @@
-import type { MessageRegions } from "@fcalell/plugin-react-ui/components/thread";
+import type { MessageRegions } from "@slotform/react-ui/components/thread";
 import type {
 	Attachment,
 	MessageDetail,
 	Run,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import { SCREEN } from "./pictures.ts";
 import { act } from "./section-rows.ts";
 

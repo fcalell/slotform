@@ -1,7 +1,7 @@
-import { Dock } from "@fcalell/plugin-react-ui/components/dock";
-import { connectOutput, player } from "@fcalell/plugin-react-ui/lib/player";
-import type { Engine } from "@fcalell/ui-core/player";
-import type { Datum } from "@fcalell/ui-core/read";
+import { Dock } from "@slotform/react-ui/components/dock";
+import { connectOutput, player } from "@slotform/react-ui/lib/player";
+import type { Engine } from "@slotform/ui-core/player";
+import type { Datum } from "@slotform/ui-core/read";
 import { useEffect } from "react";
 import { MADE_DURATION, madePeaks, silence } from "../peaks.ts";
 import { Column } from "./place.tsx";

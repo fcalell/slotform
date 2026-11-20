@@ -1,4 +1,4 @@
-import { QrCode } from "@fcalell/plugin-react-ui/components/qr-code";
+import { QrCode } from "@slotform/react-ui/components/qr-code";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 

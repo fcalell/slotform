@@ -1,7 +1,7 @@
-import { Card } from "@fcalell/plugin-react-ui/components/card";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { cn } from "@fcalell/ui-core/cn";
-import { row, text, textStrong } from "@fcalell/ui-core/variants";
+import { Card } from "@slotform/react-ui/components/card";
+import { Section } from "@slotform/react-ui/components/section";
+import { cn } from "@slotform/ui-core/cn";
+import { row, text, textStrong } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { ROWS } from "../waiting.ts";
 

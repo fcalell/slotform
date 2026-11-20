@@ -1,6 +1,6 @@
-import { Form } from "@fcalell/plugin-react-ui/components/form";
-import { Section } from "@fcalell/plugin-react-ui/components/section";
-import { Switch } from "@fcalell/plugin-react-ui/components/switch";
+import { Form } from "@slotform/react-ui/components/form";
+import { Section } from "@slotform/react-ui/components/section";
+import { Switch } from "@slotform/react-ui/components/switch";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waiting } from "../waiting.ts";
 import { FILLED, GIVEN, SAVED } from "./form-fixtures.tsx";

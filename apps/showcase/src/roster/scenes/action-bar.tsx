@@ -1,8 +1,8 @@
-import { ApiError } from "@fcalell/plugin-api/error";
-import { ActionBar } from "@fcalell/plugin-react-ui/components/action-bar";
-import { Text } from "@fcalell/plugin-react-ui/components/text";
-import type { Act } from "@fcalell/ui-core/descriptors";
-import { GATE_COLUMN } from "@fcalell/ui-core/variants";
+import { ApiError } from "@slotform/api/error";
+import { ActionBar } from "@slotform/react-ui/components/action-bar";
+import { Text } from "@slotform/react-ui/components/text";
+import type { Act } from "@slotform/ui-core/descriptors";
+import { GATE_COLUMN } from "@slotform/ui-core/variants";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { fail, hang, Pressed } from "./pending.tsx";
 

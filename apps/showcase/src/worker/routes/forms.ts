@@ -1,5 +1,5 @@
-import { procedure } from "virtual:stack-procedure";
-import { z } from "@fcalell/plugin-api/schema";
+import { procedure } from "virtual:slotform-procedure";
+import { z } from "@slotform/api/schema";
 
 // `submit`: the input the Form scenes derive every control from, a line of
 // text, a mono line, a numeric line, a date, a switch, a pick of one, a pick of

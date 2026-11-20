@@ -1,8 +1,5 @@
-import {
-	Stats,
-	type StatsItem,
-} from "@fcalell/plugin-react-ui/components/stats";
-import type { StatSpec } from "@fcalell/ui-core/descriptors";
+import { Stats, type StatsItem } from "@slotform/react-ui/components/stats";
+import type { StatSpec } from "@slotform/ui-core/descriptors";
 import { isFirstClassSet, type ShowcaseScene } from "../class-sets.ts";
 import { readsAt, waiting, waitingText } from "../waiting.ts";
 import { Judged } from "./judged.tsx";

@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Act } from "@fcalell/ui-core/descriptors";
-import { SHELL_COLUMN } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Act } from "@slotform/ui-core/descriptors";
+import { SHELL_COLUMN } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { act } from "./section-rows.ts";
 

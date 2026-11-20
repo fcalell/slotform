@@ -1,5 +1,5 @@
-import { procedure } from "virtual:stack-procedure";
-import { z } from "@fcalell/plugin-api/schema";
+import { procedure } from "virtual:slotform-procedure";
+import { z } from "@slotform/api/schema";
 
 const email = z.object({ email: z.string().min(1) });
 

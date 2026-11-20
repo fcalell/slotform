@@ -1,23 +1,23 @@
-import { Code } from "@fcalell/plugin-react-ui/components/code";
+import { Code } from "@slotform/react-ui/components/code";
 import type { ShowcaseScene } from "../class-sets.ts";
 import { waitingText } from "../waiting.ts";
 import { Wide } from "./layout-context.tsx";
 import { isPaint } from "./painted.tsx";
 
 const ENV = `DATABASE_URL=postgres://app@db.internal:5432/app
-STACK_ACCOUNT_ID=7f3k9q2m4x
-STACK_API_TOKEN=sk_live_51NcQ2rTb8w`;
+SLOTFORM_ACCOUNT_ID=7f3k9q2m4x
+SLOTFORM_API_TOKEN=sk_live_51NcQ2rTb8w`;
 const CODES = `7k2m-9xq4
 4tpw-h8nz
 c3vd-2rfj
 9bqe-m6yk
 x5ha-t7cs
 r2wn-4djp`;
-const INSTALL = "pnpm add @fcalell/stack\npnpm stack init";
+const INSTALL = "pnpm add slotform\npnpm slotform init";
 // Long flags that wrap at 320, never after their hyphens.
 const SERVE =
 	"# Serve the app on the tailnet:\nsudo tailscale serve --bg --https=443 http://127.0.0.1:8789";
-const CURL = `curl -X POST https://api.stack.dev/v1/projects/7f3k9q2m4x/deploys -H "Authorization: Bearer $STACK_API_TOKEN" -d '{"branch":"main"}'`;
+const CURL = `curl -X POST https://api.example.com/v1/projects/7f3k9q2m4x/deploys -H "Authorization: Bearer $SLOTFORM_API_TOKEN" -d '{"branch":"main"}'`;
 // A JSON args block whose URL is wider than a phone: it breaks at the URL's
 // slashes and never inside the last segment, which a hyphen binds ("webauthn-3").
 const ARGS = `{
@@ -29,14 +29,14 @@ const BUILD_LOG = `[12:04:20] pnpm install --frozen-lockfile
 [12:04:24] Lockfile is up to date, resolution step is skipped
 [12:04:26] Packages: +412
 [12:04:27] Done in 6.8s
-[12:04:27] stack generate
-[12:04:28] wrote .stack/app.css
-[12:04:28] wrote .stack/worker.ts
-[12:04:28] wrote .stack/wrangler.jsonc
+[12:04:27] slotform generate
+[12:04:28] wrote .slotform/app.css
+[12:04:28] wrote .slotform/worker.ts
+[12:04:28] wrote .slotform/wrangler.jsonc
 [12:04:29] tsc --noEmit
 [12:04:30] 0 errors
 [12:04:30] vite build
-[12:04:31] loading stack.config.ts
+[12:04:31] loading slotform.config.ts
 [12:04:31] resolving 10 plugins
 [12:04:31] 3 environment variables bound
 [12:04:31] vite v6.2.0 building for production
