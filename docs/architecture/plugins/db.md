@@ -10,8 +10,9 @@ plugin's guide (`plugins/db/guide/`).
 
 Built with `plugin` from `@fcalell/cli`; `requires: ["api"]`. It owns one slot, `schemaModules`
 ([slot catalog](../slot-catalog.md#dbslots-plugin-db)): the modules whose tables the scaffolded
-`src/schema/index.ts` re-exports. It writes `drizzle-orm` into the consumer's `dependencies` and
-`drizzle-kit` into its `devDependencies`, gitignores `.db-kit`, and adds the commands `push`,
+`src/schema/index.ts` re-exports. It writes `drizzle-kit`, an optional peer, into the consumer's
+`devDependencies`; `drizzle-orm`, a required peer, reaches its `dependencies` from the manifest
+([installing stack](../consumer-project.md#installing-stack)). It gitignores `.db-kit`, and adds the commands `push`,
 `generate`, `apply`, `reset`, `create`, `check` and `seed` under `stack db`.
 
 | Target slot | Behaviour |
@@ -123,8 +124,9 @@ declarations the consumer's worker project emits name drizzle types as `import("
 and the consumer's type-check resolves those from the consumer root: with no root copy every schema
 table types as `any`, and with a second physical copy beside the plugin's, TypeScript treats the two
 `Column` classes as distinct and `app.db.select().from(table)` fails. So the root copy is the one the
-plugin resolves. A consumer that links the stack checkout (`link:../stack/plugins/db`) links
-`../stack/plugins/db/node_modules/drizzle-orm` too, so the schema and `app.db` share one copy.
+plugin resolves. A [linked app](../consumer-project.md#a-linked-app) takes plugin-db injected, so
+the copy in its `node_modules` resolves the app's root `drizzle-orm` and the schema and `app.db`
+share one copy.
 
 A plugin with tables (plugin-auth) depends on plugin-db, never on drizzle, so its declarations name
 drizzle types through `@fcalell/plugin-db/orm`, which re-exports the table, relation and row types a
