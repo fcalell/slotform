@@ -99,19 +99,26 @@
 	"dependencies": {
 		"@fcalell/cli": "workspace:^",
 		"@modelcontextprotocol/server": "2.4.0",
+		"slugify": "^1.6.9",
+		"ws": "^8.23.0"
+	},
+	"devDependencies": {
+		"@fcalell/typescript-config": "workspace:^",
+		"@orpc/client": "^1.16.2",
+		"@orpc/server": "^1.16.2",
+		"@types/better-sqlite3": "^9.6.0",
+		"@types/node": "^26.6.6",
+		"better-sqlite3": "^13.2.0",
+		"drizzle-orm": "^0.45.4",
+		"hono": "^4.13.19",
+		"typescript": "^7.0.2",
+		"zod": "^4.6.7"
+	},
+	"peerDependencies": {
 		"@orpc/client": "^1.16.2",
 		"@orpc/server": "^1.16.2",
 		"drizzle-orm": "^0.45.4",
 		"hono": "^4.13.19",
-		"slugify": "^1.6.9",
-		"ws": "^8.23.0",
 		"zod": "^4.6.7"
-	},
-	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
-		"@types/better-sqlite3": "^9.6.0",
-		"@types/node": "^26.6.6",
-		"better-sqlite3": "^13.2.0",
-		"typescript": "^7.0.2"
 	}
 }
