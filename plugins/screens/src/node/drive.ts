@@ -14,7 +14,7 @@ import {
 	target,
 } from "./shoot.ts";
 
-// `stack screens drive <plan.json> --url <app>`: a plan is a list of steps run
+// `slotform screens drive <plan.json> --url <app>`: a plan is a list of steps run
 // in a tab of the app, once for each viewport of `each`.
 
 // A key, typing or a scroll has no event that says the page has reacted.
@@ -164,5 +164,5 @@ export async function drive(
 			});
 		}
 	});
-	printRun("stack screens drive", pages);
+	printRun("slotform screens drive", pages);
 }

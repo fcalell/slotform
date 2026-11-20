@@ -1,4 +1,4 @@
-import type { Procedure } from "@fcalell/plugin-api/types";
+import type { Procedure } from "@slotform/api/types";
 import type { RegisteredRouter } from "@tanstack/react-router";
 
 // The answers of an app's procedures, by the router's own shape.
@@ -51,7 +51,7 @@ export type RouteParams<Id extends string = RouteId> = string extends Id
 			[K in Id]?: { [Name in NamesOf<Under<K, Id>>]?: string };
 		};
 
-// The opening frame of each channel the app's screens read over plugin-node's socket, by channel name.
+// The opening frame of each channel the app's screens read over the `node` plugin's socket, by channel name.
 // Channel fixtures: plugins/screens/guide/fixtures.md, "Channels".
 type ChannelFixtures<TSnapshots = Record<string, unknown>> = {
 	[K in keyof TSnapshots]?: (params: ParamValues) => TSnapshots[K];

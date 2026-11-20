@@ -128,14 +128,14 @@ export function shotsSince(dir: string, since: number): string[] {
 		.sort();
 }
 
-export const WIDTHS_ENV = "STACK_SCREENS_WIDTHS";
-export const EXCLUDE_ENV = "STACK_SCREENS_EXCLUDE";
-export const SHOTS_ENV = "STACK_SCREENS_SHOTS";
-export const FULL_ENV = "STACK_SCREENS_FULL";
-export const OPEN_ENV = "STACK_SCREENS_OPEN";
+export const WIDTHS_ENV = "SLOTFORM_SCREENS_WIDTHS";
+export const EXCLUDE_ENV = "SLOTFORM_SCREENS_EXCLUDE";
+export const SHOTS_ENV = "SLOTFORM_SCREENS_SHOTS";
+export const FULL_ENV = "SLOTFORM_SCREENS_FULL";
+export const OPEN_ENV = "SLOTFORM_SCREENS_OPEN";
 // Read by the story in the browser through Vite's `import.meta.env`
 // (`envPrefix` in the Vitest config), so it is also the name the story reads.
-const SEARCH_ENV = "STACK_SCREENS_SEARCH";
+const SEARCH_ENV = "SLOTFORM_SCREENS_SEARCH";
 
 export function selectionEnv(selection: RunSelection): Record<string, string> {
 	return {

@@ -1,9 +1,9 @@
-import type { TsImportSpec } from "@fcalell/cli/ast";
-import type { RouterOptions } from "@fcalell/plugin-react";
-import type { ViteConfigValues } from "@fcalell/plugin-vite/node";
+import type { TsImportSpec } from "@slotform/cli/ast";
+import type { RouterOptions } from "@slotform/react";
+import type { ViteConfigValues } from "@slotform/vite/node";
 
 // One toolbar global a plugin pins on the document root before a story's first paint.
-// Toolbar globals: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// Toolbar globals: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 export interface PreviewGlobal {
 	// The key in Storybook's globals.
 	name: string;
@@ -13,7 +13,7 @@ export interface PreviewGlobal {
 	values: string[];
 	// The value a story opens with; one of `values`.
 	default: string;
-	// The values `stack screens test` checks every screen in, each a story named
+	// The values `slotform screens test` checks every screen in, each a story named
 	// for it; only `default` when absent.
 	checked?: string[];
 	// `byViewport`: docs/architecture/plugins/screens.md, "Toolbar globals".
@@ -52,7 +52,7 @@ export interface ScreensConfigValues extends ViteConfigValues {
 // the origin the app is served at.
 export type ServeEnv = (serve: { url: string }) => Record<string, string>;
 
-// One `stack screens serve` run as a target, a step or an env contribution
+// One `slotform screens serve` run as a target, a step or an env contribution
 // sees it.
 export interface ServeRun {
 	cwd: string;

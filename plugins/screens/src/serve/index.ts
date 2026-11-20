@@ -1,4 +1,4 @@
-import type { RouterClient } from "@fcalell/plugin-api/client";
+import type { RouterClient } from "@slotform/api/client";
 
 export {
 	type ExtraControls,
@@ -23,7 +23,7 @@ export type ServeSeed<TRouter> = (
 	context: ServeSeedContext<TRouter>,
 ) => void | Promise<void>;
 
-// The default export of the app's `src/app/seed.ts`, which `stack screens serve` runs once the server answers.
+// The default export of the app's `src/app/seed.ts`, which `slotform screens serve` runs once the server answers.
 // Seed shape: plugins/screens/guide/seeded-server.md, "The app's seed".
 export function defineServeSeed<TRouter = unknown>(
 	seed: ServeSeed<TRouter>,

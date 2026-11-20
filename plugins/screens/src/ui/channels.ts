@@ -1,4 +1,4 @@
-// What plugin-node's handler module imports: docs/architecture/plugins/screens.md, "Single copies for plugin modules".
+// What the `node` plugin's handler module imports: docs/architecture/plugins/screens.md, "Single copies for plugin modules".
 import {
 	emptyOf,
 	isPlain,
@@ -11,7 +11,7 @@ import {
 // fixtures, since the `sub` frame carries none.
 type ChannelFixture = (params: Record<string, string>) => unknown;
 
-// The frame plugin-node's server sends and its client decodes (`ServerFrame`,
+// The frame the `node` plugin's server sends and its client decodes (`ServerFrame`,
 // `serverFrameSchema`). A channel has no frame of its own for its opening: it
 // is one of its server messages, "snapshot" by the `channelRead` convention.
 interface ChannelFrame {

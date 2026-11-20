@@ -1,5 +1,5 @@
 import { setTimeout as sleep } from "node:timers/promises";
-import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
+import { BREAKPOINT_PX } from "@slotform/ui-core/tokens";
 import type { Cdp } from "./chrome.ts";
 
 // One tab, driven over CDP: navigation, evaluation, the viewport, real input

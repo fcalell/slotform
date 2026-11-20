@@ -1,6 +1,6 @@
-# @fcalell/plugin-screens
+# @slotform/screens
 
-The screens workbench for `@fcalell/stack`'s web apps: one command serves every route of the app in
+The screens workbench for `slotform`'s web apps: one command serves every route of the app in
 each state its queries can take, from typed fixtures, with no backend and no story, harness or
 Storybook config in the consumer's repo.
 
@@ -9,17 +9,17 @@ How it is built: [docs/architecture/plugins/screens.md](../../docs/architecture/
 ## Install
 
 ```bash
-stack add screens
+slotform add screens
 ```
 
-`stack add screens` installs the workbench's packages into the app
+`slotform add screens` installs the workbench's packages into the app
 ([dependencies](../../docs/architecture/plugins/screens.md#dependencies)). It requires `react` (the
 routes) and `api` (the procedures).
 
 ## Guide
 
 Using the workbench starts at [`guide/screens.md`](./guide/screens.md); the full list of pages is the
-plugin's `guide` in `src/index.ts`, indexed into a consumer's `.stack/guide.md`.
+plugin's `guide` in `src/index.ts`, indexed into a consumer's `.slotform/guide.md`.
 
 ## License
 

@@ -1,5 +1,5 @@
-import Providers from "virtual:stack-providers";
-import { prefixes, previewGlobals } from "virtual:stack-screens";
+import Providers from "virtual:slotform-providers";
+import { prefixes, previewGlobals } from "virtual:slotform-screens";
 import type { Preview } from "@storybook/react-vite";
 import { HttpNetworkFrame, WebSocketNetworkFrame } from "msw/experimental";
 import { mswLoader } from "msw-storybook-addon/csf3";

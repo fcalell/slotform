@@ -1,4 +1,4 @@
-declare module "virtual:stack-screens" {
+declare module "virtual:slotform-screens" {
 	import type { AnyRoute } from "@tanstack/react-router";
 	import type { RequestHandler, WebSocketHandler } from "msw";
 	import type { PreviewGlobal } from "../types.ts";
@@ -20,7 +20,7 @@ declare module "virtual:stack-screens" {
 	export function bindRouter(router: unknown): void;
 }
 
-declare module "virtual:stack-providers" {
+declare module "virtual:slotform-providers" {
 	import type { ReactNode } from "react";
 
 	// The app's providers, composed by the web plugin.
@@ -28,8 +28,8 @@ declare module "virtual:stack-providers" {
 	export default Providers;
 }
 
-declare module "virtual:stack-schema" {
-	// Each procedure's kind by dotted path, from `.stack/schema.ts`.
+declare module "virtual:slotform-schema" {
+	// Each procedure's kind by dotted path, from `.slotform/schema.ts`.
 	export const SCHEMA: Readonly<
 		Record<string, { readonly kind: "query" | "mutation" }>
 	>;

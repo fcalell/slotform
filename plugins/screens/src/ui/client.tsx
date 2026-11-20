@@ -1,7 +1,7 @@
 import {
 	type QueryClient,
 	useQueryClient,
-} from "@fcalell/plugin-query/tanstack-query";
+} from "@slotform/query/tanstack-query";
 import { useEffect } from "react";
 
 // The query client of the story on screen. The providers make one per story

@@ -28,12 +28,12 @@ import { Tab } from "./tab.ts";
 interface BrowserState {
 	port: number;
 	pid: number;
-	// Set by `stack screens browser`: the browser stays after its last context.
+	// Set by `slotform screens browser`: the browser stays after its last context.
 	kept?: true;
 }
 
 export const stateDir = (env: NodeJS.ProcessEnv): string =>
-	join(env.XDG_RUNTIME_DIR || tmpdir(), "stack");
+	join(env.XDG_RUNTIME_DIR || tmpdir(), "slotform");
 
 const files = (env: NodeJS.ProcessEnv) => {
 	const dir = stateDir(env);
@@ -136,7 +136,7 @@ async function withLock<T>(
 			}
 			if (Date.now() > end)
 				throw new Error(
-					`the browser lock ${lock} is held by another process; remove it if no stack screens command is running`,
+					`the browser lock ${lock} is held by another process; remove it if no slotform screens command is running`,
 				);
 			// Another process holds the lock: nothing signals its release.
 			await sleep(50);
@@ -362,7 +362,7 @@ export class Lease {
 			// A command that already finished does not fail on its release: the
 			// line says the browser may be left running.
 			console.error(
-				`stack screens: the shared browser was not released: ${error instanceof Error ? error.message : String(error)}`,
+				`slotform screens: the shared browser was not released: ${error instanceof Error ? error.message : String(error)}`,
 			);
 		} finally {
 			this.cdp.close();

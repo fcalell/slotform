@@ -1,6 +1,6 @@
 # The test run
 
-`stack screens test` opens each screen in a headless browser, in five states and two modes (light
+`slotform screens test` opens each screen in a headless browser, in five states and two modes (light
 and dark), at 320, 1280 and 1920 px, and fails it on what this page lists. A failure names the
 screen, the state and the mode. The shots a run saves are [shots](shots.md#screenshots).
 
@@ -54,7 +54,7 @@ a pixel wide or high, and what a pixel-wide clipping box holds. The headings it 
 `heading-order`) are the ones a reader gets: a heading under `display: none`, `aria-hidden` or `inert` is not
 one, except while a modal Sheet is open, which hides the page behind it and leaves the page's own `h1`
 the page's. It sees through `display: contents`.
-Its named exceptions are listed in one place, `EXCEPTIONS` in plugin-screens' `walk.ts`, each with
+Its named exceptions are listed in one place, `EXCEPTIONS` in the `screens` plugin's `walk.ts`, each with
 its reason; a finding is fixed in the component or the screen, never baselined.
 
 ## Narrowing a run
@@ -88,7 +88,7 @@ exports serve, reruns every screen: it reaches no screen's module graph.
 | ui-core's tokens or theme, the app's CSS, a layout component (Shell, Panes, Pane, Section) or a dependency bump | the screens you are working on, `--screen a,b`; never every screen as a gate |
 
 Combine the rows: a loading change on one screen's touch tree is
-`stack screens test --screen deploys --state loading --width 320 --mode light`.
+`slotform screens test --screen deploys --state loading --width 320 --mode light`.
 
 ## Limits
 

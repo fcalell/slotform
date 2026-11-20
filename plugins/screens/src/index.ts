@@ -2,11 +2,11 @@ import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { plugin, slot } from "@fcalell/cli";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { api } from "@fcalell/plugin-api";
-import { react } from "@fcalell/plugin-react";
-import { vite } from "@fcalell/plugin-vite";
+import { api } from "@slotform/api";
+import { GENERATED_DIR, plugin, slot } from "@slotform/cli";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { react } from "@slotform/react";
+import { vite } from "@slotform/vite";
 import { startBrowser, stopBrowser } from "./node/browser.ts";
 import { findChrome } from "./node/chrome.ts";
 import {
@@ -52,28 +52,28 @@ import { HEIGHT, SHOT_MAX_HEIGHT, WIDTHS } from "./widths.ts";
 
 const SOURCE = "screens";
 
-// Handler modules: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// Handler modules: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 const handlerModules = slot.list<string>({
 	source: SOURCE,
 	name: "handlerModules",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// Fixture modules: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// Fixture modules: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 const fixtureModules = slot.list<string>({
 	source: SOURCE,
 	name: "fixtureModules",
 	sortBy: (a, b) => a.localeCompare(b),
 });
 
-// Toolbar globals: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// Toolbar globals: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 const previewGlobals = slot.list<PreviewGlobal>({
 	source: SOURCE,
 	name: "previewGlobals",
 	sortBy: (a, b) => a.name.localeCompare(b.name),
 });
 
-// What `stack screens serve` runs on: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// What `slotform screens serve` runs on: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 const serveSteps = slot.list<ServeStep>({
 	source: SOURCE,
 	name: "serveSteps",
@@ -86,7 +86,7 @@ const serveEnv = slot.list<ServeEnv>({
 	name: "serveEnv",
 });
 
-// Serve controls: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// Serve controls: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 const serveControls = slot.list<string>({
 	source: SOURCE,
 	name: "serveControls",
@@ -138,7 +138,7 @@ const storybookMain = slot.derived({
 		inp.routesDir === null ? null : renderStorybookMain({ checks: false }),
 });
 
-// `.stack/screens-test/main.ts`: the same Storybook config with the checks,
+// `.slotform/screens-test/main.ts`: the same Storybook config with the checks,
 // which only the test run loads.
 const testMain = slot.derived({
 	source: SOURCE,
@@ -148,7 +148,7 @@ const testMain = slot.derived({
 		inp.routesDir === null ? null : renderStorybookMain({ checks: true }),
 });
 
-// `.stack/screens.vitest.config.ts`: the test run's config, which extends
+// `.slotform/screens.vitest.config.ts`: the test run's config, which extends
 // `viteConfig`'s file, so the host is the one the workbench serves.
 const vitestConfig = slot.derived({
 	source: SOURCE,
@@ -214,7 +214,7 @@ export const screens = plugin("screens", {
 		{
 			page: "screens",
 			trigger:
-				"Designing or changing a web screen, or checking its data, loading, error, empty and not-found states before calling it done (`stack screens dev`)",
+				"Designing or changing a web screen, or checking its data, loading, error, empty and not-found states before calling it done (`slotform screens dev`)",
 		},
 		{
 			page: "fixtures",
@@ -224,7 +224,7 @@ export const screens = plugin("screens", {
 		{
 			page: "test-run",
 			trigger:
-				"Running `stack screens test`, choosing its flags, or fixing a finding of the render walk",
+				"Running `slotform screens test`, choosing its flags, or fixing a finding of the render walk",
 		},
 		{
 			page: "read-checks",
@@ -234,12 +234,12 @@ export const screens = plugin("screens", {
 		{
 			page: "shots",
 			trigger:
-				"Saving shots for a critic, opening a popup in a run, or shooting or driving a live app (`stack screens shoot`, `stack screens drive`)",
+				"Saving shots for a critic, opening a popup in a run, or shooting or driving a live app (`slotform screens shoot`, `slotform screens drive`)",
 		},
 		{
 			page: "seeded-server",
 			trigger:
-				"A screen needs what the real server makes of its data or acts: running `stack screens serve` or writing `src/app/seed.ts`",
+				"A screen needs what the real server makes of its data or acts: running `slotform screens serve` or writing `src/app/seed.ts`",
 		},
 	],
 
@@ -272,10 +272,16 @@ export const screens = plugin("screens", {
 	},
 
 	contributes: (self) => [
-		emitArtifact(`.stack/${VITE_CONFIG}`, self.slots.viteConfig),
-		emitArtifact(`.stack/${STORYBOOK_DIR}/main.ts`, self.slots.storybookMain),
-		emitArtifact(`.stack/${TEST_STORYBOOK_DIR}/main.ts`, self.slots.testMain),
-		emitArtifact(`.stack/${VITEST_CONFIG}`, self.slots.vitestConfig),
+		emitArtifact(`${GENERATED_DIR}/${VITE_CONFIG}`, self.slots.viteConfig),
+		emitArtifact(
+			`${GENERATED_DIR}/${STORYBOOK_DIR}/main.ts`,
+			self.slots.storybookMain,
+		),
+		emitArtifact(
+			`${GENERATED_DIR}/${TEST_STORYBOOK_DIR}/main.ts`,
+			self.slots.testMain,
+		),
+		emitArtifact(`${GENERATED_DIR}/${VITEST_CONFIG}`, self.slots.vitestConfig),
 
 		cliSlots.postWrite.contribute(async (ctx) => {
 			const dir = await ctx.resolve(react.slots.routesDir);
@@ -304,7 +310,7 @@ export const screens = plugin("screens", {
 			},
 			handler: async (ctx, flags) => {
 				// Storybook reads the generated config, the route tree and the story
-				// files, so they are written first, as `stack dev` writes them.
+				// files, so they are written first, as `slotform dev` writes them.
 				await ctx.generate();
 				await run(
 					ctx.cwd,
@@ -315,7 +321,7 @@ export const screens = plugin("screens", {
 					[
 						"dev",
 						"--config-dir",
-						`.stack/${STORYBOOK_DIR}`,
+						`${GENERATED_DIR}/${STORYBOOK_DIR}`,
 						"--port",
 						String(flags.port),
 						"--ci",
@@ -333,16 +339,16 @@ export const screens = plugin("screens", {
 				if (word === "stop") {
 					console.log(
 						(await stopBrowser(ctx.env))
-							? "stack screens browser: stopped"
-							: "stack screens browser: none running",
+							? "slotform screens browser: stopped"
+							: "slotform screens browser: none running",
 					);
 					return;
 				}
 				if (word !== undefined)
-					throw new Error(`stack screens browser: ${word} is not stop`);
+					throw new Error(`slotform screens browser: ${word} is not stop`);
 				findChrome(ctx.env);
 				const { port, pid } = await startBrowser(ctx.env);
-				console.log(`stack screens browser: Chrome ${pid} on port ${port}`);
+				console.log(`slotform screens browser: Chrome ${pid} on port ${port}`);
 			},
 		},
 		shoot: {
@@ -364,7 +370,7 @@ export const screens = plugin("screens", {
 				},
 				shots: {
 					type: "string" as const,
-					description: "The directory for the PNGs (default: .stack/shots)",
+					description: `The directory for the PNGs (default: ${GENERATED_DIR}/shots)`,
 				},
 				full: {
 					type: "boolean" as const,
@@ -394,12 +400,12 @@ export const screens = plugin("screens", {
 		},
 		drive: {
 			description:
-				"Run a plan (stack screens drive <plan.json> --url <app>) of steps in a live app, judging at each shot",
+				"Run a plan (slotform screens drive <plan.json> --url <app>) of steps in a live app, judging at each shot",
 			options: {
 				url: { type: "string" as const, description: "The app's address" },
 				shots: {
 					type: "string" as const,
-					description: "The directory for the PNGs (default: .stack/shots)",
+					description: `The directory for the PNGs (default: ${GENERATED_DIR}/shots)`,
 				},
 				full: {
 					type: "boolean" as const,
@@ -424,7 +430,7 @@ export const screens = plugin("screens", {
 				const plan = process.argv[4];
 				if (!plan || plan.startsWith("-"))
 					throw new Error(
-						"stack screens drive: name the plan right after drive: drive <plan.json> --url <app>",
+						"slotform screens drive: name the plan right after drive: drive <plan.json> --url <app>",
 					);
 				return drive(plan, flags, ctx.cwd, ctx.env);
 			},
@@ -440,7 +446,7 @@ export const screens = plugin("screens", {
 				entry: {
 					type: "string" as const,
 					description:
-						"A Node file that starts the server itself, listening on STACK_SERVE_PORT, its state in STACK_SERVE_DIR",
+						"A Node file that starts the server itself, listening on SLOTFORM_SERVE_PORT, its state in SLOTFORM_SERVE_DIR",
 				},
 				keep: {
 					type: "boolean" as const,
@@ -545,7 +551,7 @@ export const screens = plugin("screens", {
 				const checked = modes?.checked ?? [];
 				console.log(
 					[
-						"stack screens test:",
+						"slotform screens test:",
 						`widths ${selection.widths.join(", ")};`,
 						`modes ${checked.filter((m) => !selection.exclude.includes(`mode:${m}`)).join(", ") || "default"};`,
 						`states ${SCREEN_STATES.filter(
@@ -572,7 +578,7 @@ export const screens = plugin("screens", {
 						[
 							"run",
 							"--config",
-							`.stack/${VITEST_CONFIG}`,
+							`${GENERATED_DIR}/${VITEST_CONFIG}`,
 							// A clean tree has nothing to run, which is no failure.
 							"--passWithNoTests",
 							...files,
@@ -594,7 +600,7 @@ export const screens = plugin("screens", {
 					if (selection.shots) {
 						const taken = shotsSince(selection.shots, started);
 						console.log(
-							[`stack screens test: ${taken.length} shots`, ...taken].join(
+							[`slotform screens test: ${taken.length} shots`, ...taken].join(
 								"\n",
 							),
 						);

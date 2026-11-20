@@ -1,16 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { mkdir, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { StackConfig } from "@fcalell/cli";
-import { buildGraphFromConfig } from "@fcalell/cli/build-graph";
-import { vite } from "@fcalell/plugin-vite";
+import { GENERATED_DIR, type SlotformConfig } from "@slotform/cli";
+import { buildGraphFromConfig } from "@slotform/cli/build-graph";
+import { vite } from "@slotform/vite";
 import { renderComponentHostConfig } from "./config.ts";
 
-const STORYBOOK_VITE_CONFIG = ".stack/storybook.vite.config.ts";
+const STORYBOOK_VITE_CONFIG = `${GENERATED_DIR}/storybook.vite.config.ts`;
 
 // The Vite config of a Storybook that draws components: docs/architecture/plugins/screens.md, "A Storybook that draws components".
 export async function writeStorybookConfig(options: {
-	config: StackConfig;
+	config: SlotformConfig;
 	cwd: string;
 	env: NodeJS.ProcessEnv;
 }): Promise<string> {
@@ -35,7 +35,7 @@ export async function writeStorybookConfig(options: {
 		clientHeaders: await graph.resolve(vite.slots.clientHeaders),
 	});
 	const path = join(options.cwd, STORYBOOK_VITE_CONFIG);
-	await mkdir(join(options.cwd, ".stack"), { recursive: true });
+	await mkdir(join(options.cwd, GENERATED_DIR), { recursive: true });
 	// Storybook's main.ts and Vitest's config each write it as they load, and a
 	// load can overlap a write: a rename hands a reader the whole file or the old one.
 	const temp = `${path}.${randomUUID()}.tmp`;

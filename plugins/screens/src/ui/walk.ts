@@ -3,14 +3,14 @@ import {
 	SIZES,
 	SPACING_ROLES,
 	TYPE_ROLES,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
 import {
 	CANVAS_GROUP_HEAD,
 	CHIPS_TRIGGER,
 	ROWS_HOST,
 	SUBGRID,
 	TOOLBAR_SEARCH,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { ariaName, squash } from "./name.ts";
 import {
 	type Above,

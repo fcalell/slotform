@@ -6,8 +6,8 @@ it, typed by the router, so a fixture that departs from its procedure's output f
 
 ```ts
 // src/app/fixtures.ts
-import { defineFixtures } from "@fcalell/plugin-screens/fixtures";
-import type { AppRouter } from "../../.stack/worker";
+import { defineFixtures } from "@slotform/screens/fixtures";
+import type { AppRouter } from "../../.slotform/worker";
 
 export default defineFixtures<AppRouter>(
   {
@@ -64,7 +64,7 @@ fields of its own (an `activeOrganizationId`, so a screen that reads the active 
 starts from the plugin's answer, a public subpath:
 
 ```ts
-import authFixtures from "@fcalell/plugin-auth/screens-fixtures";
+import authFixtures from "@slotform/auth/screens-fixtures";
 
 const { session, user } = authFixtures.auth.session();
 // in the procedures of defineFixtures:
@@ -75,12 +75,12 @@ The answer is typed by the procedure, so a field the session does not have fails
 
 ## Channels
 
-A screen that reads over plugin-node's WebSocket (`channelRead`) is answered from the third
+A screen that reads over the `node` plugin's WebSocket (`channelRead`) is answered from the third
 argument, `channels`: a map from a channel's name to a fixture that takes the route params and
 returns the channel's opening reply. A bare value is the payload of the channel's `snapshot`
 message; a channel that opens with another message returns `{ type: "status", payload }` naming it
 (exactly those two keys, so a snapshot shaped that way cannot be sent bare). Type it with
-plugin-node's `Snapshots` over a map of the channel definitions.
+`@slotform/node`'s `Snapshots` over a map of the channel definitions.
 
 ```ts
 export default defineFixtures<

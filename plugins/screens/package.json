@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-screens",
+	"name": "@slotform/screens",
 	"version": "0.1.0",
-	"description": "The screens workbench for @fcalell/stack web apps: every route in each query state, from typed fixtures, with no backend.",
+	"description": "The screens workbench for slotform web apps: every route in each query state, from typed fixtures, with no backend.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/screens"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/screens#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/screens#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -119,17 +119,17 @@
 		}
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-query": "workspace:^",
-		"@fcalell/plugin-react": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^",
-		"@fcalell/ui-core": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/query": "workspace:^",
+		"@slotform/react": "workspace:^",
+		"@slotform/vite": "workspace:^",
+		"@slotform/ui-core": "workspace:^",
 		"@orpc/standard-server-fetch": "^1.16.2",
 		"ws": "^8.23.0"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@orpc/client": "^1.16.2",
 		"@orpc/server": "^1.16.2",
 		"@storybook/addon-a11y": "^10.6.7",

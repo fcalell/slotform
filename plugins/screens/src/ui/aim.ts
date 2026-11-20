@@ -1,7 +1,7 @@
 import { ariaName, squash } from "./name.ts";
 import type { Rect } from "./walk-checks.ts";
 
-// Where a control is and whether a press of it lands, for `stack screens shoot`
+// Where a control is and whether a press of it lands, for `slotform screens shoot`
 // and `drive` and the test run's presses.
 
 const CONTROLS =

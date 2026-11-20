@@ -1,4 +1,4 @@
-import { SCHEMA } from "virtual:stack-schema";
+import { SCHEMA } from "virtual:slotform-schema";
 import {
 	bindRouter,
 	fixtures,
@@ -6,8 +6,8 @@ import {
 	pluginFixtures,
 	prefixes,
 	routeTree,
-} from "virtual:stack-screens";
-import { useQueryClient } from "@fcalell/plugin-query/tanstack-query";
+} from "virtual:slotform-screens";
+import { useQueryClient } from "@slotform/query/tanstack-query";
 import type { StoryObj } from "@storybook/react-vite";
 import {
 	createMemoryHistory,
@@ -25,12 +25,12 @@ type Story = { state: ScreenState; params: Record<string, string> };
 // with a stand-in and `Screen` hands it the real one as its context.
 const standIn = { queryClient: undefined as never };
 
-// `stack screens test --search`: the search every screen is drawn at, in
+// `slotform screens test --search`: the search every screen is drawn at, in
 // place of the fixtures' example (an empty one draws none).
 // `import.meta.env` is Vite's: this package's tsconfig loads no `vite/client`.
 const searchOverride = (
 	import.meta as { env?: Record<string, string | undefined> }
-).env?.STACK_SCREENS_SEARCH;
+).env?.SLOTFORM_SCREENS_SEARCH;
 
 // The app's real router at a route's URL, in a memory history: the URL is the
 // route's full path with its params filled from the fixtures, then their example search. A first router

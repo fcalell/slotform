@@ -10,11 +10,12 @@ import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { GENERATED_DIR } from "@slotform/cli";
 import { FIXTURE_PREFIX } from "../serve/controls.ts";
 import type { ServeEnv, ServeRun, ServeStep, ServeTarget } from "../types.ts";
 import { startServer } from "./serve-process.ts";
 
-// `stack screens serve`: the app's real server on throwaway state, seeded.
+// `slotform screens serve`: the app's real server on throwaway state, seeded.
 
 const SEED_FILE = "src/app/seed.ts";
 
@@ -59,7 +60,7 @@ function buildClient(
 			vite,
 			"build",
 			"--config",
-			".stack/vite.config.ts",
+			`${GENERATED_DIR}/vite.config.ts`,
 			"--outDir",
 			// `client` is set whenever there is a web client to build.
 			serve.client as string,
@@ -85,7 +86,7 @@ async function seedContext(serve: ServeRun, rpc: string | null, dir: string) {
 		.getSetCookie()
 		.map((line) => line.split(";")[0])
 		.join("; ");
-	const { createClient } = await import("@fcalell/plugin-api/client");
+	const { createClient } = await import("@slotform/api/client");
 	return {
 		client: createClient({
 			url: `${serve.url}${rpc ?? "/rpc"}`,
@@ -103,7 +104,7 @@ async function seedContext(serve: ServeRun, rpc: string | null, dir: string) {
 
 export async function serve(inputs: ServeInputs): Promise<void> {
 	const { cwd, flags, steps, envs, controls, targets, rpc, vite } = inputs;
-	const dir = mkdtempSync(join(tmpdir(), "stack-serve-"));
+	const dir = mkdtempSync(join(tmpdir(), "slotform-serve-"));
 	const state = join(dir, "state");
 	mkdirSync(state);
 	let stop: (() => Promise<void>) | null = null;
@@ -112,7 +113,8 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 	const cleanup = () =>
 		(cleaning ??= (async () => {
 			await stop?.();
-			if (flags.keep === true) console.log(`stack screens serve: kept ${dir}`);
+			if (flags.keep === true)
+				console.log(`slotform screens serve: kept ${dir}`);
 			else rmSync(dir, { recursive: true, force: true });
 		})());
 
@@ -137,7 +139,7 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 			client: vite ? join(dir, "client") : null,
 			port,
 			url,
-			env: { STACK_SERVE_DIR: dir, STACK_SERVE_PORT: String(port) },
+			env: { SLOTFORM_SERVE_DIR: dir, SLOTFORM_SERVE_PORT: String(port) },
 			controls,
 		};
 		if (vite) buildClient(run, vite, inputs.env);
@@ -175,7 +177,7 @@ export async function serve(inputs: ServeInputs): Promise<void> {
 			join(dir, "serve.json"),
 			JSON.stringify({ url, pid: process.pid }),
 		);
-		console.log(`stack screens serve: ${url}`);
+		console.log(`slotform screens serve: ${url}`);
 		// The signal handlers end the run; the server's process keeps this one alive.
 		await new Promise<void>(() => {});
 	} finally {

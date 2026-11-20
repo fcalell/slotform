@@ -9,7 +9,7 @@ story it visits; `shoot` and `drive` take them from a running app, judged by the
 width ran: `<dir>/<screen>/<story>-<width>.png`, for example `shots/projects/$id/data-dark-1920.png`.
 The directory is resolved from the app's root and must lie inside it (gitignore it); the default
 mode's story has no mode in its name (`data-1920.png`). The narrowing flags choose the images: one screen after an edit is
-`stack screens test --screen deploys --state data --mode dark --width 320,1920 --shots shots`. The run ends by listing the absolute path of every shot it
+`slotform screens test --screen deploys --state data --mode dark --width 320,1920 --shots shots`. The run ends by listing the absolute path of every shot it
 wrote.
 
 - A shot is the viewport, 800 px tall. `--full` grows it to the whole screen, until no scroller
@@ -33,21 +33,21 @@ wrote.
 
 ## Driving a live app
 
-`shoot` and `drive` open a running app (any URL: `stack dev`, a built bundle, a deploy, or a
+`shoot` and `drive` open a running app (any URL: `slotform dev`, a built bundle, a deploy, or a
 [seeded server](seeded-server.md)) in the shared browser, with reduced motion and a device scale of
 1, at each width and mode, with touch input and a coarse pointer under 768 px. They judge what the
 test run judges on the live page (horizontal overflow, the render walk and axe), print the findings
 like the test run and exit non-zero on any.
 
 ```bash
-stack screens shoot --url http://localhost:3000 --route /,/deploys --width 320,1920 --mode dark \
+slotform screens shoot --url http://localhost:3000 --route /,/deploys --width 320,1920 --mode dark \
   --shots shots --open "Invite" --cookie session=abc
 ```
 
 `shoot` waits until a page is quiet (no request in flight, nothing `aria-busy`, at most `--settle`
 ms, 10000 by default; an open event stream does not count; a page still busy at the cap is shot with
 a note, which does not fail it), then writes `<dir>/<route-slug>-<width>-<mode>.png` (`/` is
-`index`; the default directory is `.stack/shots`; `--full` and `--open` as above). Defaults: widths
+`index`; the default directory is `.slotform/shots`; `--full` and `--open` as above). Defaults: widths
 `320,1920`, mode `dark`; a width is 200 to 4000 px. A route that fails (it does not load, its
 `--open` control is not found) is reported with its path, and the run goes on to the next. A
 guarded route needs a session: `--cookie name=value` sets one, and `--sign-in <url>` is opened once

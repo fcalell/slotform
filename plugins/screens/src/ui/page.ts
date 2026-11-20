@@ -1,7 +1,7 @@
 import { findings } from "./walk.ts";
 import { format, scrolls } from "./walk-checks.ts";
 
-// What the test run's checks and `stack screens shoot` and `drive` share about
+// What the test run's checks and `slotform screens shoot` and `drive` share about
 // a drawn page: what a read holds busy, how far its scrollers hide content and
 // the judgement at a width.
 

@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { GENERATED_DIR } from "@slotform/cli";
 import type { StorybookConfig } from "@storybook/react-vite";
 import { VITE_CONFIG } from "./files.ts";
 import { STORIES_DIR } from "./stories.ts";
@@ -7,7 +8,7 @@ import { STORIES_DIR } from "./stories.ts";
 interface ScreensMainOptions {
 	// Also load the test run's checks, which add to every screen.
 	checks: boolean;
-	// The project root, where `.stack/` lives.
+	// The project root, where `.slotform/` lives.
 	root: string;
 }
 
@@ -23,15 +24,15 @@ export function screensMain({
 			name: "@storybook/react-vite",
 			options: {
 				builder: {
-					viteConfigPath: join(root, ".stack", VITE_CONFIG),
+					viteConfigPath: join(root, GENERATED_DIR, VITE_CONFIG),
 				},
 			},
 		},
 		previewAnnotations: (entries = []) => [
 			...entries,
-			fileURLToPath(import.meta.resolve("@fcalell/plugin-screens/preview")),
+			fileURLToPath(import.meta.resolve("@slotform/screens/preview")),
 			...(checks
-				? [fileURLToPath(import.meta.resolve("@fcalell/plugin-screens/checks"))]
+				? [fileURLToPath(import.meta.resolve("@slotform/screens/checks"))]
 				: []),
 		],
 	};

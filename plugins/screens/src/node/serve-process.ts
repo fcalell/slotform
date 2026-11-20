@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 import type { ServeRun } from "../types.ts";
 
-// A server a `stack screens serve` run starts: its output goes to `<dir>/<name>.log`,
+// A server a `slotform screens serve` run starts: its output goes to `<dir>/<name>.log`,
 // the run's own stdout holds one line.
 
 const READY_MS = 120_000;

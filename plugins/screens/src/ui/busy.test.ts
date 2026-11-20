@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { QueryClient } from "@fcalell/plugin-query/tanstack-query";
+import type { QueryClient } from "@slotform/query/tanstack-query";
 import { fetchingReads } from "./busy.ts";
 
 interface FakeQuery {

@@ -1,4 +1,3 @@
-import { ORG_RULES_PATH, SCOPE_ROUTES_PATH } from "@fcalell/plugin-api/wire";
 import { ORPCError } from "@orpc/client";
 import {
 	StandardRPCJsonSerializer,
@@ -9,6 +8,7 @@ import {
 	toFetchResponse,
 	toStandardLazyRequest,
 } from "@orpc/standard-server-fetch";
+import { ORG_RULES_PATH, SCOPE_ROUTES_PATH } from "@slotform/api/wire";
 import { http } from "msw/http";
 import type { SCREEN_STATES } from "../node/screens.ts";
 
@@ -73,7 +73,7 @@ function isFixture(value: unknown): value is Fixture {
 	return typeof value === "function";
 }
 
-// Fixture lookup order: docs/architecture/slot-catalog.md, "`screens.slots.*` (plugin-screens)".
+// Fixture lookup order: docs/architecture/slot-catalog.md, "`screens.slots.*` (the `screens` plugin)".
 function findFixture(
 	app: unknown,
 	plugins: readonly unknown[],
@@ -210,7 +210,7 @@ export function noteUnanswered(message: string): void {
 }
 
 // The kind of each procedure by dotted path, from the generated schema
-// (`virtual:stack-schema`).
+// (`virtual:slotform-schema`).
 type ProcedureKinds = Readonly<
 	Record<string, { readonly kind: "query" | "mutation" } | undefined>
 >;

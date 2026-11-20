@@ -1,4 +1,4 @@
-import { previewGlobals } from "virtual:stack-screens";
+import { previewGlobals } from "virtual:slotform-screens";
 import type { Preview } from "@storybook/react-vite";
 import { expect, inject } from "vitest";
 import { commands, page } from "vitest/browser";

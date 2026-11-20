@@ -1,9 +1,6 @@
-import { literalToProps, type TsExpression } from "@fcalell/cli/ast";
-import { routerPluginFor } from "@fcalell/plugin-react/codegen";
-import {
-	renderViteConfig,
-	type ViteConfigValues,
-} from "@fcalell/plugin-vite/node";
+import { literalToProps, type TsExpression } from "@slotform/cli/ast";
+import { routerPluginFor } from "@slotform/react/codegen";
+import { renderViteConfig, type ViteConfigValues } from "@slotform/vite/node";
 import type { ScreensConfigValues } from "../types.ts";
 import { START_VIEWPORT } from "../widths.ts";
 import { TEST_STORYBOOK_DIR, VITE_CONFIG } from "./files.ts";
@@ -20,7 +17,7 @@ export const FIXTURES = "src/app/fixtures.ts";
 
 const ident = (name: string): TsExpression => ({ kind: "identifier", name });
 
-// The directory the generated config sits in, `.stack/`.
+// The directory the generated config sits in, `.slotform/`.
 const configDir: TsExpression = {
 	kind: "call",
 	callee: ident("fileURLToPath"),
@@ -37,7 +34,7 @@ const configDir: TsExpression = {
 };
 
 // This package's own location: Vite 403s a path outside its workspace root, and
-// a workspace-linked stack checkout serves the preview from beside the app's.
+// a workspace-linked Slotform checkout serves the preview from beside the app's.
 const ownRoot: TsExpression = {
 	kind: "call",
 	callee: ident("searchForWorkspaceRoot"),
@@ -53,7 +50,7 @@ const ownRoot: TsExpression = {
 						object: ident("import.meta"),
 						property: "resolve",
 					},
-					args: [{ kind: "string", value: "@fcalell/plugin-screens" }],
+					args: [{ kind: "string", value: "@slotform/screens" }],
 				},
 			],
 		},
@@ -93,7 +90,7 @@ export function renderScreensConfig(values: ScreensConfigValues): string {
 			{
 				kind: "object",
 				properties: [
-					{ key: "stackDir", value: configDir },
+					{ key: "slotformDir", value: configDir },
 					...Object.entries(props).map(([key, value]) => ({ key, value })),
 				],
 			},
@@ -110,13 +107,13 @@ export function renderScreensConfig(values: ScreensConfigValues): string {
 				...values.configImports,
 				...router.imports,
 				{ source: "node:url", named: ["fileURLToPath"] },
-				{ source: "@fcalell/plugin-screens/vite", named: ["screensPlugin"] },
+				{ source: "@slotform/screens/vite", named: ["screensPlugin"] },
 			],
 			pluginCalls: [router.call, ...values.pluginCalls, plugin],
 			fsAllow: [...values.fsAllow, ownRoot],
-			// The stories import `virtual:stack-screens` through this package,
+			// The stories import `virtual:slotform-screens` through this package,
 			// which `screensPlugin` serves.
-			optimizeExclude: [...values.optimizeExclude, "@fcalell/plugin-screens"],
+			optimizeExclude: [...values.optimizeExclude, "@slotform/screens"],
 		}),
 	);
 }
@@ -128,7 +125,7 @@ export function renderComponentHostConfig(values: ViteConfigValues): string {
 			...values,
 			configImports: [
 				...values.configImports,
-				{ source: "@fcalell/plugin-screens/vite", named: ["storybookHost"] },
+				{ source: "@slotform/screens/vite", named: ["storybookHost"] },
 			],
 			pluginCalls: [
 				...values.pluginCalls,
@@ -138,12 +135,12 @@ export function renderComponentHostConfig(values: ViteConfigValues): string {
 	);
 }
 
-// `.stack/screens/main.ts`: Storybook's config directory holds this one file.
-// The one for the test run (`.stack/screens-test/main.ts`) adds the checks.
+// `.slotform/screens/main.ts`: Storybook's config directory holds this one file.
+// The one for the test run (`.slotform/screens-test/main.ts`) adds the checks.
 export function renderStorybookMain(options: { checks: boolean }): string {
 	return [
 		'import { fileURLToPath } from "node:url";',
-		'import { screensMain } from "@fcalell/plugin-screens/storybook";',
+		'import { screensMain } from "@slotform/screens/storybook";',
 		"",
 		"export default screensMain({",
 		`\tchecks: ${options.checks},`,
@@ -154,12 +151,12 @@ export function renderStorybookMain(options: { checks: boolean }): string {
 	].join("\n");
 }
 
-// `.stack/screens.vitest.config.ts`: docs/architecture/plugins/screens.md, "Vitest config".
+// `.slotform/screens.vitest.config.ts`: docs/architecture/plugins/screens.md, "Vitest config".
 export function renderVitestConfig(): string {
 	return `import { fileURLToPath } from "node:url";
-import { workspaceTriggers } from "@fcalell/plugin-screens/node";
+import { workspaceTriggers } from "@slotform/screens/node";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
-import { chrome, inputCommands } from "@fcalell/plugin-screens/browser";
+import { chrome, inputCommands } from "@slotform/screens/browser";
 import { configDefaults, defineConfig } from "vitest/config";
 import screens from "./${VITE_CONFIG}";
 
@@ -174,7 +171,7 @@ const open = process.env.${OPEN_ENV} ?? "";
 export default defineConfig({
 	...screens,
 	// The story reads \`--search\` from \`import.meta.env\`.
-	envPrefix: ["VITE_", "STACK_SCREENS_"],
+	envPrefix: ["VITE_", "SLOTFORM_SCREENS_"],
 	test: {
 		// A change to a linked package's compiled side reaches no screen's module
 		// graph, so it reruns every screen.

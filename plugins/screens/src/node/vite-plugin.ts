@@ -6,9 +6,9 @@ import type { PreviewGlobal } from "../types.ts";
 import { syncStories } from "./stories.ts";
 
 export interface ScreensModuleOptions {
-	// The generated `.stack` directory, absolute.
-	stackDir: string;
-	// The app's fixtures module, relative to `stackDir`; absent files are fine.
+	// The generated `.slotform` directory, absolute.
+	slotformDir: string;
+	// The app's fixtures module, relative to `slotformDir`; absent files are fine.
 	fixtures: string;
 	// The entry's side-effect imports (the stylesheet), as the entry writes them.
 	entryImports: string[];
@@ -28,38 +28,39 @@ export interface ScreensModuleOptions {
 // The route tree the router plugin writes, beside the generated config.
 const ROUTE_TREE = "routeTree.gen.ts";
 
-// A specifier the entry wrote relative to `.stack/` as an absolute path, any
+// A specifier the entry wrote relative to `.slotform/` as an absolute path, any
 // other as it is.
-function fromStack(stackDir: string, specifier: string): string {
-	return specifier.startsWith(".") ? join(stackDir, specifier) : specifier;
+function fromSlotform(slotformDir: string, specifier: string): string {
+	return specifier.startsWith(".") ? join(slotformDir, specifier) : specifier;
 }
 
-// `virtual:stack-screens`: what the entry holds that a story renders with,
+// `virtual:slotform-screens`: what the entry holds that a story renders with,
 // the app's route tree, its fixtures and the handlers of the endpoints its
 // plugins own.
 function screensModule(options: ScreensModuleOptions): string {
-	const { stackDir } = options;
-	const fixtures = join(stackDir, options.fixtures);
+	const { slotformDir } = options;
+	const fixtures = join(slotformDir, options.fixtures);
 	const bindings = options.routerBindings.map(
 		(binding, index) =>
-			`import { ${binding.name} as bind${index} } from ${JSON.stringify(fromStack(stackDir, binding.source))};`,
+			`import { ${binding.name} as bind${index} } from ${JSON.stringify(fromSlotform(slotformDir, binding.source))};`,
 	);
 	const modules = options.handlerModules.map(
 		(source, index) =>
-			`import handlers${index} from ${JSON.stringify(fromStack(stackDir, source))};`,
+			`import handlers${index} from ${JSON.stringify(fromSlotform(slotformDir, source))};`,
 	);
 	const trees = options.fixtureModules.map(
 		(source, index) =>
-			`import tree${index} from ${JSON.stringify(fromStack(stackDir, source))};`,
+			`import tree${index} from ${JSON.stringify(fromSlotform(slotformDir, source))};`,
 	);
 	return [
 		...options.entryImports.map(
-			(source) => `import ${JSON.stringify(fromStack(stackDir, source))};`,
+			(source) =>
+				`import ${JSON.stringify(fromSlotform(slotformDir, source))};`,
 		),
 		...bindings,
 		...modules,
 		...trees,
-		`import { routeTree } from ${JSON.stringify(join(stackDir, ROUTE_TREE))};`,
+		`import { routeTree } from ${JSON.stringify(join(slotformDir, ROUTE_TREE))};`,
 		existsSync(fixtures)
 			? `import fixtures from ${JSON.stringify(fixtures)};`
 			: "const fixtures = undefined;",
@@ -75,11 +76,11 @@ function screensModule(options: ScreensModuleOptions): string {
 }
 
 export interface ScreensPluginOptions extends ScreensModuleOptions {
-	// The routes directory, relative to `stackDir`.
+	// The routes directory, relative to `slotformDir`.
 	routesDir: string;
 }
 
-const SCREENS = "virtual:stack-screens";
+const SCREENS = "virtual:slotform-screens";
 const WORKER = "/mockServiceWorker.js";
 
 // Why the optimizer is started here: docs/architecture/plugins/screens.md, "Vite plugin".
@@ -101,7 +102,7 @@ function installed(specifier: string, root: string): boolean {
 // the dependency optimizer. A host that draws routes runs `screensPlugin`
 // instead, which does this too.
 export function storybookHost(): Plugin {
-	return { name: "stack:storybook-host", configureServer: startOptimizer };
+	return { name: "slotform:storybook-host", configureServer: startOptimizer };
 }
 
 // The screens host's Vite plugin: docs/architecture/plugins/screens.md, "Vite plugin".
@@ -113,7 +114,7 @@ export function screensPlugin(options: ScreensPluginOptions): Plugin {
 	);
 
 	return {
-		name: "stack:screens",
+		name: "slotform:screens",
 		// The optimizer's scan cannot see the virtual module's imports, so each
 		// installed one would be found when the first page loads and reload it:
 		// they are bundled at start.
@@ -138,10 +139,10 @@ export function screensPlugin(options: ScreensPluginOptions): Plugin {
 		},
 		configureServer(server) {
 			startOptimizer(server);
-			// Vite's root is `.stack/` and its watcher sees files under it and the
+			// Vite's root is `.slotform/` and its watcher sees files under it and the
 			// modules it loaded, so a route file added outside it would never reach
 			// the router plugin, which regenerates the route tree on that event.
-			const routes = resolve(options.stackDir, options.routesDir);
+			const routes = resolve(options.slotformDir, options.routesDir);
 			server.watcher.add(routes);
 			// A new route file is a story file, and a deleted one's goes. A file is
 			// also read once it changes: the router plugin fills a new file in with
@@ -153,9 +154,9 @@ export function screensPlugin(options: ScreensPluginOptions): Plugin {
 				syncing = syncing
 					.then(() =>
 						syncStories({
-							root: join(options.stackDir, ".."),
+							root: join(options.slotformDir, ".."),
 							routes,
-							fixtures: resolve(options.stackDir, options.fixtures),
+							fixtures: resolve(options.slotformDir, options.fixtures),
 							previewGlobals: options.previewGlobals,
 						}),
 					)

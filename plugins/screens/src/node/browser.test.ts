@@ -7,9 +7,9 @@ import { lockIsStale, parseState, runsProfile, stateDir } from "./browser.ts";
 test("the state lives in the runtime dir, else the OS tmp dir", () => {
 	assert.equal(
 		stateDir({ XDG_RUNTIME_DIR: "/run/user/1" }),
-		"/run/user/1/stack",
+		"/run/user/1/slotform",
 	);
-	assert.equal(stateDir({}), join(tmpdir(), "stack"));
+	assert.equal(stateDir({}), join(tmpdir(), "slotform"));
 });
 
 test("a state file needs a port and a pid", () => {
@@ -46,7 +46,7 @@ test("a lock without a pid yet is stale only past its grace", () => {
 });
 
 test("a stale pid is the profile's Chrome only when its command line names the profile", () => {
-	const profile = "/run/user/1/stack/chrome-profile";
+	const profile = "/run/user/1/slotform/chrome-profile";
 	assert.equal(
 		runsProfile(
 			`/bin/chromium --headless=new --user-data-dir=${profile} about:blank\n`,
@@ -63,7 +63,7 @@ test("a stale pid is the profile's Chrome only when its command line names the p
 		false,
 	);
 	// A profile path with a space (a macOS tmp dir may hold one).
-	const spaced = "/tmp/My Dir/stack/chrome-profile";
+	const spaced = "/tmp/My Dir/slotform/chrome-profile";
 	assert.equal(
 		runsProfile(`/bin/chromium --user-data-dir=${spaced} about:blank`, spaced),
 		true,

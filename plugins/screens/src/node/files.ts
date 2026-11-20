@@ -1,4 +1,4 @@
-// The files the plugin writes under `.stack/`.
+// The files the plugin writes under `.slotform/`.
 export const VITE_CONFIG = "screens.vite.config.ts";
 export const STORYBOOK_DIR = "screens";
 export const TEST_STORYBOOK_DIR = "screens-test";

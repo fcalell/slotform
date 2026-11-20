@@ -32,7 +32,7 @@ function pageCode(cwd: string): Promise<string> {
 				lib: {
 					entry: join(packageRoot, "src/ui/inject.ts"),
 					formats: ["iife"],
-					name: "stackScreens",
+					name: "slotformScreens",
 				},
 			},
 		});
@@ -66,7 +66,7 @@ export async function prepare(tab: Tab, cwd: string): Promise<void> {
 // The page code is reached through a global of the page, the one link between
 // this process and what `prepare` injected.
 export const call = <T>(tab: Tab, expression: string): Promise<T> =>
-	tab.evaluate<T>(`globalThis.__stackScreens.${expression}`);
+	tab.evaluate<T>(`globalThis.__slotformScreens.${expression}`);
 
 export function settle(tab: Tab, cap: number) {
 	return call<string>(tab, "READ_BUSY").then((busy) => tab.settle(cap, busy));
