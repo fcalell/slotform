@@ -294,13 +294,13 @@ dependency written into one file, `server.mjs`, plus what a file cannot hold:
 - `bin/<name>.mjs` for each module of `src/bin/`, bundled the same way: a tool run by hand on the box.
 
 The build reads those two idioms, `new Worker(new URL(...))` and `loadModules(new URL(...))`, in the
-sources outside `node_modules` (the app's own, and a `link:` or workspace package's, which resolve
+sources outside `node_modules` (the app's own, and a workspace package's, which resolve
 to their checkout) and rewrites them, so neither needs a registry or a second
 build step: a thread is started from a module the bundle holds no file for, and a directory listed at
 run time lists the source's files, not the bundle's. A `loadModules` call becomes lazy imports of the
 directory's modules, listed at build; from source the same call reads the directory. The directory
-runs on a box with only `node` on it, wherever the app was built (a `link:` to a checkout, a workspace
-package, TypeScript under `node_modules` are all followed at build). The consumer's half is the
+runs on a box with only `node` on it, wherever the app was built (a workspace package and TypeScript
+under `node_modules`, a linked app's injected copies included, are all followed at build). The consumer's half is the
 guide's [deploy a bundle](../../../plugins/node/guide/bundle.md).
 
 esbuild is loaded inside the step: it is the plugin's optional peer, which the app declares as a

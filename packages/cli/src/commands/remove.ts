@@ -17,6 +17,10 @@ import { MissingPluginError, StackError } from "../lib/errors.ts";
 import { insideProject } from "../lib/inside-project.ts";
 import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
+import {
+	appClosureManifests,
+	droppedPeers,
+} from "../lib/plugin-dependencies.ts";
 import { confirm } from "../lib/prompt.ts";
 
 async function removePluginCall(
@@ -246,10 +250,18 @@ export async function uninstall(
 	}
 	const pkg: unknown = manifest === null ? null : JSON.parse(manifest);
 	if (isRecord(pkg)) {
+		// A required peer no stack package left in the closure requires goes:
+		// docs/architecture/commands.md, "Removing a plugin".
+		const peers = plugin
+			? droppedPeers(
+					appClosureManifests(cwd),
+					appClosureManifests(cwd, [packageName]),
+				)
+			: [];
 		const prune = (declared: string[], keep: string[]) =>
 			new Set([...declared, packageName].filter((d) => !keep.includes(d)));
 		const removalsByField: Record<string, ReadonlySet<string>> = {
-			dependencies: prune(own.deps, kept.deps),
+			dependencies: prune([...own.deps, ...peers], kept.deps),
 			devDependencies: prune(own.devDeps, kept.devDeps),
 		};
 		let changed = false;

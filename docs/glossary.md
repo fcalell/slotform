@@ -63,6 +63,13 @@ to fix, and a new term enters this page in the change that introduces it.
   never worked around in the consumer. [consumer project](architecture/consumer-project.md#designing-screens)
 - **version rule**: Every public stack package carries one version and is released together, and
   stack packages depend on each other by a caret of it. [releasing](architecture/releasing.md#the-version-rule)
+- **required peer**: A third-party peer of a stack package that `peerDependenciesMeta` does not mark
+  optional; `stack init` and `stack add` write each one in the app's closure into its
+  `dependencies`, and `stack remove` drops one no package left requires. Avoid: hard peer.
+  [consumer project](architecture/consumer-project.md#installing-stack)
+- **linked app**: A consumer whose stack packages `stack link` installed from a stack checkout, with
+  its committed install files kept in `.stack/link/` until `stack unlink`. Avoid: linked consumer,
+  link mode. [consumer project](architecture/consumer-project.md#a-linked-app)
 - **release check**: `pnpm release:check`, which packs every public package and proves the tarballs
   install and build in fresh consumers, publishing nothing. [releasing](architecture/releasing.md#the-check)
 - **runbook**: A page under `procedures/` that holds manual steps the owner follows.

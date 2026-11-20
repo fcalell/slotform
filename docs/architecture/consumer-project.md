@@ -260,18 +260,28 @@ augmentation in. It is empty when no plugin contributes one (`expo()` without `n
 
 ## Installing stack
 
+An app commits each stack package as a caret range of one release, and its lockfile is the pin
+([the version rule](releasing.md#the-version-rule)). Every build and every CI run installs from it.
+While developing against a stack checkout, `stack link <checkout>` installs every stack package of
+the app from that checkout: each is `file:` and `injected`, so each copy resolves its peers from
+the app, and the app holds one copy of each library whose types cross into it. The command keeps
+the app's `package.json`, `pnpm-workspace.yaml` and `pnpm-lock.yaml` as they were in
+`.stack/link/`. Running it again after a stack rebuild picks up the new `dist/`. `stack unlink` puts
+the three files back and installs from the lockfile ([a linked app](#a-linked-app)). An app inside stack's own workspace keeps `workspace:*`.
+
 `stack init` and `stack add` write each named plugin's own package as a dependency, every
 contribution to `cliSlots.initDeps` (including those a plugin's options derive, as expo's config
-plugins) as a dependency, and every contribution to `cliSlots.initDevDeps` as a devDependency. Every
-install the CLI runs first brings the app's specs in line with the stack packages its
-`package.json` names, by where the app sits:
-
-| App | Each stack package's spec | Who installs |
-| --- | --- | --- |
-| Inside the pnpm workspace this CLI belongs to | `workspace:*` | the workspace root |
-| `@fcalell/cli` is `link:` | `link:` into the same checkout | the app |
-| Elsewhere, published CLI | an npm caret range | the app |
-| Elsewhere, unpublished CLI (version `0.0.0`) | a subdirectory of stack's repository on GitHub | the app |
+plugins) as a dependency, and every contribution to `cliSlots.initDevDeps` as a devDependency.
+After the install they also write, as a dependency, each **required peer**: a third-party peer
+that `peerDependenciesMeta` does not mark optional, of any stack package in the app's closure (the
+stack packages its `package.json` names and every one their `dependencies` reach, ui-core
+included), read off each manifest as installed. A package the closure reaches is not linked at the
+app's root under pnpm, so it is found beside the real directory of the package that depends on it.
+The app's own and generated code imports these libraries (`zod`, `drizzle-orm`, `hono`, `clsx`),
+so the app names each. A contribution wins over a derived peer (expo's SDK `react` over the
+peers' `^19.3.0`); an optional peer is written only by a contribution; a name either block of the
+app's `package.json` already holds keeps its range. Where two manifests name a peer, their ranges
+are one ([peers](./releasing.md#peers-one-copy-of-each-stack-package)).
 
 The `pnpm-workspace.yaml` the CLI writes and the install belong to the app's own pnpm workspace
 when the app is a project of one (a consumer monorepo), else to the app. The CLI writes only the
@@ -288,17 +298,16 @@ since every package is published together at one version
 "@fcalell/plugin-db": "^0.1.0"
 ```
 
-The consumer's `pnpm-lock.yaml` is the pin: pnpm resolves the range once and installs that version
-until `pnpm update "@fcalell/*"` moves every stack package to the latest together. The CLI's table
-(`packages/cli/src/lib/stack-packages.ts`) maps each first-party package to its directory in
-stack's repository and lists its first-party `dependencies`; `stack init` and `stack add` write
-every `@fcalell/*` spec from it, and a plugin's own `dependencies` take a stack package's spec
-through `stackSpec` from `@fcalell/cli`. `stackSpec` reads the version off the CLI's own
-`package.json`, so the specs a consumer gets are those of the CLI that wrote them.
-
+pnpm resolves the range once and installs that version until `pnpm update "@fcalell/*"` moves every
+stack package to the latest together. The CLI's table (`packages/cli/src/lib/stack-packages.ts`)
+maps each first-party package to its directory in stack's repository and lists its first-party
+`dependencies`; `stack init` and `stack add` write every `@fcalell/*` spec from it, and a plugin's
+own `dependencies` take a stack package's spec through `stackSpec` from `@fcalell/cli`.
+`stackSpec` reads the version off the CLI's own `package.json`, so the specs a consumer gets are
+those of the CLI that wrote them.
 A package only a plugin's own host loads is not that plugin's dependency: `@fcalell/plugin-screens`
 keeps Storybook, its addons, MSW, Vitest and `@vitest/browser` as optional peers of its package
-(oRPC's client and server are its own dependencies) and lists the same ranges as its
+(oRPC's client and server are required peers) and lists the same ranges as its
 `devDependencies`, which `stack add screens` writes into the app's `package.json`. An app with auth
 or react-ui, which depend on the package for its slots, installs none of them: they are optional
 because pnpm auto-installs a missing peer that is not. The host resolves each from the app's root,
@@ -324,10 +333,8 @@ test holds them to Lucide), so an install of auth or node, which reach it throug
 `plugin-screens`, brings none.
 
 A published package ships its built `dist/`, and its `@fcalell/*` dependencies are ordinary ranges
-npm resolves. No install runs a stack `prepare`, so stack needs no `overrides`, no
-`blockExoticSubdeps`, no concurrency settings and no `allowBuilds` key of its own. The consumer's
-`pnpm-workspace.yaml` carries only the build-script verdicts of the third-party packages the
-install brings:
+npm resolves. No install runs a stack `prepare`, so the consumer's `pnpm-workspace.yaml` carries
+only the build-script verdicts of the third-party packages the install brings:
 
 ```yaml
 allowBuilds:
@@ -345,36 +352,43 @@ carries the same verdicts by hand. pnpm is the recommended package manager (the 
 in `packageManager`), and a missing `pnpm` fails the install with the command that provides it
 (`corepack enable`), not a bare exit signal.
 
-### From a checkout
+### A linked app
 
-A consumer that works against a stack checkout links it with `link:`. The checkout resolves its
-`dist/`, so it is built first and rebuilt after a source change: `pnpm install` there runs every
-`prepare`, and `pnpm turbo run build` rebuilds.
+A **linked app** is one `stack link <checkout>` has installed from a stack checkout. The registry
+holds a version only once the [publish](../procedures/publishing.md) has run, so a fix that is not
+released reaches an app this way, and a review round runs on a linked app.
 
-The app's `@fcalell/cli` spec names the mode: when it is `link:<path>`, `stack add` (and every
-install the CLI runs) rewrites each stack package's spec to `link:` from the same checkout, its
-path relative to the app (`link:../stack/plugins/screens`). The app's `pnpm-workspace.yaml` takes
-only the third-party build verdicts in `allowBuilds`, as from npm.
+The command takes every stack package the app's `dependencies` and `devDependencies` name, with
+each stack package those reach through the table's `dependencies`, from the checkout. Each package
+of the checkout that ships `dist/` has one, or the command fails naming `pnpm turbo run build` in
+the checkout. Then it:
 
-The registry holds a version only once the [publish](../procedures/publishing.md) has run; before
-it, and for a fix that is not released, a consumer takes the checkout. `link:` is the route a review
-round uses. The git route is the other: a CLI whose version is `0.0.0` (a checkout that is not a
-release) writes each spec as a subdirectory of the repository,
-`github:fcalell/stack#path:/plugins/db`. When the consumer's specs pin a commit, every spec takes
-it (`#<sha>&path:/plugins/db`), so one install never holds two commits of a stack package;
-ref-less, the consumer's lockfile pins the commit. A git tarball keeps the `workspace:*` ranges
-between stack packages and runs the package's `prepare` to build `dist/`, so the yaml also:
+1. copies the three files to `.stack/link/` under the app, unless a backup is already there: a
+   re-run keeps the first one, which holds the files as committed;
+2. rewrites each named package's spec in the app's `package.json` to `file:` and its directory in
+   the checkout, relative to the app (`file:../stack/plugins/db`), and marks it
+   `dependenciesMeta: { "<name>": { injected: true } }`;
+3. sets an `overrides` entry in `pnpm-workspace.yaml` for every package it links, the reached ones
+   included, relative to the yaml's directory;
+4. runs `pnpm install` where the app's install runs.
 
-- overrides every stack package the app's `dependencies` and `devDependencies` reach to its spec;
-- sets `blockExoticSubdeps: false`, since the git packages depend on one another by git spec;
-- approves each package's `prepare` by `"<name>@git+https://github.com/fcalell/stack.git": true`
-  (pnpm 11.15 or later; the bare name and the `github:` spec are refused);
-- sets `childConcurrency: 1` and `networkConcurrency: 2`, since each prepare is a full workspace
-  install and several at once can exhaust the machine's memory.
+A plain `link:` resolves a linked package's own dependencies from the checkout's `node_modules`, so
+a library both sides import (drizzle-orm) is two copies and its classes' private members fail to
+type-check across them (TS2345). An injected `file:` package is copied into the app's
+`node_modules` and resolves its peers from the app, so the app holds one copy. The overrides are
+what resolve a `file:` package's own `workspace:^` ranges on stack packages: without them pnpm
+fails with "no package named @fcalell/cli is present in the workspace". pnpm copies an injected
+package at install, so a rebuilt checkout reaches the app by running `stack link` again, which
+reinstalls in about two seconds; pnpm's `syncInjectedDepsAfterScripts` does not cross into another
+workspace.
 
-The first `stack init` over git therefore takes about eight minutes, one prepare at a time. The
-mode follows the CLI's version alone: a published CLI never writes these. A consumer that pinned a
-commit moves to a version by [the consumer version move](../procedures/consumer-version-move.md).
+In a consumer monorepo the yaml and the lockfile are the workspace root's and `package.json` is the
+app's own. `stack unlink` copies the three files back from `.stack/link/`, removes the backup and
+runs `pnpm install --frozen-lockfile`; on an app with no backup it fails saying the app is not
+linked. Every install (`stack init`, `stack add`) and `stack build`, and so `stack deploy`, fail on
+a linked app naming `stack unlink`: the backup is the committed state, `stack unlink` copies it over
+any later change, and a build installs from the lockfile. `stack link` fails inside stack's own
+workspace, whose apps take the checkout as `workspace:*`.
 
 ### Inside stack's workspace
 
@@ -384,7 +398,7 @@ An app in stack's own checkout (a directory the root `pnpm-workspace.yaml` globs
 rule: the nearest `pnpm-workspace.yaml` above the app is its workspace, and when its `packages`
 globs name both the app and the running `@fcalell/cli`, the CLI rewrites every `@fcalell/*` spec
 in the app's `package.json` to `workspace:*`, writes no `pnpm-workspace.yaml` in the app, and
-installs at the workspace root. The app resolves the checkout's `dist/`, as a `link:` consumer
+installs at the workspace root. The app resolves the checkout's `dist/`, as a linked app
 does, so the checkout is built (`pnpm turbo run build`) before the app runs. The app is an importer
 in the checkout's `pnpm-lock.yaml`. Anywhere else, including a directory under the checkout that no
 glob names, the app installs from npm.
@@ -496,9 +510,10 @@ repository (the CLI's `shortfall.md`), and only the work that cannot ship withou
 ## In the code
 
 - `packages/cli/src/config.ts`: `defineConfig`, `AppConfig`, `validate`, `getPlugin`.
-- `packages/cli/src/lib/install.ts`: the spec kinds by app location, and the install.
-- `packages/cli/src/lib/plugin-dependencies.ts`: the dependencies `stack init` and `stack add` write.
-- `packages/cli/src/lib/stack-packages.ts`: the first-party package table, its build verdicts, `stackSpec` and the npm or git mode.
+- `packages/cli/src/lib/install.ts`: the install, the install root, the linked-app check and the `workspace:*` rewrite inside stack's workspace.
+- `packages/cli/src/commands/link.ts`: `stack link` and `stack unlink`.
+- `packages/cli/src/lib/plugin-dependencies.ts`: the dependencies `stack init` and `stack add` write, the required peers among them.
+- `packages/cli/src/lib/stack-packages.ts`: the first-party package table, its build verdicts, `stackSpec` and the closure over `dependencies`.
 - `packages/cli/src/templates/pnpm-workspace.ts`: the merge of stack's install settings into `pnpm-workspace.yaml`.
 - `packages/cli/src/commands/init.ts`: the scaffold, including an app inside stack's workspace.
 - `packages/cli/src/templates/biome.ts`: the app's `biome.json` and `.stack/biome.json`.

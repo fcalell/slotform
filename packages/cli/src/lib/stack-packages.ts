@@ -148,79 +148,37 @@ export const STACK_PACKAGES = {
 
 export type StackPackage = keyof typeof STACK_PACKAGES;
 
-const REPOSITORY = "fcalell/stack";
-
-// The version of an unpublished checkout: no registry holds it, so stack's
-// packages come from git.
-const UNPUBLISHED = "0.0.0";
-
-// Npm or github spec mode: docs/architecture/consumer-project.md, "Installing stack".
-type StackSpecMode = "npm" | "github";
-
-export function stackSpecMode(
-	version: string = cliManifest.version,
-): StackSpecMode {
-	return version === UNPUBLISHED ? "github" : "npm";
-}
-
 export function isStackPackage(name: string): name is StackPackage {
 	return Object.hasOwn(STACK_PACKAGES, name);
 }
 
-// A package's git spec, at the pinned commit when there is one: docs/architecture/consumer-project.md, "From a checkout".
-export function stackGitSpec(
-	name: StackPackage,
-	commit: string | null = null,
-): string {
-	const ref = commit === null ? "" : `${commit}&`;
-	return `github:${REPOSITORY}#${ref}path:/${STACK_PACKAGES[name].dir}`;
+// The given packages and every first-party package their `dependencies`
+// reach, sorted by name.
+export function stackClosure(names: Iterable<StackPackage>): StackPackage[] {
+	const seen = new Set<StackPackage>();
+	const visit = (name: StackPackage): void => {
+		if (seen.has(name)) return;
+		seen.add(name);
+		for (const dep of STACK_PACKAGES[name].dependencies) visit(dep);
+	};
+	for (const name of names) visit(name);
+	return [...seen].sort();
 }
 
-// A package's spec: docs/architecture/releasing.md, "The version rule".
-export function stackSpec(
-	name: StackPackage,
-	commit: string | null = null,
-	version: string = cliManifest.version,
-): string {
-	if (stackSpecMode(version) === "npm") return `^${version}`;
-	return stackGitSpec(name, commit);
+// A package's spec, the caret of the one version every stack package is
+// published at: docs/architecture/releasing.md, "The version rule".
+export function stackSpec(): string {
+	return `^${cliManifest.version}`;
 }
 
-// The commit a consumer's stack specs pin (`github:fcalell/stack#<sha>&path:`),
-// null when they are ref-less or it has none, and always on npm, which pins
-// no commit.
-export function pinnedCommit(
-	specs: Record<string, string>,
-	version: string = cliManifest.version,
-): string | null {
-	if (stackSpecMode(version) === "npm") return null;
-	for (const [name, spec] of Object.entries(specs)) {
-		if (!isStackPackage(name)) continue;
-		const match = /^github:[^#]+#([0-9a-f]{7,40})&path:/.exec(spec);
-		if (match) return match[1] ?? null;
-	}
-	return null;
-}
-
-// The `allowBuilds` key approving a package's `prepare` by repository URL,
-// whichever commit the lockfile resolves (pnpm 11.15 or later). Only an install
-// from GitHub needs it.
-export function stackBuildKey(name: StackPackage): string {
-	return `${name}@git+https://github.com/${REPOSITORY}.git`;
-}
-
-// Each first-party plugin's package, by plugin name, with its spec at the
-// consumer's pinned commit (on GitHub; npm pins none).
+// Each first-party plugin's package, by plugin name, with its spec.
 export function stackPluginSpecs(
 	plugins: Iterable<string>,
-	commit: string | null,
-	version: string = cliManifest.version,
 ): Record<string, string> {
 	const specs: Record<string, string> = {};
 	for (const name of plugins) {
 		const pkgName = pluginPackage(name);
-		if (isStackPackage(pkgName))
-			specs[pkgName] = stackSpec(pkgName, commit, version);
+		if (isStackPackage(pkgName)) specs[pkgName] = stackSpec();
 	}
 	return specs;
 }

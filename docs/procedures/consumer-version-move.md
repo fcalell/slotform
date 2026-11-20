@@ -28,5 +28,6 @@ a published version once the registry holds it. The version rule it moves onto i
 ## After the move
 
 `pnpm update "@fcalell/*"` moves every stack package together. A review round that fixes stack
-links a checkout instead ([consumer project](../architecture/consumer-project.md#from-a-checkout)),
-and the pin moves to the next version, not the next commit.
+runs `stack link <checkout>` and `stack unlink` when it ends
+([a linked app](../architecture/consumer-project.md#a-linked-app)), and the pin moves to the next
+version.

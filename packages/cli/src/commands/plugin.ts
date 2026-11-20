@@ -6,11 +6,7 @@ import { stackWorkspaceRoot, toWorkspaceSpecs } from "../lib/install.ts";
 import { TYPES_NODE_SPEC, TYPESCRIPT_SPEC } from "../lib/manifest.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import { writeIfMissingString } from "../lib/scaffold.ts";
-import {
-	PACKAGE_MANAGER,
-	stackSpec,
-	stackSpecMode,
-} from "../lib/stack-packages.ts";
+import { PACKAGE_MANAGER, stackSpec } from "../lib/stack-packages.ts";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 
 interface InitPluginOptions {
@@ -48,12 +44,10 @@ function pluginFiles(options: PluginFilesOptions): Array<[string, string]> {
 	if (!workspace) {
 		files.push([
 			"pnpm-workspace.yaml",
-			pnpmWorkspaceTemplate(
-				null,
-				["@fcalell/cli", "@fcalell/typescript-config"],
-				stackSpecMode() === "github",
-				null,
-			),
+			pnpmWorkspaceTemplate(null, [
+				"@fcalell/cli",
+				"@fcalell/typescript-config",
+			]),
 		]);
 	}
 	return files;
@@ -154,10 +148,10 @@ function pluginPackageJsonTemplate(options: PluginPackageJsonOptions): string {
 			check: "pnpm check-types && biome check",
 		},
 		dependencies: {
-			"@fcalell/cli": stackSpec("@fcalell/cli"),
+			"@fcalell/cli": stackSpec(),
 		},
 		devDependencies: {
-			"@fcalell/typescript-config": stackSpec("@fcalell/typescript-config"),
+			"@fcalell/typescript-config": stackSpec(),
 			"@types/node": TYPES_NODE_SPEC,
 			typescript: TYPESCRIPT_SPEC,
 		},

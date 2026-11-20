@@ -24,7 +24,7 @@ import {
 	PLUGIN_NAMES,
 	pluginPackage,
 } from "../lib/first-party.ts";
-import { pinnedStackCommit, stackWorkspaceRoot } from "../lib/install.ts";
+import { stackWorkspaceRoot } from "../lib/install.ts";
 import { TS_MORPH_SPEC } from "../lib/manifest.ts";
 import {
 	applyScaffold,
@@ -177,7 +177,7 @@ async function installPlugins(
 				);
 			} else {
 				patchPackageJson(dir, {
-					dependencies: stackPluginSpecs(plugins, pinnedStackCommit(dir)),
+					dependencies: stackPluginSpecs(plugins),
 					devDependencies: { "ts-morph": TS_MORPH_SPEC },
 				});
 			}

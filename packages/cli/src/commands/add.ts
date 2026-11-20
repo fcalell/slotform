@@ -11,7 +11,6 @@ import {
 } from "../lib/discovery.ts";
 import { MissingPluginError } from "../lib/errors.ts";
 import { assertKnownPlugins } from "../lib/first-party.ts";
-import { pinnedStackCommit } from "../lib/install.ts";
 import { isRecord } from "../lib/is-record.ts";
 import { toCamelCase } from "../lib/naming.ts";
 import {
@@ -107,7 +106,7 @@ export async function add(
 		env: options.env,
 		writeManifest: (plugins) =>
 			patchPackageJson(cwd, {
-				dependencies: stackPluginSpecs(plugins, pinnedStackCommit(cwd)),
+				dependencies: stackPluginSpecs(plugins),
 			}),
 	});
 	const pluginInfo = available.find((p) => p.name === pluginName);

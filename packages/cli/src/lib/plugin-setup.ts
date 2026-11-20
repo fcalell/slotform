@@ -7,7 +7,7 @@ import {
 	resolveRequiresClosure,
 } from "./discovery.ts";
 import type { Graph } from "./graph.ts";
-import { installStack, pinnedStackCommit } from "./install.ts";
+import { installStack } from "./install.ts";
 import { pluginDependencies } from "./plugin-dependencies.ts";
 import { createPromptContext } from "./prompt.ts";
 import {
@@ -99,7 +99,7 @@ export async function applyScaffold(
 	const [scaffolds, dependencies, gitignore, packageJsonFields] =
 		await Promise.all([
 			graph.resolve(cliSlots.initScaffolds),
-			pluginDependencies(graph, plugins, pinnedStackCommit(dir)),
+			pluginDependencies(graph, plugins, dir),
 			graph.resolve(cliSlots.gitignore),
 			graph.resolve(cliSlots.packageJsonFields),
 		]);

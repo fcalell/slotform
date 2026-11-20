@@ -51,7 +51,7 @@ export const auth = plugin("auth", {
     push: { description: "Push schema", handler: async (ctx, flags) => { /* ... */ } },
   },
 
-  dependencies: { "better-auth": "1.7.25" },                   // auto-wired into cliSlots.initDeps
+  dependencies: { "@orpc/tanstack-query": "^1.16.2" },       // auto-wired into cliSlots.initDeps
   devDependencies: { /* ... */ },                            // auto-wired into cliSlots.initDevDeps
   gitignore: [".wrangler"],                                  // auto-wired into cliSlots.gitignore
   guide: [{ page: "sessions", trigger: "Reading the signed-in user" }], // auto-wired into cliSlots.guide
@@ -96,7 +96,9 @@ Fields:
   `cliSlots.initDeps`, `cliSlots.initDevDeps` and `cliSlots.gitignore`, and into the matching
   `cliSlots.removeDeps` and `cliSlots.removeDevDeps` for cleanup. The CLI writes the plugin's own
   package; a first-party package the consumer needs beside it takes its spec from the CLI's table,
-  `"@fcalell/ui-core": stackSpec("@fcalell/ui-core")` (`stackSpec` from `@fcalell/cli`).
+  `"@fcalell/ui-core": stackSpec()` (`stackSpec` from `@fcalell/cli`). The CLI also writes every
+  required peer of the stack packages the app reaches, so a required peer stays off these lists and
+  an optional peer the app needs is listed ([installing stack](./consumer-project.md#installing-stack)).
 - `guide`: the plugin's guide pages, each `guide/<page>.md` in its package (listed in its `files`)
   with a load trigger: when to open the page, never a summary of what it holds. Auto-wired into
   `cliSlots.guide` under the plugin's name as the domain and its package. The index the CLI writes

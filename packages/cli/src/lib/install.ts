@@ -1,14 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import {
-	dirname,
-	join,
-	matchesGlob,
-	posix,
-	relative,
-	resolve,
-	sep,
-} from "node:path";
+import { dirname, join, matchesGlob, posix, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
@@ -17,60 +9,68 @@ import { StackError } from "./errors.ts";
 import { leaves } from "./inside-project.ts";
 import { isRecord } from "./is-record.ts";
 import { type Manifest, readManifest } from "./manifest.ts";
-import {
-	isStackPackage,
-	pinnedCommit,
-	STACK_PACKAGES,
-	type StackPackage,
-	stackSpecMode,
-} from "./stack-packages.ts";
+import { isStackPackage, type StackPackage } from "./stack-packages.ts";
 
 // This package's root, from `src/lib/` or `dist/lib/`.
 const CLI_DIR = fileURLToPath(new URL("../..", import.meta.url));
 
-// The commit the app's stack specs pin, read off its `package.json`.
-export function pinnedStackCommit(cwd: string): string | null {
-	const pkg = readManifest(join(cwd, "package.json"));
-	return pinnedCommit({ ...pkg.dependencies, ...pkg.devDependencies });
+// The app's install files as they were before `stack link`, under the app.
+// Its presence is what makes the app linked.
+export const LINK_DIR = join(".stack", "link");
+
+// Fails when the app is linked: the backup under `LINK_DIR` is the committed
+// state, and `stack unlink` restores it over any later install or build.
+export function assertUnlinked(cwd: string): void {
+	if (existsSync(join(cwd, LINK_DIR))) {
+		throw new StackError(
+			"The app is linked to a stack checkout; run `stack unlink` first.",
+			"APP_LINKED",
+		);
+	}
 }
 
 // Brings the app's stack packages in line with its `package.json`, then installs: docs/architecture/consumer-project.md, "Installing stack".
 export function installStack(cwd: string, env: NodeJS.ProcessEnv): void {
+	assertUnlinked(cwd);
 	const pkgPath = join(cwd, "package.json");
 	const pkg = readManifest(pkgPath);
 	const workspace = stackWorkspaceRoot(cwd);
-	const checkout = linkedCheckout(pkg, cwd);
-	const root = workspaceOf(cwd)?.root ?? cwd;
-	// Every writer of a stack spec (init, add, a plugin's `dependencies`) writes
-	// the npm or GitHub one; the workspace and link modes settle the specs here.
-	const settled = workspace
-		? toWorkspaceSpecs(pkg)
-		: checkout
-			? toLinkSpecs(pkg, cwd, checkout)
-			: pkg;
-	const next = JSON.stringify(settled, null, "\t");
-	if (next !== JSON.stringify(pkg, null, "\t")) {
-		writeFileSync(pkgPath, `${next}\n`);
+	// Inside stack's workspace its root carries the build verdicts by hand.
+	if (workspace) {
+		const next = JSON.stringify(toWorkspaceSpecs(pkg), null, "\t");
+		if (next !== JSON.stringify(pkg, null, "\t")) {
+			writeFileSync(pkgPath, `${next}\n`);
+		}
+		pnpmInstall(workspace, [], env);
+		return;
 	}
-	// Inside the workspace its root carries the build verdicts by hand.
-	if (!workspace) {
-		const names = Object.keys({
-			...pkg.dependencies,
-			...pkg.devDependencies,
-		}).filter(isStackPackage);
-		const workspacePath = join(root, "pnpm-workspace.yaml");
-		writeFileSync(
-			workspacePath,
-			pnpmWorkspaceTemplate(
-				existsSync(workspacePath) ? readFileSync(workspacePath, "utf8") : null,
-				names,
-				!checkout && stackSpecMode() === "github",
-				pinnedCommit({ ...pkg.dependencies, ...pkg.devDependencies }),
-			),
-		);
-	}
-	const result = spawnSync("pnpm", ["install"], {
-		cwd: workspace ?? root,
+	const root = installRoot(cwd);
+	const workspacePath = join(root, "pnpm-workspace.yaml");
+	writeFileSync(
+		workspacePath,
+		pnpmWorkspaceTemplate(
+			existsSync(workspacePath) ? readFileSync(workspacePath, "utf8") : null,
+			namedStackPackages(pkg),
+		),
+	);
+	pnpmInstall(root, [], env);
+}
+
+// The stack packages the app's `dependencies` and `devDependencies` name.
+export function namedStackPackages(pkg: Manifest): StackPackage[] {
+	return Object.keys({ ...pkg.dependencies, ...pkg.devDependencies }).filter(
+		isStackPackage,
+	);
+}
+
+// Runs `pnpm install` with `args` in `cwd`.
+export function pnpmInstall(
+	cwd: string,
+	args: readonly string[],
+	env: NodeJS.ProcessEnv,
+): void {
+	const result = spawnSync("pnpm", ["install", ...args], {
+		cwd,
 		stdio: "inherit",
 		env,
 	});
@@ -88,7 +88,9 @@ export function installStack(cwd: string, env: NodeJS.ProcessEnv): void {
 	}
 }
 
-function withStackSpecs(
+// The manifest with each stack package in `dependencies` and
+// `devDependencies` given `spec(name)`.
+export function withStackSpecs(
 	pkg: Manifest,
 	spec: (name: StackPackage) => string,
 ): Manifest {
@@ -111,30 +113,14 @@ export function toWorkspaceSpecs(pkg: Manifest): Manifest {
 	return withStackSpecs(pkg, () => "workspace:*");
 }
 
-// The manifest with every stack package linked from the checkout at
-// `checkout`, by its path relative to the app.
-function toLinkSpecs(pkg: Manifest, cwd: string, checkout: string): Manifest {
-	return withStackSpecs(
-		pkg,
-		(name) =>
-			`link:${relative(cwd, join(checkout, STACK_PACKAGES[name].dir)).split(sep).join("/")}`,
-	);
-}
+// `path` with POSIX separators, as specs and workspace globs take it.
+export const toPosix = (path: string): string => path.split(sep).join("/");
 
-// The root of the stack checkout the app links, read off its `@fcalell/cli`
-// spec (`link:../stack/packages/cli` is `../stack`); null when the app does
-// not link the CLI.
-function linkedCheckout(pkg: Manifest, cwd: string): string | null {
-	const spec = {
-		...pkg.dependencies,
-		...pkg.devDependencies,
-	}["@fcalell/cli"];
-	if (!spec?.startsWith("link:")) return null;
-	const cli = resolve(cwd, spec.slice("link:".length));
-	return resolve(
-		cli,
-		...STACK_PACKAGES["@fcalell/cli"].dir.split("/").map(() => ".."),
-	);
+// The directory that holds the app's `pnpm-workspace.yaml` and
+// `pnpm-lock.yaml`, where its install runs: the root of the pnpm workspace
+// the app is a project of (a consumer monorepo), else the app.
+export function installRoot(cwd: string): string {
+	return workspaceOf(cwd)?.root ?? cwd;
 }
 
 // The root of the pnpm workspace `dir` is a project of, with the test of
@@ -167,7 +153,7 @@ function workspaceOf(
 	const isProject = (path: string): boolean => {
 		const rel = relative(root, path);
 		if (leaves(rel)) return false;
-		const project = rel.split(sep).join("/");
+		const project = toPosix(rel);
 		const matches = (exclude: boolean) =>
 			globs.some((g) => g.exclude === exclude && matchesGlob(project, g.glob));
 		return matches(false) && !matches(true);

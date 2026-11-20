@@ -16,6 +16,8 @@ for an app, and its flags, is the consumer guide page
 | `stack dev` | Plugin-driven dev (processes, watchers, schema push) |
 | `stack build` | Plugin-driven production build |
 | `stack deploy` | Plugin-driven deploy (migrations, wrangler) |
+| `stack link <checkout>` | Install the app's stack packages from a stack checkout |
+| `stack unlink` | Install them from the lockfile again |
 | `stack <plugin> <command>` | Plugin subcommand (`stack db push`) |
 | `stack plugin init <name>` | Scaffold a third-party plugin skeleton |
 
@@ -23,12 +25,13 @@ for an app, and its flags, is the consumer guide page
 
 | Command | Roots resolved, in step order |
 |---------|------------------------------------|
-| `stack init`, `stack add` | write the plugins' packages and `pnpm-workspace.yaml` → `pnpm install` (again until every `requires` is installed) → `init` only: the base files and `CLAUDE.md` → `cliSlots.initPrompts` → `init` renders `stack.config.ts`, `add` patches it after the install → `cliSlots.initScaffolds`, `initDeps`, `initDevDeps`, `gitignore`, `packageJsonFields` → `pnpm install` → `generate` → `init` only: format |
+| `stack init`, `stack add` | refuse a linked app, naming `stack unlink` → write the plugins' packages and `pnpm-workspace.yaml` → `pnpm install` (again until every `requires` is installed) → `init` only: the base files and `CLAUDE.md` → `cliSlots.initPrompts` → `init` renders `stack.config.ts`, `add` patches it after the install → `cliSlots.initScaffolds`, `initDeps`, `initDevDeps`, the required peers, `gitignore`, `packageJsonFields` → `pnpm install` → `generate` → `init` only: format |
 | `stack generate` | resolve `cliSlots.artifactFiles` and `cliSlots.postWrite` → write each `{ path, content }` → await each hook |
 | `stack dev` | `generate` → `cliSlots.devProcesses` (spawned together) → `cliSlots.devReadySetup` (after every process is ready) → `cliSlots.devWatchers` (`fs.watch`) |
-| `stack build` | `generate` → `cliSlots.buildSteps`, sorted by `phase` (`pre`, `main`, `post`; equal phases keep contribution order) → run in sequence |
+| `stack build` | refuse a linked app, naming `stack unlink` → `generate` → `cliSlots.buildSteps`, sorted by `phase` (`pre`, `main`, `post`; equal phases keep contribution order) → run in sequence |
 | `stack deploy` | `build` → `cliSlots.deployChecks` (each shown; confirmed when stdin is a terminal, run unasked otherwise; then each check's `action` runs) → `cliSlots.deploySteps`, sorted by `phase` → run in sequence |
-| `stack remove` | the target plugin's `cliSlots.removeFiles`, `removeDeps`, `removeDevDeps` ([removing a plugin](#removing-a-plugin)) → patch the config → `generate` |
+| `stack remove` | the target plugin's `cliSlots.removeFiles`, `removeDeps`, `removeDevDeps` and the required peers no remaining package requires ([removing a plugin](#removing-a-plugin)) → patch the config → `generate` |
+| `stack link`, `stack unlink` | no slot: back up or restore the install files → `pnpm install` ([consumer project](./consumer-project.md#a-linked-app)) |
 | `stack <plugin> <command>` | the plugin's own `commands[name].handler(ctx)` ([plugin subcommands](#plugin-subcommands)) |
 
 ### `stack init` and `stack add`
@@ -166,11 +169,15 @@ exactly one plugin, so that plugin is the one being removed. The check needs plu
 runs only when discovery succeeds; in the degraded path, where the plugin's module fails to load,
 the consumer is trusted.
 
-What it removes comes from two sources. The slot graph, when the plugin loaded, gives its
+What it removes comes from three sources. The slot graph, when the plugin loaded, gives its
 contributed `removeFiles`, `removeDeps` and `removeDevDeps`. The plugin's `__package`, always known
 from the consumer's config, is pruned from `package.json` in every case, so the package itself goes.
-A dependency a remaining plugin also names in its `removeDeps` or `removeDevDeps` (two UI plugins
-both bring `@fcalell/ui-core`) stays.
+When the plugin loaded, the [required peers](./consumer-project.md#installing-stack) go too: the
+same manifest read `stack init` and `stack add` use runs over the app's closure with the package
+and without it, and a required peer that only the first requires leaves `dependencies`. A peer a
+stack package left in the closure still requires stays (`stack remove db` keeps `drizzle-orm` while
+`plugin-api` remains). A dependency a remaining plugin also names in its `removeDeps` or
+`removeDevDeps` (two UI plugins both bring `@fcalell/ui-core`) stays.
 
 `removeFiles` entries are deleted with `rm -rf` semantics, directories included. Some are the
 consumer's own trees (`src/app/`, `src/migrations/`), so each path must lie inside the project
@@ -319,6 +326,8 @@ off the request, with no header of its own.
 - `packages/cli/src/commands/dev.ts`: `stack dev`, the supervisor and the watchers.
 - `packages/cli/src/commands/build.ts`, `packages/cli/src/commands/deploy.ts`: `stack build`,
   `stack deploy`.
+- `packages/cli/src/commands/link.ts`: `stack link`, `stack unlink`.
+- `packages/cli/src/lib/install.ts`: the install and the linked-app check every install and build runs.
 - `packages/cli/src/lib/run-step.ts`: running a build or deploy step.
 - `packages/cli/src/commands/plugin.ts`: the third-party plugin scaffold.
 - `packages/cli/src/lib/dev-view.ts`: the two dev views.

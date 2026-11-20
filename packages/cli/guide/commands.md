@@ -13,8 +13,10 @@ takes `--config <path>` (default `stack.config.ts`), a plugin's own commands inc
 | `stack generate` | After editing `stack.config.ts`, or when `.stack/` is missing. `dev` and `build` run it first |
 | `stack dev` | Working on the app: every plugin's dev process (the worker, the Node server, Vite) runs in one terminal, and the watchers regenerate as files change. In a terminal it shows a task list beside the selected process's output (`↑`/`↓` or `j`/`k` select, `u`/`d` or Page Up/Down scroll, `g`/`G` or Home/End jump to the top and the newest line, `r` restarts the selected process, `o` opens its URL, `q` or Ctrl+C stops); run without one, as an agent's shell runs it, it prints each line prefixed with its process's name. Metro is not one: it runs under `stack expo dev` (`node_modules/@fcalell/plugin-expo/guide/builds.md`) |
 | `stack screens dev [--port 6006]` | Designing or changing a web screen: it serves every route in each of its query states from `src/app/fixtures.ts`, with no backend (`node_modules/@fcalell/plugin-screens/guide/screens.md`) |
-| `stack build` | Building for production |
+| `stack build` | Building for production. It refuses a linked app: run `stack unlink` first |
 | `stack deploy` | Shipping: it builds, shows each pre-deploy check, asks to proceed when run in a terminal, runs each check's action (a migration), then deploys |
+| `stack link <checkout>` | Trying a stack fix that is not released: it installs every stack package from the built stack checkout at `<checkout>` and keeps the committed `package.json`, `pnpm-workspace.yaml` and `pnpm-lock.yaml` in `.stack/link/`. Run it again after rebuilding the checkout. Commit none of the linked files |
+| `stack unlink` | Done with the checkout: it puts the three files back and installs from the lockfile. `stack add` and `stack build` refuse a linked app, so unlink first |
 | `stack <plugin> <command>` | A plugin's own command, such as `stack db push` |
 
 The app's `package.json` scripts wrap them (`pnpm dev`, `pnpm build`, `pnpm run deploy`,

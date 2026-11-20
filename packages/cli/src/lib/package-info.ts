@@ -1,7 +1,7 @@
 // Locates an installed npm package by name and returns its root directory + its package.json `exports`.
 // Tries the consumer cwd's resolver first, then falls back to the CLI's own resolution scope so workspace dev (with symlinked node_modules) works.
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { isErrno } from "./errno.ts";
@@ -14,6 +14,17 @@ interface PackageInfo {
 // The entry of `pkg` as the app at `dir` resolves it.
 export function resolveFromApp(pkg: string, dir: string): string {
 	return createRequire(join(dir, "package.json")).resolve(pkg);
+}
+
+// The real directory of `pkg` as Node's lookup finds it from `dir`: `dir`'s
+// `node_modules`, then each parent's. It looks for the directory, since a
+// package that exports no "." (ui-core) has no entry `resolve` reaches.
+export function installedRoot(pkg: string, dir: string): string | null {
+	for (let at = dir; ; at = dirname(at)) {
+		const root = join(at, "node_modules", pkg);
+		if (existsSync(join(root, "package.json"))) return realpathSync(root);
+		if (dirname(at) === at) return null;
+	}
 }
 
 // Only a found package is memoized: one not found yet may be installed later

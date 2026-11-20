@@ -25,14 +25,14 @@ interface PackageJsonOptions {
 export function packageJsonTemplate(options: PackageJsonOptions): string {
 	const deps: Record<string, string> = {};
 	const devDeps: Record<string, string> = {
-		"@fcalell/cli": stackSpec("@fcalell/cli"),
-		"@fcalell/typescript-config": stackSpec("@fcalell/typescript-config"),
+		"@fcalell/cli": stackSpec(),
+		"@fcalell/typescript-config": stackSpec(),
 		typescript: TYPESCRIPT_SPEC,
 		// The CLI's optional peer: `stack generate` prints its TypeScript with it.
 		"ts-morph": TS_MORPH_SPEC,
 	};
 	if (!options.workspace) {
-		devDeps["@fcalell/biome-config"] = stackSpec("@fcalell/biome-config");
+		devDeps["@fcalell/biome-config"] = stackSpec();
 		// biome-config only carries config; the `lint`/`check` scripts need the
 		// Biome binary itself on the consumer's PATH.
 		devDeps["@biomejs/biome"] = BIOME_SPEC;
@@ -54,7 +54,7 @@ export function packageJsonTemplate(options: PackageJsonOptions): string {
 		devDeps["@types/react-dom"] = REACT_SPEC;
 	}
 
-	Object.assign(deps, stackPluginSpecs(options.plugins, null));
+	Object.assign(deps, stackPluginSpecs(options.plugins));
 
 	const pkg: Record<string, unknown> = {
 		name: options.name,

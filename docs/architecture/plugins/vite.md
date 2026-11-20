@@ -168,7 +168,7 @@ command runs Vite from:
   under the consumer's root, and no second copy reaches the production bundle. Two plugins naming the
   same specifier is harmless (the codegen de-duplicates), so the slot has no `uniqueBy`.
 - **Exclude.** `vite.slots.optimizeExclude` holds package names rendered into
-  `optimizeDeps.exclude`. A package installed under `node_modules` (by git or npm, not `link:`) that
+  `optimizeDeps.exclude`. A package installed under `node_modules` (from npm, or injected by [`stack link`](../consumer-project.md#a-linked-app)) that
   imports a virtual module a Vite plugin of this config serves is pre-bundled by the dev optimizer,
   which runs Rolldown without those plugins and fails to resolve the import, so the plugin serving the
   module contributes the importer here.

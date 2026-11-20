@@ -3,93 +3,50 @@ import { readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 import { pnpmWorkspaceTemplate } from "../templates/pnpm-workspace.ts";
 import { isErrno } from "./errno.ts";
+import { cliManifest } from "./manifest.ts";
 import {
-	pinnedCommit,
 	STACK_PACKAGES,
+	stackClosure,
 	stackPluginSpecs,
 	stackSpec,
-	stackSpecMode,
 } from "./stack-packages.ts";
 
-const SHA = "29e948348c79653f122143f0c8c20be0b9889513";
-
-test("a published version selects npm, an unpublished checkout selects github", () => {
-	assert.equal(stackSpecMode("0.1.0"), "npm");
-	assert.equal(stackSpecMode("1.2.3-beta.1"), "npm");
-	assert.equal(stackSpecMode("0.0.0"), "github");
+test("a spec is the caret of the CLI's version", () => {
+	assert.equal(stackSpec(), `^${cliManifest.version}`);
 });
 
-test("npm specs are a caret range of the CLI's version, whatever the commit", () => {
-	assert.equal(stackSpec("@fcalell/plugin-db", null, "0.1.0"), "^0.1.0");
-	assert.equal(stackSpec("@fcalell/cli", SHA, "0.1.0"), "^0.1.0");
-});
-
-test("github specs are subdirectory specs, at the commit when one is pinned", () => {
-	assert.equal(
-		stackSpec("@fcalell/plugin-db", null, "0.0.0"),
-		"github:fcalell/stack#path:/plugins/db",
-	);
-	assert.equal(
-		stackSpec("@fcalell/plugin-db", SHA, "0.0.0"),
-		`github:fcalell/stack#${SHA}&path:/plugins/db`,
-	);
-});
-
-test("only github specs pin a commit", () => {
-	const specs = {
-		"@fcalell/plugin-db": stackSpec("@fcalell/plugin-db", SHA, "0.0.0"),
-	};
-	assert.equal(pinnedCommit(specs, "0.0.0"), SHA);
-	assert.equal(pinnedCommit(specs, "0.1.0"), null);
-	assert.equal(pinnedCommit({ "@fcalell/plugin-db": "^0.1.0" }, "0.1.0"), null);
-});
-
-test("plugin specs follow the mode", () => {
-	assert.deepEqual(stackPluginSpecs(["db", "nope"], null, "0.1.0"), {
-		"@fcalell/plugin-db": "^0.1.0",
-	});
-	assert.deepEqual(stackPluginSpecs(["db"], SHA, "0.0.0"), {
-		"@fcalell/plugin-db": `github:fcalell/stack#${SHA}&path:/plugins/db`,
+test("plugin specs name only first-party plugins", () => {
+	assert.deepEqual(stackPluginSpecs(["db", "nope"]), {
+		"@fcalell/plugin-db": stackSpec(),
 	});
 });
 
-test("the npm workspace template carries only the third-party verdicts", () => {
-	const yaml = pnpmWorkspaceTemplate(
-		null,
-		["@fcalell/plugin-auth", "@fcalell/plugin-react-ui"],
-		false,
-		null,
-	);
+test("the closure holds every stack package the given ones reach", () => {
+	assert.deepEqual(stackClosure(["@fcalell/plugin-vite"]), [
+		"@fcalell/cli",
+		"@fcalell/plugin-api",
+		"@fcalell/plugin-vite",
+	]);
+});
+
+test("the workspace template carries only the third-party verdicts", () => {
+	const yaml = pnpmWorkspaceTemplate(null, [
+		"@fcalell/plugin-auth",
+		"@fcalell/plugin-react-ui",
+	]);
 	assert.doesNotMatch(yaml, /overrides/);
-	assert.doesNotMatch(yaml, /blockExoticSubdeps/);
-	assert.doesNotMatch(yaml, /childConcurrency|networkConcurrency/);
-	assert.doesNotMatch(yaml, /git\+https|github/);
 	assert.match(yaml, /allowBuilds/);
 	assert.match(yaml, /esbuild: true/);
 	assert.match(yaml, /better-sqlite3: true/);
 	assert.match(yaml, /"@prisma\/client": false/);
 });
 
-test("the github workspace template overrides each package and approves its prepare", () => {
-	const yaml = pnpmWorkspaceTemplate(
-		null,
-		["@fcalell/plugin-vite"],
-		true,
-		null,
-	);
-	assert.match(yaml, /overrides/);
-	assert.match(yaml, /blockExoticSubdeps: false/);
-	assert.match(yaml, /childConcurrency: 1/);
-	assert.match(
-		yaml,
-		/"@fcalell\/plugin-vite@git\+https:\/\/github\.com\/fcalell\/stack\.git": true/,
-	);
-	assert.match(
-		yaml,
-		/"@fcalell\/cli": github:fcalell\/stack#path:\/packages\/cli/,
-	);
+test("the workspace template keeps the entries the yaml has", () => {
+	const yaml = pnpmWorkspaceTemplate("allowBuilds:\n  esbuild: false\n", [
+		"@fcalell/plugin-node",
+	]);
+	assert.match(yaml, /esbuild: false/);
 });
-
 // The two tests below hold STACK_PACKAGES to the checkout's own manifests.
 const REPO = new URL("../../../../", import.meta.url);
 

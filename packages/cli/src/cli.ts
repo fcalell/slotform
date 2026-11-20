@@ -127,6 +127,24 @@ const COMMANDS: Record<string, CoreCommand> = {
 			await deploy({ config: configPath, env });
 		},
 	},
+	link: {
+		usage: "stack link <checkout>",
+		summary: "Install stack from a checkout",
+		help: "Install every stack package of the app from the stack checkout at <checkout>,\n  which is built first. Run it again after a rebuild; `stack unlink` undoes it.",
+		run: async () => {
+			const checkout = required(subcommand, "stack link <checkout>");
+			const { link } = await import("./commands/link.ts");
+			link(process.cwd(), resolve(checkout), env);
+		},
+	},
+	unlink: {
+		usage: "stack unlink",
+		summary: "Install stack from the lockfile again",
+		run: async () => {
+			const { unlink } = await import("./commands/link.ts");
+			unlink(process.cwd(), env);
+		},
+	},
 	// `stack plugin init` is handled ahead of plugin routing: docs/architecture/commands.md, "Plugin subcommands".
 	plugin: {
 		usage: PLUGIN_USAGE,
