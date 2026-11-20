@@ -2,12 +2,12 @@
 
 `react()` makes the app's web client: React 19 with the React Compiler, built and served by
 Vite, routed by the files in `src/app/routes/` (the [routes](./routes.md) page). `vite()` runs
-the dev server and the build; `react()` requires it, so both sit in `stack.config.ts`. Stack
-writes the HTML shell, the entry, the providers module and the Vite config under `.stack/`; the
+the dev server and the build; `react()` requires it, so both sit in `slotform.config.ts`. Slotform
+writes the HTML shell, the entry, the providers module and the Vite config under `.slotform/`; the
 app writes routes and the code they import.
 
 ```ts
-// stack.config.ts
+// slotform.config.ts
 plugins: [
   vite(),
   react({ title: "Acme", description: "Projects for teams", icon: "/mark.svg", themeColor: "#0b0b0f" }),
@@ -42,7 +42,7 @@ A taken port stops the dev server with a message naming `vite({ port })`.
 
 ## Dev
 
-`stack dev` serves the app at `http://localhost:<port>` with hot reload. The dev server proxies
+`slotform dev` serves the app at `http://localhost:<port>` with hot reload. The dev server proxies
 every path the worker owns (the API's `/rpc`, auth's `/api/auth`, and `/ws` on the node target)
 to the worker's dev process, so the browser reaches the API on the page's own origin, exactly as
 in production. The API client and the auth client therefore take no `baseURL` and no absolute
@@ -50,28 +50,28 @@ in production. The API client and the auth client therefore take no `baseURL` an
 
 ## Framing
 
-A stack app is never framed. In dev, on Cloudflare and on node, every document and asset carries
+A Slotform app is never framed. In dev, on Cloudflare and on node, every document and asset carries
 `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options: DENY`, and there is no
 option to allow embedding. A `public/_headers` on Cloudflare: cloudflare's deploy page
-(`node_modules/@fcalell/plugin-cloudflare/guide/deploy.md`).
+(`node_modules/@slotform/cloudflare/guide/deploy.md`).
 
 ## Files the app owns
 
 - `src/app/`: the routes and every module the web app imports. `#/` in an import is `src/`,
   extension included (`import { orpc } from "#/app/lib/api.ts"`), through the `imports` field
-  `stack init` writes.
+  `slotform init` writes.
 - `public/`: static files served as they are at `/` (`public/favicon.svg` is `/favicon.svg`).
-- `stack build` writes the built client to `dist/client/`; never edit it.
+- `slotform build` writes the built client to `dist/client/`; never edit it.
 
 ## Rules
 
 - Write no `useMemo`, `useCallback` or `React.memo` for speed: the React Compiler memoizes
   every component and hook. Follow the Rules of React, which the compiler relies on. The build
-  compiles your code and the `@fcalell` packages installed under `node_modules`, and no other
+  compiles your code and the `@slotform` packages installed under `node_modules`, and no other
   dependency (the phone compiles the same set); the dev server's pre-bundled copies of those
   packages run uncompiled.
 - Never write a Vite config, an `index.html` or an entry file: they are generated, and a change
   to them is an option on `react()`, `vite()` or a shortfall
-  (`node_modules/@fcalell/cli/guide/shortfall.md`).
+  (`node_modules/@slotform/cli/guide/shortfall.md`).
 
-**Check:** `stack generate`, then `pnpm check` passes, and the page loads under `pnpm dev`.
+**Check:** `slotform generate`, then `pnpm check` passes, and the page loads under `pnpm dev`.

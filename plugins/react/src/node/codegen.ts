@@ -4,11 +4,11 @@ import {
 	renderTsSourceFile,
 	type TsExpression,
 	type TsSourceFile,
-} from "@fcalell/cli/ast";
+} from "@slotform/cli/ast";
 import type { CodegenEntryPayload } from "../types.ts";
 
-// Render `.stack/entry.tsx`. Returns null when no plugin contributes a mount
-// — plugin-react contributes the default via react.slots.mountExpression.
+// Render `.slotform/entry.tsx`. Returns null when no plugin contributes a mount
+// — the `react` plugin contributes the default via react.slots.mountExpression.
 export function aggregateEntry(payload: CodegenEntryPayload): string | null {
 	if (!payload.mount) return null;
 
@@ -21,7 +21,7 @@ export function aggregateEntry(payload: CodegenEntryPayload): string | null {
 	return `${importsBlock}\n\n${payload.mount.body}\n`;
 }
 
-// `.stack/virtual-providers.tsx`: docs/architecture/plugins/react.md, "Providers module".
+// `.slotform/virtual-providers.tsx`: docs/architecture/plugins/react.md, "Providers module".
 export function aggregateProviders(providers: ProviderSpec[]): string | null {
 	if (providers.length === 0) return null;
 

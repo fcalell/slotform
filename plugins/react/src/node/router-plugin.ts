@@ -1,4 +1,4 @@
-import type { AppPlugin } from "@fcalell/plugin-vite";
+import type { AppPlugin } from "@slotform/vite";
 import type { RouterOptions } from "../types.ts";
 
 // The router plugin call on a set of options: docs/architecture/plugins/react.md, "Router plugin".

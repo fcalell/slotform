@@ -14,7 +14,7 @@ directory for a layout that adds no segment. Page: [routes](./routes.md), its na
 ## 2. Create it
 
 Create the file empty while `pnpm dev` runs, and the router fills in its `createFileRoute` call
-with the right path; outside dev, write the `Route` export yourself and run `stack generate`.
+with the right path; outside dev, write the `Route` export yourself and run `slotform generate`.
 Page: [routes](./routes.md).
 
 ```tsx
@@ -29,20 +29,20 @@ function Project() {
 }
 ```
 
-**Check:** `stack generate`, then `pnpm check` passes, and the URL renders under `pnpm dev`.
+**Check:** `slotform generate`, then `pnpm check` passes, and the URL renders under `pnpm dev`.
 
 ## 3. Read its data
 
 Read what the screen shows through the typed client as a `read`, keyed by the route's parameters.
 A procedure the route needs that does not exist yet is added first, by the add-a-procedure
-recipe (`node_modules/@fcalell/plugin-api/guide/add-a-procedure.md`). Page:
-`node_modules/@fcalell/plugin-query/guide/reads.md`.
+recipe (`node_modules/@slotform/api/guide/add-a-procedure.md`). Page:
+`node_modules/@slotform/query/guide/reads.md`.
 
 ```tsx
 const project = (id: string) => orpc.projects.get.read({ id });
 ```
 
-Warm it in the route's `loader` with `preload` from `@fcalell/plugin-query/preload`, giving it
+Warm it in the route's `loader` with `preload` from `@slotform/query/preload`, giving it
 the query client the loader finds in `context`, and build the component's read through the same
 function. With `reactUi()`, a pointer or focus resting on a link to the route
 then preloads it. Page: [routes](./routes.md), preloading.
@@ -59,7 +59,7 @@ export const Route = createFileRoute("/projects/$projectId")({
 ## 4. Compose the screen
 
 Compose the route's component from the roster, with every state the data can be in, then have it
-judged. Page: the screen recipe, `node_modules/@fcalell/ui-core/guide/screen.md`.
+judged. Page: the screen recipe, `node_modules/@slotform/ui-core/guide/screen.md`.
 
 **Check:** the screen recipe's sign-off.
 

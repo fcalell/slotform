@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { scriptHash } from "@fcalell/plugin-vite/csp";
+import { scriptHash } from "@slotform/vite/csp";
 import type { UserConfig } from "vite";
 import { refreshPolicyPlugin } from "./refresh.ts";
 

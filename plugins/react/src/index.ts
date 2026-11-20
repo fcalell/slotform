@@ -1,5 +1,5 @@
-import type { ContributionCtx } from "@fcalell/cli";
-import { plugin, slot } from "@fcalell/cli";
+import type { ContributionCtx } from "@slotform/cli";
+import { GENERATED_DIR, plugin, slot } from "@slotform/cli";
 import {
 	type HtmlInjection,
 	type ProviderSpec,
@@ -7,13 +7,13 @@ import {
 	type ScaffoldSpec,
 	type TsExpression,
 	type TsImportSpec,
-} from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
+} from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
 import {
 	COMPILED_SOURCE,
 	OTHER_DEPENDENCY,
-} from "@fcalell/cli/compiled-source";
-import { type AppPlugin, vite } from "@fcalell/plugin-vite";
+} from "@slotform/cli/compiled-source";
+import { type AppPlugin, vite } from "@slotform/vite";
 import { aggregateEntry, aggregateProviders } from "./node/codegen.ts";
 import { routerPluginFor } from "./node/router-plugin.ts";
 import {
@@ -46,7 +46,7 @@ function regExp(source: string): TsExpression {
 const ROLLDOWN_RUNTIME = "^\\x00rolldown/runtime\\.js$";
 
 // ── Slot declarations ──────────────────────────────────────────────
-// What the slots compose: docs/architecture/plugins/react.md, "plugin-react".
+// What the slots compose: docs/architecture/plugins/react.md, "react plugin".
 
 // Sorted by `order` ascending so lower-order providers become outer wrappers.
 const providers = slot.list<ProviderSpec>({
@@ -246,7 +246,7 @@ export const react = plugin("react", {
 	devDependencies: {
 		"@babel/core": "^7.29.13",
 		"@rolldown/plugin-babel": "^0.3.1",
-		// `stack generate` writes the route tree with it: an optional peer of the plugin.
+		// `slotform generate` writes the route tree with it: an optional peer of the plugin.
 		"@tanstack/router-generator": "^1.168.0",
 		"@tanstack/router-plugin": "^1.169.0",
 		"@vitejs/plugin-react": "^6.3.0",
@@ -301,13 +301,13 @@ export const react = plugin("react", {
 				},
 				imports: [
 					{
-						source: "@fcalell/plugin-react/node/refresh",
+						source: "@slotform/react/node/refresh",
 						named: ["refreshPolicyPlugin"],
 					},
 				],
 			}),
 		),
-		// React and the React Compiler over the app and stack's packages: docs/architecture/plugins/react.md, "React Compiler".
+		// React and the React Compiler over the app and Slotform's packages: docs/architecture/plugins/react.md, "React Compiler".
 		vite.slots.pluginCalls.contribute((): TsExpression[] => [
 			{
 				kind: "call",
@@ -413,7 +413,7 @@ export const react = plugin("react", {
 							named: ["createRouter", "RouterProvider"],
 						},
 						{ source: "./routeTree.gen.ts", named: ["routeTree"] },
-						{ source: "virtual:stack-providers", default: "Providers" },
+						{ source: "virtual:slotform-providers", default: "Providers" },
 					],
 					body: [
 						// The query client is made inside `Providers`, so the router is built
@@ -489,10 +489,13 @@ export const react = plugin("react", {
 		),
 
 		// ── Artifact files ──────────────────────────────────────────────
-		emitArtifact(".stack/entry.tsx", self.slots.entrySource),
-		emitArtifact(".stack/index.html", self.slots.htmlSource),
-		emitArtifact(".stack/virtual-providers.tsx", self.slots.providersSource),
-		emitArtifact(".stack/routes.d.ts", self.slots.routesDtsSource),
+		emitArtifact(`${GENERATED_DIR}/entry.tsx`, self.slots.entrySource),
+		emitArtifact(`${GENERATED_DIR}/index.html`, self.slots.htmlSource),
+		emitArtifact(
+			`${GENERATED_DIR}/virtual-providers.tsx`,
+			self.slots.providersSource,
+		),
+		emitArtifact(`${GENERATED_DIR}/routes.d.ts`, self.slots.routesDtsSource),
 
 		// The route tree, from TanStack's own generator, so the typed routes
 		// exist before Vite first runs.

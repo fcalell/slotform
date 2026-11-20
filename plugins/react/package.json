@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-react",
+	"name": "@slotform/react",
 	"version": "0.1.0",
-	"description": "React framework plugin for @fcalell/stack: React on Vite with the React Compiler, TanStack Router file routes and the HTML shell.",
+	"description": "React framework plugin for slotform: React on Vite with the React Compiler, TanStack Router file routes and the HTML shell.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/react"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/react#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/react#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -59,11 +59,11 @@
 		}
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^"
+		"@slotform/cli": "workspace:^",
+		"@slotform/vite": "workspace:^"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@tanstack/router-generator": "^1.168.0",
 		"@types/node": "^26.6.6",
 		"typescript": "^7.0.2",

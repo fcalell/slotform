@@ -1,4 +1,4 @@
-import { allowScript, scriptHash } from "@fcalell/plugin-vite/csp";
+import { allowScript, scriptHash } from "@slotform/vite/csp";
 import type { Plugin } from "vite";
 
 // React Refresh's preamble in the dev policy: docs/architecture/plugins/react.md, "Dev CSP and React Refresh".

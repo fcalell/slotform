@@ -1,4 +1,4 @@
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
 import { z } from "zod";
 
 export const reactOptionsSchema = z.object({
@@ -30,7 +30,7 @@ export const reactOptionsSchema = z.object({
 
 export type ReactOptions = z.input<typeof reactOptionsSchema>;
 
-// ── Codegen payload types (owned by plugin-react) ───────────────────
+// ── Codegen payload types (owned by the `react` plugin) ───────────────────
 
 // The app's icon as the options give it, read by the page's favicon links and
 // by a UI plugin that draws the mark: the file in the light scheme, and the
@@ -46,7 +46,7 @@ export interface AppIcon {
 // plugin on them as they are and a host that draws the screens changes one.
 export interface RouterOptions {
 	autoCodeSplitting: boolean;
-	// Expressions evaluated in the generated `.stack/` config.
+	// Expressions evaluated in the generated `.slotform/` config.
 	routesDirectory: TsExpression;
 	generatedRouteTree: TsExpression;
 }

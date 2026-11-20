@@ -1,13 +1,14 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import type { TsExpression } from "@fcalell/cli/ast";
+import { GENERATED_DIR } from "@slotform/cli";
+import type { TsExpression } from "@slotform/cli/ast";
 
 // Where the generated route tree lands, relative to the project root. The
-// entry and `.stack/routes.d.ts` import it as `./routeTree.gen.ts`.
-const ROUTE_TREE = ".stack/routeTree.gen.ts";
+// entry and `.slotform/routes.d.ts` import it as `./routeTree.gen.ts`.
+const ROUTE_TREE = `${GENERATED_DIR}/routeTree.gen.ts`;
 
 // `fileURLToPath(new URL("<path>", import.meta.url))`: an absolute path
-// anchored on the generated `.stack/vite.config.ts`, so it holds wherever the
+// anchored on the generated `.slotform/vite.config.ts`, so it holds wherever the
 // host puts Vite's `root` and no machine-specific path is written into the
 // config. The plugin contributes the `node:url` import it needs.
 function besideConfig(path: string): TsExpression {
@@ -32,7 +33,7 @@ function besideConfig(path: string): TsExpression {
 }
 
 // TanStack's router plugin options for a routes directory given relative to
-// the project root, as expressions evaluated in `.stack/vite.config.ts`.
+// the project root, as expressions evaluated in `.slotform/vite.config.ts`.
 export function routerPaths(dir: string): {
 	routesDirectory: TsExpression;
 	generatedRouteTree: TsExpression;
@@ -43,24 +44,24 @@ export function routerPaths(dir: string): {
 	};
 }
 
-// Writes `.stack/routeTree.gen.ts`, so the consumer's type-check sees its
-// typed routes right after `stack generate`, before Vite has run. The paths
+// Writes `.slotform/routeTree.gen.ts`, so the consumer's type-check sees its
+// typed routes right after `slotform generate`, before Vite has run. The paths
 // are the ones the router plugin resolves from the config's location.
 export async function generateRouteTree(
 	cwd: string,
 	dir: string,
 ): Promise<void> {
 	// An optional peer, loaded here and not at the plugin's import: the app declares it as a
-	// devDependency (`stack init` writes it), so an install that only runs the app holds none.
+	// devDependency (`slotform init` writes it), so an install that only runs the app holds none.
 	const { Generator, getConfig } = await import(
 		"@tanstack/router-generator"
 	).catch((cause: unknown) => {
 		throw new Error(
-			"@tanstack/router-generator is not installed: `stack generate` writes the route tree with it. Add it to the app's devDependencies (`pnpm add -D @tanstack/router-generator`).",
+			"@tanstack/router-generator is not installed: `slotform generate` writes the route tree with it. Add it to the app's devDependencies (`pnpm add -D @tanstack/router-generator`).",
 			{ cause },
 		);
 	});
-	const root = join(cwd, ".stack");
+	const root = join(cwd, GENERATED_DIR);
 	const config = getConfig(
 		{
 			target: "react",

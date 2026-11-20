@@ -23,7 +23,7 @@ src/app/routes/
 
 | Name | Means |
 | --- | --- |
-| `__root.tsx` | The one root route. `stack init` writes it rendering `<Outlet />`, with the query client as its router context; app-wide providers and the app's frame go here |
+| `__root.tsx` | The one root route. `slotform init` writes it rendering `<Outlet />`, with the query client as its router context; app-wide providers and the app's frame go here |
 | `index.tsx` | The directory's own URL |
 | `route.tsx` | The directory's layout: it renders `<Outlet />` where its children go |
 | `$name` | A path parameter, read with `Route.useParams()` |
@@ -50,7 +50,7 @@ function Project() {
 
 ## Preloading a route's data
 
-A route warms what its screen reads from its `loader` with `preload` (`node_modules/@fcalell/plugin-query/guide/preload.md`).
+A route warms what its screen reads from its `loader` with `preload` (`node_modules/@slotform/query/guide/preload.md`).
 
 With `reactUi()` in the config, a pointer or focus resting 50 ms on a link to a route runs its
 loader and fetches its code, so the open that follows is often a cache hit; the query cache's `staleTime` decides whether a
@@ -59,17 +59,17 @@ A search-driven input goes in the route's `loaderDeps`.
 
 ## Typed routes
 
-`stack generate` writes the route tree to `.stack/routeTree.gen.ts`, and the dev server and the
-build rewrite it as files change. `.stack/routes.d.ts` registers the router over it, so `Link`,
+`slotform generate` writes the route tree to `.slotform/routeTree.gen.ts`, and the dev server and the
+build rewrite it as files change. `.slotform/routes.d.ts` registers the router over it, so `Link`,
 `useNavigate`, `redirect` and `Route.useParams` are typed: a path or parameter that no route
-serves fails the type-check. After adding, moving or deleting a route file outside `stack dev`,
-run `stack generate` before `pnpm check`.
+serves fails the type-check. After adding, moving or deleting a route file outside `slotform dev`,
+run `slotform generate` before `pnpm check`.
 
 ## Rules
 
 - These are the web app's routes. The API's `src/worker/routes/` are another thing: procedure
   files, whose every export must be an object of procedures
-  (`node_modules/@fcalell/plugin-api/guide/procedures.md`); `createFileRoute` and its `Route`
+  (`node_modules/@slotform/api/guide/procedures.md`); `createFileRoute` and its `Route`
   belong only in `src/app/routes/`.
 - Keep a route file to its route: the `Route` export and the components it renders. A component
   two routes share lives in the app's `ui/` or a `-components/` directory, never in another
@@ -80,4 +80,4 @@ run `stack generate` before `pnpm check`.
   route's first static segment (`settings`, `notifications`) is a slug auth refuses. Name a top-level
   route knowing it takes that word from every organization.
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.
