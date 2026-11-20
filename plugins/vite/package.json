@@ -52,7 +52,8 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"peerDependencies": {
-		"vite": "^8.3.8"
+		"vite": "^8.3.8",
+		"zod": "^4.6.7"
 	},
 	"peerDependenciesMeta": {
 		"vite": {
@@ -61,13 +62,13 @@
 	},
 	"dependencies": {
 		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"zod": "^4.6.7"
+		"@fcalell/plugin-api": "workspace:^"
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"typescript": "^7.0.2",
-		"vite": "^8.3.8"
+		"vite": "^8.3.8",
+		"zod": "^4.6.7"
 	}
 }
