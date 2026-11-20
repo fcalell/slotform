@@ -1,4 +1,4 @@
-import type { EnvSpec } from "@fcalell/plugin-api/types";
+import type { EnvSpec } from "@slotform/api/types";
 import { z } from "zod";
 
 export const cloudflareOptionsSchema = z.object({}).optional();
@@ -47,7 +47,7 @@ export interface CodegenWranglerPayload {
 	serve?: ServeConfig;
 }
 
-// A `stack screens serve` run's config: its own entry, its own copy of the
+// A `slotform screens serve` run's config: its own entry, its own copy of the
 // client build (absolute, null without a web client), and the `/fixture`
 // controls on the worker's paths.
 export interface ServeConfig {

@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-cloudflare",
+	"name": "@slotform/cloudflare",
 	"version": "0.1.0",
-	"description": "The Cloudflare Workers target for @fcalell/stack: renders the wrangler config and runs wrangler for dev, types and deploy.",
+	"description": "The Cloudflare Workers target for slotform: renders the wrangler config and runs wrangler for dev, types and deploy.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/cloudflare"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/cloudflare#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/cloudflare#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -41,14 +41,14 @@
 		"test": "node --test 'src/**/*.test.ts'"
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-screens": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/screens": "workspace:^",
+		"@slotform/vite": "workspace:^",
 		"smol-toml": "^1.9.1"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"typescript": "^7.0.2",
 		"zod": "^4.6.7"

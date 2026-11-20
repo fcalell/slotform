@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { assertEnvName, declaresDevVar } from "./dev-vars.ts";
 
 test("assertEnvName accepts identifier-shaped names", () => {
-	for (const name of ["AUTH_SECRET", "_X", "a1", "STACK_DEV"]) {
+	for (const name of ["AUTH_SECRET", "_X", "a1", "SLOTFORM_DEV"]) {
 		assert.doesNotThrow(() => assertEnvName(name));
 	}
 });
@@ -18,7 +18,7 @@ test("assertEnvName rejects names with metacharacters or a leading digit", () =>
 });
 
 test("declaresDevVar matches a key at the start of a line", () => {
-	const file = "STACK_DEV=1\nAUTH_SECRET=abc\n# OTHER=1\n";
+	const file = "SLOTFORM_DEV=1\nAUTH_SECRET=abc\n# OTHER=1\n";
 	assert.equal(declaresDevVar(file, "AUTH_SECRET"), true);
 	assert.equal(declaresDevVar(file, "OTHER"), false);
 	assert.equal(declaresDevVar(file, "SECRET"), false);

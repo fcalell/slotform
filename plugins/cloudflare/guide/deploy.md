@@ -1,22 +1,22 @@
 # Deploy to Cloudflare
 
-`stack deploy` ships the worker, and with `vite()` the web client, to Cloudflare Workers. Work the steps in order; each names the
+`slotform deploy` ships the worker, and with `vite()` the web client, to Cloudflare Workers. Work the steps in order; each names the
 page it needs and ends with its check.
 
-## What `stack deploy` does
+## What `slotform deploy` does
 
-1. Runs `stack build`, which regenerates `.stack/`, builds the web client to `dist/client` and
+1. Runs `slotform build`, which regenerates `.slotform/`, builds the web client to `dist/client` and
    writes `dist/client/_headers`, which makes every asset unframeable (`frame-ancestors 'none'`,
-   `X-Frame-Options: DENY`): a stack app is never framed and has no option to be. A
+   `X-Frame-Options: DENY`): a Slotform app is never framed and has no option to be. A
    `public/_headers` fails the build; remove it.
 2. Runs every pre-deploy check. With a D1 database: a placeholder `databaseId`, a schema change
    with no committed migration, or a newest migration that drops a table or column without its
-   `-- stack:allow-destructive` marker each stop the deploy here.
+   `-- slotform:allow-destructive` marker each stop the deploy here.
 3. Lists the plan (the committed migrations) and, in a terminal, asks to proceed.
 4. Applies the pending migrations to the remote database, then `src/schema/seed.ts` when it
    exists: an upsert of the seeded rows, and a prune of the rows it does not list only when the
    seed exports `prune = true` (`plugins/db/guide/seed.md`).
-5. Runs `wrangler deploy --config .stack/wrangler.toml`, which uploads the worker and, with
+5. Runs `wrangler deploy --config .slotform/wrangler.toml`, which uploads the worker and, with
    `vite()`, `dist/client` as its static assets. The worker answers its own paths (`/rpc/*`,
    `/api/auth/*`); any other path is a file from `dist/client`, else its `index.html`.
 
@@ -32,26 +32,26 @@ one account. Page: [wrangler](./wrangler.md).
 
 `db({ dialect: "d1", databaseId })` holds the remote database's id, never a placeholder. A route
 or a custom domain goes in the root `wrangler.toml` as `[[routes]]`. With `src/worker/queue.ts`, create
-the app's queue once before the first deploy, under the name `stack generate` writes as the `queue`
-in `.stack/wrangler.toml` (`app.name` lowercased, every other character run a `-`):
+the app's queue once before the first deploy, under the name `slotform generate` writes as the `queue`
+in `.slotform/wrangler.toml` (`app.name` lowercased, every other character run a `-`):
 `pnpm exec wrangler queues create <that name>`. Queues and Browser
 Rendering need a Workers plan that offers them. Page: [wrangler](./wrangler.md).
 
-**Check:** `stack generate` exits cleanly, and `.stack/wrangler.toml` names the database id and
+**Check:** `slotform generate` exits cleanly, and `.slotform/wrangler.toml` names the database id and
 the routes; with a queue, `pnpm exec wrangler queues list` names it.
 
 ## 3. Set every secret
 
-Each declared env var's production value is a secret, set once per var. List them from `.dev.vars` (every line but `STACK_DEV`) and set each:
+Each declared env var's production value is a secret, set once per var. List them from `.dev.vars` (every line but `SLOTFORM_DEV`) and set each:
 
 ```bash
-pnpm exec wrangler secret put AUTH_SECRET --config .stack/wrangler.toml
+pnpm exec wrangler secret put AUTH_SECRET --config .slotform/wrangler.toml
 ```
 
 `AUTH_SECRET` is 32 characters or more; `APP_URL` is the app's public `https://` URL. Page: auth's
-config page (`node_modules/@fcalell/plugin-auth/guide/config.md`) for auth's vars.
+config page (`node_modules/@slotform/auth/guide/config.md`) for auth's vars.
 
-**Check:** `pnpm exec wrangler secret list --config .stack/wrangler.toml` lists every var.
+**Check:** `pnpm exec wrangler secret list --config .slotform/wrangler.toml` lists every var.
 
 ## 4. Deploy
 

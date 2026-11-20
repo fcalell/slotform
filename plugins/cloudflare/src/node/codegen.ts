@@ -1,10 +1,11 @@
 import { isAbsolute, posix } from "node:path";
-import type { ContributionCtx } from "@fcalell/cli";
+import type { ContributionCtx } from "@slotform/cli";
+import { GENERATED_DIR } from "@slotform/cli";
 import {
 	renderToml,
 	type TomlDocument,
 	type TomlValue,
-} from "@fcalell/cli/ast";
+} from "@slotform/cli/ast";
 import { parse as parseToml } from "smol-toml";
 import type { CodegenWranglerPayload, WranglerBindingSpec } from "../types.ts";
 
@@ -29,8 +30,8 @@ const CONSUMER_MERGED_LISTS = new Set<string>([
 const GENERATED_MAIN_VALUES = new Set([
 	"worker.ts",
 	"./worker.ts",
-	".stack/worker.ts",
-	"./.stack/worker.ts",
+	`${GENERATED_DIR}/worker.ts`,
+	`./${GENERATED_DIR}/worker.ts`,
 ]);
 
 // YYYY-MM-DD — wrangler accepts only this exact form. Reject anything else
@@ -39,7 +40,7 @@ const GENERATED_MAIN_VALUES = new Set([
 const COMPATIBILITY_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Wrangler rejects names that aren't lowercase alphanumeric with dashes. Consumer
-// app names (from `stack init`'s basename) can include dots, underscores, or
+// app names (from `slotform init`'s basename) can include dots, underscores, or
 // uppercase — normalize so `wrangler types` succeeds on the generated toml.
 export function sanitizeWranglerName(name: string): string {
 	const slug = name
@@ -47,7 +48,7 @@ export function sanitizeWranglerName(name: string): string {
 		.replace(/[^a-z0-9-]+/g, "-")
 		.replace(/^-+|-+$/g, "")
 		.replace(/-{2,}/g, "-");
-	return slug || "stack-app";
+	return slug || "slotform-app";
 }
 
 export function aggregateWrangler(opts: {
@@ -93,7 +94,7 @@ export function aggregateWrangler(opts: {
 	}
 
 	// The framework-defaulted scalars the consumer did not set.
-	const fallbackName = sanitizeWranglerName(opts.name ?? "stack-app");
+	const fallbackName = sanitizeWranglerName(opts.name ?? "slotform-app");
 	if (root.name === undefined) {
 		root.name = fallbackName;
 	} else if (typeof root.name !== "string") {
@@ -119,7 +120,7 @@ export function aggregateWrangler(opts: {
 		!GENERATED_MAIN_VALUES.has(root.main)
 	) {
 		opts.log.warn(
-			`Custom \`main\` detected in wrangler.toml (${root.main}); stack will not override it. Ensure it re-exports from .stack/worker.ts, or remove the line to let stack manage it.`,
+			`Custom \`main\` detected in wrangler.toml (${root.main}); Slotform will not override it. Ensure it re-exports from ${GENERATED_DIR}/worker.ts, or remove the line to let Slotform manage it.`,
 		);
 	}
 	if (opts.payload.serve) root.main = opts.payload.serve.main;
@@ -188,7 +189,7 @@ export function aggregateWrangler(opts: {
 	return renderToml(doc);
 }
 
-// `[assets] directory`, which resolves against `.stack/`, where the config
+// `[assets] directory`, which resolves against `.slotform/`, where the config
 // lands; a serve run names its own copy of the client build.
 function assetsDirectory(payload: CodegenWranglerPayload): string | null {
 	if (payload.serve) return payload.serve.clientDir;
@@ -239,7 +240,7 @@ function rejectFrameworkManagedSections(
 			.map((s) => `\`${s}\``)
 			.join(
 				", ",
-			)}. Remove them: stack generates them from the plugins in stack.config.ts (bindings from db/auth/..., \`[assets]\` from vite's client build).`,
+			)}. Remove them: Slotform generates them from the plugins in slotform.config.ts (bindings from db/auth/..., \`[assets]\` from vite's client build).`,
 	);
 }
 
@@ -567,7 +568,7 @@ function appendBindingsToTables(
 		};
 		// `migrationsDir` on the spec is consumer-root-relative; wrangler
 		// resolves `migrations_dir` against the config file's directory, and
-		// this aggregator emits the config to `.stack/wrangler.toml`.
+		// this aggregator emits the config to `.slotform/wrangler.toml`.
 		if (b.migrationsDir) {
 			entry.migrations_dir = isAbsolute(b.migrationsDir)
 				? b.migrationsDir

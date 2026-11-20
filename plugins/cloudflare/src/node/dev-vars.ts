@@ -1,11 +1,11 @@
-import { StackError } from "@fcalell/cli/errors";
+import { SlotformError } from "@slotform/cli/errors";
 
 // The env-name rule: docs/architecture/plugins/cloudflare.md, "Env namespace".
 const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 export function assertEnvName(name: string): void {
 	if (!ENV_NAME.test(name)) {
-		throw new StackError(
+		throw new SlotformError(
 			`Invalid env var name "${name}": use letters, digits and underscores, not starting with a digit (e.g. AUTH_SECRET).`,
 			"INVALID_ENV_NAME",
 		);

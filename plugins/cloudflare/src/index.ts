@@ -2,13 +2,19 @@ import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import { type ContributionCtx, plugin, type Slot, slot } from "@fcalell/cli";
-import type { TsTypeRef } from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { api } from "@fcalell/plugin-api";
-import { screens } from "@fcalell/plugin-screens";
-import { startServer } from "@fcalell/plugin-screens/node";
-import { vite } from "@fcalell/plugin-vite";
+import { api } from "@slotform/api";
+import {
+	type ContributionCtx,
+	GENERATED_DIR,
+	plugin,
+	type Slot,
+	slot,
+} from "@slotform/cli";
+import type { TsTypeRef } from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { screens } from "@slotform/screens";
+import { startServer } from "@slotform/screens/node";
+import { vite } from "@slotform/vite";
 import {
 	aggregateDevVars,
 	aggregateWrangler,
@@ -32,10 +38,10 @@ const DEFAULT_COMPATIBILITY_DATE = "2025-01-01";
 const WRANGLER_DEV_PORT = 8787;
 const DEV_ORIGIN = `http://localhost:${WRANGLER_DEV_PORT}`;
 
-const WRANGLER_CONFIG = ".stack/wrangler.toml";
-const WORKER_TYPES = ".stack/worker-configuration.d.ts";
+const WRANGLER_CONFIG = `${GENERATED_DIR}/wrangler.toml`;
+const WORKER_TYPES = `${GENERATED_DIR}/worker-configuration.d.ts`;
 
-// Miniflare's state dir, shared with plugin-db: docs/architecture/plugins/cloudflare.md, "Local state".
+// Miniflare's state dir, shared with the `db` plugin: docs/architecture/plugins/cloudflare.md, "Local state".
 export const LOCAL_PERSIST = ".wrangler/state";
 
 // ── Slot declarations ──────────────────────────────────────────────
@@ -118,7 +124,7 @@ const wranglerToml = slot.derived({
 		renderWrangler(inp, ctx, await consumerWrangler(ctx), undefined),
 });
 
-// The config of a `stack screens serve` run: the same toml with the run's own
+// The config of a `slotform screens serve` run: the same toml with the run's own
 // entry and client build, as a function of them.
 const serveWranglerToml = slot.derived({
 	source: SOURCE,
@@ -136,8 +142,8 @@ async function wranglerConfigArgs(ctx: ContributionCtx): Promise<string[]> {
 	return ["--config", WRANGLER_CONFIG, "--tsconfig", join(ctx.cwd, tsconfig)];
 }
 
-const STACK_DEV_LINE =
-	"# STACK_DEV marks local dev; never set in production.\nSTACK_DEV=1\n";
+const SLOTFORM_DEV_LINE =
+	"# SLOTFORM_DEV marks local dev; never set in production.\nSLOTFORM_DEV=1\n";
 
 // The dev values, and whether the root `.dev.vars` is written: docs/architecture/plugins/cloudflare.md, ".dev.vars".
 async function devVars(
@@ -147,13 +153,13 @@ async function devVars(
 	for (const e of env) assertEnvName(e.name);
 	if (!(await ctx.fileExists(".dev.vars"))) {
 		return {
-			content: `${STACK_DEV_LINE}${aggregateDevVars(env) ?? ""}`,
+			content: `${SLOTFORM_DEV_LINE}${aggregateDevVars(env) ?? ""}`,
 			write: true,
 		};
 	}
 	const existing = await ctx.readFile(".dev.vars");
 	const declared = (name: string) => declaresDevVar(existing, name);
-	const missing = `${declared("STACK_DEV") ? "" : STACK_DEV_LINE}${
+	const missing = `${declared("SLOTFORM_DEV") ? "" : SLOTFORM_DEV_LINE}${
 		aggregateDevVars(env.filter((e) => !declared(e.name))) ?? ""
 	}`;
 	if (!missing) return { content: existing, write: false };
@@ -216,20 +222,20 @@ export const cloudflare = plugin("cloudflare", {
 			};
 		}),
 
-		// Emit .dev.vars and mirror it into .stack/: docs/architecture/plugins/cloudflare.md, ".dev.vars".
+		// Emit .dev.vars and mirror it into .slotform/: docs/architecture/plugins/cloudflare.md, ".dev.vars".
 		cliSlots.artifactFiles.contribute(async (ctx) => {
 			const { content, write } = await devVars(ctx);
 			return [
 				...(write ? [{ path: ".dev.vars", content }] : []),
 				{
-					path: ".stack/.dev.vars",
-					content: `# Generated mirror of ../.dev.vars — edit that file, then re-run stack generate.\n${content}`,
+					path: `${GENERATED_DIR}/.dev.vars`,
+					content: `# Generated mirror of ../.dev.vars — edit that file, then re-run slotform generate.\n${content}`,
 				},
 			];
 		}),
 
 		// The global `Env` `wrangler types` declares types the worker's `env`:
-		// `.stack/worker.ts` and `.stack/procedure.ts` render `createWorker<Env>(…)`.
+		// `.slotform/worker.ts` and `.slotform/procedure.ts` render `createWorker<Env>(…)`.
 		api.slots.envType.contribute(
 			(): TsTypeRef => ({ kind: "reference", name: "Env" }),
 		),
@@ -245,10 +251,10 @@ export const cloudflare = plugin("cloudflare", {
 			return prefixes.map((path) => ({ path, target: DEV_ORIGIN }));
 		}),
 
-		// Ignore .stack/.wrangler so Vite never reloads on it: docs/architecture/plugins/cloudflare.md, "Dev and Vite root".
+		// Ignore .slotform/.wrangler so Vite never reloads on it: docs/architecture/plugins/cloudflare.md, "Dev and Vite root".
 		vite.slots.watchIgnored.contribute(() => "**/.wrangler/**"),
 
-		// The shared --config and --persist-to, outside .stack/: docs/architecture/plugins/cloudflare.md, "Local state".
+		// The shared --config and --persist-to, outside .slotform/: docs/architecture/plugins/cloudflare.md, "Local state".
 		cliSlots.devProcesses.contribute(async (ctx) => ({
 			name: "wrangler",
 			command: "npx",
@@ -273,7 +279,7 @@ export const cloudflare = plugin("cloudflare", {
 			const render = await ctx.resolve(self.slots.serveWranglerToml);
 			// The run's entry sits outside the app, so it names the controls by path.
 			const require = createRequire(join(ctx.cwd, "package.json"));
-			const controls = require.resolve("@fcalell/plugin-screens/serve");
+			const controls = require.resolve("@slotform/screens/serve");
 			const named = await ctx.resolve(screens.slots.serveControls);
 			const extra = named.map((spec) => require.resolve(spec));
 			const { content: devValues } = await devVars(ctx);
@@ -292,7 +298,7 @@ export const cloudflare = plugin("cloudflare", {
 							...extra.map(
 								(path, i) => `import c${i} from ${JSON.stringify(path)};`,
 							),
-							`import worker from ${JSON.stringify(join(ctx.cwd, ".stack/worker.ts"))};`,
+							`import worker from ${JSON.stringify(join(ctx.cwd, GENERATED_DIR, "worker.ts"))};`,
 							`export default fixtureControls(worker${extra.map((_, i) => `, c${i}`).join("")});`,
 							"",
 						].join("\n"),
@@ -352,7 +358,7 @@ export const cloudflare = plugin("cloudflare", {
 					const file = join(ctx.cwd, clientDir, "_headers");
 					if (existsSync(file)) {
 						throw new Error(
-							"public/_headers is refused: stack writes the web client's _headers from vite.slots.clientHeaders, and Cloudflare joins a header two rules set. Remove public/_headers.",
+							"public/_headers is refused: Slotform writes the web client's _headers from vite.slots.clientHeaders, and Cloudflare joins a header two rules set. Remove public/_headers.",
 						);
 					}
 					const rules = names.map((n) => `  ${n}: ${headers[n]}`).join("\n");
@@ -362,7 +368,7 @@ export const cloudflare = plugin("cloudflare", {
 		}),
 
 		// wrangler refuses to start when `assets.directory` is missing, which it
-		// is until the first `stack build`; an empty one serves nothing and
+		// is until the first `slotform build`; an empty one serves nothing and
 		// lets `wrangler dev` run on a fresh clone.
 		cliSlots.postWrite.contribute((ctx) => async () => {
 			const clientDir = await ctx.resolve(vite.slots.outDir);
@@ -394,7 +400,7 @@ export const cloudflare = plugin("cloudflare", {
 				const err = result.error;
 				const hint =
 					"code" in err && err.code === "ENOENT"
-						? "npx not found on PATH; install Node.js or wrangler and re-run `stack generate`."
+						? "npx not found on PATH; install Node.js or wrangler and re-run `slotform generate`."
 						: err.message;
 				ctx.log.warn(
 					`wrangler types could not run (Env typings removed to surface the failure): ${hint}`,
