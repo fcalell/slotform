@@ -1,7 +1,7 @@
 ---
 version: alpha
-name: "@fcalell/stack"
-description: "The design contract both stack UI plugins render: the approved token sheet behind six knobs, the platform-invariant matrices, and the component roster."
+name: "slotform"
+description: "The design contract both Slotform UI plugins render: the approved token sheet behind six knobs, the platform-invariant matrices, and the component roster."
 colors:
   primary: "{colors.accent}"
   canvas: "oklch(0.974 0.002 264)"
@@ -2675,9 +2675,9 @@ components:
     height: "{spacing.target}"
 ---
 
-# @fcalell/stack
+# slotform
 
-Emitted from `@fcalell/ui-core` by `pnpm --filter @fcalell/ui-core design-md`. Never edit it by hand: change the contract and emit again.
+Emitted from `@slotform/ui-core` by `pnpm --filter @slotform/ui-core design-md`. Never edit it by hand: change the contract and emit again.
 
 ## Overview
 

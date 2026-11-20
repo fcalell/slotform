@@ -1,14 +1,14 @@
 # Forms
 
-A `Form` is its procedure and its field labels: the procedure's input schema (`stack generate`
-writes it to `.stack/schema.ts`) gives everything else. This page holds when a screen takes a `Form`
+A `Form` is its procedure and its field labels: the procedure's input schema (`slotform generate`
+writes it to `.slotform/schema.ts`) gives everything else. This page holds when a screen takes a `Form`
 and how a form answers its schema and its server; its props are the platform's forms page.
 
 ## What is a `Form`
 
 A value the viewer sends to a procedure is a `Form` over that procedure. A filter is a `Toolbar` pick
 or search, and a local setting is a `Switch` in a row: neither is a `Form`. A form over no procedure
-is a shortfall to report (`node_modules/@fcalell/cli/guide/shortfall.md`), never a `Form` with
+is a shortfall to report (`node_modules/@slotform/cli/guide/shortfall.md`), never a `Form` with
 hand-drawn fields.
 
 ## The schema's own checks
@@ -37,7 +37,7 @@ The server words a machine name in a refusal between backticks
 (``z.string().refine(known, "No project at `apps/billing`")``,
 ``new ApiError("BAD_REQUEST", { message: "No project at `apps/billing`" })``) and the field draws the
 span as a `{ code }` run. An `error` a screen passes itself from a server message goes through
-`markedRuns` from `@fcalell/ui-core/form`.
+`markedRuns` from `@slotform/ui-core/form`.
 
 ## A settings page commits by field
 

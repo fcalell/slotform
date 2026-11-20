@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/ui-core",
+	"name": "@slotform/ui-core",
 	"version": "0.1.0",
-	"description": "The design system both stack UI plugins render from: the token contract, foundations, words, variant matrices and component roster.",
+	"description": "The design system both Slotform UI plugins render from: the token contract, foundations, words, variant matrices and component roster.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "packages/ui-core"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/packages/ui-core#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/packages/ui-core#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -310,7 +310,7 @@
 		}
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@google/design.md": "^0.4.0",
 		"@tailwindcss/cli": "^4.3.5",
 		"@types/node": "^26.6.6",

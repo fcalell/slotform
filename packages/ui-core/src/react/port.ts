@@ -58,7 +58,7 @@ export interface ReadPort {
 	useSubmit: <P extends ProcedureCall>(
 		act: P | undefined,
 	) => (input: InputOf<P>) => Promise<OutputOf<P>>;
-	/** The procedure's entry in the generated schema by its dotted path, or undefined before the first `stack generate`. */
+	/** The procedure's entry in the generated schema by its dotted path, or undefined before the first `slotform generate`. */
 	schemaOf: (path: string) => ProcedureSchema | undefined;
 	/** Whether the caller may do the action on the subject in the organization (none answers no), as a selection that paints while the caller's rules load. */
 	may: (organizationId: string | undefined, can: Can) => Selection<boolean>;
@@ -69,7 +69,7 @@ export interface ReadPort {
 // A member asked for what only a binding has.
 function unbound(what: string): never {
 	throw new Error(
-		`${what} needs the query binding: wrap the app in \`QueryProvider\` from \`@fcalell/plugin-query/tanstack-query\`.`,
+		`${what} needs the query binding: wrap the app in \`QueryProvider\` from \`@slotform/query/tanstack-query\`.`,
 	);
 }
 

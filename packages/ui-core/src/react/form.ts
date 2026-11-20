@@ -274,7 +274,7 @@ export function useFormModel<P extends ProcedureCall, A, E = never>(
 	const path = pathOf(act);
 	const entry = port.schemaOf(path);
 	if (!entry) {
-		throw new Error(`Form: no schema for ${path}; run \`stack generate\``);
+		throw new Error(`Form: no schema for ${path}; run \`slotform generate\``);
 	}
 	if (entry.kind !== "mutation" || !entry.input) {
 		throw new Error(`Form: ${path} is not a mutation over an object`);

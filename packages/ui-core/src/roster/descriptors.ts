@@ -311,7 +311,7 @@ export interface PickedFile {
 // ── Table ───────────────────────────────────────────────────────────
 
 // The rows a mutation acts on, as the table holds them and as the server
-// takes them (`selector()` of plugin-api): the ids ticked, or every row the
+// takes them (`selector()` of `@slotform/api`): the ids ticked, or every row the
 // read's query matches but the ids unticked. `Q` is the read's query (its
 // input less the paging and the sort).
 export type Picked<Q = unknown> =
@@ -341,7 +341,7 @@ export interface Peaks {
 
 // What a drag carries to a drop: the kind the drops accept by and the rows
 // dragged, either their ids or a pick of a read's query (`selector()` of
-// plugin-api takes it whole), so a drag of a ticked selection over a
+// `@slotform/api` takes it whole), so a drag of a ticked selection over a
 // paginated read carries every row the query matches, loaded or not.
 export interface Dragged<Q = unknown> {
 	kind: string;

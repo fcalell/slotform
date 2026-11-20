@@ -1,7 +1,7 @@
 // The closed token contract, as data: docs/architecture/ui-core/tokens.md, "The contract as data".
 
 // Prefixes every error this package throws.
-export const LABEL = "@fcalell/ui-core";
+export const LABEL = "@slotform/ui-core";
 
 export const MODES = ["light", "dark"] as const;
 export type Mode = (typeof MODES)[number];

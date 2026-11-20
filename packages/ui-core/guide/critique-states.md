@@ -8,7 +8,7 @@ The items of the [critique](./critique.md) on the shots past the data shot (wait
   place, a pulse where values will land, no second layout? (S15) Text above the first Section
   that wraps to more lines once it lands (a record head's name, facts or description, or prose)
   moves what stands under it by what it grew: the loading-shift floor accepts that move
-  (`node_modules/@fcalell/plugin-screens/guide/read-checks.md`), so it is no finding, at any width.
+  (`node_modules/@slotform/screens/guide/read-checks.md`), so it is no finding, at any width.
 - 8b. Does the empty shot read as the data shot with the rows gone, the toolbar and bands still
   standing where they do in data?
 - 8c. Do the not-found shot and the error shot each read as the frame's one shape (one sentence
@@ -25,4 +25,4 @@ The items of the [critique](./critique.md) on the shots past the data shot (wait
 
 - 9a. Beside the voice page's pinned screen of this pattern (`voice.md`, "The anchor"), what are
   the three largest differences in how much a row or a record carries and where parts stand?
-  Each is a composition finding (the app's) or a roster finding (stack's).
+  Each is a composition finding (the app's) or a roster finding (Slotform's).

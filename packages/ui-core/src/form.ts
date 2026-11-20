@@ -39,7 +39,7 @@ export interface JsonSchema {
 	default?: unknown;
 }
 
-/** One procedure as `.stack/schema.ts` holds it. */
+/** One procedure as `.slotform/schema.ts` holds it. */
 export interface ProcedureSchema {
 	readonly input: JsonSchema | null;
 	readonly kind: "query" | "mutation";

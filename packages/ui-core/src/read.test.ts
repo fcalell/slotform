@@ -22,7 +22,7 @@ const pickOf = (selection: unknown, data: unknown[]) =>
 		selection as {
 			[key: symbol]: { pick: (d: unknown[], r: boolean[]) => unknown };
 		}
-	)[Symbol.for("@fcalell/ui-core/selection")]?.pick(
+	)[Symbol.for("@slotform/ui-core/selection")]?.pick(
 		data,
 		data.map(() => true),
 	);

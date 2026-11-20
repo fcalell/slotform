@@ -7,7 +7,7 @@ export type ScopeIds = Readonly<Record<string, string>>;
 
 // Ambient: the scope of the innermost boundary committed, with its depth (the
 // boundaries above it). One client, one active route subtree per isolate (the
-// same assumption as plugin-api's registered client); an SSR target that
+// same assumption as the `api` plugin's registered client); an SSR target that
 // serves many users from one isolate passes ids explicitly (`scoped`).
 let registered: { ids: ScopeIds; depth: number } = { ids: {}, depth: 0 };
 
@@ -29,7 +29,7 @@ export function registeredScope(): ScopeIds {
 	return registered.ids;
 }
 
-/** The part of `.stack/schema.ts` the client reads here: each procedure by dotted path with the input key its scope adds (null when it has none). */
+/** The part of `.slotform/schema.ts` the client reads here: each procedure by dotted path with the input key its scope adds (null when it has none). */
 export type ScopeSchema = Readonly<
 	Record<string, { readonly scope: string | null } | undefined>
 >;

@@ -2,9 +2,9 @@
 
 A collection takes its rows as data: a `Section`'s `items` are `Row`s built from the records by one
 `toRow` function, and nothing public draws a single row. `Row`, `RowItem`, `FileItem` and `Lock` are
-`@fcalell/ui-core/descriptors`; each platform's `components/section` exports `Row` widened to its
+`@slotform/ui-core/descriptors`; each platform's `components/section` exports `Row` widened to its
 `Datum`s. What a row says of itself is [facts](./facts.md); how a platform lays a row out is its own guide:
-the web's `section.md`, the phone's `node_modules/@fcalell/plugin-native-ui/guide/rows.md`.
+the web's `section.md`, the phone's `node_modules/@slotform/native-ui/guide/rows.md`.
 
 ## Collections take data
 

@@ -1,7 +1,7 @@
 // Writes `src/icon-name.ts`, the glyph names as a literal union: docs/architecture/ui-core/roster.md, "The canon and the closed props".
 // `src/icon-name.test.ts` holds the file to the installed Lucide.
 //
-//   pnpm --filter @fcalell/ui-core icon-name
+//   pnpm --filter @slotform/ui-core icon-name
 import { writeFileSync } from "node:fs";
 import { icons } from "lucide";
 

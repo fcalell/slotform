@@ -6,7 +6,7 @@ every string prop takes one of four sizes. The closed word set is ui-core's `WOR
 ## Words are the config's, sentences are props
 
 A word a component draws on its own comes from the UI plugin's `words` option (`reactUi({ words })`,
-`nativeUi({ words })`), read with `useWords()` from `@fcalell/ui-core/react/words`. Every sentence the
+`nativeUi({ words })`), read with `useWords()` from `@slotform/ui-core/react/words`. Every sentence the
 app shows is a prop.
 
 ## A text prop takes one of four sizes

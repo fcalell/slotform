@@ -3,7 +3,7 @@
 A screen stands in a place, and a place holds `Pane`s of two kinds. This page holds what both
 platforms share about the kinds, the place's title and the `PlaceSpec` that names a place; how a
 platform lays its Panes out is its own guide: the web's `shell.md` and `pane.md`, the phone's
-`node_modules/@fcalell/plugin-native-ui/guide/panes.md`.
+`node_modules/@slotform/native-ui/guide/panes.md`.
 
 ## Two kinds of Pane
 
@@ -29,7 +29,7 @@ section's own wants a `title`.
 
 ## `PlaceSpec`
 
-A place the `Shell` lists is a `PlaceSpec` from `@fcalell/ui-core/descriptors`: data, never a node.
+A place the `Shell` lists is a `PlaceSpec` from `@slotform/ui-core/descriptors`: data, never a node.
 
 | Field | Is |
 | --- | --- |

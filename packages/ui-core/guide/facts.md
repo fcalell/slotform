@@ -2,7 +2,7 @@
 
 What a row or a record's head says of itself is one list, `facts`, each element one fact drawn as one
 badge; a sentence is the row's `line`, never a fact. `Fact` and `RecordFact` are
-`@fcalell/ui-core/descriptors`; the row that holds them is [rows](./rows.md).
+`@slotform/ui-core/descriptors`; the row that holds them is [rows](./rows.md).
 
 ## A fact is a badge, a sentence is text
 

@@ -2,7 +2,7 @@
 
 An act that only goes to a route is a link, a `LinkAct`; an act beside a heading or at a row's end
 is an icon act; and acts that stand side by side fold by one rule. `LinkAct`, `IconAct` and
-`IconLinkAct` are `@fcalell/ui-core/descriptors`. What an act that runs carries is [acts](./acts.md).
+`IconLinkAct` are `@slotform/ui-core/descriptors`. What an act that runs carries is [acts](./acts.md).
 
 ## A route act is a link
 

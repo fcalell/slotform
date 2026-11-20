@@ -546,7 +546,7 @@ export function createPlayer(host: PlayerHost): PlayerStore {
 	};
 }
 
-/** The shape of a window read `windowQueue` walks: its page at an offset (a plugin-api `Read` of a `paginated: "window"` procedure). */
+/** The shape of a window read `windowQueue` walks: its page at an offset (a `Read`, from the `api` plugin, of a `paginated: "window"` procedure). */
 export interface WindowRead {
 	readonly page?: (
 		offset: number,

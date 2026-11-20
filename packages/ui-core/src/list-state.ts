@@ -911,14 +911,14 @@ export function columnsKey(
 	columns: readonly Pick<TableColumn, "key">[],
 	label: string | undefined,
 ): string {
-	if (label !== undefined) return `stack.table.columns:${label}`;
+	if (label !== undefined) return `slotform.table.columns:${label}`;
 	let hash = 5381;
 	for (const char of columns
 		.map((column) => column.key)
 		.sort()
 		.join(","))
 		hash = (hash * 33) ^ char.charCodeAt(0);
-	return `stack.table.columns:#${(hash >>> 0).toString(36)}`;
+	return `slotform.table.columns:#${(hash >>> 0).toString(36)}`;
 }
 
 /** Whether the viewer's choice stands apart from the columns' own `hidden`. */

@@ -205,8 +205,8 @@ export function endedSentence(words: Words, ended: "failed" | "missing") {
 
 // The read handle, pure so the hooks and the binding share one core: docs/architecture/ui-core/reads.md, "Read handle".
 
-const SELECTION = Symbol.for("@fcalell/ui-core/selection");
-const STAND_IN = Symbol.for("@fcalell/ui-core/stand-in");
+const SELECTION = Symbol.for("@slotform/ui-core/selection");
+const STAND_IN = Symbol.for("@slotform/ui-core/stand-in");
 
 // One private-use character: a stand-in run through a template literal
 // keeps a mark that `isStandIn` finds, where a bare string would be lost.
@@ -582,7 +582,7 @@ function selection<T>(
 	} satisfies Partial<Selection<T>>);
 }
 
-// stack's paginated envelope, the one output a `pages` read is made over.
+// Slotform's paginated envelope, the one output a `pages` read is made over.
 export type Page = { data: unknown[]; nextCursor: string | null };
 type Pages = { pages: readonly Page[] };
 
@@ -663,7 +663,7 @@ export function combine<const S extends readonly Selection<unknown>[], R>(
 	);
 }
 
-// The part of `.stack/schema.ts` the sort reads: docs/architecture/ui-core/reads.md, "Sort".
+// The part of `.slotform/schema.ts` the sort reads: docs/architecture/ui-core/reads.md, "Sort".
 export type SortSchema = Readonly<
 	Record<string, { readonly input: object | null } | undefined>
 >;

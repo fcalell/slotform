@@ -2,7 +2,7 @@
 
 An act is data: its `onAct` returns the promise of the work, and what happens around the work
 (asking first, a toast, a route, a sheet) is fields of the act, which every host that draws it runs
-in one order. `Act` is `@fcalell/ui-core/descriptors`, and each platform's `Act` from its `lib/act`
+in one order. `Act` is `@slotform/ui-core/descriptors`, and each platform's `Act` from its `lib/act`
 adds `sheet`. A route act is a link: [links](./links.md).
 
 ## An act holds its attempt
@@ -18,7 +18,7 @@ never `mutate()`. The act renderer holds the attempt, so the app passes no `load
 - a rejection is drawn by the host, in its line (a bar's line, a `Sheet`'s, a standing `Button`'s
   under itself) and otherwise in a failed toast whose Retry runs the whole act again. A refusal the
   server answered (a 4xx other than 408 and 429, `retries(error)` false) draws no Retry, as the same
-  act would be refused again. The sentence is `refusal(error)` from `@fcalell/plugin-query/acts`,
+  act would be refused again. The sentence is `refusal(error)` from `@slotform/query/acts`,
   else "That didn't go through." (`words.actFailed`). `.catch` nothing: a handler that catches a
   rejection to toast it draws it twice;
 - an act pressed with no connection is refused at the press: it rejects with `Unreached`, nothing is
@@ -65,5 +65,5 @@ The order is fixed: confirm, run, toast, go. Every host that draws an act (a `Bu
 sheet's bar, a `Section`'s head, band, rows and empty shape, a `Pane`'s bar, a `Banner`, a `Toast`, a
 menu, an `Input`'s or `Picker`'s act, a `Sheet`'s submit) runs it, so the sequence is the same
 wherever the act stands. An act that needs another order (a toast before a confirm, two sheets) has
-no form: file the shortfall (`node_modules/@fcalell/cli/guide/shortfall.md`), hand-wire nothing. A
+no form: file the shortfall (`node_modules/@slotform/cli/guide/shortfall.md`), hand-wire nothing. A
 retry after a failure runs the work again (`onAct`, `done`, `to`), not the confirm.

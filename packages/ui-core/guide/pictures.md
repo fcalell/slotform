@@ -2,7 +2,7 @@
 
 Which component draws a picture, several pictures or a code a camera reads. The props of `Image`,
 `Gallery`, `QrCode` and `Code` are each platform's blocks page
-(`node_modules/@fcalell/plugin-react-ui/guide/blocks.md`, `node_modules/@fcalell/plugin-native-ui/guide/blocks.md`).
+(`node_modules/@slotform/react-ui/guide/blocks.md`, `node_modules/@slotform/native-ui/guide/blocks.md`).
 
 ## Pictures side by side are a `Gallery`
 

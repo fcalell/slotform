@@ -1,6 +1,6 @@
 # Voice
 
-The look of every stack app, decided once. The mechanics (density, hierarchy, what a row and a
+The look of every Slotform app, decided once. The mechanics (density, hierarchy, what a row and a
 record hold) come from one anchor; the face is our own, drawn as a specimen before any component
 takes it. Each line of the face is the decision, never a range. The floors at the end are checked by
 looking at the render.
@@ -57,4 +57,4 @@ field, row, band, the container and the player's dock, light and dark, on one pa
 token is judged on the specimen first, as one family, and reaches a screen only after. A screen
 is then shown beside the anchor's screen of its pattern with one question, which looks better;
 "theirs" is answered with the three largest differences, each a composition finding (the app's)
-or a specimen finding (stack's). The owner answers; no number replaces the eye.
+or a specimen finding (Slotform's). The owner answers; no number replaces the eye.

@@ -2,7 +2,7 @@
 
 A region that reads is a frame: it holds one read and draws that read's failed, missing and empty
 shapes in its own place, so a screen writes no loading or error branch. The read model is
-`node_modules/@fcalell/plugin-query/guide/reads.md`; how a frame waits is [waiting](./waiting.md).
+`node_modules/@slotform/query/guide/reads.md`; how a frame waits is [waiting](./waiting.md).
 
 ## A region that reads is a frame
 

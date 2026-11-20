@@ -1,6 +1,6 @@
 # Screen critique
 
-The checklist a review of a screen runs, after the render walk (`stack screens test`) has
+The checklist a review of a screen runs, after the render walk (`slotform screens test`) has
 checked sizes, gaps, radii, clipping and overflow. A critic that did not build the screen runs it,
 reading the shot folder (`--shots`) and the source; it measures nothing, and an observed value is
 what it sees. Each item is a yes/no question; an answer is `yes`, `no` or `n/a (why)`, and every
@@ -9,7 +9,7 @@ the observed value, the expected value from the rule, a one-line fix, and its se
 as The verdict defines, else `minor`). A `yes` names the one place that was checked. No item is
 skipped; an item that cannot be answered says why.
 
-The rules are the face pages [voice](./voice.md) lists, `structure.md` (S#) and `node_modules/@fcalell/plugin-screens/guide/test-run.md`.
+The rules are the face pages [voice](./voice.md) lists, `structure.md` (S#) and `node_modules/@slotform/screens/guide/test-run.md`.
 
 The checklist is three pages, every item answered:
 

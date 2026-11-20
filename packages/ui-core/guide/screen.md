@@ -2,7 +2,7 @@
 
 A screen is the app's route file, composed from the roster: you choose components, props and
 order, and the look is the roster's, decided in [voice](./voice.md). Work the steps in order; a
-phone screen follows `node_modules/@fcalell/plugin-expo/guide/add-a-phone-screen.md`.
+phone screen follows `node_modules/@slotform/expo/guide/add-a-phone-screen.md`.
 
 ## 1. Read the app
 
@@ -17,7 +17,7 @@ what the render is stood beside at the end.
 
 ## 3. Map every part to the roster
 
-The platform's rules page is `node_modules/@fcalell/plugin-react-ui/guide/rules.md` (or `plugin-native-ui`'s), the tokens are `node_modules/@fcalell/ui-core/DESIGN.md`, and a shortfall is defined in `node_modules/@fcalell/cli/guide/shortfall.md`.
+The platform's rules page is `node_modules/@slotform/react-ui/guide/rules.md` (or `@slotform/native-ui`'s), the tokens are `node_modules/@slotform/ui-core/DESIGN.md`, and a shortfall is defined in `node_modules/@slotform/cli/guide/shortfall.md`.
 
 ## 4. Compose
 
@@ -33,7 +33,7 @@ const projects = orpc.projects.list.read();
 />
 ```
 
-A route's `loader` warms what the screen reads: `node_modules/@fcalell/plugin-react/guide/routes.md`.
+A route's `loader` warms what the screen reads: `node_modules/@slotform/react/guide/routes.md`.
 
 ## 5. Draw every state
 
@@ -41,11 +41,11 @@ A route's `loader` warms what the screen reads: `node_modules/@fcalell/plugin-re
 
 ## 6. Look
 
-Shoot the screen: `stack screens test --screen <it> --mode dark --width 320,1920 --state data,empty --shots shots/<round>`,
+Shoot the screen: `slotform screens test --screen <it> --mode dark --width 320,1920 --state data,empty --shots shots/<round>`,
 adding `--open <control text>` for each layer the screen opens. Screenshot each state from step 5
 the same way. Nothing is measured by hand: a number that matters is a rule of the render walk, or it
 is dropped. A part that looks wrong on the screen but right on the specimen is a composition
-finding; one that looks wrong on the specimen too is a stack finding, fixed on the specimen first.
+finding; one that looks wrong on the specimen too is a Slotform finding, fixed on the specimen first.
 
 **Check:** the run passes, and a shot exists for every state.
 
@@ -54,7 +54,7 @@ finding; one that looks wrong on the specimen too is a stack finding, fixed on t
 A critic that did not build the screen reads the shots and the source with
 [critique](./critique.md), and stands the render beside the anchor screen from step 2: which looks
 better. A `blocking` finding holds the screen: fix it (a composition finding is yours, back to step
-4; a roster finding is stack's, filed as a shortfall) and shoot again, only what the fix can move. A round
+4; a roster finding is Slotform's, filed as a shortfall) and shoot again, only what the fix can move. A round
 is shoot, look, fix, at most two. A `minor` finding goes on the maintainer's list and starts no
 fix. The builder never judges its own shots. The maintainer sees a screen only on `ship`, beside the
 anchor screen, with the three largest differences the critic found.

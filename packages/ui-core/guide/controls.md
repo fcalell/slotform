@@ -2,8 +2,8 @@
 
 Both platforms draw every act with one `Button`, every typed or picked value with one `Input` and
 every boolean with one `Switch`, and every control is a field that takes its `label`. Each
-control's props are the platform's controls page (`node_modules/@fcalell/plugin-react-ui/guide/controls.md`,
-`node_modules/@fcalell/plugin-native-ui/guide/controls.md`).
+control's props are the platform's controls page (`node_modules/@slotform/react-ui/guide/controls.md`,
+`node_modules/@slotform/native-ui/guide/controls.md`).
 
 ## One `Button`, one `Input`, one `Switch`
 

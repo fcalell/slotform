@@ -346,8 +346,8 @@ function frontMatter(resolved: ResolvedTheme): string[] {
 	const lines = [
 		"---",
 		"version: alpha",
-		`name: ${q("@fcalell/stack")}`,
-		`description: ${q("The design contract both stack UI plugins render: the approved token sheet behind six knobs, the platform-invariant matrices, and the component roster.")}`,
+		`name: ${q("slotform")}`,
+		`description: ${q("The design contract both Slotform UI plugins render: the approved token sheet behind six knobs, the platform-invariant matrices, and the component roster.")}`,
 		"colors:",
 		`  primary: ${q("{colors.accent}")}`,
 	];
@@ -423,9 +423,9 @@ function body(resolved: ResolvedTheme): string[] {
 	const { knobs, motion } = resolved;
 	const tvUnit = roomUnitFor(1920, 1080);
 	return [
-		"# @fcalell/stack",
+		"# slotform",
 		"",
-		"Emitted from `@fcalell/ui-core` by `pnpm --filter @fcalell/ui-core design-md`. Never edit it by hand: change the contract and emit again.",
+		"Emitted from `@slotform/ui-core` by `pnpm --filter @slotform/ui-core design-md`. Never edit it by hand: change the contract and emit again.",
 		"",
 		"## Overview",
 		"",

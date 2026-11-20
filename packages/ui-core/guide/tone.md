@@ -2,7 +2,7 @@
 
 One vocabulary names the state of everything a screen reports: a status, a `Banner` and a toast
 take the same `tone`, and a status is one shape, the `StatusMark`, wherever it stands. `Tone` and
-`StatusMark` are `@fcalell/ui-core/descriptors`.
+`StatusMark` are `@slotform/ui-core/descriptors`.
 
 ## Tone is one vocabulary
 

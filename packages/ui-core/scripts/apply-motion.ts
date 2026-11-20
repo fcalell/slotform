@@ -4,8 +4,8 @@
 // and on its step, rewrites those defaults in `src/tokens.ts` and regenerates
 // DESIGN.md. Any miss refuses the whole file, naming each.
 //
-//   pnpm --filter @fcalell/ui-core motion:apply values.json
-//   pbpaste | pnpm --filter @fcalell/ui-core motion:apply
+//   pnpm --filter @slotform/ui-core motion:apply values.json
+//   pbpaste | pnpm --filter @slotform/ui-core motion:apply
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { MOTION_KNOBS, type MotionKnobName } from "../src/tokens.ts";

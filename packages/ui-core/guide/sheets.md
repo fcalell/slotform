@@ -2,7 +2,7 @@
 
 A task an act starts in a `Sheet` is the act's `sheet`, data the press opens, and a sheet no act
 opens is addressed by the route; neither holds an open flag in the screen. The `sheet` field is each
-platform's `Act` from its `lib/act`, beside the wiring `@fcalell/ui-core/descriptors` gives every act
+platform's `Act` from its `lib/act`, beside the wiring `@slotform/ui-core/descriptors` gives every act
 ([acts](./acts.md)). A form inside the sheet is [forms](./forms.md#a-form-in-a-sheet-or-a-gate).
 
 ## An act opens a sheet
