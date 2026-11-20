@@ -19,9 +19,9 @@ test("PORT and HOST override the configured listen", () => {
 	});
 });
 
-test("stack dev ignores both, so the proxy still finds the server", () => {
+test("slotform dev ignores both, so the proxy still finds the server", () => {
 	assert.deepEqual(
-		listenOf(configured, { STACK_DEV: "1", PORT: "9000", HOST: "0.0.0.0" }),
+		listenOf(configured, { SLOTFORM_DEV: "1", PORT: "9000", HOST: "0.0.0.0" }),
 		configured,
 	);
 });

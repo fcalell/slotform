@@ -1,7 +1,7 @@
-import type { Reach } from "@fcalell/plugin-query/acts";
-import { read } from "@fcalell/plugin-query/read";
-import type { Read } from "@fcalell/ui-core/read";
-import { createStore } from "@fcalell/ui-core/store";
+import type { Reach } from "@slotform/query/acts";
+import { read } from "@slotform/query/read";
+import type { Read } from "@slotform/ui-core/read";
+import { createStore } from "@slotform/ui-core/store";
 import type { z } from "zod";
 import type { ChannelDef, ClientFrame, MessageSchemas } from "../ws/index.ts";
 import { SESSION_ENDED, serverFrameSchema } from "../ws/index.ts";

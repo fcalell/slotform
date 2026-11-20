@@ -1,4 +1,4 @@
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
 import { z } from "zod";
 
 // A further port the server answers on for one origin of its own (the app at a
@@ -100,7 +100,7 @@ export interface CodegenServerPayload {
 	hasConsumerServices: boolean;
 	services: ServiceEntry[];
 	// The generated worker module the source entry loads: `./worker.ts` unless a
-	// `stack screens serve` run loads its own wrapper.
+	// `slotform screens serve` run loads its own wrapper.
 	workerFile?: string;
 	// Set for the production bundle's entry: docs/architecture/plugins/node.md, "Build and bundle".
 	bundle?: {

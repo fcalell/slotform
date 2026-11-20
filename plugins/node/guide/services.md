@@ -2,12 +2,12 @@
 
 A service is code that runs for the life of the Node server: a watcher, a queue consumer, a
 WebSocket channel, an HTTP surface outside the API. Each is a file in `src/server/services/`
-default-exporting `defineService` from `@fcalell/plugin-node/server`. The generated
+default-exporting `defineService` from `@slotform/node/server`. The generated
 `src/server/services/index.ts` lists them; never edit it.
 
 ```ts
 // src/server/services/board-watcher.ts
-import { defineService } from "@fcalell/plugin-node/server";
+import { defineService } from "@slotform/node/server";
 import { board } from "../../shared/channels.ts";
 
 export default defineService({
@@ -79,5 +79,5 @@ wait on another's.
   `loadModules`, never `readdir`, and starts a thread as `new Worker(new URL("./x.ts",
   import.meta.url))`: the bundle follows only those ([files the build follows](bundle.md#files-the-build-follows)).
 
-**Check:** `stack generate`, then `pnpm check` passes, and `pnpm dev` logs
+**Check:** `slotform generate`, then `pnpm check` passes, and `pnpm dev` logs
 `service <name>: started` for each service, then `service <name>: ready` for each with a `ready`.

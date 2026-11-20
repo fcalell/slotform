@@ -4,13 +4,13 @@ A channel carries typed messages between the Node server and the app over one We
 A [service](services.md) registers it on the hub its `start` receives; this page covers declaring
 one, the client side, and who may connect. Drawing a channel's data on a screen is [live](live.md).
 
-A channel is declared once with `defineChannel` from `@fcalell/plugin-node/ws`, in a module the
+A channel is declared once with `defineChannel` from `@slotform/node/ws`, in a module the
 server and the app both import. Its zod schemas type every message both ways.
 
 ```ts
 // src/shared/channels.ts
-import { defineChannel } from "@fcalell/plugin-node/ws";
-import { z } from "@fcalell/plugin-api/schema";
+import { defineChannel } from "@slotform/node/ws";
+import { z } from "@slotform/api/schema";
 
 export const board = defineChannel("board", {
   server: { snapshot: z.object({ cards: z.array(z.string()) }), tick: z.object({ at: z.number() }) },
@@ -20,7 +20,7 @@ export const board = defineChannel("board", {
 
 The hub takes `onSubscribe(conn)`, `onUnsubscribe(conn)` and `onMessage.<type>(payload, conn)`;
 `conn.id` is stable for the socket's life. In the app, `createWsClient()` from
-`@fcalell/plugin-node/client` opens one socket to `/ws` on its first subscribe, and
+`@slotform/node/client` opens one socket to `/ws` on its first subscribe, and
 `client.subscribe(board, { onMessage: { tick(payload) {} }, onStatus(status) {} })` answers a
 subscription with `send(type, payload)` and `unsubscribe()`. The client reconnects on its own and
 subscribes again, so a channel that sends a snapshot in `onSubscribe` stays consistent. A session

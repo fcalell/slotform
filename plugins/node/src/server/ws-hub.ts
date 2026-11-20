@@ -50,7 +50,7 @@ const PONG = JSON.stringify({ t: "pong" } satisfies ServerFrame);
 
 // Who opened the socket, as the app's auth resolved it from the upgrade
 // request's cookie: better-auth's `getSession` answer, shaped like
-// `AuthApi.getSession` (plugin-auth), which this package cannot import.
+// `AuthApi.getSession` (`@slotform/auth`), which this package cannot import.
 export interface ConnectionSession {
 	user: Record<string, unknown>;
 	session: Record<string, unknown>;

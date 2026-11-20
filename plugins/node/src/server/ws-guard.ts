@@ -5,7 +5,7 @@ import type { ConnectionSession } from "./ws-hub.ts";
 const AUTH_PREFIX = "/api/auth";
 
 // The session-ended channel this package names: docs/architecture/plugins/node.md, "Auth coupling".
-export const SESSION_ENDED_CHANNEL = "stack:auth:session-ended";
+export const SESSION_ENDED_CHANNEL = "slotform:auth:session-ended";
 
 export function hasAuth(workerPaths: readonly string[]): boolean {
 	return workerPaths.includes(AUTH_PREFIX);

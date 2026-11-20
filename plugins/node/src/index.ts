@@ -1,14 +1,14 @@
 import { rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
-import type { ContributionCtx, Slot } from "@fcalell/cli";
-import { plugin, slot } from "@fcalell/cli";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { api } from "@fcalell/plugin-api";
-import { isLocalOrigin } from "@fcalell/plugin-api/local-origin";
-import { screens } from "@fcalell/plugin-screens";
-import { startServer } from "@fcalell/plugin-screens/node";
-import { FIXTURE_PREFIX } from "@fcalell/plugin-screens/serve";
-import { vite } from "@fcalell/plugin-vite";
+import { api } from "@slotform/api";
+import { isLocalOrigin } from "@slotform/api/local-origin";
+import type { ContributionCtx, Slot } from "@slotform/cli";
+import { GENERATED_DIR, plugin, slot } from "@slotform/cli";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { screens } from "@slotform/screens";
+import { startServer } from "@slotform/screens/node";
+import { FIXTURE_PREFIX } from "@slotform/screens/serve";
+import { vite } from "@slotform/vite";
 import { generateServiceBarrel, hasServiceFiles } from "./node/barrel.ts";
 import { bundleServer } from "./node/bundle.ts";
 import { aggregateServer } from "./node/codegen.ts";
@@ -182,13 +182,13 @@ const serverSource = slot.derived({
 	},
 });
 
-// A dev run's env on top of `env`: STACK_DEV, and the dev default of each
+// A dev run's env on top of `env`: SLOTFORM_DEV, and the dev default of each
 // declared var `env` leaves unset.
 function devEnv(
 	declared: ReadonlyArray<{ name: string; devDefault: string }>,
 	env: NodeJS.ProcessEnv,
 ): Record<string, string> {
-	const dev: Record<string, string> = { STACK_DEV: "1" };
+	const dev: Record<string, string> = { SLOTFORM_DEV: "1" };
 	for (const spec of declared) {
 		if (env[spec.name] === undefined) dev[spec.name] = spec.devDefault;
 	}
@@ -202,7 +202,7 @@ export const node = plugin("node", {
 
 	requires: ["api"],
 
-	// The production bundler (`stack build`'s node-bundle step): an optional peer
+	// The production bundler (`slotform build`'s node-bundle step): an optional peer
 	// of the plugin, so an install that only runs the app holds none of it.
 	devDependencies: {
 		esbuild: "^0.28.2",
@@ -250,7 +250,7 @@ export const node = plugin("node", {
 	},
 
 	contributes: (self) => [
-		emitArtifact(".stack/server.ts", self.slots.serverSource),
+		emitArtifact(`${GENERATED_DIR}/server.ts`, self.slots.serverSource),
 		emitArtifact(
 			"src/server/services/index.ts",
 			self.slots.serviceBarrelSource,
@@ -266,7 +266,7 @@ export const node = plugin("node", {
 				name: "node-bundle",
 				phase: "post" as const,
 				async run() {
-					const entry = join(ctx.cwd, ".stack/server.bundle.ts");
+					const entry = join(ctx.cwd, GENERATED_DIR, "server.bundle.ts");
 					writeFileSync(entry, source);
 					const outDir = join(
 						ctx.cwd,
@@ -305,12 +305,12 @@ export const node = plugin("node", {
 					const id = basename(serve.dir);
 					const worker = `serve-${id}.worker.ts`;
 					const server = `serve-${id}.server.ts`;
-					const workerPath = join(ctx.cwd, ".stack", worker);
-					const serverPath = join(ctx.cwd, ".stack", server);
+					const workerPath = join(ctx.cwd, GENERATED_DIR, worker);
+					const serverPath = join(ctx.cwd, GENERATED_DIR, server);
 					writeFileSync(
 						workerPath,
 						[
-							'import { fixtureControls } from "@fcalell/plugin-screens/serve";',
+							'import { fixtureControls } from "@slotform/screens/serve";',
 							...serve.controls.map(
 								(spec, i) => `import c${i} from ${JSON.stringify(spec)};`,
 							),
@@ -339,7 +339,7 @@ export const node = plugin("node", {
 									name: "fixture-sockets",
 									imports: [
 										{
-											source: "@fcalell/plugin-node/serve",
+											source: "@slotform/node/serve",
 											named: ["fixtureSockets"],
 										},
 									],
@@ -353,7 +353,7 @@ export const node = plugin("node", {
 						serve,
 						"node",
 						process.execPath,
-						[join(".stack", server)],
+						[join(GENERATED_DIR, server)],
 						{ ...ctx.env, ...devEnv(declared, ctx.env) },
 					);
 					return async () => {
@@ -376,7 +376,7 @@ export const node = plugin("node", {
 			return {
 				name: "node",
 				command: "node",
-				args: ["--watch", ".stack/server.ts"],
+				args: ["--watch", `${GENERATED_DIR}/server.ts`],
 				defaultPort: port,
 				readyPattern: new RegExp(READY_LINE),
 				env,
@@ -411,9 +411,7 @@ export const node = plugin("node", {
 		}),
 
 		// The workbench answers the app's /ws, a no-op without screens: docs/architecture/plugins/node.md, "Screens serve".
-		screens.slots.handlerModules.contribute(
-			() => "@fcalell/plugin-node/screens",
-		),
+		screens.slots.handlerModules.contribute(() => "@slotform/node/screens"),
 
 		cliSlots.devWatchers.contribute((ctx: ContributionCtx) => ({
 			name: "services",

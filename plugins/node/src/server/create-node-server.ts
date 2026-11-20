@@ -393,7 +393,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 					extra.originVar,
 				);
 				log.info(
-					`stack node: ${name} listening on http://${extra.host ?? "localhost"}:${bound}`,
+					`slotform node: ${name} listening on http://${extra.host ?? "localhost"}:${bound}`,
 				);
 			}
 			// The main listener binds last: docs/architecture/plugins/node.md, "Dev".
@@ -402,7 +402,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 			process.once("SIGINT", () => void shutdown());
 			process.once("SIGTERM", () => void shutdown());
 		} catch (error) {
-			log.error(`stack node: failed to start: ${String(error)}`);
+			log.error(`slotform node: failed to start: ${String(error)}`);
 			await stopServices();
 			process.exit(1);
 		}
@@ -413,7 +413,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 			await stop();
 			process.exit(0);
 		} catch (error) {
-			log.error(`stack node: shutdown failed: ${String(error)}`);
+			log.error(`slotform node: shutdown failed: ${String(error)}`);
 			process.exit(1);
 		}
 	}

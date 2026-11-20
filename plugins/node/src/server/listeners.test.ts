@@ -101,25 +101,25 @@ test("a listener's env reads the server's env live under its own keys", () => {
 	const base: Record<string, string | undefined> = { A: "1" };
 	const env = listenerEnv(base, "network", "https://app.internal.example.com");
 	assert.equal(env.A, "1");
-	assert.equal(env.STACK_LISTENER, "network");
-	assert.equal(env.STACK_ORIGIN, "https://app.internal.example.com");
-	assert.equal("STACK_ORIGIN" in env, true);
+	assert.equal(env.SLOTFORM_LISTENER, "network");
+	assert.equal(env.SLOTFORM_ORIGIN, "https://app.internal.example.com");
+	assert.equal("SLOTFORM_ORIGIN" in env, true);
 	assert.equal(env.toString, Object.prototype.toString);
 	base.B = "2";
 	assert.equal(env.B, "2");
 	assert.deepEqual(Object.keys(env).sort(), [
 		"A",
 		"B",
-		"STACK_LISTENER",
-		"STACK_ORIGIN",
+		"SLOTFORM_LISTENER",
+		"SLOTFORM_ORIGIN",
 	]);
 	assert.deepEqual(
 		{ ...env },
 		{
 			A: "1",
 			B: "2",
-			STACK_LISTENER: "network",
-			STACK_ORIGIN: "https://app.internal.example.com",
+			SLOTFORM_LISTENER: "network",
+			SLOTFORM_ORIGIN: "https://app.internal.example.com",
 		},
 	);
 });
@@ -138,8 +138,8 @@ function echoWorker(): NodeWorker {
 				seen.set(e, id);
 			}
 			return Response.json({
-				listener: e.STACK_LISTENER ?? null,
-				origin: e.STACK_ORIGIN ?? null,
+				listener: e.SLOTFORM_LISTENER ?? null,
+				origin: e.SLOTFORM_ORIGIN ?? null,
 				env: id,
 			});
 		},
@@ -148,7 +148,7 @@ function echoWorker(): NodeWorker {
 
 async function boot(env: Record<string, string | undefined>) {
 	const ports: Record<string, number> = {};
-	const staticRoot = mkdtempSync(join(tmpdir(), "stack-node-"));
+	const staticRoot = mkdtempSync(join(tmpdir(), "slotform-node-"));
 	writeFileSync(join(staticRoot, "index.html"), "<p>app</p>");
 	const server = createNodeServer({
 		port: 0,
@@ -164,7 +164,7 @@ async function boot(env: Record<string, string | undefined>) {
 		log: {
 			info(message) {
 				const match =
-					/stack node: (?:(\w+) )?listening on http:\/\/[^:]+:(\d+)/.exec(
+					/slotform node: (?:(\w+) )?listening on http:\/\/[^:]+:(\d+)/.exec(
 						message,
 					);
 				if (match) ports[match[1] ?? "main"] = Number(match[2]);
@@ -274,8 +274,8 @@ test("a further listener serves nothing until its origin is set, then its Host a
 	}
 });
 
-test("the main listener under STACK_DEV admits a loopback name", async () => {
-	const { main, stop } = await boot({ STACK_DEV: "1" });
+test("the main listener under SLOTFORM_DEV admits a loopback name", async () => {
+	const { main, stop } = await boot({ SLOTFORM_DEV: "1" });
 	try {
 		assert.equal((await get(main, "/", `localhost:${main}`)).status, 200);
 		assert.equal((await get(main, "/", "evil.example")).status, 421);
@@ -295,7 +295,7 @@ test("only the main listener's line matches the ready pattern", async () => {
 		},
 		worker: echoWorker(),
 		workerPaths: ["/rpc"],
-		staticRoot: mkdtempSync(join(tmpdir(), "stack-node-")),
+		staticRoot: mkdtempSync(join(tmpdir(), "slotform-node-")),
 		env: {},
 		log: {
 			info(message) {

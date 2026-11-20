@@ -1,6 +1,6 @@
 # Deploy a bundle
 
-`stack build` bundles the Node server into `dist/server/` beside the web client's `dist/client`, so
+`slotform build` bundles the Node server into `dist/server/` beside the web client's `dist/client`, so
 the box needs only `node` 24 or newer: no checkout, install or CLI. This page covers what the bundle
 holds, how to run it, and the code idioms the build follows. Running from the source instead is the
 server guide's [production](server.md#production).
@@ -24,8 +24,8 @@ PORT=8788 DB_FILE=/var/lib/my-app/app.sqlite AUTH_SECRET=… APP_URL=https://exa
 - It runs from any working directory and finds the client beside itself; a relative `DB_FILE` is
   relative to where it is started.
 - On the sqlite dialect it applies the committed migrations to `DB_FILE` before it listens (the
-  ones `stack db apply` applies, in the same journal; run twice it changes nothing), so there is
-  no `stack db apply` step. It runs no seed.
+  ones `slotform db apply` applies, in the same journal; run twice it changes nothing), so there is
+  no `slotform db apply` step. It runs no seed.
 - Build on the box's platform: the native addon is the build machine's installed one, and
   `better-sqlite3`'s prebuilds for the other platforms ride with it.
 
@@ -40,12 +40,12 @@ them with the build. Three idioms are the exception, because the build follows t
   URL is the same). The build bundles that module on its own to `dist/server/workers/`; from
   source Node starts the `.ts` file. A URL held in a variable or built by a helper is not followed.
 - **A directory of modules** (job kinds, importers): list it with `loadModules` from
-  `@fcalell/plugin-node/server`, never `readdir`, since the bundle has no directory to read. It
+  `@slotform/node/server`, never `readdir`, since the bundle has no directory to read. It
   answers each module's exports by file name without the extension. A test, a declaration and an
   `index` are not listed, and the argument must be the literal `new URL(..., import.meta.url)`.
 
   ```ts
-  import { loadModules } from "@fcalell/plugin-node/server";
+  import { loadModules } from "@slotform/node/server";
 
   const kinds = await loadModules(new URL("../jobs/", import.meta.url)); // { scan: { default }, ... }
   ```

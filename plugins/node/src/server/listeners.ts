@@ -1,5 +1,5 @@
 import { isIP } from "node:net";
-import { LISTENER_ENV, ORIGIN_ENV } from "@fcalell/plugin-api/wire";
+import { LISTENER_ENV, ORIGIN_ENV } from "@slotform/api/wire";
 
 // The Host rule and the env a listener gives the worker: docs/architecture/plugins/node.md, "Hosts and listeners".
 
@@ -47,9 +47,9 @@ export function boundHost(
 	return hostOf(`${name}:${port}`, "http:");
 }
 
-// Whether the process runs under `stack dev`, which sets `STACK_DEV=1`.
+// Whether the process runs under `slotform dev`, which sets `SLOTFORM_DEV=1`.
 export function isDev(env: Record<string, string | undefined>): boolean {
-	return env.STACK_DEV === "1";
+	return env.SLOTFORM_DEV === "1";
 }
 
 // The main listener's rule: docs/architecture/plugins/node.md, "Hosts and listeners".

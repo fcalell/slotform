@@ -3,13 +3,13 @@ import { access, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { buildGraph } from "@fcalell/cli/graph";
-import { api } from "@fcalell/plugin-api";
+import { api } from "@slotform/api";
+import { buildGraph } from "@slotform/cli/graph";
 import { node } from "./index.ts";
 
 // The node server's source for a project holding the given files.
 async function serverSource(files: Record<string, string>) {
-	const cwd = await mkdtemp(join(tmpdir(), "stack-node-"));
+	const cwd = await mkdtemp(join(tmpdir(), "slotform-node-"));
 	try {
 		for (const [path, content] of Object.entries(files)) {
 			await mkdir(dirname(join(cwd, path)), { recursive: true });

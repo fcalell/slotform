@@ -4,7 +4,7 @@ import { isListedModule } from "../listed.ts";
 
 /**
  * The modules of a directory, by file name without the extension.
- * The URL is written in the call because `stack build` reads it: docs/architecture/plugins/node.md, "Services".
+ * The URL is written in the call because `slotform build` reads it: docs/architecture/plugins/node.md, "Services".
  */
 export async function loadModules(
 	directory: URL,

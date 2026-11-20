@@ -5,7 +5,7 @@ import {
 	type TsExpression,
 	type TsImportSpec,
 	type TsSourceFile,
-} from "@fcalell/cli/ast";
+} from "@slotform/cli/ast";
 import type { CodegenServerPayload } from "../types.ts";
 
 function moduleUrl(relativePath: string): TsExpression {
@@ -27,10 +27,10 @@ function moduleUrl(relativePath: string): TsExpression {
 export function aggregateServer(payload: CodegenServerPayload): string {
 	const { bundle } = payload;
 	const imports: TsImportSpec[] = [
-		{ source: "@fcalell/plugin-node/server", named: ["startNodeServer"] },
+		{ source: "@slotform/node/server", named: ["startNodeServer"] },
 	];
 	// The bundle imports what the source entry loads by URL, so a bundler
-	// follows it; "virtual:stack-procedure" is the bundler's alias.
+	// follows it; "virtual:slotform-procedure" is the bundler's alias.
 	if (bundle) imports.push(...bundle.imports);
 	if (bundle && payload.hasWorker) {
 		imports.push({ source: "./worker.ts", default: "worker" });

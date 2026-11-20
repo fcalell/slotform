@@ -1,5 +1,5 @@
-import { holdOf, read } from "@fcalell/plugin-query/read";
-import type { Read } from "@fcalell/ui-core/read";
+import { holdOf, read } from "@slotform/query/read";
+import type { Read } from "@slotform/ui-core/read";
 import type { QueryClient } from "@tanstack/react-query";
 import type { z } from "zod";
 import { PAUSE_AFTER, type WsClient } from "../client/index.ts";

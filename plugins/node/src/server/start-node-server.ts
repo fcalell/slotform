@@ -20,7 +20,7 @@ export interface NodeServerBootOptions
 	modules?: { worker: NodeWorker | null; services: ServiceSpec[] };
 	services?: NodeServerOptions["services"];
 	// The web client's directory relative to the working directory
-	// (`stack node` runs from the app's root) ...
+	// (`slotform node` runs from the app's root) ...
 	staticRoot?: string | null;
 	// ... or its place as a URL, which the bundle finds beside itself, so it
 	// runs from any working directory.
@@ -30,7 +30,7 @@ export interface NodeServerBootOptions
 	boot?: Array<(env: NodeJS.ProcessEnv) => void | Promise<void>>;
 }
 
-/** Where the server listens: the configured port and host, which the `PORT` and `HOST` env vars override when the process runs in production (a container or a process manager sets them, no rebuild). `stack dev` (`STACK_DEV`) ignores both: the dev server's proxy aims at the configured port. A `PORT` that is not a port number stops the boot. */
+/** Where the server listens: the configured port and host, which the `PORT` and `HOST` env vars override when the process runs in production (a container or a process manager sets them, no rebuild). `slotform dev` (`SLOTFORM_DEV`) ignores both: the dev server's proxy aims at the configured port. A `PORT` that is not a port number stops the boot. */
 export function listenOf(
 	configured: { port: number; host?: string },
 	env: NodeJS.ProcessEnv,
@@ -68,7 +68,7 @@ export async function startNodeServer(
 			const href = procedureModule.href;
 			registerHooks({
 				resolve(specifier, context, nextResolve) {
-					if (specifier === "virtual:stack-procedure") {
+					if (specifier === "virtual:slotform-procedure") {
 						return nextResolve(href, context);
 					}
 					return nextResolve(specifier, context);
@@ -101,7 +101,9 @@ export async function startNodeServer(
 		await server.start();
 		return server;
 	} catch (error) {
-		(rest.log ?? console).error(`stack node: failed to boot: ${String(error)}`);
+		(rest.log ?? console).error(
+			`slotform node: failed to boot: ${String(error)}`,
+		);
 		process.exit(1);
 	}
 }

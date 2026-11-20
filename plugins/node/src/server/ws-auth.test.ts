@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { channel } from "node:diagnostics_channel";
 import { request } from "node:http";
 import { test } from "node:test";
-import createWorker from "@fcalell/plugin-api/runtime";
+import createWorker from "@slotform/api/runtime";
 import { WebSocket } from "ws";
 import { z } from "zod";
 import { defineChannel } from "../ws/index.ts";
@@ -136,7 +136,7 @@ test("hasAuth reads the auth prefix off the worker paths", () => {
 });
 
 // The real api worker, so the origin list is its own (CORS plus the dev
-// origins under STACK_DEV, plus a listener's own); only auth is a stand-in
+// origins under SLOTFORM_DEV, plus a listener's own); only auth is a stand-in
 // answering the one call the guard makes. It answers a session only when
 // asked past the cookie cache, as the guard must ask, and `sid=other` holds
 // a second session.
@@ -185,7 +185,7 @@ async function boot(options: { auth: boolean; env?: Record<string, string> }) {
 		log: {
 			info(message) {
 				const match =
-					/stack node: (network )?listening on http:\/\/[^:]+:(\d+)/.exec(
+					/slotform node: (network )?listening on http:\/\/[^:]+:(\d+)/.exec(
 						message,
 					);
 				if (match?.[1]) network = Number(match[2]);
@@ -294,7 +294,7 @@ test("/ws admits a trusted Origin with a session and hands it to the channel", a
 	}
 });
 
-test("/ws trusts the dev origins only under STACK_DEV", async () => {
+test("/ws trusts the dev origins only under SLOTFORM_DEV", async () => {
 	const prod = await boot({ auth: true });
 	try {
 		const outcome = await connect(prod.port, {
@@ -305,7 +305,7 @@ test("/ws trusts the dev origins only under STACK_DEV", async () => {
 	} finally {
 		await prod.stop();
 	}
-	const dev = await boot({ auth: true, env: { STACK_DEV: "1" } });
+	const dev = await boot({ auth: true, env: { SLOTFORM_DEV: "1" } });
 	try {
 		const outcome = await connect(dev.port, {
 			origin: DEV,

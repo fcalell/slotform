@@ -10,6 +10,7 @@ import {
 	statSync,
 } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
+import { GENERATED_DIR } from "@slotform/cli";
 import type { Plugin } from "esbuild";
 import { z } from "zod";
 import { isListedModule } from "../listed.ts";
@@ -19,7 +20,7 @@ import type { BundleEntry } from "../types.ts";
 
 interface BundleOptions {
 	cwd: string;
-	// The generated entry (`.stack/server.bundle.ts`).
+	// The generated entry (`.slotform/server.bundle.ts`).
 	entry: string;
 	// The bundle's directory (`dist/server`); emptied first.
 	outDir: string;
@@ -162,7 +163,7 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 	// Packages kept as files, found while esbuild resolves.
 	const natives = new Map<string, string>();
 	const checked = new Map<string, boolean>();
-	const procedure = join(cwd, ".stack", "procedure.ts");
+	const procedure = join(cwd, GENERATED_DIR, "procedure.ts");
 
 	// The worker modules the sources start, to bundle beside the server.
 	const workers = new Map<string, string>();
@@ -178,11 +179,11 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 
 	// `prefix` is the directory of `workers/`, as a URL from the module being built.
 	const pluginFor = (prefix: string): Plugin => ({
-		name: "stack-node-bundle",
+		name: "slotform-node-bundle",
 		setup(b) {
-			// The route files' `virtual:stack-procedure` is `.stack/procedure.ts`
+			// The route files' `virtual:slotform-procedure` is `.slotform/procedure.ts`
 			// (what the source entry registers a resolve hook for).
-			b.onResolve({ filter: /^virtual:stack-procedure$/ }, () => ({
+			b.onResolve({ filter: /^virtual:slotform-procedure$/ }, () => ({
 				path: procedure,
 			}));
 			b.onResolve({ filter: /^[^./#]/ }, (args) => {
@@ -226,7 +227,7 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 		({ build } = await import("esbuild"));
 	} catch (cause) {
 		throw new Error(
-			"esbuild is not installed: `stack build` bundles the Node server with it. Add it to the app's devDependencies (`pnpm add -D esbuild`).",
+			"esbuild is not installed: `slotform build` bundles the Node server with it. Add it to the app's devDependencies (`pnpm add -D esbuild`).",
 			{ cause },
 		);
 	}
@@ -246,12 +247,12 @@ export async function bundleServer(options: BundleOptions): Promise<Bundled> {
 			// `__dirname`.
 			banner: {
 				js: [
-					'import { createRequire as __stackRequire } from "node:module";',
-					'import { fileURLToPath as __stackFile } from "node:url";',
-					'import { dirname as __stackDir } from "node:path";',
-					"const require = __stackRequire(import.meta.url);",
-					"const __filename = __stackFile(import.meta.url);",
-					"const __dirname = __stackDir(__filename);",
+					'import { createRequire as __slotformRequire } from "node:module";',
+					'import { fileURLToPath as __slotformFile } from "node:url";',
+					'import { dirname as __slotformDir } from "node:path";',
+					"const require = __slotformRequire(import.meta.url);",
+					"const __filename = __slotformFile(import.meta.url);",
+					"const __dirname = __slotformDir(__filename);",
 				].join("\n"),
 			},
 			plugins: [pluginFor(prefix)],

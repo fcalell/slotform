@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
+import { GENERATED_DIR } from "@slotform/cli";
 import { bundleServer, rewriteSource } from "./bundle.ts";
 
 const modules = fileURLToPath(new URL("../server/modules.ts", import.meta.url));
@@ -25,7 +26,7 @@ test("the bundle holds its workers and its listed directories", async () => {
 	const cwd = mkdtempSync(join(tmpdir(), "bundle-"));
 	try {
 		mkdirSync(join(cwd, "src", "jobs"), { recursive: true });
-		mkdirSync(join(cwd, ".stack"));
+		mkdirSync(join(cwd, GENERATED_DIR));
 		writeFileSync(
 			join(cwd, "src", "jobs", "alpha.ts"),
 			"export default { kind: 'alpha' };",
@@ -52,7 +53,7 @@ test("the bundle holds its workers and its listed directories", async () => {
 			].join("\n"),
 		);
 		writeFileSync(
-			join(cwd, ".stack", "entry.ts"),
+			join(cwd, GENERATED_DIR, "entry.ts"),
 			[
 				"import { Worker } from 'node:worker_threads';",
 				`import { loadModules } from ${JSON.stringify(modules)};`,
@@ -66,7 +67,7 @@ test("the bundle holds its workers and its listed directories", async () => {
 		const outDir = join(cwd, "dist", "server");
 		await bundleServer({
 			cwd,
-			entry: join(cwd, ".stack", "entry.ts"),
+			entry: join(cwd, GENERATED_DIR, "entry.ts"),
 			outDir,
 			entries: [],
 		});
@@ -89,8 +90,11 @@ test("a module of src/bin is a tool bundled beside the server", async () => {
 	try {
 		mkdirSync(join(cwd, "src", "bin"), { recursive: true });
 		mkdirSync(join(cwd, "src", "jobs"));
-		mkdirSync(join(cwd, ".stack"));
-		writeFileSync(join(cwd, ".stack", "entry.ts"), "console.log('server');");
+		mkdirSync(join(cwd, GENERATED_DIR));
+		writeFileSync(
+			join(cwd, GENERATED_DIR, "entry.ts"),
+			"console.log('server');",
+		);
 		writeFileSync(
 			join(cwd, "src", "jobs", "alpha.ts"),
 			"export default { kind: 'alpha' };",
@@ -116,7 +120,7 @@ test("a module of src/bin is a tool bundled beside the server", async () => {
 		const outDir = join(cwd, "dist", "server");
 		const { bins } = await bundleServer({
 			cwd,
-			entry: join(cwd, ".stack", "entry.ts"),
+			entry: join(cwd, GENERATED_DIR, "entry.ts"),
 			outDir,
 			entries: [],
 		});

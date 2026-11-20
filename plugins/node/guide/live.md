@@ -1,14 +1,14 @@
 # Live channels
 
 A channel read draws a WebSocket channel's data like any other read: a frame holds it, and its
-busy, stale and paused states come with it. `channelRead` from `@fcalell/plugin-node/live` turns
+busy, stale and paused states come with it. `channelRead` from `@slotform/node/live` turns
 one `defineChannel` shape into a `Read`, with a handler per message type that folds the frame
 into the current value. The first value a handler returns, the snapshot, makes the read ready.
 
 ```ts
 // src/app/lib/live.ts
-import { createWsClient } from "@fcalell/plugin-node/client";
-import { channelRead } from "@fcalell/plugin-node/live";
+import { createWsClient } from "@slotform/node/client";
+import { channelRead } from "@slotform/node/live";
 import { alertsChannel } from "../../shared/channels.ts";
 
 const ws = createWsClient();

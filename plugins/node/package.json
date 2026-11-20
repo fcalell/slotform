@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-node",
+	"name": "@slotform/node",
 	"version": "0.1.0",
-	"description": "A long-running Node server target for @fcalell/stack: serves the API, the built web client and background services from one process.",
+	"description": "A long-running Node server target for slotform: serves the API, the built web client and background services from one process.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/node"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/node#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/node#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -65,12 +65,12 @@
 		"test": "node --test 'src/**/*.test.ts'"
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-query": "workspace:^",
-		"@fcalell/plugin-screens": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^",
-		"@fcalell/ui-core": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/query": "workspace:^",
+		"@slotform/screens": "workspace:^",
+		"@slotform/vite": "workspace:^",
+		"@slotform/ui-core": "workspace:^",
 		"@hono/node-server": "^2.1.8",
 		"ws": "^8.23.0"
 	},
@@ -94,7 +94,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.8",
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@tanstack/react-query": "^5.107.1",
 		"@types/node": "^26.6.6",
 		"@types/ws": "^8.18.2",
