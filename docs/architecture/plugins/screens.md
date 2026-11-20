@@ -40,12 +40,14 @@ checks), `./shift` (the loading shift), `./walk` (the render walk) and `./storie
 
 ## Dependencies
 
-The packages `stack add screens` installs are the plugin's `devDependencies` and the manifest's
-`peerDependencies`, every one optional: Storybook, its addons, MSW, Vitest and `@vitest/browser`. An
-app that has auth or react-ui without `screens()` installs none of them. `stack add screens` writes
-them into the app, where the host's Storybook config, test config and preview resolve them. The oRPC
-packages the host answers with are this package's own dependencies, not the app's; an app's own
-copy of `@orpc/client` throws a second `ORPCError` class ([Unanswered calls](#unanswered-calls)).
+The packages `stack add screens` installs are the plugin's `devDependencies`, each an optional peer
+in the manifest: Storybook, its addons, MSW, Vitest and `@vitest/browser`. An app that has auth or
+react-ui without `screens()` installs none of them. `stack add screens` writes them into the app,
+where the host's Storybook config, test config and preview resolve them. The oRPC packages the host
+answers with, `@orpc/client` and `@orpc/server`, are required peers, which the CLI writes into every
+app that reaches the package ([installing stack](../consumer-project.md#installing-stack)): the app
+and the host share one copy, since a second copy of `@orpc/client` throws a second `ORPCError` class
+([Unanswered calls](#unanswered-calls)).
 
 ## Storybook host
 

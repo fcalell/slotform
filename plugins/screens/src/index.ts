@@ -243,7 +243,7 @@ export const screens = plugin("screens", {
 		},
 	],
 
-	// The host's optional peers and the oRPC dependencies: docs/architecture/plugins/screens.md, "Dependencies".
+	// The host's optional peers: docs/architecture/plugins/screens.md, "Dependencies".
 	devDependencies: {
 		"@storybook/addon-a11y": "^10.6.7",
 		"@storybook/addon-vitest": "^10.6.7",

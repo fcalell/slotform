@@ -69,6 +69,8 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"peerDependencies": {
+		"@orpc/client": "^1.16.2",
+		"@orpc/server": "^1.16.2",
 		"@storybook/addon-a11y": "^10.6.7",
 		"@storybook/addon-vitest": "^10.6.7",
 		"@storybook/react-vite": "^10.6.7",
@@ -76,8 +78,8 @@
 		"@vitest/browser": "^5.0.3",
 		"msw": "^3.0.6",
 		"msw-storybook-addon": "^3.0.3",
-		"react": "^19.2.0",
-		"react-dom": "^19.2.0",
+		"react": "^19.3.0",
+		"react-dom": "^19.3.0",
 		"storybook": "^10.6.7",
 		"vitest": "^5.0.3"
 	},
@@ -123,13 +125,13 @@
 		"@fcalell/plugin-react": "workspace:^",
 		"@fcalell/plugin-vite": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
-		"@orpc/client": "^1.16.2",
-		"@orpc/server": "^1.16.2",
 		"@orpc/standard-server-fetch": "^1.16.2",
 		"ws": "^8.23.0"
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
+		"@orpc/client": "^1.16.2",
+		"@orpc/server": "^1.16.2",
 		"@storybook/addon-a11y": "^10.6.7",
 		"@storybook/addon-vitest": "^10.6.7",
 		"@storybook/react-vite": "^10.6.7",
@@ -140,8 +142,8 @@
 		"@vitest/browser": "^5.1.0",
 		"msw": "^3.0.6",
 		"msw-storybook-addon": "^3.0.3",
-		"react": "^19.3.1",
-		"react-dom": "^19.3.1",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
 		"storybook": "^10.6.7",
 		"typescript": "^7.0.2",
 		"vite": "^8.3.8",
