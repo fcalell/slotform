@@ -1,11 +1,11 @@
-import { defineConfig } from "@fcalell/cli";
-import { api } from "@fcalell/plugin-api";
-import { auth } from "@fcalell/plugin-auth";
-import { cloudflare } from "@fcalell/plugin-cloudflare";
-import { db } from "@fcalell/plugin-db";
-import { expo } from "@fcalell/plugin-expo";
-import { nativeUi } from "@fcalell/plugin-native-ui";
-import { query } from "@fcalell/plugin-query";
+import { api } from "@slotform/api";
+import { auth } from "@slotform/auth";
+import { defineConfig } from "@slotform/cli";
+import { cloudflare } from "@slotform/cloudflare";
+import { db } from "@slotform/db";
+import { expo } from "@slotform/expo";
+import { nativeUi } from "@slotform/native-ui";
+import { query } from "@slotform/query";
 
 export default defineConfig({
 	app: {

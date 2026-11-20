@@ -3,11 +3,15 @@
 	"extends": ["//"],
 	"tasks": {
 		"build": {
-			"outputs": [".stack/**", "!.stack/types/**", "!.stack/node_modules/**"]
+			"outputs": [
+				".slotform/**",
+				"!.slotform/types/**",
+				"!.slotform/node_modules/**"
+			]
 		},
 		"check-types": {
 			"dependsOn": ["^build", "generate"],
-			"outputs": [".stack/types/**"]
+			"outputs": [".slotform/types/**"]
 		}
 	}
 }

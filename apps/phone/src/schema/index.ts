@@ -1,6 +1,6 @@
-import { integer, sqliteTable, text } from "@fcalell/plugin-db/orm";
+import { integer, sqliteTable, text } from "@slotform/db/orm";
 
-export * from "@fcalell/plugin-auth/schema";
+export * from "@slotform/auth/schema";
 
 export const notes = sqliteTable("notes", {
 	id: text("id").primaryKey(),

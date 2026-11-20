@@ -1,5 +1,5 @@
-import { Pane } from "@fcalell/plugin-native-ui/components/pane";
-import { Section } from "@fcalell/plugin-native-ui/components/section";
+import { Pane } from "@slotform/native-ui/components/pane";
+import { Section } from "@slotform/native-ui/components/section";
 import { Platform } from "react-native";
 
 const platforms: Record<typeof Platform.OS, string> = {

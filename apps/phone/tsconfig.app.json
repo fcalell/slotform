@@ -13,9 +13,9 @@
 	},
 	"include": [
 		"src",
-		".stack/entry.tsx",
-		".stack/routes.d.ts",
-		".stack/expo-env.d.ts"
+		".slotform/entry.tsx",
+		".slotform/routes.d.ts",
+		".slotform/expo-env.d.ts"
 	],
 	"exclude": ["src/worker"],
 	"references": [

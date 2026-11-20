@@ -1,8 +1,8 @@
-import { audioOutput } from "@fcalell/plugin-native-ui/audio/expo";
-import { Dock } from "@fcalell/plugin-native-ui/components/dock";
-import { Shell } from "@fcalell/plugin-native-ui/components/shell";
-import { connectOutput } from "@fcalell/plugin-native-ui/lib/player";
-import type { PlaceSpec } from "@fcalell/ui-core/descriptors";
+import { audioOutput } from "@slotform/native-ui/audio/expo";
+import { Dock } from "@slotform/native-ui/components/dock";
+import { Shell } from "@slotform/native-ui/components/shell";
+import { connectOutput } from "@slotform/native-ui/lib/player";
+import type { PlaceSpec } from "@slotform/ui-core/descriptors";
 import { Stack } from "expo-router";
 
 const places: PlaceSpec[] = [

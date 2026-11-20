@@ -1,6 +1,6 @@
-import { type AuthClient, createAuthClient } from "@fcalell/plugin-auth/expo";
+import { type AuthClient, createAuthClient } from "@slotform/auth/expo";
 import * as SecureStore from "expo-secure-store";
-import { cookiePrefix, scheme } from "../../.stack/native-auth";
+import { cookiePrefix, scheme } from "../../.slotform/native-auth";
 
 // The native auth client: docs/architecture/plugins/native-ui.md, "Native auth client".
 export const authClient: AuthClient = createAuthClient({

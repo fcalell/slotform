@@ -4,21 +4,21 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"generate": "stack generate",
-		"dev": "stack dev",
-		"build": "stack build",
+		"generate": "slotform generate",
+		"dev": "slotform dev",
+		"build": "slotform build",
 		"check-types": "tsc -b"
 	},
 	"dependencies": {
 		"@better-auth/expo": "1.7.25",
-		"@fcalell/plugin-api": "workspace:*",
-		"@fcalell/plugin-auth": "workspace:*",
-		"@fcalell/plugin-cloudflare": "workspace:*",
-		"@fcalell/plugin-db": "workspace:*",
-		"@fcalell/plugin-expo": "workspace:*",
-		"@fcalell/plugin-native-ui": "workspace:*",
-		"@fcalell/plugin-query": "workspace:*",
-		"@fcalell/ui-core": "workspace:*",
+		"@slotform/api": "workspace:*",
+		"@slotform/auth": "workspace:*",
+		"@slotform/cloudflare": "workspace:*",
+		"@slotform/db": "workspace:*",
+		"@slotform/expo": "workspace:*",
+		"@slotform/native-ui": "workspace:*",
+		"@slotform/query": "workspace:*",
+		"@slotform/ui-core": "workspace:*",
 		"@gorhom/bottom-sheet": "^5.2.14",
 		"@orpc/tanstack-query": "^1.16.2",
 		"@tanstack/react-query": "^5.107.1",
@@ -54,13 +54,13 @@
 		"uniwind": "^1.13.2"
 	},
 	"devDependencies": {
-		"@fcalell/cli": "workspace:*",
-		"@fcalell/typescript-config": "workspace:*",
+		"@slotform/cli": "workspace:*",
+		"@slotform/typescript-config": "workspace:*",
 		"@types/node": "^26.6.6",
 		"@types/react": "^19.3.0",
 		"babel-plugin-react-compiler": "^1.0.0",
 		"typescript": "^7.0.2",
 		"wrangler": "^4.162.0"
 	},
-	"main": ".stack/entry.tsx"
+	"main": ".slotform/entry.tsx"
 }

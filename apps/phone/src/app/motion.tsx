@@ -1,25 +1,25 @@
-import { BarChart } from "@fcalell/plugin-native-ui/components/bar-chart";
-import { Button } from "@fcalell/plugin-native-ui/components/button";
-import { Code } from "@fcalell/plugin-native-ui/components/code";
-import { Gate } from "@fcalell/plugin-native-ui/components/gate";
-import { Pane } from "@fcalell/plugin-native-ui/components/pane";
-import { Picker } from "@fcalell/plugin-native-ui/components/picker";
-import { Section } from "@fcalell/plugin-native-ui/components/section";
-import { Sheet } from "@fcalell/plugin-native-ui/components/sheet";
-import { Slider } from "@fcalell/plugin-native-ui/components/slider";
-import { Stats } from "@fcalell/plugin-native-ui/components/stats";
-import { Switch } from "@fcalell/plugin-native-ui/components/switch";
-import { Text } from "@fcalell/plugin-native-ui/components/text";
-import { Toolbar } from "@fcalell/plugin-native-ui/components/toolbar";
-import { toast } from "@fcalell/plugin-native-ui/lib/toast";
-import { read } from "@fcalell/plugin-query/read";
+import { BarChart } from "@slotform/native-ui/components/bar-chart";
+import { Button } from "@slotform/native-ui/components/button";
+import { Code } from "@slotform/native-ui/components/code";
+import { Gate } from "@slotform/native-ui/components/gate";
+import { Pane } from "@slotform/native-ui/components/pane";
+import { Picker } from "@slotform/native-ui/components/picker";
+import { Section } from "@slotform/native-ui/components/section";
+import { Sheet } from "@slotform/native-ui/components/sheet";
+import { Slider } from "@slotform/native-ui/components/slider";
+import { Stats } from "@slotform/native-ui/components/stats";
+import { Switch } from "@slotform/native-ui/components/switch";
+import { Text } from "@slotform/native-ui/components/text";
+import { Toolbar } from "@slotform/native-ui/components/toolbar";
+import { toast } from "@slotform/native-ui/lib/toast";
+import { read } from "@slotform/query/read";
 import {
 	loading,
 	setLoading,
 	subscribeMotion,
 	tune,
 	tuned,
-} from "@fcalell/ui-core/paint";
+} from "@slotform/ui-core/paint";
 import {
 	LOADING_PAINTS,
 	LOADING_REGIONS,
@@ -27,7 +27,7 @@ import {
 	type LoadingRegion,
 	MOTION_KNOBS,
 	type MotionKnob,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
 import { useMemo, useState, useSyncExternalStore } from "react";
 
 // The dev tuning page for the phone's motion: docs/architecture/ui-core/motion.md, "Tuning record".

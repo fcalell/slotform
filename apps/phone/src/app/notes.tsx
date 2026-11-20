@@ -1,10 +1,10 @@
-import { Pane } from "@fcalell/plugin-native-ui/components/pane";
-import { Section } from "@fcalell/plugin-native-ui/components/section";
-import { Sheet } from "@fcalell/plugin-native-ui/components/sheet";
-import { age } from "@fcalell/plugin-native-ui/lib/age";
-import { preload as start } from "@fcalell/plugin-query/preload";
-import { useMutation } from "@fcalell/plugin-query/tanstack-query";
-import { confirm } from "@fcalell/ui-core/react/confirm";
+import { Pane } from "@slotform/native-ui/components/pane";
+import { Section } from "@slotform/native-ui/components/section";
+import { Sheet } from "@slotform/native-ui/components/sheet";
+import { age } from "@slotform/native-ui/lib/age";
+import { preload as start } from "@slotform/query/preload";
+import { useMutation } from "@slotform/query/tanstack-query";
+import { confirm } from "@slotform/ui-core/react/confirm";
 import type { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { orpc } from "../lib/api";

@@ -1,7 +1,7 @@
-import { procedure } from "virtual:stack-procedure";
-import { ApiError } from "@fcalell/plugin-api/error";
-import { z } from "@fcalell/plugin-api/schema";
-import { desc, eq } from "@fcalell/plugin-db/orm";
+import { procedure } from "virtual:slotform-procedure";
+import { ApiError } from "@slotform/api/error";
+import { z } from "@slotform/api/schema";
+import { desc, eq } from "@slotform/db/orm";
 import { notes as table } from "../../schema/index.ts";
 
 export const notes = {

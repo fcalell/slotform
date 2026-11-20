@@ -1,7 +1,7 @@
-import { Pane } from "@fcalell/plugin-native-ui/components/pane";
-import { Section } from "@fcalell/plugin-native-ui/components/section";
-import { player, usePlayer } from "@fcalell/plugin-native-ui/lib/player";
-import type { Track } from "@fcalell/ui-core/descriptors";
+import { Pane } from "@slotform/native-ui/components/pane";
+import { Section } from "@slotform/native-ui/components/section";
+import { player, usePlayer } from "@slotform/native-ui/lib/player";
+import type { Track } from "@slotform/ui-core/descriptors";
 
 // Three tracks of the Soundhelix examples: the dock above the tab bar plays them
 // through navigation, with the lock screen's controls.

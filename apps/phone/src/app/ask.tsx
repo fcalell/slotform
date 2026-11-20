@@ -1,9 +1,9 @@
-import { Card } from "@fcalell/plugin-native-ui/components/card";
-import { Input } from "@fcalell/plugin-native-ui/components/input";
-import { Pane } from "@fcalell/plugin-native-ui/components/pane";
-import { Thread } from "@fcalell/plugin-native-ui/components/thread";
-import { toast } from "@fcalell/plugin-native-ui/lib/toast";
-import { type StreamRead, streamRead } from "@fcalell/plugin-query/read";
+import { Card } from "@slotform/native-ui/components/card";
+import { Input } from "@slotform/native-ui/components/input";
+import { Pane } from "@slotform/native-ui/components/pane";
+import { Thread } from "@slotform/native-ui/components/thread";
+import { toast } from "@slotform/native-ui/lib/toast";
+import { type StreamRead, streamRead } from "@slotform/query/read";
 import { useEffect, useRef, useState } from "react";
 
 interface Turn {
@@ -127,7 +127,7 @@ export default function Ask() {
 					message={{
 						key: (turn) => turn.id,
 						author: (turn) => turn.author,
-						name: (turn) => (turn.author === "other" ? "Stack" : undefined),
+						name: (turn) => (turn.author === "other" ? "Slotform" : undefined),
 						body: (turn) => turn.body,
 						at: (turn) => turn.at,
 					}}

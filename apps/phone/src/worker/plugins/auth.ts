@@ -1,8 +1,8 @@
-import type { AuthCallbacks } from "@fcalell/plugin-auth/runtime";
+import type { AuthCallbacks } from "@slotform/auth/runtime";
 
 // The auth callbacks: docs/architecture/plugins/auth.md, "Callbacks".
 const isDev = (env: unknown) =>
-	(env as { STACK_DEV?: string }).STACK_DEV === "1";
+	(env as { SLOTFORM_DEV?: string }).SLOTFORM_DEV === "1";
 
 const callbacks: AuthCallbacks = {
 	sendOTP({ email, code, env }) {

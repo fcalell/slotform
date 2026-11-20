@@ -1,6 +1,6 @@
-import { Pane } from "@fcalell/plugin-native-ui/components/pane";
-import { Picker } from "@fcalell/plugin-native-ui/components/picker";
-import { Section } from "@fcalell/plugin-native-ui/components/section";
+import { Pane } from "@slotform/native-ui/components/pane";
+import { Picker } from "@slotform/native-ui/components/picker";
+import { Section } from "@slotform/native-ui/components/section";
 import { useState } from "react";
 
 // The dev page for a row's facts as badges: every kind of fact in one row, a
