@@ -50,7 +50,8 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"peerDependencies": {
-		"@tanstack/router-generator": "^1.168.0"
+		"@tanstack/router-generator": "^1.168.0",
+		"zod": "^4.6.7"
 	},
 	"peerDependenciesMeta": {
 		"@tanstack/router-generator": {
@@ -59,14 +60,14 @@
 	},
 	"dependencies": {
 		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^",
-		"zod": "^4.6.7"
+		"@fcalell/plugin-vite": "workspace:^"
 	},
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@tanstack/router-generator": "^1.168.0",
 		"@types/node": "^26.6.6",
 		"typescript": "^7.0.2",
-		"vite": "^8.3.8"
+		"vite": "^8.3.8",
+		"zod": "^4.6.7"
 	}
 }
