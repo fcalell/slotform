@@ -37,7 +37,7 @@ export function stubbedCallbacksMessage(
 		.map((name) => `"${CALLBACK_MARKERS[name]}"`)
 		.join(", ");
 	return (
-		`plugin-auth: \`${path}\` still holds the scaffolded stub for ${names} ` +
+		`auth: \`${path}\` still holds the scaffolded stub for ${names} ` +
 		`(the ${markers} marker). Implement ${pending.length > 1 ? "them" : "it"} ` +
 		"to send the email, then delete the marker: the stub sends nothing and " +
 		"throws outside dev, so no sign-in would complete."

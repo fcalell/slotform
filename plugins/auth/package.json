@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-auth",
+	"name": "@slotform/auth",
 	"version": "0.1.0",
-	"description": "Authentication for @fcalell/stack: Better Auth with email codes, magic links, OAuth, passkeys, organizations, roles and record abilities.",
+	"description": "Authentication for slotform: Better Auth with email codes, magic links, OAuth, passkeys, organizations, roles and record abilities.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/auth"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/auth#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/auth#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -103,11 +103,11 @@
 		"@better-auth/core": "1.7.25",
 		"@better-auth/expo": "1.7.25",
 		"@better-auth/mcp": "1.7.25",
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-cloudflare": "workspace:^",
-		"@fcalell/plugin-db": "workspace:^",
-		"@fcalell/plugin-screens": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/cloudflare": "workspace:^",
+		"@slotform/db": "workspace:^",
+		"@slotform/screens": "workspace:^",
 		"ws": "^8.23.0"
 	},
 	"peerDependencies": {
@@ -139,7 +139,7 @@
 		}
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"@react-native-google-signin/google-signin": "^17.0.0",
 		"@types/react": "^19.3.0",

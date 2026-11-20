@@ -1,4 +1,4 @@
-import type { RateLimitBinding } from "@fcalell/plugin-api/procedure";
+import type { RateLimitBinding } from "@slotform/api/procedure";
 import { CLIENT_IP_HEADER } from "../types.ts";
 import { emailKey } from "./email-key.ts";
 import { tooManyRequests } from "./oauth.ts";

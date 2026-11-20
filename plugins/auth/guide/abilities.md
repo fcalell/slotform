@@ -2,11 +2,11 @@
 
 A role says what a member may do anywhere in the organization. An ability says what a caller may
 do to one record, from the record's own data: an owner column, a per-record seat. Build it in the
-handler from `@fcalell/plugin-auth/ability`, which re-exports everything it needs.
+handler from `@slotform/auth/ability`, which re-exports everything it needs.
 
 ```ts
 // src/worker/lib/ability.ts
-import { defineAbility } from "@fcalell/plugin-auth/ability";
+import { defineAbility } from "@slotform/auth/ability";
 
 type Subjects = {
   Expense: { paidById: string }; // checked per row: conditions read these fields
@@ -25,7 +25,7 @@ export function expenseAbility(userId: string, isOrganizer: boolean) {
 In the procedure, gate with `assertCan`, tagging the row with `subject`:
 
 ```ts
-import { assertCan, packAbility, subject } from "@fcalell/plugin-auth/ability";
+import { assertCan, packAbility, subject } from "@slotform/auth/ability";
 
 const ability = expenseAbility(context.user.id, seat.role === "organizer");
 assertCan(ability, "update", subject("Expense", expense));
@@ -40,7 +40,7 @@ denial copy.
 
 Return `packAbility(ability)` on the query's output, typed `PackedRuleSet`, and pass it to
 `useAbility(organizationId, data?.rules)`, which layers it over the caller's role (the query plugin's
-abilities page, `node_modules/@fcalell/plugin-query/guide/abilities.md`). Outside an organization, `unpackAbility(rules)`
+abilities page, `node_modules/@slotform/query/guide/abilities.md`). Outside an organization, `unpackAbility(rules)`
 rebuilds it.
 
 ## Rules

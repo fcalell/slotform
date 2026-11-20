@@ -25,22 +25,22 @@ interface TableOptions {
 const TABLE_SETS = [
 	{
 		option: null,
-		module: "@fcalell/plugin-auth/schema",
+		module: "@slotform/auth/schema",
 		tables: { account, session, user, verification },
 	},
 	{
 		option: "organization",
-		module: "@fcalell/plugin-auth/schema/organization",
+		module: "@slotform/auth/schema/organization",
 		tables: { invitation, member, organization },
 	},
 	{
 		option: "passkey",
-		module: "@fcalell/plugin-auth/schema/passkey",
+		module: "@slotform/auth/schema/passkey",
 		tables: { passkey },
 	},
 	{
 		option: "mcp",
-		module: "@fcalell/plugin-auth/schema/oauth",
+		module: "@slotform/auth/schema/oauth",
 		tables: {
 			jwks,
 			oauthAccessToken,
@@ -54,7 +54,7 @@ const TABLE_SETS = [
 	},
 	{
 		option: "devices",
-		module: "@fcalell/plugin-auth/schema/devices",
+		module: "@slotform/auth/schema/devices",
 		tables: { apikey },
 	},
 ] as const satisfies readonly {

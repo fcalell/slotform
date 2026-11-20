@@ -1,15 +1,15 @@
-import type { ContributionCtx } from "@fcalell/cli";
-import { callback, plugin, slot } from "@fcalell/cli";
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
-import { literalToProps } from "@fcalell/cli/ast";
-import { cliSlots } from "@fcalell/cli/cli-slots";
-import { StackError } from "@fcalell/cli/errors";
-import type { PluginRuntimeEntry } from "@fcalell/plugin-api";
-import { api } from "@fcalell/plugin-api";
-import { RESERVED_SLUGS } from "@fcalell/plugin-api/lib/slugify";
-import { cloudflare } from "@fcalell/plugin-cloudflare";
-import { db } from "@fcalell/plugin-db";
-import { screens } from "@fcalell/plugin-screens";
+import type { PluginRuntimeEntry } from "@slotform/api";
+import { api } from "@slotform/api";
+import { RESERVED_SLUGS } from "@slotform/api/lib/slugify";
+import type { ContributionCtx } from "@slotform/cli";
+import { callback, GENERATED_DIR, plugin, slot } from "@slotform/cli";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
+import { literalToProps } from "@slotform/cli/ast";
+import { cliSlots } from "@slotform/cli/cli-slots";
+import { SlotformError } from "@slotform/cli/errors";
+import { cloudflare } from "@slotform/cloudflare";
+import { db } from "@slotform/db";
+import { screens } from "@slotform/screens";
 import { defaultOrgStatements } from "./access.ts";
 import {
 	pendingCallbacks,
@@ -97,10 +97,10 @@ const runtimeOptions = slot.derived({
 		// An empty origin list refuses generation: docs/architecture/plugins/auth.md, "Origins and cookies".
 		if (inp.cors.length === 0) {
 			throw new Error(
-				"plugin-auth: cannot generate runtime — no trusted origins are available. " +
+				"auth: cannot generate runtime — no trusted origins are available. " +
 					"Better Auth requires at least one trusted origin for CSRF protection. " +
 					"Fix by one of:\n" +
-					"  • set `app.domain` in stack.config.ts (derives https://<domain> + https://app.<domain>)\n" +
+					"  • set `app.domain` in slotform.config.ts (derives https://<domain> + https://app.<domain>)\n" +
 					"  • set `app.origins: [...]` to supply the allow-list explicitly",
 			);
 		}
@@ -174,7 +174,7 @@ const runtimeOptions = slot.derived({
 		if (expoEnabled) {
 			if (scheme === null) {
 				throw new Error(
-					"plugin-auth: `expo: true` trusts the native app's deep-link scheme, and no plugin contributes one. Add `expo()` to stack.config.ts, or name the phone's scheme: `expo: { scheme }`.",
+					"auth: `expo: true` trusts the native app's deep-link scheme, and no plugin contributes one. Add `expo()` to slotform.config.ts, or name the phone's scheme: `expo: { scheme }`.",
 				);
 			}
 			trustedOrigins.push(`${scheme}://`, `${scheme}://*`);
@@ -416,7 +416,7 @@ export const auth = plugin("auth", {
 				{
 					name: self.options.appUrlVar,
 					devDefault: devAppUrl,
-					// `devLocalhost`: a non-local APP_URL while STACK_DEV is set
+					// `devLocalhost`: a non-local APP_URL while SLOTFORM_DEV is set
 					// means dev settings leaked into a deploy — refuse to serve.
 					validate: { url: true, devLocalhost: true },
 				},
@@ -431,31 +431,27 @@ export const auth = plugin("auth", {
 				: AUTH_PREFIX,
 		),
 
-		// `stack screens serve` env: docs/architecture/plugins/auth.md, "Screens".
+		// `slotform screens serve` env: docs/architecture/plugins/auth.md, "Screens".
 		screens.slots.serveEnv.contribute(() => ({ url }) => ({
 			[self.options.appUrlVar]: url,
 			...(self.options.emailOtp === false
 				? {}
 				: {
-						STACK_SERVE_EMAIL: "fixture@example.com",
-						STACK_SERVE_CODE: "000000",
+						SLOTFORM_SERVE_EMAIL: "fixture@example.com",
+						SLOTFORM_SERVE_CODE: "000000",
 					}),
 		})),
 
 		// The `/fixture/link` control of the served worker, which signs in with
 		// the email code above.
 		screens.slots.serveControls.contribute(() =>
-			self.options.emailOtp === false
-				? undefined
-				: "@fcalell/plugin-auth/serve",
+			self.options.emailOtp === false ? undefined : "@slotform/auth/serve",
 		),
 
 		// Workbench session handlers: docs/architecture/plugins/auth.md, "Screens".
-		screens.slots.handlerModules.contribute(
-			() => "@fcalell/plugin-auth/screens",
-		),
+		screens.slots.handlerModules.contribute(() => "@slotform/auth/screens"),
 		screens.slots.fixtureModules.contribute(
-			() => "@fcalell/plugin-auth/screens-fixtures",
+			() => "@slotform/auth/screens-fixtures",
 		),
 
 		// The server has auth: a client app of this server reads it from the
@@ -493,7 +489,7 @@ export const auth = plugin("auth", {
 				return {
 					plugin: "auth",
 					import: {
-						source: "@fcalell/plugin-auth/runtime",
+						source: "@slotform/auth/runtime",
 						default: "authRuntime",
 					},
 					identifier: "authRuntime",
@@ -512,18 +508,18 @@ export const auth = plugin("auth", {
 				if (required.length === 0) return undefined;
 				const needs = required.map((name) => `\`${name}\``).join(" and ");
 				throw new Error(
-					`plugin-auth: callback file \`${path}\` is missing. ` +
+					`auth: callback file \`${path}\` is missing. ` +
 						`The consumer implements ${needs} there. ` +
-						"Run `stack init` / `stack add auth` to scaffold the file, " +
+						"Run `slotform init` / `slotform add auth` to scaffold the file, " +
 						"or turn the sign-in that needs it off.",
 				);
 			}
 			// The callback file stays under `src/`: docs/architecture/plugins/auth.md, "Callbacks".
 			if (!path.startsWith("src/")) {
 				throw new Error(
-					`plugin-auth: \`auth.slots.callbackFile\` must live under \`src/\` ` +
+					`auth: \`auth.slots.callbackFile\` must live under \`src/\` ` +
 						`(got \`${path}\`). The generated worker imports callbacks relative ` +
-						`to \`.stack/worker.ts\` and cannot reach paths outside \`src/\`.`,
+						`to \`${GENERATED_DIR}/worker.ts\` and cannot reach paths outside \`src/\`.`,
 				);
 			}
 			// The extension stays: the Node target runs the generated worker as
@@ -549,13 +545,13 @@ export const auth = plugin("auth", {
 				requiredCallbacks(self.options),
 			);
 			if (pending.length === 0) return undefined;
-			throw new StackError(
+			throw new SlotformError(
 				stubbedCallbacksMessage(path, pending),
 				"AUTH_CALLBACK_STUB",
 			);
 		}),
 
-		// RBAC statements: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
+		// RBAC statements: docs/architecture/slot-catalog.md, "`api.slots.*` (the `api` plugin)".
 		api.slots.rbacStatements.contribute(() => {
 			const org = self.options.organization;
 			if (!org) return undefined;

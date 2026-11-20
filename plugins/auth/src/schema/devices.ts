@@ -1,20 +1,10 @@
 // The device credentials' table (`apikey`), as a Drizzle SQLite table.
 // Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/db.md, "Type resolution".
+// Drizzle types the emitted declarations spell, named through `@slotform/db`: docs/architecture/plugins/db.md, "Type resolution".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
-import type {
-	One,
-	Relations,
-	SQLiteTableWithColumns,
-} from "@fcalell/plugin-db/orm";
-import {
-	index,
-	integer,
-	relations,
-	sqliteTable,
-	text,
-} from "@fcalell/plugin-db/orm";
+import type { One, Relations, SQLiteTableWithColumns } from "@slotform/db/orm";
+import { index, integer, relations, sqliteTable, text } from "@slotform/db/orm";
 import { user } from "./index.ts";
 
 export const apikey = sqliteTable(

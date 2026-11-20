@@ -1,4 +1,4 @@
-import { HttpResponse, http } from "@fcalell/plugin-screens/msw";
+import { HttpResponse, http } from "@slotform/screens/msw";
 import { session, user } from "./screens-session.ts";
 import { AUTH_PREFIX } from "./types.ts";
 

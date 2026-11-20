@@ -159,18 +159,18 @@ export const authOptionsSchema = z
 			.optional(),
 		// Passkey (WebAuthn) sign-in through `@better-auth/passkey`. Off by
 		// default; `{}` enables it with every field derived. The consumer migrates
-		// the `passkey` table by re-exporting `@fcalell/plugin-auth/schema/passkey`.
+		// the `passkey` table by re-exporting `@slotform/auth/schema/passkey`.
 		passkey: z.union([z.literal(false), passkeyObjectSchema]).default(false),
 		// An OAuth authorization server for MCP clients (`@better-auth/mcp`): an
 		// agent connects by signing in, never by a pasted secret. Needs
 		// `organization`; the consumer migrates the OAuth and JWT tables by
-		// re-exporting `@fcalell/plugin-auth/schema/oauth`.
+		// re-exporting `@slotform/auth/schema/oauth`.
 		mcp: z.boolean().default(false),
 		// Device credentials: long-lived, named, revocable bearer keys a signed-in
 		// member makes for a machine that has no browser (an agent daemon, a sync
 		// client). A key acts as its member on the API, `/ws` and the server's
 		// own routes. The consumer migrates the `apikey` table by re-exporting
-		// `@fcalell/plugin-auth/schema/devices`.
+		// `@slotform/auth/schema/devices`.
 		devices: z.boolean().default(false),
 		// Who may create an account, on every way in (code, link, OAuth). `open`:
 		// anyone. `invite`: only an address holding a pending organization

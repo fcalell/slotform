@@ -1,7 +1,4 @@
-import {
-	type ExtraControls,
-	FIXTURE_PREFIX,
-} from "@fcalell/plugin-screens/serve";
+import { type ExtraControls, FIXTURE_PREFIX } from "@slotform/screens/serve";
 import { AUTH_PREFIX } from "./types.ts";
 import { isSafeCallbackURL } from "./worker/callback-url.ts";
 
@@ -14,8 +11,8 @@ export default async function link(
 	if (url.pathname !== `${FIXTURE_PREFIX}/link`) return undefined;
 	// `ExtraControls` types `env` as `unknown`: the served worker's bindings.
 	const vars = context.env as Record<string, unknown>;
-	const email = vars.STACK_SERVE_EMAIL;
-	const code = vars.STACK_SERVE_CODE;
+	const email = vars.SLOTFORM_SERVE_EMAIL;
+	const code = vars.SLOTFORM_SERVE_CODE;
 	if (typeof email !== "string" || typeof code !== "string")
 		return new Response("fixture link: the app has no fixture member", {
 			status: 404,

@@ -1,4 +1,4 @@
-import { and, eq, type SQL, sql } from "@fcalell/plugin-db/orm";
+import { and, eq, type SQL, sql } from "@slotform/db/orm";
 import {
 	member,
 	organization as organizationTable,

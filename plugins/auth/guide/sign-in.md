@@ -38,7 +38,7 @@ auth({ emailOtp: false, socialProviders: { google: true, apple: true } }),
 `passkey: {}` turns them on with every setting derived: `rpID` from `app.domain`, `rpName` from
 `app.name`, the accepted origins from the production CORS list. Set any of them, or
 `authenticatorSelection`, on the same object. Re-export the `passkey` table
-([config](./config.md)). Under `stack dev` the ceremony runs on `localhost`, so a passkey enrolled
+([config](./config.md)). Under `slotform dev` the ceremony runs on `localhost`, so a passkey enrolled
 in dev works only in dev. On a Node listener that serves an origin of its own, the ceremony runs at
 that origin. Enrolling needs a session younger than `session.freshAge`: the user
 signs in another way first, calls `passkey.addPasskey()`, and signs in with `signIn.passkey()`
@@ -97,11 +97,11 @@ organization calls are in [organizations](./organizations.md); `oauthQuery` is
 [mcp-oauth](./mcp-oauth.md)'s.
 
 Social sign-in and passkeys have no procedure and stay on `createAuthClient` from
-`@fcalell/plugin-auth/client`, Better Auth's React client, given the flags the config sets:
+`@slotform/auth/client`, Better Auth's React client, given the flags the config sets:
 
 ```ts
 // src/app/lib/auth.ts
-import { createAuthClient } from "@fcalell/plugin-auth/client";
+import { createAuthClient } from "@slotform/auth/client";
 
 export const authClient = createAuthClient({ passkey: true });
 
@@ -112,9 +112,9 @@ await authClient.signIn.social({ provider: "google" });
 
 ## The native client
 
-The phone signs in through `@fcalell/plugin-auth/expo`, set up by `auth({ expo: true })`: its
+The phone signs in through `@slotform/auth/expo`, set up by `auth({ expo: true })`: its
 server option, scaffolded client and sign-in helpers are
-`node_modules/@fcalell/plugin-expo/guide/native-auth.md`.
+`node_modules/@slotform/expo/guide/native-auth.md`.
 
 ## Rules
 

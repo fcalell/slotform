@@ -4,8 +4,8 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { after, test } from "node:test";
-import createWorker from "@fcalell/plugin-api/runtime";
-import { createClient } from "@fcalell/plugin-db/sqlite";
+import createWorker from "@slotform/api/runtime";
+import { createClient } from "@slotform/db/sqlite";
 import * as schema from "../schema/index.ts";
 import * as oauthSchema from "../schema/oauth.ts";
 import * as organizationSchema from "../schema/organization.ts";
@@ -110,7 +110,7 @@ after(() => {
 });
 
 function database() {
-	const directory = mkdtempSync(join(tmpdir(), "stack-auth-"));
+	const directory = mkdtempSync(join(tmpdir(), "slotform-auth-"));
 	directories.push(directory);
 	const file = join(directory, "auth.sqlite");
 	const db = createClient(file, {
@@ -172,7 +172,7 @@ function post(
 	path: string,
 	headers: Record<string, string> = {},
 ) {
-	const base = env.STACK_ORIGIN ?? LOOPBACK;
+	const base = env.SLOTFORM_ORIGIN ?? LOOPBACK;
 	return worker.fetch(
 		new Request(`${base}/api/auth${path}`, {
 			method: "POST",
@@ -223,7 +223,7 @@ const NETWORK = "https://app.internal.example.com";
 test("on a listener's own origin auth signs in at that origin, Secure", async () => {
 	const worker = authWorker();
 	const loopback = { AUTH_SECRET: SECRET, APP_URL: LOOPBACK };
-	const network = { ...loopback, STACK_ORIGIN: NETWORK };
+	const network = { ...loopback, SLOTFORM_ORIGIN: NETWORK };
 
 	const local = await post(worker, loopback, "/test/sign-in");
 	const [localCookie] = local.headers.getSetCookie();
@@ -254,7 +254,7 @@ test("a passkey on a listener's own origin is that origin's", async () => {
 	const network = {
 		AUTH_SECRET: SECRET,
 		APP_URL: LOOPBACK,
-		STACK_ORIGIN: NETWORK,
+		SLOTFORM_ORIGIN: NETWORK,
 	};
 	const signIn = await post(worker, network, "/test/sign-in");
 	const options = await worker.fetch(

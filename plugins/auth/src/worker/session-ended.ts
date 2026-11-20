@@ -1,7 +1,7 @@
 import { channel } from "node:diagnostics_channel";
 
 // Where the worker says a session is over: docs/architecture/plugins/auth.md, "Session end".
-export const SESSION_ENDED_CHANNEL = "stack:auth:session-ended";
+export const SESSION_ENDED_CHANNEL = "slotform:auth:session-ended";
 
 const ended = channel(SESSION_ENDED_CHANNEL);
 

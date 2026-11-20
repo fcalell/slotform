@@ -18,7 +18,7 @@ export function createAccessControl<
 	};
 }
 
-// Default organization statements: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
+// Default organization statements: docs/architecture/slot-catalog.md, "`api.slots.*` (the `api` plugin)".
 export const defaultOrgStatements = {
 	organization: ["update", "delete"],
 	member: ["create", "update", "delete"],

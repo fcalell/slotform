@@ -1,10 +1,10 @@
-import type { AuthCallbacks } from "@fcalell/plugin-auth/runtime";
+import type { AuthCallbacks } from "@slotform/auth/runtime";
 
 // Which callback each option requires, and what each payload carries:
-// node_modules/@fcalell/plugin-auth/guide/callbacks.md.
-// `stack dev` sets `STACK_DEV`; your worker's `Env` does not declare it.
+// node_modules/@slotform/auth/guide/callbacks.md.
+// `slotform dev` sets `SLOTFORM_DEV`; your worker's `Env` does not declare it.
 const isDev = (env: unknown) =>
-	(env as { STACK_DEV?: string }).STACK_DEV === "1";
+	(env as { SLOTFORM_DEV?: string }).SLOTFORM_DEV === "1";
 
 const callbacks: AuthCallbacks = {
 	sendOTP({ email, code, env }) {

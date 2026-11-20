@@ -10,13 +10,13 @@ A procedure on an organization's own rows takes `organization`. A procedure on a
 below it takes that table's scope: find it in `src/shared/scopes.ts`, or declare it with
 `defineScope`. Page: [scopes](./scopes.md).
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.
 
 ## 2. Set it on the procedure
 
 Set `auth: true` and `scope`, give the procedure a `z.object` input, and read the rows from the
 context, never from an id of the input's own. Add `can` when only some roles may act. Page: api's
-procedures page (`node_modules/@fcalell/plugin-api/guide/procedures.md`).
+procedures page (`node_modules/@slotform/api/guide/procedures.md`).
 
 ```ts
 rename: procedure({ auth: true, scope: project, can: ["update", "project"], writes: ["project"] })

@@ -1,14 +1,14 @@
 // Better Auth's core identity tables (user / session / account / verification), as Drizzle SQLite tables.
 // Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/auth.md, "Schema tables".
+// Drizzle types the emitted declarations spell, named through `@slotform/db`: docs/architecture/plugins/auth.md, "Schema tables".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
 import type {
 	Many,
 	One,
 	Relations,
 	SQLiteTableWithColumns,
-} from "@fcalell/plugin-db/orm";
+} from "@slotform/db/orm";
 import {
 	index,
 	integer,
@@ -16,7 +16,7 @@ import {
 	sql,
 	sqliteTable,
 	text,
-} from "@fcalell/plugin-db/orm";
+} from "@slotform/db/orm";
 
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),

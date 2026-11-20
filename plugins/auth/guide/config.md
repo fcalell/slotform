@@ -1,10 +1,10 @@
 # Auth config
 
-`auth()` in `stack.config.ts` turns on sign-in, sessions and, when asked, organizations. It needs
+`auth()` in `slotform.config.ts` turns on sign-in, sessions and, when asked, organizations. It needs
 `api()` and `db()` in the config, and runs on Cloudflare and on Node alike.
 
 ```ts
-// stack.config.ts
+// slotform.config.ts
 auth({
   cookies: { prefix: "my-app" },
   organization: true,
@@ -30,7 +30,7 @@ auth({
 | `user.deleteUser` | `false` | Account deletion, see [callbacks](./callbacks.md). A native app on the App Store needs it |
 | `mcp` | `false` | An authorization server for MCP clients; needs `organization`, see [mcp-oauth](./mcp-oauth.md) |
 | `devices` | `false` | Named, revocable bearer keys a member makes for a machine with no browser, see [devices](./devices.md) |
-| `expo` | off | A native client: trusts the deep-link scheme `expo()` registers, or on a server that is no Expo app (a web or node hub serving a separate phone app) `expo: { scheme: "vault" }`, the phone's; see `node_modules/@fcalell/plugin-expo/guide/native-auth.md` |
+| `expo` | off | A native client: trusts the deep-link scheme `expo()` registers, or on a server that is no Expo app (a web or node hub serving a separate phone app) `expo: { scheme: "vault" }`, the phone's; see `node_modules/@slotform/expo/guide/native-auth.md` |
 | `secretVar` / `appUrlVar` | `AUTH_SECRET` / `APP_URL` | The env var names below |
 | `rateLimiter.ip` / `.email` / `.agent` | 100, 3 and 120 per 60 s | Cloudflare rate-limiter `binding`, `limit` and `period` (10 or 60). `agent` is one bucket per MCP grant, bound only with `mcp`. Node has no limiter |
 
@@ -42,7 +42,7 @@ and the worker's check on its first request, which refuses to serve while one is
 | Var | Dev value | Production |
 | --- | --- | --- |
 | `AUTH_SECRET` | a placeholder of 32 characters or more | 32 characters or more |
-| `APP_URL` | the first frontend dev origin, else the server's | the app's public URL; a non-local one while `STACK_DEV` is set refuses to serve. A Node listener with an origin of its own signs in at that origin instead, with `Secure` cookies when it is https |
+| `APP_URL` | the first frontend dev origin, else the server's | the app's public URL; a non-local one while `SLOTFORM_DEV` is set refuses to serve. A Node listener with an origin of its own signs in at that origin instead, with `Secure` cookies when it is https |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` | placeholders, per enabled provider | the provider's credentials |
 
 ## Schema
@@ -52,11 +52,11 @@ the adapter never creates a table.
 
 ```ts
 // src/schema/index.ts
-export * from "@fcalell/plugin-auth/schema"; // user, session, account, verification: always
-export * from "@fcalell/plugin-auth/schema/organization"; // organization, member, invitation: with `organization`
-export * from "@fcalell/plugin-auth/schema/passkey"; // passkey: with `passkey`
-export * from "@fcalell/plugin-auth/schema/oauth"; // the OAuth grant tables and jwks: with `mcp`
-export * from "@fcalell/plugin-auth/schema/devices"; // apikey: with `devices`
+export * from "@slotform/auth/schema"; // user, session, account, verification: always
+export * from "@slotform/auth/schema/organization"; // organization, member, invitation: with `organization`
+export * from "@slotform/auth/schema/passkey"; // passkey: with `passkey`
+export * from "@slotform/auth/schema/oauth"; // the OAuth grant tables and jwks: with `mcp`
+export * from "@slotform/auth/schema/devices"; // apikey: with `devices`
 ```
 
 ## Rules
@@ -69,16 +69,16 @@ export * from "@fcalell/plugin-auth/schema/devices"; // apikey: with `devices`
 - The auth tables' names are entities already: `reads: ["member"]` type-checks without your
   schema exporting them under its own names.
 - The session's user has `id`, `name`, `email`, `emailVerified`, `image`, `createdAt` and
-  `updatedAt`; type it with `SessionUser` from `@fcalell/plugin-auth/infer`.
+  `updatedAt`; type it with `SessionUser` from `@slotform/auth/infer`.
 - Type the session from the config, never by hand: it carries `activeOrganizationId` exactly when
   `auth({ organization })` is set.
 
 ```ts
 // src/shared/session.ts
-import type { InferSession } from "@fcalell/plugin-auth/infer";
-import type config from "../../stack.config";
+import type { InferSession } from "@slotform/auth/infer";
+import type config from "../../slotform.config";
 
 export type Session = InferSession<typeof config>;
 ```
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.

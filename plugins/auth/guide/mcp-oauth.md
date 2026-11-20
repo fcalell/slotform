@@ -7,10 +7,10 @@ access token bound to `${APP_URL}/mcp` and a rotating 30-day refresh token. It n
 (the URL it uses as its client id); one that only registers dynamically cannot connect.
 
 ```ts
-// stack.config.ts
+// slotform.config.ts
 auth({ organization: true, mcp: true }),
 // src/schema/index.ts
-export * from "@fcalell/plugin-auth/schema/oauth"; // the grant and signing-key tables
+export * from "@slotform/auth/schema/oauth"; // the grant and signing-key tables
 ```
 
 The worker serves the discovery documents under `/.well-known/` and limits calls per grant
@@ -60,7 +60,7 @@ const { user, session, member, grant, tenancy } = verified;
 `user` is the member's user row with `agent: true`, `session.id` is the grant's id, and `tenancy`
 resolves the grant's organization and no other. `grant` is
 `{ id, clientId, organizationId, scopes }`. A drizzle read of a grant row's `scopes` answers JSON
-text; `scopesOf` from `@fcalell/plugin-auth/schema/oauth` returns the list. A token is refused when
+text; `scopesOf` from `@slotform/auth/schema/oauth` returns the list. A token is refused when
 it fails its checks, lacks `mcp` (`403`), or outlives its grant's consent or the member's membership.
 
 `revokeGrant(id, userId?)` deletes a grant's consent and tokens and answers whether it existed (with
@@ -93,5 +93,5 @@ routes (`/oauth2/get-consent` and the others) stay closed.
 - A refresh token reused after its 30-second window revokes every refresh token of that client for
   the member.
 
-**Check:** `stack generate`, `stack db generate`, then an MCP client connects a member and `verify`
+**Check:** `slotform generate`, `slotform db generate`, then an MCP client connects a member and `verify`
 answers their organization.

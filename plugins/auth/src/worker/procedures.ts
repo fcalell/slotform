@@ -1,11 +1,11 @@
 import type { apiKey } from "@better-auth/api-key";
 import type { oauthProvider } from "@better-auth/oauth-provider";
 import { createMongoAbility } from "@casl/ability";
-import { noSuch, type ProcedureFactory } from "@fcalell/plugin-api/procedure";
-import { z } from "@fcalell/plugin-api/schema";
-import type { Procedure } from "@fcalell/plugin-api/types";
-import { getTableName } from "@fcalell/plugin-db/orm";
 import { ORPCError } from "@orpc/server";
+import { noSuch, type ProcedureFactory } from "@slotform/api/procedure";
+import { z } from "@slotform/api/schema";
+import type { Procedure } from "@slotform/api/types";
+import { getTableName } from "@slotform/db/orm";
 import { isAPIError } from "better-auth/api";
 import type { betterAuth } from "better-auth/minimal";
 import type { role as buildAcRole } from "better-auth/plugins/access";

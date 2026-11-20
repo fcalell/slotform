@@ -1,4 +1,4 @@
-import type { Fixtures } from "@fcalell/plugin-screens/fixtures";
+import type { Fixtures } from "@slotform/screens/fixtures";
 import { session, user } from "./screens-session.ts";
 import {
 	DEVICE_KEY_LENGTH,

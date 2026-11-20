@@ -1,14 +1,14 @@
 // The OAuth provider's tables for MCP, with the `jwt` plugin's `jwks`, as Drizzle SQLite tables.
 // Schema tables: docs/architecture/plugins/auth.md, "Schema tables".
 
-// Drizzle types the emitted declarations spell, named through plugin-db: docs/architecture/plugins/auth.md, "Schema tables".
+// Drizzle types the emitted declarations spell, named through `@slotform/db`: docs/architecture/plugins/auth.md, "Schema tables".
 // biome-ignore lint/correctness/noUnusedImports: read by the declaration emit
 import type {
 	Many,
 	One,
 	Relations,
 	SQLiteTableWithColumns,
-} from "@fcalell/plugin-db/orm";
+} from "@slotform/db/orm";
 import {
 	index,
 	integer,
@@ -16,7 +16,7 @@ import {
 	sqliteTable,
 	text,
 	uniqueIndex,
-} from "@fcalell/plugin-db/orm";
+} from "@slotform/db/orm";
 import { session, user } from "./index.ts";
 
 // The scopes a consent, access token or refresh token row stores, as the list

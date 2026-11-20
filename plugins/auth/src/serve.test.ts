@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import {
-	fixtureControls,
-	type ServeWorker,
-} from "@fcalell/plugin-screens/serve";
+import { fixtureControls, type ServeWorker } from "@slotform/screens/serve";
 import link from "./serve.ts";
 
-const env = { STACK_SERVE_EMAIL: "f@example.com", STACK_SERVE_CODE: "000000" };
+const env = {
+	SLOTFORM_SERVE_EMAIL: "f@example.com",
+	SLOTFORM_SERVE_CODE: "000000",
+};
 
 // Answers the two email-code routes only for the fixture member's address and
 // code, sent as JSON from the served origin.
@@ -24,14 +24,14 @@ const app: ServeWorker = {
 		const body = (await request.json()) as Record<string, unknown>;
 		if (
 			pathname === "/api/auth/email-otp/send-verification-otp" &&
-			body.email === env.STACK_SERVE_EMAIL &&
+			body.email === env.SLOTFORM_SERVE_EMAIL &&
 			body.type === "sign-in"
 		)
 			return Response.json({ success: true });
 		if (
 			pathname === "/api/auth/sign-in/email-otp" &&
-			body.email === env.STACK_SERVE_EMAIL &&
-			body.otp === env.STACK_SERVE_CODE
+			body.email === env.SLOTFORM_SERVE_EMAIL &&
+			body.otp === env.SLOTFORM_SERVE_CODE
 		)
 			return new Response("{}", {
 				headers: { "set-cookie": "session=abc; Path=/; HttpOnly" },
@@ -60,7 +60,7 @@ test("serve link refuses a code the app does not take", async () => {
 	const worker = fixtureControls(app, link);
 	const refused = await ask(worker, "/fixture/link", {
 		...env,
-		STACK_SERVE_CODE: "111111",
+		SLOTFORM_SERVE_CODE: "111111",
 	});
 	assert.equal(refused.status, 502);
 });

@@ -17,7 +17,7 @@ and the web client both import:
 
 ```ts
 // src/shared/access.ts
-import { createAccessControl } from "@fcalell/plugin-auth/access";
+import { createAccessControl } from "@slotform/auth/access";
 
 export const ac = createAccessControl({
   organization: ["update", "delete"],
@@ -38,12 +38,12 @@ export const roles = {
 ```
 
 ```ts
-// stack.config.ts
+// slotform.config.ts
 import { ac, roles } from "./src/shared/access.ts";
 auth({ organization: { ac, roles } }),
 
 // src/app/lib/auth.ts
-import { createAuthClient } from "@fcalell/plugin-auth/client";
+import { createAuthClient } from "@slotform/auth/client";
 import { ac, roles } from "#/shared/access.ts";
 export const authClient = createAuthClient({
   organization: { statements: ac.statements, roles },
@@ -108,7 +108,7 @@ app as an `ORPCError` (`FORBIDDEN`, with Better Auth's `data.code`).
 ## Abilities
 
 `auth({ organization })` serves the caller's compiled rules per organization, and the client's
-`useAbility(organizationId)` reads them (the query plugin's abilities page, `node_modules/@fcalell/plugin-query/guide/abilities.md`).
+`useAbility(organizationId)` reads them (the query plugin's abilities page, `node_modules/@slotform/query/guide/abilities.md`).
 Rules from a record's own data are in [abilities](./abilities.md).
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.

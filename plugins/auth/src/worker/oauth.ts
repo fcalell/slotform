@@ -13,7 +13,7 @@ import {
 	createResourceServerChallenge,
 	getOAuthProviderState,
 } from "@better-auth/oauth-provider";
-import type { RateLimitBinding } from "@fcalell/plugin-api/procedure";
+import type { RateLimitBinding } from "@slotform/api/procedure";
 import {
 	and,
 	desc,
@@ -21,7 +21,7 @@ import {
 	type InferSelectModel,
 	isNotNull,
 	sql,
-} from "@fcalell/plugin-db/orm";
+} from "@slotform/db/orm";
 import type { BetterAuthPlugin } from "better-auth";
 import {
 	APIError,

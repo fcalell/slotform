@@ -16,7 +16,7 @@ export interface AuthClientConfig {
 	// viewer out of the old server first.
 	baseURL: string | (() => string);
 	// Deep-link scheme for the OAuth redirect back into the app. Matches the
-	// Expo app `scheme` (and `plugin-expo`'s `scheme` option).
+	// Expo app `scheme` (and the `expo` plugin's `scheme` option).
 	scheme: string;
 	// Secure key-value store tokens persist in: docs/architecture/plugins/auth.md, "Native client".
 	storage: ExpoClientStorage;

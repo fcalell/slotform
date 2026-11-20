@@ -16,18 +16,18 @@ export const ac = createAccessControl({ /* ... */ project: ["create", "update", 
 export const roles = { /* ... */ editor: ac.newRole({ project: ["create", "update", "archive"] }) };
 ```
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.
 
 ## 2. Gate the procedure
 
 Set `can: ["archive", "project"]` on the procedure, beside its `auth: true` and `scope`. Page:
-api's procedures page (`node_modules/@fcalell/plugin-api/guide/procedures.md`).
+api's procedures page (`node_modules/@slotform/api/guide/procedures.md`).
 
 **Check:** `pnpm check` passes, and the action and resource autocomplete in `can`.
 
 ## 3. Gate the screen
 
 Show the control only when `useAbility(organizationId).can("archive", "project")` answers yes.
-Page: the query plugin's abilities page (`node_modules/@fcalell/plugin-query/guide/abilities.md`).
+Page: the query plugin's abilities page (`node_modules/@slotform/query/guide/abilities.md`).
 
 **Check:** under `pnpm dev`, a member without the grant sees no control.

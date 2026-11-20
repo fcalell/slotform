@@ -1,10 +1,10 @@
-import type { BaseContext } from "@fcalell/plugin-api/runtime";
+import type { BaseContext } from "@slotform/api/runtime";
 import type {
 	InferSelectModel,
 	SQL,
 	SQLiteColumn,
 	SQLiteTable,
-} from "@fcalell/plugin-db/orm";
+} from "@slotform/db/orm";
 import {
 	type member,
 	organization as organizationTable,
@@ -62,7 +62,7 @@ export function defineMembership(where: SQL): Membership {
 	return { kind: "membership", where };
 }
 
-// Scope names refused: keys of plugin-api's base context, checked against its type: docs/architecture/plugins/auth.md, "Scopes".
+// Scope names refused: keys of the `api` plugin's base context, checked against its type: docs/architecture/plugins/auth.md, "Scopes".
 type BaseContextKey = keyof {
 	[K in keyof BaseContext as string extends K ? never : K]: unknown;
 };

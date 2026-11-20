@@ -1,4 +1,4 @@
-import type { PluginConfig } from "@fcalell/cli";
+import type { PluginConfig } from "@slotform/cli";
 
 // The user as the session carries it: better-auth's base user, the same for
 // every configuration.

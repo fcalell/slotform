@@ -6,13 +6,13 @@ acts as that member. It is accepted wherever a session is: `procedure({ auth: tr
 scopes, the `/ws` upgrade, and a service route.
 
 ```ts
-// stack.config.ts
+// slotform.config.ts
 auth({ organization: true, devices: true }),
 // src/schema/index.ts
-export * from "@fcalell/plugin-auth/schema/devices"; // the device key table
+export * from "@slotform/auth/schema/devices"; // the device key table
 ```
 
-**Check:** `stack generate`, `stack db generate`, then `orpc.auth.devices.list` answers `[]`.
+**Check:** `slotform generate`, `slotform db generate`, then `orpc.auth.devices.list` answers `[]`.
 
 ## The member's calls
 
@@ -35,9 +35,9 @@ with the app's own client, its `/ws` channels with a header, and its service rou
 
 ```ts
 // the daemon
-import { createClient } from "@fcalell/plugin-api/client";
-import { createWsClient } from "@fcalell/plugin-node/client";
-import type { AppRouter } from "../.stack/worker";
+import { createClient } from "@slotform/api/client";
+import { createWsClient } from "@slotform/node/client";
+import type { AppRouter } from "../.slotform/worker";
 
 const headers = { authorization: `Bearer ${key}` };
 const api = createClient<AppRouter>({ url: `${hub}/rpc`, headers });

@@ -1,16 +1,16 @@
 # Scopes
 
 A scope is one tenancy tier a procedure acts inside. The organization is the root scope, exported
-as `organization` from `@fcalell/plugin-auth/scope`; a table of yours under it, or under another
+as `organization` from `@slotform/auth/scope`; a table of yours under it, or under another
 scope, becomes one with `defineScope`. Scopes need `auth({ organization })`.
 
 Declare every scope in `src/shared/scopes.ts`, a module the worker and the app both import:
 
 ```ts
 // src/shared/scopes.ts
-import { member } from "@fcalell/plugin-auth/schema/organization";
-import { defineMembership, defineScope, organization } from "@fcalell/plugin-auth/scope";
-import { sql } from "@fcalell/plugin-db/orm";
+import { member } from "@slotform/auth/schema/organization";
+import { defineMembership, defineScope, organization } from "@slotform/auth/scope";
+import { sql } from "@slotform/db/orm";
 import * as schema from "../schema/index.ts";
 
 const { membership } = schema;
@@ -84,4 +84,4 @@ typed by the scope: `ScopeContext<typeof scope> | null`.
   organization takes its scopes with it.
 - Never resolve a tenancy tier by hand in a handler: declare the scope.
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.

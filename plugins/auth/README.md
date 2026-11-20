@@ -1,6 +1,6 @@
-# @fcalell/plugin-auth
+# @slotform/auth
 
-Authentication for `@fcalell/stack`: Better Auth with email codes and magic links, OAuth (Apple, Google),
+Authentication for `slotform`: Better Auth with email codes and magic links, OAuth (Apple, Google),
 passkeys, organizations with roles, tenancy scopes and record abilities, on either deploy target.
 
 How it is built: [docs/architecture/plugins/auth.md](../../docs/architecture/plugins/auth.md).
@@ -8,12 +8,12 @@ How it is built: [docs/architecture/plugins/auth.md](../../docs/architecture/plu
 ## Install
 
 ```bash
-stack add auth
+slotform add auth
 ```
 
 ## Guide
 
-Using auth in an app lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
+Using auth in an app lives in `guide/`, indexed into a consumer's `.slotform/guide.md`:
 [`config.md`](./guide/config.md), [`callbacks.md`](./guide/callbacks.md),
 [`sign-in.md`](./guide/sign-in.md), [`mcp-oauth.md`](./guide/mcp-oauth.md),
 [`devices.md`](./guide/devices.md),

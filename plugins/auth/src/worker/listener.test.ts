@@ -16,13 +16,19 @@ test("the listener's origin stands before the app's URL var", () => {
 	);
 	assert.equal(
 		appUrlOf(
-			{ APP_URL: "http://127.0.0.1:8788", STACK_ORIGIN: "https://a.example" },
+			{
+				APP_URL: "http://127.0.0.1:8788",
+				SLOTFORM_ORIGIN: "https://a.example",
+			},
 			"APP_URL",
 		),
 		"https://a.example",
 	);
 	assert.equal(
-		appUrlOf({ APP_URL: "http://127.0.0.1:8788", STACK_ORIGIN: "" }, "APP_URL"),
+		appUrlOf(
+			{ APP_URL: "http://127.0.0.1:8788", SLOTFORM_ORIGIN: "" },
+			"APP_URL",
+		),
 		"http://127.0.0.1:8788",
 	);
 });
@@ -31,7 +37,7 @@ test("passkeys keep the baked options with no listener origin, and swap in dev",
 	const { devOrigin: _, ...production } = BAKED;
 	assert.deepEqual(passkeyFor(BAKED, {}), production);
 	assert.deepEqual(
-		passkeyFor(BAKED, { STACK_ORIGIN: "https://x.net", STACK_DEV: "1" }),
+		passkeyFor(BAKED, { SLOTFORM_ORIGIN: "https://x.net", SLOTFORM_DEV: "1" }),
 		{
 			...production,
 			rpID: "localhost",
@@ -42,7 +48,7 @@ test("passkeys keep the baked options with no listener origin, and swap in dev",
 
 test("a listener origin under the baked relying party joins its origins", () => {
 	assert.deepEqual(
-		passkeyFor(BAKED, { STACK_ORIGIN: "https://admin.example.com" }),
+		passkeyFor(BAKED, { SLOTFORM_ORIGIN: "https://admin.example.com" }),
 		{
 			rpID: "example.com",
 			rpName: "App",
@@ -62,7 +68,9 @@ test("a listener origin the baked relying party cannot cover becomes it", () => 
 		origin: "http://127.0.0.1:8788",
 	};
 	assert.deepEqual(
-		passkeyFor(loopback, { STACK_ORIGIN: "https://app.internal.example.com" }),
+		passkeyFor(loopback, {
+			SLOTFORM_ORIGIN: "https://app.internal.example.com",
+		}),
 		{
 			rpID: "app.internal.example.com",
 			rpName: "Acme",

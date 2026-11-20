@@ -1,11 +1,11 @@
 # Auth callbacks
 
 `src/worker/plugins/auth.ts` holds the code auth runs for you: sending a code, an invitation, a
-deletion link. `stack init` and `stack add auth` scaffold it; the generated worker imports it.
+deletion link. `slotform init` and `slotform add auth` scaffold it; the generated worker imports it.
 
 ```ts
 // src/worker/plugins/auth.ts
-import type { AuthCallbacks } from "@fcalell/plugin-auth/runtime";
+import type { AuthCallbacks } from "@slotform/auth/runtime";
 
 const callbacks: AuthCallbacks<Env> = {
   async sendOTP({ email, code, type, env }) {
@@ -36,15 +36,15 @@ through it. `AuthCallbacks<Env>` types it with the worker's `Env`; bare `AuthCal
 ## Rules
 
 - The scaffold is a stub: each callback logs its code or link in dev and throws
-  (`sendOTP is not implemented: edit src/worker/plugins/auth.ts`) when `STACK_DEV` is not `1`, so a
-  deployed stub never writes a sign-in code to the logs. `stack deploy` refuses while the stub's
+  (`sendOTP is not implemented: edit src/worker/plugins/auth.ts`) when `SLOTFORM_DEV` is not `1`, so a
+  deployed stub never writes a sign-in code to the logs. `slotform deploy` refuses while the stub's
   `// TODO` marker line stays for a callback the options require (`sendOTP` with `emailOtp`,
   `sendMagicLink` with `magicLink`, `sendInvitation` with `organization`): implement the send, then
   delete the marker.
-- Import only `@fcalell/plugin-auth/runtime` here, never the package root: the file is bundled
+- Import only `@slotform/auth/runtime` here, never the package root: the file is bundled
   into the worker, and the root drags in the plugin's Node-only codegen.
 - While a callback is required (`sendOTP` with `emailOtp`, `sendMagicLink` with `magicLink`,
-  `sendInvitation` with `organization`), a missing file fails `stack generate`, and a file
+  `sendInvitation` with `organization`), a missing file fails `slotform generate`, and a file
   without it makes the worker refuse to start auth. With none of the three on the file is optional.
 - Key a `generateOTP` override on `type` as well as `email`: it runs for every code type.
 - Without `sendDeleteVerification`, deletion needs a session younger than `session.freshAge`;
@@ -64,8 +64,8 @@ const callbacks: AuthCallbacks<Env> = {
 ```
 
 A plugin needs Better Auth's own helpers, and the app holds no `better-auth` dependency of its
-own: pinning a second copy beside stack's would split `APIError` in two, and the router would no
-longer read a refusal as its own. Import them from `@fcalell/plugin-auth/runtime`, never from
+own: pinning a second copy beside Slotform's would split `APIError` in two, and the router would no
+longer read a refusal as its own. Import them from `@slotform/auth/runtime`, never from
 `better-auth`: `createAuthEndpoint` (an endpoint), `setSessionCookie` (the cookie of a session
 it mints), `customSession` (fields the session read carries), `createAuthMiddleware`,
 `getSessionFromCtx`, `APIError`, `isAPIError` and the `BetterAuthPlugin` type.
@@ -73,7 +73,7 @@ it mints), `customSession` (fields the session read carries), `createAuthMiddlew
 ```ts
 import {
   type BetterAuthPlugin, APIError, createAuthMiddleware, getSessionFromCtx,
-} from "@fcalell/plugin-auth/runtime";
+} from "@slotform/auth/runtime";
 
 export const gate = (): BetterAuthPlugin => ({
   id: "gate",
@@ -90,8 +90,8 @@ export const gate = (): BetterAuthPlugin => ({
 });
 ```
 
-Before writing one, check [sign-in](./sign-in.md): a flow every app needs is a shortfall in stack
-(`node_modules/@fcalell/cli/guide/shortfall.md`).
+Before writing one, check [sign-in](./sign-in.md): a flow every app needs is a shortfall in Slotform
+(`node_modules/@slotform/cli/guide/shortfall.md`).
 
-**Check:** `stack generate`, then `pnpm check` passes, and under `pnpm dev` a sign-in code
-reaches `sendOTP`; `stack deploy` stops at the `// TODO` marker until the stub is replaced.
+**Check:** `slotform generate`, then `pnpm check` passes, and under `pnpm dev` a sign-in code
+reaches `sendOTP`; `slotform deploy` stops at the `// TODO` marker until the stub is replaced.

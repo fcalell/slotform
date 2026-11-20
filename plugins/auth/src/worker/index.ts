@@ -1,12 +1,12 @@
 import { expo } from "@better-auth/expo";
 import { passkey } from "@better-auth/passkey";
-import type { RuntimePlugin } from "@fcalell/cli/runtime";
 import {
 	ORG_RULES_PATH,
 	type RateLimitBinding,
 	SCOPE_ROUTES_PATH,
-} from "@fcalell/plugin-api/procedure";
-import type { SQLiteColumn } from "@fcalell/plugin-db/orm";
+} from "@slotform/api/procedure";
+import type { RuntimePlugin } from "@slotform/cli/runtime";
+import type { SQLiteColumn } from "@slotform/db/orm";
 import type { BetterAuthPlugin } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { type BetterAuthOptions, betterAuth } from "better-auth/minimal";
@@ -109,7 +109,7 @@ export { customSession } from "better-auth/plugins/custom-session";
 export type { OtpType } from "../types.ts";
 export type { OAuth, VerifiedAgent } from "./oauth.ts";
 // The `auth.*` procedures' types name these, so a declaration emit of the
-// consumer's generated `.stack/worker.ts` names them through this subpath.
+// consumer's generated `.slotform/worker.ts` names them through this subpath.
 export type {
 	AcceptedInvitation,
 	ActiveOrganization,
@@ -124,7 +124,7 @@ export type {
 } from "./outputs.ts";
 export type { AuthProcedureFactory, OAuthRedirect } from "./procedures.ts";
 // The request context carries a `Tenancy` and an `AuthRateLimiter`, so a declaration
-// emit of the consumer's generated `.stack/procedure.ts` names them through this subpath.
+// emit of the consumer's generated `.slotform/procedure.ts` names them through this subpath.
 export type { AuthRateLimiter } from "./rate-limit.ts";
 export type { Tenancy } from "./tenancy.ts";
 
@@ -180,7 +180,7 @@ export interface AuthRuntimeInput {
 	callbacks?: AuthCallbacks;
 	sameSite?: "strict" | "lax" | "none";
 	trustedOrigins?: string[];
-	// Dev-server origins, applied only when the worker runs with STACK_DEV.
+	// Dev-server origins, applied only when the worker runs with SLOTFORM_DEV.
 	devTrustedOrigins?: string[];
 	cookies?: { prefix?: string; domain?: string };
 	session?: {
@@ -273,7 +273,7 @@ function appOrigin(url: unknown): string[] {
 }
 
 // The origins the instance trusts, which a sign-in link's redirect is held to:
-// the baked list, plus the dev-server origins under STACK_DEV. The instance
+// the baked list, plus the dev-server origins under SLOTFORM_DEV. The instance
 // is built with the list alone: Better Auth trusts its own base URL besides,
 // so a redirect check names that origin too.
 function trustedOriginsOf(
@@ -289,7 +289,7 @@ function trustedOriginsOf(
 // A callback an option on requires: the runtime refuses to build without it.
 function missingCallback(callback: string, option: string, off: string): Error {
 	return new Error(
-		`plugin-auth: \`${option}\` is on but the callbacks file defines no \`${callback}\`. Implement \`${callback}\` in the auth callbacks file (\`auth.slots.callbackFile\`), or set \`${off}\`.`,
+		`auth: \`${option}\` is on but the callbacks file defines no \`${callback}\`. Implement \`${callback}\` in the auth callbacks file (\`auth.slots.callbackFile\`), or set \`${off}\`.`,
 	);
 }
 
@@ -318,7 +318,7 @@ function buildAuth(
 				roles: organizationRoles(options),
 				membership: consumerMembership(options.scopes),
 				context: () => {
-					if (!authContext) throw new Error("plugin-auth: auth is not built");
+					if (!authContext) throw new Error("auth: auth is not built");
 					return authContext;
 				},
 			})
@@ -338,11 +338,11 @@ function buildAuth(
 		const sendOTP = options.callbacks?.sendOTP;
 		if (!sendOTP)
 			throw missingCallback("sendOTP", "emailOtp", "emailOtp: false");
-		// The fixture member's code under `stack screens serve` (which sets
-		// `STACK_DEV`): the one address's code is fixed, every other's is its own.
+		// The fixture member's code under `slotform screens serve` (which sets
+		// `SLOTFORM_DEV`): the one address's code is fixed, every other's is its own.
 		const serveCode =
-			isDevMode(env) && typeof env.STACK_SERVE_CODE === "string"
-				? env.STACK_SERVE_CODE
+			isDevMode(env) && typeof env.SLOTFORM_SERVE_CODE === "string"
+				? env.SLOTFORM_SERVE_CODE
 				: undefined;
 		plugins.push(
 			emailOTP({
@@ -362,7 +362,7 @@ function buildAuth(
 								email: string;
 								type: OtpType;
 							}) =>
-								email === env.STACK_SERVE_EMAIL
+								email === env.SLOTFORM_SERVE_EMAIL
 									? serveCode
 									: options.callbacks?.generateOTP?.({ email, type, env }),
 						}
@@ -621,7 +621,7 @@ function consumerScopes(module: Record<string, unknown> | undefined): Scope[] {
 	for (const scope of scopes) {
 		if (names.has(scope.name)) {
 			throw new Error(
-				`plugin-auth: two scopes are named "${scope.name}"; scope names are unique.`,
+				`auth: two scopes are named "${scope.name}"; scope names are unique.`,
 			);
 		}
 		names.add(scope.name);
@@ -651,7 +651,7 @@ function consumerMembership(
 			})
 			.join(", ");
 		throw new Error(
-			`plugin-auth: the scopes module exports ${distinct.length} memberships (${names}); export one defineMembership.`,
+			`auth: the scopes module exports ${distinct.length} memberships (${names}); export one defineMembership.`,
 		);
 	}
 	return distinct[0] ?? null;
@@ -780,7 +780,7 @@ export default function authRuntime<TOptions extends AuthRuntimeInput>(
 		dependsOn: ["db"],
 		// Framework-owned procedures: docs/architecture/plugins/auth.md, "Procedures".
 		routes(procedure: unknown) {
-			// The worker passes plugin-api's `createProcedure<TContext>()` result;
+			// The worker passes the `api` plugin's `createProcedure<TContext>()` result;
 			// `RuntimePlugin` types the argument `unknown`. Its context carries
 			// the `tenancy` and the `api` endpoints of the plugins this plugin's
 			// context() provides when their options are on, and each group below
