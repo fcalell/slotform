@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/biome-config",
+	"name": "@slotform/biome-config",
 	"version": "0.1.0",
-	"description": "Shared Biome formatter and linter configuration for the @fcalell/stack framework.",
+	"description": "Shared Biome formatter and linter configuration for the slotform framework.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "packages/biome-config"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/packages/biome-config#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/packages/biome-config#readme",
 	"publishConfig": {
 		"access": "public"
 	},

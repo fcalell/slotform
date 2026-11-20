@@ -15,7 +15,7 @@
 			"!**/.turbo",
 			"!**/.wrangler",
 			"!**/.output",
-			"!**/.stack",
+			"!**/.slotform",
 			"!**/.claude/worktrees",
 			"!**/storybook-static",
 			"!**/coverage"
