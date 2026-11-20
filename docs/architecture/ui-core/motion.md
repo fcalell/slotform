@@ -39,7 +39,7 @@ all read. A knob's `unit` is the CSS unit its variable takes (`""` for a scale).
 - `deriveTheme().motion` carries them as numbers, so a platform that animates outside CSS (a native
   timing call) reads the same record the web renders as custom properties: each duration in
   milliseconds, each easing as its four cubic-bezier control values.
-- The wait and act delays (`tuned.waitDelay`, `tuned.actDelay`, in `@fcalell/ui-core/paint`) and the
+- The wait and act delays (`tuned.waitDelay`, `tuned.actDelay`, in `@slotform/ui-core/paint`) and the
   scramble's tick are knobs of the same table.
 
 ## Reduced motion
@@ -55,14 +55,14 @@ On the phone reduced motion follows the system, which zeroes the Reanimated timi
 
 ## Tuning record
 
-`@fcalell/ui-core/paint` keeps `tuned`, the live tuning record of every knob: the phone's source for
+`@slotform/ui-core/paint` keeps `tuned`, the live tuning record of every knob: the phone's source for
 a number the web reads from a CSS variable, applied on the next read as the variables are. A writer
 goes through `tune` so readers are told; a reader that must follow a change reads `tuned[name]` as a
 `useSyncExternalStore` snapshot over `subscribeMotion`. `loading` and `setLoading` hold the theme's
 paint per glyph region the same way.
 
 The phone app's `/motion` route (development only) generates one slider per knob, written to
-`tuned` so the next animation played takes it, and a "Changed values" dump of the changed knobs. `pnpm --filter @fcalell/ui-core motion:apply <file>` validates the keys and ranges,
+`tuned` so the next animation played takes it, and a "Changed values" dump of the changed knobs. `pnpm --filter @slotform/ui-core motion:apply <file>` validates the keys and ranges,
 refusing the whole file otherwise, rewrites only the default literals in `tokens.ts` and regenerates
 `DESIGN.md`. A default changes only by that pass.
 
@@ -113,8 +113,8 @@ the next one's, and the web's classes leave it alone.
 A **block** (a fold, a chip remove, a sheet close, a row the viewer adds or removes) lands at once,
 its neighbours with it ([moves land at once](../../decisions/moves-land-at-once.md)). A block that
 arrives on its own, which nothing the viewer did moved in, fades in on `base` `out` and pushes what
-follows at once. `arrivals` (`@fcalell/ui-core/arrive`, with `useArrivals` in
-`@fcalell/ui-core/react/arrive`) names the keys that arrived on their own: those the page did not
+follows at once. `arrivals` (`@slotform/ui-core/arrive`, with `useArrivals` in
+`@slotform/ui-core/react/arrive`) names the keys that arrived on their own: those the page did not
 hold when it first drew them. Nothing is known before the first draw, so that draw has no arrivals;
 every later key that was not known is one, whoever added it, so a row the server pushed fades in and
 pushes at once, and one the viewer's act added fades in the same way.
@@ -132,7 +132,7 @@ tick rides, a changing figure or mark swaps (`Swap`, `Roll`).
   that mounts grows from its start (`starting:` on the web), the start edge following the writing
   direction. On the phone a fill starts at `from` and follows `to`: one that mounts starts at 0 and
   grows from its start, and one that stands where it was does not move until its data does.
-- A figure that changes while shown rolls (`@fcalell/ui-core/roll`): the old value leaves and the next
+- A figure that changes while shown rolls (`@slotform/ui-core/roll`): the old value leaves and the next
   one arrives from the side the change went to, one rule both platforms read.
 - A pending bar's fill (`pendingShare`) animates by transform and, under reduced motion, steps with
   the clock ([words](words.md#ages-and-the-clock)).
@@ -151,13 +151,13 @@ nothing moves and no transition runs ([moves land at once](../../decisions/moves
 `theme.loading` is `{ text, figure, id }`, each `pulse` or `scramble` (which region takes which:
 [waiting paint](reads.md#waiting-paint)). It rides `ResolvedTheme.loading` to both plugins: on the web as `data-loading-*` on
 the root, set by `themeModePlugin` before first paint; on the phone through the generated
-`.stack/native-theme.ts`.
+`.slotform/native-theme.ts`.
 
 ## Scramble and decode
 
 When the theme scrambles a region's kind, the region paints generated characters in the filler's length
-instead of the pulse (`@fcalell/ui-core/scramble`: `frame`, `decode`, `createTicker`, over the kind
-`kindOf` of `@fcalell/ui-core/paint` gives a role). Every function is pure over the tick it is given,
+instead of the pulse (`@slotform/ui-core/scramble`: `frame`, `decode`, `createTicker`, over the kind
+`kindOf` of `@slotform/ui-core/paint` gives a role). Every function is pure over the tick it is given,
 so both platforms draw the same frame for the same region, and one ticker serves every region of a page.
 A figure or id that waited then decodes ([waiting paint](reads.md#waiting-paint)) by locking its
 characters across `slow`. `Decoded` (`lib/region`) draws both forms as one instance.
@@ -210,7 +210,7 @@ checkbox mark) is built where it mounts, so a tuned rung is the next one's.
 
 ## Judging motion
 
-`stack screens test` runs with `prefers-reduced-motion: reduce`, so a screen is judged at rest; the
+`slotform screens test` runs with `prefers-reduced-motion: reduce`, so a screen is judged at rest; the
 design critique's motion pass is the run with motion on.
 
 ## In the code

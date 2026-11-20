@@ -1,8 +1,8 @@
-# plugin-cloudflare
+# cloudflare plugin
 
-`@fcalell/plugin-cloudflare` is the Cloudflare Workers target, the alternative to
-[plugin-node](node.md) for the same worker. This page holds what the plugin owns and contributes, how
-`.stack/wrangler.toml` is derived and merged with the consumer's root file, the env namespace, the
+`@slotform/cloudflare` is the Cloudflare Workers target, the alternative to
+the [node plugin](node.md) for the same worker. This page holds what the plugin owns and contributes, how
+`.slotform/wrangler.toml` is derived and merged with the consumer's root file, the env namespace, the
 pinned compatibility date, rate-limiter ids, how every wrangler command is invoked, `.dev.vars`, the
 local miniflare state, the client's `_headers` and the screens serve target. How a consumer edits the
 root `wrangler.toml` and deploys is the plugin's guide (`plugins/cloudflare/guide/`).
@@ -11,17 +11,17 @@ root `wrangler.toml` and deploys is the plugin's guide (`plugins/cloudflare/guid
 
 Plugins that need bindings contribute into `cloudflare.slots.bindings` (a plain `[vars]` key is a
 `kind: "var"` binding); `wranglerToml` is a derived slot that composes them, with the worker's `api.slots.env` declarations, into the final
-`.stack/wrangler.toml` source. It is a pure derivation with no ordering between contributions: the
+`.slotform/wrangler.toml` source. It is a pure derivation with no ordering between contributions: the
 aggregator reads every input slot at once ([slot graph](../slot-graph.md#contributing-and-deriving)).
 With vite in the config it serves the web client's build as the worker's static assets. Every owned
 slot, `serveWranglerToml` included, is listed in the
-[slot catalog](../slot-catalog.md#cloudflareslots-plugin-cloudflare). The plugin writes `wrangler`
+[slot catalog](../slot-catalog.md#cloudflareslots-the-cloudflare-plugin). The plugin writes `wrangler`
 into the consumer's `devDependencies` and gitignores `.wrangler` and `.dev.vars`.
 
 | Target slot | Behaviour |
 | --- | --- |
-| `cliSlots.artifactFiles` | `.stack/wrangler.toml`, from `wranglerToml`; `.dev.vars` and its mirror `.stack/.dev.vars` ([.dev.vars](#devvars)) |
-| `cloudflare.slots.bindings` | `RATE_LIMITER_RPC` when any worker path exists ([api's rate limiting](api.md#rate-limiting)), contributed here since plugin-api cannot: cloudflare imports api for `env`, and the reverse import would cycle; the queue `QUEUE` when `api.slots.queueHandler` is set ([merge contract](#wranglertoml-merge-contract)) |
+| `cliSlots.artifactFiles` | `.slotform/wrangler.toml`, from `wranglerToml`; `.dev.vars` and its mirror `.slotform/.dev.vars` ([.dev.vars](#devvars)) |
+| `cloudflare.slots.bindings` | `RATE_LIMITER_RPC` when any worker path exists ([api's rate limiting](api.md#rate-limiting)), contributed here since the `api` plugin cannot: cloudflare imports api for `env`, and the reverse import would cycle; the queue `QUEUE` when `api.slots.queueHandler` is set ([merge contract](#wranglertoml-merge-contract)) |
 | `api.slots.envType` | The global `Env` `wrangler types` declares, so a procedure's `context.env` is typed on Cloudflare |
 | `api.slots.devTargetOrigins` | `http://localhost:8787`, unless `app.origins` is set |
 | `vite.slots.serverProxy` | Every `api.slots.routePrefixes` path to the wrangler dev port |
@@ -30,7 +30,7 @@ into the consumer's `devDependencies` and gitignores `.wrangler` and `.dev.vars`
 | `screens.slots.serveTargets` | The cloudflare serve target ([Screens serve](#screens-serve)) |
 | `cliSlots.buildSteps` | `client-headers`, phase `post` ([Client headers](#client-headers)) |
 | `cliSlots.deploySteps` | `wrangler deploy`, phase `main` |
-| `cliSlots.postWrite` | Creates the assets directory when missing (`wrangler dev` refuses to start without it, and it is missing until the first `stack build`); runs `wrangler types` ([Wrangler invocation](#wrangler-invocation)) |
+| `cliSlots.postWrite` | Creates the assets directory when missing (`wrangler dev` refuses to start without it, and it is missing until the first `slotform build`); runs `wrangler types` ([Wrangler invocation](#wrangler-invocation)) |
 
 ## wrangler.toml merge contract
 
@@ -82,7 +82,7 @@ arrive in config plugin-array order, so each kind-grouped section is sorted by n
 The default Workers compatibility date is a constant in the plugin source,
 `DEFAULT_COMPATIBILITY_DATE` (`2025-01-01`), which seeds `cloudflare.slots.compatibilityDate`, so
 `wrangler.toml` is a function of the config and the plugin version alone. Reading the wall clock at
-generate time would make the file depend on the day `stack generate` runs: `wrangler types` output
+generate time would make the file depend on the day `slotform generate` runs: `wrangler types` output
 would drift between runs across midnight and CI caches would invalidate for no reason. A compatibility
 date is a stability contract, not a feature flag, so the trade is reproducibility over automatic
 bumps. The constant moves with plugin releases; a consumer who wants a newer date sets
@@ -99,19 +99,19 @@ enforces, `namespace_id` plus a nested `simple` table; the flat `limit`/`period`
 
 ## Wrangler invocation
 
-Every bundling wrangler command (`dev`, `deploy`) passes `--config .stack/wrangler.toml`, since the
+Every bundling wrangler command (`dev`, `deploy`) passes `--config .slotform/wrangler.toml`, since the
 consumer root has no wrangler config, and `--tsconfig` with the absolute path of
-`cliSlots.workerTsconfig`, the tsconfig holding `virtual:stack-procedure`'s `paths`
+`cliSlots.workerTsconfig`, the tsconfig holding `virtual:slotform-procedure`'s `paths`
 ([TypeScript projects](../consumer-project.md#typescript-projects)). esbuild otherwise reads the tsconfig
 nearest each file, which is the solution `tsconfig.json` with no `paths`, and
-`virtual:stack-procedure` would not resolve. The path is absolute because wrangler hands it to
-esbuild, which resolves a relative one against the config's directory, `.stack/`; the config file's
+`virtual:slotform-procedure` would not resolve. The path is absolute because wrangler hands it to
+esbuild, which resolves a relative one against the config's directory, `.slotform/`; the config file's
 own `tsconfig` key fails the same way.
 
-Once `.stack/wrangler.toml` is on disk, `postWrite` runs `wrangler types` into
-`.stack/worker-configuration.d.ts`. A missing binary or a wrangler crash downgrades to a warning with
-next steps, and the rest of `stack generate` completes. On every failure path the existing
-`.stack/worker-configuration.d.ts` is deleted: a stale file would let the consumer's type-check pass
+Once `.slotform/wrangler.toml` is on disk, `postWrite` runs `wrangler types` into
+`.slotform/worker-configuration.d.ts`. A missing binary or a wrangler crash downgrades to a warning with
+next steps, and the rest of `slotform generate` completes. On every failure path the existing
+`.slotform/worker-configuration.d.ts` is deleted: a stale file would let the consumer's type-check pass
 against the last run's bindings while the real `env.*` shape drifted, and without it the type-check
 fails at once with `Cannot find name 'Env'`, pointing at the failed regeneration.
 
@@ -122,37 +122,37 @@ How generate writes and tops up the root `.dev.vars` is the guide's
 declared after the file was written reach the dev worker, and `wrangler types` types it as a
 `string`: no declared var is in `[vars]`. A line counts as declaring a var in any form wrangler's
 dotenv parser reads (`export NAME=`, blanks around `=`, `NAME: value`), so a consumer's value is
-never shadowed by an appended default. `STACK_DEV` never goes through `api.slots.env`, so it never becomes a
+never shadowed by an appended default. `SLOTFORM_DEV` never goes through `api.slots.env`, so it never becomes a
 `wrangler secret put` deploy prompt. On the node target the same two signals arrive through the dev
 process's env ([node's dev](node.md#dev)).
 
 wrangler resolves `.dev.vars` relative to its config file, and the dev process runs
-`--config .stack/wrangler.toml`, so the consumer's root file is invisible to it. The root file is the
-consumer's editing surface; every generate mirrors it into `.stack/.dev.vars` for wrangler to read.
+`--config .slotform/wrangler.toml`, so the consumer's root file is invisible to it. The root file is the
+consumer's editing surface; every generate mirrors it into `.slotform/.dev.vars` for wrangler to read.
 
 ## Local state
 
 Miniflare keeps the local worker's state (D1, KV, caches, traces) in wrangler's own `.wrangler/state`
-at the consumer root, exported as `LOCAL_PERSIST`. It stays outside `.stack/`, which is Vite's root:
+at the consumer root, exported as `LOCAL_PERSIST`. It stays outside `.slotform/`, which is Vite's root:
 every request writes it, and each write Vite sees is a full reload. Every local wrangler invocation
-(`wrangler dev`, plugin-db's `migrations apply` and `d1 execute`) passes the same `--config` and
-`--persist-to` (plugin-db builds both for every one, from `LOCAL_PERSIST`), so schema pushes, seeds and the running worker share
+(`wrangler dev`, the `db` plugin's `migrations apply` and `d1 execute`) passes the same `--config` and
+`--persist-to` (the `db` plugin builds both for every one, from `LOCAL_PERSIST`), so schema pushes, seeds and the running worker share
 one miniflare D1. The consumer's half is the guide's
 [local state](../../../plugins/cloudflare/guide/wrangler.md#local-state).
 
-plugin-db's d1 push writes into the exact miniflare sqlite the running `wrangler dev` reads, so a
+The `db` plugin's d1 push writes into the exact miniflare sqlite the running `wrangler dev` reads, so a
 schema change is live without a restart ([db's local dev push](db.md#local-dev-push)). Migrations
-stay the remote deploy path, and the local database is disposable (`stack db reset`). Miniflare
+stay the remote deploy path, and the local database is disposable (`slotform db reset`). Miniflare
 persists one sqlite file per database id under `--persist-to`, named by its deterministic
 durable-object id (`durableObjectNamespaceIdFromName`): HMAC-SHA256 keyed on
 `sha256("miniflare-D1DatabaseObject")`, the first 16 bytes over the database id, then 16 bytes over
-that digest. plugin-db derives that exact filename instead of globbing the directory, which stays
+that digest. The `db` plugin derives that exact filename instead of globbing the directory, which stays
 correct when the persisted state holds databases from an earlier `databaseId`.
 
 ## Dev and Vite root
 
 wrangler keeps its scratch `.wrangler/` beside its config, so the dev bundle it rewrites on every
-worker edit lands in `.stack/.wrangler/tmp/`, inside Vite's root. Tailwind's automatic source
+worker edit lands in `.slotform/.wrangler/tmp/`, inside Vite's root. Tailwind's automatic source
 detection scans that bundle and answers a change to a file it scanned, but no module imports, with a
 full page reload, and Vite's watcher never sees the directory. The plugin contributes
 `**/.wrangler/**` to `vite.slots.watchIgnored`
@@ -170,10 +170,10 @@ invalid), so merging is not safe. There is no step without vite or with the slot
 
 ## Screens serve
 
-A `stack screens serve` run ([screens' serve](screens.md#serve)) on this target runs `wrangler dev`
+A `slotform screens serve` run ([screens' serve](screens.md#serve)) on this target runs `wrangler dev`
 on the run's port and state with a config of its own (`serveWranglerToml`), its entry wrapping the
 worker in the fixture controls and its `.dev.vars` the dev values generate mirrors, derived the same
-way rather than read from `.stack/`, with the run's env on top. A run with no web client has no
+way rather than read from `.slotform/`, with the run's env on top. A run with no web client has no
 `[assets]`.
 All of it lives in the run's scratch directory.
 
@@ -183,4 +183,4 @@ All of it lives in the run's scratch directory.
 - `plugins/cloudflare/src/node/codegen.ts`: `aggregateWrangler`, the merge contract, the namespace check, canonical order, rate-limiter ids.
 - `plugins/cloudflare/src/node/dev-vars.ts`: `.dev.vars`, its top-up and the env-name rule.
 - `plugins/db/src/node/push.ts`: the miniflare D1 filename and the local d1 push.
-- `plugins/db/src/node/wrangler.ts`: plugin-db's wrangler calls, the shared `--config` and `--persist-to`.
+- `plugins/db/src/node/wrangler.ts`: the `db` plugin's wrangler calls, the shared `--config` and `--persist-to`.

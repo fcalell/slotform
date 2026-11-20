@@ -1,6 +1,6 @@
 # Architecture
 
-`@fcalell/stack` is a pnpm monorepo: `packages/` (the core CLI, the design contract and two shared
+`slotform` is a pnpm monorepo: `packages/` (the core CLI, the design contract and two shared
 configs), `plugins/` (one self-contained feature unit per domain) and `apps/` (`showcase`, a private
 consumer that renders the roster's Storybook and the foundations and layout pages, and `phone`, a
 private native consumer). The CLI owns orchestration and the slot graph; every feature lives in the
@@ -12,11 +12,11 @@ plugins, how they depend on each other, and every architecture page.
 
 | Package | Purpose |
 |---------|---------|
-| [`@fcalell/cli`](../packages/cli) | `defineConfig()`, `plugin()`, `slot.*`, the `stack` CLI, the slot graph engine, codegen |
-| [`@fcalell/ui-core`](../packages/ui-core) | The design contract both UI plugins render from: the knob-derived token records, `deriveTheme`, the emit helpers, `words`, `cn()`, the platform-invariant variant matrices and the component roster. Framework-free build-time data |
-| [`@fcalell/typescript-config`](../packages/typescript-config) | `tsconfig` presets (`base`, `node-tsx`, `web-vite`) and the `build` emit overlay |
-| [`@fcalell/biome-config`](../packages/biome-config) | The shared Biome formatter and linter config |
-| [`@fcalell/repo-checks`](../packages/repo-checks) | Private. The tests that read the whole checkout: no consumer's names in sources, guides or docs (`neutral.test.ts`); every guide page at most 600 words of prose, listed by its package and on disk (`guide.test.ts`); one spec per field for each third-party library across the public manifests, each devDependency inside its peer range (`ranges.test.ts`). Its `test` task's inputs are every root those tests read, so a doc-only change re-runs them. |
+| [`@slotform/cli`](../packages/cli) | `defineConfig()`, `plugin()`, `slot.*`, the `slotform` CLI, the slot graph engine, codegen |
+| [`@slotform/ui-core`](../packages/ui-core) | The design contract both UI plugins render from: the knob-derived token records, `deriveTheme`, the emit helpers, `words`, `cn()`, the platform-invariant variant matrices and the component roster. Framework-free build-time data |
+| [`@slotform/typescript-config`](../packages/typescript-config) | `tsconfig` presets (`base`, `node-tsx`, `web-vite`) and the `build` emit overlay |
+| [`@slotform/biome-config`](../packages/biome-config) | The shared Biome formatter and linter config |
+| [`@slotform/repo-checks`](../packages/repo-checks) | Private. The tests that read the whole checkout: no consumer's names in sources, guides or docs (`neutral.test.ts`); every guide page at most 600 words of prose, listed by its package and on disk (`guide.test.ts`); one spec per field for each third-party library across the public manifests, each devDependency inside its peer range (`ranges.test.ts`). Its `test` task's inputs are every root those tests read, so a doc-only change re-runs them. |
 
 ## Plugins
 
@@ -26,18 +26,18 @@ runtime export ([plugin authoring](./architecture/plugin-authoring.md)).
 
 | Plugin | Purpose | Factory |
 |--------|---------|---------|
-| [`@fcalell/plugin-cloudflare`](../plugins/cloudflare) | The Cloudflare Workers target: renders the wrangler config from what other plugins contribute, runs `wrangler` for dev, types and deploy | `cloudflare()` |
-| [`@fcalell/plugin-node`](../plugins/node) | A long-running Node server target: one process serves the API, the built web client and background services, with a typed WebSocket surface | `node()` |
-| [`@fcalell/plugin-db`](../plugins/db) | Drizzle ORM clients and runtimes (D1 on cloudflare, SQLite on node), schema tooling, migrations | `db()` |
-| [`@fcalell/plugin-auth`](../plugins/auth) | Better Auth integration (email OTP, magic links, OAuth, passkeys, an OAuth authorization server for MCP clients with grant verification and revocation, device keys for headless machines, consumer plugins), RBAC, access control, web and native clients | `auth()` |
-| [`@fcalell/plugin-api`](../plugins/api) | The wire: Hono + oRPC, the procedure builder, the worker runtime, the typed client, schema and errors, with no React | `api()` |
-| [`@fcalell/plugin-query`](../plugins/query) | The client side of the api: TanStack Query reads and acts over the typed client, the query provider, the org-rules ability, and the port ui-core's read hooks run on | `query()` |
-| [`@fcalell/plugin-vite`](../plugins/vite) | The framework-agnostic Vite lifecycle (the providers virtual module) | `vite()` |
-| [`@fcalell/plugin-react`](../plugins/react) | React on the web: Vite + React Compiler, TanStack Router file routes, the app entry, providers, and the HTML shell with its `<head>` metadata | `react()` |
-| [`@fcalell/plugin-react-ui`](../plugins/react-ui) | The design system on the web: `.stack/app.css` from the ui-core contract on Tailwind v4, fonts, the mode script, words, and the roster components over Base UI | `reactUi()` |
-| [`@fcalell/plugin-expo`](../plugins/expo) | Expo and React Native: Metro, the app config, the expo-router entry, the React Compiler in `babel.config.cjs` (the filter is `@fcalell/cli/compiled-source`, shared with plugin-react), EAS commands | `expo()` |
-| [`@fcalell/plugin-screens`](../plugins/screens) | The screens workbench: Storybook on the app's own Vite config serves every route in each query state from typed fixtures, answered by MSW in oRPC's wire format, with no backend | `screens()` |
-| [`@fcalell/plugin-native-ui`](../plugins/native-ui) | The design system on the phone: the ui-core roster in React Native + Expo + uniwind, the phone layout at every width, fonts, words, native providers | `nativeUi()` |
+| [`@slotform/cloudflare`](../plugins/cloudflare) | The Cloudflare Workers target: renders the wrangler config from what other plugins contribute, runs `wrangler` for dev, types and deploy | `cloudflare()` |
+| [`@slotform/node`](../plugins/node) | A long-running Node server target: one process serves the API, the built web client and background services, with a typed WebSocket surface | `node()` |
+| [`@slotform/db`](../plugins/db) | Drizzle ORM clients and runtimes (D1 on cloudflare, SQLite on node), schema tooling, migrations | `db()` |
+| [`@slotform/auth`](../plugins/auth) | Better Auth integration (email OTP, magic links, OAuth, passkeys, an OAuth authorization server for MCP clients with grant verification and revocation, device keys for headless machines, consumer plugins), RBAC, access control, web and native clients | `auth()` |
+| [`@slotform/api`](../plugins/api) | The wire: Hono + oRPC, the procedure builder, the worker runtime, the typed client, schema and errors, with no React | `api()` |
+| [`@slotform/query`](../plugins/query) | The client side of the api: TanStack Query reads and acts over the typed client, the query provider, the org-rules ability, and the port ui-core's read hooks run on | `query()` |
+| [`@slotform/vite`](../plugins/vite) | The framework-agnostic Vite lifecycle (the providers virtual module) | `vite()` |
+| [`@slotform/react`](../plugins/react) | React on the web: Vite + React Compiler, TanStack Router file routes, the app entry, providers, and the HTML shell with its `<head>` metadata | `react()` |
+| [`@slotform/react-ui`](../plugins/react-ui) | The design system on the web: `.slotform/app.css` from the ui-core contract on Tailwind v4, fonts, the mode script, words, and the roster components over Base UI | `reactUi()` |
+| [`@slotform/expo`](../plugins/expo) | Expo and React Native: Metro, the app config, the expo-router entry, the React Compiler in `babel.config.cjs` (the filter is `@slotform/cli/compiled-source`, shared with the `react` plugin), EAS commands | `expo()` |
+| [`@slotform/screens`](../plugins/screens) | The screens workbench: Storybook on the app's own Vite config serves every route in each query state from typed fixtures, answered by MSW in oRPC's wire format, with no backend | `screens()` |
+| [`@slotform/native-ui`](../plugins/native-ui) | The design system on the phone: the ui-core roster in React Native + Expo + uniwind, the phone layout at every width, fonts, words, native providers | `nativeUi()` |
 
 Each plugin's README holds its config options, commands and runtime exports; its architecture page
 below holds how it is built.
@@ -50,26 +50,26 @@ topology from those edges ([slot graph](./architecture/slot-graph.md#ordering-by
 only declares presence ([slot graph](./architecture/slot-graph.md#requires)). Which slots each plugin owns and contributes to is in the
 [slot catalog](./architecture/slot-catalog.md).
 
-`@fcalell/cli` and `@fcalell/ui-core` depend on no stack package. Every plugin depends on
-`@fcalell/cli`.
+`@slotform/cli` and `@slotform/ui-core` depend on no Slotform package. Every plugin depends on
+`@slotform/cli`.
 
-| Plugin | `requires` | Other stack packages it depends on |
+| Plugin | `requires` | Other Slotform packages it depends on |
 |--------|------------|------------------------------------|
-| `plugin-api` | exactly one of `cloudflare` or `node` (default `cloudflare`); none with `server`, a client of another app's server | none; it never imports a deploy target |
-| `plugin-cloudflare` | none | `plugin-api`, `plugin-screens`, `plugin-vite` |
-| `plugin-node` | `api` | `plugin-api`, `plugin-query`, `plugin-screens`, `plugin-vite`, `ui-core` |
-| `plugin-db` | `api` | `plugin-api`, `plugin-cloudflare`, `plugin-node`, `plugin-screens` |
-| `plugin-auth` | `api`, `db` | `plugin-api`, `plugin-cloudflare`, `plugin-db`, `plugin-screens` |
-| `plugin-query` | `api` | `plugin-api`, `plugin-react`, `plugin-vite`, `ui-core` |
-| `plugin-vite` | none | `plugin-api` |
-| `plugin-react` | `vite` | `plugin-vite` |
-| `plugin-react-ui` | `react`, `vite` | `plugin-auth`, `plugin-react`, `plugin-screens`, `plugin-vite`, `ui-core` |
-| `plugin-screens` | `react`, `api` | `plugin-api`, `plugin-query`, `plugin-react`, `plugin-vite`, `ui-core` |
-| `plugin-expo` | none | `plugin-api`, `plugin-cloudflare`, `ui-core` |
-| `plugin-native-ui` | `expo`, `api`, `query` (auth is optional) | `plugin-api`, `plugin-auth`, `plugin-expo`, `ui-core` |
+| `api` | exactly one of `cloudflare` or `node` (default `cloudflare`); none with `server`, a client of another app's server | none; it never imports a deploy target |
+| `cloudflare` | none | `api`, `screens`, `vite` |
+| `node` | `api` | `api`, `query`, `screens`, `vite`, `ui-core` |
+| `db` | `api` | `api`, `cloudflare`, `node`, `screens` |
+| `auth` | `api`, `db` | `api`, `cloudflare`, `db`, `screens` |
+| `query` | `api` | `api`, `react`, `vite`, `ui-core` |
+| `vite` | none | `api` |
+| `react` | `vite` | `vite` |
+| `react-ui` | `react`, `vite` | `auth`, `react`, `screens`, `vite`, `ui-core` |
+| `screens` | `react`, `api` | `api`, `query`, `react`, `vite`, `ui-core` |
+| `expo` | none | `api`, `cloudflare`, `ui-core` |
+| `native-ui` | `expo`, `api`, `query` (auth is optional) | `api`, `auth`, `expo`, `ui-core` |
 
-A stack package depends on another, never peers on it
-([releasing](./architecture/releasing.md#peers-one-copy-of-each-stack-package)).
+A Slotform package depends on another, never peers on it
+([releasing](./architecture/releasing.md#peers-one-copy-of-each-slotform-package)).
 
 ## Pages
 

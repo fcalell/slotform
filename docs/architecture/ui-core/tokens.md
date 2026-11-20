@@ -1,6 +1,6 @@
 # Tokens
 
-The token contract of `@fcalell/ui-core`: the six knobs a theme sets, the token values they move,
+The token contract of `@slotform/ui-core`: the six knobs a theme sets, the token values they move,
 how the derivation holds every contrast contract at any hue, the density sets and the room, the
 type, spacing, size and width scales, the reset that keeps an off-contract utility from compiling,
 the `cn()` merge config and the token records each plugin renders. The emitted `DESIGN.md` lists
@@ -414,7 +414,7 @@ conflicts `font-size` with `leading` alone, which leaves a stale `tracking-title
 ## Emit
 
 Emission (`./emit`) returns token records keyed by full custom-property name, never CSS text: a
-record validates per key, needs no escaping and keeps ui-core free of `@fcalell/cli`. Each plugin
+record validates per key, needs no escaping and keeps ui-core free of `@slotform/cli`. Each plugin
 renders them.
 
 - `themeTokens` is the `@theme` record. It carries the light colours and the touch density set: in

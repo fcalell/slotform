@@ -1,12 +1,12 @@
 ---
 name: Bug report
-about: Something in a stack package does not behave as documented
+about: Something in a Slotform package does not behave as documented
 labels: bug
 ---
 
 **Package and version**
 
-e.g. `@fcalell/cli@0.1.0`, `@fcalell/plugin-db@0.1.0`
+e.g. `@slotform/cli@0.1.0`, `@slotform/db@0.1.0`
 
 **What happened**
 
@@ -14,7 +14,7 @@ e.g. `@fcalell/cli@0.1.0`, `@fcalell/plugin-db@0.1.0`
 
 **How to reproduce**
 
-The `stack.config.ts` (trimmed), the command you ran, and the output.
+The `slotform.config.ts` (trimmed), the command you ran, and the output.
 
 **Environment**
 

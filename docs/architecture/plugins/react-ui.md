@@ -1,22 +1,22 @@
-# plugin-react-ui
+# react-ui plugin
 
-`@fcalell/plugin-react-ui` is the web half of the design system: it renders `@fcalell/ui-core`'s
-contract into `.stack/app.css` on Tailwind v4, loads the fonts, sets the mode before first paint,
+`@slotform/react-ui` is the web half of the design system: it renders `@slotform/ui-core`'s
+contract into `.slotform/app.css` on Tailwind v4, loads the fonts, sets the mode before first paint,
 mounts the words and the app's lockup, and ships the web roster on `@base-ui/react`. This page holds
 how the plugin and its components are built: the stylesheet, density, the mode script, the lint
 rules, the component shape, focus, popups, navigation and the canvas. How a consumer builds a screen
 with it is the guide (`plugins/react-ui/guide/`); the slots it owns are in the
-[slot catalog](../slot-catalog.md#reactuislots-plugin-react-ui).
+[slot catalog](../slot-catalog.md#reactuislots-the-react-ui-plugin).
 
 ## Generated files
 
 | File | Slot | Content |
 |------|------|---------|
-| `.stack/app.css` | `reactUi.slots.appCssSource` | `tailwindcss` with `source(none)`, the plugin's `globals.css`, `@source "../src"`, the `@theme` tokens and shadow utilities from ui-core, the `touch:` and `page-*` custom variants, the `pb-safe` and `pt-safe` utilities, and `@layer base` for the mode scopes, reduced motion and density |
+| `.slotform/app.css` | `reactUi.slots.appCssSource` | `tailwindcss` with `source(none)`, the plugin's `globals.css`, `@source "../src"`, the `@theme` tokens and shadow utilities from ui-core, the `touch:` and `page-*` custom variants, the `pb-safe` and `pt-safe` utilities, and `@layer base` for the mode scopes, reduced motion and density |
 
 CSS is this plugin's domain: the entry's `import "./app.css"` pairs with the artifact, so a consumer
-with `react()` alone neither imports nor emits a stylesheet. `.stack/entry.tsx` imports
-`./app.css`; `.stack/vite.config.ts` gains `tailwindcss()`, `themeFontsPlugin` (the preloads and
+with `react()` alone neither imports nor emits a stylesheet. `.slotform/entry.tsx` imports
+`./app.css`; `.slotform/vite.config.ts` gains `tailwindcss()`, `themeFontsPlugin` (the preloads and
 `@font-face` rules), `themeModePlugin` (the script that sets the `dark` class before first paint)
 and `canvasPlugin` ([Canvas serving](#canvas-serving)).
 
@@ -49,7 +49,7 @@ the place's `Pane`, a record's `Pane` titled "Not found" with the missing shape;
 
 ## Stylesheet assembly
 
-Tailwind's automatic content detection roots at the sheet's directory, `.stack/`, and would scan
+Tailwind's automatic content detection roots at the sheet's directory, `.slotform/`, and would scan
 every generated file there (the worker types, wrangler's bundle). The `tailwindcss` import turns it
 off with `source(none)`, so the consumer's sources are declared explicitly.
 
@@ -125,7 +125,7 @@ A font entry is a webfont file: `themeFontsPlugin` preloads the woff2 and declar
 fallback metrics. Which family the contract binds to `sans` or `mono` is the theme's `fonts` knob; an
 entry only makes a family's file load.
 
-The files are served out of this package's `node_modules` (`@fontsource`). When stack is
+The files are served out of this package's `node_modules` (`@fontsource`). When Slotform is
 workspace-linked those files sit outside the consumer's workspace root and Vite's dev server answers
 403, so the plugin adds its own workspace root to `vite.slots.fsAllow`. `import.meta.resolve` runs
 in the generated config and yields the real, symlink-resolved location; installed from a registry it
@@ -147,7 +147,7 @@ can paint knows it), so the first frame of a page that waits is already in the t
 that pulses carries none. Paint itself is [reads](../ui-core/reads.md#paint).
 
 A built page carries one inline script, the mode script (the dev server adds React Refresh's
-preamble, which [plugin-react allows](./react.md#dev-csp-and-react-refresh) on the dev server
+preamble, which [the `react` plugin allows](./react.md#dev-csp-and-react-refresh) on the dev server
 alone). A policy with `script-src 'self'` blocks it, so the plugin contributes `script-src 'self'
 'sha256-…'` to `vite.slots.clientHeaders`: the hash of the exact string `themeModePlugin` injects for
 the same theme, computed at generate time from the same `modeScript(…)` call, so the two cannot
@@ -163,7 +163,7 @@ sets, so `style-src` is the consumer's.
 of the page. The plugin contributes them to `cliSlots.lintPlugins` with `includes` the app's own
 sources: the directory its routes sit in (`react.slots.routesDir`'s parent), or `src` (the
 stylesheet's `@source`) with file routing off. A routes directory at the project's root leaves the
-whole project. `stack generate` writes them into `.stack/biome.json`, which the app's `biome.json`
+whole project. `slotform generate` writes them into `.slotform/biome.json`, which the app's `biome.json`
 extends ([Lint](../consumer-project.md#lint)).
 
 A new rule is a file in `lint/` whose header states what it forbids and a name in `LINT_RULES`
@@ -173,14 +173,14 @@ and has no look-ahead: a reset (`border-0`) is excluded per category.
 ## Components
 
 Each roster component lives in `src/ui/components/<name in kebab-case>/index.tsx` and is imported as
-`@fcalell/plugin-react-ui/components/<dir>`. The file exports the component and its `XProps`
+`@slotform/react-ui/components/<dir>`. The file exports the component and its `XProps`
 interface, which extends `Closed` (`./lib/closed`: `class`, `className`, `classList` and `style` as
 `?: never`) and declares exactly the roster's prop names
 ([closed props](../ui-core/roster.md#the-canon-and-the-closed-props)).
 
 - **Look.** A part's `className` is `cn(cva(props), OVERLAY)`: the ui-core cva (or single-class-set
   constant) first, then the overlay, so an overlay colour wins over the class set's. `cn` is
-  `@fcalell/ui-core/cn` ([composing with cn](../ui-core/tokens.md#composing-with-cn)). An overlay is
+  `@slotform/ui-core/cn` ([composing with cn](../ui-core/tokens.md#composing-with-cn)). An overlay is
   a module constant spelled verbatim, never a class built from a variable.
 - **States.** Hover, press and focus are the web variants `hover:`, `active:` and `focus-visible:`;
   a disabled control `disabled:` or `aria-disabled:`, a pending act `aria-busy:`. Focus rings are
@@ -335,7 +335,7 @@ home indicator.
 
 ## Navigation
 
-Every anchor stack draws is a plain `<a href>`, so one delegated listener for the page covers them
+Every anchor Slotform draws is a plain `<a href>`, so one delegated listener for the page covers them
 all, and TanStack's own `Link`, with no prop on any component.
 
 - **Click.** A plain primary click on a route of the app opens it in place; every other click
@@ -461,7 +461,7 @@ and a reader draws again.
   (`atMax`, `atMin`), and the button keeps focus, as a disabled icon act does. A waiting canvas draws
   them with no act, inside its inert region.
 - **Lift.** A node lifts after the long press a dragged row takes: `DRAG_DELAY` and `DRAG_DELAY_SLOP` from
-  `@fcalell/ui-core/drag`, one definition for both ([Web drag](../ui-core/drag.md#web-drag)).
+  `@slotform/ui-core/drag`, one definition for both ([Web drag](../ui-core/drag.md#web-drag)).
 
 ## Canvas serving
 
@@ -486,7 +486,7 @@ do.
 - `plugins/react-ui/src/density.ts`: the density rule.
 - `plugins/react-ui/src/types.ts`: the font entry and option types.
 - `plugins/react-ui/src/node/theme.ts`: the stylesheet's tokens, modes, density layer and variants.
-- `plugins/react-ui/src/node/codegen.ts`: `.stack/app.css`.
+- `plugins/react-ui/src/node/codegen.ts`: `.slotform/app.css`.
 - `plugins/react-ui/src/node/fonts.ts`: `themeFontsPlugin`, the preloads and `@font-face` rules.
 - `plugins/react-ui/src/node/mode.ts`: the mode script, `themeModePlugin` and its policy hash.
 - `plugins/react-ui/src/node/lint.ts`: `LINT_RULES` and their includes.

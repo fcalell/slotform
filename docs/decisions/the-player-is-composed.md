@@ -5,12 +5,12 @@ Sound is a store the app calls (`player.play(track, queue?)`, `usePlayer()` in `
 region and owns no sound: no audio element, no dock by default, no global key, no media session.
 The sound is an `Engine` the app passes once (`connectOutput(audioOutput())`), which makes the
 platform's `Output` when the first track loads: the browser's audio element on the web,
-`@fcalell/plugin-native-ui/audio/expo` on the phone ([sound](../architecture/ui-core/sound.md)).
+`@slotform/native-ui/audio/expo` on the phone ([sound](../architecture/ui-core/sound.md)).
 `Dock` and `Waveform` are components nothing mounts by default. A `Track` is a ui-core descriptor
 (`peaks` optional); with peaks the dock's seek is a `Waveform`, else a slider.
 
 **Why.** A dock that survives navigation must live above the routes, and the `Shell`'s `foot` is the
-slot above them that stack already owns; an app that plays sound fills it, and one that does not pays
+slot above them that Slotform already owns; an app that plays sound fills it, and one that does not pays
 nothing: no audio element, no listener, no `expo-audio`. The sound is the app's to choose, so the
 sound comes through the `Engine` seam instead of a dependency the design system carries. The `Dock`
 takes its keys only while mounted ([dock keys](../architecture/ui-core/sound.md#dock-keys)).

@@ -3,9 +3,9 @@
 How the layout components lay out a page on both platforms: the `Shell` and its places, the `Gate`,
 the `Panes` and its Panes, the `Pane`'s bar, body and foot, the `Sheet`, the `Section` and its rows,
 the heading levels, the cards, the rows grid that aligns every label of a Pane, and the overflow rules
-that decide a row's or a head's form. The contracts live in `@fcalell/ui-core`'s roster
-(`roster/<component>.ts`), `overflow.ts`, `list-state.ts` and `variants.ts`; `@fcalell/plugin-react-ui`
-and `@fcalell/plugin-native-ui` draw them. What a frame draws while its reads wait or fail is in
+that decide a row's or a head's form. The contracts live in `@slotform/ui-core`'s roster
+(`roster/<component>.ts`), `overflow.ts`, `list-state.ts` and `variants.ts`; `@slotform/react-ui`
+and `@slotform/native-ui` draw them. What a frame draws while its reads wait or fail is in
 [reads](reads.md); the roster and its matrices are in [roster](roster.md); the measures and
 densities are in [tokens](tokens.md).
 

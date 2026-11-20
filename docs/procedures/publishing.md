@@ -5,7 +5,7 @@ version rule and the check it runs are in [releasing](../architecture/releasing.
 
 ## Once per machine
 
-`npm login` as the account that owns the `@fcalell` scope, with two-factor on; `pnpm` forwards
+`npm login` as the account that owns the `@slotform` scope, with two-factor on; `pnpm` forwards
 npm's one-time-password prompt.
 
 ## Steps
@@ -33,6 +33,6 @@ a failure part-way (a dropped connection, an expired one-time password) the same
 
 ## After publishing
 
-From an empty directory, follow the [README](../../README.md)'s route: `pnpm add -D @fcalell/cli`,
-then `pnpm exec stack init my-app`, which must install, generate and finish. A bad release is never
+From an empty directory, follow the [README](../../README.md)'s route: `pnpm add -D @slotform/cli`,
+then `pnpm exec slotform init my-app`, which must install, generate and finish. A bad release is never
 unpublished; the next patch fixes it.

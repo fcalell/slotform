@@ -6,8 +6,8 @@ the screen supplies (a scope id, a record id). From the procedure's input schema
 field's control (string to `Input`, a date string to `Input kind="date"`, enum to `Picker`, boolean to
 `Switch`, number to a numeric `Input`, a list of an enum, or of strings with `options`, to a `Picker` of several), its optionality (an optional field of a submit form says so under its label), its options, the issue line a failed validation puts under it, the
 pending and done states, and the reset. The client has no runtime schema of its own, so
-plugin-api's `postWrite` emits each procedure's input schema as data, with its kind and its scope key, in
-`.stack/schema.ts`; the scope key comes from the route's boundary, so the form never asks for it. A
+the `api` plugin's `postWrite` emits each procedure's input schema as data, with its kind and its scope key, in
+`.slotform/schema.ts`; the scope key comes from the route's boundary, so the form never asks for it. A
 `can` of `[action, subject]` gates the form on the caller's ability in that organization, and a
 `Sheet`'s `form` takes the same props, so a task over a procedure is one shape wherever it stands. A form
 that takes `commit: "field"` draws no bar and sends each field on its own commit (the given keys
@@ -23,7 +23,7 @@ part that drifts.
 `control` hint (a file, a long text that needs a prose control) or `options` (a pick whose
 choices are a read); a form
 over no procedure (a filter, a local setting) is not a `Form`. The generated schema file is
-one more generated artefact under `stack generate`, a `Gate` step over local state draws its
+one more generated artefact under `slotform generate`, a `Gate` step over local state draws its
 controls directly, and a procedure whose input is not a
 `z.object` cannot back a form. A file field reads the picked file into the string at submit (its name into the sibling key its `name` gives), so
 nothing of the file is held in the schema but its `contentEncoding`; its `accept` has no JSON Schema

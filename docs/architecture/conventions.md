@@ -9,7 +9,7 @@ read, and the one word per meaning that names a component's props.
 Before any option, type or file is added, its domain's owner is decided. The default answer is **a
 plugin, not core**; the rationale is in [philosophy](../product.md).
 
-- **`@fcalell/cli` (core) and `app`.** Core is domain-agnostic and `app` takes only cross-cutting
+- **`@slotform/cli` (core) and `app`.** Core is domain-agnostic and `app` takes only cross-cutting
   identity (`name`, `domain`); the rule, its examples and the quick test are in
   [philosophy](../product.md#features-live-in-the-plugin-that-owns-the-domain-core-stays-domain-agnostic).
 - **Plugin options** are the home for domain config. Typography → `reactUi({ fonts })`. API prefix
@@ -30,17 +30,17 @@ that re-exports everything. Code Node runs imports its own modules by relative p
 extension: the build rewrites relative specifiers only, so a `#` import would reach the consumer as
 a `.ts` path. `#` hash imports stay in bundler-compiled code (`src/ui/`).
 
-A package depends on a sibling `@fcalell/*` package with `workspace:^`
+A package depends on a sibling `@slotform/*` package with `workspace:^`
 ([releasing](./releasing.md#the-version-rule)); an app uses `workspace:*`.
 
-A TypeScript config extends `@fcalell/typescript-config` and never defines compiler options of its
+A TypeScript config extends `@slotform/typescript-config` and never defines compiler options of its
 own.
 
 ## Build and exports
 
 A package ships JavaScript for everything Node runs, because Node refuses to strip types under
 `node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`) and has no flag for it. Its
-`tsconfig.build.json` extends its own `tsconfig.json` plus `@fcalell/typescript-config/build.json`
+`tsconfig.build.json` extends its own `tsconfig.json` plus `@slotform/typescript-config/build.json`
 ([TypeScript presets](#typescript-presets)). Its scripts:
 
 - `"build": "tsc -p tsconfig.build.json"`;
@@ -58,31 +58,31 @@ relative path, or the bundle holds two copies of that module. An entry's target 
 an array: a bundler takes an array's first target whether or not the file exists, where tsc tries
 each, so an array type-checks and fails the consumer's build. A source entry names one module
 (`"./lib/toast": "./src/ui/lib/toast.ts"`), never a pattern. Vite's dev optimizer skips a `.tsx`
-entry unless told otherwise, so plugin-vite's generated config adds `.tsx` to
+entry unless told otherwise, so the `vite` plugin's generated config adds `.tsx` to
 `optimizeDeps.extensions`.
 
-A sibling `@fcalell/*` import resolves through its `exports`, so type-checking needs the
+A sibling `@slotform/*` import resolves through its `exports`, so type-checking needs the
 dependencies' `dist`: turbo runs `^build` before `check-types`, and the package's own `build` before
 its `check-types` (a source entry's self-name import). Root `pnpm check` is `turbo run check-types`,
 `turbo run test`, then `biome check`; it is read-only, and `pnpm lint` writes the fixes. A package
 has no `check` or `lint` script of its own: the root runs both. An app's `check-types` depends on
-its `generate` (the `.stack/` files), not its `build`, so the check never runs a production bundle;
+its `generate` (the `.slotform/` files), not its `build`, so the check never runs a production bundle;
 `pnpm build` does. The showcase's `generate` also writes the roster's stories, so the check
 type-checks the stories the roster names.
 
 Each turbo task declares only what it writes. An app's `tsc -b` emits the worker's declarations into
-`.stack/types/`, so `generate` and `build` exclude that folder from their `.stack/**` output and
+`.slotform/types/`, so `generate` and `build` exclude that folder from their `.slotform/**` output and
 `check-types` declares it: a cached `generate` that archived it would restore old declarations over
 new ones.
 
 ## TypeScript presets
 
-`@fcalell/typescript-config` ships four files. A package or app extends one preset in its
+`@slotform/typescript-config` ships four files. A package or app extends one preset in its
 `tsconfig.json`, and a package layers `build.json` on it for its emit:
 
 ```json
 {
-  "extends": "@fcalell/typescript-config/node-tsx.json",
+  "extends": "@slotform/typescript-config/node-tsx.json",
   "include": ["src"]
 }
 ```
@@ -90,7 +90,7 @@ new ones.
 ```json
 // tsconfig.build.json
 {
-  "extends": ["./tsconfig.json", "@fcalell/typescript-config/build.json"]
+  "extends": ["./tsconfig.json", "@slotform/typescript-config/build.json"]
 }
 ```
 
@@ -106,7 +106,7 @@ new ones.
   `types: []` over it ([consumer project](./consumer-project.md#typescript-projects)); a
   `web-vite.json` project with Node files of its own (tests, `src/node/`, a Storybook config)
   names `node` in its own `types`.
-- **`web-vite.json`**, type-checking for a web app Vite bundles (the consumer app `stack init`
+- **`web-vite.json`**, type-checking for a web app Vite bundles (the consumer app `slotform init`
   writes when `vite` is in the config): `base.json` plus `lib: ESNext, DOM, DOM.Iterable`,
   `module: esnext`, `moduleResolution: bundler`, `jsx: react-jsx`, `noEmit`,
   `allowImportingTsExtensions`.
@@ -128,19 +128,19 @@ new ones.
 
 ## Biome preset
 
-`@fcalell/biome-config` ships `shared.json`, which a `biome.json` extends:
+`@slotform/biome-config` ships `shared.json`, which a `biome.json` extends:
 
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@fcalell/biome-config/shared.json"]
+  "extends": ["@slotform/biome-config/shared.json"]
 }
 ```
 
 The `$schema` path is the installed Biome's own, so it never lags the version. Biome also reads the
-repo's `.editorconfig`, which `stack init` writes. A stack app's `biome.json` also extends
-`./.stack/biome.json`, which `stack generate` writes with the lint rules the app's plugins ship
-(`@fcalell/plugin-react-ui`'s web rules); the preset ships no rule of its own, because a rule
+repo's `.editorconfig`, which `slotform init` writes. A consumer's `biome.json` also extends
+`./.slotform/biome.json`, which `slotform generate` writes with the lint rules the app's plugins ship
+(`@slotform/react-ui`'s web rules); the preset ships no rule of its own, because a rule
 belongs to the domain it enforces ([consumer project](./consumer-project.md#lint)).
 
 What `shared.json` configures:
@@ -150,25 +150,26 @@ What `shared.json` configures:
   table in the docs and rewrite `pnpm-workspace.yaml`, which pnpm writes with its own quotes.
 - **Linter:** on with the default rules, `noThenProperty` off, and `useValidAriaRole` an error that
   skips non-DOM components (`ignoreNonDom`), so React Native's `role` props pass.
-- **Plugins:** none; the plugins ride `.stack/biome.json`.
+- **Plugins:** none; the plugins ride `.slotform/biome.json`.
 - **CSS:** Tailwind directives parse.
 - **Imports:** organized by the `organizeImports` assist.
 - **VCS:** git, so every `.gitignore` entry is excluded.
-- **Excluded paths:** `dist`, `build`, `node_modules`, `.turbo`, `.wrangler`, `.output`, `.stack`,
+- **Excluded paths:** `dist`, `build`, `node_modules`, `.turbo`, `.wrangler`, `.output`, `.slotform`,
   `.claude/worktrees`, `storybook-static`, `coverage`, `*.d.ts`.
 
 A `files.includes` of the extending config's own overrides that list, so it restates `**` and
-`!**/*.d.ts` beside its own exclusions; `.stack/biome.json` skips generated sources with an
+`!**/*.d.ts` beside its own exclusions; `.slotform/biome.json` skips generated sources with an
 override, never an `includes`, so it needs none.
 
 An app below the root config that extends it (`"extends": ["../../biome.json"]`) loses
 `useValidAriaRole`'s `ignoreNonDom`, because Biome drops a rule's options through the second hop,
-so a component prop named `role` is flagged there. Stack's components name that prop otherwise
+so a component prop named `role` is flagged there. Slotform's components name that prop otherwise
 (`Text kind`).
 
 ## Plugin folder structure
 
-Each plugin lives in `plugins/<name>/` and is published as `@fcalell/plugin-<name>`.
+Each plugin lives in `plugins/<name>/` and is published as `@slotform/<name>`
+([releasing](./releasing.md#what-is-published)).
 
 ```
 plugins/<name>/
@@ -182,7 +183,7 @@ plugins/<name>/
 
 `worker/` files never import from `node/`, and `node/` files never import from `worker/`.
 
-A plugin whose runtime is a consumer-run Node server (plugin-node) splits the same way with
+A plugin whose runtime is a consumer-run Node server (the `node` plugin) splits the same way with
 `server/` (the Node runtime, exported as `./server`), `client/` (browser code) and `ws/` (the
 isomorphic shared contract): `node/` (codegen) and `server/` never import each other, and `client/`
 and `server/` share only `ws/`.
@@ -191,13 +192,13 @@ A runtime, if any, is exported from the `./runtime` subpath; the CLI discovers i
 package's `exports`. A runtime factory takes plain options, not `PluginConfig`.
 
 The config factory's name matches the plugin's name: `db()`, `auth()`, `api()`, `react()`,
-`expo()`, `nativeUi()`. A third-party plugin published outside the `@fcalell/plugin-*` namespace
+`expo()`, `nativeUi()`. A third-party plugin published outside the `@slotform/*` namespace
 passes an explicit `package` option; a first-party plugin omits it
 ([plugin authoring](./plugin-authoring.md#plugin-discovery)).
 
-`stack plugin init` scaffolds this shape for a third-party author, publishable as-is: subpath
-exports for `.` and `./runtime`, no barrel index. Inside stack's own workspace it takes each stack
-package from the workspace, as `stack init` does for an app
+`slotform plugin init` scaffolds this shape for a third-party author, publishable as-is: subpath
+exports for `.` and `./runtime`, no barrel index. Inside Slotform's own workspace it takes each Slotform
+package from the workspace, as `slotform init` does for an app
 ([commands](./commands.md#plugin-subcommands)).
 
 ## The environment
@@ -207,10 +208,10 @@ The environment is read once per process, at its **process entry**, and handed d
 - In the CLI, `cli.ts` puts `process.env` on the `CommandContext` and on the contribute ctx. Every
   command handler and every slot contribute then reads `ctx.env`, and passes it as a parameter to
   what it calls. Every spawned child is given an env built from `ctx.env`.
-- On the Node target, the generated `.stack/server.ts` passes `process.env` to `startNodeServer`.
+- On the Node target, the generated `.slotform/server.ts` passes `process.env` to `startNodeServer`.
   Boot tasks take it as their argument.
 - Two kinds of read are process entries themselves, and no others: a file a tool loads as its
-  process's start (the generated `.stack/screens.vitest.config.ts`, Storybook's `.storybook/main.ts`,
+  process's start (the generated `.slotform/screens.vitest.config.ts`, Storybook's `.storybook/main.ts`,
   a repo script such as `scripts/prepare.ts`), and a constant the bundler inlines
   (`process.env.NODE_ENV`, an `import.meta.env` key under `envPrefix`, an `EXPO_PUBLIC_` key Metro
   inlines).

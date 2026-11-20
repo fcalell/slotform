@@ -1,6 +1,6 @@
 # ui-core
 
-`@fcalell/ui-core` is the design contract both UI plugins render from: the token contract with its
+`@slotform/ui-core` is the design contract both UI plugins render from: the token contract with its
 parametric derivation, the motion contract, the words the molecules speak, the shared `cn()` merge
 config, the platform-invariant variant matrices, the component roster, the shared descriptor types and
 the framework-free logic both platforms run. This page says what the package is, maps its source and
@@ -11,8 +11,8 @@ roster ([DESIGN.md](ui-core/roster.md#designmd)).
 ## What it is
 
 ui-core is a preset library, as `biome-config` is: no `plugin()` factory, no slots, no framework
-dependency. React is an optional peer that only the `react/*` subpaths read. `@fcalell/plugin-react-ui`
-and `@fcalell/plugin-native-ui` depend on it and draw every component from it; a package that only
+dependency. React is an optional peer that only the `react/*` subpaths read. `@slotform/react-ui`
+and `@slotform/native-ui` depend on it and draw every component from it; a package that only
 reads its descriptors (a server) installs neither React nor Lucide.
 
 ## Pages
@@ -104,7 +104,7 @@ What ui-core holds and what each plugin holds is decided by whether both platfor
   `ToastContainer`) and follows a growing input a layout late.
 - An `Image`'s full view takes no pinch-zoom or pan.
 - A product cannot draw in the platform font: `fonts.sans` unset is IBM Plex Sans.
-- Table's `hyphens-auto` is unverified: the headless Chrome `stack screens` drives ships no
+- Table's `hyphens-auto` is unverified: the headless Chrome `slotform screens` drives ships no
   hyphenation dictionaries.
 - Native Diff and Table name a `list`-role container, since React Native has no table role.
 - The Table's columns menu, keyboard cursor and kept column choice are web only: the phone's Table

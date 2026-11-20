@@ -1,25 +1,25 @@
 # Runtime architecture
 
-How the generated worker runs: the `.stack/worker.ts` chain `stack generate` writes, the
+How the generated worker runs: the `.slotform/worker.ts` chain `slotform generate` writes, the
 `RuntimePlugin` protocol each plugin's runtime implements, the context every procedure and job
 receives, the consumer's middleware and background handlers, the MCP endpoint, and the
-`virtual:stack-procedure` module that types a route handler's `context`.
+`virtual:slotform-procedure` module that types a route handler's `context`.
 
 ## The generated worker
 
-`stack.config.ts` is never imported by the worker. The slot graph reads config at generate time and
+`slotform.config.ts` is never imported by the worker. The slot graph reads config at generate time and
 inlines plugin options as JS literals into the file `api.slots.workerSource` produces.
 
-`.stack/worker.ts` is composed from the contributions to `api.slots.workerImports`,
+`.slotform/worker.ts` is composed from the contributions to `api.slots.workerImports`,
 `pluginRuntimes`, `callbacks` and `cors`, and is emitted only when the worker has something to run:
 at least one plugin runtime or one consumer route.
 
 ```ts
 import * as schema from "../src/schema/index.ts";
 import * as routes from "../src/worker/routes/index.ts";
-import createWorker from "@fcalell/plugin-api/runtime";
-import authRuntime from "@fcalell/plugin-auth/runtime";
-import dbRuntime from "@fcalell/plugin-db/runtime";
+import createWorker from "@slotform/api/runtime";
+import authRuntime from "@slotform/auth/runtime";
+import dbRuntime from "@slotform/db/runtime";
 import authCallbacks from "../src/worker/plugins/auth.ts";
 
 const worker = createWorker<Env>({
@@ -71,7 +71,7 @@ owns the root handler shape overrides the slot with `override: true`.
    (auth's `/api/auth`) claims the request by returning a `Response`, and passes with `null` or
    `undefined`. A claimed path returns inside this step and never reaches the steps after it.
 5. The post-context middleware, mounted after injection and before any route, so it reads
-   `__stackCtx` through `stackContext(c)`; everything above it runs with no context at all.
+   `__slotformCtx` through `slotformContext(c)`; everything above it runs with no context at all.
 6. The oRPC handler at the configured `prefix` (`/rpc`). Its `GET` and `POST` wire is the
    [wire contract](./plugins/api.md#wire-contract).
 7. `POST /mcp`, when `src/worker/mcp.ts` exists ([MCP endpoint](#mcp-endpoint)).
@@ -82,7 +82,7 @@ and every context-injecting fn entry, in sorted order over the base context.
 
 ## Runtime plugin protocol
 
-`RuntimePlugin` in `@fcalell/cli` is the protocol every plugin that ships a worker runtime
+`RuntimePlugin` in `@slotform/cli` is the protocol every plugin that ships a worker runtime
 implements. A runtime contributes typed context to the request chain and may register oRPC routes
 or intercept HTTP requests (`fetch`, step 4 above).
 
@@ -99,8 +99,8 @@ run first. A name that is not registered is ignored: presence is validated at co
 `dependsOn: ["db"]` since it reads `upstream.db`.
 
 A `RuntimePlugin<TName, TDeps, TProvides, TRoutes>` may also register oRPC routes through
-`routes(procedure)`. `@fcalell/cli` keeps `procedure` as `unknown`; the plugin narrows it with one
-cast to plugin-api's `ProcedureFactory`, and its return type is `TRoutes`. `AppBuilder<TContext,
+`routes(procedure)`. `@slotform/cli` keeps `procedure` as `unknown`; the plugin narrows it with one
+cast to the `api` plugin's `ProcedureFactory`, and its return type is `TRoutes`. `AppBuilder<TContext,
 TPluginRoutes>` accumulates each `.use(plugin)`'s `TRoutes`, and `.handler(routes)` returns
 `WorkerExport<TPluginRoutes & TConsumerRoutes>`, so `AppRouter` (`typeof worker._router`) holds the
 plugins' procedures beside the consumer's, and the typed client and `Fixtures<AppRouter>` reach
@@ -117,29 +117,29 @@ type the deploy target names through `api.slots.envType`: `BaseContext<TEnv>` an
 var is a type error. Without a target that names one (node) `env` is `unknown`. The parameter is
 type-only; `envChecks` stays the runtime guard.
 
-Plugin-db adds `db`; plugin-auth's runtime adds `auth`, `tenancy` and `_rateLimiter` (and `oauth`
+The `db` plugin adds `db`; the `auth` plugin's runtime adds `auth`, `tenancy` and `_rateLimiter` (and `oauth`
 with `mcp`), and its auth middleware `user` and `session`; the MCP endpoint adds `_caller`. A scoped
 procedure then writes each resolved tier's row under its scope's name, `organization` and `member`
 at the root. The raw request is `httpRequest`, not `request`, because a consumer's scope takes its
 table's name and `request` is a common one. `defineScope` throws on a scope named after one of these
 keys, since the row would overwrite it ([scopes' rules](../../plugins/auth/guide/scopes.md#rules));
-its list checks plugin-api's `BaseContext` keys by type, so
+its list checks the `api` plugin's `BaseContext` keys by type, so
 a key added there fails to compile until it is listed.
 
 ### Dev mode
 
-`STACK_DEV=1` reaches the worker only in local dev, from the deploy target: `.dev.vars` on Cloudflare
+`SLOTFORM_DEV=1` reaches the worker only in local dev, from the deploy target: `.dev.vars` on Cloudflare
 ([.dev.vars](./plugins/cloudflare.md#devvars)), the dev process's env on Node
 ([node's dev](./plugins/node.md#dev)). `createWorker` derives `_devMode` from
-`env.STACK_DEV === "1"`, the one dev predicate every gate reads, and threads it through the base
-context, so `_devMode` is false in production. Rate limiting (`plugin-api`'s `rateLimit` middleware, `plugin-auth`'s `/api/auth/*`
+`env.SLOTFORM_DEV === "1"`, the one dev predicate every gate reads, and threads it through the base
+context, so `_devMode` is false in production. Rate limiting (the `api` plugin's `rateLimit` middleware, the `auth` plugin's `/api/auth/*`
 limiter) is skipped whenever `_devMode` is true. The same flag admits the dev origins
 ([CORS and origins](./plugins/api.md#cors-and-origins)).
 
 ### Env checks
 
 The worker asserts its env values once per isolate and `checkEnv(env)` runs every check at once;
-both are plugin-api's ([env vars](./plugins/api.md#env-vars)). Binding presence is a per-request
+both are the `api` plugin's ([env vars](./plugins/api.md#env-vars)). Binding presence is a per-request
 `validateEnv` on the runtime plugin that owns the binding (db), and `checkEnv` runs those too.
 
 ## Middleware
@@ -149,7 +149,7 @@ through `api.slots.middlewareEntries` so third-party plugins can interleave midd
 
 - `src/worker/middleware.ts` runs before context injection, with no context.
 - `src/worker/middleware.context.ts` runs after it, registered with `.useAfterContext()`, so it and
-  the raw Hono routes it registers read `db` and `auth` through `stackContext(c)`.
+  the raw Hono routes it registers read `db` and `auth` through `slotformContext(c)`.
 
 What belongs in each file is the guide's [worker middleware](../../plugins/api/guide/middleware.md).
 
@@ -179,12 +179,12 @@ Both build their context with the function the request path uses (the env checks
 dependency order). The job context holds `env`, `executionCtx` (`waitUntil` only, a no-op when the
 runtime gave no context), `_devMode` and what the plugins provide (`db`, `auth` runtime, `tenancy`);
 it has no `httpRequest`, `reqHeaders` or `resHeaders`, no user or session, and no plugin `fetch` or
-middleware runs for it. `.stack/procedure.ts` exports `JobContext` (`WorkerContext` without those
+middleware runs for it. `.slotform/procedure.ts` exports `JobContext` (`WorkerContext` without those
 three keys, as a mapped type: the base context's index signature would make `Omit` drop every named
 key) and `defineQueue` / `defineScheduled`, from `createJobs` typed against it. Each returns its
 handler as given; `defineQueue<Body>(run)` is the plain function, and the generated worker mounts
 it. A handler's throw is rethrown: the queue redelivers the batch (messages the handler acked first
-stay acked), a cron invocation is logged as failed. Plugin-node refuses both files, since a Node
+stay acked), a cron invocation is logged as failed. The `node` plugin refuses both files, since a Node
 server never calls them.
 
 ## MCP endpoint
@@ -200,7 +200,7 @@ injection (any other method is `405`). Its order:
 3. The body is read to 4 MiB (`413`); invalid JSON is `400`, a batch `400`.
 
 The MCP SDK serves it statelessly for both protocol eras, each request a fresh server. Each listed
-procedure runs through oRPC in process with the stack context, the pinned `tenancy`,
+procedure runs through oRPC in process with the Slotform context, the pinned `tenancy`,
 `_caller: { user, session }` from `verify` (the auth gate takes it in place of `getSession`; `/rpc`
 never sets it), `reqHeaders` without `cookie` and `authorization`, an `httpRequest` rebuilt from
 them with no body, and a fresh `resHeaders`. The tools resolve against the consumer routes when
@@ -209,29 +209,29 @@ the SDK loads on the first `/mcp` request. `.query()` and `.mutation()` stamp oR
 which a query tool carries `readOnlyHint`. An `ORPCError` is an `isError` result of
 `{ code, message, data }`; any other throw is a masked `INTERNAL_SERVER_ERROR` result and is logged.
 
-## `virtual:stack-procedure`
+## `virtual:slotform-procedure`
 
 `src/worker/routes/*.ts` files author procedures with
-`import { procedure } from "virtual:stack-procedure"`. The specifier resolves through a tsconfig
-`paths` alias to `api.slots.procedureSource`'s generated `.stack/procedure.ts`, not a bundler
+`import { procedure } from "virtual:slotform-procedure"`. The specifier resolves through a tsconfig
+`paths` alias to `api.slots.procedureSource`'s generated `.slotform/procedure.ts`, not a bundler
 virtual-module plugin, since the worker never runs through Vite. esbuild (`wrangler` dev and deploy
 bundling) resolves tsconfig `paths` natively, and the node target maps the specifier with a
 `registerHooks` resolve hook ([runtime](./plugins/node.md#runtime)); `paths` needs no `baseUrl` to
 resolve relative to the tsconfig's own directory (TS 4.1+). Which tsconfig holds the alias and how
-the bundler finds it: [TypeScript projects](./consumer-project.md#typescript-projects). Plugin-api
-declares the alias for `stack init`'s tsconfig template only, never for `stack generate`, since the
+the bundler finds it: [TypeScript projects](./consumer-project.md#typescript-projects). The `api` plugin
+declares the alias for `slotform init`'s tsconfig template only, never for `slotform generate`, since the
 tsconfig is scaffolded once. Its own presence is the gate: an app with no runtimes has no
-`.stack/procedure.ts`, and the declared alias then never resolves, which is harmless.
+`.slotform/procedure.ts`, and the declared alias then never resolves, which is harmless.
 
-`.stack/procedure.ts` is gated the same way `workerSource` is: no runtimes and no routes, no
+`.slotform/procedure.ts` is gated the same way `workerSource` is: no runtimes and no routes, no
 artifact. The slot's compute is the one place that gate is checked; the renderer itself renders a
 runtimes-less chain.
 
 ```ts
-// .stack/procedure.ts (generated)
-import createWorker from "@fcalell/plugin-api/runtime";
-import type { AppBuilder } from "@fcalell/plugin-api/runtime";
-import { createJobs, createProcedure } from "@fcalell/plugin-api/procedure";
+// .slotform/procedure.ts (generated)
+import createWorker from "@slotform/api/runtime";
+import type { AppBuilder } from "@slotform/api/runtime";
+import { createJobs, createProcedure } from "@slotform/api/procedure";
 const __chain = createWorker<Env>({ prefix: "/rpc", cors: [/* … */] }).use(dbRuntime({ binding: "DB_MAIN", schema }));
 
 type ContextOf<B> = B extends AppBuilder<infer C> ? C : never;
@@ -244,14 +244,14 @@ export const procedure = createProcedure<WorkerContext, RbacStatements, Entity>(
 
 ### The rebuilt chain
 
-`TContext`, the type argument to `createProcedure`, matches the request context `.stack/worker.ts`
+`TContext`, the type argument to `createProcedure`, matches the request context `.slotform/worker.ts`
 builds at runtime: the same runtime plugins, the same options, the same `.use()` order and the same
 consumer middleware chain. A context-injecting middleware (arity 1) extends `TContext` as a runtime
-plugin does, so leaving it out would compile `.stack/procedure.ts` against a narrower context than
+plugin does, so leaving it out would compile `.slotform/procedure.ts` against a narrower context than
 the worker builds and hide a key such as `requestId` a route handler should see. Rather than derive
 each runtime factory's or middleware's generics by hand, the file rebuilds the identical chain as
 real code that is never exported or called further, and TypeScript infers `TContext` from
-`typeof __chain`, the way `.stack/worker.ts` gives `AppRouter` (`typeof worker._router`). The
+`typeof __chain`, the way `.slotform/worker.ts` gives `AppRouter` (`typeof worker._router`). The
 runtime factories and middleware are pure: constructing them without calling `.handler()` has no
 observable effect. The chain mirrors the worker's loop (runtimes, then the middleware chain, the
 same order), with `middlewareCalls` and `middlewareImports` beside `pluginRuntimes`, minus two
@@ -261,16 +261,16 @@ the chain is only typed.
 
 The file takes the full `workerImports` list, since a runtime option value can reference an
 identifier that needs its own import (db's `schema`, contributed beside the `pluginRuntimes` entry,
-not on it), minus the route barrel: route files import `virtual:stack-procedure`, so this file
+not on it), minus the route barrel: route files import `virtual:slotform-procedure`, so this file
 importing the barrel back would be a cycle. The exclusion guards only the routes-to-`procedure.ts`
 direction. `WorkerContext` is exported so post-context middleware types
-`stackContext<WorkerContext>(c)`. `procedure.ts` imports the middleware files, so a middleware file
+`slotformContext<WorkerContext>(c)`. `procedure.ts` imports the middleware files, so a middleware file
 that imports a route, or imports `WorkerContext` as a value, closes a cycle; the guide's
 [rules](../../plugins/api/guide/middleware.md#rules) keep both out.
 
 `TStatements` (the autocomplete of `procedure({ rbac })` and `procedure({ can })`) comes from
 `api.slots.rbacStatements`, a plain-JSON handoff `auth` contributes; its source and the
-`Record<never, never>` fallback are in the [slot catalog](./slot-catalog.md#apislots-plugin-api).
+`Record<never, never>` fallback are in the [slot catalog](./slot-catalog.md#apislots-the-api-plugin).
 
 ### Input and output types
 
@@ -283,7 +283,7 @@ it (`paginated: "window"` the same for `offset`; `sort` adds the typed `sort` fi
 `z.output`. oRPC parses the input before the handler runs and sends the validated output, so the
 split is types only; the runtime chain is the same. `Procedure<TInput, TOutput>` carries the
 caller's side only, because every reader of a built procedure is a caller: `RouterClient`,
-`createClient`, `createApiQueryUtils` and the emitted `.stack/types` declarations, which inline the
+`createClient`, `createApiQueryUtils` and the emitted `.slotform/types` declarations, which inline the
 brand. The handler's side is used only where the handler is written, so a third parameter would be
 read by nothing and grow every emitted declaration.
 
@@ -292,7 +292,7 @@ read by nothing and grow every emitted declaration.
 - `packages/cli/src/runtime.ts`: the `RuntimePlugin` protocol, `dependsOn`, `fetch`, `routes`.
 - `plugins/api/src/worker/index.ts`: `createWorker`, the request order, the `dependsOn` sort, the invocation context, `checkEnv`, middleware dispatch, the MCP and job mounts.
 - `plugins/api/src/node/codegen.ts`: the worker chain's emit order and the middleware ordering.
-- `plugins/api/src/node/procedure-codegen.ts`: `.stack/procedure.ts` and its rebuilt chain.
+- `plugins/api/src/node/procedure-codegen.ts`: `.slotform/procedure.ts` and its rebuilt chain.
 - `plugins/api/src/node/types.ts`: the middleware entry type both files share.
-- `plugins/api/src/index.ts`: the runtime sort, the routes handler slot, the background mounts, the middleware convention files, the `virtual:stack-procedure` alias and the procedure source slot.
+- `plugins/api/src/index.ts`: the runtime sort, the routes handler slot, the background mounts, the middleware convention files, the `virtual:slotform-procedure` alias and the procedure source slot.
 - `plugins/api/src/procedure.ts`: the procedure builder and the background handler factories.

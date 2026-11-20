@@ -3,7 +3,7 @@
 The contracts of the components that hold a collection or a piece of content: `Table`, `Picker`,
 `Toolbar`, the `Rules` editor, `Thread`, `BarChart`, the Stats meter, the stage rail, the file
 controls and rows, `Image`, `Diff`, the canvas and the QR code. Each decides what it draws in a
-framework-free module of `@fcalell/ui-core` (`list-state.ts`, `chart.ts`, `rules.ts`, `window.ts`
+framework-free module of `@slotform/ui-core` (`list-state.ts`, `chart.ts`, `rules.ts`, `window.ts`
 and the others below) that both platforms run, so one input draws the same rows, figures and cuts on
 the web and on the phone, and each decision is tested without rendering. The frames, paint and
 read shapes these components share are in [reads](reads.md); the acts and fields they hold are in
@@ -19,7 +19,7 @@ ahead of its options (`optionRows`).
 
 Collections take data and draw their own rows (`Section`, `Table`, `Picker` in `fit: list`,
 `BarChart`, `Thread`): `items` is a constant or a selection. A `Section`'s rows are descriptors
-(`Row`: `RowItem` or `FileItem`, in `@fcalell/ui-core/descriptors`), and a row item whose
+(`Row`: `RowItem` or `FileItem`, in `@slotform/ui-core/descriptors`), and a row item whose
 `children` is given makes the sheet a tree. A long collection windows with no prop: on the web
 under any scroller, on the phone where it owns its scroll
 ([native-ui](../plugins/native-ui.md#long-collections)). A paginated procedure's `.pages(input)`

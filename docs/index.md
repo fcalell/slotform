@@ -1,8 +1,8 @@
 # Docs index
 
-How `@fcalell/stack` is built: a reading list for each kind of task, then every page. The guide pages
-(`packages/*/guide/`, `plugins/*/guide/`) hold how a consumer builds on stack and ship with their
-package; this tree holds how stack itself is built.
+How Slotform is built: a reading list for each kind of task, then every page. The guide pages
+(`packages/*/guide/`, `plugins/*/guide/`) hold how a consumer builds on Slotform and ship with their
+package; this tree holds how Slotform itself is built.
 
 ## Reading lists
 
@@ -15,26 +15,26 @@ Read the pages listed for a task whole before proposing a change of that kind.
 - **Generated files and codegen:** [codegen](architecture/codegen.md),
   [consumer project](architecture/consumer-project.md), [commands](architecture/commands.md).
 - **The worker, procedures, auth or the client:** [runtime](architecture/runtime.md),
-  [plugin-api](architecture/plugins/api.md), [plugin-auth](architecture/plugins/auth.md),
-  [plugin-query](architecture/plugins/query.md).
-- **A deploy target or the database:** [plugin-cloudflare](architecture/plugins/cloudflare.md),
-  [plugin-node](architecture/plugins/node.md), [plugin-db](architecture/plugins/db.md).
+  [api plugin](architecture/plugins/api.md), [auth plugin](architecture/plugins/auth.md),
+  [query plugin](architecture/plugins/query.md).
+- **A deploy target or the database:** [cloudflare plugin](architecture/plugins/cloudflare.md),
+  [node plugin](architecture/plugins/node.md), [db plugin](architecture/plugins/db.md).
 - **A ui-core contract (tokens, roster, words, motion):** [ui-core](architecture/ui-core.md) and the
   page of the topic under [ui-core](#ui-core).
 - **A web or phone component:** [ui-core](architecture/ui-core.md), [layout](architecture/ui-core/layout.md),
   [reads](architecture/ui-core/reads.md), [acts](architecture/ui-core/acts.md),
-  [components](architecture/ui-core/components.md), and [plugin-react-ui](architecture/plugins/react-ui.md)
-  or [plugin-native-ui](architecture/plugins/native-ui.md). The root `CLAUDE.md` names the guide pages
+  [components](architecture/ui-core/components.md), and [react-ui plugin](architecture/plugins/react-ui.md)
+  or [native-ui plugin](architecture/plugins/native-ui.md). The root `CLAUDE.md` names the guide pages
   and the showcase scenes a component change carries.
 - **The showcase, Storybook or the test run:** [showcase](architecture/ui-core/showcase.md),
-  [plugin-screens](architecture/plugins/screens.md).
+  [screens plugin](architecture/plugins/screens.md).
 - **A manifest's `files`, `exports`, dependencies or peers:** [releasing](architecture/releasing.md).
 - **A new consumer-facing option or surface:** [product](product.md).
 - **Publishing:** [publishing](procedures/publishing.md).
 
 ## Pages
 
-- [Product](product.md): what stack is for, the five pillars every decision is judged against.
+- [Product](product.md): what Slotform is for, the five pillars every decision is judged against.
 - [Glossary](glossary.md): one definition per term.
 - [Roadmap](roadmap.md): unbuilt work.
 - [Architecture](architecture.md): the monorepo, its packages and plugins, the dependency graph.
@@ -45,7 +45,7 @@ Read the pages listed for a task whole before proposing a change of that kind.
 - [Slot catalog](architecture/slot-catalog.md): every first-party slot and spec type.
 - [Plugin authoring](architecture/plugin-authoring.md): the `plugin()` contract, options, callbacks, templates.
 - [Codegen](architecture/codegen.md): the AST and printers, the trust boundaries, artifact emit.
-- [Commands](architecture/commands.md): each `stack` command's procedure, prompts, plugin subcommands.
+- [Commands](architecture/commands.md): each `slotform` command's procedure, prompts, plugin subcommands.
 - [Consumer project](architecture/consumer-project.md): the generated repo, config, install modes, lint, the guide.
 - [Runtime](architecture/runtime.md): the generated worker chain, its context, middleware and background handlers.
 - [Conventions](architecture/conventions.md): package, build, folder and prop-naming rules, and where the environment is read.
@@ -68,18 +68,18 @@ Read the pages listed for a task whole before proposing a change of that kind.
 
 ### Plugins
 
-- [plugin-api](architecture/plugins/api.md): the worker, procedures, wire contract, CORS, env.
-- [plugin-auth](architecture/plugins/auth.md): Better Auth options, runtime, clients, sessions, access.
-- [plugin-query](architecture/plugins/query.md): the TanStack Query binding, abilities, acts, reads.
-- [plugin-db](architecture/plugins/db.md): Drizzle over D1 or SQLite, push, deploy checks, seed, full-text indexes.
-- [plugin-cloudflare](architecture/plugins/cloudflare.md): the Workers target and its wrangler config.
-- [plugin-node](architecture/plugins/node.md): the Node server target, services, WebSockets, the bundle.
-- [plugin-vite](architecture/plugins/vite.md): the Vite lifecycle, dev server, CSP.
-- [plugin-react](architecture/plugins/react.md): the web bootstrap, router, providers, HTML shell.
-- [plugin-react-ui](architecture/plugins/react-ui.md): the web design system's plugin and components.
-- [plugin-expo](architecture/plugins/expo.md): the Expo target, generated configs, version gate.
-- [plugin-native-ui](architecture/plugins/native-ui.md): the phone design system's plugin and components.
-- [plugin-screens](architecture/plugins/screens.md): the screens workbench, fixtures, the test run.
+- [api plugin](architecture/plugins/api.md): the worker, procedures, wire contract, CORS, env.
+- [auth plugin](architecture/plugins/auth.md): Better Auth options, runtime, clients, sessions, access.
+- [query plugin](architecture/plugins/query.md): the TanStack Query binding, abilities, acts, reads.
+- [db plugin](architecture/plugins/db.md): Drizzle over D1 or SQLite, push, deploy checks, seed, full-text indexes.
+- [cloudflare plugin](architecture/plugins/cloudflare.md): the Workers target and its wrangler config.
+- [node plugin](architecture/plugins/node.md): the Node server target, services, WebSockets, the bundle.
+- [vite plugin](architecture/plugins/vite.md): the Vite lifecycle, dev server, CSP.
+- [react plugin](architecture/plugins/react.md): the web bootstrap, router, providers, HTML shell.
+- [react-ui plugin](architecture/plugins/react-ui.md): the web design system's plugin and components.
+- [expo plugin](architecture/plugins/expo.md): the Expo target, generated configs, version gate.
+- [native-ui plugin](architecture/plugins/native-ui.md): the phone design system's plugin and components.
+- [screens plugin](architecture/plugins/screens.md): the screens workbench, fixtures, the test run.
 
 ### Decisions
 
@@ -96,4 +96,4 @@ Read the pages listed for a task whole before proposing a change of that kind.
 
 - [Publishing](procedures/publishing.md): the owner's release runbook.
 - [Consumer version move](procedures/consumer-version-move.md): moving a consumer from a git pin to a version.
-- [Consumer migration](procedures/consumer-migration.md): moving a consumer onto stack as it stands: Node floor, moved imports, renames, behaviour changes.
+- [Consumer migration](procedures/consumer-migration.md): moving a consumer onto Slotform as it stands: Node floor, moved imports, renames, behaviour changes.

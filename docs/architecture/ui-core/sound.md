@@ -13,21 +13,21 @@ A track is a descriptor (`Track`, with `Peaks`), so a record that plays is data 
 
 What both platforms run lives in ui-core, free of any framework and of the sound:
 
-- `@fcalell/ui-core/clock` holds `trackTime`, a time as the dock words it (`3:07`, `1:02:03`).
-- `@fcalell/ui-core/player`: the player's rules (the queue's
+- `@slotform/ui-core/clock` holds `trackTime`, a time as the dock words it (`3:07`, `1:02:03`).
+- `@slotform/ui-core/player`: the player's rules (the queue's
   neighbours, `neighbour`; the global `shortcut`s; the dock's seek, `dockSeek`: the length and, where it is known, the peaks a waveform draws in place of a slider) and the store itself. `createPlayer` holds the
   track, its queue or `QueueProvider`, the play state, the volume, the clock and the rules that move
   them (Previous returns to the track's start past `PREVIOUS_RESTART`, 3 seconds in). It drives the
   `Output` that the `Engine` the app passes through `connect` makes, and takes a `PlayerHost` for the kept volume and the
   frame. `windowQueue` is the `QueueProvider` for a list too long to hold.
-- `@fcalell/ui-core/waveform`: a waveform's arithmetic, free of the canvas: the peaks reduced to the
+- `@slotform/ui-core/waveform`: a waveform's arithmetic, free of the canvas: the peaks reduced to the
   columns a width draws (`columnCount`, `columns`), each column's box and the playhead's place on
   the device's pixels (`columnBoxes`, `headAt`, at the widths `COLUMN` holds), the moment a pointer
   or a key names (`momentAt`, `seekKey`) and the keyboard's steps (`SEEK`).
 
 Each plugin's `lib/player` is one store over `createPlayer` (made in `lib/player-store`) that the app calls and reads, with
 `connectOutput` to pass the sound once: the web's `audioOutput()`, the phone's from
-`@fcalell/plugin-native-ui/audio/expo`. The store makes no sound of its own. On the phone the
+`@slotform/native-ui/audio/expo`. The store makes no sound of its own. On the phone the
 device's own buttons set the volume, so the store keeps none, and the clock follows the frame.
 
 ## Dock

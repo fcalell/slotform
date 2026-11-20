@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping with `@fcalell/stack`.
+Thanks for helping with `slotform`.
 
 ## Setup
 
@@ -24,8 +24,8 @@ applies Biome's fixes.
 
 ## Commits and pull requests
 
-- The commit scope is the package, like `plugin-auth`: `fix(plugin-auth): reject expired codes`.
-- Add a changeset for a user-facing change with `pnpm changeset`. All `@fcalell/*` packages are
+- The commit scope is the package name without its scope, like `auth`: `fix(auth): reject expired codes`.
+- Add a changeset for a user-facing change with `pnpm changeset`. All `@slotform/*` packages are
   versioned together.
 - Fill in the pull request template.
 

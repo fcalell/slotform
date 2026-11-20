@@ -35,7 +35,7 @@ slot.derived<T, I>({ source, name, inputs, compute })   // computed from other s
 - **`value`**: one contribution, which takes the place of the seed. `seed` supplies the value when
   no contribution lands; with neither, the resolve throws `SLOT_UNSEEDED`. Several contributions
   throw `SlotConflictError` unless the slot declares `override: true`, under which the last
-  contribution wins (`api.slots.rbacStatements`, which `plugin-auth` fills from its access
+  contribution wins (`api.slots.rbacStatements`, which the `auth` plugin fills from its access
   control).
 - **`derived`**: computed from other slots. Every input is fully resolved before `compute` runs, a
   derived slot takes no contribution (`SLOT_DERIVED_CONTRIBUTION`), and a cycle among inputs fails
@@ -77,10 +77,10 @@ A slot is matched by identity: the slot object a declaration creates, which carr
 `source:name` only names it. Two installed copies of a package therefore hold two slots under one
 `source:name`, and a contribution to one copy never reaches a resolve of the other, so it would
 vanish without a word. The graph refuses a second slot under a name it already holds
-(`SLOT_DUPLICATE_COPY`) instead of dropping it; the rule that keeps one copy of each stack package
-installed is in [releasing](./releasing.md#peers-one-copy-of-each-stack-package). For the same
-reason `stack init` runs its scaffold in the app's own `@fcalell/cli`, the copy the installed
-plugins import, which is the running one whenever the app's `stack` runs init.
+(`SLOT_DUPLICATE_COPY`) instead of dropping it; the rule that keeps one copy of each Slotform package
+installed is in [releasing](./releasing.md#peers-one-copy-of-each-slotform-package). For the same
+reason `slotform init` runs its scaffold in the app's own `@slotform/cli`, the copy the installed
+plugins import, which is the running one whenever the app's `slotform` runs init.
 
 ## Ordering by data
 
@@ -98,14 +98,14 @@ the plugin list does only order-independent lookups (find by name, map to its CL
 
 `requires` on a plugin definition declares a sibling plugin that must be in the config, and is
 presence only. Each entry is a name (`"db"`) or a one-of that exactly one of its plugins meets
-(`{ oneOf: ["cloudflare", "node"] }`); the first `oneOf` entry is the default `stack init` and
-`stack add` pick when the selection has none. A function of the plugin's resolved options stands
+(`{ oneOf: ["cloudflare", "node"] }`); the first `oneOf` entry is the default `slotform init` and
+`slotform add` pick when the selection has none. A function of the plugin's resolved options stands
 for a requirement that holds in one mode of the plugin only: api serving a worker needs a deploy
 target, api naming another app's `server` does not.
 
 `requires` drives two things: an actionable error naming the choices when a sibling is missing from
 the consumer's config or a one-of is met twice, in place of a cryptic slot-lookup failure, and the
-auto-pull of `stack init` and `stack add` ([commands](./commands.md#installing-the-requires-closure)).
+auto-pull of `slotform init` and `slotform add` ([commands](./commands.md#installing-the-requires-closure)).
 It never influences ordering: a plugin that reads `otherPlugin.slots.foo` as a derived input is
 ordered after it by that edge alone.
 

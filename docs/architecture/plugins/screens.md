@@ -1,23 +1,23 @@
-# plugin-screens
+# screens plugin
 
-`@fcalell/plugin-screens` is the screens workbench: a Storybook host that serves every route of a web
+`@slotform/screens` is the screens workbench: a Storybook host that serves every route of a web
 app in each state its queries can take, answered from typed fixtures by MSW, and the test run that
 checks each screen in a headless Chrome. This page covers how it is built: what it requires, its
 subpaths and dependencies, the host configs, the generated stories, how a call is answered, the test
 run and its render walk, the shared browser, `shoot` and `drive`, and `serve`'s controls. Using the
 workbench is the consumer guide's ([the screens workbench](../../../plugins/screens/guide/screens.md));
 the commands' procedures are under [screens](../commands.md#screens); the slots are in the
-[slot catalog](../slot-catalog.md#screensslots-plugin-screens).
+[slot catalog](../slot-catalog.md#screensslots-the-screens-plugin).
 
 ## Requirements
 
-- **A Chrome.** `stack screens test`, `shoot` and `drive` drive a headless Chrome over the DevTools
+- **A Chrome.** `slotform screens test`, `shoot` and `drive` drive a headless Chrome over the DevTools
   protocol, with nothing to download, and share one browser per machine
   ([Shared browser](#shared-browser)). Which Chrome they run is the guide's
   [the screens workbench](../../../plugins/screens/guide/screens.md).
 - **Storybook 10 and Vitest 5.** The host is Storybook `^10.6` (`@storybook/react-vite`,
   `@storybook/addon-a11y`, `@storybook/addon-vitest`) and the run is Vitest `^5.0` with
-  `@vitest/browser`, the ranges `stack add screens` writes. The supported majors are the guide's
+  `@vitest/browser`, the ranges `slotform add screens` writes. The supported majors are the guide's
   [the screens workbench](../../../plugins/screens/guide/screens.md).
 
 ## Subpaths
@@ -40,49 +40,49 @@ checks), `./shift` (the loading shift), `./walk` (the render walk) and `./storie
 
 ## Dependencies
 
-The packages `stack add screens` installs are the plugin's `devDependencies`, each an optional peer
+The packages `slotform add screens` installs are the plugin's `devDependencies`, each an optional peer
 in the manifest: Storybook, its addons, MSW, Vitest and `@vitest/browser`. An app that has auth or
-react-ui without `screens()` installs none of them. `stack add screens` writes them into the app,
+react-ui without `screens()` installs none of them. `slotform add screens` writes them into the app,
 where the host's Storybook config, test config and preview resolve them. The oRPC packages the host
 answers with, `@orpc/client` and `@orpc/server`, are required peers, which the CLI writes into every
-app that reaches the package ([installing stack](../consumer-project.md#installing-stack)): the app
+app that reaches the package ([installing Slotform](../consumer-project.md#installing-slotform)): the app
 and the host share one copy, since a second copy of `@orpc/client` throws a second `ORPCError` class
 ([Unanswered calls](#unanswered-calls)).
 
 ## Storybook host
 
 Every Storybook host changes the app's own Vite config the same way (`hosted`), and nothing it changes
-reaches the app's `.stack/vite.config.ts`:
+reaches the app's `.slotform/vite.config.ts`:
 
 - `clientHeaders` goes: `frame-ancestors 'none'` blocks Storybook's preview iframe.
 - No dev-server proxy and no port: the app's backend is never reached, and Storybook serves Vite
   itself.
 
-`.stack/screens/main.ts` (`storybookMain`) and `.stack/screens-test/main.ts` (`testMain`, the same
-with the checks, which only `stack screens test` loads) are the Storybook configs, run from the project
-root: the files `stack-screens/` holds are the stories, and the host is Vite on the config the plugin
+`.slotform/screens/main.ts` (`storybookMain`) and `.slotform/screens-test/main.ts` (`testMain`, the same
+with the checks, which only `slotform screens test` loads) are the Storybook configs, run from the project
+root: the files `slotform-screens/` holds are the stories, and the host is Vite on the config the plugin
 derives. `stories` is relative to the config directory, two levels under the root, because the Vitest
 plugin joins it to that directory. Both are null without routes.
 
 ### A Storybook that draws components
 
-`writeStorybookConfig({ config, cwd, env })` from `@fcalell/plugin-screens/node` serves a Storybook
+`writeStorybookConfig({ config, cwd, env })` from `@slotform/screens/node` serves a Storybook
 that draws components, not routes (the showcase's roster). The app's own
-`.storybook/main.ts`, Storybook's process entry, calls it with the app's `stack.config.ts` and `process.env`. It builds the slot graph
+`.storybook/main.ts`, Storybook's process entry, calls it with the app's `slotform.config.ts` and `process.env`. It builds the slot graph
 (`buildGraphFromConfig`), resolves vite's slots and renders them with `renderViteConfig` as the screens
-host does, with `hosted`'s changes, then writes `.stack/storybook.vite.config.ts`. That file holds the
+host does, with `hosted`'s changes, then writes `.slotform/storybook.vite.config.ts`. That file holds the
 app's own plugin calls and values and one host-only plugin call, `storybookHost()`, which starts the
 dependency optimizer ([Vite plugin](#vite-plugin) gives why a Storybook host must). No router plugin,
 no `screensPlugin`, no route tree and no fixtures reach it: the router plugin needs the route files
 and rewrites the route tree, and it lives in `vite.slots.appPlugins`, outside the calls a host reads.
 It returns the file's path, for Storybook's `viteConfigPath` and Vite's `loadConfigFromFile`. It is a
-function and not a slot, so `stack generate` never writes it and a consumer without such a Storybook
+function and not a slot, so `slotform generate` never writes it and a consumer without such a Storybook
 gets no file.
 
 ## Screens Vite config
 
-`viteConfig` renders `.stack/screens.vite.config.ts`, the config the screens host runs on: the app's
-own, rendered by `@fcalell/plugin-vite/node` from the same `vite.slots.*` values and react's
+`viteConfig` renders `.slotform/screens.vite.config.ts`, the config the screens host runs on: the app's
+own, rendered by `@slotform/vite/node` from the same `vite.slots.*` values and react's
 `routesDir`, `entryImports` and `routerBindings`, with what a host that serves the app's screens
 changes:
 
@@ -93,13 +93,13 @@ changes:
   module's id (`?tsr-split=component`) fails `existsSync`, so Vitest's `--changed` walk drops it and a
   component's edit would reach no screen.
 
-Vite's root stays `.stack/`: every path a contribution hands a plugin is anchored on the config file.
+Vite's root stays `.slotform/`: every path a contribution hands a plugin is anchored on the config file.
 The config is null without routes.
 
 ## Vite plugin
 
 `screensPlugin` is the Vite plugin only the screens host runs, added to
-`.stack/screens.vite.config.ts` and never to the app's config. It serves what a story needs (the app's
+`.slotform/screens.vite.config.ts` and never to the app's config. It serves what a story needs (the app's
 route tree, fixtures and entry imports as one virtual module, and `/mockServiceWorker.js` from MSW's
 package), keeps the story files in step with the routes, and starts the dependency optimizer.
 
@@ -114,10 +114,10 @@ optimizer to resolve.
 
 ## Story generation
 
-`stack-screens/` at the app root (gitignored, and no dot directory, which Storybook's watcher ignores)
+`slotform-screens/` at the app root (gitignored, and no dot directory, which Storybook's watcher ignores)
 holds one CSF file per file that declares `createFileRoute("<id>")`, mirroring the id
-(`stack-screens/projects/$id.stories.ts`). A `postWrite` hook writes them after every generate, and
-while `stack screens dev` runs, `screensPlugin` does on the routes directory's add, change and unlink
+(`slotform-screens/projects/$id.stories.ts`). A `postWrite` hook writes them after every generate, and
+while `slotform screens dev` runs, `screensPlugin` does on the routes directory's add, change and unlink
 events. The folder is brought to one file per screen: written for an added route, rewritten when its
 content changed, removed for a deleted one and left untouched otherwise. A file's content is the
 route's id and the paths of the files its screen imports, so an edit to a route file rewrites nothing.
@@ -141,7 +141,7 @@ a title with the route it indexes.
 ## How a screen is served
 
 A story renders `createRouter({ routeTree, history: createMemoryHistory({ initialEntries }) })` in the
-app's `virtual:stack-providers`, after the entry's own `bindRouter` calls. The URL is the route's full
+app's `virtual:slotform-providers`, after the entry's own `bindRouter` calls. The URL is the route's full
 path with each param filled from the example values the fixtures give it. A required param without
 one throws ([fixtures](../../../plugins/screens/guide/fixtures.md)), so the failure is the story's error and never a path with
 `$id` in it.
@@ -189,7 +189,7 @@ overrides it and follows the state.
   organization or project the URL names, and the caller's rules in it. A story forces the state of the
   screen's reads; the scope is always found (a missing one is the `$org` route's own story), whoever
   supplies the fixture.
-- **The session read** (plugin-auth's `auth.session`, the path mirroring plugin-auth's router) is the
+- **The session read** (the `auth` plugin's `auth.session`, the path mirroring the `auth` plugin's router) is the
   container's precondition: the auth guard and the active organization hang on it, so a forced error or
   loading would fail the guard in every such story rather than draw the screen in that state. It
   answers data whoever supplies the fixture, so an app that answers it with its own session (an
@@ -219,9 +219,9 @@ together) and rebuilt as this copy's class, so the codec encodes it as its own.
 
 ### Channels
 
-plugin-node contributes `@fcalell/plugin-node/screens` to `handlerModules`: an MSW `ws.link("*/ws")`
+The `node` plugin contributes `@slotform/node/screens` to `handlerModules`: an MSW `ws.link("*/ws")`
 handler that answers each `{ t: "sub", ch }` with the `{ t: "msg", ch, type, payload }` frame
-(plugin-node's `ServerFrame`, under [channels](node.md#channels)) built by `channelAnswer` from the
+(the `node` plugin's `ServerFrame`, under [channels](node.md#channels)) built by `channelAnswer` from the
 app's `channels` fixture: the third argument of `defineFixtures`, a map from channel name to
 `(params) =>` the snapshot payload, or `{ type, payload }` naming another opening message. It answers
 for the story on screen, which `stories.tsx` sets as the story renders; `./channels` exports both for
@@ -244,16 +244,16 @@ answer is the one copy the stories set.
 
 ## Test run
 
-`stack screens test` generates, then runs the app's `vitest run --config
-.stack/screens.vitest.config.ts` (`--passWithNoTests`, the story files `--screen`
+`slotform screens test` generates, then runs the app's `vitest run --config
+.slotform/screens.vitest.config.ts` (`--passWithNoTests`, the story files `--screen`
 names, and `--changed [<ref>]` as the guide's [narrowing a run](../../../plugins/screens/guide/test-run.md#narrowing-a-run)
 sets it). The config spreads
-`.stack/screens.vite.config.ts`, so the run's host is the workbench's, and runs the Storybook test
-plugin on `.stack/screens-test/`, whose `main.ts` adds `./checks`.
+`.slotform/screens.vite.config.ts`, so the run's host is the workbench's, and runs the Storybook test
+plugin on `.slotform/screens-test/`, whose `main.ts` adds `./checks`.
 
 ### Vitest config
 
-`vitestConfig` renders `.stack/screens.vitest.config.ts`: the screens host's Vite config with the
+`vitestConfig` renders `.slotform/screens.vitest.config.ts`: the screens host's Vite config with the
 Storybook test plugin on the test run's config directory and one browser project,
 `chrome(process.env)` as its provider (the shared browser's state directory and `CHROME_PATH` come
 from that env), headless at 1280x800. Each parallel page is one renderer, so two open at most. The
@@ -262,9 +262,9 @@ widths and the screenshot directory to the checks, which read them with `inject`
 Without the environment (Vitest run by hand) every story and every width run, and no screenshot is
 saved.
 
-`--state`, `--mode`, `--width` and `--shots` reach the run as `STACK_SCREENS_EXCLUDE`,
-`STACK_SCREENS_WIDTHS` and `STACK_SCREENS_SHOTS`. `--full`, `--open` and `--search` reach it as
-`STACK_SCREENS_FULL`, `STACK_SCREENS_OPEN` (`provide`) and `STACK_SCREENS_SEARCH` (read by the story
+`--state`, `--mode`, `--width` and `--shots` reach the run as `SLOTFORM_SCREENS_EXCLUDE`,
+`SLOTFORM_SCREENS_WIDTHS` and `SLOTFORM_SCREENS_SHOTS`. `--full`, `--open` and `--search` reach it as
+`SLOTFORM_SCREENS_FULL`, `SLOTFORM_SCREENS_OPEN` (`provide`) and `SLOTFORM_SCREENS_SEARCH` (read by the story
 from `import.meta.env`, through the config's `envPrefix`).
 
 ### Narrowing a run
@@ -350,7 +350,7 @@ the guide keeps the directory inside the app.
 ### Test run exit
 
 A Vitest killed by a signal (the OOM killer's `SIGKILL`, a Ctrl-C) exits with no code. That is no pass:
-`stack screens test` fails, naming the signal, and never exits 0 over a run that did not finish.
+`slotform screens test` fails, naming the signal, and never exits 0 over a run that did not finish.
 
 ## Render walk
 
@@ -389,7 +389,7 @@ rule. The class lists the exceptions name (in `./walk` and `./shift`) live in re
 ## Shared browser
 
 Every screens command on the machine shares one headless Chrome; what a consumer meets of it (the
-state file, `stack screens browser`, one context per command) is the guide's
+state file, `slotform screens browser`, one context per command) is the guide's
 [shared browser](../../../plugins/screens/guide/screens.md#the-shared-browser). How it holds:
 
 - `chrome.lock`, taken by exclusive create, holds its owner's pid and orders every start and every
@@ -456,20 +456,20 @@ the rules the test run turns on.
 
 ## Serve
 
-`stack screens serve` answers a worker's requests as the app does, plus the `/fixture/*` paths:
+`slotform screens serve` answers a worker's requests as the app does, plus the `/fixture/*` paths:
 
 | Path | Does |
 | --- | --- |
 | `delay?match=<pattern>&ms=<n>` | slows each request whose path matches; `ms=0` clears |
 | `fail?match=<pattern>&status=<n>` | answers each one with status `n`; `status=0` clears |
-| `link[?to=/path]` | signs the browser in as the fixture member: a control extra answers (plugin-auth's), 404 when none does |
+| `link[?to=/path]` | signs the browser in as the fixture member: a control extra answers (the `auth` plugin's), 404 when none does |
 
 A pattern is a part of the path, `*` standing for any run. The rules live in the worker instance.
 `socket` is the node server's, which owns the sockets. `fixtureControls` asks a plugin's or an app's
 own controls first, in the order given, and the generic controls last
 ([the seeded server](../../../plugins/screens/guide/seeded-server.md)).
 
-What `stack dev` and `stack build` write holds no trace of `serve`'s controls: the files generate
+What `slotform dev` and `slotform build` write holds no trace of `serve`'s controls: the files generate
 writes are what both run from (`/fixtures` is the workbench's own file, which stays).
 
 ## In the code
@@ -478,9 +478,9 @@ writes are what both run from (`/fixtures` is the workbench's own file, which st
 - `plugins/screens/src/types.ts`: the toolbar globals.
 - `plugins/screens/src/widths.ts`: the rubric widths.
 - `plugins/screens/src/node/config.ts`: `hosted`, the screens Vite config, the Vite config of a Storybook that draws components, the Storybook `main.ts` files, the Vitest config.
-- `plugins/screens/src/node/files.ts`: the names of the files the plugin writes under `.stack/`.
+- `plugins/screens/src/node/files.ts`: the names of the files the plugin writes under `.slotform/`.
 - `plugins/screens/src/node/storybook-config.ts`: `writeStorybookConfig`.
-- `plugins/screens/src/node/storybook.ts`: the Storybook config of `.stack/screens/` and `.stack/screens-test/`.
+- `plugins/screens/src/node/storybook.ts`: the Storybook config of `.slotform/screens/` and `.slotform/screens-test/`.
 - `plugins/screens/src/node/vite-plugin.ts`: `screensPlugin`, the dependency optimizer start.
 - `plugins/screens/src/node/stories.ts`: the CSF files and the stories folder's upkeep.
 - `plugins/screens/src/node/screens.ts`: story titles.

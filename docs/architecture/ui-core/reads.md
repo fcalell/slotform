@@ -1,11 +1,11 @@
 # Reads
 
 How a UI part draws data that comes from a query: the framework-free read model in
-`@fcalell/ui-core`'s `read.ts`, the hooks in `react/read.ts` that leaves and frames subscribe with,
+`@slotform/ui-core`'s `read.ts`, the hooks in `react/read.ts` that leaves and frames subscribe with,
 which frame holds a read and draws its failure, busy mark and stale line, what a part paints while
 its data is not here (`paint.ts`), the port the hooks ask of the binding that runs the reads, and
-the scope ids a route hands every query. `@fcalell/plugin-query` is the binding
-([query](../plugins/query.md)); `@fcalell/plugin-react-ui` and `@fcalell/plugin-native-ui` draw the
+the scope ids a route hands every query. `@slotform/query` is the binding
+([query](../plugins/query.md)); `@slotform/react-ui` and `@slotform/native-ui` draw the
 shapes. Where a frame stands on a page is in [layout](layout.md).
 
 ## Read model
@@ -22,7 +22,7 @@ fields it reads, so it imports neither TanStack nor React.
   `react/read.ts` and the binding that runs the reads share one core.
 - A **leaf** subscribes to a selection, paints it while its reads wait, and draws it once they land.
 - The binding that runs a read gets the read's query by identity: two reads with one key are one
-  query. The binding adds what it runs the query with (`@fcalell/plugin-query` merges its query
+  query. The binding adds what it runs the query with (`@slotform/query` merges its query
   options in as `options`).
 
 ### Read kinds
@@ -30,7 +30,7 @@ fields it reads, so it imports neither TanStack nor React.
 How a read's query behaves (`ReadKind`):
 
 - `query`: a plain query.
-- `pages`: an infinite query of stack's paginated envelope.
+- `pages`: an infinite query of Slotform's paginated envelope.
 - `window`: a sparse window over a total whose pages load where the viewer scrolls; its value is the
   rows loaded from the start, and `useWindow` has the rest.
 - `stream`: a query that stays fetching while it writes, so fetching with data is writing, never
@@ -45,7 +45,7 @@ How a read's query behaves (`ReadKind`):
 - A waiting page is the loaded tree painted, never a second tree, so a `Section` stands whatever its
   data holds and draws its `empty` when the answer holds nothing. No Section is gated on its data's
   length and none waits on a hand-built tree.
-- An address no route serves is drawn by stack, with the `notFound` word ([words](words.md)).
+- An address no route serves is drawn by Slotform, with the `notFound` word ([words](words.md)).
 - What a leaf draws for one value (`Drawn`) is a constant or real data as given, or a selection with
   a read still to land, whose `value` is the stand-in's and whose `phase` (`DrawnPhase`) says why:
   `waiting`, asked for with no answer; `still`, not asked for or paused with no data, so nothing is
@@ -319,14 +319,14 @@ coarse clock's ([ages and the clock](words.md#ages-and-the-clock)).
 
 ## Sort
 
-A read's sort reads one part of `.stack/schema.ts` (`SortSchema`): each procedure by dotted path with
+A read's sort reads one part of `.slotform/schema.ts` (`SortSchema`): each procedure by dotted path with
 its input as JSON Schema, whose `sort` property names the columns a procedure that declares `sort`
 takes.
 
 ## The port
 
 - The **port** (`ReadPort`) is what the read hooks and the components ask of the binding that runs
-  the reads (`@fcalell/plugin-query`), which provides it around the app (`PortProvider`). The members
+  the reads (`@slotform/query`), which provides it around the app (`PortProvider`). The members
   that observe are hooks themselves, called at the hook's top level in a fixed order; the others are
   plain calls. There is one port per provider, its identity stable for the provider's life.
 - With no provider above, the context's default answers: plain values draw, an act runs as it is and
@@ -336,7 +336,7 @@ takes.
   platform has no window events (the phone: the network and the app's foreground). Each listener
   takes the manager's setter and returns its cleanup. The phone wires TanStack's managers this way:
   `QueryProvider`'s `listen` takes `online` and `focus`, a `QueryListeners` from
-  `@fcalell/ui-core/listen`.
+  `@slotform/ui-core/listen`.
 
 ## Dev checks
 

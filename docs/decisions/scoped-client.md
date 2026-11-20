@@ -2,7 +2,7 @@
 
 The URL names the scope by slug. The consumer's layout resolves the slug to its chain (the
 organization's id, then the project's) and wraps its outlet in `<ScopeBoundary ids>`, one line per
-layout, which registers those ids with the client. `stack generate` writes each procedure's scope
+layout, which registers those ids with the client. `slotform generate` writes each procedure's scope
 key (`organizationId`, `projectId`, or none) beside its input schema, and the binding's query utils
 set the registered id as that key of every scoped call's input, so a screen writes no scope id and
 no hook. The id still arrives in the input, so the scope middleware and the query key are
@@ -18,7 +18,7 @@ it is the part that can be wrong.
 **Trade-off.** A call made outside a scope boundary (a global search, a sign-in screen) passes the
 id itself, as today. The registered scope is ambient: a call's scope is the boundary it renders
 under, and a screen that must call across scopes passes the id explicitly. The client depends on
-the generated schema file, so a procedure added since the last `stack generate` is not scoped
+the generated schema file, so a procedure added since the last `slotform generate` is not scoped
 until it runs. A header could carry the scope instead and drop the key from the schema, but the
 query key would then lose the id and the cache would need its own scoping; keeping the id in the
 input keeps one mechanism.

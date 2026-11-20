@@ -1,9 +1,9 @@
-# plugin-query
+# query plugin
 
-`@fcalell/plugin-query` is the TanStack Query binding of the api's procedures: the query client and
+`@slotform/query` is the TanStack Query binding of the api's procedures: the query client and
 its provider, the read builder over oRPC's query utils, the binding half of acts, the scope merge,
 cache invalidation and the org-rules ability. The model it binds (`Read`, `Selection`, the hooks,
-the attempt and save logic) is `@fcalell/ui-core`'s ([reads](../ui-core/reads.md),
+the attempt and save logic) is `@slotform/ui-core`'s ([reads](../ui-core/reads.md),
 [acts](../ui-core/acts.md)). How an app uses it is the plugin's guide (`plugins/query/guide/`).
 
 ## Contributions
@@ -13,21 +13,21 @@ without either.
 
 | Slot | Contribution |
 |------|--------------|
-| `react.slots.providers` | `<QueryProvider hold={paintWait}>` (`paintWait` from `@fcalell/ui-core/paint`) around the web app (`order: 2`) |
-| `vite.slots.optimizeExclude` | `@fcalell/plugin-query/tanstack-query`, which imports `virtual:stack-schema` |
+| `react.slots.providers` | `<QueryProvider hold={paintWait}>` (`paintWait` from `@slotform/ui-core/paint`) around the web app (`order: 2`) |
+| `vite.slots.optimizeExclude` | `@slotform/query/tanstack-query`, which imports `virtual:slotform-schema` |
 | `cliSlots.initDeps` | `@orpc/tanstack-query` |
 
-On the phone, `plugin-native-ui` contributes the `QueryProvider` to `plugin-expo.slots.providers`,
+On the phone, the `native-ui` plugin contributes the `QueryProvider` to `expo.slots.providers`,
 with `listen` from `./net`. `QueryProvider` builds a stable default client lazily when none is
 supplied, so a bare consumer gets working behaviour with no config, and it holds the port the read
 hooks run on over that client.
 
 ## Source shipping
 
-`./tanstack-query.tsx` ships as source for the bundler, while its siblings, plugin-api's client and
+`./tanstack-query.tsx` ships as source for the bundler, while its siblings, the `api` plugin's client and
 ui-core ship compiled from `dist`. So it imports its siblings by package name, never relatively: a
 relative import would load a second copy of the registered client, the entity registry and the
-model's state. `virtual:stack-schema` is `.stack/schema.ts`, which `stack generate` writes and the
+model's state. `virtual:slotform-schema` is `.slotform/schema.ts`, which `slotform generate` writes and the
 bundler serves.
 
 ## Reads
@@ -36,7 +36,7 @@ bundler serves.
 of oRPC's utils, the first-load hold, the window's page loads and the dev check over the query cache.
 
 Every procedure's utils carry `.read(input)` beside `.queryOptions`: the same input (`skipToken`
-included), the output typed, as a `Read` handle. A procedure whose output is stack's paginated
+included), the output typed, as a `Read` handle. A procedure whose output is Slotform's paginated
 envelope also gets `.pages(input)` (no `cursor`), a read of the flat list that pages in. One whose
 output is the window envelope gets `.window(input)` (no `offset`), a read of the rows loaded from the
 start that a collection under a scroller sizes to the total. Both carry the query they answer: the
@@ -66,11 +66,11 @@ with no observer to abort it, and neither is an idle read, which has no function
 ## Scope
 
 `./scope` sets the route's scope on oRPC's query utils: every call of a scoped procedure takes the
-registered ids (`@fcalell/ui-core/scope`) in its input before the query key is built, so the id stays
+registered ids (`@slotform/ui-core/scope`) in its input before the query key is built, so the id stays
 in the key and two scopes never share a cache entry ([scope](./api.md#scope)). `withScope` covers
 `queryOptions`, `infiniteOptions`, the keys, `call` and the `mutationFn` of `mutationOptions`. The
 merge precedes the key, which carries the id. A procedure the schema does not name, or names with no
-scope, is left as it is. The schema is a parameter because `virtual:stack-schema` resolves only in
+scope, is left as it is. The schema is a parameter because `virtual:slotform-schema` resolves only in
 the bundler, which builds `./tanstack-query.tsx` and not `./scope`.
 
 ## Cache invalidation
@@ -85,7 +85,7 @@ mutation that declares `writes` on its entities succeeds: the mutations own the 
 
 `acts.ts` is the binding's half of an act: the sentence an oRPC refusal reads as, whether a failure
 is worth running again, and the dev checks and the reach guard over TanStack's caches. The attempt and
-save logic the hooks wrap is `@fcalell/ui-core/acts`.
+save logic the hooks wrap is `@slotform/ui-core/acts`.
 
 - **`guardReach`** is the mutation cache's `onMutate`: nothing queues for a connection that is not
   there. While the browser is offline, or a cached read's `meta.reach` says the server is out (a
@@ -118,7 +118,7 @@ CASL `MongoAbility`. The org rules arrive as CASL's packed-rules arrays, opaque 
   stays painted. The read is ambient: no frame holds it, so a failure leaves what it gates painted and
   inert, never a false yes.
 - **Key.** The read's key is shaped like `@orpc/tanstack-query`'s operation keys
-  (`[path, { input }]`), so the entity registry (`@fcalell/plugin-api/query-invalidation`), which
+  (`[path, { input }]`), so the entity registry (`@slotform/api/query-invalidation`), which
   matches on the path, recognizes it: `auth.orgRules` declares `reads: ["member"]`, so a mutation that
   declares `writes` on an org subject (a role change writing `member`) invalidates every
   organization's rules, as for any other oRPC-backed query. `member` is a legal entity because auth

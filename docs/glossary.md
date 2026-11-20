@@ -7,11 +7,14 @@ to fix, and a new term enters this page in the change that introduces it.
 
 ## Framework
 
+- **Slotform**: The framework this repository builds: the plugins, the CLI and the design system a
+  consumer composes an app from. Written `slotform` in a command, a package name or a file name.
+  Avoid: stack. [product](product.md)
 - **plugin**: A self-contained feature unit built with `plugin()` that owns one domain: its config
   schema, its slots, its contributions, and optionally commands, callbacks and a worker runtime.
   [architecture](architecture.md#plugins)
-- **consumer**: An app built on stack, configured by its `stack.config.ts`. The showcase and the
-  phone app in this repo are private consumers. Avoid: stack app.
+- **consumer**: An app built on Slotform, configured by its `slotform.config.ts`. The showcase and the
+  phone app in this repo are private consumers. Avoid: Slotform app.
   [consumer project](architecture/consumer-project.md#config)
 - **`app`**: The config's top-level field for cross-cutting identity (`name`, `domain`), holding only
   values more than one plugin reads; anything one plugin's domain needs is that plugin's option.
@@ -41,34 +44,34 @@ to fix, and a new term enters this page in the change that introduces it.
   [slot catalog](architecture/slot-catalog.md#spec-types)
 - **`requires`**: A plugin's declaration that a sibling plugin, or exactly one of several, must be in
   the config. It says presence only and never sets order. [slot graph](architecture/slot-graph.md#requires)
-- **deploy target**: The plugin that runs the worker in dev and deploys it: plugin-cloudflare or
-  plugin-node. Avoid: server target. [architecture](architecture.md#plugins)
-- **worker**: The server program stack generates from what the plugins contribute, run by the deploy
+- **deploy target**: The plugin that runs the worker in dev and deploys it: the `cloudflare` or
+  `node` plugin. Avoid: server target. [architecture](architecture.md#plugins)
+- **worker**: The server program Slotform generates from what the plugins contribute, run by the deploy
   target. [runtime](architecture/runtime.md#the-generated-worker)
-- **`.stack/`**: The directory of a consumer that holds every generated file; nothing in it is edited
+- **`.slotform/`**: The directory of a consumer that holds every generated file; nothing in it is edited
   by hand. [consumer project](architecture/consumer-project.md#project-structure)
-- **generate**: The command (`stack generate`) that resolves every artifact, writes it under
-  `.stack/` and runs the hooks that follow; every other command runs it first.
-  [commands](architecture/commands.md#stack-generate)
+- **generate**: The command (`slotform generate`) that resolves every artifact, writes it under
+  `.slotform/` and runs the hooks that follow; every other command runs it first.
+  [commands](architecture/commands.md#slotform-generate)
 - **artifact**: A file `generate` writes from a slot's value. [codegen](architecture/codegen.md#artifact-emit)
 - **process entry**: The file a process starts from: `cli.ts` for the CLI, the generated
-  `.stack/server.ts` for the Node server, a file a tool loads as its process's start. The one place
+  `.slotform/server.ts` for the Node server, a file a tool loads as its process's start. The one place
   that reads `process.env` and hands it down. Avoid: entry (alone), entry point.
   [conventions](architecture/conventions.md#the-environment)
-- **guide page**: A page a package ships under `guide/` on how a consumer builds on stack, read at the
+- **guide page**: A page a package ships under `guide/` on how a consumer builds on Slotform, read at the
   version the consumer installs. [consumer project](architecture/consumer-project.md#the-guide)
-- **guide index**: `.stack/guide.md`, the list of every guide page of the consumer's plugins, each
+- **guide index**: `.slotform/guide.md`, the list of every guide page of the consumer's plugins, each
   with the trigger that says when to open it. [consumer project](architecture/consumer-project.md#the-guide)
-- **shortfall**: A bug or missing feature a consumer cannot ship without, filed as an issue on stack and
+- **shortfall**: A bug or missing feature a consumer cannot ship without, filed as an issue on Slotform and
   never worked around in the consumer. [consumer project](architecture/consumer-project.md#designing-screens)
-- **version rule**: Every public stack package carries one version and is released together, and
-  stack packages depend on each other by a caret of it. [releasing](architecture/releasing.md#the-version-rule)
-- **required peer**: A third-party peer of a stack package that `peerDependenciesMeta` does not mark
-  optional; `stack init` and `stack add` write each one in the app's closure into its
-  `dependencies`, and `stack remove` drops one no package left requires. Avoid: hard peer.
-  [consumer project](architecture/consumer-project.md#installing-stack)
-- **linked app**: A consumer whose stack packages `stack link` installed from a stack checkout, with
-  its committed install files kept in `.stack/link/` until `stack unlink`. Avoid: linked consumer,
+- **version rule**: Every public Slotform package carries one version and is released together, and
+  Slotform packages depend on each other by a caret of it. [releasing](architecture/releasing.md#the-version-rule)
+- **required peer**: A third-party peer of a Slotform package that `peerDependenciesMeta` does not mark
+  optional; `slotform init` and `slotform add` write each one in the app's closure into its
+  `dependencies`, and `slotform remove` drops one no package left requires. Avoid: hard peer.
+  [consumer project](architecture/consumer-project.md#installing-slotform)
+- **linked app**: A consumer whose Slotform packages `slotform link` installed from a Slotform checkout, with
+  its committed install files kept in `.slotform/link/` until `slotform unlink`. Avoid: linked consumer,
   link mode. [consumer project](architecture/consumer-project.md#a-linked-app)
 - **release check**: `pnpm release:check`, which packs every public package and proves the tarballs
   install and build in fresh consumers, publishing nothing. [releasing](architecture/releasing.md#the-check)
@@ -79,29 +82,29 @@ to fix, and a new term enters this page in the change that introduces it.
 
 - **procedure**: One typed endpoint of the API, built with the `procedure` factory in a route file,
   with its input, output, scope and the entities it reads and writes.
-  [plugin-api](architecture/plugins/api.md#procedure-factory)
-- **client**: The typed RPC client an app calls procedures through. [plugin-api](architecture/plugins/api.md#client)
+  [api plugin](architecture/plugins/api.md#procedure-factory)
+- **client**: The typed RPC client an app calls procedures through. [api plugin](architecture/plugins/api.md#client)
 - **wire contract**: What travels between the worker and its clients: how a call is encoded, which
   calls go as GET, the entity headers and how not found is answered.
-  [plugin-api](architecture/plugins/api.md#wire-contract)
+  [api plugin](architecture/plugins/api.md#wire-contract)
 - **update wall**: The page a phone build below the version gate's floor draws in place of the whole
   app, which cannot be dismissed and links to the platform's store. Avoid: upgrade screen.
-  [plugin-native-ui](architecture/plugins/native-ui.md#update-wall)
+  [native-ui plugin](architecture/plugins/native-ui.md#update-wall)
 - **entity**: A name for a piece of state a procedure reads or writes: a table, or state outside any
-  table that the consumer names. [plugin-api](architecture/plugins/api.md#entities)
+  table that the consumer names. [api plugin](architecture/plugins/api.md#entities)
 - **reads / writes**: The entities a procedure declares it reads and writes, which drive cache
-  invalidation. [plugin-api](architecture/plugins/api.md#entities)
+  invalidation. [api plugin](architecture/plugins/api.md#entities)
 - **cache invalidation**: A read's answer refreshing on its own when a mutation that writes one of its
-  entities succeeds. [plugin-api](architecture/plugins/api.md#cache-invalidation)
+  entities succeeds. [api plugin](architecture/plugins/api.md#cache-invalidation)
 - **chosen**: The rows a person has ticked in a `Table`, which its chosen bar acts on and which an api
   mutation takes as ids or as a where. Avoid: selection, which is a read's typed path.
   [layout](architecture/ui-core/layout.md#foot)
 - **keyset segment**: One statement of a cursor page: the rows after the cursor up to the next null
-  boundary of a nullable order column. [plugin-api](architecture/plugins/api.md#cursor-pages)
+  boundary of a nullable order column. [api plugin](architecture/plugins/api.md#cursor-pages)
 - **scope**: A tenancy tier a procedure runs inside, such as an organization or a project, whose id
-  the procedure takes in its input. [plugin-api](architecture/plugins/api.md#scope)
+  the procedure takes in its input. [api plugin](architecture/plugins/api.md#scope)
 - **tier**: One step of a tenancy, from the organization down through each scope a consumer declares.
-  Avoid: level. [plugin-api](architecture/plugins/api.md#scope)
+  Avoid: level. [api plugin](architecture/plugins/api.md#scope)
 - **scope boundary**: The point in a route's layout that resolves the URL's slug to scope ids and
   registers them, so every call beneath carries them with no code on the screen.
   [the route scopes the client](decisions/scoped-client.md)
@@ -110,40 +113,40 @@ to fix, and a new term enters this page in the change that introduces it.
 - **command steps**: The ordered roots a CLI command resolves, one row per command.
   Avoid: procedure, which is an API call. [commands](architecture/commands.md#command-steps)
 - **tenancy**: The request context's capability that resolves a scope's chain of rows and the caller's
-  membership, answering nothing where any part is absent. [plugin-auth](architecture/plugins/auth.md#scopes)
+  membership, answering nothing where any part is absent. [auth plugin](architecture/plugins/auth.md#scopes)
 - **access control**: The consumer's statements of which roles may take which actions on which
-  resources in an organization. [plugin-auth](architecture/plugins/auth.md#access-control)
+  resources in an organization. [auth plugin](architecture/plugins/auth.md#access-control)
 - **ability**: What the caller may do, built from its org rules and an optional record layer, and
-  asked with `can`. [plugin-query](architecture/plugins/query.md#abilities)
+  asked with `can`. [query plugin](architecture/plugins/query.md#abilities)
 - **org rules**: The caller's rules in one organization, from its role there, read as an ambient read.
-  [plugin-query](architecture/plugins/query.md#abilities)
+  [query plugin](architecture/plugins/query.md#abilities)
 - **session**: The signed-in caller of a request. A device key and an MCP access token stand in for
-  one. [plugin-auth](architecture/plugins/auth.md#sessions)
+  one. [auth plugin](architecture/plugins/auth.md#sessions)
 - **device key**: A key that lets a headless machine act as a user with no browser sign-in.
-  [plugin-auth](architecture/plugins/auth.md#devices)
+  [auth plugin](architecture/plugins/auth.md#devices)
 - **local origin**: A local-dev hostname the worker trusts as an origin in dev.
-  [plugin-api](architecture/plugins/api.md#local-and-dev-origins)
+  [api plugin](architecture/plugins/api.md#local-and-dev-origins)
 - **refusal**: A rejection the server worded for the viewer, drawn where the act that caused it
-  stands. [plugin-query](architecture/plugins/query.md#acts)
+  stands. [query plugin](architecture/plugins/query.md#acts)
 - **background handler**: Consumer code the worker runs outside a request: a scheduled job or a queue
   consumer. [runtime](architecture/runtime.md#background-handlers)
 - **push**: How local dev applies the schema: written straight into the local database, with no
-  migration. [plugin-db](architecture/plugins/db.md#local-dev-push)
+  migration. [db plugin](architecture/plugins/db.md#local-dev-push)
 - **deploy check**: A check a deploy runs before it builds or migrates, which stops it on a placeholder
-  database id, an unmarked destructive migration or schema drift. [plugin-db](architecture/plugins/db.md#deploy-checks)
+  database id, an unmarked destructive migration or schema drift. [db plugin](architecture/plugins/db.md#deploy-checks)
 - **seed**: The data a consumer declares for its database, written idempotently.
-  [plugin-db](architecture/plugins/db.md#seed)
+  [db plugin](architecture/plugins/db.md#seed)
 - **main listener**: The node server's listener for the app's own origins: it admits the Host of one
-  of them or the bound address. [plugin-node](architecture/plugins/node.md#hosts-and-listeners)
+  of them or the bound address. [node plugin](architecture/plugins/node.md#hosts-and-listeners)
 - **further listener**: A named node listener beside the main one, admitting the Host of the origin
-  its `originVar` env var holds. [plugin-node](architecture/plugins/node.md#hosts-and-listeners)
+  its `originVar` env var holds. [node plugin](architecture/plugins/node.md#hosts-and-listeners)
 
 ## Design system
 
 ### Contract
 
 - **design contract**: What both UI plugins render from: tokens, motion, words, matrices and the
-  roster, held as data in `@fcalell/ui-core`.
+  roster, held as data in `@slotform/ui-core`.
   [ui-core](architecture/ui-core.md#what-it-is)
 - **sharing line**: The rule that decides what ui-core holds and what each plugin holds: what both
   platforms can take is ui-core's. [ui-core](architecture/ui-core.md#the-sharing-line)
@@ -156,17 +159,17 @@ to fix, and a new term enters this page in the change that introduces it.
   `defaultMode`); every token derives from them. [tokens](architecture/ui-core/tokens.md#knobs)
 - **theme**: The knobs and the starting mode an app gives both UI plugins.
   [tokens](architecture/ui-core/tokens.md#knobs)
-- **mode**: Light or dark. [plugin-react-ui](architecture/plugins/react-ui.md#modes)
+- **mode**: Light or dark. [react-ui plugin](architecture/plugins/react-ui.md#modes)
 - **mode script**: The script that sets the mode before first paint, from the viewer's stored choice,
   else the theme's `defaultMode`, else the system preference.
-  [plugin-react-ui](architecture/plugins/react-ui.md#mode-script-and-csp)
+  [react-ui plugin](architecture/plugins/react-ui.md#mode-script-and-csp)
 - **contrast floor**: The least contrast a text ink holds on the hardest ground it stands on, in both
   modes. [voice](../packages/ui-core/guide/voice.md#floors), [tokens](architecture/ui-core/tokens.md#contrast-floors)
 - **density**: The set of type, spacing and sizes a screen draws in, `desktop` or `touch`, decided by
   the pointer and the width, never by a knob. [tokens](architecture/ui-core/tokens.md#density-and-room)
 - **density rule**: The one query that picks a screen's density: `desktop` where the primary pointer
   is fine and the viewport is at least `tablet` wide, `touch` everywhere else.
-  [plugin-react-ui](architecture/plugins/react-ui.md#density)
+  [react-ui plugin](architecture/plugins/react-ui.md#density)
 - **room**: The density set a screen read from a distance declares (a television, a wall display):
   the touch set scaled to the screen. [tokens](architecture/ui-core/tokens.md#the-room)
 - **type role**: A named text style (body, title, meta and the rest) carrying its size, ink and family;
@@ -228,7 +231,7 @@ to fix, and a new term enters this page in the change that introduces it.
 - **text run**: A piece of a part's text: plain words, a quoted name, a span of code or strong words.
   Avoid: run, on its own. [words](architecture/ui-core/words.md#text-runs)
 - **parts line**: One text of parts a middle dot apart, which never breaks at a separator: a record
-  head's overline, a message's provenance. [plugin-react-ui](architecture/plugins/react-ui.md#text)
+  head's overline, a message's provenance. [react-ui plugin](architecture/plugins/react-ui.md#text)
 - **move**: One motion a component may make, named in its roster entry.
   [motion](architecture/ui-core/motion.md#moves-and-move-class-sets)
 - **flow line**: A line of text that appears in flow (a blocked act's reason, a field's error, a notice): it
@@ -323,7 +326,7 @@ to fix, and a new term enters this page in the change that introduces it.
 - **holder**: A frame, or a leaf that draws a read's failure itself.
   [reads](architecture/ui-core/reads.md#stand-in-and-selectors)
 - **ambient read**: A read no frame holds by design (the org rules), whose failure leaves what it gates
-  painted and inert. [plugin-query](architecture/plugins/query.md#reads)
+  painted and inert. [query plugin](architecture/plugins/query.md#reads)
 - **stand-in**: The value standing for data not yet there, shaped by nothing, that a selector runs over
   while its read waits. Avoid: placeholder, which is an input's hint prop. [reads](architecture/ui-core/reads.md#stand-in-and-selectors)
 - **paint**: What a part draws while its data is not here; a part so drawn is painted.
@@ -385,7 +388,7 @@ to fix, and a new term enters this page in the change that introduces it.
 - **edge band**: The strip inside a scroller's or a pane's edge where a drag carries it, faster the
   deeper the pointer stands. [drag](architecture/ui-core/drag.md#web-drag)
 - **edge pan**: A canvas's view panning toward the edge band a drag stands in.
-  [plugin-react-ui](architecture/plugins/react-ui.md)
+  [react-ui plugin](architecture/plugins/react-ui.md)
 - **track**: A record that plays, given as a descriptor. [sound](architecture/ui-core/sound.md#track)
 - **dock**: The player's bar an app mounts in the Shell's foot. [sound](architecture/ui-core/sound.md#dock)
 
@@ -411,33 +414,33 @@ to fix, and a new term enters this page in the change that introduces it.
   [showcase](architecture/ui-core/showcase.md#the-guide)
 - **Specimen**: The showcase story that draws every roster component's rest scenes, light and dark, on one page, with the lone scenes at its end, where a class set or token change is judged first. Avoid: style sheet, kitchen sink.
   [showcase](architecture/ui-core/showcase.md#the-roster-in-storybook)
-- **screens workbench**: The Storybook host plugin-screens runs that serves every route of an app in
+- **screens workbench**: The Storybook host the `screens` plugin runs that serves every route of an app in
   each state its queries can take, from fixtures, with no backend. [showcase](architecture/ui-core/showcase.md#the-screens-workbench)
 - **fixture**: A typed answer the workbench gives a procedure, plus the example route params and
-  search a screen is drawn at. [plugin-screens](architecture/plugins/screens.md#how-a-screen-is-served)
+  search a screen is drawn at. [screens plugin](architecture/plugins/screens.md#how-a-screen-is-served)
 - **state**: One of the forms the workbench forces a screen's reads into: data, loading, error, not
-  found or empty. [plugin-screens](architecture/plugins/screens.md#states)
+  found or empty. [screens plugin](architecture/plugins/screens.md#states)
 - **container route**: A route the api and auth plugins serve for the app's container (the scope lookup, the
   caller's rules), which answers from its fixture in every state.
-  [plugin-screens](architecture/plugins/screens.md#what-a-state-applies-to)
+  [screens plugin](architecture/plugins/screens.md#what-a-state-applies-to)
 - **session read**: The read of the signed-in session, which answers data in every state, since the
-  auth guard hangs on it. [plugin-screens](architecture/plugins/screens.md#what-a-state-applies-to)
-- **test run**: `stack screens test`, which opens each screen in every state and fails it on an axe
+  auth guard hangs on it. [screens plugin](architecture/plugins/screens.md#what-a-state-applies-to)
+- **test run**: `slotform screens test`, which opens each screen in every state and fails it on an axe
   violation, an overflow, a render walk finding or a console error. Avoid: screen run.
-  [plugin-screens](architecture/plugins/screens.md#test-run)
+  [screens plugin](architecture/plugins/screens.md#test-run)
 - **render walk**: One pass over a drawn page that checks what it draws against the contract's own
-  values. [plugin-screens](architecture/plugins/screens.md#render-walk)
+  values. [screens plugin](architecture/plugins/screens.md#render-walk)
 - **walk rule**: One check of the render walk, a pure function with a canary.
-  [plugin-screens](architecture/plugins/screens.md#render-walk-rules)
+  [screens plugin](architecture/plugins/screens.md#render-walk-rules)
 - **walk exception**: A place the contract itself draws off a walk rule, named with its reason.
-  [plugin-screens](architecture/plugins/screens.md#render-walk-exceptions)
+  [screens plugin](architecture/plugins/screens.md#render-walk-exceptions)
 - **shift check**: The test run's check that no Section moves between its waiting and loaded shapes
-  beyond what the Sections above grew by. [plugin-screens](architecture/plugins/screens.md#loading-shift-comparison)
+  beyond what the Sections above grew by. [screens plugin](architecture/plugins/screens.md#loading-shift-comparison)
 - **finding**: A failing check, which stays failing until the component is fixed.
   [showcase](architecture/ui-core/showcase.md#enforcement)
 - **changed run**: A test run narrowed to the screens a diff reaches.
-  [plugin-screens](architecture/plugins/screens.md#changed-runs)
-- **shoot**: `stack screens shoot`, screenshots of chosen screens judged by the test run's own page
-  checks. [plugin-screens](architecture/plugins/screens.md#judging-shoot-and-drive)
+  [screens plugin](architecture/plugins/screens.md#changed-runs)
+- **shoot**: `slotform screens shoot`, screenshots of chosen screens judged by the test run's own page
+  checks. [screens plugin](architecture/plugins/screens.md#judging-shoot-and-drive)
 - **shared browser**: The one Chrome every screens command on the machine uses.
-  [plugin-screens](architecture/plugins/screens.md#shared-browser)
+  [screens plugin](architecture/plugins/screens.md#shared-browser)

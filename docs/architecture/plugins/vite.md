@@ -1,28 +1,28 @@
-# plugin-vite
+# vite plugin
 
-`@fcalell/plugin-vite` owns the Vite lifecycle, framework-agnostic: it renders
-`.stack/vite.config.ts` from what other plugins contribute, runs the consumer's own `vite` for dev and
-build, serves the `virtual:stack-providers` and `virtual:stack-schema` modules, and owns the headers
+`@slotform/vite` owns the Vite lifecycle, framework-agnostic: it renders
+`.slotform/vite.config.ts` from what other plugins contribute, runs the consumer's own `vite` for dev and
+build, serves the `virtual:slotform-providers` and `virtual:slotform-schema` modules, and owns the headers
 every response of the web client's host carries. This page holds how the config is rendered, the dev
 server's proxy, file access and watching, the Content-Security-Policy merge, singletons and the dev
-optimizer. The consumer-facing options are plugin-react's guide
+optimizer. The consumer-facing options are the `react` plugin's guide
 ([`vite()` options](../../../plugins/react/guide/web-app.md#vite-options)); the slots are in the
-[slot catalog](../slot-catalog.md#viteslots-plugin-vite).
+[slot catalog](../slot-catalog.md#viteslots-the-vite-plugin).
 
 ## How it works
 
 `vite.slots.configImports` and `vite.slots.pluginCalls` are the contribution surfaces: a framework
 plugin injects its Vite plugins by contributing into them, and `vite.slots.viteConfig`, a derived
-slot, aggregates everything into `.stack/vite.config.ts`. It is null without an `outDir`, or with
-no plugin call, import or app-only call, so a config without Vite never writes an empty file. plugin-vite then contributes a
+slot, aggregates everything into `.slotform/vite.config.ts`. It is null without an `outDir`, or with
+no plugin call, import or app-only call, so a config without Vite never writes an empty file. The `vite` plugin then contributes a
 `vite dev` process and a `vite build` step ([Lifecycle contributions](#lifecycle-contributions)).
 
 Contributions are typed AST specs, `TsImportSpec` for imports and `TsExpression` for plugin calls
 ([Spec types](../slot-catalog.md#spec-types)), so a plugin author never concatenates source strings:
 
 ```ts
-import { vite } from "@fcalell/plugin-vite";
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
+import { vite } from "@slotform/vite";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
 
 contributes: [
   vite.slots.configImports.contribute(
@@ -38,13 +38,13 @@ contributes: [
 ],
 ```
 
-plugin-vite contributes its own plugin calls the same way: `providersPlugin()`, `schemaPlugin()` and
-`excludedImportsPlugin()` from `@fcalell/plugin-vite/preset`. The order of plugin calls does not
+The `vite` plugin contributes its own plugin calls the same way: `providersPlugin()`, `schemaPlugin()` and
+`excludedImportsPlugin()` from `@slotform/vite/preset`. The order of plugin calls does not
 matter for the plugins contributed (the framework, Tailwind, the theme fonts, the providers), so
 `pluginCalls` sorts by callee identifier name and the emitted array is deterministic.
 
 `renderViteConfig` (`src/node/codegen.ts`) renders a Vite config module from the resolved values of
-`vite.slots.*`. `.stack/vite.config.ts` is its output for the app's own slot values; a host that
+`vite.slots.*`. `.slotform/vite.config.ts` is its output for the app's own slot values; a host that
 needs another variant (no `clientHeaders`, extra plugin calls) resolves the slots itself, adjusts the
 values and renders them there. The renderer imports what its own output uses (`defineConfig`,
 `fileURLToPath` for `root`, `searchForWorkspaceRoot` for `fsAllow`); a contribution declares every
@@ -53,7 +53,7 @@ import its expression needs, and the renderer merges them by source
 
 The consumer declares `vite` (the plugin's `devDependencies`) and its generated config imports it,
 so the one Vite that runs is the consumer's, resolved from its own directory: no PATH or registry
-lookup stands in, and `stack dev` and `stack build` fail with the install step when the consumer has
+lookup stands in, and `slotform dev` and `slotform build` fail with the install step when the consumer has
 none. The bin is not an exported subpath, so it is read from the package's manifest.
 
 ## App-only plugin calls
@@ -69,23 +69,23 @@ a host that draws routes reads the slot that owns the call.
 
 | `cliSlots` slot | Behavior |
 |-----------------|----------|
-| `artifactFiles` | Writes `.stack/vite.config.ts` from `vite.slots.viteConfig` |
-| `devProcesses` | Spawns the consumer's `vite dev --config .stack/vite.config.ts`; the port is the generated config's `server.port` |
-| `buildSteps` | `vite build --config .stack/vite.config.ts` (`main` phase), into the config's `build.outDir`, `dist/client` |
+| `artifactFiles` | Writes `.slotform/vite.config.ts` from `vite.slots.viteConfig` |
+| `devProcesses` | Spawns the consumer's `vite dev --config .slotform/vite.config.ts`; the port is the generated config's `server.port` |
+| `buildSteps` | `vite build --config .slotform/vite.config.ts` (`main` phase), into the config's `build.outDir`, `dist/client` |
 
 `vite.slots.outDir` is the client build's output directory, relative to the project root. It is
 seeded null and filled by vite's own contribution, so a reader without vite in the config sees null.
 The build step passes no `--outDir`: the generated config's `build.outDir` is the one source, and a
-relative CLI flag would resolve against `config.root` (`.stack`) and move the output to
-`.stack/dist/client`.
+relative CLI flag would resolve against `config.root` (`.slotform`) and move the output to
+`.slotform/dist/client`.
 
-plugin-vite also contributes its dev server's localhost origin to `api.slots.devCorsOrigins`, so the
+The `vite` plugin also contributes its dev server's localhost origin to `api.slots.devCorsOrigins`, so the
 auth and worker CORS allow-list picks up the dev server without consumer config
 ([local and dev origins](./api.md#local-and-dev-origins)).
 
 ### Dev server port
 
-The generated `.stack/vite.config.ts` is the one source of the dev port: a `--port` on the dev
+The generated `.slotform/vite.config.ts` is the one source of the dev port: a `--port` on the dev
 process would let the CLI flag shadow the codegen value. The dev process passes `defaultPort` for the
 supervisor to introspect (logging, the `EADDRINUSE` classification fallback) and an `onExit` hook
 that prints a next step on a port collision ([Command steps](../commands.md#command-steps)).
@@ -99,26 +99,26 @@ that prints a next step on a port collision ([Command steps](../commands.md#comm
   without vite in the config.
 - **File access.** `vite.slots.fsAllow` holds extra `server.fs.allow` path expressions. A plugin that
   serves assets out of its own package (fonts, icons) contributes the expression resolving its real
-  location, so a workspace-linked stack checkout still serves them in dev: Vite answers 403 for paths
+  location, so a workspace-linked Slotform checkout still serves them in dev: Vite answers 403 for paths
   outside the consumer's workspace root.
 - **Watching.** `vite.slots.watchIgnored` holds globs the dev server's watcher skips, rendered into
-  `server.watch.ignored`. A plugin whose tool writes scratch files under Vite's root (`.stack/`)
+  `server.watch.ignored`. A plugin whose tool writes scratch files under Vite's root (`.slotform/`)
   contributes their glob, so those writes never reach Vite's hot-update handling, where a plugin hook
   may answer an unknown file with a full reload.
 
 ## Content-Security-Policy
 
-`vite()` has no CSP option. A consumer's own plugin, in `stack.config.ts`, contributes a policy to
+`vite()` has no CSP option. A consumer's own plugin, in `slotform.config.ts`, contributes a policy to
 `vite.slots.clientHeaders`, and it is merged with vite's default `frame-ancestors 'none'`:
 
 ```ts
-import { defineConfig, plugin } from "@fcalell/cli";
-import { vite } from "@fcalell/plugin-vite";
+import { defineConfig, plugin } from "@slotform/cli";
+import { vite } from "@slotform/vite";
 
 // `package` points the CLI at this file, which exports the plugin as `csp`.
 export const csp = plugin("csp", {
   label: "Content-Security-Policy",
-  package: "./stack.config.ts",
+  package: "./slotform.config.ts",
   contributes: [
     vite.slots.clientHeaders.contribute(() => ({
       "Content-Security-Policy":
@@ -146,17 +146,17 @@ allowed by hash are [Mode script and CSP](./react-ui.md#mode-script-and-csp) and
 ## Preset
 
 The `./preset` subpath exports the node-side Vite plugins the generated config runs. The two
-virtual modules resolve their file against the working directory, the consumer root every `stack`
+virtual modules resolve their file against the working directory, the consumer root every `slotform`
 command runs Vite from:
 
-- `providersPlugin()` resolves `virtual:stack-providers` to the generated
-  `.stack/virtual-providers.tsx` when plugins have contributed providers, or to a pass-through stub
-  otherwise. plugin-vite is framework-agnostic, so the stub imports no framework runtime: the
+- `providersPlugin()` resolves `virtual:slotform-providers` to the generated
+  `.slotform/virtual-providers.tsx` when plugins have contributed providers, or to a pass-through stub
+  otherwise. The `vite` plugin is framework-agnostic, so the stub imports no framework runtime: the
   consumer's JSX transform compiles `props.children` with whatever pragma is active (React,
   Preact).
-- `schemaPlugin()` resolves `virtual:stack-schema` to the generated `.stack/schema.ts`: each
-  procedure's input as JSON Schema, written by `stack generate`, which a `Form` derives its fields
-  from ([Schema](./api.md#schema)). Before the first generate, or without plugin-api, it is an empty
+- `schemaPlugin()` resolves `virtual:slotform-schema` to the generated `.slotform/schema.ts`: each
+  procedure's input as JSON Schema, written by `slotform generate`, which a `Form` derives its fields
+  from ([Schema](./api.md#schema)). Before the first generate, or without the `api` plugin, it is an empty
   record.
 - `excludedImportsPlugin()` ([Singletons and the optimizer](#singletons-and-the-optimizer)).
 
@@ -168,7 +168,7 @@ command runs Vite from:
   under the consumer's root, and no second copy reaches the production bundle. Two plugins naming the
   same specifier is harmless (the codegen de-duplicates), so the slot has no `uniqueBy`.
 - **Exclude.** `vite.slots.optimizeExclude` holds package names rendered into
-  `optimizeDeps.exclude`. A package installed under `node_modules` (from npm, or injected by [`stack link`](../consumer-project.md#a-linked-app)) that
+  `optimizeDeps.exclude`. A package installed under `node_modules` (from npm, or injected by [`slotform link`](../consumer-project.md#a-linked-app)) that
   imports a virtual module a Vite plugin of this config serves is pre-bundled by the dev optimizer,
   which runs Rolldown without those plugins and fails to resolve the import, so the plugin serving the
   module contributes the importer here.
@@ -178,7 +178,7 @@ command runs Vite from:
   `optimizeDeps.include` by reading the packages: from each one's raw source exports (`./src/*` JavaScript or TypeScript,
   the reason it is served raw), through the files they import, to the bare specifiers they reach, so
   the list cannot go stale.
-- **UI source.** Stack's UI subpaths export `.tsx` source, and Vite's dev optimizer pre-bundles only
+- **UI source.** Slotform's UI subpaths export `.tsx` source, and Vite's dev optimizer pre-bundles only
   `.js` and `.ts` entries: unbundled, their CJS dependencies (`use-sync-external-store/shim` under
   `@base-ui/react`) reach the browser raw and the page renders blank, so the rendered config sets
   `optimizeDeps.extensions` to `[".tsx"]`.

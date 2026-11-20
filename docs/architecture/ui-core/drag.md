@@ -9,7 +9,7 @@ is [a drag is data](../../decisions/a-drag-is-data.md).
 
 A drag is data on both ends, as an act is. A row carries what it drags (`Dragged`: `{ kind, picked }`,
 `picked` a `Picked`), so a ticked selection over a paginated read drags the whole query and
-`selector()` of plugin-api takes it whole. A Table takes `drag: { kind }` and fills `picked` itself:
+`selector()` of `@slotform/api` takes it whole. A Table takes `drag: { kind }` and fills `picked` itself:
 the ticks when the row is ticked, the row alone when not.
 
 A drop is `Drop`, a place that takes a drag, as data:
@@ -92,7 +92,7 @@ without the layer, and it stops the page scrolling under a finger's drag only wh
 ignores a `preventDefault` from a listener added after the touch began, and a finger's drag begins
 after its hold. The canvas's lift is not `press`'s: d3-zoom holds that touch itself.
 
-The pure parts are `@fcalell/ui-core/drag`, free of any framework and tested without a DOM: when a
+The pure parts are `@slotform/ui-core/drag`, free of any framework and tested without a DOM: when a
 press becomes a drag (`pressed`), which side of a row a pointer is on (`sideOf`), where a move lands
 in an order (`moveOf`, `stepOf`), how deep a drag stands in a scroller's edge band and how far a frame carries it there (`edgeDepth`,
 `edgeSpeed`), how
@@ -101,7 +101,7 @@ long a hold opens a branch (`DROP_HOLD`) and which drop a drag is accepted by (`
 ## Follow
 
 What a finger or a pointer carries moves 1:1 with it, with no easing, and only its release eases.
-`@fcalell/ui-core/follow` decides it purely, so the web's pointer events and the phone's gesture
+`@slotform/ui-core/follow` decides it purely, so the web's pointer events and the phone's gesture
 handler give the same answer: how far the held thing stands from rest (`position`), how fast it is
 going (`velocity`) and where its release goes (`release`). Positions are measured toward `away`, the
 direction the thing leaves in (1 toward the end of its axis, -1 toward the start); against it nothing

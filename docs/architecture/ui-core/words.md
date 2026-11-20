@@ -9,7 +9,7 @@ fallbacks where Hermes lacks an `Intl` API, and the text runs a part draws.
 
 Every word a molecule draws on its own comes from `words`, a closed typed object with English
 defaults (`ENGLISH`). Its keys are `WORD_KEYS`, `COUNTED_WORD_KEYS` and `BLANK_WORD_KEYS` in
-`@fcalell/ui-core/tokens`. `Words` requires every key and `wordsSchema` is a strict object, so a
+`@slotform/ui-core/tokens`. `Words` requires every key and `wordsSchema` is a strict object, so a
 translation that misses a word fails `tsc` and the schema, never the interface.
 
 - A sentence that belongs to the consumer is a prop on the molecule that draws it (`placeholder`,
@@ -24,14 +24,14 @@ translation that misses a word fails `tsc` and the schema, never the interface.
 - A tab bar's count past the tab count's cap reads as `countOver` through `tabCount(words, count)`.
 
 `words` is a plugin option beside `theme`. Each plugin contributes a `WordsProvider` through its
-`providers` slot, which mounts the context (`@fcalell/ui-core/react/words`) with the consumer's
+`providers` slot, which mounts the context (`@slotform/ui-core/react/words`) with the consumer's
 `words`, and every molecule reads them through `useWords()`. With the option absent no provider is
 generated and the context's English default applies.
 
 ## Ages and the clock
 
 Ages and pending bars read one coarse clock: `useClock(read, until)` and `usePending(until)` in
-`@fcalell/ui-core/react/clock`, over `createClock` in `@fcalell/ui-core/clock`, ticking once a second
+`@slotform/ui-core/react/clock`, over `createClock` in `@slotform/ui-core/clock`, ticking once a second
 while a reader holds it. A part that draws an age reads `now` from it, so the age ticks on its own.
 `pendingShare(run, now)` in `./clock` is pure; its fill's motion is in
 [value and fills](motion.md#value-and-fills).
@@ -41,7 +41,7 @@ while a reader holds it. A part that draws an age reads `now` from it, so the ag
 Ages, moments and every other `Intl` formatter come from ui-core, so no word of them lives in `words`:
 the platform's own relative-time and date words speak them in the reader's language.
 
-- `formatterFor(kind, lang, options)` in `@fcalell/ui-core/format` builds each formatter (`number`,
+- `formatterFor(kind, lang, options)` in `@slotform/ui-core/format` builds each formatter (`number`,
   `date`, `relative`, and `collate`, the collator a table's sort compares words with) once per kind, language and options at module scope: building one costs far
   more than formatting with it (Hermes most of all), and an age, a moment or a figure is formatted per
   row and per render. Both plugins read every formatter here; `lang` undefined is the platform's own.
@@ -54,7 +54,7 @@ the platform's own relative-time and date words speak them in the reader's langu
   a name's first two words, parted by spaces, dots, underscores and hyphens, an email address read by
   its local part (`ada.lovelace@…` reads `AL`).
 - `ageWords` (`./clock`) words a moment as its age from `now` ("2 minutes ago", "yesterday").
-- `fileSize(bytes)` (`@fcalell/ui-core/file`) words a file's size in the viewer's language: whole
+- `fileSize(bytes)` (`@slotform/ui-core/file`) words a file's size in the viewer's language: whole
   bytes below a thousand ("39 bytes"), then kilobytes, megabytes and gigabytes at one decimal below
   ten ("9.1 kB", "12 kB"). Both platforms read it, so one file reads the same.
 
@@ -94,7 +94,7 @@ lines as it takes, broken at a URL's or a path's separators first, then anywhere
 cut in its middle. Code in a sentence keeps a URL whole as one box, and a long command in brackets
 keeps them on its line, cut with an ellipsis where it alone is wider than the line.
 
-`@fcalell/ui-core/runs` holds the words of a part and of a line of parts, free of any view: both UI
+`@slotform/ui-core/runs` holds the words of a part and of a line of parts, free of any view: both UI
 plugins draw a title, a fact, an overline and a sentence from it, so a test holds the structure of
 what is drawn once.
 

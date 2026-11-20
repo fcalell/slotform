@@ -29,11 +29,11 @@ A plugin takes a domain (db, auth, UI) and makes it invisible to the consumer.
 One factory, no register function:
 
 ```ts
-import { plugin, slot, callback } from "@fcalell/cli";
+import { plugin, slot, callback } from "@slotform/cli";
 
 export const auth = plugin("auth", {
   label: "Authentication",
-  package: undefined,            // default: `@fcalell/plugin-${name}`. Override for third-party.
+  package: undefined,            // default: `@slotform/${name}`. Override for third-party.
 
   schema: authOptionsSchema,     // Zod schema: validates options and pins TOptions
 
@@ -80,8 +80,8 @@ Fields:
 - `package`: the npm package name ([plugin discovery](#plugin-discovery)).
 - `schema`: the Zod schema for the plugin's options ([options via `schema`](#options-via-schema)).
 - `requires`: presence-only sibling plugins, a list or a function of the plugin's resolved options.
-  What an entry means is in [slot graph](./slot-graph.md#requires); how `stack init` and
-  `stack add` pull what is missing is in
+  What an entry means is in [slot graph](./slot-graph.md#requires); how `slotform init` and
+  `slotform add` pull what is missing is in
   [commands](./commands.md#installing-the-requires-closure).
 - `slots`: the slots this plugin owns, exposed on the factory as `.slots` so other plugins can
   contribute or derive.
@@ -89,16 +89,16 @@ Fields:
   `someSlot.contribute(fn)`. `self` carries the plugin's own slots and typed options, so the plugin
   references them with no forward reference and without stamping its name on every slot
   declaration.
-- `commands`: subcommands routed as `stack <plugin> <command>`, each handler given a
+- `commands`: subcommands routed as `slotform <plugin> <command>`, each handler given a
   `CommandContext` ([commands](./commands.md#plugin-subcommands)).
 - `callbacks`: typed callback slots for consumer callback files.
 - `dependencies`, `devDependencies`, `gitignore`: the plugin's footprint, auto-wired into
   `cliSlots.initDeps`, `cliSlots.initDevDeps` and `cliSlots.gitignore`, and into the matching
   `cliSlots.removeDeps` and `cliSlots.removeDevDeps` for cleanup. The CLI writes the plugin's own
   package; a first-party package the consumer needs beside it takes its spec from the CLI's table,
-  `"@fcalell/ui-core": stackSpec()` (`stackSpec` from `@fcalell/cli`). The CLI also writes every
-  required peer of the stack packages the app reaches, so a required peer stays off these lists and
-  an optional peer the app needs is listed ([installing stack](./consumer-project.md#installing-stack)).
+  `"@slotform/ui-core": slotformSpec()` (`slotformSpec` from `@slotform/cli`). The CLI also writes every
+  required peer of the Slotform packages the app reaches, so a required peer stays off these lists and
+  an optional peer the app needs is listed ([installing Slotform](./consumer-project.md#installing-slotform)).
 - `guide`: the plugin's guide pages, each `guide/<page>.md` in its package (listed in its `files`)
   with a load trigger: when to open the page, never a summary of what it holds. Auto-wired into
   `cliSlots.guide` under the plugin's name as the domain and its package. The index the CLI writes
@@ -112,7 +112,7 @@ maintainer sections.
 ## Options via `schema`
 
 A plugin declares its options as a Zod schema. `plugin()` parses the caller's options through it,
-applies the defaults, and throws `StackError("PLUGIN_CONFIG_INVALID")` on invalid input. The
+applies the defaults, and throws `SlotformError("PLUGIN_CONFIG_INVALID")` on invalid input. The
 schema's input type (`z.input<typeof schema>`) is `TOptions`, the call signature; its output type
 (`z.output<typeof schema>`, defaults applied) is `TResolvedOptions`, so every schema default is
 present wherever the plugin reads its own options:
@@ -158,7 +158,7 @@ export const auth = plugin("auth", {
 });
 
 // Consumer file (src/worker/plugins/auth.ts)
-import { auth } from "@fcalell/plugin-auth";
+import { auth } from "@slotform/auth";
 export default auth.defineCallbacks({
   sendOTP({ email, code }) { /* ... */ },
   sendInvitation({ email, orgName }) { /* ... */ },
@@ -166,8 +166,8 @@ export default auth.defineCallbacks({
 ```
 
 When a plugin declares both `callbacks` and a `./runtime` subpath export, the CLI scaffolds
-`src/worker/plugins/<name>.ts` from the plugin's `templates/callbacks.ts` on `stack init` and
-`stack add`. That only puts the file on disk; plugin-api wires the callbacks into the worker chain
+`src/worker/plugins/<name>.ts` from the plugin's `templates/callbacks.ts` on `slotform init` and
+`slotform add`. That only puts the file on disk; the `api` plugin wires the callbacks into the worker chain
 ([runtime](./runtime.md)).
 
 ## Contributing to a slot
@@ -176,8 +176,8 @@ Every `Slot<T>` has a `.contribute(fn)` method. `fn` receives a `ContributionCtx
 value, or `undefined` to skip, which is how a contribution is made conditional.
 
 ```ts
-import { api } from "@fcalell/plugin-api";
-import { cloudflare } from "@fcalell/plugin-cloudflare";
+import { api } from "@slotform/api";
+import { cloudflare } from "@slotform/cloudflare";
 
 contributes: (self) => [
   cloudflare.slots.bindings.contribute(() => {
@@ -224,18 +224,18 @@ its process entry, and pass it to what they call; a child they spawn takes its e
 
 `scaffold(name, target)` is `{ source: template(name), target, plugin: thisName }`. `resolve` is for
 sparing use; a value the plugin structurally needs is a derived slot. A plugin that resolves a
-`*Source` slot and writes it under `.stack/` uses `emitArtifact` from `@fcalell/cli/cli-slots`
+`*Source` slot and writes it under `.slotform/` uses `emitArtifact` from `@slotform/cli/cli-slots`
 ([slot catalog](./slot-catalog.md)), never a raw `cliSlots.artifactFiles.contribute`.
 
 ## Deriving from other slots
 
 A derived slot reads other slots as inputs. Its inputs are fully resolved before `compute` runs, so
-a cross-plugin read is deterministic by construction. This is plugin-auth's `runtimeOptions`,
+a cross-plugin read is deterministic by construction. This is the `auth` plugin's `runtimeOptions`,
 shortened:
 
 ```ts
-import { slot, type ContributionCtx } from "@fcalell/cli";
-import { api } from "@fcalell/plugin-api";
+import { slot, type ContributionCtx } from "@slotform/cli";
+import { api } from "@slotform/api";
 
 const runtimeOptions = slot.derived({
   source: "auth",
@@ -274,22 +274,22 @@ contributes: [
 ```
 
 The CLI's own base files (`package.json`, the tsconfigs, `biome.json`, `.gitignore`,
-`stack.config.ts`) are strings it renders and writes when missing, outside
+`slotform.config.ts`) are strings it renders and writes when missing, outside
 `cliSlots.initScaffolds`; plugin content always goes through a `ScaffoldSpec`.
 
 ## Plugin discovery
 
-A plugin's npm package name is its `package` option, `@fcalell/plugin-<name>` when omitted. A
+A plugin's npm package name is its `package` option, `@slotform/<name>` when omitted. A
 first-party plugin omits it; a third-party plugin published under another namespace sets it, so
 discovery can import it. The consumer's config carries it on each entry as `__package`.
 
 The CLI's first-party names (`PLUGIN_NAMES`, `packages/cli/src/lib/first-party.ts`, each package from `pluginPackage`) serve only the commands that offer a picker
-before any consumer config exists, `stack init` and `stack add`. A third-party plugin appears
-through the consumer's `stack.config.ts` and its `__package`; discovery cannot enumerate it ahead
+before any consumer config exists, `slotform init` and `slotform add`. A third-party plugin appears
+through the consumer's `slotform.config.ts` and its `__package`; discovery cannot enumerate it ahead
 of config load.
 
 Node caches a failed module resolution for the rest of the process, so a plugin probed before its
-install stays unresolvable after it. A plugin imports its siblings before `stack init` installs
+install stays unresolvable after it. A plugin imports its siblings before `slotform init` installs
 them, so a plugin looks up its package on first use, never on import, and discovery loads only the
 named plugins already installed.
 
@@ -302,13 +302,13 @@ named plugins already installed.
 3. A runtime, if any, follows [plugin folder structure](./conventions.md#plugin-folder-structure).
    Which entries export compiled `dist` and which source, and the package's `tsconfig.build.json`,
    `build` and `prepare`: [conventions](./conventions.md#build-and-exports).
-4. Commands route as `stack <plugin> <command>`.
+4. Commands route as `slotform <plugin> <command>`.
 5. Cross-plugin dataflow is slot imports ([contribute, don't coordinate](#design-paradigm)),
    never `requires` ([slot graph](./slot-graph.md#requires)).
 6. A slot added, renamed or removed updates the [slot catalog](./slot-catalog.md) in the same
    commit.
 7. Dependencies and peers follow
-   [releasing](./releasing.md#peers-one-copy-of-each-stack-package).
+   [releasing](./releasing.md#peers-one-copy-of-each-slotform-package).
 
 ## In the code
 

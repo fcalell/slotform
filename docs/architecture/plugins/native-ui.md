@@ -1,11 +1,11 @@
-# plugin-native-ui
+# native-ui plugin
 
-`@fcalell/plugin-native-ui` is the phone half of the design system: it renders `@fcalell/ui-core`'s
+`@slotform/native-ui` is the phone half of the design system: it renders `@slotform/ui-core`'s
 contract into the uniwind stylesheet, embeds the font files, composes the app's providers around the
 expo-router root, generates the native auth constants and scaffolds the native clients, and ships
 the phone roster on React Native. This page holds how the plugin and its components are built. How a
 consumer builds a screen with it is the guide (`plugins/native-ui/guide/`); the slots it owns are in
-the [slot catalog](../slot-catalog.md#nativeuislots-plugin-native-ui).
+the [slot catalog](../slot-catalog.md#nativeuislots-the-native-ui-plugin).
 
 ## Requires and peers
 
@@ -23,22 +23,22 @@ plugin's `dependencies`, which the consumer declares ([Native client](./auth.md#
 The [update wall](#update-wall) imports `expo-constants` itself, so it is a peer too.
 
 `@legendapp/list` is a dependency, not a peer: it is JavaScript only, with `react` its one peer, so a
-consumer has nothing of its own to resolve ([releasing](../releasing.md#peers-one-copy-of-each-stack-package)).
+consumer has nothing of its own to resolve ([releasing](../releasing.md#peers-one-copy-of-each-slotform-package)).
 It windows the phone's long collections ([Long collections](#long-collections)).
 
 ## What it contributes
 
-- `.stack/global.css`: the uniwind entry stylesheet ([Stylesheet](#stylesheet)).
-- `withUniwindConfig` around the Metro config, pointing at `.stack/global.css` and
-  `.stack/uniwind-types.d.ts`. It must wrap every other Metro plugin (uniwind's requirement); Metro
+- `.slotform/global.css`: the uniwind entry stylesheet ([Stylesheet](#stylesheet)).
+- `withUniwindConfig` around the Metro config, pointing at `.slotform/global.css` and
+  `.slotform/uniwind-types.d.ts`. It must wrap every other Metro plugin (uniwind's requirement); Metro
   wrappers apply ascending by `order`, so it takes the highest, `order: 100`, and is applied last,
   outermost.
 - An `expo-font` config plugin embedding the `fonts` files, when there are any.
 - The provider stack around the expo-router root ([Provider order](#provider-order)).
-- `.stack/native-auth.ts`: the resolved `scheme` and `cookiePrefix` ([Native auth client](#native-auth-client)).
-- `.stack/native-theme.ts`, imported by the entry ([Theme startup](#theme-startup)).
+- `.slotform/native-auth.ts`: the resolved `scheme` and `cookiePrefix` ([Native auth client](#native-auth-client)).
+- `.slotform/native-theme.ts`, imported by the entry ([Theme startup](#theme-startup)).
 - The page for an address no route serves (`lib/not-found`, the module `expo.slots.notFoundRoute`
-  names). `stack generate` writes it into the routes directory as `+not-found.tsx`, a re-export, only
+  names). `slotform generate` writes it into the routes directory as `+not-found.tsx`, a re-export, only
   while the app has no `+not-found` route of its own ([Routes](./expo.md#routes)). It stands where
   expo-router stands a route: inside the root layout's `Shell` when the layout draws one, alone when
   it does not. Under a `Shell` it is a record's `Pane` titled "Not found" with the missing shape;
@@ -47,16 +47,16 @@ It windows the phone's long collections ([Long collections](#long-collections)).
 
 ## Generated files
 
-The uniwind entry stylesheet and its build-time type output both land under `.stack/`, which is
+The uniwind entry stylesheet and its build-time type output both land under `.slotform/`, which is
 gitignored. The Metro wrapper paths resolve relative to Metro's `projectRoot`, the consumer root
-(plugin-expo's generated `metro.config`, [Generated files](./expo.md#generated-files)), so they point
-back into `.stack/`. The stylesheet's own `@source` roots stay relative to the file in `.stack/`
+(the `expo` plugin's generated `metro.config`, [Generated files](./expo.md#generated-files)), so they point
+back into `.slotform/`. The stylesheet's own `@source` roots stay relative to the file in `.slotform/`
 (`../src`).
 
 ## Stylesheet
 
 uniwind scans for class names from the stylesheet's directory, so without `@source` roots it sees
-only `.stack/`. The roots, relative to `global.css` in `.stack/`, name the consumer's `src`, this
+only `.slotform/`. The roots, relative to `global.css` in `.slotform/`, name the consumer's `src`, this
 plugin's `src` and ui-core's `src`, where the matrix class-set strings live: a dependency package is never
 scanned unless named.
 
@@ -73,7 +73,7 @@ empty `fontVariant` tokens that React Native logs as unsupported.
 
 ## Theme startup
 
-`.stack/native-theme.ts` applies the theme's `defaultMode`, `loading`, `radius` and `size` once at
+`.slotform/native-theme.ts` applies the theme's `defaultMode`, `loading`, `radius` and `size` once at
 startup:
 
 - `Uniwind.setTheme(defaultMode)`: the mode a viewer starts in until the app sets another, ahead of
@@ -89,7 +89,7 @@ turns adaptive theming back on.
 
 ## Provider order
 
-`.stack/entry.tsx` composes the providers around `<ExpoRoot>`, outer to inner by `order`:
+`.slotform/entry.tsx` composes the providers around `<ExpoRoot>`, outer to inner by `order`:
 `GestureHandlerRootView` → `KeyboardProvider` → `SafeAreaProvider` → `WordsProvider` (only when
 `words` is set) → `QueryProvider` → `AuthProvider` → `UpdateWall` → `BottomSheetModalProvider`.
 
@@ -108,7 +108,7 @@ turns adaptive theming back on.
 
 `UpdateWall` (`lib/update-wall`, `order: 28`) is the provider that draws the version gate's wall
 ([version gate](./expo.md#version-gate)). It subscribes to `onUpdateRequired` from
-`@fcalell/plugin-expo/client` and draws the app until the first `426`. From then on it draws a
+`@slotform/expo/client` and draws the app until the first `426`. From then on it draws a
 `Gate` in the app's place until the app restarts: the closed words `updateRequired` as its title,
 `updateFromStore` as its sentence, and one act, `update`, that opens the platform's store URL with
 `Linking.openURL`. The URL is `ios.appStoreUrl` or `android.playStoreUrl` read from
@@ -127,16 +127,16 @@ turns adaptive theming back on.
 
 The consumer configures the native clients in `src/lib/`. The provider defaults point at that
 convention: the generated entry imports `queryClient` and `authClient` from `src/lib/query.ts` and
-`src/lib/auth.ts`, paths relative to `.stack/entry.tsx`. Without those files the app does not
+`src/lib/auth.ts`, paths relative to `.slotform/entry.tsx`. Without those files the app does not
 compile, so the plugin seeds editable starters, copy-once like the auth callback file. A consumer
 with another layout points a provider at its own module with `queryClientModule` or
-`authClientModule` (a `{ source, export }` resolved relative to `.stack/`), and that path skips the
+`authClientModule` (a `{ source, export }` resolved relative to `.slotform/`), and that path skips the
 starter: the module is the consumer's to own. A client app writes its own `src/lib/auth.ts`; no
 scaffold stands for an app with no `auth()`.
 
 ## Native auth client
 
-`.stack/native-auth.ts` holds the constants the scaffolded `src/lib/auth.ts` imports: `scheme` and
+`.slotform/native-auth.ts` holds the constants the scaffolded `src/lib/auth.ts` imports: `scheme` and
 `cookiePrefix`, generated so they always match the deep-link scheme expo bakes into the app config
 and the worker's session-cookie prefix ([Cookie prefix](./auth.md#cookie-prefix)). A hand-copied
 literal fails silently on a mismatch: the client filters `Set-Cookie` by prefix, so every sign-in
@@ -158,7 +158,7 @@ The phone app (`apps/phone/src/lib/api.ts`) builds its client as the
 The plugin ships source, never declarations, and the consumer compiles its `.tsx` directly, so
 uniwind's global augmentation (`className` and the per-prop `*ClassName` variants) loads wherever the
 plugin's source is type-checked. The plugin contributes `uniwind/types` to `cliSlots.tsconfigTypes`,
-which `stack init`'s tsconfig template reads; the plugin's own presence is the gate, so a plain Expo
+which `slotform init`'s tsconfig template reads; the plugin's own presence is the gate, so a plain Expo
 consumer without `nativeUi()` gets no dangling type reference
 ([TypeScript projects](../consumer-project.md#typescript-projects)).
 
@@ -174,7 +174,7 @@ uniwind's per-prop class channels as `?: never`. The first four are the ones the
 platforms ([closed props](../ui-core/roster.md#the-canon-and-the-closed-props)); the
 per-prop channels uniwind adds to React Native's hosts would reopen the look one property at a time.
 A look the matrices do not cover is a matrix class set in ui-core or a primitive under the app's `ui/`,
-never a prop. The prop names are the roster in `@fcalell/ui-core/roster`. Inside a component a class
+never a prop. The prop names are the roster in `@slotform/ui-core/roster`. Inside a component a class
 follows the consumer's rule ([classes are geometry, on hosts only](../../../plugins/native-ui/guide/rules.md#classes-are-geometry-on-hosts-only)),
 and nothing carries a product noun in a prop, an enum word or a string.
 
@@ -297,7 +297,7 @@ Pane's scroll with other parts draws every row.
   its sort pick over the rows. Either one, standing beside any other part, draws its rows whole in
   the Pane's scroll. A sheet one of its rows opens is told nothing: gorhom draws it outside
   the providers above it ([Sheets](#sheets)).
-- **Rows.** The list's data is the sheet's entries (`sheetEntries`, `@fcalell/ui-core/list-state`):
+- **Rows.** The list's data is the sheet's entries (`sheetEntries`, `@slotform/ui-core/list-state`):
   rows, bands and a tree's flattened children, each with its key, its kind (`getItemType`) and
   whether the card's hairline stands above it, so a row draws the same wherever it is mounted.
   `keyExtractor` is the entry's key. Rows are not recycled (`recycleItems={false}`, set once in
@@ -327,7 +327,7 @@ Pane's scroll with other parts draws every row.
   `BottomSheetScrollView`, and the list scrolls through gorhom's `useBottomSheetScrollableCreator()`
   (`renderScrollComponent`), so a drag on the rows moves the sheet as a drag on any sheet body does;
   gorhom takes one scrollable per sheet. The group labels are entries and so are the options
-  (`optionRows`, `@fcalell/ui-core/pick`), the same rows a short sheet draws whole. "No matches" is
+  (`optionRows`, `@slotform/ui-core/pick`), the same rows a short sheet draws whole. "No matches" is
   the list's empty component and the sheet's act is its footer. A tall sheet stands at `FULL`, so
   gorhom never sizes it from the list's estimated height.
 
@@ -368,7 +368,7 @@ package's exports) around itself:
 - the sheet outlet (`components/sheet/outlet.tsx`), inside the provider before the decisions: the
   sheets acts open, side by side in the order they opened, which the provider stacks as they are
   presented ([sheets an act opens](../ui-core/acts.md#sheets-an-act-opens));
-- the `confirm()` decisions, as a sheet;
+- The `confirm()` decisions, as a sheet;
 - the toast queue. `toast()` is called from anywhere and the `Shell` renders the queue. The queue is
   client-owned, so a toast's act is a route or a retry, never an undo. `tone` says how the act it
   reports ended (`failed` for a refused edit, `done`, the default, for a finished one).
@@ -415,7 +415,7 @@ inside `SheetBase`'s children, which the bottom sheet portals out of the tree it
 ## Routes and preload
 
 A route on the phone is one of the app's expo-router paths (`lib/route`): with the app's route types
-(`.stack/routes.d.ts`, [Routes](./expo.md#routes)) in its program, a path no route file serves fails
+(`.slotform/routes.d.ts`, [Routes](./expo.md#routes)) in its program, a path no route file serves fails
 the type-check wherever a route is a prop or a descriptor's.
 
 A press-in on a route starts the reads its screen is about to make (`lib/warm`): the route file's
@@ -471,7 +471,7 @@ tree. The upgrade is to place it by layout once React Native can, or once the sh
 - `plugins/native-ui/src/ui/lib/update-wall.tsx`: the update wall.
 - `plugins/native-ui/src/types.ts`: the options, the client module shape.
 - `plugins/native-ui/src/node/theme.ts`: the uniwind stylesheet's variants and utilities.
-- `plugins/native-ui/src/node/codegen.ts`: `.stack/global.css` and its `@source` roots.
+- `plugins/native-ui/src/node/codegen.ts`: `.slotform/global.css` and its `@source` roots.
 - `plugins/native-ui/templates/lib-auth.ts`: the scaffolded native auth client.
 - `plugins/native-ui/src/ui/lib/closed.ts`: `Closed`.
 - `plugins/native-ui/src/ui/lib/theme.ts`: switching the active theme.

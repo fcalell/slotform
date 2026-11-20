@@ -1,28 +1,28 @@
-# plugin-react
+# react plugin
 
-`@fcalell/plugin-react` is React on Vite for the web app: it owns every fragment of the web
+`@slotform/react` is React on Vite for the web app: it owns every fragment of the web
 bootstrap (the entry, the providers composition, the HTML shell and the router's type registration),
 runs TanStack Router's file routes and the React Compiler, and keeps React's runtime a singleton.
 Peer plugins contribute into its list slots, and its derived `*Source` slots compose them into the
-files emitted under `.stack/`. This page holds how that bootstrap is built; the consumer's options
+files emitted under `.slotform/`. This page holds how that bootstrap is built; the consumer's options
 and route conventions are the guide (`plugins/react/guide/`), and the slots are in the
-[slot catalog](../slot-catalog.md#reactslots-plugin-react).
+[slot catalog](../slot-catalog.md#reactslots-the-react-plugin).
 
 ## Generated files
 
 | File | Slot | Content |
 |------|------|---------|
-| `.stack/entry.tsx` | `react.slots.entrySource` | `createRouter({ routeTree, defaultPreloadStaleTime: 0 })` with a stand-in query client in its context, mounted as `<StrictMode><Providers><App /></Providers></StrictMode>`, where `App` hands `RouterProvider` the query client `Providers` made |
-| `.stack/index.html` | `react.slots.htmlSource` | The shell with the `<head>` injections and the entry script |
-| `.stack/virtual-providers.tsx` | `react.slots.providersSource` | The contributed providers, served as `virtual:stack-providers` |
-| `.stack/routes.d.ts` | `react.slots.routesDtsSource` | The router's `Register` declaration |
-| `.stack/routeTree.gen.ts` | `cliSlots.postWrite` | TanStack Router's route tree |
+| `.slotform/entry.tsx` | `react.slots.entrySource` | `createRouter({ routeTree, defaultPreloadStaleTime: 0 })` with a stand-in query client in its context, mounted as `<StrictMode><Providers><App /></Providers></StrictMode>`, where `App` hands `RouterProvider` the query client `Providers` made |
+| `.slotform/index.html` | `react.slots.htmlSource` | The shell with the `<head>` injections and the entry script |
+| `.slotform/virtual-providers.tsx` | `react.slots.providersSource` | The contributed providers, served as `virtual:slotform-providers` |
+| `.slotform/routes.d.ts` | `react.slots.routesDtsSource` | The router's `Register` declaration |
+| `.slotform/routeTree.gen.ts` | `cliSlots.postWrite` | TanStack Router's route tree |
 
-`.stack/vite.config.ts` gains `tanstackRouter()`, `react()` and `babel()` with the React Compiler ([React Compiler](#react-compiler)),
+`.slotform/vite.config.ts` gains `tanstackRouter()`, `react()` and `babel()` with the React Compiler ([React Compiler](#react-compiler)),
 `refreshPolicyPlugin(react.preambleCode)` ([Dev CSP and React Refresh](#dev-csp-and-react-refresh))
 and `resolve.dedupe` for the singleton runtimes ([Singleton runtimes](#singleton-runtimes)).
 
-`.stack/routes.d.ts` registers the app's router with TanStack Router, so `Link`, `useNavigate` and
+`.slotform/routes.d.ts` registers the app's router with TanStack Router, so `Link`, `useNavigate` and
 `useParams` are typed by the route tree. It is the file the consumer's type-check loads; the entry,
 which builds the router itself, never enters that program, since its providers module is Vite-only.
 
@@ -43,7 +43,7 @@ contributes one to `react.slots.mountExpression`.
 
 ## Providers module
 
-`.stack/virtual-providers.tsx` composes the providers, which arrive sorted ascending by `order`
+`.slotform/virtual-providers.tsx` composes the providers, which arrive sorted ascending by `order`
 (lower is outer) through `react.slots.providers`. That list slot's stable sort keeps contribution
 order among equal orders, and a second sort in codegen would lose that tiebreak. Siblings render as
 additional children of the wrapper, after the wrapped subtree, so they share the wrapper's context.
@@ -93,7 +93,7 @@ itself is [Content-Security-Policy](./vite.md#content-security-policy).
 
 ## Singleton runtimes
 
-React's runtime must be a singleton: a workspace-linked stack checkout resolving its own copy would
+React's runtime must be a singleton: a workspace-linked Slotform checkout resolving its own copy would
 ship two, and hooks throw. TanStack Query and Router hold their client and router in React context,
 so a second copy of either reads no provider. The plugin contributes `react`, `react-dom`,
 `@tanstack/react-query` and `@tanstack/react-router` to `vite.slots.resolveDedupe`
@@ -103,24 +103,24 @@ so a second copy of either reads no provider. The plugin contributes `react`, `r
 
 The compiler is `babel-plugin-react-compiler`, the one the phone runs, through `@vitejs/plugin-react`'s
 `reactCompilerPreset` on `@rolldown/plugin-babel`: `babel()` sits beside `react()` in
-`.stack/vite.config.ts`, and `react()` itself only sets up JSX and React Refresh for Oxc.
-`@babel/core` is on the 7 line, the one Expo's Babel plugins peer on: in stack's workspace a Babel 8
+`.slotform/vite.config.ts`, and `react()` itself only sets up JSX and React Refresh for Oxc.
+`@babel/core` is on the 7 line, the one Expo's Babel plugins peer on: in Slotform's workspace a Babel 8
 becomes the `@babel/core` that React Native's tree resolves, and Expo's plugins refuse it.
 
-Stack's UI packages ship TypeScript source that a consumer installs under `node_modules` (pnpm nests
-them as `.pnpm/@fcalell+<pkg>@.../node_modules/@fcalell/<pkg>`). Three filters keep them out of the
+Slotform's UI packages ship TypeScript source that a consumer installs under `node_modules` (pnpm nests
+them as `.pnpm/@slotform+<pkg>@.../node_modules/@slotform/<pkg>`). Three filters keep them out of the
 compiler's and React Refresh's reach by default, and `OTHER_DEPENDENCY` and `COMPILED_SOURCE`
-(`@fcalell/cli/compiled-source`) widen each to let `@fcalell` packages through while every other
+(`@slotform/cli/compiled-source`) widen each to let `@slotform` packages through while every other
 dependency stays out:
 
-- `react()`'s default `exclude` leaves every `/node_modules/` path out of React Refresh; stack's is
+- `react()`'s default `exclude` leaves every `/node_modules/` path out of React Refresh; Slotform's is
   `OTHER_DEPENDENCY`.
-- `babel()`'s default `exclude` leaves every `/node_modules/` path out of Babel; stack's is
+- `babel()`'s default `exclude` leaves every `/node_modules/` path out of Babel; Slotform's is
   `OTHER_DEPENDENCY` and Rolldown's runtime helper module, which the default also keeps out.
-- The compiler's default skips any filename holding `node_modules`; stack's `sources` is
+- The compiler's default skips any filename holding `node_modules`; Slotform's `sources` is
   `COMPILED_SOURCE`, a positive test, so it is the same pattern wrapped in a negative lookahead.
 
-plugin-react's Vite config and plugin-expo's `babel.config.cjs` both read it, so the web and the
+The `react` plugin's Vite config and the `expo` plugin's `babel.config.cjs` both read it, so the web and the
 phone compile the same code ([Config files are .cjs](./expo.md#config-files-are-cjs)). It is
 internal, not a documented surface.
 
@@ -128,7 +128,7 @@ internal, not a documented surface.
 
 - `plugins/react/src/index.ts`: the plugin, its slots and contributions.
 - `plugins/react/src/node/codegen.ts`: the entry and the providers module.
-- `plugins/react/src/node/router-plugin.ts`: the router plugin call, `@fcalell/plugin-react/codegen`.
-- `plugins/react/src/node/routes.ts`: `.stack/routes.d.ts` and the route segments.
+- `plugins/react/src/node/router-plugin.ts`: the router plugin call, `@slotform/react/codegen`.
+- `plugins/react/src/node/routes.ts`: `.slotform/routes.d.ts` and the route segments.
 - `plugins/react/src/node/refresh.ts`: `refreshPolicyPlugin`.
 - `packages/cli/src/lib/compiled-source.ts`: `COMPILED_SOURCE`, the React Compiler's filters.

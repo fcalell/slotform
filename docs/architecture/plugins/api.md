@@ -1,24 +1,24 @@
-# plugin-api
+# api plugin
 
-`@fcalell/plugin-api` owns the worker: every fragment of `.stack/worker.ts` and `.stack/procedure.ts`,
+`@slotform/api` owns the worker: every fragment of `.slotform/worker.ts` and `.slotform/procedure.ts`,
 the procedure factory route files call, the wire contract between the worker and its clients, the
 typed RPC client and the client half of entity-based cache invalidation. This page covers how those
 parts are built: the plugin's contributions, the generated files, the CORS and env derivations, the
 worker's guards, the procedure factory, the wire, the client and the router schema. Writing
 procedures and calling them is the consumer guide's ([procedures](../../../plugins/api/guide/procedures.md),
 [client](../../../plugins/api/guide/client.md)); the slots themselves are
-listed in the [slot catalog](../slot-catalog.md#apislots-plugin-api).
+listed in the [slot catalog](../slot-catalog.md#apislots-the-api-plugin).
 
 ## Overview
 
-The plugin is built with `plugin` from `@fcalell/cli`. Every worker fragment it owns is a slot; peer
+The plugin is built with `plugin` from `@slotform/cli`. Every worker fragment it owns is a slot; peer
 plugins (`db`, `auth`, `vite` and the rest) contribute into them by importing `api.slots.*` and calling
-`.contribute(fn)`. The final `.stack/worker.ts` comes out of the `workerSource` derivation, which
+`.contribute(fn)`. The final `.slotform/worker.ts` comes out of the `workerSource` derivation, which
 reads every other slot structurally, so no order between contributions needs reasoning about.
 
 ```ts
-import { plugin } from "@fcalell/cli";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
+import { plugin } from "@slotform/cli";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
 
 export const api = plugin("api", {
   label: "API",
@@ -28,7 +28,7 @@ export const api = plugin("api", {
     options.server === undefined ? [{ oneOf: ["cloudflare", "node"] }] : [],
   slots: { workerImports, pluginRuntimes, /* ... */ workerSource },
   contributes: (self) => [
-    emitArtifact(".stack/worker.ts", self.slots.workerSource),
+    emitArtifact(".slotform/worker.ts", self.slots.workerSource),
     // procedure file, schema, route barrel, watchers, remove cleanup
   ],
 });
@@ -41,18 +41,18 @@ process and no deploy step.
 
 | `cliSlots` slot | Behavior |
 | --- | --- |
-| `tsconfigPaths` | `virtual:stack-procedure` to `./.stack/procedure.ts`, read by `stack init`'s tsconfig template |
-| `artifactFiles` | `.stack/worker.ts` and `.stack/procedure.ts` (when any runtime or route is present), the `src/worker/routes/index.ts` barrel, and in a client-only app `.stack/schema.ts` and `.stack/server.ts` |
-| `postWrite` | `.stack/schema.ts` and `.stack/server.json`, once the barrel and `.stack/procedure.ts` are on disk ([Schema](#schema)) |
-| `devWatchers` | `routes`: watches `src/worker/routes/**` and regenerates the barrel on add and unlink. `server-schema`: in a client-only app, copies the server's `.stack/schema.ts` when it changes |
+| `tsconfigPaths` | `virtual:slotform-procedure` to `./.slotform/procedure.ts`, read by `slotform init`'s tsconfig template |
+| `artifactFiles` | `.slotform/worker.ts` and `.slotform/procedure.ts` (when any runtime or route is present), the `src/worker/routes/index.ts` barrel, and in a client-only app `.slotform/schema.ts` and `.slotform/server.ts` |
+| `postWrite` | `.slotform/schema.ts` and `.slotform/server.json`, once the barrel and `.slotform/procedure.ts` are on disk ([Schema](#schema)) |
+| `devWatchers` | `routes`: watches `src/worker/routes/**` and regenerates the barrel on add and unlink. `server-schema`: in a client-only app, copies the server's `.slotform/schema.ts` when it changes |
 | `removeFiles` | `src/worker/routes/` |
 
 ## Generated files
 
-`.stack/worker.ts` is the rendered `workerSource`, pulled into `cli.slots.artifactFiles` by the
+`.slotform/worker.ts` is the rendered `workerSource`, pulled into `cli.slots.artifactFiles` by the
 plugin's own contribution. It is written only when the worker has anything to run: at least one
-plugin runtime or at least one consumer route. `.stack/procedure.ts` (`procedureSource`, the target of
-`virtual:stack-procedure`) has the same gate. The chain the worker file holds is described under
+plugin runtime or at least one consumer route. `.slotform/procedure.ts` (`procedureSource`, the target of
+`virtual:slotform-procedure`) has the same gate. The chain the worker file holds is described under
 [the generated worker](../runtime.md#the-generated-worker).
 
 ## Routes barrel
@@ -63,7 +63,7 @@ write on null, so a worker-only or no-routes project never gets a header-only st
 derivation has no slot inputs: it reads `ctx.cwd` through `generateRouteBarrel` and
 `hasRoutableFiles`, because the routes directory is the consumer's source tree, not slot data.
 `routesHandler` shares the `hasRoutableFiles` predicate, so the import, the handler and the barrel
-agree. Under `stack dev` a watcher rewrites the barrel when a route file is added or removed, an
+agree. Under `slotform dev` a watcher rewrites the barrel when a route file is added or removed, an
 emptied directory included: the running worker imports the barrel until the next generate, so the
 last route's removal leaves a header-only barrel rather than an import of a deleted file.
 
@@ -78,26 +78,26 @@ The layout rules:
   resolution picks one and `export * from "./users"` would swallow the other, so codegen throws.
 
 The barrel re-exports each file with its full filename, and the barrel's import source in
-`api.slots.workerImports` is the explicit `index.ts`: plain node (the plugin-node target) resolves
+`api.slots.workerImports` is the explicit `index.ts`: plain node (the `node` target) resolves
 neither directory imports nor extensionless specifiers, and tsx, esbuild and Vite accept the explicit
 form, so one form serves every target. That import source is one shared constant, which
-`procedure-codegen.ts` also reads to leave the barrel out of `.stack/procedure.ts`'s imports: route
-files import `virtual:stack-procedure`, so the procedure file importing the barrel back would be a
+`procedure-codegen.ts` also reads to leave the barrel out of `.slotform/procedure.ts`'s imports: route
+files import `virtual:slotform-procedure`, so the procedure file importing the barrel back would be a
 cycle.
 
 The worker tracks which plugin runtime registered each top-level route key. A consumer route key that
 collides with one throws naming the owner, where `{ ...pluginRoutes, ...consumerRoutes }` would let the
-consumer clobber the plugin's route (a consumer barrel that exports `auth` shadowing plugin-auth's
+consumer clobber the plugin's route (a consumer barrel that exports `auth` shadowing the `auth` plugin's
 `auth.orgRules`).
 
 ## Runtime
 
 The `./runtime` export's default is `createWorker()`. It takes plain `ApiWorkerOptions` and depends on
-no config: `cors` (the production allow-list), `devCors` (honoured only under `STACK_DEV`), `prefix`
+no config: `cors` (the production allow-list), `devCors` (honoured only under `SLOTFORM_DEV`), `prefix`
 and `envChecks`. The generated worker passes the origins derived from `app.domain` and `app.origins`.
 
 ```ts
-import createWorker from "@fcalell/plugin-api/runtime";
+import createWorker from "@slotform/api/runtime";
 
 createWorker({ cors: ["https://example.com"], prefix: "/rpc" });
 ```
@@ -118,7 +118,7 @@ mounts further worker-owned paths contributes them too (auth's `/api/auth`).
 ## Listener contract
 
 A deploy target that serves further listeners sets two env vars on the env it hands the worker, from
-the server and never from a request header: `STACK_LISTENER` names the listener and `STACK_ORIGIN` the
+the server and never from a request header: `SLOTFORM_LISTENER` names the listener and `SLOTFORM_ORIGIN` the
 one origin it serves. Both are unset on the main listener. How node runs several listeners is under
 [hosts and listeners](node.md#hosts-and-listeners).
 
@@ -146,7 +146,7 @@ dev origin wherever it appears: the `cors` derivation strips it from the baked p
 brackets on `.hostname` (`[::1]`, not `::1`), so the list holds the bracketed form.
 
 `api.slots.localOrigins` says where the local origins of `app.origins` belong. `dev`: they are dev
-origins, stripped from the deployed list and re-admitted under `STACK_DEV`, so a deployed worker never
+origins, stripped from the deployed list and re-admitted under `SLOTFORM_DEV`, so a deployed worker never
 trusts localhost. `deployed`: the deploy target is itself local (the node server bound to loopback),
 so they are the deployed list. The target contributes the value.
 
@@ -168,7 +168,7 @@ origin always comes first: every dev list is `[...devCorsOrigins, ...devTargetOr
 
 The two lists, frontends first, are emitted as `createWorker({ devCors })` and
 `authRuntime({ devTrustedOrigins })`, apart from the production lists, and each runtime appends them
-only when `STACK_DEV` is set, so the deployed worker refuses a credentialed localhost origin. What auth
+only when `SLOTFORM_DEV` is set, so the deployed worker refuses a credentialed localhost origin. What auth
 does while they are live (its cookie `sameSite`) is under [origins and cookies](auth.md#origins-and-cookies),
 and the `APP_URL` dev default under [APP_URL default](auth.md#app_url-default).
 
@@ -181,12 +181,12 @@ null without one.
 CORS mounts first, so preflights and error responses always carry CORS headers; mounted after the
 logger or `secureHeaders`, it would leak non-CORS responses to the browser whenever an earlier layer
 short-circuits. The effective allow-list is resolved per request, not at construction: the dev origins
-apply only under `STACK_DEV`, the origin of the listener a request came in on (`STACK_ORIGIN`) is
+apply only under `SLOTFORM_DEV`, the origin of the listener a request came in on (`SLOTFORM_ORIGIN`) is
 always its own, and the same list backs `isForbiddenOrigin`.
 
 `isForbiddenOrigin`, the CSRF guard for state-changing raw routes, follows the rule in
 [middleware](../../../plugins/api/guide/middleware.md) over the effective allow-list, which holds the
-dev origins only under `STACK_DEV` and is empty on a worker configured without CORS, so there no
+dev origins only under `SLOTFORM_DEV` and is empty on a worker configured without CORS, so there no
 browser Origin passes.
 
 ## Env vars
@@ -203,7 +203,7 @@ declaring plugin's order.
 
 `envChecks` are the value assertions, baked at codegen from the list plus each entry's validation
 hints and flattened (hints beside `name`) so the emitted literal stays small. Presence is always
-checked; hints tighten it. `devLocalhost` refuses to serve when `STACK_DEV` is set but the value's
+checked; hints tighten it. `devLocalhost` refuses to serve when `SLOTFORM_DEV` is set but the value's
 hostname is not local: dev settings (rate limits off, localhost trusted) must never reach a deploy
 pointed at a real URL, and the check is the canary for a deploy that shipped them.
 
@@ -216,13 +216,13 @@ keeps failing), each runtime plugin's `validateEnv` on every request and every j
 ## Rate limiting
 
 The worker's whole `/rpc` tree has one blanket per-IP volume limiter on a dedicated wrangler
-`rate_limiter` binding, `RATE_LIMITER_RPC`. The name is the contract with plugin-cloudflare, which
+`rate_limiter` binding, `RATE_LIMITER_RPC`. The name is the contract with the `cloudflare` plugin, which
 provisions the binding ([rate limiters](cloudflare.md#rate-limiters)). The binding is never shared
 with the auth surface's `RATE_LIMITER_IP` and `RATE_LIMITER_EMAIL` or with a procedure's own
 `rateLimit: "ip"` middleware: a shared binding would double-draw one budget (halving the limit for a
 procedure that also declares `rateLimit: "ip"`) and let `/rpc` volume starve `/api/auth`'s budget.
 
-It is a fixed per-IP ceiling, set where plugin-cloudflare provisions the binding and not a consumer
+It is a fixed per-IP ceiling, set where the `cloudflare` plugin provisions the binding and not a consumer
 option: far above any legitimate single client, low enough to catch a runaway retry loop or a scraper, and sized so a shared
 carrier-NAT IP (a mobile network, a corporate proxy) never trips it. It runs in production only, and
 skips when no `RATE_LIMITER_RPC` binding is present (a worker-only project that has not run
@@ -254,7 +254,7 @@ not-found header, the exposed-header list, the entity-name pattern, the framewor
 listener env names. It is import-free by construction (like `plugins/expo/src/version-gate-shared.ts`),
 so a client bundle that needs only these constants does not drag in `procedure.ts`, which pulls in
 `@orpc/server`, zod and the procedure builder. `procedure.ts` re-exports them, so
-`@fcalell/plugin-api/procedure` consumers (generated code, plugin-auth's worker) read them there.
+`@slotform/api/procedure` consumers (generated code, the `auth` plugin's worker) read them there.
 
 ### Reads travel as GET
 
@@ -287,38 +287,38 @@ lowercased first: RFC 9110 treats it case-insensitively (`Application/JSON` is v
 
 ### Entity headers
 
-A procedure's `reads` and `writes` ship as the `x-stack-reads` and `x-stack-writes` response headers
+A procedure's `reads` and `writes` ship as the `x-slotform-reads` and `x-slotform-writes` response headers
 (`createEntityHeadersMiddleware`), for automatic cache invalidation. The headers are set only when the
 handler succeeds: a thrown error propagates out of `next()` before either is set, so a failed request
 never claims to have touched its entities. The middleware is installed only on a procedure that
 declares at least one entity.
 
 A browser hides a response header from a client on another origin unless
-`Access-Control-Expose-Headers` names it, so the worker's `cors()` exposes `STACK_EXPOSED_HEADERS`,
+`Access-Control-Expose-Headers` names it, so the worker's `cors()` exposes `SLOTFORM_EXPOSED_HEADERS`,
 every header the client reads off an answer; a header added to the wire joins that list.
 
 ### Not found
 
-A read whose answer is "not found" is sent with a success status and the `x-stack-not-found` header,
+A read whose answer is "not found" is sent with a success status and the `x-slotform-not-found` header,
 because a browser prints every 404 fetch response as a console error before any code reads it. The
 client puts the 404 back before oRPC decodes the body. A mutation's not found stays a 404.
-`isNotFound(error)`, from `@fcalell/plugin-api/client`, tells whether a failed call answered that the
-thing does not exist: stack's procedures throw `ApiError("NOT_FOUND")`, which the client decodes into
-an `ORPCError` of code `NOT_FOUND`. plugin-api's own client reads it, and the screens host answers that
+`isNotFound(error)`, from `@slotform/api/client`, tells whether a failed call answered that the
+thing does not exist: Slotform's procedures throw `ApiError("NOT_FOUND")`, which the client decodes into
+an `ORPCError` of code `NOT_FOUND`. The `api` plugin's own client reads it, and the screens host answers that
 code for a not-found state ([answers](screens.md#answers)).
 
 ### Framework-owned paths
 
-`ORG_RULES_PATH` (`["auth", "orgRules"]`) is the router path of the org-rules procedure. plugin-auth's
+`ORG_RULES_PATH` (`["auth", "orgRules"]`) is the router path of the org-rules procedure. The `auth` plugin's
 runtime registers it through `RuntimePlugin.routes()` when organization support is on, and the
 `useAbility` client hook queries it. `SCOPE_ROUTES_PATH` (`["auth", "scope"]`) is the prefix of the
-scope lookups: plugin-auth registers `[...SCOPE_ROUTES_PATH, <scope name>, "bySlug"]` for each scope
-with a slug, and the web plugin's `ScopeBoundary` calls it. Both live in api, not plugin-auth, so the
+scope lookups: the `auth` plugin registers `[...SCOPE_ROUTES_PATH, <scope name>, "bySlug"]` for each scope
+with a slug, and the web plugin's `ScopeBoundary` calls it. Both live in api, not the `auth` plugin, so the
 dependency runs from auth to api.
 
 ## Procedure factory
 
-`createProcedure()` builds the `procedure` factory `.stack/procedure.ts` exports.
+`createProcedure()` builds the `procedure` factory `.slotform/procedure.ts` exports.
 
 - **`can: [action, resource]`** (action first) is the org-level gate, sugar over `rbac`
   (`[resource, actions[]]`, action last). It is the preferred spelling: the config gate, the handler's
@@ -378,9 +378,9 @@ number, boolean, `{ $date }` or `null`. Anything else answers `BAD_REQUEST` befo
 
 ## Scope
 
-A tenancy tier, as the procedure factory sees it, is a structural descriptor: plugin-auth's scope
-descriptors (`defineScope`, the root `organization`) satisfy it, and plugin-api never imports
-plugin-auth, so the descriptor and its resolver (`TenancyContext`) are both structural. The factory
+A tenancy tier, as the procedure factory sees it, is a structural descriptor: the `auth` plugin's scope
+descriptors (`defineScope`, the root `organization`) satisfy it, and `@slotform/api` never imports
+`@slotform/auth`, so the descriptor and its resolver (`TenancyContext`) are both structural. The factory
 reads only the scope's `name`: the input key is `${name}Id`, and the phantom `__context` is what
 resolving the chain adds to the request context (the chain's rows). It hands the descriptor to the
 resolver the auth runtime puts on the request context; how the chain resolves is under
@@ -389,10 +389,10 @@ resolver the auth runtime puts on the request context; how the chain resolves is
 A procedure with a `scope` takes the scope's id in its input (`organizationId`) and stamps the key on
 its meta as `scope`. On the client, `TScope` is that input key (or `never`), and the client type makes
 it optional, for the route's scope boundary to fill. The route's `ScopeBoundary`
-(`@fcalell/ui-core/react/scope`) registers the ids its layout resolved from the URL slug, a nested
-boundary extending the outer ones. The utils `createApiQueryUtils` (`@fcalell/plugin-query/tanstack-query`)
+(`@slotform/ui-core/react/scope`) registers the ids its layout resolved from the URL slug, a nested
+boundary extending the outer ones. The utils `createApiQueryUtils` (`@slotform/query/tanstack-query`)
 returns merge the registered id into the input of every call whose procedure names that scope key in
-`.stack/schema.ts`, and only that key (an explicit id wins), before the query key is built, so the key
+`.slotform/schema.ts`, and only that key (an explicit id wins), before the query key is built, so the key
 carries the id. A scoped call with no registered scope and no id throws before any request, naming the
 procedure and the key. A route `loader` names its ids or uses `scoped(orpc, ids)`. The query side is
 under [scope](query.md#scope); the consumer view is [client](../../../plugins/api/guide/client.md).
@@ -401,14 +401,14 @@ under [scope](query.md#scope); the consumer view is [client](../../../plugins/ap
 
 `api.slots.entities` is the entity vocabulary for `procedure({ reads, writes })`'s type-level
 autocomplete, a union across every contributor: the consumer's `entities` option names state outside
-any plugin's tables (a repo, files, a remote), plugin-db contributes the consumer's Drizzle schema
-table export names, and plugin-auth contributes its runtime-owned tables (`account`, `session`, `user`,
+any plugin's tables (a repo, files, a remote), the `db` plugin contributes the consumer's Drizzle schema
+table export names, and the `auth` plugin contributes its runtime-owned tables (`account`, `session`, `user`,
 `verification`, plus `invitation`, `member` and `organization` with `organization` on), so
 `procedure({ reads: ["member"] })` (auth's own `orgRules`) type-checks and joins cache invalidation
 without the consumer declaring auth's tables. A table's name is already an entity, so a consumer name
 that a plugin also declares is an error: `uniqueBy` fails on a collision between two contributors
 rather than let one shadow the other, as `vite.slots.resolveAliases` does. With nothing contributed,
-`.stack/procedure.ts` falls back to `Entity = string`, and `reads` and `writes` work without narrowing.
+`.slotform/procedure.ts` falls back to `Entity = string`, and `reads` and `writes` work without narrowing.
 
 Entity names reach `Headers.set` comma-joined, and comma is also the client's split delimiter
 (`splitHeaderValue`). `ENTITY_NAME_RE` (`^[A-Za-z0-9_.-]+$`) is the one pattern `procedure()` and the
@@ -431,10 +431,10 @@ call) declares what it reads on its options as `meta: { reads: [...] }`: the nam
 `reads` would use, the counterpart of a mutation's `writes`. The query plugin registers that shape, so
 the names are typed over the app's entity names on web and phone alike; other meta keys stay open.
 
-`EntityName` is an interface the generated `.stack/procedure.ts` merges `entity: Entity` into (the
+`EntityName` is an interface the generated `.slotform/procedure.ts` merges `entity: Entity` into (the
 union of `api.slots.entities`), so `invalidateForWrites` and a query's `meta.reads` take those names
 and a typo fails `tsc`. Unmerged, a name is any string. It is type-only, so the client bundle carries
-nothing. `worker.ts` re-exports `Entity`, so an app's program loads `.stack/procedure.ts` with the
+nothing. `worker.ts` re-exports `Entity`, so an app's program loads `.slotform/procedure.ts` with the
 router type: the import puts the module in the program, which an augmentation alone does not.
 
 ## Client
@@ -458,32 +458,32 @@ query plugin's peer, which the client entry must not import, so the query plugin
 
 ## Schema
 
-A `cliSlots.postWrite` contribution writes `.stack/schema.ts` (the target of `virtual:stack-schema`):
-every procedure of `AppRouter` (the `.stack/worker.ts` default export's `_router`: the runtime plugins'
+A `cliSlots.postWrite` contribution writes `.slotform/schema.ts` (the target of `virtual:slotform-schema`):
+every procedure of `AppRouter` (the `.slotform/worker.ts` default export's `_router`: the runtime plugins'
 routes, `auth.*` among them, and `src/worker/routes`) with its input as JSON Schema, its `kind` and its
 `scope` key (`null` when none). It reads the router, so it is written once the barrel and
-`.stack/procedure.ts` are on disk; without routes it writes nothing. `.stack/server.json` beside it
+`.slotform/procedure.ts` are on disk; without routes it writes nothing. `.slotform/server.json` beside it
 tells a client app of this server what the schema does not ([Client-only apps](#client-only-apps)).
-plugin-vite serves the module to the web and plugin-expo's Metro config to the phone; the client reads
+The `vite` plugin serves the module to the web and the `expo` plugin's Metro config to the phone; the client reads
 it for scope ids and a `Form` for its fields.
 
-The router loads in a child node process, so a long-lived `stack dev` never writes a stale schema. The
-child loads `.stack/worker.ts` in plain node and walks `worker._router`, the router the worker serves.
-Node cannot resolve `virtual:stack-procedure` (a tsconfig path), so a hook maps it to the generated
+The router loads in a child node process, so a long-lived `slotform dev` never writes a stale schema. The
+child loads `.slotform/worker.ts` in plain node and walks `worker._router`, the router the worker serves.
+Node cannot resolve `virtual:slotform-procedure` (a tsconfig path), so a hook maps it to the generated
 file before the worker is imported. The child prints the schema as JSON; a failure prints to stderr and
 exits 1. `routerSchema()` in `schema.ts` reads a built procedure's definition under `~orpc` by shape,
 so the module, which route files import for `z`, pulls nothing of the server into a client bundle.
 
 ## Client-only apps
 
-A web or native app that owns no worker names the stack app it talks to with `api({ server })`, a path
-from its own root (`"../server"`). Everything it needs of that app is a file its own `stack generate`
-writes under `.stack/`: `.stack/schema.ts` is the server's, verbatim (a copy, not a re-export, because
-Metro bundles only what sits under the app's root), and `.stack/server.ts` is its `AppRouter` type. The
+A web or native app that owns no worker names the consumer it talks to with `api({ server })`, a path
+from its own root (`"../server"`). Everything it needs of that app is a file its own `slotform generate`
+writes under `.slotform/`: `.slotform/schema.ts` is the server's, verbatim (a copy, not a re-export, because
+Metro bundles only what sits under the app's root), and `.slotform/server.ts` is its `AppRouter` type. The
 server's address stays the app's to give its client. In an app that owns its worker, the copy source is
 null and the `postWrite` hook writes the schema after the barrel.
 
-`.stack/server.json` is what the server app tells its clients beyond its procedures. `auth` is whether
+`.slotform/server.json` is what the server app tells its clients beyond its procedures. `auth` is whether
 the server has `auth()`, which decides whether a client app stands the sign-in provider. auth
 contributes true in the app that owns the worker (api never imports auth); a client app has no auth in
 its config, so it reads the flag from the manifest its server wrote.
@@ -507,11 +507,11 @@ the worker is built. What `generate` checks is in [mcp](../../../plugins/api/gui
   generated-file contributions.
 - `plugins/api/src/node/types.ts`: the generated files' and the routes barrel's paths, the payload
   and callback attachment types.
-- `plugins/api/src/node/codegen.ts`: `.stack/worker.ts`, the runtime chain both generated files
+- `plugins/api/src/node/codegen.ts`: `.slotform/worker.ts`, the runtime chain both generated files
   build, the middleware mount order.
 - `plugins/api/src/node/barrel.ts`: the route barrel's layout rules and rendering.
-- `plugins/api/src/node/procedure-codegen.ts`: `.stack/procedure.ts`, the `Entity` type.
-- `plugins/api/src/node/schema-source.ts`: `.stack/schema.ts`, read from the router in a child process.
+- `plugins/api/src/node/procedure-codegen.ts`: `.slotform/procedure.ts`, the `Entity` type.
+- `plugins/api/src/node/schema-source.ts`: `.slotform/schema.ts`, read from the router in a child process.
 - `plugins/api/src/node/schema-child.ts`: the child process that reads the router's schema.
 - `plugins/api/src/node/server-client.ts`: a client-only app's copies of its server's files.
 - `plugins/api/src/worker/index.ts`: `createWorker`, CORS at runtime, the content-type check, env

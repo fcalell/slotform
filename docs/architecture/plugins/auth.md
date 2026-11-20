@@ -1,6 +1,6 @@
-# plugin-auth
+# auth plugin
 
-`@fcalell/plugin-auth` wraps Better Auth: the options it bakes into the worker, the runtime that
+`@slotform/auth` wraps Better Auth: the options it bakes into the worker, the runtime that
 builds Better Auth per request environment, the `auth.*` procedures, the web and native clients, the
 session and its stand-ins (device keys, MCP access tokens), and the access model of organizations,
 scopes and abilities. How an app uses it is the plugin's guide (`plugins/auth/guide/`); this page is
@@ -10,7 +10,7 @@ how it is built.
 
 ### Plugin shape
 
-The plugin is built with `plugin` from `@fcalell/cli` and requires `api` and `db`. Its codegen
+The plugin is built with `plugin` from `@slotform/cli` and requires `api` and `db`. Its codegen
 seeds the runtime options with every consumer-supplied option (`secretVar`, `appUrlVar`, `cookies`,
 `session`, `user`, `organization`) as a `Record<string, TsExpression>`, so derived keys splice in
 without re-literalising the whole object. `callbacks` is never a runtime option: `api.slots.callbacks`
@@ -35,14 +35,14 @@ an `undefined` `trustedOrigins` as "allow nothing" on some paths and "fall back 
 others, so the error enumerates every way the consumer can supply origins. The baked list is exactly
 what Better Auth sees at runtime.
 
-Dev-server origins ride separately, and the runtime trusts them only under `STACK_DEV`: baked into
-the list, they would let a production deploy trust `localhost`. Only under `STACK_DEV` do web cookies
+Dev-server origins ride separately, and the runtime trusts them only under `SLOTFORM_DEV`: baked into
+the list, they would let a production deploy trust `localhost`. Only under `SLOTFORM_DEV` do web cookies
 take `sameSite=none`, since the vite origin and the worker are cross-origin in dev and a lax cookie
 is dropped. A native client is always cross-site (custom scheme, no browser origin), so its cookies
 take `sameSite=none` in production too; web consumers keep the browser default. The runtime pairs
 `sameSite=none` with `secure=true`.
 
-Better Auth is built on the listener's origin (`STACK_ORIGIN`, the origin of the Node listener the
+Better Auth is built on the listener's origin (`SLOTFORM_ORIGIN`, the origin of the Node listener the
 request came in on), else the `appUrlVar` var (`worker/listener.ts`). Better Auth trusts its base
 URL's origin and makes its cookies `Secure` (and `__Secure-` named) exactly when it is https, so
 trust, cookie `Secure`-ness and the passkey's origin follow the listener.
@@ -52,7 +52,7 @@ trust, cookie `Secure`-ness and the passkey's origin follow the listener.
 `APP_URL`'s `devDefault` (the derived slot `auth.slots.appUrlDevDefault`) is the first frontend origin (`api.slots.devCorsOrigins`: vite, metro, or
 the local entries of an explicit `app.origins`), else the first deploy-target origin
 (`api.slots.devTargetOrigins`: the node server, wrangler). Only an explicit `app.origins` with no
-local entry leaves both empty, and then the production domain is the value. Plugin-auth never imports
+local entry leaves both empty, and then the production domain is the value. `@slotform/auth` never imports
 a frontend or a deploy target: the handoff is the shared slots.
 
 ### Cookie prefix
@@ -61,7 +61,7 @@ a frontend or a deploy target: the handoff is the shared slots.
 Better Auth's own default on both the server and the expo client, so an unset option still yields a
 matching pair. Peer plugins (native-ui's generated auth-client constants) read the slot; a hardcoded
 prefix that mismatches drops every session cookie. The native client's prefix must equal
-`auth({ cookies: { prefix } })`, which `stack init` defaults to `app.name`. A mismatch is silent and
+`auth({ cookies: { prefix } })`, which `slotform init` defaults to `app.name`. A mismatch is silent and
 total: the client filters the server's `Set-Cookie` by the prefix, so every device drops a still-valid
 session and the app reads as signed out ([native auth client](./native-ui.md#native-auth-client)).
 
@@ -81,7 +81,7 @@ optionally carries the app bundle id for native ID-token validation. The generat
 every default, so the runtime never guesses: `rpID` from `app.domain` (a registrable suffix of the
 derived origins, as WebAuthn requires of the relying-party id), `rpName` from `app.name`, `origin`
 from the resolved production CORS list. A `localhost` ceremony matches neither production value, so
-codegen also bakes `passkey.devOrigin` (the dev origins), and under `STACK_DEV` the runtime passes
+codegen also bakes `passkey.devOrigin` (the dev origins), and under `SLOTFORM_DEV` the runtime passes
 `rpID: "localhost"` and those origins instead, as it does for `devTrustedOrigins`. A listener with an
 origin of its own adjusts the baked values per instance (`passkeyFor`).
 
@@ -94,7 +94,7 @@ itself and never read at request time. The schema defaults guarantee every bindi
 still allows one quick resend) and, baked with `mcp` only, `RATE_LIMITER_AGENT` (120 per 60 s).
 Cloudflare rate-limiter bindings accept a `period` of 10 or 60 seconds only
 ([Cloudflare docs](https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/)).
-The runtime types each binding with plugin-api's `RateLimitBinding` (`@fcalell/plugin-api/procedure`).
+The runtime types each binding with the `api` plugin's `RateLimitBinding` (`@slotform/api/procedure`).
 
 The `fetch` handler applies the per-email limit to the two emailing endpoints (the OTP send and
 `/sign-in/magic-link`, one bucket, one `emailKey`). The `auth.signIn.sendOtp` and
@@ -103,8 +103,8 @@ when it refuses. The limit runs in production only and is skipped when no email 
 
 ### Reserved slugs
 
-An organization is served at `/<slug>`, so its slug may not take plugin-api's `RESERVED_SLUGS` (the
-addresses every stack app serves or a router reads as an act) nor a first segment of the app's own
+An organization is served at `/<slug>`, so its slug may not take the `api` plugin's `RESERVED_SLUGS` (the
+addresses every consumer serves or a router reads as an act) nor a first segment of the app's own
 top-level routes, which it would shadow. A frontend plugin contributes its routes' first segments to
 `auth.slots.reservedSlugs`, and auth itself contributes `mcp` with `mcp` on, since the MCP endpoint
 answers at `/mcp`; auth never reads a frontend's routes. Codegen bakes the combined list
@@ -134,15 +134,15 @@ value slot with that seed default, the one place that keeps path and existence c
 consumer who restructures the repo overrides it with `override: true`. Codegen wires the file onto
 the auth runtime entry whenever it exists. While a callback is required, a missing file throws at
 generate: that beats a worker that refuses its first request. The import source is the path relative
-to `.stack/` (`../src/...`, extension kept), since the generated worker sits at `.stack/worker.ts` and
+to `.slotform/` (`../src/...`, extension kept), since the generated worker sits at `.slotform/worker.ts` and
 imports relative to itself, so an overriding `callbackFile` must stay under `src/`, which codegen
 enforces.
 
-`stack init` scaffolds the file from `templates/callbacks.ts`. Each stub logs its code in dev and
+`slotform init` scaffolds the file from `templates/callbacks.ts`. Each stub logs its code in dev and
 throws anywhere else, since a code in Workers Logs is a leaked sign-in, and carries a `// TODO` marker.
 `sendOTP` stands uncommented (delete it with `emailOtp: false`), `sendMagicLink` commented out for
-`magicLink: true`. `stack dev` sets `STACK_DEV`, which the worker's `Env` does not declare. A
-`cliSlots.deployChecks` contribution (`callback-stubs.ts`) refuses `stack deploy` while a callback the
+`magicLink: true`. `slotform dev` sets `SLOTFORM_DEV`, which the worker's `Env` does not declare. A
+`cliSlots.deployChecks` contribution (`callback-stubs.ts`) refuses `slotform deploy` while a callback the
 options require still carries its marker: the stub sends nothing outside dev, so the deploy would
 ship an app nobody can sign in to. A missing file is `api.slots.callbacks`' error, not this check's.
 
@@ -158,11 +158,11 @@ Better Auth bump or a table-bearing Better Auth plugin.
 
 | Subpath | Tables | Migrated when |
 | --- | --- | --- |
-| `@fcalell/plugin-auth/schema` | `user`, `session`, `account`, `verification` | always |
-| `@fcalell/plugin-auth/schema/organization` | `organization`, `member`, `invitation` | `organization: true` |
-| `@fcalell/plugin-auth/schema/passkey` | `passkey` | `passkey` |
-| `@fcalell/plugin-auth/schema/oauth` | `oauthClient`, `oauthResource`, `oauthClientResource`, `oauthRefreshToken`, `oauthAccessToken`, `oauthConsent`, `oauthClientAssertion`, `jwks` | `mcp: true` |
-| `@fcalell/plugin-auth/schema/devices` | `apikey` | `devices: true` |
+| `@slotform/auth/schema` | `user`, `session`, `account`, `verification` | always |
+| `@slotform/auth/schema/organization` | `organization`, `member`, `invitation` | `organization: true` |
+| `@slotform/auth/schema/passkey` | `passkey` | `passkey` |
+| `@slotform/auth/schema/oauth` | `oauthClient`, `oauthResource`, `oauthClientResource`, `oauthRefreshToken`, `oauthAccessToken`, `oauthConsent`, `oauthClientAssertion`, `jwks` | `mcp: true` |
+| `@slotform/auth/schema/devices` | `apikey` | `devices: true` |
 
 The Drizzle adapter never issues DDL: the tables exist in the database before any sign-in. Two seams
 carry them there. The worker runtime passes them to `drizzleAdapter({ schema })`, and the consumer
@@ -196,7 +196,7 @@ and migrate, a table set only with its option on.
   The key is stored hashed; the plaintext exists once, in the answer of the call that made it.
 
 Each schema module names the drizzle types its emitted declarations spell, so they are spelled
-through plugin-db, the one package drizzle resolves from. Unnamed, `tsc` writes
+through `@slotform/db`, the one package drizzle resolves from. Unnamed, `tsc` writes
 `import("drizzle-orm/...")`, which a consumer cannot resolve from this package, and every table and
 row read through it is `any`.
 
@@ -231,9 +231,9 @@ configuration contributes the flag.
 | `auth.slots.clientFlags` | The web client's flags from the options ([web client](#web-client)) |
 | `db.slots.schemaModules` | The [schema tables](#schema-tables)' subpaths, each when its option is on, so they migrate with the app's own |
 | `screens.slots.serveEnv` | The app URL variable set to the run's origin, and with email codes the fixture address and code ([screens](#screens)) |
-| `screens.slots.serveControls` | `@fcalell/plugin-auth/serve`, the `/fixture/link` control, with email codes on ([screens](#screens)) |
-| `screens.slots.handlerModules` | `@fcalell/plugin-auth/screens`: MSW handlers answering `GET */api/auth/get-session` with a signed-in session typed by Better Auth's `Session` and `User`; unread without `screens` in the config |
-| `screens.slots.fixtureModules` | `@fcalell/plugin-auth/screens-fixtures`: a fixtures tree answering `auth.session` with the same user and session (`src/screens-session.ts` holds them once); unread without `screens` in the config |
+| `screens.slots.serveControls` | `@slotform/auth/serve`, the `/fixture/link` control, with email codes on ([screens](#screens)) |
+| `screens.slots.handlerModules` | `@slotform/auth/screens`: MSW handlers answering `GET */api/auth/get-session` with a signed-in session typed by Better Auth's `Session` and `User`; unread without `screens` in the config |
+| `screens.slots.fixtureModules` | `@slotform/auth/screens-fixtures`: a fixtures tree answering `auth.session` with the same user and session (`src/screens-session.ts` holds them once); unread without `screens` in the config |
 | `cliSlots.initPrompts` | Cookie prefix and organization toggle |
 | `cliSlots.deployChecks` | Refuses the deploy while a required callback in the callback file still holds its scaffold `// TODO` marker |
 | `cliSlots.initScaffolds`, `cliSlots.removeFiles` (auto) | `src/worker/plugins/auth.ts` from `templates/callbacks.ts` |
@@ -242,7 +242,7 @@ configuration contributes the flag.
 
 ### Worker runtime
 
-`authRuntime(options)` from `@fcalell/plugin-auth/runtime` depends on `db`'s context and provides
+`authRuntime(options)` from `@slotform/auth/runtime` depends on `db`'s context and provides
 `{ auth }`, plus `{ tenancy }` with organizations on and `{ oauth }` with `mcp` on. Its `context()`
 reads `upstream.db` (the drizzle client `dbRuntime` provides), and it declares that edge, so
 `createWorker` runs db's context first whatever the `.use()` order ([worker chain](../runtime.md)).
@@ -262,10 +262,10 @@ consumer's `procedure({ auth: true })` handlers (through `InferAuthContext`) tou
 fetch entrypoint, and the session lookup the auth middleware calls. Better Auth's own `Auth<Options>`
 needs the literal `BetterAuthOptions` passed to `betterAuth(...)`, and `buildAuth` builds that object
 from runtime conditionals, so no single literal parameterizes it. `$Infer.Session` derives from
-`AuthRuntimeInput` through the same `SessionUser` and `SessionOf` types `@fcalell/plugin-auth/infer`
+`AuthRuntimeInput` through the same `SessionUser` and `SessionOf` types `@slotform/auth/infer`
 exposes for the client (organization adds `activeOrganizationId`): one derivation, two consumers.
 `TOptions` is inferred from the inline object literal codegen passes to `authRuntime(...)` in
-`.stack/procedure.ts` and `.stack/worker.ts`, so `organization: true` stays a literal and never
+`.slotform/procedure.ts` and `.slotform/worker.ts`, so `organization: true` stays a literal and never
 widens to `boolean`.
 
 `./runtime` re-exports the Better Auth helpers a sign-in flow of the app's own needs (`APIError`,
@@ -273,13 +273,13 @@ widens to `boolean`.
 `customSession`, the `BetterAuthPlugin` type), so the app holds no second copy of `better-auth`: a
 second `APIError` would not read as the router's own.
 
-`routes(procedure)` receives plugin-api's procedure factory as `unknown`, because `RuntimePlugin` is
+`routes(procedure)` receives the `api` plugin's procedure factory as `unknown`, because `RuntimePlugin` is
 framework-agnostic (`packages/cli/src/runtime.ts`); `AuthProcedureFactory` (`worker/procedures.ts`)
 is that factory over the context the `auth.*` procedures read.
 
 ### On the node target
 
-`plugin-auth` requires `api` and `db` only. Its rate-limiter bindings and `nodejs_compat` flag are
+The `auth` plugin requires `api` and `db` only. Its rate-limiter bindings and `nodejs_compat` flag are
 cloudflare contributions that stay inert on node, where the limiter skips itself. Every value import
 on its runtime path names its file, so `authRuntime` loads under plain node. How the node target
 consumes auth's path and session end is [auth coupling](./node.md#auth-coupling).
@@ -334,9 +334,9 @@ refusal becomes an `ORPCError` of the matching code (`BAD_REQUEST`, `UNAUTHORIZE
 The consumer's `AppRouter` is emitted as a declaration, and a type aliasing a third-party one is
 emitted under that package's path and degrades to `any` where the package does not resolve. So the
 outputs whose Better Auth types name a package a consumer does not install are written out
-(`worker/outputs.ts`) and declared in `@fcalell/plugin-auth/runtime` (`OAuthClientPublic`,
+(`worker/outputs.ts`) and declared in `@slotform/auth/runtime` (`OAuthClientPublic`,
 `OAuthGrant`, `Invitation`, `InvitationStatus`, `AcceptedInvitation`, `RejectedInvitation`,
-`ActiveOrganization`) and `@fcalell/plugin-auth/ability` (`PackedRuleSet`, the output of
+`ActiveOrganization`) and `@slotform/auth/ability` (`PackedRuleSet`, the output of
 `auth.orgRules`). The app's `AppRouter` types them without `better-auth`,
 `@better-auth/oauth-provider` or `@casl/ability`. Each procedure declares its type as its output, so
 the compiler checks the endpoint's value against it. The roles are the consumer's own, so `role` is a
@@ -365,7 +365,7 @@ words, or the sentence as it stands. The policy runs before the user row is writ
 
 ### Web client
 
-`@fcalell/plugin-auth/client` is Better Auth's React client, so `useSession()` is a hook. The
+`@slotform/auth/client` is Better Auth's React client, so `useSession()` is a hook. The
 consumer calls it with the flags its `auth()` options set, so the client offers what the server
 serves. **`auth.slots.clientFlags`** derives those flags from the options, so the client and the
 server enable the same Better Auth plugins; seeded `null` and filled by auth's own contribution, it
@@ -384,14 +384,14 @@ The signed session cache is off for native: it sets a second `session_data` cook
 `session_token`, and React Native reliably round-trips only one cookie, so the device would send
 `session_data` without `session_token` and every authenticated request would resolve to no session.
 
-`@fcalell/plugin-auth/expo` (`expo.tsx`, shipped as source):
+`@slotform/auth/expo` (`expo.tsx`, shipped as source):
 
 - The secure-storage shape derives from `expoClient`'s own option, so it stays in lockstep with
   `@better-auth/expo` without importing `expo-secure-store`. The consumer passes the imported store
   module, so the layer stays storage-agnostic and never pulls native modules into an importer such
   as a Node test.
 - The auth client provider exposes the configured client to the tree, read through `useAuthClient()`
-  rather than a module singleton; `plugin-native-ui` contributes it to `plugin-expo.slots.providers`
+  rather than a module singleton; the `native-ui` plugin contributes it to `expo.slots.providers`
   ([native auth client](./native-ui.md#native-auth-client)).
 - The browser helpers open the system browser for the OAuth redirect and work in Expo Go. The two
   native ID-token helpers skip the browser: they drive the OS account sheet through the platform SDK
@@ -411,11 +411,11 @@ The screens workbench answers the session a signed-in screen reads, both as the 
 procedure and as Better Auth's `get-session`; without `screens` in the config the slots resolve to
 nothing ([screens plugin](./screens.md)).
 
-- `@fcalell/plugin-auth/screens` answers the endpoints auth owns outside the app's router: the
+- `@slotform/auth/screens` answers the endpoints auth owns outside the app's router: the
   signed-in session Better Auth's client reads (phone apps, and a web app still on that client) at
   `get-session` under the worker's auth prefix. It sits on its own subpath because it imports MSW
   through the screens package, which only the workbench's browser loads.
-- `@fcalell/plugin-auth/screens-fixtures` answers the procedures auth owns: the signed-in session
+- `@slotform/auth/screens-fixtures` answers the procedures auth owns: the signed-in session
   `orpc.auth.session` reads, so a screen behind the session guard draws its signed-in form; the
   device keys of `devices: true` (`auth.devices.list`, `create`, `revoke`); and the steps a shipped
   page calls: sign-in and sign-out, `user.update`, the organization list, create, delete,
@@ -425,13 +425,13 @@ nothing ([screens plugin](./screens.md)).
   overrides any of them in `src/app/fixtures.ts`, starting from this answer when it only adds to it.
   The tree keeps its own type (`satisfies`, not an annotation), so `fixtures.auth.session()` is the
   signed-in `{ session, user }` itself, with no optional or null in the way.
-- `@fcalell/plugin-auth/serve` is the served app's `/fixture/link` for `stack screens serve`
+- `@slotform/auth/serve` is the served app's `/fixture/link` for `slotform screens serve`
   ([screens command](../commands.md#screens)). The app is served at the run's origin, which the app
   URL names. With email codes, `serveEnv` gives the run a fixture address and a fixed code
-  (`STACK_SERVE_EMAIL`, `STACK_SERVE_CODE`, as long as the runtime's `OTP_LENGTH`); the link signs the
+  (`SLOTFORM_SERVE_EMAIL`, `SLOTFORM_SERVE_CODE`, as long as the runtime's `OTP_LENGTH`); the link signs the
   browser in through the email-code routes and redirects with the session cookie. It runs inside the
   worker (Node or workerd), so it uses web APIs only. It is a control of `fixtureControls` in
-  `@fcalell/plugin-screens/serve`; a hand-written serve entry passes it in:
+  `@slotform/screens/serve`; a hand-written serve entry passes it in:
   `fixtureControls(worker, link)`.
 
 ## Sessions
@@ -440,7 +440,7 @@ nothing ([screens plugin](./screens.md)).
 
 Better Auth deletes a session row on a sign-out, a revoke, a deleted user or an expired session
 found, and each deletion is published as `{ sessionId, userId }` on the `node:diagnostics_channel`
-channel `stack:auth:session-ended` (`worker/session-ended.ts`). The Node target listens and closes
+channel `slotform:auth:session-ended` (`worker/session-ended.ts`). The Node target listens and closes
 that session's WebSocket connections, whose session it read once at the upgrade; where nothing
 listens (Workers, a worker under test) the message goes nowhere. The channel is named by string, not
 imported: the Node target names the same channel, as it names auth's path.
@@ -480,7 +480,7 @@ procedures are no auth routes and are bounded by their own checks.
 `disabledPaths` takes the key plugin's HTTP routes off HTTP. The `auth.devices.*` procedures call
 them on the server API, where the limits are enforced (a name, 25 live keys, an expiry of at most 365
 days); over HTTP those limits would be bypassed. The procedures are made, listed and revoked by a
-signed-in member and never by a device key, which the guard refuses at the key routes. How plugin-api
+signed-in member and never by a device key, which the guard refuses at the key routes. How the `api` plugin
 maps a refused or limited session lookup is [auth refusals](./api.md#auth-refusals).
 
 ## Access
@@ -502,7 +502,7 @@ wildcards (`can("manage", "all")` grants everything), while Better Auth's model 
 literal names, so a statements record that uses either would compile into a rule that over-grants
 every action or subject client-side; the compile refuses it.
 
-`@fcalell/plugin-auth/ability` is a typed wrapper over CASL's `MongoAbility`. CASL is wrapped, never
+`@slotform/auth/ability` is a typed wrapper over CASL's `MongoAbility`. CASL is wrapped, never
 exposed: consumers never install or import `@casl/ability`, the same rule as drizzle, hono and zod.
 The module is isomorphic, with no `node:*` imports and nothing from the plugin's `node/` or `worker/`
 code, so worker handlers and client bundles both import it.
@@ -527,22 +527,22 @@ membership predicate the module exports, if any, applies at every resolution. A 
 chain's tables and the caller's membership, so a mutation that declares `writes` on any of them (a
 renamed project, a changed role) invalidates the scope it resolved.
 
-**`tenancy`** is the request context's capability that plugin-api's `scope`, `can` and `rbac`
+**`tenancy`** is the request context's capability that the `api` plugin's `scope`, `can` and `rbac`
 procedure options call ([scope](./api.md#scope)). Resolution is stateless: the chain comes from the
 rows, the access from the caller's membership of the organization at its root, never from the
 session. It answers the rows of a scope's chain for an id as context entries, plus the caller's
 `member` row, typed by the scope (`ScopeContext<S>`). It answers `null` when any tier is absent, the
 caller is no member, or a consumer predicate fails (the membership one at the root, a scope's
-visibility one at its tier); plugin-api answers that `null` as `NOT_FOUND`, the same as a missing
+visibility one at its tier); the `api` plugin answers that `null` as `NOT_FOUND`, the same as a missing
 row, so a guessed id never confirms that a row exists.
 
 The membership predicate decides which `member` rows count as a membership at all: a fragment over
 the `member` table, which the root lookup already has in its `FROM`, correlated to any consumer table
 it needs. The scopes module exports at most one. A resolved tier's row lands in the procedure
 context under its scope's name, so a scope named after a key the context already carries would
-overwrite it; `scope.ts` refuses such a name. The refused keys are plugin-api's base context, checked
+overwrite it; `scope.ts` refuses such a name. The refused keys are the `api` plugin's base context, checked
 against its type so a key it gains is refused too, and what the runtimes and middlewares add before a
-scope resolves: plugin-api's dev flag, plugin-db's client, this plugin's runtime and auth middleware,
+scope resolves: the `api` plugin's dev flag, the `db` plugin's client, this plugin's runtime and auth middleware,
 the MCP endpoint's caller, and the organization tier.
 
 ### MCP OAuth
@@ -632,4 +632,4 @@ accepted.
 - `plugins/auth/src/screens.ts`: the workbench's `get-session` handlers
 - `plugins/auth/src/screens-fixtures.ts`: the workbench's `auth.*` fixtures
 - `plugins/auth/src/screens-session.ts`: the signed-in user and session both workbench modules answer
-- `plugins/auth/src/serve.ts`: the `/fixture/link` control for `stack screens serve`
+- `plugins/auth/src/serve.ts`: the `/fixture/link` control for `slotform screens serve`

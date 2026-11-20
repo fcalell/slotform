@@ -1,8 +1,8 @@
-# plugin-node
+# node plugin
 
-`@fcalell/plugin-node` is the long-running Node server target, the alternative to
-[plugin-cloudflare](cloudflare.md) for the same worker. This page holds what the plugin owns and
-contributes, the server `.stack/server.ts` starts (its Host rule, its WebSocket admission, its
+`@slotform/node` is the long-running Node server target, the alternative to
+the [cloudflare plugin](cloudflare.md) for the same worker. This page holds what the plugin owns and
+contributes, the server `.slotform/server.ts` starts (its Host rule, its WebSocket admission, its
 services and channels), the browser socket client, the dev process, the production bundle and the
 screens serve target. How a consumer runs and deploys the server is the plugin's guide
 (`plugins/node/guide/`).
@@ -24,26 +24,26 @@ screens serve target. How a consumer runs and deploys the server is the plugin's
 ([plugin folder structure](../conventions.md#plugin-folder-structure)). The plugin writes `esbuild`
 into the consumer's `devDependencies` as an optional peer ([Build and bundle](#build-and-bundle)).
 Its owned slots, from `serverPort` (default 8788) to `serverBundleSource`, are listed in the
-[slot catalog](../slot-catalog.md#nodeslots-plugin-node).
+[slot catalog](../slot-catalog.md#nodeslots-the-node-plugin).
 
 | Target slot | Behaviour |
 | --- | --- |
-| `cliSlots.artifactFiles` | `.stack/server.ts` and the services barrel `src/server/services/index.ts` |
+| `cliSlots.artifactFiles` | `.slotform/server.ts` and the services barrel `src/server/services/index.ts` |
 | `cliSlots.buildSteps` | `node-bundle`, phase `post` ([Build and bundle](#build-and-bundle)) |
-| `cliSlots.devProcesses` | `node --watch .stack/server.ts` ([Dev](#dev)) |
+| `cliSlots.devProcesses` | `node --watch .slotform/server.ts` ([Dev](#dev)) |
 | `api.slots.localOrigins` | `deployed` when `host` is a loopback address: the local origins in `app.origins` are then its deployed allow-list |
 | `api.slots.devTargetOrigins` | `http://localhost:<port>`, unless `app.origins` is set ([CORS and origins](api.md#cors-and-origins)) |
 | `vite.slots.clientHeaders` (read) | `serverSource` passes it to the server as `clientHeaders`, with a static root only |
 | `vite.slots.serverProxy` | Every worker path, and `/ws` as a WebSocket, so API clients keep relative URLs in dev; inert without vite |
 | `screens.slots.serveTargets` | The node serve target ([Screens serve](#screens-serve)) |
-| `screens.slots.handlerModules` | `@fcalell/plugin-node/screens` ([Screens serve](#screens-serve)) |
+| `screens.slots.handlerModules` | `@slotform/node/screens` ([Screens serve](#screens-serve)) |
 | `cliSlots.devWatchers` | Rewrites the services barrel when a service file appears or goes (300 ms debounce) |
 | `cliSlots.removeFiles` | `src/server/` |
 
 ## Runtime
 
-`.stack/server.ts` (composed by `node.slots.serverSource`) is one `startNodeServer({ ... })` call
-from `@fcalell/plugin-node/server`: an outer Hono app that mounts, in order, `/ws`
+`.slotform/server.ts` (composed by `node.slots.serverSource`) is one `startNodeServer({ ... })` call
+from `@slotform/node/server`: an outer Hono app that mounts, in order, `/ws`
 ([WebSocket admission](#websocket-admission)), the service mounts ([Services](#services)), the worker's
 fetch handler on every `api.slots.routePrefixes` path, and, with `vite()`, the web client's build
 (`vite.slots.outDir`, `dist/client`) as static files with an SPA fallback to its `index.html`. The
@@ -57,8 +57,8 @@ and stop in reverse order on `SIGINT` or `SIGTERM`; a failed boot logs and exits
 Node has no bindings: the worker gets the `env` the entry passes, `process.env`, `executionCtx`
 degrades to a no-op `waitUntil`, and binding-backed features (rate limiters) skip themselves when the binding is absent.
 
-The consumer's TypeScript (`.stack/`, `src/`) runs directly under Node's type stripping while the
-stack packages it imports load compiled from `dist/`. Type stripping takes erasable syntax only, and
+The consumer's TypeScript (`.slotform/`, `src/`) runs directly under Node's type stripping while the
+Slotform packages it imports load compiled from `dist/`. Type stripping takes erasable syntax only, and
 Node resolves neither a missing extension nor a directory (`ERR_UNSUPPORTED_DIR_IMPORT`), so the
 generated worker names the schema's file ([db's schema import](db.md#schema-import)). The Node floor
 is the guide's [node server](../../../plugins/node/guide/server.md), and what the consumer's own files follow is its
@@ -66,30 +66,30 @@ is the guide's [node server](../../../plugins/node/guide/server.md), and what th
 
 ### Worker contract
 
-The server calls the worker shape plugin-api's `.stack/worker.ts` emits (its `WorkerExport`,
+The server calls the worker shape the `api` plugin's `.slotform/worker.ts` emits (its `WorkerExport`,
 [api's runtime](api.md#runtime)), reduced to what this target calls. On Node, `env` is
 `process.env` and there is no execution context; the worker runtime degrades both.
 
 ## Generated server entry
 
-`.stack/server.ts` is a thin call into the runtime, so every moving part (module loading, mounting,
-static serving, service lifecycle) lives in `@fcalell/plugin-node/server`, where it is testable, and
+`.slotform/server.ts` is a thin call into the runtime, so every moving part (module loading, mounting,
+static serving, service lifecycle) lives in `@slotform/node/server`, where it is testable, and
 none in generated text. The entry is the server's process entry. It passes `env: process.env`, its
 one read of the environment ([conventions](../conventions.md#the-environment)), and the worker, the
 Host rule, `listenOf` and the boot tasks read that argument; `startNodeServer` has no default for it.
 
 The entry hands `startNodeServer` module URLs (`workerModule`, `procedureModule`, `servicesModule`)
-instead of importing them. Route files import `virtual:stack-procedure`
-([virtual:stack-procedure](../runtime.md#virtualstack-procedure)), which plain node cannot resolve
+instead of importing them. Route files import `virtual:slotform-procedure`
+([virtual:slotform-procedure](../runtime.md#virtualslotform-procedure)), which plain node cannot resolve
 (tsx and esbuild resolve it through tsconfig `paths`). A static import resolves at link time, before
 any hook can register, so the boot calls `node:module`'s `registerHooks` to map
-`virtual:stack-procedure` to `.stack/procedure.ts` and only then dynamic-imports the worker and the
+`virtual:slotform-procedure` to `.slotform/procedure.ts` and only then dynamic-imports the worker and the
 services barrel. A plugin's `node.slots.services` entry is a statically imported `ServiceSpec`
-expression, so its module must not import `virtual:stack-procedure`; the consumer's own services
+expression, so its module must not import `virtual:slotform-procedure`; the consumer's own services
 load through `servicesModule`.
 
 The production bundle's form of the same entry hands over the modules themselves (`modules`): the
-bundler has already followed the imports and aliased `virtual:stack-procedure`
+bundler has already followed the imports and aliased `virtual:slotform-procedure`
 ([Build and bundle](#build-and-bundle)).
 
 ## Hosts and listeners
@@ -101,12 +101,12 @@ a request without one is refused too. The consumer's half is the guide's
 [hosts and listeners](../../../plugins/node/guide/server.md#hosts-and-listeners).
 
 - **The main listener** admits the Host of one of the app's origins (`api.slots.cors`, passed as
-  `origins`) or the bound address itself; under `STACK_DEV` also a loopback name or an IP literal (a
+  `origins`) or the bound address itself; under `SLOTFORM_DEV` also a loopback name or an IP literal (a
   dev server reached as `127.0.0.1`, a phone on the LAN). Without an origin list (a server built by
   hand) every Host is admitted, as is every Host under a wildcard origin.
 - **A further listener** (`listeners`, by name) admits the Host of the origin its `originVar` env var
-  holds at that moment. The worker sees a request on it with the server's env plus `STACK_LISTENER`
-  (the name) and `STACK_ORIGIN` (its origin), one env object per origin.
+  holds at that moment. The worker sees a request on it with the server's env plus `SLOTFORM_LISTENER`
+  (the name) and `SLOTFORM_ORIGIN` (its origin), one env object per origin.
 
 ## WebSocket admission
 
@@ -119,7 +119,7 @@ cookies; the server admits the upgrade itself, by one rule in `ws-guard.ts`:
    worker's CORS list on the main listener and the listener's own origin on a further one. Whether
    the worker's CORS layer answers an origin is asked by a preflight through `worker.fetch`, which
    reads the same effective list the worker's `isForbiddenOrigin` guard does (production origins,
-   plus the dev origins only under `STACK_DEV`,
+   plus the dev origins only under `SLOTFORM_DEV`,
    [CORS and origins](api.md#cors-and-origins)), so no second list exists to drift. A worker with no
    CORS, or none at all, trusts no browser origin.
 2. **No Origin.** The one upgrade admitted without an Origin is a headless client's (a daemon holding
@@ -136,10 +136,10 @@ The session rides to each channel handler as `conn.session` ([Channels](#channel
 
 ### Auth coupling
 
-This package cannot import plugin-auth, so, as plugin-expo's version gate does, it names two of
+This package cannot import `@slotform/auth`, so, as the `expo` plugin's version gate does, it names two of
 auth's contracts: the worker path better-auth is mounted under (auth's `AUTH_PREFIX`; the auth plugin
-is configured exactly when the worker owns that path), and the `stack:auth:session-ended`
-diagnostics channel, where plugin-auth publishes `{ sessionId }` when Better Auth deletes a session
+is configured exactly when the worker owns that path), and the `slotform:auth:session-ended`
+diagnostics channel, where the `auth` plugin publishes `{ sessionId }` when Better Auth deletes a session
 (a sign-out, a revoke, a deleted user). The server closes that session's sockets
 ([auth's session end](auth.md#session-end)).
 
@@ -173,7 +173,7 @@ stop handle. The consumer's half is the guide's [services](../../../plugins/node
   service owns its subtree (an in-process MCP endpoint a spawned CLI reaches directly by
   `http.port`). Nothing refuses a mount under a worker prefix or `/ws`; the guide's
   [rules](../../../plugins/node/guide/services.md#rules) forbid one.
-- **The barrel.** The barrel reads the services directory flat, as plugin-api's route barrel does
+- **The barrel.** The barrel reads the services directory flat, as the `api` plugin's route barrel does
   ([routes barrel](api.md#routes-barrel)): one module per file `listed.ts` lists
   ([Directory modules](#services)), subdirectories ignored ([the guide's rules](../../../plugins/node/guide/services.md#rules)),
   so `index.ts`, the barrel, never imports itself. The barrel names each import by its position (`service0`), so any file name binds.
@@ -182,7 +182,7 @@ stop handle. The consumer's half is the guide's [services](../../../plugins/node
 - **Directory modules.** `loadModules(new URL("./dir/", import.meta.url))` returns the modules of a
   directory by file name without the extension: a registry the code does not list by hand
   (`jobs/*.ts`, `importers/*.ts`). A test, a declaration and an `index` are not modules; `loadModules`
-  at run time and the bundle at build apply that one rule (`listed.ts`). `stack build` reads the
+  at run time and the bundle at build apply that one rule (`listed.ts`). `slotform build` reads the
   argument as written in the call ([Build and bundle](#build-and-bundle)); the form is the guide's
   [files the build follows](../../../plugins/node/guide/bundle.md#files-the-build-follows).
 
@@ -262,7 +262,7 @@ connection refuses acts.
 ## Dev
 
 The dev process runs the generated server directly under the consumer's node (type stripping, no
-build step): `node --watch .stack/server.ts`. Its env, `ProcessSpec.env`, carries `STACK_DEV=1`,
+build step): `node --watch .slotform/server.ts`. Its env, `ProcessSpec.env`, carries `SLOTFORM_DEV=1`,
 which puts the worker runtime in [dev mode](../runtime.md#dev-mode), and the `devDefault` of each
 declared `api.slots.env` var the shell leaves unset. The main listener binds last: its `listening on`
 line (`READY_LINE`, `server/log.ts`) is the dev supervisor's ready signal (`readyPattern`), so it
@@ -270,11 +270,11 @@ comes once every port answers; a further listener's line does not match it.
 
 ## Build and bundle
 
-`stack build` adds a self-contained form of the server. The `node-bundle` build step (phase `post`,
-after the client is built) writes `.stack/server.bundle.ts` (`node.slots.serverBundleSource`, written
+`slotform build` adds a self-contained form of the server. The `node-bundle` build step (phase `post`,
+after the client is built) writes `.slotform/server.bundle.ts` (`node.slots.serverBundleSource`, written
 by the step, not by `generate`): the same server as `serverSource`, with the worker and the services
-barrel imported for esbuild to follow (`virtual:stack-procedure` is its alias for
-`.stack/procedure.ts`), the client's directory found beside the bundle (`staticDir`), and the `boot`
+barrel imported for esbuild to follow (`virtual:slotform-procedure` is its alias for
+`.slotform/procedure.ts`), the client's directory found beside the bundle (`staticDir`), and the `boot`
 tasks of `node.slots.bundleEntries` run before it listens. It is null where `serverSource` is. A
 `bundleEntries` entry adds imports, a boot task (an expression evaluating to
 `(env) => void | Promise<void>`, called with the server's env) and files copied beside the bundle
@@ -304,24 +304,24 @@ under `node_modules`, a linked app's injected copies included, are all followed 
 guide's [deploy a bundle](../../../plugins/node/guide/bundle.md).
 
 esbuild is loaded inside the step: it is the plugin's optional peer, which the app declares as a
-devDependency (`stack init` and `stack add node` write it), so a config that only reads this plugin,
+devDependency (`slotform init` and `slotform add node` write it), so a config that only reads this plugin,
 and an install that only runs the app, never pay for it.
 
 ## Screens serve
 
-A `stack screens serve` run ([screens' serve](screens.md#serve)) on the node target starts the
-source entry `.stack/server.ts` is, on the run's port and with the worker wrapped in the fixture
-controls, beside the `/fixture/socket` service. Both files live in `.stack/`, where the entry's
+A `slotform screens serve` run ([screens' serve](screens.md#serve)) on the node target starts the
+source entry `.slotform/server.ts` is, on the run's port and with the worker wrapped in the fixture
+controls, beside the `/fixture/socket` service. Both files live in `.slotform/`, where the entry's
 relative modules and the app's packages resolve, and go with the run.
 
 `/fixture/socket?close=1` (`fixtureSockets`, `./serve`) closes the WebSockets of the session the
 request holds, as a server restart or a revoked session does. The other `/fixture` controls are
-`@fcalell/plugin-screens/serve`'s; the sockets are this server's. A serve run starts it; an app's own
+`@slotform/screens/serve`'s; the sockets are this server's. A serve run starts it; an app's own
 entry adds it as the screens guide's
 [seeded server](../../../plugins/screens/guide/seeded-server.md) says.
 
 The screens workbench answers the app's `/ws` through `screens.slots.handlerModules`:
-`@fcalell/plugin-node/screens` is an MSW `ws.link("*/ws")` handler that answers each `sub` with the
+`@slotform/node/screens` is an MSW `ws.link("*/ws")` handler that answers each `sub` with the
 snapshot the story's `channels` fixture gives that channel, as the frame the client decodes. It lives
 under its own subpath because it imports MSW through the screens package, which only the workbench's
 browser loads. Without `screens` in the config the slot resolves to nothing.
@@ -330,7 +330,7 @@ browser loads. Without `screens` in the config the slot resolves to nothing.
 
 - `plugins/node/src/index.ts`: the plugin, its slots and contributions, the dev process, the build step, the serve target.
 - `plugins/node/src/types.ts`: the options, `ServiceEntry` and `BundleEntry`.
-- `plugins/node/src/node/codegen.ts`: renders `.stack/server.ts` and the bundle entry.
+- `plugins/node/src/node/codegen.ts`: renders `.slotform/server.ts` and the bundle entry.
 - `plugins/node/src/node/barrel.ts`: the services directory layout and its barrel.
 - `plugins/node/src/node/bundle.ts`: the production bundle.
 - `plugins/node/src/listed.ts`: which files of a directory are modules.

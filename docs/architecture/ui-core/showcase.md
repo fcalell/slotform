@@ -1,9 +1,9 @@
 # Showcase, roster stories and enforcement
 
-`apps/showcase` is a private stack consumer that shows `@fcalell/plugin-react-ui`: the token page,
+`apps/showcase` is a private Slotform consumer that shows `@slotform/react-ui`: the token page,
 the room screens and the places of one app composed from the built components. It also holds the
 roster scenes that Storybook draws one story per component and state, and it is the first consumer
-of the screens workbench (`@fcalell/plugin-screens`), whose test run is the one machine check of a
+of the screens workbench (`@slotform/screens`), whose test run is the one machine check of a
 drawn screen. This page holds how the app, the scenes and the stories are built, what the screen
 run holds, and how ui-core's guide pages reach a consumer.
 
@@ -67,7 +67,7 @@ the real component in its story.
 The `Specimen` story is the face on one page (`packages/ui-core/guide/voice.md`, "How the face is held"): every roster component's `rest` story in roster order, each class set light and dark at the toolbar's density; a class set its drawer has no form for, and a component with no drawer, are left out. The lone scenes stand at its end, one frame each, each its own story in an iframe, so its queue stays in its own document.
 
 `pnpm stories`, from the repo root, builds the workspace chain and
-opens Storybook on `:6006`. Nothing runs the stories headlessly; `stack screens test`, run on the
+opens Storybook on `:6006`. Nothing runs the stories headlessly; `slotform screens test`, run on the
 screens a change works on, is the one machine run.
 
 ### Roster scenes
@@ -128,7 +128,7 @@ the check type-checks the stories the roster names.
 
 The preview (`.storybook/preview.tsx`):
 
-- **Dev checks fail a story.** plugin-query's act checks (a mutation an act started without
+- **Dev checks fail a story.** The `query` plugin's act checks (a mutation an act started without
   returning its promise, a failure nothing drew) log to `console.error`, and a story that trips one
   fails, so a route or a story that wires an act wrong cannot pass
   ([dev checks](reads.md#dev-checks)).
@@ -144,7 +144,7 @@ Every timing is tuned in one place, the phone app's `Motion tuning`
 ## The screens workbench
 
 ```bash
-pnpm --filter showcase exec stack screens dev   # Storybook on every route of the app, on :6006
+pnpm --filter showcase exec slotform screens dev   # Storybook on every route of the app, on :6006
 pnpm --filter showcase test-screens --screen <title>  # the screens you work on, headlessly
 ```
 
@@ -158,12 +158,12 @@ always answers from its fixture, whatever state the screen is forced into
 
 The test run opens each screen in every state, light and dark, and fails it on an axe violation, a
 horizontal overflow, a finding of the render walk, or a console error or warning. The run's checks
-are one preview annotation (`@fcalell/plugin-screens/checks`) that visits each
+are one preview annotation (`@slotform/screens/checks`) that visits each
 [rubric width](../plugins/screens.md#rubric-widths) and, per width, checks overflow and runs the
 render walk ([test run order](../plugins/screens.md#test-run-order)). The run also fails each read in
 turn (one procedure's GETs answered with a server error) and runs the checks at each width.
 
-**Render walk.** The walk (`walk.ts` in plugin-screens) holds what needs a layout: heights, gaps,
+**Render walk.** The walk (`walk.ts` in the `screens` plugin) holds what needs a layout: heights, gaps,
 insets, radii, clipping, type sizes, late fonts, tabular digits, a root's margin and same-name
 regions. It reads the contract off the page (`--spacing-*`, `--text-*`, `--radius-*` at the
 element's own density), never from a copy, and its checks are pure functions, each with a canary
@@ -187,7 +187,7 @@ keep (`packages/ui-core/guide/structure.md`) are judged in review.
 
 **Changed runs.** A change reaches a story file only through its module graph, which `dist/` and
 generated files do not join, so the generated screens config adds `workspaceTriggers(<app dir>)`
-(`@fcalell/plugin-screens/node`) to Vitest's `forceRerunTriggers`, the files no module graph
+(`@slotform/screens/node`) to Vitest's `forceRerunTriggers`, the files no module graph
 reaches ([changed runs](../plugins/screens.md#changed-runs)).
 
 **Voice lengths.** `voice.test.ts` holds `packages/ui-core/guide/voice.md` and its `face-*.md` pages to their tokens: a page
@@ -204,10 +204,10 @@ tone, acts, sheets, links, forms, rows, facts, frames, waiting, words);
 the package README lists the pages ([README](../../../packages/ui-core/README.md#install)). How a
 screen is judged is the screen recipe's (`packages/ui-core/guide/screen.md`).
 
-`@fcalell/ui-core/manifest` lists the pages (`uiCoreGuide`) that react-ui and native-ui contribute
+`@slotform/ui-core/manifest` lists the pages (`uiCoreGuide`) that react-ui and native-ui contribute
 to `cliSlots.guide` ([the guide](../consumer-project.md#the-guide)). Each UI plugin
-adds `@fcalell/ui-core` to the consumer's own `dependencies`, so the index's
-`node_modules/@fcalell/ui-core/guide/` paths resolve. A platform's rules for every `.tsx` are its
+adds `@slotform/ui-core` to the consumer's own `dependencies`, so the index's
+`node_modules/@slotform/ui-core/guide/` paths resolve. A platform's rules for every `.tsx` are its
 plugin's own page (react-ui's `guide/rules.md`), which links ui-core's topic pages and keeps only
 what differs per platform.
 

@@ -1,6 +1,6 @@
-# plugin-db
+# db plugin
 
-`@fcalell/plugin-db` wraps Drizzle ORM over Cloudflare D1 or a SQLite file. This page holds what the
+`@slotform/db` wraps Drizzle ORM over Cloudflare D1 or a SQLite file. This page holds what the
 plugin owns and contributes, its two runtimes, how its declarations keep one copy of drizzle, the
 local dev push, the `drizzle-kit` driver and its traps, the migration lock, the deploy checks, the
 full-text indexes and the seed. How a consumer writes a schema, a seed or a migration is the
@@ -8,12 +8,12 @@ plugin's guide (`plugins/db/guide/`).
 
 ## Slots and contributions
 
-Built with `plugin` from `@fcalell/cli`; `requires: ["api"]`. It owns one slot, `schemaModules`
-([slot catalog](../slot-catalog.md#dbslots-plugin-db)): the modules whose tables the scaffolded
+Built with `plugin` from `@slotform/cli`; `requires: ["api"]`. It owns one slot, `schemaModules`
+([slot catalog](../slot-catalog.md#dbslots-the-db-plugin)): the modules whose tables the scaffolded
 `src/schema/index.ts` re-exports. It writes `drizzle-kit`, an optional peer, into the consumer's
 `devDependencies`; `drizzle-orm`, a required peer, reaches its `dependencies` from the manifest
-([installing stack](../consumer-project.md#installing-stack)). It gitignores `.db-kit`, and adds the commands `push`,
-`generate`, `apply`, `reset`, `create`, `check` and `seed` under `stack db`.
+([installing Slotform](../consumer-project.md#installing-slotform)). It gitignores `.db-kit`, and adds the commands `push`,
+`generate`, `apply`, `reset`, `create`, `check` and `seed` under `slotform db`.
 
 | Target slot | Behaviour |
 | --- | --- |
@@ -23,7 +23,7 @@ Built with `plugin` from `@fcalell/cli`; `requires: ["api"]`. It owns one slot, 
 | `api.slots.pluginRuntimes` | `dbRuntime({ binding, schema })` from `./runtime` (d1), `dbRuntime({ fileVar, schema })` from `./runtime/sqlite` (sqlite) |
 | `api.slots.workerImports` | The schema namespace import ([Schema import](#schema-import)), gated on `src/schema` existing, as the runtime's `schema` option is |
 | `api.slots.entities` | The schema's value-export names ([Entity vocabulary](#entity-vocabulary)) |
-| `screens.slots.serveSteps` | The scratch database of a `stack screens serve` run ([Seed](#seed)) |
+| `screens.slots.serveSteps` | The scratch database of a `slotform screens serve` run ([Seed](#seed)) |
 
 | `cliSlots` slot | Behaviour |
 | --- | --- |
@@ -48,7 +48,7 @@ path.
 
 ### Database on the node target
 
-`db({ dialect: "sqlite" })` drives `better-sqlite3` through plugin-db's own `createClient`;
+`db({ dialect: "sqlite" })` drives `better-sqlite3` through the `db` plugin's own `createClient`;
 `better-sqlite3` is a plain dependency of the plugin, because `drizzle-orm` 0.45 ships no
 `node:sqlite` driver. The installation decides where the file lives: the runtime opens the file
 the `fileVar` env var names (default `DB_FILE`), once per process, and `path` is only that var's
@@ -81,7 +81,7 @@ so a table copy that drops a referenced table would fail or cascade. The sqlite 
 timeout and foreign keys, since its prune relies on the schema's `ON DELETE` actions, and runs in
 one transaction.
 
-`stack db push` and the sqlite local migrate create the file's directory before `drizzle-kit`
+`slotform db push` and the sqlite local migrate create the file's directory before `drizzle-kit`
 runs: `drizzle-kit` neither creates it nor fails without it, and reports success while writing
 nothing.
 
@@ -98,7 +98,7 @@ resolves the file form as well. The rule for the consumer's own files is on the
 `api.slots.entities` ([api's entities](api.md#entities)) takes the consumer's Drizzle schema export
 names on both dialects: the vocabulary describes the schema, not the runtime. `extractSchemaEntities`
 reads `src/schema/index.ts` and returns its exported value names, sorted, by a regex sweep over the
-export syntax Drizzle schema files use, with no TypeScript compiler dependency, as plugin-api's
+export syntax Drizzle schema files use, with no TypeScript compiler dependency, as the `api` plugin's
 route barrel reads the file layout without type-checking it.
 
 - Matches `export const foo`, `export function foo`, `export class Foo`, `export { foo, bar }` and
@@ -111,8 +111,8 @@ route barrel reads the file layout without type-checking it.
   export: a Drizzle schema declares one table per `const`.
 
 No `src/schema` directory, or a schema file with no value exports, contributes nothing, and
-`.stack/procedure.ts`'s `Entity` falls back to what other plugins contribute (or `string`). A
-consumer's schema file only `export *`s auth's tables, which this sweep cannot see, so plugin-auth
+`.slotform/procedure.ts`'s `Entity` falls back to what other plugins contribute (or `string`). A
+consumer's schema file only `export *`s auth's tables, which this sweep cannot see, so the `auth` plugin
 contributes its own table names to the same list. That is what makes `reads: ["member"]` and
 `writes: ["member"]` type-check and take part in cache invalidation, and the two contributions never
 overlap.
@@ -124,22 +124,22 @@ declarations the consumer's worker project emits name drizzle types as `import("
 and the consumer's type-check resolves those from the consumer root: with no root copy every schema
 table types as `any`, and with a second physical copy beside the plugin's, TypeScript treats the two
 `Column` classes as distinct and `app.db.select().from(table)` fails. So the root copy is the one the
-plugin resolves. A [linked app](../consumer-project.md#a-linked-app) takes plugin-db injected, so
+plugin resolves. A [linked app](../consumer-project.md#a-linked-app) takes `@slotform/db` injected, so
 the copy in its `node_modules` resolves the app's root `drizzle-orm` and the schema and `app.db`
 share one copy.
 
-A plugin with tables (plugin-auth) depends on plugin-db, never on drizzle, so its declarations name
-drizzle types through `@fcalell/plugin-db/orm`, which re-exports the table, relation and row types a
+A plugin with tables (`@slotform/auth`) depends on `@slotform/db`, never on drizzle, so its declarations name
+drizzle types through `@slotform/db/orm`, which re-exports the table, relation and row types a
 plugin's typed surface names. A type missing there is emitted as a `drizzle-orm` import that
 resolves to nothing in a consumer, and every row read through it is `any`. A plugin schema file
-imports the types its declarations spell from plugin-db for the same reason.
+imports the types its declarations spell from `@slotform/db` for the same reason.
 
 ## Local dev push
 
 Local dev is push-based for both dialects: `drizzle-kit` pushes the schema straight into the local
 database, sqlite's file or the miniflare D1 `wrangler dev` reads
 ([cloudflare's local state](cloudflare.md#local-state)), so a schema save is live without a
-migration or a restart. Migrations are the remote deploy path; `stack db apply` applies committed
+migration or a restart. Migrations are the remote deploy path; `slotform db apply` applies committed
 ones locally for journal parity when wanted.
 
 The setup task and the schema watcher push through one coalescing latch per cwd: at most one push
@@ -150,14 +150,14 @@ backlog of pushes when only the latest schema matters. The map that holds the la
 the graph: `contributes` runs once per graph build, so each command gets a fresh map, and a stale
 watcher from an earlier graph cannot starve the current one.
 
-The sqlite file a `stack db` command works on is the one the node server would open: the `fileVar`
+The sqlite file a `slotform db` command works on is the one the node server would open: the `fileVar`
 env var names it and `path` is its dev default, relative to the project root, so a command run with
-`DB_FILE=./scratch.sqlite` touches the scratch copy and never the dev database. A `stack screens
+`DB_FILE=./scratch.sqlite` touches the scratch copy and never the dev database. A `slotform screens
 serve` run's own file takes the place of both.
 
 Push leaves two things out of `drizzle-kit`'s view, since the schema declares neither and push would
 offer to drop them behind a data-loss prompt nothing answers: wrangler's migrations table, where
-`stack db apply` records into the same database, and the full-text virtual tables with their shadow
+`slotform db apply` records into the same database, and the full-text virtual tables with their shadow
 tables, which are applied after push ([Full-text indexes](#full-text-indexes)).
 
 ## drizzle-kit
@@ -175,7 +175,7 @@ holds none of it. The plugin runs it as a child process and works around how it 
 - **The sqlite driver.** `drizzle-kit` exits 0 even when its sqlite driver fails to load, so a broken
   push or migrate would report success. The plugin loads the driver from `drizzle-kit`'s location up
   front and fails with the fix. `drizzle-kit` declares no `better-sqlite3` and loads whichever copy
-  pnpm hoists: plugin-db's 13, which ships prebuilt binaries, or better-auth's 12 peer, built by its
+  pnpm hoists: `@slotform/db`'s 13, which ships prebuilt binaries, or better-auth's 12 peer, built by its
   install script.
 - **Errors on exit 0.** `drizzle-kit` reports most failures as an `Error:` on stderr and exits 0, so
   a failed generate would pass for "no changes". The plugin treats that text as the failure.
@@ -203,7 +203,7 @@ holds none of it. The plugin runs it as a child process and works around how it 
 ## Migration lock
 
 `drizzle-kit generate` writes timestamp-prefixed SQL files into `src/migrations/`. Two writers at once
-(a manual `stack db generate` while `stack dev`'s watcher pushes) leak each other's output into the
+(a manual `slotform db generate` while `slotform dev`'s watcher pushes) leak each other's output into the
 directory-snapshot diff or produce duplicate-timestamp files. Every migration-writing operation
 takes two locks before it touches the migrations directory:
 
@@ -214,7 +214,7 @@ takes two locks before it touches the migrations directory:
 
 Release and the exit handler (on `exit`, which an uncaught exception also emits, and on `SIGINT` and
 `SIGTERM`) delete a lock file only while it still holds this process's PID, so a lock another process took after the file was deleted by hand stays. The lock lives in `plugins/db/src/node/` because it is plugin-internal:
-`@fcalell/cli` stays domain-agnostic.
+`@slotform/cli` stays domain-agnostic.
 
 ## Deploy checks
 
@@ -223,7 +223,7 @@ touches the cloud. The consumer's view of them is the guide's
 [on deploy](../../../plugins/db/guide/commands.md#on-deploy) and
 [migration safety](../../../plugins/db/guide/migration-safety.md).
 
-- **Database ID.** `stack init` seeds `databaseId` with the sentinel `YOUR_D1_DATABASE_ID` when the
+- **Database ID.** `slotform init` seeds `databaseId` with the sentinel `YOUR_D1_DATABASE_ID` when the
   consumer has no D1 database yet; one constant serves the prompt and the guard. A deploy whose
   `databaseId` is that placeholder, or is not a UUID, would push migrations against a database that
   does not exist and fail opaquely inside wrangler, so the guard throws an actionable error first.
@@ -233,17 +233,17 @@ touches the cloud. The consumer's view of them is the guide's
   a drop written by the same `generate` run. Older schema changes are shipped history and never
   flagged again. A drop of a table, column or view without the marker aborts the deploy before any
   remote migration runs, because a drop breaks the live worker mid-rollout (old code still reads the
-  dropped shape). `stack db check` and the deploy run the same checks, the deploy failing with the
+  dropped shape). `slotform db check` and the deploy run the same checks, the deploy failing with the
   first one's explainer.
 - **Drift.** The check copies the committed migrations into a throwaway, gitignored directory under
   `.db-kit` and runs `drizzle-kit generate` with `--out` there against the live schema. A newly
-  emitted `.sql` means the schema changed without `stack db generate`, and the deploy aborts before
+  emitted `.sql` means the schema changed without `slotform db generate`, and the deploy aborts before
   any step. The real migrations directory is never touched. Deploy never generates migrations: only
   committed SQL applies, so the destructive check evaluates only committed files.
 
 ### The marker
 
-A migration acknowledged as an intentional, reviewed drop carries `-- stack:allow-destructive`
+A migration acknowledged as an intentional, reviewed drop carries `-- slotform:allow-destructive`
 anywhere in its `.sql`, as a plain comment line. It is a bare token with no value, so it reads
 naturally in a SQL file.
 
@@ -257,20 +257,20 @@ half is the guide's [full-text search](../../../plugins/db/guide/fts.md).
 - **The handle.** Drizzle does not model virtual tables, so the handle is an `.existing()` view:
   `drizzle-kit` ignores it (no `CREATE`, no diff, no `DROP`), while the query builder reads it like any
   selectable. The DDL is plain SQL computed in `src/fts.ts` and carried on the handle under a
-  `Symbol.for` key, so `stack db` reads it from the consumer's schema without sharing a module
+  `Symbol.for` key, so `slotform db` reads it from the consumer's schema without sharing a module
   instance. The module is pure (no node imports): the schema file loads it in the Workers bundle too.
 - **The content table** needs an integer primary key, or an integer unique column named by the
   `rowid` option: the index addresses rows by that integer, and SQLite renumbers the implicit rowid of
   a table without one on `VACUUM`.
-- **Reading the declarations.** `stack db` reads the declared indexes in a fresh node process: the
-  schema is user code that a long-running `stack dev` sees again after each save, which a cached
+- **Reading the declarations.** `slotform db` reads the declared indexes in a fresh node process: the
+  schema is user code that a long-running `slotform dev` sees again after each save, which a cached
   in-process import would not. One index exported under two names is one declaration; two indexes
   of one name are refused.
 - **Push.** After `drizzle-kit` pushes the tables, the database's indexes are brought to the declared
   ones: a missing index is created and filled, a changed one replaced, one that lost its triggers (a
   pushed table copy drops them) gets them back and is rebuilt. An index in the database that the schema
   does not declare stays (it may be hand-written SQL); its drop migration removes it. The step is idempotent.
-- **Generate.** `stack db generate` writes the DDL as a migration
+- **Generate.** `slotform db generate` writes the DDL as a migration
   ([how it migrates](../../../plugins/db/guide/fts.md#how-it-migrates)). A migration that recreates
   the content table (SQLite's copy, drop and rename) takes the triggers with the old table and may
   give the rows new rowids, which is why the resync (the triggers again and a `rebuild`) is appended.
@@ -292,7 +292,7 @@ The consumer's half (what a seed holds, `prune`) is the guide's
   `wrangler dev` reads, remotely into the deployed database. sqlite executes against the file, with
   foreign keys on and in one transaction.
 - **Loading it.** `src/schema/seed.ts` is imported under a fresh URL each time, since Node's ESM cache
-  would hand a long-running `stack dev` the file as it was at the first load; the modules it imports
+  would hand a long-running `slotform dev` the file as it was at the first load; the modules it imports
   (the schema) stay cached.
 - **Dev.** The seed runs at Ready, after the schema push (`readySetup` tasks run in contribution
   order, [command steps](../commands.md#command-steps)), and again on each save of
@@ -300,7 +300,7 @@ The consumer's half (what a seed holds, `prune`) is the guide's
 - **Deploy.** The seed step runs after the migrations, in the same `pre` phase and later in
   contribution order, and only when the consumer authored a seed. It is idempotent, so running it on
   every deploy is safe.
-- **Screens serve.** A `stack screens serve` run gets a scratch database built the way a deploy builds
+- **Screens serve.** A `slotform screens serve` run gets a scratch database built the way a deploy builds
   one, from the committed migrations, then seeded: the run's own sqlite file under `DB_FILE`, or the
   run's own d1 miniflare state directory. Without a scratch target the dev database is the target.
   The run itself is [screens' serve](screens.md#serve).
@@ -322,7 +322,7 @@ The consumer's half (what a seed holds, `prune`) is the guide's
 - `plugins/db/src/node/fts.ts`: reading, pushing and checking full-text indexes.
 - `plugins/db/src/node/entities.ts`: the entity vocabulary extraction.
 - `plugins/db/src/node/lock.ts`: the migration lock.
-- `plugins/db/src/node/migration-safety.ts`: the checks `stack db check` and the deploy run, the marker.
+- `plugins/db/src/node/migration-safety.ts`: the checks `slotform db check` and the deploy run, the marker.
 - `plugins/db/src/node/d1.ts`: the placeholder database ID and its deploy guard.
 - `plugins/db/src/node/seed.ts`: the seed SQL and where it applies.
-- `plugins/auth/src/schema/devices.ts`: a plugin schema naming drizzle types through plugin-db.
+- `plugins/auth/src/schema/devices.ts`: a plugin schema naming drizzle types through `@slotform/db`.

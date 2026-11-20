@@ -4,7 +4,7 @@ An **act** is a press that starts an attempt: a labelled act, an icon act or a l
 `ActionBar`. This page holds how an act runs, holds its pending state and draws its refusal, how a
 blocked act gives its reason, how a control saves its value, and how a `Form` is built from a
 procedure's input schema: its fields, its commit moments and the question it asks when it is left.
-The model is framework-free in `@fcalell/ui-core`; the hooks over it are in `react/*`, and both UI
+The model is framework-free in `@slotform/ui-core`; the hooks over it are in `react/*`, and both UI
 plugins draw from the same core, so the web and the phone hold, block and ask under one set of rules.
 
 ## Act model
@@ -164,7 +164,7 @@ control, which scrolls it into view, on the phone its typing control.
 
 An act refused before it was sent because the server is out of reach rejects with `Unreached`. The
 host draws it as any failed press, the generic sentence with no Retry; the connection's own sentence
-is the app's offline banner. The binding's side of an act's attempt is [plugin-query's acts](../plugins/query.md#acts).
+is the app's offline banner. The binding's side of an act's attempt is [the `query` plugin's acts](../plugins/query.md#acts).
 
 ## Confirm
 
@@ -313,7 +313,7 @@ its change, and each returns the save's promise for the field to hold.
 A `Form` is its procedure and its field labels. `form.ts` holds what it is made of on both
 platforms, with no React: the `FieldSpec` (how an input key draws), `FormFields`, `FormGroupOf` and
 `FormSubmit` types, the derivation of one field from the procedure's input schema (the JSON Schema
-`stack generate` writes to `.stack/schema.ts`, [schema](../plugins/api.md#schema)): its control,
+`slotform generate` writes to `.slotform/schema.ts`, [schema](../plugins/api.md#schema)): its control,
 whether it is required, the values it can take and their coercion, and the read of a picked file
 (`readPicked`). `react/form.ts` holds `useFormModel`, the model of a form over its
 procedure: its fields' state, what each field draws, the input they make and the submit. Each
