@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/typescript-config",
+	"name": "@slotform/typescript-config",
 	"version": "0.1.0",
-	"description": "Shared TypeScript configuration presets for the @fcalell/stack framework.",
+	"description": "Shared TypeScript configuration presets for the slotform framework.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "packages/typescript-config"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/packages/typescript-config#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/packages/typescript-config#readme",
 	"publishConfig": {
 		"access": "public"
 	},
