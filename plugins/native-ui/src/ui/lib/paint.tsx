@@ -3,8 +3,8 @@ import {
 	type PaintRole,
 	paintText,
 	tuned,
-} from "@fcalell/ui-core/paint";
-import { paint } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/paint";
+import { paint } from "@slotform/ui-core/variants";
 import { type ComponentProps, Fragment, useEffect, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import Animated from "react-native-reanimated";

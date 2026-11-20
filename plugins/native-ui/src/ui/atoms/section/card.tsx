@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { CARD } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { useArrivals } from "@slotform/ui-core/react/arrive";
+import { CARD } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { between } from "../../lib/group";

@@ -1,14 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkSegment } from "@fcalell/ui-core/descriptors";
-import { tuned } from "@fcalell/ui-core/paint";
-import { linkAt, scrollEdges } from "@fcalell/ui-core/pick";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkSegment } from "@slotform/ui-core/descriptors";
+import { tuned } from "@slotform/ui-core/paint";
+import { linkAt, scrollEdges } from "@slotform/ui-core/pick";
+import type { Draft } from "@slotform/ui-core/react/acts";
 import {
 	SEGMENT_GROUND,
 	SEGMENTED_CONTROL,
 	segment,
 	segmentLabel,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useContext, useEffect, useRef, useState } from "react";
 import {
 	type NativeScrollEvent,

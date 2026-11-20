@@ -1,4 +1,4 @@
-import { createPlayer, type PlayerHost } from "@fcalell/ui-core/player";
+import { createPlayer, type PlayerHost } from "@slotform/ui-core/player";
 
 // The phone's side of the store: docs/architecture/ui-core/sound.md, "Player".
 const host: PlayerHost = {

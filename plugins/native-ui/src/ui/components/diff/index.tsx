@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { DiffLine, Hunk } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { DiffLine, Hunk } from "@slotform/ui-core/descriptors";
 import {
 	BOTH,
 	type Elision,
@@ -13,12 +13,12 @@ import {
 	numbersAt,
 	numbersOf,
 	tokenParts,
-} from "@fcalell/ui-core/line-diff";
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, isSelection } from "@fcalell/ui-core/read";
-import { counted } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/line-diff";
+import { PAINT_ROWS } from "@slotform/ui-core/paint";
+import { useFrame, useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, isSelection } from "@slotform/ui-core/read";
+import { counted } from "@slotform/ui-core/tokens";
 import {
 	CARD,
 	DIFF_CODE,
@@ -27,7 +27,7 @@ import {
 	DIFF_MARK,
 	DIFF_MARKS,
 	diffLine,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";

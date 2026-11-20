@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
+import { cn } from "@slotform/ui-core/cn";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { BACK_GLYPH } from "@slotform/ui-core/list-state";
 import {
 	TouchedContext,
 	usePageTurn,
 	useTouchState,
-} from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { dockedBodyMax } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
+import { dockedBodyMax } from "@slotform/ui-core/tokens";
 import {
 	DOCKED_FLOOR_ROWS,
 	SHEET_DOCKED_BODY,
@@ -15,7 +15,7 @@ import {
 	SHEET_DOCKED_HEAD,
 	SHEET_HEAD_ROW,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useAct } from "../../lib/act";

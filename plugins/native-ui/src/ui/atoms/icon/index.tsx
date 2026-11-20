@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName } from "@fcalell/ui-core/descriptors";
-import type { IconStroke } from "@fcalell/ui-core/tokens";
-import { type IconFit, icon } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName } from "@slotform/ui-core/descriptors";
+import type { IconStroke } from "@slotform/ui-core/tokens";
+import { type IconFit, icon } from "@slotform/ui-core/variants";
 import { useResolveClassNames } from "uniwind";
 import type { Closed } from "../../lib/closed";
 import { GLYPHS, Glyph } from "../../lib/glyph";

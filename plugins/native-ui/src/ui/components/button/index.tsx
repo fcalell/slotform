@@ -1,6 +1,6 @@
-import type { Decision, IconName } from "@fcalell/ui-core/descriptors";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
+import type { Decision, IconName } from "@slotform/ui-core/descriptors";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import type { ButtonAct, ButtonFit } from "@slotform/ui-core/variants";
 import { useContext } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import { ButtonLink } from "../../atoms/button/link";

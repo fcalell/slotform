@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Datum } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { Datum } from "@slotform/ui-core/read";
 import {
 	GALLERY,
 	GALLERY_TILE,
 	IMAGE_TILE_NARROWEST,
 	imageAspect,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useState } from "react";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";

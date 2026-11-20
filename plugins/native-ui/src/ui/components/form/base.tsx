@@ -1,21 +1,21 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { groupKey, type ProcedureCall } from "@fcalell/ui-core/form";
-import type { Acting } from "@fcalell/ui-core/react/acts";
-import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import type { FormModel, StepModel } from "@fcalell/ui-core/react/form";
+import { cn } from "@slotform/ui-core/cn";
+import { groupKey, type ProcedureCall } from "@slotform/ui-core/form";
+import type { Acting } from "@slotform/ui-core/react/acts";
+import { useArrivals } from "@slotform/ui-core/react/arrive";
+import type { FormModel, StepModel } from "@slotform/ui-core/react/form";
 import {
 	type Frame,
 	submitOf,
 	useFrame,
 	usePainted,
-} from "@fcalell/ui-core/react/read";
+} from "@slotform/ui-core/react/read";
 import {
 	type Touched,
 	TouchedContext,
 	useEditedByValue,
-} from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Selection } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Selection } from "@slotform/ui-core/read";
 import {
 	CARD,
 	FORM_FIELD_SUMMARY_GLYPH,
@@ -26,7 +26,7 @@ import {
 	text,
 	textStrong,
 	toneOf,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

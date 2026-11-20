@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Attachment } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { Attachment } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	IMAGE_REMOVE,
 	IMAGE_REMOVE_DISC,
 	MESSAGE_ATTACHMENTS,
 	REMOVE_HIT,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { memo, useRef } from "react";
 import { Pressable, View } from "react-native";
 import { Icon } from "../../atoms/icon";

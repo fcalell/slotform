@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints } from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
-import { counted, named } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, paints } from "@slotform/ui-core/read";
+import { partRuns, partText } from "@slotform/ui-core/runs";
+import { counted, named } from "@slotform/ui-core/tokens";
 import {
 	CARD,
 	CODE_ACT,
@@ -13,7 +13,7 @@ import {
 	CODE_UNDER_HEAD,
 	codeText,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { useState } from "react";

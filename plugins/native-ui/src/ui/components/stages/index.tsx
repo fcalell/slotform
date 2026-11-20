@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Stage, StageEnd, StepState } from "@fcalell/ui-core/descriptors";
-import { momentWords } from "@fcalell/ui-core/format";
-import { stagesShown } from "@fcalell/ui-core/list-state";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
-import { type RailState, railBelow, WAITING } from "@fcalell/ui-core/stages";
+import { cn } from "@slotform/ui-core/cn";
+import type { Stage, StageEnd, StepState } from "@slotform/ui-core/descriptors";
+import { momentWords } from "@slotform/ui-core/format";
+import { stagesShown } from "@slotform/ui-core/list-state";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
+import { type RailState, railBelow, WAITING } from "@slotform/ui-core/stages";
 import {
 	FIGURES,
 	STAGE_ROW,
@@ -14,7 +14,7 @@ import {
 	stageMark,
 	stageRail,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

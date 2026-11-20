@@ -1,11 +1,11 @@
-import type { ResolvedTheme } from "@fcalell/ui-core/derive";
+import type { ResolvedTheme } from "@slotform/ui-core/derive";
 import {
 	modeTokens,
 	nativeMeasureTokens,
 	shadowUtilities,
 	themeTokens,
-} from "@fcalell/ui-core/emit";
-import { HAIRLINE_PX, MODES } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/emit";
+import { HAIRLINE_PX, MODES } from "@slotform/ui-core/tokens";
 
 // The `@theme` record: the namespace resets lead, then the scales, the
 // families and the invariant and light colors, the two measures in px since

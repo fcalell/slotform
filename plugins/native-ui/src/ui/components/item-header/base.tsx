@@ -1,29 +1,29 @@
-import { factReach } from "@fcalell/ui-core/chart";
-import { cn } from "@fcalell/ui-core/cn";
+import { factReach } from "@slotform/ui-core/chart";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	OptionPick,
 	RecordFact,
 	RowMark,
 	Run,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import {
 	factKey,
 	isMarkFact,
 	isStatusFact,
 	says,
 	wordless,
-} from "@fcalell/ui-core/list-state";
-import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/list-state";
+import { useArrivals } from "@slotform/ui-core/react/arrive";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import {
 	filled,
 	isRun,
 	META_TAIL,
 	partRuns,
 	partText,
-} from "@fcalell/ui-core/runs";
+} from "@slotform/ui-core/runs";
 import {
 	BADGE_LINE,
 	ITEM_FACT,
@@ -32,7 +32,7 @@ import {
 	ITEM_OVERLINE,
 	text,
 	WORD_ACT,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

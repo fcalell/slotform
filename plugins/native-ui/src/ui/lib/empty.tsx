@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName, LinkAct } from "@fcalell/ui-core/descriptors";
-import type { Datum } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName, LinkAct } from "@slotform/ui-core/descriptors";
+import type { Datum } from "@slotform/ui-core/read";
 import {
 	CARD_PART,
 	EMPTY_COLUMN,
@@ -8,7 +8,7 @@ import {
 	EMPTY_PART,
 	EMPTY_TEXT,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { Icon } from "../atoms/icon";
 import { ButtonBase } from "../components/button/base";

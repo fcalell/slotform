@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Tone } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { STATUS, STATUS_LABEL } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Tone } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import { STATUS, STATUS_LABEL } from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 import { StatusDot } from "./dot";

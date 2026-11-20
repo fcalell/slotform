@@ -14,7 +14,7 @@ Given a selection it paints two turns until its read lands (`PAINT_TURNS`); its 
 | `composer` | `value`, `onChange`, `attachments`, `onAttach`, `onDetach`, `placeholder`, `notice`, `working`, `onSend`, `onStop`, `disabled`; Send and Stop are icon acts, so the field keeps its width beside the paperclip |
 | `sheet` | a `Sheet`'s props, docked in the input's place while `open`; closing it returns focus to the input. A `Pane`'s `foot` takes the input on its own, a `Composer` with the same props |
 | `replying` | a reply the app does not stream is on its way: the log ends on one waiting message of the other author; clear it in the render that adds the reply's item |
-| `reply` | the turn being written, a stream read the app declares (`node_modules/@fcalell/plugin-query/guide/pages-and-streams.md`) |
+| `reply` | the turn being written, a stream read the app declares (`node_modules/@slotform/query/guide/pages-and-streams.md`) |
 | `empty` | one sentence in the meta ink over the act that makes the first message |
 
 | Message region | Is |

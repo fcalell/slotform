@@ -1,9 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { ToolbarChip, ToolbarSearch } from "@fcalell/ui-core/descriptors";
-import { filterSet, filtersFold } from "@fcalell/ui-core/list-state";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { TOOLBAR, TOOLBAR_CHIPS, TOOLBAR_ROW } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { ToolbarChip, ToolbarSearch } from "@slotform/ui-core/descriptors";
+import { filterSet, filtersFold } from "@slotform/ui-core/list-state";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
+import {
+	TOOLBAR,
+	TOOLBAR_CHIPS,
+	TOOLBAR_ROW,
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import { CHIP_LINES } from "../../lib/chip-lines";

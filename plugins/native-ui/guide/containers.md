@@ -8,7 +8,7 @@ The container of the app: the tab bar over the home indicator, the app's `foot`,
 
 | Prop | Is |
 | --- | --- |
-| `places` | the tab bar's places, in order, each a `PlaceSpec` (`node_modules/@fcalell/ui-core/guide/places.md#placespec`). Past five, four stand and a More tab opens a page of the rest. A spot place (`#activity`) is no tab: it stays on its page. A place's `children` are web only (`collections.md`, "What the phone leaves out") |
+| `places` | the tab bar's places, in order, each a `PlaceSpec` (`node_modules/@slotform/ui-core/guide/places.md#placespec`). Past five, four stand and a More tab opens a page of the rest. A spot place (`#activity`) is no tab: it stays on its page. A place's `children` are web only (`collections.md`, "What the phone leaves out") |
 | `groups` | `{ label, switcher? }`, named by a place's `group`; the More page draws a group's switcher over its places |
 | `switcher` | what the app is looking at and what it can switch to; its trigger starts the bar of each place's Pane |
 | `banner` | a `Banner` under the status bar |
@@ -22,14 +22,14 @@ One screen of a place, of two kinds: the place's own, titled by the place's name
 | Prop | Is |
 | --- | --- |
 | `title` | the record's name, a short phrase or a selection of its read, on a record's Pane; it paints while the record loads, and stands whole and wrapping as the screen's header in the head at the body's top. The place's Pane takes none |
-| `record` | the record's head, on a record's Pane: `overline` (the parts that place the record, one cut line, never repeating the place's name the bar holds), `facts` (a `RecordFact` each, `node_modules/@fcalell/ui-core/guide/facts.md#a-record-heads-facts`) and `image` (`{ src, alt }`: a person's photo, a product shot, a square tile beside the head's text at its top, painted while its `src` is a selection, an `ImageOff` glyph where it failed or the address is empty). Each part is a constant or a selection that paints in its place |
+| `record` | the record's head, on a record's Pane: `overline` (the parts that place the record, one cut line, never repeating the place's name the bar holds), `facts` (a `RecordFact` each, `node_modules/@slotform/ui-core/guide/facts.md#a-record-heads-facts`) and `image` (`{ src, alt }`: a person's photo, a product shot, a square tile beside the head's text at its top, painted while its `src` is a selection, an `ImageOff` glyph where it failed or the address is empty). Each part is a constant or a selection that paints in its place |
 | `noun` | the kind of record (a short lowercase noun, "project"): a not-found read says "Couldn't find this project.", else "Couldn't find this." |
 | `missing` | the sentence a not-found read says in place of the one `noun` words ("No report for that month."); `noun` still names the kind |
 | `acts` | icon acts after the title, the primary first: it stands at its icon and the rest lead the `more` menu. Each is a constant or a selection, painted and inert while its read waits. While the Pane's own `read` failed or is missing the bar draws none of them |
 | `more` | the acts past them, in a menu named "More", its sheet titled by the Pane's title |
 | `foot` | what docks under the body over the keyboard, given by the route: a `Composer`, or a `Table`'s chosen bar (an `ActionBar` with `chosen`), which the route gives only while a row is ticked, since the Pane reserves the foot's space, border and inset included, for whatever it is given |
 | `sheet` | a `Sheet`'s props: docks in the foot's place while `open`, with no scrim; closing it hands focus back to the foot's input |
-| `read`, `empty` | the screen's read and the sentence that stands in place of the body when it is empty (`node_modules/@fcalell/ui-core/guide/frames.md`); `empty` takes a `read` |
+| `read`, `empty` | the screen's read and the sentence that stands in place of the body when it is empty (`node_modules/@slotform/ui-core/guide/frames.md`); `empty` takes a `read` |
 
 ## Gate
 
@@ -74,11 +74,11 @@ The sheet holds the attempt of its submit, its foot bar and its form's bar, so i
 
 ## Banner
 
-A tinted strip at its content's height that tells the page something: the tone's glyph beside the sentence, and the act under the line. It stands where it reads best and is always placed (`node_modules/@fcalell/ui-core/guide/waiting.md#a-block-that-stands-only-with-its-data`).
+A tinted strip at its content's height that tells the page something: the tone's glyph beside the sentence, and the act under the line. It stands where it reads best and is always placed (`node_modules/@slotform/ui-core/guide/waiting.md#a-block-that-stands-only-with-its-data`).
 
 | Prop | Is |
 | --- | --- |
-| `tone` | a `Tone` (`node_modules/@fcalell/ui-core/guide/tone.md`), `active` by default; `failed` is announced at once. A selection paints the glyph until its read lands |
+| `tone` | a `Tone` (`node_modules/@slotform/ui-core/guide/tone.md`), `active` by default; `failed` is announced at once. A selection paints the glyph until its read lands |
 | `sentence` | the text beside the glyph (a sentence; wraps), words or runs, a `{ code }` in the mono. A selection draws no banner while its read waits or when it answers `undefined` |
 | `act` | its one act, an `Act` or a `LinkAct`, an outlined `Button` under the line; a blocked act's reason under it. A selection paints the act's box and stands blocked once its read ended |
 | `until` | when the run it tells of ends, with `tone="running"`: it draws the time left and a line along its foot that fills toward it, the clock stopping at 0:00; its `act` is the cancel |

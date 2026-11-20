@@ -1,5 +1,5 @@
-import type { RowMark } from "@fcalell/ui-core/descriptors";
-import { ROW_FLAG } from "@fcalell/ui-core/variants";
+import type { RowMark } from "@slotform/ui-core/descriptors";
+import { ROW_FLAG } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { MetaGlyph, RequiredRing } from "./glyphs";
 

@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
-import { LIST_BAND, text, textStrong } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct } from "@slotform/ui-core/descriptors";
+import { LIST_BAND, text, textStrong } from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { CountBase } from "../../atoms/count/base";
 import { asIconAct, type IconAct } from "../../lib/act";

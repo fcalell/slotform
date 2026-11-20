@@ -1,5 +1,5 @@
-import { useWords } from "@fcalell/ui-core/react/words";
-import { THREAD_LATEST } from "@fcalell/ui-core/variants";
+import { useWords } from "@slotform/ui-core/react/words";
+import { THREAD_LATEST } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { FadingView, riseIn, sinkOut } from "../../lib/motion";
 import { Button } from "../button";

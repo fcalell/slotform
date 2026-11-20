@@ -1,5 +1,5 @@
-import type { ChosenCount } from "@fcalell/ui-core/descriptors";
-import type { ActionBarFit } from "@fcalell/ui-core/variants";
+import type { ChosenCount } from "@slotform/ui-core/descriptors";
+import type { ActionBarFit } from "@slotform/ui-core/variants";
 import type { Act } from "../../lib/act";
 import type { Closed } from "../../lib/closed";
 import type { PendingBarProps } from "../banner/pending";

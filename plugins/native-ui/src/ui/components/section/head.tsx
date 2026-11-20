@@ -3,17 +3,17 @@ import {
 	type Offered,
 	offered,
 	offerOf,
-} from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct, Run, Runs } from "@slotform/ui-core/descriptors";
 import {
 	type Frame,
 	useDrawsFailure,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints, shownText } from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, paints, shownText } from "@slotform/ui-core/read";
+import { partRuns, partText } from "@slotform/ui-core/runs";
 import {
 	PAGE_TITLE_FLOOR,
 	SECTION_ACTS,
@@ -23,7 +23,7 @@ import {
 	SECTION_TITLE,
 	SECTION_TOGGLE,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactNode, useState } from "react";
 import { Pressable, View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";

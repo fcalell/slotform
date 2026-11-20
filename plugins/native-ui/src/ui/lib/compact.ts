@@ -1,4 +1,4 @@
-import { formatterFor } from "@fcalell/ui-core/format";
+import { formatterFor } from "@slotform/ui-core/format";
 
 const STEPS = [
 	[1e9, "B"],

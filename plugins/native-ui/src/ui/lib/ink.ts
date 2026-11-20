@@ -1,4 +1,4 @@
-import type { ContentTone } from "@fcalell/ui-core/variants";
+import type { ContentTone } from "@slotform/ui-core/variants";
 import { createContext, useContext } from "react";
 import { useTokenColor } from "./theme";
 

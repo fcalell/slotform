@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { initials } from "@fcalell/ui-core/format";
-import { avatar, avatarLabel, avatarStep } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { initials } from "@slotform/ui-core/format";
+import { avatar, avatarLabel, avatarStep } from "@slotform/ui-core/variants";
 import { useState } from "react";
 import { Image, Text as RNText, View } from "react-native";
 import { inertProps, PAINT_BOX, PaintView } from "../../lib/paint";

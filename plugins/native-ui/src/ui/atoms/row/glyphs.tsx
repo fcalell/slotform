@@ -1,5 +1,5 @@
-import type { IconName } from "@fcalell/ui-core/descriptors";
-import { BADGE_RING, BADGE_RING_CENTRE } from "@fcalell/ui-core/variants";
+import type { IconName } from "@slotform/ui-core/descriptors";
+import { BADGE_RING, BADGE_RING_CENTRE } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { Ink } from "../../lib/ink";
 import { IconBase } from "../icon";

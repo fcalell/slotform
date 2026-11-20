@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import {
 	CARD,
 	PROSE_DIFF_BODY,
 	PROSE_DIFF_TEXT,
 	proseDiffRun,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { diffWords } from "diff";
 import { type ReactNode, useMemo } from "react";
 import { Text as RNText, View } from "react-native";

@@ -2,12 +2,12 @@ import {
 	type PendingAttempt,
 	pendingShare,
 	timeLeft,
-} from "@fcalell/ui-core/clock";
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { usePending } from "@fcalell/ui-core/react/clock";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+} from "@slotform/ui-core/clock";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { usePending } from "@slotform/ui-core/react/clock";
+import { ReasonHostContext, usePressed } from "@slotform/ui-core/react/reason";
+import { useTouched } from "@slotform/ui-core/react/touched";
 import {
 	PENDING_BAR,
 	PENDING_FILL,
@@ -15,7 +15,7 @@ import {
 	PENDING_ROW,
 	PENDING_TRACK,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useEffect } from "react";
 import { Text as RNText, View } from "react-native";
 import {

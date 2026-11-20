@@ -1,5 +1,5 @@
-import { onUpdateRequired } from "@fcalell/plugin-expo/client";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { onUpdateRequired } from "@slotform/expo/client";
+import { useWords } from "@slotform/ui-core/react/words";
 import Constants from "expo-constants";
 import { type ReactNode, useEffect, useState } from "react";
 import { Linking, Platform } from "react-native";

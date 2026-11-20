@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { RowLeading } from "@fcalell/ui-core/descriptors";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { rowMark, TREE_BLEED, TREE_RAIL } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { RowLeading } from "@slotform/ui-core/descriptors";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
+import { rowMark, TREE_BLEED, TREE_RAIL } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { Ink } from "../../lib/ink";

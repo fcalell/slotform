@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { switchThumb, switchTrack } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { switchThumb, switchTrack } from "@slotform/ui-core/variants";
 import { useContext } from "react";
 import { Pressable } from "react-native";
 import { useAnimatedStyle } from "react-native-reanimated";

@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { formatterFor } from "@fcalell/ui-core/format";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { cn } from "@slotform/ui-core/cn";
+import { formatterFor } from "@slotform/ui-core/format";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
 import {
 	SLIDER,
 	SLIDER_FILL,
@@ -11,7 +11,7 @@ import {
 	SLIDER_THUMB,
 	SLIDER_TRACK,
 	SLIDER_VALUE,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useContext, useRef, useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useResolveClassNames } from "uniwind";

@@ -1,4 +1,4 @@
-import { tuned } from "@fcalell/ui-core/paint";
+import { tuned } from "@slotform/ui-core/paint";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Text as RNText, type TextProps } from "react-native";
 import { clipWhen, Painted, PaintText } from "./paint";

@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { filled } from "@fcalell/ui-core/tokens";
-import { text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { useWords } from "@slotform/ui-core/react/words";
+import { filled } from "@slotform/ui-core/tokens";
+import { text } from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { Button } from "../button";
 

@@ -1,5 +1,5 @@
-import { levelOf } from "@fcalell/ui-core/list-state";
-import { METER_TRACK, ROW_PROGRESS } from "@fcalell/ui-core/variants";
+import { levelOf } from "@slotform/ui-core/list-state";
+import { METER_TRACK, ROW_PROGRESS } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { Fill } from "../../atoms/stats/meter";
 

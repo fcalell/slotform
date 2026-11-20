@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
-import { formatterFor } from "@fcalell/ui-core/format";
-import { levelOf, type MeterLevel } from "@fcalell/ui-core/list-state";
-import { paintText } from "@fcalell/ui-core/paint";
-import { useRow, useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Datum } from "@fcalell/ui-core/read";
-import { endedSentence, isEnded, shownText } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { CountLink, MeterMark } from "@slotform/ui-core/descriptors";
+import { formatterFor } from "@slotform/ui-core/format";
+import { levelOf, type MeterLevel } from "@slotform/ui-core/list-state";
+import { paintText } from "@slotform/ui-core/paint";
+import { useRow, useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Datum } from "@slotform/ui-core/read";
+import { endedSentence, isEnded, shownText } from "@slotform/ui-core/read";
 import {
 	METER,
 	METER_MARK,
@@ -15,7 +15,7 @@ import {
 	STATS_FIGURE,
 	TRAVEL_X,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { I18nManager, Pressable, Text as RNText, View } from "react-native";
 import { useAnimatedStyle } from "react-native-reanimated";
 import type { Closed } from "../../lib/closed";

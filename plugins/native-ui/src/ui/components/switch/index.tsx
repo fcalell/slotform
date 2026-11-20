@@ -1,5 +1,5 @@
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import type { Datum } from "@fcalell/ui-core/read";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import type { Datum } from "@slotform/ui-core/read";
 import { use } from "react";
 import type { Closed } from "../../lib/closed";
 import type { Fielded } from "../../lib/field";

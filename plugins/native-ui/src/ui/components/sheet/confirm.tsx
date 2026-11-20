@@ -1,10 +1,10 @@
-import { isThenable } from "@fcalell/ui-core/acts";
+import { isThenable } from "@slotform/ui-core/acts";
 import {
 	type ConfirmEntry,
 	dismissConfirmation,
 	useConfirmations,
-} from "@fcalell/ui-core/react/confirm";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/confirm";
+import { useWords } from "@slotform/ui-core/react/words";
 import { useState } from "react";
 import { FieldFocus } from "../../lib/field";
 import { FormField } from "../form-field";

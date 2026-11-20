@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Option } from "@fcalell/ui-core/descriptors";
-import { optionLeading, toggled } from "@fcalell/ui-core/list-state";
-import { pickCurrent } from "@fcalell/ui-core/pick";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { useOptions } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { Option } from "@slotform/ui-core/descriptors";
+import { optionLeading, toggled } from "@slotform/ui-core/list-state";
+import { pickCurrent } from "@slotform/ui-core/pick";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { useOptions } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	CHIPS_RUN,
 	CHIPS_TRIGGER,
@@ -15,7 +15,7 @@ import {
 	PICKER_VALUE,
 	picker,
 	WORD_ACT,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactElement, type ReactNode, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

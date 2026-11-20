@@ -1,20 +1,20 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { RowTitle, RowTrailing } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { RowTitle, RowTrailing } from "@slotform/ui-core/descriptors";
 import {
 	isAbsent,
 	isCopy,
 	isStatusFact,
 	titleWords,
 	valueCut,
-} from "@fcalell/ui-core/list-state";
-import { ROW_TITLE_LINES } from "@fcalell/ui-core/overflow";
-import { useClock } from "@fcalell/ui-core/react/clock";
-import { useRow, useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { endedSentence, paints } from "@fcalell/ui-core/read";
-import { isCurrent } from "@fcalell/ui-core/route";
-import { filled, isCode, META_TAIL, runsOf } from "@fcalell/ui-core/runs";
-import { sameBy } from "@fcalell/ui-core/same-by";
+} from "@slotform/ui-core/list-state";
+import { ROW_TITLE_LINES } from "@slotform/ui-core/overflow";
+import { useClock } from "@slotform/ui-core/react/clock";
+import { useRow, useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { endedSentence, paints } from "@slotform/ui-core/read";
+import { isCurrent } from "@slotform/ui-core/route";
+import { filled, isCode, META_TAIL, runsOf } from "@slotform/ui-core/runs";
+import { sameBy } from "@slotform/ui-core/same-by";
 import {
 	CODE_NAME,
 	DEFINITION_ABSENT,
@@ -37,7 +37,7 @@ import {
 	rowTitle,
 	rowTitleLines,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { memo, type ReactNode, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";

@@ -2,8 +2,8 @@ import {
 	roomMeasureTokens,
 	roomTokens,
 	roomUnitFor,
-} from "@fcalell/ui-core/emit";
-import { KNOB_DEFAULTS } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/emit";
+import { KNOB_DEFAULTS } from "@slotform/ui-core/tokens";
 import { type PropsWithChildren, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
 import { ScopedVariables } from "uniwind";

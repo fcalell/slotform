@@ -1,14 +1,14 @@
-import { type Offered, offered } from "@fcalell/ui-core/acts";
-import { GLYPHS } from "@fcalell/ui-core/banner";
-import { timeLeft } from "@fcalell/ui-core/clock";
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
-import { usePending } from "@fcalell/ui-core/react/clock";
-import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason } from "@fcalell/ui-core/read";
-import { partRuns } from "@fcalell/ui-core/runs";
-import type { Tone } from "@fcalell/ui-core/tokens";
+import { type Offered, offered } from "@slotform/ui-core/acts";
+import { GLYPHS } from "@slotform/ui-core/banner";
+import { timeLeft } from "@slotform/ui-core/clock";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct, Run, Runs } from "@slotform/ui-core/descriptors";
+import { usePending } from "@slotform/ui-core/react/clock";
+import { useDrawsFailure, useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, endedReason } from "@slotform/ui-core/read";
+import { partRuns } from "@slotform/ui-core/runs";
+import type { Tone } from "@slotform/ui-core/tokens";
 import {
 	BANNER_MAIN,
 	BANNER_ROW,
@@ -16,7 +16,7 @@ import {
 	bannerContentTone,
 	PENDING_LEFT,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { Icon, IconBase } from "../../atoms/icon";
 import { Spinner } from "../../atoms/spinner";

@@ -1,6 +1,6 @@
-import type { IconName } from "@fcalell/ui-core/descriptors";
-import { ICON_STROKE, type IconStroke } from "@fcalell/ui-core/tokens";
-import type { ContentTone } from "@fcalell/ui-core/variants";
+import type { IconName } from "@slotform/ui-core/descriptors";
+import { ICON_STROKE, type IconStroke } from "@slotform/ui-core/tokens";
+import type { ContentTone } from "@slotform/ui-core/variants";
 import * as lucide from "lucide-react-native";
 import { useTokenPx } from "./container";
 import { useTokenColor } from "./theme";
@@ -11,7 +11,7 @@ export const GLYPHS: Record<IconName, lucide.LucideIcon> = lucide;
 
 // A Lucide glyph in a content tone resolved against the active theme, sized to
 // the `icon` role (`--spacing-icon`), the body text's icon, unless the caller
-// gives a size: every `Icon` and the glyphs stack draws on its own.
+// gives a size: every `Icon` and the glyphs Slotform draws on its own.
 export function Glyph({
 	icon: Icon,
 	tone = "ink-body",

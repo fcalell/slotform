@@ -1,10 +1,10 @@
-import { TOAST_GLYPHS } from "@fcalell/ui-core/banner";
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { tuned } from "@fcalell/ui-core/paint";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Tone } from "@fcalell/ui-core/tokens";
-import { TOAST, text, toastContentTone } from "@fcalell/ui-core/variants";
+import { TOAST_GLYPHS } from "@slotform/ui-core/banner";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { tuned } from "@slotform/ui-core/paint";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Tone } from "@slotform/ui-core/tokens";
+import { TOAST, text, toastContentTone } from "@slotform/ui-core/variants";
 import { useContext } from "react";
 import { Text as RNText, View } from "react-native";
 import { GestureDetector } from "react-native-gesture-handler";

@@ -1,5 +1,5 @@
-import type { IconName } from "@fcalell/ui-core/descriptors";
-import type { IconFit } from "@fcalell/ui-core/variants";
+import type { IconName } from "@slotform/ui-core/descriptors";
+import type { IconFit } from "@slotform/ui-core/variants";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { useToggle } from "../lib/motion";
 import { Icon } from "./icon";

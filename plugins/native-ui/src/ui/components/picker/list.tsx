@@ -1,4 +1,4 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	choose,
 	chosenOf,
@@ -6,13 +6,13 @@ import {
 	optionBlocked,
 	optionMeta,
 	optionsOf,
-} from "@fcalell/ui-core/list-state";
-import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { useDrawn } from "@fcalell/ui-core/react/arrive";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useOptions } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/list-state";
+import { groupsOf, paintedGroups } from "@slotform/ui-core/pick";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { useDrawn } from "@slotform/ui-core/react/arrive";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useOptions } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	OPTION_CHILDREN,
 	OPTION_GROUP_LABEL,
@@ -26,7 +26,7 @@ import {
 	row,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment, type ReactNode, useContext } from "react";
 import { View } from "react-native";
 import { FactBadge } from "../../atoms/row/badges";

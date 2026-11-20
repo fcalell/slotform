@@ -3,15 +3,15 @@
 Sound the phone plays is the player, never an audio call in a screen. The app passes the player one
 output, calls `player` with a `Track`, and gives the `Shell` a `Dock` for its `foot`; the dock stands
 above the tab bar while one is loaded, so the sound goes on through navigation, in the background and
-on the lock screen. It is the web's player (`node_modules/@fcalell/plugin-react-ui/guide/audio.md`)
-with the same store and commands, `@fcalell/ui-core/player`'s rules. A waveform on its own is a
+on the lock screen. It is the web's player (`node_modules/@slotform/react-ui/guide/audio.md`)
+with the same store and commands, `@slotform/ui-core/player`'s rules. A waveform on its own is a
 `Waveform`. Nothing here mounts by default.
 
 ```tsx
-import { audioOutput } from "@fcalell/plugin-native-ui/audio/expo";
-import { Dock } from "@fcalell/plugin-native-ui/components/dock";
-import { Waveform } from "@fcalell/plugin-native-ui/components/waveform";
-import { connectOutput, player, usePlayer, windowQueue } from "@fcalell/plugin-native-ui/lib/player";
+import { audioOutput } from "@slotform/native-ui/audio/expo";
+import { Dock } from "@slotform/native-ui/components/dock";
+import { Waveform } from "@slotform/native-ui/components/waveform";
+import { connectOutput, player, usePlayer, windowQueue } from "@slotform/native-ui/lib/player";
 ```
 
 ## Set it up
@@ -25,7 +25,7 @@ connectOutput(audioOutput()); // once, at the module scope of the root layout
 `audioOutput` wraps `expo-audio`, an optional peer: an app that imports it adds `expo-audio` and its
 config plugin, which carries background playback (the `audio` background mode on iOS, the
 media-playback service on Android) and so takes a new native build; Expo Go plays in the foreground.
-In a stack app, in `stack.config.ts`:
+In a Slotform app, in `slotform.config.ts`:
 
 ```ts
 expo({
@@ -86,7 +86,7 @@ and the lock screen shows the track.
 />
 ```
 
-It takes the web's props (`node_modules/@fcalell/plugin-react-ui/guide/dock.md`, "A waveform on its
+It takes the web's props (`node_modules/@slotform/react-ui/guide/dock.md`, "A waveform on its
 own"): `label`, `peaks`, `duration`, `at`, `onSeek` and `fit`. It does not move itself: `at` is the
 playhead, so a standalone waveform takes `usePlayerTime().time` or the app's own clock. A drag holds
 the finger as the playhead and `onSeek` hears one second, on release; a screen reader's increment and

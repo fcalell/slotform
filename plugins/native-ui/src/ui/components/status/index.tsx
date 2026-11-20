@@ -1,6 +1,6 @@
-import type { Tone } from "@fcalell/ui-core/descriptors";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import type { Tone } from "@slotform/ui-core/descriptors";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import { StatusBase } from "../../atoms/status/base";
 import type { Closed } from "../../lib/closed";
 

@@ -1,4 +1,4 @@
-import type { PickedFile } from "@fcalell/ui-core/descriptors";
+import type { PickedFile } from "@slotform/ui-core/descriptors";
 import type { DocumentPickerAsset } from "expo-document-picker";
 import type { ImagePickerAsset } from "expo-image-picker";
 

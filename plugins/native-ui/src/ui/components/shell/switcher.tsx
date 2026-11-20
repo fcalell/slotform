@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { OptionPick } from "@fcalell/ui-core/descriptors";
-import { optionLeading } from "@fcalell/ui-core/list-state";
-import { SWITCHER, text, textStrong } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { OptionPick } from "@slotform/ui-core/descriptors";
+import { optionLeading } from "@slotform/ui-core/list-state";
+import { SWITCHER, text, textStrong } from "@slotform/ui-core/variants";
 import { useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

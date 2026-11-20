@@ -1,10 +1,10 @@
 # Rules for the phone UI
 
 Each phone `.tsx` obeys these rules. Its design system is the roster
-(`node_modules/@fcalell/ui-core/src/roster.ts`, each component's entry in `src/roster/<component>.ts`, web prop names; class sets, states and tokens in
+(`node_modules/@slotform/ui-core/src/roster.ts`, each component's entry in `src/roster/<component>.ts`, web prop names; class sets, states and tokens in
 ui-core's `DESIGN.md`) plus the app's own `ui/` directory (any `ui/` path segment); the rest
 composes components and never restyles them. The rules both platforms share are ui-core's guide
-pages (`node_modules/@fcalell/ui-core/guide/<page>.md`).
+pages (`node_modules/@slotform/ui-core/guide/<page>.md`).
 
 ## Pick the component first
 
@@ -47,18 +47,18 @@ There is no untitled form or `empty` on a `Gate`.
 ## Tone is one vocabulary
 
 A status, a `Banner` and a `toast()` take one `tone`, and a status is a `StatusMark`
-(`node_modules/@fcalell/ui-core/guide/tone.md`).
+(`node_modules/@slotform/ui-core/guide/tone.md`).
 
 ## A form is its procedure and its field labels
 
 A value the viewer sends to a procedure is a `Form` over it
-(`node_modules/@fcalell/ui-core/guide/forms.md#what-is-a-form`). One form among a screen's sections
+(`node_modules/@slotform/ui-core/guide/forms.md#what-is-a-form`). One form among a screen's sections
 is `Section > Form`, so every section's head-to-body gap stays the gap.
 
 ## Words and text sizes
 
 A word a component draws on its own is `nativeUi({ words })`'s, every sentence is a prop, and every
-string prop takes one of four sizes (`node_modules/@fcalell/ui-core/guide/words.md`).
+string prop takes one of four sizes (`node_modules/@slotform/ui-core/guide/words.md`).
 
 A word no line can break (a 300-character token, a URL) never pushes a row past the edge. React
 Native's text does not shrink in a row, so each `Text` that stands in a `flex-row` decides: `shrink`
@@ -68,11 +68,11 @@ that must hold.
 ## What the roster lacks
 
 A shape that needs the app's nouns lives in `ui/`
-(`node_modules/@fcalell/ui-core/guide/rows.md#the-apps-ui`). A shape no component owns, or a look its
+(`node_modules/@slotform/ui-core/guide/rows.md#the-apps-ui`). A shape no component owns, or a look its
 props cannot express, takes the nearest shape the roster draws: another component, a plainer layout,
 a nicety dropped, named as a known limit. Only a bug, or a part the screen cannot ship without that
-no composition delivers, is a shortfall (`node_modules/@fcalell/cli/guide/shortfall.md`). Never a
-call-site class, a wrapper that re-adds a look, a local copy of a stack component, or a host
+no composition delivers, is a shortfall (`node_modules/@slotform/cli/guide/shortfall.md`). Never a
+call-site class, a wrapper that re-adds a look, a local copy of a Slotform component, or a host
 carrying tokens.
 
 ## Done

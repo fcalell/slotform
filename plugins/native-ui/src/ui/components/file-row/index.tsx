@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { FileItem } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { FileItem } from "@slotform/ui-core/descriptors";
 import {
 	DIRECTORY_LEAD,
 	glyph,
 	pathCut,
 	split,
-} from "@fcalell/ui-core/list-state";
-import { isCurrent } from "@fcalell/ui-core/route";
-import { sameBy } from "@fcalell/ui-core/same-by";
+} from "@slotform/ui-core/list-state";
+import { isCurrent } from "@slotform/ui-core/route";
+import { sameBy } from "@slotform/ui-core/same-by";
 import {
 	DIFF_MARKS,
 	FILE_COUNTS,
@@ -16,7 +16,7 @@ import {
 	filePathPart,
 	ROW_LEADING,
 	row,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { memo } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { useCSSVariable } from "uniwind";

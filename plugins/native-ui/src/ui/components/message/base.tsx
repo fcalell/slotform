@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Message, MessageDetail } from "@fcalell/ui-core/descriptors";
-import { momentWords } from "@fcalell/ui-core/format";
-import { factParts, filled, flowRuns, META_TAIL } from "@fcalell/ui-core/runs";
-import { closeOpenRuns } from "@fcalell/ui-core/streaming";
+import { cn } from "@slotform/ui-core/cn";
+import type { Message, MessageDetail } from "@slotform/ui-core/descriptors";
+import { momentWords } from "@slotform/ui-core/format";
+import { factParts, filled, flowRuns, META_TAIL } from "@slotform/ui-core/runs";
+import { closeOpenRuns } from "@slotform/ui-core/streaming";
 import {
 	CARD,
 	FIGURES,
@@ -16,7 +16,7 @@ import {
 	message,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { memo, type ReactNode, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

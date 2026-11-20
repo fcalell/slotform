@@ -1,9 +1,9 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { STATES } from "@fcalell/ui-core/controls";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import type { Datum } from "@fcalell/ui-core/read";
-import { ICON_STROKE } from "@fcalell/ui-core/tokens";
-import { CHECKBOX_MARK, checkbox } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { STATES } from "@slotform/ui-core/controls";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import type { Datum } from "@slotform/ui-core/read";
+import { ICON_STROKE } from "@slotform/ui-core/tokens";
+import { CHECKBOX_MARK, checkbox } from "@slotform/ui-core/variants";
 import { Check, type IconNode, Minus } from "lucide";
 import { useContext } from "react";
 import { Pressable } from "react-native";

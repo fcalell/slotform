@@ -6,7 +6,7 @@ import {
 	scrambled,
 	ticker,
 	tuned,
-} from "@fcalell/ui-core/paint";
+} from "@slotform/ui-core/paint";
 import {
 	BUSY_STILL,
 	busy,
@@ -14,8 +14,8 @@ import {
 	frame,
 	lockedAt,
 	seedOf,
-} from "@fcalell/ui-core/scramble";
-import type { LoadingRegion } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/scramble";
+import type { LoadingRegion } from "@slotform/ui-core/tokens";
 import { memo, useEffect, useId, useState, useSyncExternalStore } from "react";
 import { I18nManager, Text as RNText, type TextProps } from "react-native";
 import { reducedNow } from "./motion";

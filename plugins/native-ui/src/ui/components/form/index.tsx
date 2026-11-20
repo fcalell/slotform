@@ -1,17 +1,17 @@
-import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
+import type { Option, PickedFile } from "@slotform/ui-core/descriptors";
 import {
 	heldPick,
 	type InputOf,
 	type ProcedureCall,
-} from "@fcalell/ui-core/form";
+} from "@slotform/ui-core/form";
 import {
 	type FieldModel,
 	type FormModelProps,
 	useFormModel,
-} from "@fcalell/ui-core/react/form";
-import { useFrame } from "@fcalell/ui-core/react/read";
-import { useTouchState } from "@fcalell/ui-core/react/touched";
-import { type Datum, isSelection } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/react/form";
+import { useFrame } from "@slotform/ui-core/react/read";
+import { useTouchState } from "@slotform/ui-core/react/touched";
+import { type Datum, isSelection } from "@slotform/ui-core/read";
 import type { ReactNode } from "react";
 import type { Act } from "../../lib/act";
 import type { Closed } from "../../lib/closed";

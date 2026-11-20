@@ -1,4 +1,4 @@
-import type { Engine } from "@fcalell/ui-core/player";
+import type { Engine } from "@slotform/ui-core/player";
 import {
 	type AudioMetadata,
 	type AudioStatus,

@@ -1,9 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { accepts, fileSize, kindsOf, pickerTypes } from "@fcalell/ui-core/file";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useTouched } from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { filled } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import {
+	accepts,
+	fileSize,
+	kindsOf,
+	pickerTypes,
+} from "@slotform/ui-core/file";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useTouched } from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
+import { filled } from "@slotform/ui-core/tokens";
 import {
 	FIELD_ERROR_LINE,
 	FIELD_PLACEHOLDER,
@@ -11,7 +16,7 @@ import {
 	field,
 	fieldValue,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import * as DocumentPicker from "expo-document-picker";
 import { useContext, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";

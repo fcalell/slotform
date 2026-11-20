@@ -1,6 +1,6 @@
-import type { Acting } from "@fcalell/ui-core/react/acts";
-import { useFrame } from "@fcalell/ui-core/react/read";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import type { Acting } from "@slotform/ui-core/react/acts";
+import { useFrame } from "@slotform/ui-core/react/read";
+import { useTouched } from "@slotform/ui-core/react/touched";
 import { useState } from "react";
 import {
 	type FormFrameProps,

@@ -1,10 +1,10 @@
 # Rows on the phone
 
 How a row stands on the phone, which is always compact. The `Row` and its fields are
-`node_modules/@fcalell/ui-core/guide/rows.md`, what a row says of itself
-`node_modules/@fcalell/ui-core/guide/facts.md`, and the row's face
-`node_modules/@fcalell/ui-core/guide/face-rows.md`. A `Section`'s own props are `content.md`.
-`Row` is `import type { Row } from "@fcalell/plugin-native-ui/components/section"`.
+`node_modules/@slotform/ui-core/guide/rows.md`, what a row says of itself
+`node_modules/@slotform/ui-core/guide/facts.md`, and the row's face
+`node_modules/@slotform/ui-core/guide/face-rows.md`. A `Section`'s own props are `content.md`.
+`Row` is `import type { Row } from "@slotform/native-ui/components/section"`.
 
 ## A row's two groups
 
@@ -34,7 +34,7 @@ in the end group; the fold act's expanded state is the branch's accessibility st
 has no keyboard focus to rove. Never indent rows with a class or a nested sheet of your own.
 
 A row's `change` is a glyph in the kind's ink in a lane at the row's start, named by the kind's word.
-A row's running task is `node_modules/@fcalell/ui-core/guide/rows.md#a-running-tasks-progress`.
+A row's running task is `node_modules/@slotform/ui-core/guide/rows.md#a-running-tasks-progress`.
 
 ## The sheet
 

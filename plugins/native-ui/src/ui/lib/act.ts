@@ -4,9 +4,9 @@ import type {
 	IconLinkAct,
 	IconName,
 	LinkAct,
-} from "@fcalell/ui-core/descriptors";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { createActs } from "@fcalell/ui-core/react/acts";
+} from "@slotform/ui-core/descriptors";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { createActs } from "@slotform/ui-core/react/acts";
 import type { ActSheetProps } from "../components/sheet";
 import { navigate, open } from "./navigate";
 import { toast } from "./toast";

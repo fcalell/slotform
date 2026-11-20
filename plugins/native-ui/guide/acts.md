@@ -1,19 +1,19 @@
 # Acts
 
-An act holds its attempt, carries its wiring as data and runs it in one order: `node_modules/@fcalell/ui-core/guide/acts.md`, with route acts, icon acts and the fold in `node_modules/@fcalell/ui-core/guide/links.md` and the sheet an act opens in `node_modules/@fcalell/ui-core/guide/sheets.md`. This page is what the phone adds: its act types, the `ActionBar`, `toast()` and `confirm()`.
+An act holds its attempt, carries its wiring as data and runs it in one order: `node_modules/@slotform/ui-core/guide/acts.md`, with route acts, icon acts and the fold in `node_modules/@slotform/ui-core/guide/links.md` and the sheet an act opens in `node_modules/@slotform/ui-core/guide/sheets.md`. This page is what the phone adds: its act types, the `ActionBar`, `toast()` and `confirm()`.
 
 ```tsx
-import { type Act, type IconAct, type MenuEntry, sheetOf } from "@fcalell/plugin-native-ui/lib/act";
-import { ActionBar } from "@fcalell/plugin-native-ui/components/action-bar";
-import { toast } from "@fcalell/plugin-native-ui/lib/toast";
-import { confirm } from "@fcalell/ui-core/react/confirm";
+import { type Act, type IconAct, type MenuEntry, sheetOf } from "@slotform/native-ui/lib/act";
+import { ActionBar } from "@slotform/native-ui/components/action-bar";
+import { toast } from "@slotform/native-ui/lib/toast";
+import { confirm } from "@slotform/ui-core/react/confirm";
 ```
 
-The phone's `Act`, `IconAct` and `MenuEntry` are ui-core's with `sheet` added; `sheetOf({ … })` types an act's sheet by its form's procedure. `refusal(error)` and `issues(error)` come from `@fcalell/plugin-query/acts`; `useAttempt()` and `useDraft` from `@fcalell/ui-core/react/acts`.
+The phone's `Act`, `IconAct` and `MenuEntry` are ui-core's with `sheet` added; `sheetOf({ … })` types an act's sheet by its form's procedure. `refusal(error)` and `issues(error)` come from `@slotform/query/acts`; `useAttempt()` and `useDraft` from `@slotform/ui-core/react/acts`.
 
 ## The attempt on the phone
 
-- The pending look is the pending fill, the label and glyph hidden and the spinner, after `tuned.actDelay` (300 ms, `@fcalell/ui-core/paint`); it snaps in.
+- The pending look is the pending fill, the label and glyph hidden and the spinner, after `tuned.actDelay` (300 ms, `@slotform/ui-core/paint`); it snaps in.
 - A failed toast's Retry runs the whole act again, a navigation included.
 - `refusal(error)` is a 4xx the procedure worded itself, except 401, 403, 404 and 429, and for an input the procedure's schema refused, the schema's first issue message. `issues(error)` gives every issue's message and path, so a `Form` puts each under its field itself; an act carries no sentence of its own.
 - An act is refused at the press offline, or while the app's connection read says the server is out of reach.
@@ -35,7 +35,7 @@ A chosen bar draws "N of M chosen" (its numbers formatted; `noun`, a plural word
 
 ## A sheet no act opens
 
-It is addressed by the route (`node_modules/@fcalell/ui-core/guide/sheets.md#a-sheet-no-act-opens`):
+It is addressed by the route (`node_modules/@slotform/ui-core/guide/sheets.md#a-sheet-no-act-opens`):
 the screen reads the `sheet` search param with expo-router's `useLocalSearchParams`, and its
 `onClose` clears it with `router.setParams({ sheet: undefined })`.
 

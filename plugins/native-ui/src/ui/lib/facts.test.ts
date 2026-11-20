@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import type { Tone } from "@fcalell/ui-core/tokens";
+import type { Tone } from "@slotform/ui-core/tokens";
 import { badgesOf, loneCode } from "./facts.ts";
 
 // The phone draws no frame in a test, so the edges of the facts-as-badges line

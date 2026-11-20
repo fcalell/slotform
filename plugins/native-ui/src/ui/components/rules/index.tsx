@@ -1,13 +1,17 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { EitherPick, Rule, RuleValue } from "@fcalell/ui-core/descriptors";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { isTyped, marked, pairSet, ruleName } from "@fcalell/ui-core/rules";
+import { cn } from "@slotform/ui-core/cn";
+import type {
+	EitherPick,
+	Rule,
+	RuleValue,
+} from "@slotform/ui-core/descriptors";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
+import { isTyped, marked, pairSet, ruleName } from "@slotform/ui-core/rules";
 import {
 	RULE_CARD,
 	RULE_ROW,
 	ruleArrowContentTone,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
 import { Icon } from "../../atoms/icon";

@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Act } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { Act } from "@slotform/ui-core/descriptors";
 import {
 	menu,
 	menuGroup,
@@ -7,7 +7,7 @@ import {
 	OPTION_ROW,
 	row,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";
 import { Ink } from "../../lib/ink";

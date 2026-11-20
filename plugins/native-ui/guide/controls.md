@@ -1,6 +1,6 @@
 # Controls
 
-Which control a value takes is `node_modules/@fcalell/ui-core/guide/controls.md#one-button-one-input-one-switch`. A control is a field: it takes its `label`, plus the `description`, `optional` and `error` it draws placed alone (`node_modules/@fcalell/ui-core/guide/controls.md#every-control-is-a-field`). A control's `value` may be a selection: it paints the control, inert, until its read lands, and follows it until the viewer changes it. This page is what each control takes and how it saves.
+Which control a value takes is `node_modules/@slotform/ui-core/guide/controls.md#one-button-one-input-one-switch`. A control is a field: it takes its `label`, plus the `description`, `optional` and `error` it draws placed alone (`node_modules/@slotform/ui-core/guide/controls.md#every-control-is-a-field`). A control's `value` may be a selection: it paints the control, inert, until its read lands, and follows it until the viewer changes it. This page is what each control takes and how it saves.
 
 ## A control that saves
 
@@ -29,7 +29,7 @@ One act in three forms: labelled, `href` (a link in accent ink that runs nothing
 
 ## Input
 
-What is typed or picked, by `kind` (`node_modules/@fcalell/ui-core/guide/controls.md#one-button-one-input-one-switch`).
+What is typed or picked, by `kind` (`node_modules/@slotform/ui-core/guide/controls.md#one-button-one-input-one-switch`).
 
 | Prop | Is |
 | --- | --- |

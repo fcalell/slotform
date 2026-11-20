@@ -1,10 +1,10 @@
-import type { MultiPick, OptionPick } from "@fcalell/ui-core/descriptors";
-import { filterChip, filterEmpty } from "@fcalell/ui-core/list-state";
-import { useOptions } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Fielded, paints } from "@fcalell/ui-core/read";
-import type { OptionText } from "@fcalell/ui-core/reason";
-import { TOOLBAR_FILTERS } from "@fcalell/ui-core/variants";
+import type { MultiPick, OptionPick } from "@slotform/ui-core/descriptors";
+import { filterChip, filterEmpty } from "@slotform/ui-core/list-state";
+import { useOptions } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Fielded, paints } from "@slotform/ui-core/read";
+import type { OptionText } from "@slotform/ui-core/reason";
+import { TOOLBAR_FILTERS } from "@slotform/ui-core/variants";
 import { useState } from "react";
 import { View } from "react-native";
 import { ChipBase } from "../../atoms/chip/base";

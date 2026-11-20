@@ -1,11 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { tuned } from "@fcalell/ui-core/paint";
+import { cn } from "@slotform/ui-core/cn";
+import { tuned } from "@slotform/ui-core/paint";
 import {
 	BUSY_GLYPHS,
 	SPINNER,
 	SPINNER_ARC,
 	SPINNER_TRACK,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useEffect } from "react";
 import { View } from "react-native";
 import {

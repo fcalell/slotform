@@ -1,4 +1,4 @@
-import { message, text } from "@fcalell/ui-core/variants";
+import { message, text } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { Painted, PaintText } from "../../lib/paint";
 

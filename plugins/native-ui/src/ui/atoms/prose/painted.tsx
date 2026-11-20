@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { PROSE, PROSE_BLOCKS, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { PROSE, PROSE_BLOCKS, text } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { clipWhen, inertProps, Painted, PaintText } from "../../lib/paint";
 

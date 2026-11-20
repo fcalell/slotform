@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { tuned } from "@fcalell/ui-core/paint";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { cn } from "@slotform/ui-core/cn";
+import { tuned } from "@slotform/ui-core/paint";
+import { ReasonHostContext, usePressed } from "@slotform/ui-core/react/reason";
+import { useTouched } from "@slotform/ui-core/react/touched";
 import {
 	type ButtonAct,
 	button,
@@ -9,7 +9,7 @@ import {
 	buttonLabel,
 	FIELD_ERROR_LINE,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useContext } from "react";
 import { Text as RNText, View } from "react-native";
 import { CountBase } from "../../atoms/count/base";

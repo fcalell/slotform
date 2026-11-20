@@ -1,7 +1,7 @@
-import { factReach } from "@fcalell/ui-core/chart";
-import { cn } from "@fcalell/ui-core/cn";
-import { paintText } from "@fcalell/ui-core/paint";
-import { isCode } from "@fcalell/ui-core/runs";
+import { factReach } from "@slotform/ui-core/chart";
+import { cn } from "@slotform/ui-core/cn";
+import { paintText } from "@slotform/ui-core/paint";
+import { isCode } from "@slotform/ui-core/runs";
 import {
 	BADGE,
 	BADGE_LINE,
@@ -13,7 +13,7 @@ import {
 	statusDot,
 	text,
 	toneOf,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { CodeCut, RunText } from "../../lib/code";

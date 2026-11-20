@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Acting } from "@fcalell/ui-core/react/acts";
-import { submitOf, useFrame, usePainted } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Selection } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { Acting } from "@slotform/ui-core/react/acts";
+import { submitOf, useFrame, usePainted } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Selection } from "@slotform/ui-core/read";
 import {
 	SHEET_FOOT,
 	SHEET_PARTS,
 	SHEET_PARTS_END,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import type { Act } from "../../lib/act";

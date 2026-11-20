@@ -1,6 +1,6 @@
-import type { OptionPick } from "@fcalell/ui-core/descriptors";
-import type { TrailPart } from "@fcalell/ui-core/route";
-import { DOCKED_LOG_FLOOR_ROWS } from "@fcalell/ui-core/variants";
+import type { OptionPick } from "@slotform/ui-core/descriptors";
+import type { TrailPart } from "@slotform/ui-core/route";
+import { DOCKED_LOG_FLOOR_ROWS } from "@slotform/ui-core/variants";
 import {
 	createContext,
 	type ReactNode,

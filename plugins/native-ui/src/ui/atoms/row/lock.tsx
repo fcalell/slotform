@@ -1,5 +1,5 @@
-import { useWords } from "@fcalell/ui-core/react/words";
-import { LOCK_GLYPH } from "@fcalell/ui-core/variants";
+import { useWords } from "@slotform/ui-core/react/words";
+import { LOCK_GLYPH } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { MetaGlyph } from "./glyphs";
 

@@ -1,5 +1,5 @@
-import { DRAG_DELAY_SLOP } from "@fcalell/ui-core/drag";
-import { position, release } from "@fcalell/ui-core/follow";
+import { DRAG_DELAY_SLOP } from "@slotform/ui-core/drag";
+import { position, release } from "@slotform/ui-core/follow";
 import { I18nManager, useWindowDimensions } from "react-native";
 import { usePanGesture } from "react-native-gesture-handler";
 import {

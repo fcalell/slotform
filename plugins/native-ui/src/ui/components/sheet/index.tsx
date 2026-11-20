@@ -1,6 +1,6 @@
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { FrameHolds } from "@fcalell/ui-core/react/read";
-import { NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { FrameHolds } from "@slotform/ui-core/react/read";
+import { NO_HOLDS, type Selection } from "@slotform/ui-core/read";
 import { type ReactNode, useRef } from "react";
 import type { TextInputInstance } from "react-native";
 import { useAct } from "../../lib/act";

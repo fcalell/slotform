@@ -1,4 +1,4 @@
-import type { ReadPort } from "@fcalell/ui-core/react/port";
+import type { ReadPort } from "@slotform/ui-core/react/port";
 
 // The parts of expo-router's router a press-in reads: the route tree (a node per
 // route file, loaded on demand) and the router's own match of an href against

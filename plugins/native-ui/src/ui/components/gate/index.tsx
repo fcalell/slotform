@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { runsOf } from "@fcalell/ui-core/runs";
-import { GATE, GATE_COLUMN, GATE_STEP, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { runsOf } from "@slotform/ui-core/runs";
+import { GATE, GATE_COLUMN, GATE_STEP, text } from "@slotform/ui-core/variants";
 import { type ReactNode, useContext, useRef, useState } from "react";
 import { Text as RNText, type TextInputInstance, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

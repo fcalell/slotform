@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { HAIRLINE } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { HAIRLINE } from "@slotform/ui-core/variants";
 
 // A child selector is one uniwind drops, so each row of a group after the first
 // draws the hairline above it, on its own wrapper.

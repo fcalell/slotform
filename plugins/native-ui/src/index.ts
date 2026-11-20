@@ -1,18 +1,18 @@
 import { basename } from "node:path";
-import type { ContributionCtx } from "@fcalell/cli";
-import { plugin, slot, stackSpec } from "@fcalell/cli";
+import { api } from "@slotform/api";
+import { auth } from "@slotform/auth";
+import type { ContributionCtx } from "@slotform/cli";
+import { GENERATED_DIR, plugin, slot, slotformSpec } from "@slotform/cli";
 import {
 	literalToProps,
 	type ProviderSpec,
 	type TsExpression,
-} from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { api } from "@fcalell/plugin-api";
-import { auth } from "@fcalell/plugin-auth";
-import { expo, sdkVersions } from "@fcalell/plugin-expo";
-import { deriveTheme } from "@fcalell/ui-core/derive";
-import { uiCoreGuide } from "@fcalell/ui-core/manifest";
-import { KNOB_DEFAULTS, LOADING_REGIONS } from "@fcalell/ui-core/tokens";
+} from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { expo, sdkVersions } from "@slotform/expo";
+import { deriveTheme } from "@slotform/ui-core/derive";
+import { uiCoreGuide } from "@slotform/ui-core/manifest";
+import { KNOB_DEFAULTS, LOADING_REGIONS } from "@slotform/ui-core/tokens";
 import { aggregateGlobalCss } from "./node/codegen.ts";
 import {
 	type NativeFontEntry,
@@ -23,21 +23,21 @@ import {
 const SOURCE = "native-ui";
 
 // Generated files: docs/architecture/plugins/native-ui.md, "Generated files".
-const GLOBAL_CSS_ARTIFACT = ".stack/global.css";
-const NATIVE_AUTH_ARTIFACT = ".stack/native-auth.ts";
-const NATIVE_THEME_ARTIFACT = ".stack/native-theme.ts";
-const UNIWIND_CSS_ENTRY = "./.stack/global.css";
-const UNIWIND_DTS = "./.stack/uniwind-types.d.ts";
+const GLOBAL_CSS_ARTIFACT = `${GENERATED_DIR}/global.css`;
+const NATIVE_AUTH_ARTIFACT = `${GENERATED_DIR}/native-auth.ts`;
+const NATIVE_THEME_ARTIFACT = `${GENERATED_DIR}/native-theme.ts`;
+const UNIWIND_CSS_ENTRY = `./${GENERATED_DIR}/global.css`;
+const UNIWIND_DTS = `./${GENERATED_DIR}/uniwind-types.d.ts`;
 
 // `@source` roots: docs/architecture/plugins/native-ui.md, "Stylesheet".
 const SOURCES = [
 	"../src",
-	"../node_modules/@fcalell/plugin-native-ui/src",
-	"../node_modules/@fcalell/ui-core/src",
+	"../node_modules/@slotform/native-ui/src",
+	"../node_modules/@slotform/ui-core/src",
 ];
 
 // Native client defaults: docs/architecture/plugins/native-ui.md, "Native clients in src/lib".
-// The paths are the consumer root's; an entry import is relative to `.stack/`.
+// The paths are the consumer root's; an entry import is relative to `.slotform/`.
 const AUTH_MODULE_PATH = "src/lib/auth";
 const QUERY_MODULE_PATH = "src/lib/query";
 const DEFAULT_AUTH_MODULE = {
@@ -71,7 +71,7 @@ const fonts = slot.derived({
 		ctx.options.fonts ?? [],
 });
 
-// Rendered `.stack/global.css`. Always emits — uniwind needs the entry file
+// Rendered `.slotform/global.css`. Always emits — uniwind needs the entry file
 // whenever native-ui is in the config.
 const appCssSource = slot.derived({
 	source: SOURCE,
@@ -124,7 +124,7 @@ const safeAreaProvider: ProviderSpec = {
 const updateWallProvider: ProviderSpec = {
 	imports: [
 		{
-			source: "@fcalell/plugin-native-ui/lib/update-wall",
+			source: "@slotform/native-ui/lib/update-wall",
 			named: ["UpdateWall"],
 		},
 	],
@@ -146,7 +146,7 @@ function wordsProvider(opts: NativeUiOptions): ProviderSpec | undefined {
 	return {
 		imports: [
 			{
-				source: "@fcalell/ui-core/react/words",
+				source: "@slotform/ui-core/react/words",
 				named: ["WordsProvider"],
 			},
 		],
@@ -165,15 +165,15 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 	return {
 		imports: [
 			{
-				source: "@fcalell/plugin-query/tanstack-query",
+				source: "@slotform/query/tanstack-query",
 				named: ["QueryProvider"],
 			},
 			{
-				source: "@fcalell/ui-core/paint",
+				source: "@slotform/ui-core/paint",
 				named: ["paintWait"],
 			},
 			{
-				source: "@fcalell/plugin-query/net",
+				source: "@slotform/query/net",
 				named: ["listen"],
 			},
 			{ source: mod.source, named: [mod.export] },
@@ -186,7 +186,7 @@ function queryProvider(opts: NativeUiOptions): ProviderSpec {
 				// (`tuned.waitMin`).
 				{ name: "hold", value: { kind: "identifier", name: "paintWait" } },
 				// The phone has no window events: the managers listen to the
-				// network and the app's foreground (`@fcalell/plugin-query/net`).
+				// network and the app's foreground (`@slotform/query/net`).
 				{ name: "listen", value: { kind: "identifier", name: "listen" } },
 			],
 		},
@@ -198,7 +198,7 @@ function authProvider(opts: NativeUiOptions): ProviderSpec {
 	const mod = opts.authClientModule ?? DEFAULT_AUTH_MODULE;
 	return {
 		imports: [
-			{ source: "@fcalell/plugin-auth/expo", named: ["AuthProvider"] },
+			{ source: "@slotform/auth/expo", named: ["AuthProvider"] },
 			{ source: mod.source, named: [mod.export] },
 		],
 		wrap: {
@@ -221,7 +221,7 @@ const nativeAuthSource = slot.derived({
 	},
 	compute: (inp): string =>
 		[
-			"// Generated by @fcalell/plugin-native-ui. Do not edit.",
+			"// Generated by @slotform/native-ui. Do not edit.",
 			`export const scheme = ${JSON.stringify(inp.scheme)};`,
 			`export const cookiePrefix = ${JSON.stringify(inp.cookiePrefix)};`,
 			"",
@@ -245,15 +245,15 @@ const nativeThemeSource = slot.derived({
 		if (!inp.resolved.defaultMode && scrambled.length === 0 && !room)
 			return null;
 		return [
-			"// Generated by @fcalell/plugin-native-ui. Do not edit.",
+			"// Generated by @slotform/native-ui. Do not edit.",
 			...(inp.resolved.defaultMode
 				? ['import { Uniwind } from "uniwind";']
 				: []),
 			...(scrambled.length > 0
-				? ['import { setLoading } from "@fcalell/ui-core/paint";']
+				? ['import { setLoading } from "@slotform/ui-core/paint";']
 				: []),
 			...(room
-				? ['import { setRoomKnobs } from "@fcalell/plugin-native-ui/lib/room";']
+				? ['import { setRoomKnobs } from "@slotform/native-ui/lib/room";']
 				: []),
 			"",
 			...(inp.resolved.defaultMode
@@ -376,7 +376,7 @@ export const nativeUi = plugin("native-ui", {
 	dependencies: {
 		// The `@source` root pointing into ui-core only resolves when the package
 		// sits in the consumer's node_modules.
-		"@fcalell/ui-core": stackSpec(),
+		"@slotform/ui-core": slotformSpec(),
 		"@tanstack/react-query": "^5.107.1",
 		"@better-auth/expo": "1.7.25",
 		...sdkVersions([
@@ -455,7 +455,7 @@ export const nativeUi = plugin("native-ui", {
 		// The page for an address no route serves: expo writes it as the app's
 		// `+not-found` route unless the app has one of its own.
 		expo.slots.notFoundRoute.contribute(
-			() => "@fcalell/plugin-native-ui/lib/not-found",
+			() => "@slotform/native-ui/lib/not-found",
 		),
 
 		// ── Emit the uniwind entry stylesheet ─────────────────────────────
@@ -464,7 +464,7 @@ export const nativeUi = plugin("native-ui", {
 		emitArtifact(NATIVE_THEME_ARTIFACT, self.slots.nativeThemeSource),
 		// ui-core is no plugin: each UI plugin indexes its guide pages.
 		cliSlots.guide.contribute(() => uiCoreGuide),
-		// The entry sits in `.stack/`, beside the files it imports. uniwind
+		// The entry sits in `.slotform/`, beside the files it imports. uniwind
 		// reads classes only from a stylesheet the app imports.
 		expo.slots.entryImports.contribute(() => ({
 			source: `./${basename(GLOBAL_CSS_ARTIFACT)}`,

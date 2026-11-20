@@ -1,6 +1,6 @@
 # Content: lists and tables
 
-The content that fills a `Pane`: a `Section` of rows, a `Table`, the `Toolbar` over a list and `Rules`. Each takes its data as props and, given a selection, is the frame of its own read (`node_modules/@fcalell/ui-core/guide/frames.md`). The parts that read as a block (`Prose`, `Code`, `Stats`, `Image`) are `blocks.md`, and a `Thread` is `thread.md`.
+The content that fills a `Pane`: a `Section` of rows, a `Table`, the `Toolbar` over a list and `Rules`. Each takes its data as props and, given a selection, is the frame of its own read (`node_modules/@slotform/ui-core/guide/frames.md`). The parts that read as a block (`Prose`, `Code`, `Stats`, `Image`) are `blocks.md`, and a `Thread` is `thread.md`.
 
 ## Section
 
@@ -13,7 +13,7 @@ A titled stretch of a page, over its rows (`items`) or its parts (`children`). I
 | `folded`, `onToggle` | the title folds the body; `folded` is the initial fold (`true` starts folded, later changes are not read), `onToggle` hears whether it is now open. The title stays the heading size folded or not |
 | `act` | the head's one icon act (`IconAct`, or `IconLinkAct` for a route), which always stands |
 | `more` | its other acts, an `Act[]` in a menu shaped as a row's `more`, destructive ones marked; a foldable section's `more` does not fold it |
-| `items` | the sheet's rows, each a `Row` (`node_modules/@fcalell/ui-core/guide/rows.md`), constants or a selection; one row given alone, not in an array, is a value, and the head draws no count |
+| `items` | the sheet's rows, each a `Row` (`node_modules/@slotform/ui-core/guide/rows.md`), constants or a selection; one row given alone, not in an array, is a value, and the head draws no count |
 | `groups` | the bands over the rows, `{ key, label, act? }` each, constants or a selection: a band over the rows whose `group` is its `key`, with its label, the count of its rows and its icon act. A lone band holding every row under the title's count draws none; rows with no group stand before the first band; a tree's group is its root rows'; a painted sheet draws none |
 | `read` | with `children`, the body's read: the heading stays and the body's failed, missing and empty shapes stand in its place. With `items`, a read the rows depend on besides `items` and `groups` (the options of a row's pick): while it waits the rows paint, and its failure stands once in the sheet's place |
 | `empty` | the sentence and the act that makes the first one; under a `description`, the act alone (`frames.md`, "Missing, failed and empty") |

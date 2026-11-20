@@ -1,4 +1,4 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type { ReactNode } from "react";
 import {
 	Pressable,

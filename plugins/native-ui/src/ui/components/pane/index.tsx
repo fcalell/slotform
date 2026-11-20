@@ -1,18 +1,18 @@
-import type { Offered } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { useDrawn } from "@fcalell/ui-core/react/arrive";
-import { FrameHolds, hasBody, useFrame } from "@fcalell/ui-core/react/read";
-import { type Datum, NO_HOLDS, type Selection } from "@fcalell/ui-core/read";
-import { trailEnds } from "@fcalell/ui-core/route";
+import type { Offered } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct, Run } from "@slotform/ui-core/descriptors";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { useDrawn } from "@slotform/ui-core/react/arrive";
+import { FrameHolds, hasBody, useFrame } from "@slotform/ui-core/react/read";
+import { type Datum, NO_HOLDS, type Selection } from "@slotform/ui-core/read";
+import { trailEnds } from "@slotform/ui-core/route";
 import {
 	FOOT_DOCKED,
 	PAGE_BODY,
 	PAGE_BODY_OVER_FOOT,
 	PAGE_BODY_TOAST_SPACE,
 	PAGE_HEAD_SPACE,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	Children,
 	isValidElement,
@@ -57,7 +57,7 @@ const BODY_CONTENT = "grow";
 // chosen bar's column.
 const DOCKED = "shrink-0 items-center";
 
-export type { RecordFact } from "@fcalell/ui-core/descriptors";
+export type { RecordFact } from "@slotform/ui-core/descriptors";
 
 /** A record's head in its Pane: the parts of the head under the bar. Where the record lives is the place's name, which the bar holds in place of the record's, so `overline` never repeats it. */
 export type RecordHead = ItemHeaderParts;

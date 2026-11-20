@@ -1,4 +1,4 @@
-import { themeSchema, wordsSchema } from "@fcalell/ui-core/schema";
+import { themeSchema, wordsSchema } from "@slotform/ui-core/schema";
 import { z } from "zod";
 
 // ── Plugin options ─────────────────────────────────────────────────
@@ -39,5 +39,5 @@ export type NativeUiOptions = z.input<typeof nativeUiOptionsSchema>;
 
 // The `theme` and `words` types are ui-core's, re-exported here so a consumer
 // reaches them through the plugin it configures.
-export type { Theme } from "@fcalell/ui-core/schema";
-export type { Words } from "@fcalell/ui-core/tokens";
+export type { Theme } from "@slotform/ui-core/schema";
+export type { Words } from "@slotform/ui-core/tokens";

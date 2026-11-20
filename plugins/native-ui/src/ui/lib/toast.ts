@@ -1,6 +1,6 @@
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { createStore } from "@fcalell/ui-core/store";
-import { TOAST_MS, type Tone } from "@fcalell/ui-core/tokens";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { createStore } from "@slotform/ui-core/store";
+import { TOAST_MS, type Tone } from "@slotform/ui-core/tokens";
 import { createContext, useSyncExternalStore } from "react";
 import type { Act } from "./act";
 

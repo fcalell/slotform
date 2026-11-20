@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { CountLink } from "@fcalell/ui-core/descriptors";
-import { formatterFor } from "@fcalell/ui-core/format";
+import { cn } from "@slotform/ui-core/cn";
+import type { CountLink } from "@slotform/ui-core/descriptors";
+import { formatterFor } from "@slotform/ui-core/format";
 import {
 	COUNT_LINKS,
 	FIGURES,
 	LINK_TARGET,
 	lineBox,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import { Painted, PaintText } from "../../lib/paint";
 import { ButtonLink } from "../button/link";

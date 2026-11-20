@@ -1,5 +1,8 @@
-import { type DrawnSheet, useDrawnSheets } from "@fcalell/ui-core/react/sheets";
-import { closeOnResolve, closeSheet } from "@fcalell/ui-core/sheets";
+import {
+	type DrawnSheet,
+	useDrawnSheets,
+} from "@slotform/ui-core/react/sheets";
+import { closeOnResolve, closeSheet } from "@slotform/ui-core/sheets";
 import { type ActSheetProps, Sheet } from ".";
 
 // One sheet an act opened, with the props the act held at the press.
@@ -40,7 +43,7 @@ function OpenedSheet({ drawn }: { drawn: DrawnSheet }) {
 	);
 }
 
-// The sheets acts open (`openSheet`, `@fcalell/ui-core/sheets`), side by side
+// The sheets acts open (`openSheet`, `@slotform/ui-core/sheets`), side by side
 // in the order they opened: the provider stacks its modals by `present()`,
 // each one presented over the one before it, which it restores as the later
 // one leaves. Outside the package's exports: a root container's host draws it.

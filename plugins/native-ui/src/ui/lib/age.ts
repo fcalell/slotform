@@ -1,5 +1,5 @@
-import { ageWords, ageShort as shortOf } from "@fcalell/ui-core/clock";
-import { formatterFor, momentWords } from "@fcalell/ui-core/format";
+import { ageWords, ageShort as shortOf } from "@slotform/ui-core/clock";
+import { formatterFor, momentWords } from "@slotform/ui-core/format";
 
 // An ISO moment as its age from `now`, through the platform's relative-time words.
 // Hermes fallbacks: docs/architecture/ui-core/words.md, "On the phone".

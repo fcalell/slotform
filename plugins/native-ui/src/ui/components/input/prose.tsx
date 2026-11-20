@@ -1,14 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { wordCount } from "@fcalell/ui-core/controls";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { cn } from "@slotform/ui-core/cn";
+import { wordCount } from "@slotform/ui-core/controls";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useTouched } from "@slotform/ui-core/react/touched";
 import {
 	fieldValue,
 	TEXT_AREA_VALUE,
 	textArea,
 	textAreaBudget,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useContext, useRef } from "react";
 import {
 	Text as RNText,

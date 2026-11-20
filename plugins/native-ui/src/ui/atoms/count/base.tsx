@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { COUNT, COUNT_LABEL } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { COUNT, COUNT_LABEL } from "@slotform/ui-core/variants";
 import { useInkColor } from "../../lib/ink";
 import { Decoded } from "../../lib/region";
 

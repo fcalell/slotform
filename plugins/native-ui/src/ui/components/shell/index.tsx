@@ -1,14 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	GroupSpec,
 	IconName,
 	OptionPick,
 	PlaceSpec,
-} from "@fcalell/ui-core/descriptors";
-import { ShellHome } from "@fcalell/ui-core/react/frame";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { placeTrail, trailEnds } from "@fcalell/ui-core/route";
-import { tabCount } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/descriptors";
+import { ShellHome } from "@slotform/ui-core/react/frame";
+import { useWords } from "@slotform/ui-core/react/words";
+import { placeTrail, trailEnds } from "@slotform/ui-core/route";
+import { tabCount } from "@slotform/ui-core/tokens";
 import {
 	type ContentTone,
 	type PlaceTabState,
@@ -18,7 +18,7 @@ import {
 	SHELL_BANNER,
 	SHELL_COLUMN,
 	SHELL_TAB_BAR,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactNode, useMemo, useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

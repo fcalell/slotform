@@ -1,5 +1,5 @@
-import { commitMoment } from "@fcalell/ui-core/commit";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import { commitMoment } from "@slotform/ui-core/commit";
+import type { Draft } from "@slotform/ui-core/react/acts";
 import { type RefObject, useState } from "react";
 import type { TextInputInstance, TextInputKeyPressEvent } from "react-native";
 

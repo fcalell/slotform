@@ -1,6 +1,6 @@
 # Content: text, figures and pictures
 
-The parts that read as a block in a `Section`'s body. `Stats` and `BarChart` draw a card of their own; a `Prose`, `Stages` or `Image` stands in a `Card`. `Waveform` is `audio.md`, and the phone has no `Canvas`. A picture is an `Image`, never React Native's; pictures side by side are a `Gallery`, and a code a camera reads is a `QrCode` (`node_modules/@fcalell/ui-core/guide/pictures.md`). A known sequence with a position in it (Submitted, In spec, In build, Live) is `Stages`, never a `Section` of rows or a status per line; a feed of what happened is no rail. A strip of counts is `Stats`, never a row of `Text`, and one figure is a one-item `Stats`.
+The parts that read as a block in a `Section`'s body. `Stats` and `BarChart` draw a card of their own; a `Prose`, `Stages` or `Image` stands in a `Card`. `Waveform` is `audio.md`, and the phone has no `Canvas`. A picture is an `Image`, never React Native's; pictures side by side are a `Gallery`, and a code a camera reads is a `QrCode` (`node_modules/@slotform/ui-core/guide/pictures.md`). A known sequence with a position in it (Submitted, In spec, In build, Live) is `Stages`, never a `Section` of rows or a status per line; a feed of what happened is no rail. A strip of counts is `Stats`, never a row of `Text`, and one figure is a one-item `Stats`.
 
 ## Text
 
@@ -38,7 +38,7 @@ A rail of fixed states.
 
 | Prop | Is |
 | --- | --- |
-| `steps` | each a `Stage` (`@fcalell/ui-core/descriptors`), `{ label, state, at? }`: `state` is `done`, `current` or `later`; `at` the ISO moment a done or current stage was reached |
+| `steps` | each a `Stage` (`@slotform/ui-core/descriptors`), `{ label, state, at? }`: `state` is `done`, `current` or `later`; `at` the ISO moment a done or current stage was reached |
 | `ended` | `{ label, reason? }`, the terminal row that stands in place of every stage after the last done one |
 
 ```tsx

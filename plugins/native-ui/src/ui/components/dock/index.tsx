@@ -1,9 +1,9 @@
-import { trackTime } from "@fcalell/ui-core/clock";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Track } from "@fcalell/ui-core/descriptors";
-import { dockSeek } from "@fcalell/ui-core/player";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { trackTime } from "@slotform/ui-core/clock";
+import { cn } from "@slotform/ui-core/cn";
+import type { Track } from "@slotform/ui-core/descriptors";
+import { dockSeek } from "@slotform/ui-core/player";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	DOCK,
 	DOCK_BAR,
@@ -12,8 +12,8 @@ import {
 	DOCK_TIME,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
-import { shareOf } from "@fcalell/ui-core/waveform";
+} from "@slotform/ui-core/variants";
+import { shareOf } from "@slotform/ui-core/waveform";
 import { useEffect, useState } from "react";
 import { Text as RNText, View } from "react-native";
 import { useHeldDraft } from "../../lib/act";

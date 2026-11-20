@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { LINK_TARGET, link, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { LINK_TARGET, link, text } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Pressable, Text as RNText } from "react-native";
 import { open, useWarm } from "../../lib/navigate";

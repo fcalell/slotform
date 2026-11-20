@@ -1,8 +1,8 @@
-# @fcalell/plugin-native-ui
+# @slotform/native-ui
 
-The phone half of the stack design system: the CLI plugin that renders `@fcalell/ui-core`'s
+The phone half of the Slotform design system: the CLI plugin that renders `@slotform/ui-core`'s
 contract into the uniwind stylesheet, embeds the font files, composes the app's providers, and
-ships the roster's phone components. Requires `expo` (it contributes into `plugin-expo`'s slots),
+ships the roster's phone components. Requires `expo` (it contributes into the `expo` plugin's slots),
 `api` and `query` (the wired Query provider and the components' reads); `auth` is optional, and the
 Auth provider stands when the app's server has it.
 
@@ -11,15 +11,15 @@ How it is built: [docs/architecture/plugins/native-ui.md](../../docs/architectur
 ## Install
 
 ```bash
-stack add native-ui
+slotform add native-ui
 ```
 
-It adds `nativeUi()` to `stack.config.ts`, beside `expo()`, `api()` and `query()`, and
+It adds `nativeUi()` to `slotform.config.ts`, beside `expo()`, `api()` and `query()`, and
 `auth({ expo: true })` in an app with auth.
 
 ## Guide
 
-How to build on the plugin lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
+How to build on the plugin lives in `guide/`, indexed into a consumer's `.slotform/guide.md`:
 [`rules.md`](./guide/rules.md), what every phone `.tsx` follows;
 [`panes.md`](./guide/panes.md), [`rows.md`](./guide/rows.md),
 [`collections.md`](./guide/collections.md), [`frames.md`](./guide/frames.md),

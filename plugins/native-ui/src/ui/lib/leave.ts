@@ -1,6 +1,6 @@
-import type { Leave } from "@fcalell/ui-core/leave";
-import { askDiscard } from "@fcalell/ui-core/react/confirm";
-import { useWords } from "@fcalell/ui-core/react/words";
+import type { Leave } from "@slotform/ui-core/leave";
+import { askDiscard } from "@slotform/ui-core/react/confirm";
+import { useWords } from "@slotform/ui-core/react/words";
 import { usePreventRemove } from "expo-router";
 import { useSyncExternalStore } from "react";
 

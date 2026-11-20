@@ -1,7 +1,7 @@
-import type { IconName, RowMark, Runs } from "@fcalell/ui-core/descriptors";
-import { splitFacts } from "@fcalell/ui-core/list-state";
-import { filled, isCode, partRuns, partText } from "@fcalell/ui-core/runs";
-import type { ChipFamily, Tone } from "@fcalell/ui-core/tokens";
+import type { IconName, RowMark, Runs } from "@slotform/ui-core/descriptors";
+import { splitFacts } from "@slotform/ui-core/list-state";
+import { filled, isCode, partRuns, partText } from "@slotform/ui-core/runs";
+import type { ChipFamily, Tone } from "@slotform/ui-core/tokens";
 
 // The words of a line of facts, free of any view: docs/architecture/plugins/native-ui.md, "Type-checking". No import here is relative.
 

@@ -1,4 +1,4 @@
-import { lineBox } from "@fcalell/ui-core/variants";
+import { lineBox } from "@slotform/ui-core/variants";
 import { Text as RNText } from "react-native";
 
 const ZERO_WIDTH = "\u200B";

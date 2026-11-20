@@ -1,7 +1,7 @@
 import {
 	RAISED_GROUND_TOKENS,
 	SOFT_GROUND_TOKENS,
-} from "@fcalell/ui-core/emit";
+} from "@slotform/ui-core/emit";
 import { type PropsWithChildren, useMemo } from "react";
 import { ScopedVariables, useCSSVariable } from "uniwind";
 

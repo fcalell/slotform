@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { CARD_BODY, CARD_PART } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { CARD_BODY, CARD_PART } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { View } from "react-native";
 import type { Closed } from "../../lib/closed";

@@ -1,5 +1,5 @@
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import { CountBase } from "../../atoms/count/base";
 import type { Closed } from "../../lib/closed";
 

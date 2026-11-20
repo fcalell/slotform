@@ -1,5 +1,5 @@
-import { tuned } from "@fcalell/ui-core/paint";
-import { rollOf, rollShift } from "@fcalell/ui-core/roll";
+import { tuned } from "@slotform/ui-core/paint";
+import { rollOf, rollShift } from "@slotform/ui-core/roll";
 import { type ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { Text as RNText, type TextProps, View } from "react-native";
 import Animated, {

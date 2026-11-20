@@ -48,5 +48,5 @@ toward the inline end (`useSwipe`, a pan from `react-native-gesture-handler` tha
 pull) and a bottom `Sheet` follows a pull down on its head (gorhom's own drag); past the reach (40% of
 the screen's width or the sheet's height) or flung (0.5 px a ms) the release leaves, else it settles
 back on `base` `out`. A part you draw that a finger should carry takes `useSwipe`; the decision is
-`@fcalell/ui-core/follow`'s. Under the
+`@slotform/ui-core/follow`'s. Under the
 system's reduced motion the finger still leads and only the release snaps.

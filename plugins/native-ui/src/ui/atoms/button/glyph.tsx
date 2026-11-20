@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName } from "@fcalell/ui-core/descriptors";
-import { tuned } from "@fcalell/ui-core/paint";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName } from "@slotform/ui-core/descriptors";
+import { tuned } from "@slotform/ui-core/paint";
 import {
 	buttonContentTone,
 	ICON_BUTTON_PRIMARY,
 	type IconButtonFit,
 	iconButton,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Ink } from "../../lib/ink";
 import { inertProps, PAINT_CONTROL, useShown } from "../../lib/paint";
 import { Press } from "../../lib/press";
@@ -24,7 +24,7 @@ const BLOCKED_PRIMARY = "bg-fill-disabled";
 const OPEN = "bg-wash-press";
 
 // The square behind every icon-only act: the consumer's icon Button and
-// stack's own back, close, more, send and stop acts. No boundary at rest, the
+// Slotform's own back, close, more, send and stop acts. No boundary at rest, the
 // press wash its ground (an open trigger's too); the glyph is in the meta
 // ink, the body ink under the press and while open, and the disabled ink in a
 // disabled place, which takes no wash. `pending` is the act running: inert at

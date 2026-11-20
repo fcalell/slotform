@@ -1,4 +1,4 @@
-import type { Peaks, Track } from "@fcalell/ui-core/descriptors";
+import type { Peaks, Track } from "@slotform/ui-core/descriptors";
 import {
 	type Engine,
 	type Output,
@@ -11,7 +11,7 @@ import {
 	type TrackQueue,
 	type WindowQueueOptions,
 	windowQueue,
-} from "@fcalell/ui-core/player";
+} from "@slotform/ui-core/player";
 import { useSyncExternalStore } from "react";
 import { store } from "./player-store";
 
@@ -34,7 +34,7 @@ export { windowQueue };
 /** The player, from anywhere in the app (a handler, a loader): `player.play({ src, title, line })`. It plays through the output `connectOutput` was given, and a `Dock` in the `Shell`'s `foot` draws it; the store is the app's, so the sound goes on through navigation. */
 export const player: PlayerCommands = store.player;
 
-/** Passes the player its sound: `connectOutput(audioOutput())` once, before the app renders, with `audioOutput` of `@fcalell/plugin-native-ui/audio/expo`. */
+/** Passes the player its sound: `connectOutput(audioOutput())` once, before the app renders, with `audioOutput` of `@slotform/native-ui/audio/expo`. */
 export const connectOutput: (engine: Engine) => void = store.connect;
 
 /** What the player holds and its commands, drawing again when the track, play state, volume or queue change (not each second: `usePlayerTime` is the clock). */

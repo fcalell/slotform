@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { stepStateOf } from "@fcalell/ui-core/list-state";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { filled } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import { stepStateOf } from "@slotform/ui-core/list-state";
+import { useWords } from "@slotform/ui-core/react/words";
+import { filled } from "@slotform/ui-core/tokens";
 import {
 	STEP_COUNT,
 	STEP_COUNT_SEGMENTS,
 	stepCountSegment,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Text as RNText, View } from "react-native";
 import type { Closed } from "../../lib/closed";
 

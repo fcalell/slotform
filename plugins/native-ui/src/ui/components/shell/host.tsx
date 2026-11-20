@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { TOASTS } from "@fcalell/ui-core/variants";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { cn } from "@slotform/ui-core/cn";
+import { TOASTS } from "@slotform/ui-core/variants";
 import { type ReactNode, useRef, useState } from "react";
 import { View, type ViewInstance } from "react-native";
 import { type ToastBox, ToastContainer } from "../../lib/container";

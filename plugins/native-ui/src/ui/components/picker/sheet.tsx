@@ -1,10 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
+import { useBottomSheetScrollableCreator } from "@gorhom/bottom-sheet";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct, Option } from "@slotform/ui-core/descriptors";
 import {
 	optionBlocked,
 	optionLeading,
 	optionMeta,
-} from "@fcalell/ui-core/list-state";
+} from "@slotform/ui-core/list-state";
 import {
 	type Grouped,
 	groupsOf,
@@ -12,8 +13,8 @@ import {
 	optionRows,
 	type PickOptions,
 	SEARCH_PAST,
-} from "@fcalell/ui-core/pick";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/pick";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	HAIRLINE,
 	OPTION_GROUP_LABEL,
@@ -23,8 +24,7 @@ import {
 	row,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
-import { useBottomSheetScrollableCreator } from "@gorhom/bottom-sheet";
+} from "@slotform/ui-core/variants";
 import { Fragment, useMemo, useState } from "react";
 import { Pressable, Text as RNText, View } from "react-native";
 import { Icon } from "../../atoms/icon";

@@ -1,6 +1,6 @@
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
-import { isRun } from "@fcalell/ui-core/runs";
-import { type TextRole, text } from "@fcalell/ui-core/variants";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
+import { isRun } from "@slotform/ui-core/runs";
+import { type TextRole, text } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText } from "react-native";
 import type { Closed } from "../../lib/closed";

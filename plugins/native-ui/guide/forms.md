@@ -1,6 +1,6 @@
 # Forms
 
-A `Form` takes the procedure it submits and the labels of the fields it shows; the procedure's input schema (`stack generate` writes it to `.stack/schema.ts`) gives everything else. When a screen takes a form, its checks, the server's refusal, a settings page and a form in a `Sheet` or a `Gate` are `node_modules/@fcalell/ui-core/guide/forms.md`. This page is what a phone `Form` takes and how each field draws.
+A `Form` takes the procedure it submits and the labels of the fields it shows; the procedure's input schema (`slotform generate` writes it to `.slotform/schema.ts`) gives everything else. When a screen takes a form, its checks, the server's refusal, a settings page and a form in a `Sheet` or a `Gate` are `node_modules/@slotform/ui-core/guide/forms.md`. This page is what a phone `Form` takes and how each field draws.
 
 ```tsx
 <Form

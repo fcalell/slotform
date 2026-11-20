@@ -1,11 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	Attachment,
 	Notice,
 	PickedFile,
-} from "@fcalell/ui-core/descriptors";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/descriptors";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	field,
 	fieldValue,
@@ -17,7 +17,7 @@ import {
 	MESSAGE_INPUT_VALUE,
 	MESSAGE_NOTICE_TEXT,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { useContext, useEffect, useRef, useState } from "react";

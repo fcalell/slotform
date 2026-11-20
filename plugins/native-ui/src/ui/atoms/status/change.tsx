@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { ChangeKind } from "@fcalell/ui-core/descriptors";
-import { CHANGE_GLYPH } from "@fcalell/ui-core/list-state";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { changeContentTone, changeMark } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { ChangeKind } from "@slotform/ui-core/descriptors";
+import { CHANGE_GLYPH } from "@slotform/ui-core/list-state";
+import { useWords } from "@slotform/ui-core/react/words";
+import { changeContentTone, changeMark } from "@slotform/ui-core/variants";
 import { View } from "react-native";
 import { Ink } from "../../lib/ink";
 import { IconBase } from "../icon";

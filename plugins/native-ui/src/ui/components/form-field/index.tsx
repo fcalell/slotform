@@ -1,18 +1,18 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	ChangeKind,
 	FieldBinding,
 	FieldControl,
 	Run,
 	Runs,
-} from "@fcalell/ui-core/descriptors";
-import { markedRuns } from "@fcalell/ui-core/form";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { useFieldDraft } from "@fcalell/ui-core/react/acts";
-import { FieldDisabled, FieldOwned } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Datum } from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
+} from "@slotform/ui-core/descriptors";
+import { markedRuns } from "@slotform/ui-core/form";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { useFieldDraft } from "@slotform/ui-core/react/acts";
+import { FieldDisabled, FieldOwned } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Datum } from "@slotform/ui-core/read";
+import { partRuns, partText } from "@slotform/ui-core/runs";
 import {
 	DEFINITION_LINE,
 	DEFINITION_VALUE,
@@ -23,7 +23,7 @@ import {
 	ROW_END,
 	row,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactNode, useMemo } from "react";
 import { Text as RNText, View } from "react-native";
 import { ChangeMark } from "../../atoms/status/change";

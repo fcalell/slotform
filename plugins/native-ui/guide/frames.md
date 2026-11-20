@@ -2,7 +2,7 @@
 
 How the phone draws a frame's missing, failed and empty shapes, a leaf's own selection, and an
 address no route serves. What a frame is, and a record that is not there, is
-`node_modules/@fcalell/ui-core/guide/frames.md`.
+`node_modules/@slotform/ui-core/guide/frames.md`.
 
 ## Missing, failed and empty
 
@@ -40,8 +40,8 @@ no separator dangles, and a line whose parts are all empty is not drawn.
 
 ## An address no route serves
 
-It needs no route of yours: `stack generate` writes `+not-found.tsx` into the routes directory when
-it holds none, a one-line re-export of stack's page, "Not found" with "Nothing is at this address."
+It needs no route of yours: `slotform generate` writes `+not-found.tsx` into the routes directory when
+it holds none, a one-line re-export of Slotform's page, "Not found" with "Nothing is at this address."
 (the `notFound` and `nowhere` words). It stands where expo-router stands the route, inside the root
 layout: a `Pane` under a `Shell` whose act goes to the Shell's first place that is a route, a `Gate`
 with Back to `/` under a layout with none. A `+not-found.tsx` of your own wins and is never

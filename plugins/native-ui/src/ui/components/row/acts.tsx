@@ -1,17 +1,17 @@
-import { moreMenu } from "@fcalell/ui-core/acts";
-import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
-import { paintText } from "@fcalell/ui-core/paint";
-import { useOffer } from "@fcalell/ui-core/react/acts";
-import { useDrawsFailure, useSelections } from "@fcalell/ui-core/react/read";
+import { moreMenu } from "@slotform/ui-core/acts";
+import type { IconLinkAct } from "@slotform/ui-core/descriptors";
+import { paintText } from "@slotform/ui-core/paint";
+import { useOffer } from "@slotform/ui-core/react/acts";
+import { useDrawsFailure, useSelections } from "@slotform/ui-core/react/read";
 import {
 	ReasonHostContext,
 	useReasonShown,
-} from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, isSelection } from "@fcalell/ui-core/read";
-import { pressStands } from "@fcalell/ui-core/reason";
-import { text } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/react/reason";
+import { useTouched } from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, isSelection } from "@slotform/ui-core/read";
+import { pressStands } from "@slotform/ui-core/reason";
+import { text } from "@slotform/ui-core/variants";
 import { Text as RNText } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";
 import type { Act, IconAct, MenuEntry } from "../../lib/act";

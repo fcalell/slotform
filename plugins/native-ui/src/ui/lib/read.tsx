@@ -1,19 +1,19 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { tuned } from "@fcalell/ui-core/paint";
+import { cn } from "@slotform/ui-core/cn";
+import { tuned } from "@slotform/ui-core/paint";
 import {
 	type Frame,
 	FrameHolds,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
 	endedReason,
 	lift,
 	type Selection,
-} from "@fcalell/ui-core/read";
-import { ROW_RETRY, text } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/read";
+import { ROW_RETRY, text } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { Text as RNText, View } from "react-native";
 import { Icon } from "../atoms/icon";

@@ -1,4 +1,4 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	CellValue,
 	Fact,
@@ -7,7 +7,7 @@ import type {
 	TableChoice,
 	TableColumn,
 	TableRowRegions,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import {
 	cellEdit,
 	cellLocked,
@@ -34,21 +34,21 @@ import {
 	touchNamed,
 	turnedOver,
 	visibleColumns,
-} from "@fcalell/ui-core/list-state";
-import { PAINT_ROWS, painting } from "@fcalell/ui-core/paint";
-import { useClock } from "@fcalell/ui-core/react/clock";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useCollection } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/list-state";
+import { PAINT_ROWS, painting } from "@slotform/ui-core/paint";
+import { useClock } from "@slotform/ui-core/react/clock";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useCollection } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	pagesOf,
 	placeholderData,
 	type Read,
-} from "@fcalell/ui-core/read";
-import { sameBy } from "@fcalell/ui-core/same-by";
-import { createStore, type Store } from "@fcalell/ui-core/store";
-import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/read";
+import { sameBy } from "@slotform/ui-core/same-by";
+import { createStore, type Store } from "@slotform/ui-core/store";
+import { BREAKPOINT_PX } from "@slotform/ui-core/tokens";
 import {
 	CARD,
 	FIGURES,
@@ -67,7 +67,7 @@ import {
 	text,
 	textStrong,
 	toneOf,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	memo,
 	useContext,

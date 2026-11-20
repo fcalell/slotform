@@ -1,16 +1,16 @@
-import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
-import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { actsSplit } from "@fcalell/ui-core/overflow";
+import { endedItems, type Offered, offered } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct, Run } from "@slotform/ui-core/descriptors";
+import { BACK_GLYPH } from "@slotform/ui-core/list-state";
+import { actsSplit } from "@slotform/ui-core/overflow";
 import {
 	type Frame,
 	useDrawsFailure,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, endedReason, isEnded } from "@fcalell/ui-core/read";
-import { META_TAIL, partText } from "@fcalell/ui-core/runs";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, endedReason, isEnded } from "@slotform/ui-core/read";
+import { META_TAIL, partText } from "@slotform/ui-core/runs";
 import {
 	PAGE_HEAD,
 	PAGE_TITLE_FLOOR,
@@ -18,7 +18,7 @@ import {
 	PAGE_TOP_BAR_END,
 	PAGE_TOP_BAR_START,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useContext } from "react";
 import { Text as RNText, View } from "react-native";
 import { IconButtonBase } from "../../atoms/button/glyph";

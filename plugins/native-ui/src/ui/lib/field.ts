@@ -1,4 +1,4 @@
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
 import { createContext, type RefObject, useContext, useEffect } from "react";
 import type { TextInputInstance } from "react-native";
 

@@ -1,5 +1,5 @@
-import { subscribeMotion, tuned } from "@fcalell/ui-core/paint";
-import { createStore } from "@fcalell/ui-core/store";
+import { subscribeMotion, tuned } from "@slotform/ui-core/paint";
+import { createStore } from "@slotform/ui-core/store";
 import {
 	type Easing as Curve,
 	type Duration,
@@ -8,7 +8,7 @@ import {
 	PULSE_LOW,
 	SPACE_BASE,
 	SPACING_RATIO,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
 import { useEffect, useSyncExternalStore } from "react";
 import { AccessibilityInfo } from "react-native";
 import Animated, {

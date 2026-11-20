@@ -1,5 +1,5 @@
-import type { Datum } from "@fcalell/ui-core/read";
-import { imageAspect } from "@fcalell/ui-core/variants";
+import type { Datum } from "@slotform/ui-core/read";
+import { imageAspect } from "@slotform/ui-core/variants";
 import { useState } from "react";
 import type { Closed } from "../../lib/closed";
 import { PictureTile, PictureView } from "./base";

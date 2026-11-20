@@ -1,5 +1,5 @@
-import type { Offered } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
+import type { Offered } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	Band as BandData,
 	IconLinkAct,
@@ -7,21 +7,21 @@ import type {
 	Row as RowData,
 	RowItem as RowItemData,
 	Run,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import {
 	factsOnly,
 	listedRows,
 	optionReads,
 	ownCount,
-} from "@fcalell/ui-core/list-state";
+} from "@slotform/ui-core/list-state";
 import {
 	type Frame,
 	useCollection,
 	useFrame,
 	useOptions,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	combine,
 	type Datum,
@@ -30,8 +30,8 @@ import {
 	placeholderData,
 	type Selection,
 	sampleOf,
-} from "@fcalell/ui-core/read";
-import { SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/read";
+import { SECTION, SECTION_BODY } from "@slotform/ui-core/variants";
 import { type ReactNode, useContext, useMemo, useState } from "react";
 import { View } from "react-native";
 import { SheetCard } from "../../atoms/section/card";

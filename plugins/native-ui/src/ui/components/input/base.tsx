@@ -1,15 +1,15 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useTouched } from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useTouched } from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	FIELD_UNIT,
 	FIGURES,
 	type FieldKind,
 	field,
 	fieldValue,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useContext, useRef } from "react";
 import {
 	type KeyboardTypeOptions,

@@ -1,4 +1,4 @@
-import { useWords } from "@fcalell/ui-core/react/words";
+import { useWords } from "@slotform/ui-core/react/words";
 import * as Clipboard from "expo-clipboard";
 import { useEffect, useState } from "react";
 import { toast } from "./toast";
