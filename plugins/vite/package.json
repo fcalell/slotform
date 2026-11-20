@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-vite",
+	"name": "@slotform/vite",
 	"version": "0.1.0",
-	"description": "The Vite lifecycle plugin for @fcalell/stack, framework-agnostic: renders .stack/vite.config.ts from what other plugins contribute, runs vite for dev and build, and serves the providers and schema virtual modules.",
+	"description": "The Vite lifecycle plugin for slotform, framework-agnostic: renders .slotform/vite.config.ts from what other plugins contribute, runs vite for dev and build, and serves the providers and schema virtual modules.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/vite"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/vite#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/vite#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -61,11 +61,11 @@
 		}
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^"
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"typescript": "^7.0.2",
 		"vite": "^8.3.8",

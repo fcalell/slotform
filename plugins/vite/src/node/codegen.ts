@@ -5,7 +5,7 @@ import {
 	type TsExpression,
 	type TsImportSpec,
 	type TsSourceFile,
-} from "@fcalell/cli/ast";
+} from "@slotform/cli/ast";
 import type { ViteConfigValues } from "../types.ts";
 
 // Renders a Vite config module from the resolved `vite.slots.*` values: docs/architecture/plugins/vite.md, "How it works".

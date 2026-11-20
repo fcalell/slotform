@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { composeMap, SlotConflictError } from "@fcalell/cli/slots";
+import { composeMap, SlotConflictError } from "@slotform/cli/slots";
 import { vite } from "../index.ts";
 import { allowScript, mergeClientHeader, mergeCsp, scriptHash } from "./csp.ts";
 

@@ -1,4 +1,4 @@
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
 import { z } from "zod";
 
 // Restart policy for vite's dev process. Defaults to "never" because vite

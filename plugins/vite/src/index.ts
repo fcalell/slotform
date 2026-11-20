@@ -1,10 +1,10 @@
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
-import { plugin, slot } from "@fcalell/cli";
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { StackError } from "@fcalell/cli/errors";
-import { api } from "@fcalell/plugin-api";
+import { api } from "@slotform/api";
+import { GENERATED_DIR, plugin, slot } from "@slotform/cli";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { SlotformError } from "@slotform/cli/errors";
 import { z } from "zod";
 import { renderViteConfig } from "./node/codegen.ts";
 import { headerKey, mergeClientHeader } from "./node/csp.ts";
@@ -31,7 +31,7 @@ function viteBin(cwd: string): string {
 			err.code !== "MODULE_NOT_FOUND"
 		)
 			throw err;
-		throw new StackError(
+		throw new SlotformError(
 			"vite is not installed in this app: run `pnpm install` (vite is in its devDependencies), then retry.",
 			"VITE_NOT_INSTALLED",
 		);
@@ -130,7 +130,7 @@ const outDir = slot.value<string | null>({
 	seed: () => null,
 });
 
-// Client headers: docs/architecture/slot-catalog.md, "`vite.slots.*` (plugin-vite)".
+// Client headers: docs/architecture/slot-catalog.md, "`vite.slots.*` (the `vite` plugin)".
 const clientHeaders = slot.map<string>({
 	source: SOURCE,
 	name: "clientHeaders",
@@ -207,7 +207,7 @@ export const vite = plugin("vite", {
 	contributes: (self) => [
 		self.slots.outDir.contribute(() => "dist/client"),
 
-		// No stack app is framed: `frame-ancestors` is the standard, and
+		// No Slotform app is framed: `frame-ancestors` is the standard, and
 		// `X-Frame-Options` covers a browser without it.
 		self.slots.clientHeaders.contribute(() => ({
 			"Content-Security-Policy": "frame-ancestors 'none'",
@@ -216,7 +216,7 @@ export const vite = plugin("vite", {
 
 		self.slots.configImports.contribute(
 			(): TsImportSpec => ({
-				source: "@fcalell/plugin-vite/preset",
+				source: "@slotform/vite/preset",
 				named: ["excludedImportsPlugin", "providersPlugin", "schemaPlugin"],
 			}),
 		),
@@ -251,7 +251,7 @@ export const vite = plugin("vite", {
 			return `http://localhost:${port}`;
 		}),
 
-		emitArtifact(".stack/vite.config.ts", self.slots.viteConfig),
+		emitArtifact(`${GENERATED_DIR}/vite.config.ts`, self.slots.viteConfig),
 
 		// Dev process: docs/architecture/plugins/vite.md, "Dev server port".
 		cliSlots.devProcesses.contribute(async (ctx) => {
@@ -260,7 +260,12 @@ export const vite = plugin("vite", {
 			return {
 				name: "vite",
 				command: process.execPath,
-				args: [viteBin(ctx.cwd), "dev", "--config", ".stack/vite.config.ts"],
+				args: [
+					viteBin(ctx.cwd),
+					"dev",
+					"--config",
+					`${GENERATED_DIR}/vite.config.ts`,
+				],
 				defaultPort: port,
 				readyPattern: /Local:/,
 				// Default `restart: "never"` — Vite handles HMR; auto-restart
@@ -275,7 +280,7 @@ export const vite = plugin("vite", {
 					if (!event.portInUse) return undefined;
 					const detected = event.detectedPort ?? port;
 					ctx.log.error(
-						`vite dev: port :${detected} is in use — set \`vite({ port: ... })\` in stack.config.ts or stop the process holding it.`,
+						`vite dev: port :${detected} is in use — set \`vite({ port: ... })\` in slotform.config.ts or stop the process holding it.`,
 					);
 					return undefined;
 				},
@@ -288,7 +293,12 @@ export const vite = plugin("vite", {
 			phase: "main",
 			exec: {
 				command: process.execPath,
-				args: [viteBin(ctx.cwd), "build", "--config", ".stack/vite.config.ts"],
+				args: [
+					viteBin(ctx.cwd),
+					"build",
+					"--config",
+					`${GENERATED_DIR}/vite.config.ts`,
+				],
 			},
 		})),
 	],

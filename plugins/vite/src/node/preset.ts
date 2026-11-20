@@ -1,12 +1,13 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
+import { GENERATED_DIR } from "@slotform/cli";
 import type { Plugin } from "vite";
 
 export { excludedImportsPlugin } from "./excluded.ts";
 
-// A virtual module served by the generated file once `stack generate` wrote
+// A virtual module served by the generated file once `slotform generate` wrote
 // it, by `fallback` before. The path resolves against the working directory,
-// the consumer root every `stack` command runs Vite from.
+// the consumer root every `slotform` command runs Vite from.
 function virtualModule(id: string, file: string, fallback: string): Plugin {
 	const resolved = `\0${id}`;
 	const path = resolve(file);
@@ -26,20 +27,20 @@ function virtualModule(id: string, file: string, fallback: string): Plugin {
 	};
 }
 
-// `virtual:stack-providers` and its pass-through stub: docs/architecture/plugins/vite.md, "Preset".
+// `virtual:slotform-providers` and its pass-through stub: docs/architecture/plugins/vite.md, "Preset".
 export function providersPlugin(): Plugin {
 	return virtualModule(
-		"virtual:stack-providers",
-		".stack/virtual-providers.tsx",
+		"virtual:slotform-providers",
+		`${GENERATED_DIR}/virtual-providers.tsx`,
 		"export default function Providers(props) {\n\treturn props.children;\n}\n",
 	);
 }
 
-// `virtual:stack-schema`: docs/architecture/plugins/vite.md, "Preset".
+// `virtual:slotform-schema`: docs/architecture/plugins/vite.md, "Preset".
 export function schemaPlugin(): Plugin {
 	return virtualModule(
-		"virtual:stack-schema",
-		".stack/schema.ts",
+		"virtual:slotform-schema",
+		`${GENERATED_DIR}/schema.ts`,
 		"export const SCHEMA = {};\n",
 	);
 }
