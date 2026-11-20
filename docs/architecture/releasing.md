@@ -52,8 +52,7 @@ holds each entry to the package's own manifest.
   the minor (`^0.1.0` is `>=0.1.0 <0.2.0`), so a breaking change bumps the minor and everything
   else the patch, until `1.0.0`; then semver.
 - **A consumer's specs are `^<the CLI's version>`.** `stack init` and `stack add` write them from the
-  CLI's own `package.json` (`stackSpec`), and the consumer's lockfile is the pin. An unpublished
-  checkout takes the git spec instead ([consumer project](./consumer-project.md#installing-stack)).
+  CLI's own `package.json` (`stackSpec`), and the consumer's lockfile is the pin.
 - **The CLI reads its own manifest at run time.** `packages/cli/src/lib/manifest.ts` parses the
   packed `package.json` when the CLI starts: `version` for `stackSpec`, the `ts-morph` peer for
   `TS_MORPH_SPEC`, and the `typescript`, `@types/node` and `@biomejs/biome` devDependencies for `TYPESCRIPT_SPEC`,
@@ -74,10 +73,34 @@ prevent it:
 
 1. **A stack package depends on another stack package, never peers on it.** The ranges are lockstep
    carets, so one install holds one version.
-2. **A stack package's own peers are third-party and optional** unless the plugin cannot work
-   without them (`react`, `@tanstack/react-query`, `@orpc/tanstack-query`, Expo's modules). A
-   consumer's root resolves each once.
-3. **A third-party dependency's optional peer that a consumer's tree can hold in two versions is a
+2. **A third-party dependency is a peer when one of three holds.**
+   - A type it declares appears in the package's public types. A type that crosses into the app
+     must be one copy, or the app's typecheck splits ("separate declarations of a private
+     property"): `zod`, `drizzle-orm`, `hono`, `@orpc/client`, `@orpc/server`, `@casl/ability`,
+     `better-auth` with its `@better-auth/*` plugins, `expo`, `react`, `react-native`.
+   - It must be one instance at runtime across the app and stack (a React context, an error class
+     tested with `instanceof`, a registry): `react`, `zod`, `@orpc/server`, `@casl/ability`,
+     `@tanstack/react-query`.
+   - It is a build-time tool the app's own commands run. Such a tool is an optional peer, so an
+     install that only runs the app holds none of them
+     ([consumer project](./consumer-project.md#from-npm)).
+
+   A peer is optional (`peerDependenciesMeta`) when only some of the package's subpaths use it and
+   an app without that feature must not need it. Each peer is also a
+   `devDependency`, at a spec inside the peer range (the next rule), so stack's own workspace
+   builds and tests. `stack init` and
+   `stack add` write each required peer into the app's `dependencies`
+   ([installing stack](./consumer-project.md#installing-stack)).
+3. **Each library has one spec per field across the public manifests, and the devDependency lies
+   inside the peer range.** One `peerDependencies` range is the contract a consumer meets, the
+   highest any package needs (`zod` `^4.6.7`, `react` `^19.3.0`, `react-native` `^0.88.0`). One
+   `devDependencies` spec is the one copy stack's workspace installs, and devDependencies install
+   only there, where `apps/phone` bundles the packages' source and needs the Expo SDK's exact pins
+   (`react` `19.3.0`, `react-native` `0.88.1`): React Native's renderer refuses any other React.
+   So a devDependency is a subset of its peer range (`19.3.0` inside `^19.3.0`, `~58.1.2` inside
+   `>=58.0.0`), and `dependencies` hold one spec too. `packages/repo-checks/src/ranges.test.ts`
+   checks it.
+4. **A third-party dependency's optional peer that a consumer's tree can hold in two versions is a
    direct dependency of the stack package.** `@orpc/server` has an optional peer `ws`; wrangler's
    miniflare pins `ws` exactly while Storybook and Vitest take the newest, so an app with a worker
    holds two `ws`, and pnpm resolves `@orpc/server`'s peer to either by context. `plugin-api`,
@@ -85,8 +108,8 @@ prevent it:
    which settles the peer inside the package; without it, each of the three and every package above
    them exists twice.
 
-When `stack generate` names a slot defined twice after an install, the cause is a peer of the third
-kind: compare the parenthesised suffixes of the duplicated keys in the lockfile's `snapshots:`; the
+When `stack generate` names a slot defined twice after an install, the cause is a dependency's optional
+peer (the last rule above): compare the parenthesised suffixes of the duplicated keys in the lockfile's `snapshots:`; the
 one that differs is the peer.
 
 Count the copies in any consumer, from its root; each stack package must show `1`:
@@ -99,9 +122,8 @@ awk '/^snapshots:/{s=1} s && /^  .?@fcalell\//' pnpm-lock.yaml \
 ## Prepare script
 
 A package's `prepare` is `node ../../scripts/prepare.ts`, run from the package's directory. An
-install of a checkout (`link:`, a git spec, `pnpm install` in the workspace) has no `dist/` until it
-builds one. `pnpm pack` and `pnpm publish` run `prepare` too, but a release builds once, before
-either (`turbo run build`, which `pnpm release:check` and `pnpm release` run), so under those two
+install of a checkout (`pnpm install` in the workspace) has no `dist/` until it builds one.
+`pnpm pack` and `pnpm publish` run `prepare` too, but a release builds once, before either (`turbo run build`, which `pnpm release:check` and `pnpm release` run), so under those two
 commands a `dist/` already there is the build, and `prepare` leaves it alone. Without one, it
 builds. There is no `prepublishOnly`.
 
@@ -144,5 +166,6 @@ app should not hold are optional peers ([consumer project](./consumer-project.md
 
 - `scripts/release-check.ts`: `pnpm release:check`.
 - `scripts/prepare.ts`: every package's `prepare`.
-- `packages/cli/src/lib/stack-packages.ts`: `STACK_PACKAGES`, `stackSpec`, the git spec.
+- `packages/cli/src/lib/stack-packages.ts`: `STACK_PACKAGES`, `stackSpec`.
+- `packages/repo-checks/src/ranges.test.ts`: one spec per field per library, devDependencies inside the peer range.
 - `.changeset/config.json`: the fixed version group.
