@@ -6,15 +6,15 @@ import {
 	type RawRuleOf,
 } from "@casl/ability";
 import { type PackRule, unpackRules } from "@casl/ability/extra";
-import { getRegisteredApiClient, isNotFound } from "@fcalell/plugin-api/client";
-import { ORG_RULES_PATH } from "@fcalell/plugin-api/wire";
+import { getRegisteredApiClient, isNotFound } from "@slotform/api/client";
+import { ORG_RULES_PATH } from "@slotform/api/wire";
 import {
 	combine,
 	isStandIn,
 	placeholderData,
 	type Read,
 	type Selection,
-} from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/read";
 import { read } from "./read.ts";
 
 // Packed rules are opaque JSON here: docs/architecture/plugins/auth.md, "Ability wire format".
@@ -36,7 +36,7 @@ function registeredRoute(
 	if (client === undefined) {
 		throw new Error(
 			`${caller}: no api client registered -- call \`createClient(...)\` ` +
-				`(@fcalell/plugin-api/client) before ${caller} runs.`,
+				`(@slotform/api/client) before ${caller} runs.`,
 		);
 	}
 	return path.reduce<unknown>(

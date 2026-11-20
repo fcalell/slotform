@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-query",
+	"name": "@slotform/query",
 	"version": "0.1.0",
-	"description": "Query plugin for @fcalell/stack: the api's procedures as TanStack Query reads and acts, and the port the UI's read hooks run on.",
+	"description": "Query plugin for slotform: the api's procedures as TanStack Query reads and acts, and the port the UI's read hooks run on.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/query"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/query#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/query#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -67,11 +67,11 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-react": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^",
-		"@fcalell/ui-core": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/react": "workspace:^",
+		"@slotform/vite": "workspace:^",
+		"@slotform/ui-core": "workspace:^",
 		"@orpc/client": "^1.16.2"
 	},
 	"peerDependencies": {
@@ -101,7 +101,7 @@
 	},
 	"devDependencies": {
 		"@casl/ability": "^7.1.3",
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@orpc/tanstack-query": "^1.16.2",
 		"@tanstack/react-query": "^5.107.1",
 		"@types/node": "^26.6.6",

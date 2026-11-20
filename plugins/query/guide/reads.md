@@ -2,12 +2,12 @@
 
 `orpc.*.read(input)` is `queryOptions` as a `Read` handle: the same input (`skipToken` included),
 the output typed, and how its failure reads as not found. For a query of your own,
-`read(options, { missing, kind })` from `@fcalell/plugin-query/read` makes it:
+`read(options, { missing, kind })` from `@slotform/query/read` makes it:
 `missing` tells the error that reads as not found (default `isNotFound`) and `kind` is `"query"`,
 `"pages"` or `"stream"` ([pages and streams](./pages-and-streams.md)). A read is its own selection;
-`read.at(fn)` selects from it, and `combine([a, b], fn)` (`@fcalell/ui-core/read`) selects from
+`read.at(fn)` selects from it, and `combine([a, b], fn)` (`@slotform/ui-core/read`) selects from
 several. Which region holds a read and draws its failure is
-`node_modules/@fcalell/ui-core/guide/frames.md`.
+`node_modules/@slotform/ui-core/guide/frames.md`.
 
 ```tsx
 const deploy = orpc.deploys.get.read({ id });
@@ -25,14 +25,14 @@ write it plainly (`d.steps.length`, `d.name`); one that throws there paints its 
 one that throws over real data is yours. Every key of the stand-in is the stand-in, so a walk that
 follows a key while there is one (`while (n.parent) n = n.parent`) has no end over it: a run is
 given 10,000 reads and throws past that, which paints the slot. Bound a walk by the data (a visited
-set, a depth), or stop it on `isStandIn(n)` (`@fcalell/ui-core/read`), which also finds the list
+set, a depth), or stop it on `isStandIn(n)` (`@slotform/ui-core/read`), which also finds the list
 sample a waiting row is shaped from.
 
 A component takes a `Datum<T>`, a constant or a selection, and draws a selection it cannot answer
 yet as its painted shape, and only while the read waits: a leaf whose read ended draws nothing, and
 the frame that holds the read says why. Your own code never sees the stand-in:
 
-- `useRead(selection)` (`@fcalell/plugin-query/tanstack-query`) is the value, or `undefined` while
+- `useRead(selection)` (`@slotform/query/tanstack-query`) is the value, or `undefined` while
   the read waits, is idle or failed.
 - `useDraft(datum, failed)` is a field's value: it follows its selection until the viewer edits it,
   then holds the edit; a selection over another read drops the edit. A constant passes through
@@ -40,7 +40,7 @@ the frame that holds the read says why. Your own code never sees the stand-in:
   stands with no value and refuses its changes. Saving a change is on [acts and saves](./acts.md).
 - A component of your own builds on `useSelections` (a leaf's subscription) and
   `useFrameRead(read, derive)` (a frame's, with a module-level `derive`), both from
-  `@fcalell/ui-core/react/read`, and on `lift(value, keys)` for a constant whose props hold
+  `@slotform/ui-core/react/read`, and on `lift(value, keys)` for a constant whose props hold
   selections.
 
 ## What a frame draws

@@ -1,4 +1,4 @@
-import { readsOf, type Selection } from "@fcalell/ui-core/read";
+import { readsOf, type Selection } from "@slotform/ui-core/read";
 import type { QueryClient } from "@tanstack/react-query";
 import { skipToken } from "@tanstack/react-query";
 

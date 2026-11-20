@@ -1,4 +1,4 @@
-import type { QueryListeners } from "@fcalell/ui-core/listen";
+import type { QueryListeners } from "@slotform/ui-core/listen";
 import { focusManager, onlineManager } from "@tanstack/react-query";
 
 // What TanStack's managers listen to: docs/architecture/ui-core/reads.md, "The port".

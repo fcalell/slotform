@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { Unreached } from "@fcalell/ui-core/acts";
 import { ORPCError } from "@orpc/client";
+import { Unreached } from "@slotform/ui-core/acts";
 import { refusal, retries } from "./acts.ts";
 
 const answered = (status: number) =>

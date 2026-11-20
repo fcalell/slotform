@@ -1,7 +1,7 @@
-import { plugin } from "@fcalell/cli";
-import type { ProviderSpec } from "@fcalell/cli/ast";
-import { react } from "@fcalell/plugin-react";
-import { vite } from "@fcalell/plugin-vite";
+import { plugin } from "@slotform/cli";
+import type { ProviderSpec } from "@slotform/cli/ast";
+import { react } from "@slotform/react";
+import { vite } from "@slotform/vite";
 
 export const query = plugin("query", {
 	label: "Queries",
@@ -52,11 +52,11 @@ export const query = plugin("query", {
 			(): ProviderSpec => ({
 				imports: [
 					{
-						source: "@fcalell/plugin-query/tanstack-query",
+						source: "@slotform/query/tanstack-query",
 						named: ["QueryProvider"],
 					},
 					{
-						source: "@fcalell/ui-core/paint",
+						source: "@slotform/ui-core/paint",
 						named: ["paintWait"],
 					},
 				],
@@ -70,10 +70,10 @@ export const query = plugin("query", {
 				order: 2,
 			}),
 		),
-		// `tanstack-query` imports `virtual:stack-schema`, which plugin-vite's
+		// `tanstack-query` imports `virtual:slotform-schema`, which the `vite` plugin's
 		// `schemaPlugin` serves.
 		vite.slots.optimizeExclude.contribute(() => [
-			"@fcalell/plugin-query/tanstack-query",
+			"@slotform/query/tanstack-query",
 		]),
 	],
 });

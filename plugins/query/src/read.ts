@@ -1,4 +1,4 @@
-import { isNotFound } from "@fcalell/plugin-api/client";
+import { isNotFound } from "@slotform/api/client";
 import {
 	dev,
 	heldStandIn,
@@ -10,7 +10,7 @@ import {
 	type SortSchema,
 	type WindowPage,
 	type WindowState,
-} from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/read";
 import type {
 	Query,
 	QueryCache,
@@ -30,7 +30,7 @@ import { READ_KEYS, type ReadKey } from "./read-keys.ts";
 
 // The TanStack half of a read: docs/architecture/plugins/query.md, "Reads".
 
-declare module "@fcalell/ui-core/read" {
+declare module "@slotform/ui-core/read" {
 	interface ReadBinding {
 		// No `select` and no `placeholderData`: a leaf adds its own.
 		// biome-ignore lint/suspicious/noExplicitAny: a read of any output is one options type (variance)

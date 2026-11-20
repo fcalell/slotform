@@ -1,7 +1,7 @@
 # Acts and saves
 
 An act's `onAct` returns the promise of the work it starts, and the host that draws the act holds
-the attempt and draws its rejection (`node_modules/@fcalell/ui-core/guide/acts.md`). This page is
+the attempt and draws its rejection (`node_modules/@slotform/ui-core/guide/acts.md`). This page is
 the query side: the mutation's promise, the refusal's sentence, and a value that saves as it changes.
 
 ```tsx
@@ -14,7 +14,7 @@ const add = {
 
 - Return `mutateAsync`'s promise, never `mutate()`, and `.catch` nothing. `retries(error)` decides
   the toast's Retry: a refusal the server answered and an out connection (`Unreached`) have none.
-- The sentence is `refusal(error)` from `@fcalell/plugin-query/acts`, else the generic one.
+- The sentence is `refusal(error)` from `@slotform/query/acts`, else the generic one.
   `refusal` is an `ORPCError`'s own message, capitalised and stopped, for a 4xx
   other than 401, 403, 404 and 429 whose message is neither blank nor the code's stock text
   (`new ApiError("BAD_REQUEST", { message: "That name is taken" })` reads "That name is taken.");
@@ -27,7 +27,7 @@ const add = {
   on its field: `error={issues(error).find((i) => i.path[0] === "name")?.message}`.
 - A mutation rejects with `Unreached` before any fetch while the browser is offline or a cached
   read's `meta.reach` says the server is out of reach (`ws.connection` from
-  `@fcalell/plugin-node/client`). A `mutationCache` you supply yourself must call
+  `@slotform/node/client`). A `mutationCache` you supply yourself must call
   `guardReach(client)` in its `onMutate`.
 - Invalidation is not awaited, so what the act changed shows through the reads it refetches (their
   busy mark); there is no done mark.
@@ -38,13 +38,13 @@ failed with nothing drawing it within a tick. A mutation with an `onError` of it
 a handler that catches a failure itself (`.catch(setError)` on the call, or the option) draws it
 and the check stays quiet.
 
-A host or control of your own holds an attempt with `useAttempt<K>()` (`@fcalell/ui-core/react/acts`): `attempt(key, onAct)` calls `onAct`, and
+A host or control of your own holds an attempt with `useAttempt<K>()` (`@slotform/ui-core/react/acts`): `attempt(key, onAct)` calls `onAct`, and
 `pending` (the key) and `failure` (`{ key, error }`, kept until the next attempt) follow its
 promise, the newest attempt counting alone.
 
 ## A value that saves as it changes
 
-`useDraft(datum, failed)` (`@fcalell/ui-core/react/acts`, [reads](./reads.md)) saves through `change(next, save)`, a `save` that
+`useDraft(datum, failed)` (`@slotform/ui-core/react/acts`, [reads](./reads.md)) saves through `change(next, save)`, a `save` that
 returns a promise:
 
 ```tsx

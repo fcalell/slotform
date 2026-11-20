@@ -24,7 +24,7 @@ failed. The viewer presses it below `VIRTUAL_FROM` rows; a collection that windo
 asks for it. The frame is not busy for a next page, draws no count while more remain, and an empty
 first page that has more fetches the next.
 
-`usePort().useNextPage(read)` (`usePort` from `@fcalell/ui-core/react/port`) is what that row builds on (`{ next, fetching, failed, fetch }`, `fetch` returning
+`usePort().useNextPage(read)` (`usePort` from `@slotform/ui-core/react/port`) is what that row builds on (`{ next, fetching, failed, fetch }`, `fetch` returning
 its promise); reach for it only for a control of your own, since it never fetches by mounting. A
 hand-written `read` with `kind: "pages"` must be an infinite query (`infiniteOptions`) over the
 same envelope.
@@ -48,14 +48,14 @@ input is a new key: the previous rows stay drawn until the new query's first pag
 procedure that declares `sort: [...columns]` takes `sort?: { column, direction }` in its input and
 the `Table`'s header sort goes into the read's input, so the server orders the whole query; a
 column the procedure does not name does not sort. The head tick of a `Table` with `choose` over a
-window (or `pages`) read picks the query itself; see `selector()` in plugin-api's utilities
-(`node_modules/@fcalell/plugin-api/guide/utilities.md`).
-`useWindow(read)` (`@fcalell/ui-core/react/read`) is what the `Table` builds on; reach for it only for a collection of your own.
+window (or `pages`) read picks the query itself; see `selector()` in `@slotform/api`'s utilities
+(`node_modules/@slotform/api/guide/utilities.md`).
+`useWindow(read)` (`@slotform/ui-core/react/read`) is what the `Table` builds on; reach for it only for a collection of your own.
 
 ## Streams
 
 A read that stays fetching while it writes is `kind: "stream"`: fetching with data is writing,
-not busy. Build one from an async iterable with `streamRead` (`@fcalell/plugin-query/read`),
+not busy. Build one from an async iterable with `streamRead` (`@slotform/query/read`),
 which folds each chunk into the read's value and calls `onDone` with the whole value when the
 stream ends on its own, and hand it to a `Thread`'s `reply`; the oRPC form for a procedure that
 yields is `read(orpc.x.experimental_streamedOptions({ input }), { kind: "stream" })`.
@@ -75,7 +75,7 @@ Every stream read has `stop()`: it ends the run in flight, whose query lands wit
 far, and resolves with that data (`undefined` with no run in flight), so a composer's stop keeps
 the partial turn with `const partial = await answer.stop()`. `onDone` never runs after `stop`.
 
-A WebSocket channel is a stream read too: `channelRead` in `@fcalell/plugin-node/live`
+A WebSocket channel is a stream read too: `channelRead` in `@slotform/node/live`
 (`plugins/node/guide/live.md`).
 
 **Check:** `pnpm check` passes, and under `pnpm dev` the list shows "Show more" until the last page.

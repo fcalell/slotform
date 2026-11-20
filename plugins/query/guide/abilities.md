@@ -1,9 +1,9 @@
 # Abilities on the client
 
-`ability(organizationId, record?)` from `@fcalell/plugin-query/ability-client` is what the caller may do in that organization as a selection
+`ability(organizationId, record?)` from `@slotform/query/ability-client` is what the caller may do in that organization as a selection
 of a `MongoAbility`: the rules of its role there, fetched once and cached per organization, read
 like any read ([reads](./reads.md)). `useAbility(organizationId, recordRules?)` from
-`@fcalell/plugin-query/tanstack-query` is the same as a hook.
+`@slotform/query/tanstack-query` is the same as a hook.
 
 ```tsx
 const ability = useAbility(organizationId);
@@ -34,7 +34,7 @@ no member, and, in the hook, while the rules load, so it never answers a false y
 ## A record's own rules
 
 To layer a record's own rules, return `packAbility(ability)` from the procedure
-(`@fcalell/plugin-auth/ability`) and pass the packed field through: `useAbility(organizationId,
+(`@slotform/auth/ability`) and pass the packed field through: `useAbility(organizationId,
 expense?.rules)`, or `ability(organizationId, expense.at((e) => e.rules))`, then
 `ability.can("update", subject("Expense", expense))`. A mutation that declares `writes` on an
 organization subject (`writes: ["member"]` on a role change) invalidates every organization's

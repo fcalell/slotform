@@ -1,11 +1,11 @@
+import { fallbackORPCErrorMessage, ORPCError } from "@orpc/client";
 import {
 	type Issue,
 	isThenable,
 	Unreached,
 	wasDrawn,
-} from "@fcalell/ui-core/acts";
-import { dev, type Read } from "@fcalell/ui-core/read";
-import { fallbackORPCErrorMessage, ORPCError } from "@orpc/client";
+} from "@slotform/ui-core/acts";
+import { dev, type Read } from "@slotform/ui-core/read";
 import {
 	hashKey,
 	type MutationCache,

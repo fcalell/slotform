@@ -3,7 +3,7 @@
 A route warms its reads before its components mount, so a screen opened from a list draws what
 already landed instead of painting. `preload` starts the reads and never holds navigation.
 
-Call `preload` (`@fcalell/plugin-query/preload`) from the route's TanStack Router `loader`, which
+Call `preload` (`@slotform/query/preload`) from the route's TanStack Router `loader`, which
 gets the app's query client in its `context`. Write each handle once, as a function
 both the loader and the component call, so the key is the same:
 
@@ -23,7 +23,7 @@ whose input comes from another read's data are not preloaded. It warms the clien
 the web the router's `context` carries the one `QueryProvider` holds, and on the phone a route
 file exports `preload(client, params)`, and a press-in on a row, link, stat or fact that opens the
 route calls it with the app's query client and the href's params, so there is no `loader`
-(`node_modules/@fcalell/plugin-expo/guide/routes.md`).
+(`node_modules/@slotform/expo/guide/routes.md`).
 
 **Check:** `pnpm check` passes, and under `pnpm dev` opening the route requests its reads before its
 components mount.

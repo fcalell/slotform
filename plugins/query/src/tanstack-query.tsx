@@ -1,23 +1,24 @@
 /// <reference path="./virtual.d.ts" />
 
 // Siblings by package name, never relative: docs/architecture/plugins/query.md, "Source shipping".
-import { SCHEMA } from "virtual:stack-schema";
+import { SCHEMA } from "virtual:slotform-schema";
 import type { MongoAbility } from "@casl/ability";
-import { registerOperationContext } from "@fcalell/plugin-api/client";
+import {
+	createTanstackQueryUtils,
+	OPERATION_CONTEXT_SYMBOL,
+} from "@orpc/tanstack-query";
+import { registerOperationContext } from "@slotform/api/client";
 import {
 	type EntityName,
 	handleMutationSuccess,
-} from "@fcalell/plugin-api/query-invalidation";
-import type {
-	RouterClient,
-	ScopedRouterClient,
-} from "@fcalell/plugin-api/types";
+} from "@slotform/api/query-invalidation";
+import type { RouterClient, ScopedRouterClient } from "@slotform/api/types";
 import {
 	ability,
 	composeAbility,
 	orgRules,
 	type PackedRulesLike,
-} from "@fcalell/plugin-query/ability-client";
+} from "@slotform/query/ability-client";
 import {
 	guardReach,
 	heldAct,
@@ -27,19 +28,19 @@ import {
 	retries,
 	watchActs,
 	whenSettled,
-} from "@fcalell/plugin-query/acts";
-import { listenQueries } from "@fcalell/plugin-query/listen";
+} from "@slotform/query/acts";
+import { listenQueries } from "@slotform/query/listen";
 import {
 	ensurePages,
 	retryOnce,
 	watchUnheld,
 	withHold,
 	withRead,
-} from "@fcalell/plugin-query/read";
-import { scoped as scopedBy, withScope } from "@fcalell/plugin-query/scope";
-import type { InputOf, OutputOf, ProcedureCall } from "@fcalell/ui-core/form";
-import type { QueryListeners } from "@fcalell/ui-core/listen";
-import { PortProvider, type ReadPort } from "@fcalell/ui-core/react/port";
+} from "@slotform/query/read";
+import { scoped as scopedBy, withScope } from "@slotform/query/scope";
+import type { InputOf, OutputOf, ProcedureCall } from "@slotform/ui-core/form";
+import type { QueryListeners } from "@slotform/ui-core/listen";
+import { PortProvider, type ReadPort } from "@slotform/ui-core/react/port";
 import {
 	type Observed,
 	planSelections,
@@ -48,12 +49,8 @@ import {
 	type ReadAnswer,
 	type Selection,
 	type WindowState,
-} from "@fcalell/ui-core/read";
-import type { ScopeIds } from "@fcalell/ui-core/scope";
-import {
-	createTanstackQueryUtils,
-	OPERATION_CONTEXT_SYMBOL,
-} from "@orpc/tanstack-query";
+} from "@slotform/ui-core/read";
+import type { ScopeIds } from "@slotform/ui-core/scope";
 import {
 	keepPreviousData,
 	MutationCache,
@@ -92,7 +89,7 @@ declare module "@tanstack/react-query" {
 			// default query meta by `QueryProvider`.
 			hold?: (elapsed: number) => number;
 			// Says from the read's value whether the server is out of reach
-			// (`guardReach` in `@fcalell/plugin-query/acts`).
+			// (`guardReach` in `@slotform/query/acts`).
 			reach?: Reach;
 		} & Record<string, unknown>;
 	}
@@ -172,7 +169,7 @@ export type ApiQueryUtils<TRouter> = ReturnType<
 
 // Wrap a typed oRPC client with TanStack Query helpers (`.queryOptions`,
 // `.mutationOptions`, `.infiniteOptions`, and `.read`). The native analog of
-// `createClient` from `@fcalell/plugin-api/client` — same router-typed surface,
+// `createClient` from `@slotform/api/client` — same router-typed surface,
 // query-shaped. The client sends a query these utils make as GET: it learns the
 // operation context's symbol here, from the copy of `@orpc/tanstack-query` the
 // utils are.
@@ -186,7 +183,7 @@ export function createApiQueryUtils<TRouter>(
 	) as ApiQueryUtils<TRouter>;
 }
 
-/** `scoped` from `@fcalell/plugin-query/scope`, over the app's schema. */
+/** `scoped` from `@slotform/query/scope`, over the app's schema. */
 export function scoped<U>(utils: U, scope: ScopeIds): U {
 	return scopedBy(utils, scope, SCHEMA);
 }
@@ -200,7 +197,7 @@ const optionsOf = (o: Observed): Read<unknown>["options"] => ({
 });
 
 const IDLE = {
-	queryKey: ["stack", "window", "idle"] as readonly unknown[],
+	queryKey: ["slotform", "window", "idle"] as readonly unknown[],
 	queryFn: skipToken,
 };
 

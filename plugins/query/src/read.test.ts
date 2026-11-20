@@ -4,7 +4,7 @@ import {
 	isSelection,
 	type Read,
 	type WindowState,
-} from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/read";
 import { QueryClient, replaceEqualDeep } from "@tanstack/react-query";
 import { ensurePages, holdOf, isStreamQuery, read, withHold } from "./read.ts";
 
@@ -15,7 +15,7 @@ const pickOf = (selection: unknown, data: unknown[]) =>
 		selection as {
 			[key: symbol]: { pick: (d: unknown[], r: boolean[]) => unknown };
 		}
-	)[Symbol.for("@fcalell/ui-core/selection")]?.pick(
+	)[Symbol.for("@slotform/ui-core/selection")]?.pick(
 		data,
 		data.map(() => true),
 	);

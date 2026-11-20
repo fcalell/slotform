@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { beforeEach, test } from "node:test";
-import type { Procedure, ScopedRouterClient } from "@fcalell/plugin-api/types";
+import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+import type { Procedure, ScopedRouterClient } from "@slotform/api/types";
 import {
 	registeredScope,
 	registerScope,
 	releaseScope,
 	type ScopeSchema,
-} from "@fcalell/ui-core/scope";
-import { createTanstackQueryUtils } from "@orpc/tanstack-query";
+} from "@slotform/ui-core/scope";
 import { withRead } from "./read.ts";
 import { scoped, withScope } from "./scope.ts";
 
@@ -20,7 +20,7 @@ function fakeClient(): unknown {
 	return node([]);
 }
 
-// What `.stack/schema.ts` says of each procedure: its scope key, or none.
+// What `.slotform/schema.ts` says of each procedure: its scope key, or none.
 const schema: ScopeSchema = {
 	"projects.list": { scope: "organizationId" },
 	"projects.create": { scope: "organizationId" },

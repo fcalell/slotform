@@ -1,6 +1,6 @@
-# @fcalell/plugin-query
+# @slotform/query
 
-Query plugin for the `@fcalell/stack` framework: the api's procedures as TanStack Query reads and acts. It holds the query client, the query utils over the typed client, the read builder, the org-rules ability, and the port that `@fcalell/ui-core`'s read hooks run on, so the UI plugins draw reads without depending on TanStack, oRPC or CASL.
+Query plugin for the `slotform` framework: the api's procedures as TanStack Query reads and acts. It holds the query client, the query utils over the typed client, the read builder, the org-rules ability, and the port that `@slotform/ui-core`'s read hooks run on, so the UI plugins draw reads without depending on TanStack, oRPC or CASL.
 
 **Stack:** TanStack Query 5 (`@tanstack/react-query`) + oRPC's TanStack Query utils (`@orpc/tanstack-query`) + CASL
 
@@ -9,34 +9,34 @@ How it is built: [docs/architecture/plugins/query.md](../../docs/architecture/pl
 ## Install
 
 ```bash
-stack add query
+slotform add query
 ```
 
-It requires `api`. The consumer declares `@orpc/tanstack-query` (the plugin's `dependencies`); TanStack Query comes with plugin-react on the web and with native-ui on the phone, which also brings the `expo-network` that `./net` listens to.
+It requires `api`. The consumer declares `@orpc/tanstack-query` (the plugin's `dependencies`); TanStack Query comes with the `react` plugin on the web and with native-ui on the phone, which also brings the `expo-network` that `./net` listens to.
 
 ## Guide
 
-Drawing the api's reads lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
+Drawing the api's reads lives in `guide/`, indexed into a consumer's `.slotform/guide.md`:
 [`reads.md`](./guide/reads.md), [`pages-and-streams.md`](./guide/pages-and-streams.md), [`preload.md`](./guide/preload.md),
 [`acts.md`](./guide/acts.md), [`abilities.md`](./guide/abilities.md) and
-[`provider.md`](./guide/provider.md). Building the typed client is plugin-api's
+[`provider.md`](./guide/provider.md). Building the typed client is the `api` plugin's
 [`client.md`](../api/guide/client.md).
 
 ## Exports
 
 | Subpath | Purpose |
 |---------|---------|
-| `@fcalell/plugin-query` | `query()` |
-| `@fcalell/plugin-query/tanstack-query` | `QueryProvider` (the client and the port ui-core's hooks and the UI components run on), `createQueryClient()`, `createApiQueryUtils()`, `ApiQueryUtils`, `scoped()`, `useRead()`, `useAbility()`, and TanStack Query's `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery`, `useQueryClient`, `QueryClient`, `QueryClientProvider`, `streamedQuery` (source, for the bundler) |
-| `@fcalell/plugin-query/read` | `read()`, `streamRead()`, `StreamRead`, `withRead()`, `ensurePages()`, `holdOf()`, `withHold()`, `retryOnce()`, `isStreamQuery()`, `watchUnheld()` |
-| `@fcalell/plugin-query/acts` | `issues()`, `refusal()`, `retries()`, `heldAct()`, `watchActs()`, `whenSettled()`, `guardReach()`, `Reach` |
-| `@fcalell/plugin-query/scope` | `withScope()`, `scoped()`: the registered scope merged into the utils' inputs |
-| `@fcalell/plugin-query/ability-client` | `ability()`, `orgRules()`, `composeAbility()`, `PackedRulesLike` |
-| `@fcalell/plugin-query/listen` | `listenQueries()`: TanStack's online and focus managers on the platform's listeners |
-| `@fcalell/plugin-query/preload` | `preload()`: a route's reads warmed before it mounts |
-| `@fcalell/plugin-query/net` | `listen`: the phone's network (`expo-network`) and foreground (`AppState`) for `QueryProvider listen` (source, for the bundler) |
+| `@slotform/query` | `query()` |
+| `@slotform/query/tanstack-query` | `QueryProvider` (the client and the port ui-core's hooks and the UI components run on), `createQueryClient()`, `createApiQueryUtils()`, `ApiQueryUtils`, `scoped()`, `useRead()`, `useAbility()`, and TanStack Query's `useQuery`, `useMutation`, `useInfiniteQuery`, `useSuspenseQuery`, `useQueryClient`, `QueryClient`, `QueryClientProvider`, `streamedQuery` (source, for the bundler) |
+| `@slotform/query/read` | `read()`, `streamRead()`, `StreamRead`, `withRead()`, `ensurePages()`, `holdOf()`, `withHold()`, `retryOnce()`, `isStreamQuery()`, `watchUnheld()` |
+| `@slotform/query/acts` | `issues()`, `refusal()`, `retries()`, `heldAct()`, `watchActs()`, `whenSettled()`, `guardReach()`, `Reach` |
+| `@slotform/query/scope` | `withScope()`, `scoped()`: the registered scope merged into the utils' inputs |
+| `@slotform/query/ability-client` | `ability()`, `orgRules()`, `composeAbility()`, `PackedRulesLike` |
+| `@slotform/query/listen` | `listenQueries()`: TanStack's online and focus managers on the platform's listeners |
+| `@slotform/query/preload` | `preload()`: a route's reads warmed before it mounts |
+| `@slotform/query/net` | `listen`: the phone's network (`expo-network`) and foreground (`AppState`) for `QueryProvider listen` (source, for the bundler) |
 
-The model these build on (`Read`, `Selection`, `Datum`, `combine`, the hooks) is `@fcalell/ui-core`'s `read`, `acts`, `scope` and `react/*` subpaths.
+The model these build on (`Read`, `Selection`, `Datum`, `combine`, the hooks) is `@slotform/ui-core`'s `read`, `acts`, `scope` and `react/*` subpaths.
 
 ## License
 

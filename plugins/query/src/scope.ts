@@ -3,7 +3,7 @@ import {
 	registeredScope,
 	type ScopeIds,
 	type ScopeSchema,
-} from "@fcalell/ui-core/scope";
+} from "@slotform/ui-core/scope";
 import { READ_KEYS } from "./read-keys.ts";
 
 // The route's scope set on oRPC's query utils: docs/architecture/plugins/query.md, "Scope".

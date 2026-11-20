@@ -1,4 +1,4 @@
-import type { QueryListeners } from "@fcalell/ui-core/listen";
+import type { QueryListeners } from "@slotform/ui-core/listen";
 import { addNetworkStateListener } from "expo-network";
 import { AppState } from "react-native";
 
