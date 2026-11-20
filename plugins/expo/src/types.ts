@@ -1,4 +1,4 @@
-import type { ProviderSpec, TsImportSpec } from "@fcalell/cli/ast";
+import type { ProviderSpec, TsImportSpec } from "@slotform/cli/ast";
 import { z } from "zod";
 
 // ── Plugin options ─────────────────────────────────────────────────
@@ -24,7 +24,7 @@ const minNativeBuildSchema = z.object({
 
 export const expoOptionsSchema = z.object({
 	// Metro dev-server port. Defaults to Expo's 8081; flows into the localhost
-	// CORS origin contributed to plugin-api.
+	// CORS origin contributed to the `api` plugin.
 	port: z.number().int().min(1).max(65535).optional(),
 	// Client version gate: walls native builds below the floor with 426
 	// Upgrade Required (see `./worker/version-gate`). Omitted entirely, or
@@ -90,7 +90,7 @@ export interface CodegenMetroPayload {
 // ── Expo app config codegen ────────────────────────────────────────
 // The app config is assembled as a string and emitted as .cjs: docs/architecture/plugins/expo.md, "Config files are .cjs".
 //
-// A config plugin is an object, not a tuple: docs/architecture/slot-catalog.md, "`expo.slots.*` (plugin-expo)".
+// A config plugin is an object, not a tuple: docs/architecture/slot-catalog.md, "`expo.slots.*` (the `expo` plugin)".
 export type ExpoConfigPlugin = z.infer<typeof expoConfigPluginSchema>;
 
 export interface CodegenExpoConfigPayload {
@@ -105,14 +105,14 @@ export interface CodegenExpoConfigPayload {
 
 // ── Entry codegen ──────────────────────────────────────────────────
 //
-// `.stack/entry.tsx` is regular TSX and is built through `renderTsSourceFile`.
+// `.slotform/entry.tsx` is regular TSX and is built through `renderTsSourceFile`.
 // Providers compose around `<ExpoRoot context={require.context(<appDir>)} />`,
 // the documented custom-root hook for injecting global providers above
 // expo-router.
 export interface CodegenEntryPayload {
 	imports: TsImportSpec[];
 	providers: ProviderSpec[];
-	// Path passed to `require.context`, relative to `.stack/` (e.g.
+	// Path passed to `require.context`, relative to `.slotform/` (e.g.
 	// `../src/app`). `null` when routing is disabled — no ExpoRoot is rendered.
 	appContextPath: string | null;
 }

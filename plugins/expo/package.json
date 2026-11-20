@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-expo",
+	"name": "@slotform/expo",
 	"version": "0.1.0",
-	"description": "The Expo/React Native target for @fcalell/stack: Metro config, Expo app config, the expo-router entry and EAS commands.",
+	"description": "The Expo/React Native target for slotform: Metro config, Expo app config, the expo-router entry and EAS commands.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/expo"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/expo#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/expo#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -50,10 +50,10 @@
 		"test": "node --test 'src/**/*.test.ts'"
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-cloudflare": "workspace:^",
-		"@fcalell/ui-core": "workspace:^"
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/cloudflare": "workspace:^",
+		"@slotform/ui-core": "workspace:^"
 	},
 	"peerDependencies": {
 		"expo": "~58.0.25",
@@ -71,7 +71,7 @@
 		}
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
 		"expo": "~58.0.25",
 		"expo-application": "~58.1.2",

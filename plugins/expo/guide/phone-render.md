@@ -2,21 +2,21 @@
 
 The phone app renders on an Android emulator for the design critique, driven by Maestro. It
 needs x86_64 Linux with `/dev/kvm`, and runs a debug build of the app that loads its JavaScript
-from `stack expo dev`. Expo Go cannot run the native roster, so the build is the app's own.
+from `slotform expo dev`. Expo Go cannot run the native roster, so the build is the app's own.
 [Capture a phone screen](./phone-capture.md) drives the running app.
 
 ## The shell
 
-Every command runs in stack's phone shell (the Android SDK, the emulator, JDK 17, Maestro,
-ImageMagick), in bash, from the app's directory, with the app's `stack` on the path. A
+Every command runs in Slotform's phone shell (the Android SDK, the emulator, JDK 17, Maestro,
+ImageMagick), in bash, from the app's directory, with the app's `slotform` on the path. A
 non-interactive shell sources the environment; zsh drops `adb` and `emulator` from it. Inside
-stack's own repository the flake is the local checkout's (`<repo>#phone`), since the published
+Slotform's own repository the flake is the local checkout's (`<repo>#phone`), since the published
 one lags it, and the workspace packages are built first.
 
 ```sh
-source <(nix print-dev-env github:fcalell/stack#phone)   # in stack's repo: <repo>#phone
+source <(nix print-dev-env github:fcalell/slotform#phone)   # in slotform's repo: <repo>#phone
 cd <app> && export PATH="$PWD/node_modules/.bin:$PATH"
-turbo run build --filter=<app>...                        # in stack's repo, from its root
+turbo run build --filter=<app>...                        # in slotform's repo, from its root
 ```
 
 The build needs no nix-ld on NixOS: `hermesc` is static, and the shell points Gradle at the
@@ -28,7 +28,7 @@ A 1080 × 2400 px panel, the one the critique's densities are computed for. avdm
 `Could not load devices from … devices.xml` and exits non-zero, yet writes the device.
 
 ```sh
-avdmanager create avd -n stack-phone -d pixel_7 \
+avdmanager create avd -n slotform-phone -d pixel_7 \
   -k "system-images;android-36;google_apis;x86_64"
 ```
 
@@ -37,7 +37,7 @@ avdmanager create avd -n stack-phone -d pixel_7 \
 A new native module, config plugin or font takes a new build; a JavaScript change does not.
 
 ```sh
-stack expo prebuild --platform android
+slotform expo prebuild --platform android
 (cd android && ./gradlew assembleDebug -PreactNativeArchitectures=x86_64)
 ```
 
@@ -47,7 +47,7 @@ boots, never beside it: the two together exhaust 16 GB of memory.
 ## Every session: boot, install, start
 
 ```sh
-emulator -avd stack-phone -no-window -no-audio -no-boot-anim -no-snapshot \
+emulator -avd slotform-phone -no-window -no-audio -no-boot-anim -no-snapshot \
   -gpu swiftshader_indirect > emulator.log 2>&1 &
 adb wait-for-device
 until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 2; done
@@ -59,11 +59,11 @@ for k in window_animation_scale transition_animation_scale animator_duration_sca
   adb shell settings put global $k 0
 done
 adb reverse tcp:8787 tcp:8787
-setsid stack dev > dev.log 2>&1 & DEV=$!
-setsid stack expo dev > metro.log 2>&1 & METRO=$!
+setsid slotform dev > dev.log 2>&1 & DEV=$!
+setsid slotform expo dev > metro.log 2>&1 & METRO=$!
 
-PKG=$(node -p 'require("./.stack/app.config.cjs").android.package')
-SCHEME=$(node -p 'require("./.stack/app.config.cjs").scheme')
+PKG=$(node -p 'require("./.slotform/app.config.cjs").android.package')
+SCHEME=$(node -p 'require("./.slotform/app.config.cjs").scheme')
 worker_pid() { ss -Htlnp 'sport = :8787' | grep -o 'pid=[0-9]*' | cut -d= -f2 | sort -u; }
 ```
 
@@ -77,7 +77,7 @@ Reanimated answers with a development warning and its toast, which a flow dismis
 
 `adb reverse` is what lets the API client's localhost fallback reach the worker
 ([the URL](./api-client.md#the-url)); without it every query fails. The worker's port is fixed, so one
-`stack dev` runs on the machine at a time.
+`slotform dev` runs on the machine at a time.
 
 ## Shut down
 
@@ -90,4 +90,4 @@ adb shell cmd uimode night no
 adb emu kill
 ```
 
-A `workerd` that outlives `stack dev` keeps port 8787 and blocks the next session's worker.
+A `workerd` that outlives `slotform dev` keeps port 8787 and blocks the next session's worker.

@@ -73,7 +73,7 @@ matters (a height, a size, a contrast) is a rule of the render walk
 
 A toast is gone before `maestro hierarchy` returns: judge it from a screenshot the flow takes
 right after the act. The app's JavaScript warnings and errors arrive in `metro.log`, the output
-of `stack expo dev`.
+of `slotform expo dev`.
 
 ## Hold a query's states
 
@@ -81,14 +81,14 @@ The worker the app calls holds them.
 
 | State | How |
 | --- | --- |
-| Empty | Stop the worker, delete the local database (`.wrangler/state`) with `stack db reset`, start it again |
+| Empty | Stop the worker, delete the local database (`.wrangler/state`) with `slotform db reset`, start it again |
 | Pending | `kill -STOP $(worker_pid)`: the request is accepted, never answered. `kill -CONT` releases it |
 | Failed | Stop the worker: the query fails after the client's single retry. Start it, tap Retry to load |
 
 ```sh
 kill -- -$DEV; kill $(worker_pid) 2>/dev/null           # stop the worker
-stack db reset                                           # empty
-setsid stack dev > dev.log 2>&1 & DEV=$!                 # start it again
+slotform db reset                                           # empty
+setsid slotform dev > dev.log 2>&1 & DEV=$!                 # start it again
 until [ -n "$(worker_pid)" ]; do sleep 1; done
 ```
 

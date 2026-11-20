@@ -1,4 +1,4 @@
-import { createStore } from "@fcalell/ui-core/store";
+import { createStore } from "@slotform/ui-core/store";
 import * as Application from "expo-application";
 import { Platform } from "react-native";
 import {
@@ -33,7 +33,7 @@ export function onUpdateRequired(cb: () => void): () => void {
 }
 
 // `input` may already be a `Request` carrying its own headers (the oRPC link
-// used by `@fcalell/plugin-api/client` constructs one), so this merges
+// used by `@slotform/api/client` constructs one), so this merges
 // rather than replaces, keeping Content-Type and any caller-supplied
 // headers intact.
 export function createVersionGatedFetch(

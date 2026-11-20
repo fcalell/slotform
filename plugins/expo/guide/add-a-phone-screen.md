@@ -1,15 +1,15 @@
 # Add a phone screen
 
 A phone screen is a route file composed from the native roster, fed by the typed client, with
-every state drawn. The screen recipe (`node_modules/@fcalell/ui-core/guide/screen.md`) is the
+every state drawn. The screen recipe (`node_modules/@slotform/ui-core/guide/screen.md`) is the
 loop; this page is where the phone differs. Work the steps in order; each names the page it needs
 and ends with its check.
 
 ## 1. Read, reference and map
 
 Run the screen recipe's steps 1 to 3 with the phone as the platform, mapping each part under the
-phone's rules page (`node_modules/@fcalell/plugin-native-ui/guide/rules.md`) to a component in
-`node_modules/@fcalell/plugin-native-ui/src/ui/components/`.
+phone's rules page (`node_modules/@slotform/native-ui/guide/rules.md`) to a component in
+`node_modules/@slotform/native-ui/src/ui/components/`.
 
 **Check:** every part names its component, or its shortfall.
 
@@ -24,7 +24,7 @@ Page: [routes](./routes.md).
 ## 3. Compose
 
 Write the screen under the phone's rules page, reading each component's props in its
-`index.tsx`. Page: `node_modules/@fcalell/plugin-native-ui/guide/reference.md`.
+`index.tsx`. Page: `node_modules/@slotform/native-ui/guide/reference.md`.
 
 **Check:** `pnpm check` passes.
 
@@ -35,7 +35,7 @@ screen's `Pane`, or the `Section` that stands over the data, takes the read as i
 collection (a `List`, a `Table`) and every part that shows a value take the read or a selection of
 it (`project.at((p) => p.name)`), and paint while it waits. Page: [the API client](./api-client.md).
 
-**Check:** with `stack dev` and `stack expo dev` running, the screen loads its data on a device
+**Check:** with `slotform dev` and `slotform expo dev` running, the screen loads its data on a device
 or simulator.
 
 ## 5. Draw every state
@@ -47,8 +47,8 @@ frame's `read` draws the last three, and the loaded shape painted is the first.
 
 ## 6. Judge and sign off
 
-Start the app on the emulator by the [render page](./phone-render.md), with `stack dev` and
-`stack expo dev` running, and run the screen recipe's "Look" and "Show" steps: a fresh session judges the
+Start the app on the emulator by the [render page](./phone-render.md), with `slotform dev` and
+`slotform expo dev` running, and run the screen recipe's "Look" and "Show" steps: a fresh session judges the
 render on the emulator by the design critique's phone section, at 390 and 320 dp, light and
 dark, and edits nothing. It gets the route as a deep link, the patterns, the states from the "Draw every state" step
 and how to reach each, the references and the files. A change that adds a native module, a

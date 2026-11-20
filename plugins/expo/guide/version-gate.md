@@ -35,8 +35,8 @@ made before it opens nothing on iOS.
 
 | Header | Value |
 | --- | --- |
-| `x-stack-client-build` | The native build number, digits only |
-| `x-stack-client-platform` | `ios` or `android` |
+| `x-slotform-client-build` | The native build number, digits only |
+| `x-slotform-client-platform` | `ios` or `android` |
 
 The scaffolded client stamps both on every request ([the API client](./api-client.md)). A build
 that stamps other names is invisible to the gate and

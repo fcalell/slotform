@@ -1,6 +1,6 @@
 # Signing in on the phone
 
-The phone signs in against the same worker as the web, through `@fcalell/plugin-auth/expo`. The
+The phone signs in against the same worker as the web, through `@slotform/auth/expo`. The
 server side is one option; the client is a scaffolded file; a screen calls one helper per way of
 signing in.
 
@@ -14,10 +14,10 @@ since a phone client is always cross-site. The scheme is the one the app config 
 ## The client
 
 `nativeUi()` scaffolds `src/lib/auth.ts` once, and the generated entry wraps the app in
-`AuthProvider` with it, from `node_modules/@fcalell/plugin-native-ui/templates/lib-auth.ts`: a
-`createAuthClient` from `@fcalell/plugin-auth/expo` over `expo-secure-store`.
+`AuthProvider` with it, from `node_modules/@slotform/native-ui/templates/lib-auth.ts`: a
+`createAuthClient` from `@slotform/auth/expo` over `expo-secure-store`.
 
-Keep `scheme` and `cookiePrefix` imported from `.stack/native-auth.ts`: it holds the scheme the app
+Keep `scheme` and `cookiePrefix` imported from `.slotform/native-auth.ts`: it holds the scheme the app
 config carries and the prefix the worker sets its cookies under. The client keeps only the
 cookies under that prefix, so a hand-typed one that differs drops every session, silently, and
 the app reads as signed out. `baseURL` is the worker's origin, the same `EXPO_PUBLIC_API_URL` as

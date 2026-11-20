@@ -1,7 +1,7 @@
 # Phone routes
 
 The phone app's screens are expo-router files under `src/app/` (or `expo({ routes: { appDir } })`).
-Each file's default export is the screen at its path. The generated entry, `.stack/entry.tsx`,
+Each file's default export is the screen at its path. The generated entry, `.slotform/entry.tsx`,
 mounts expo-router over that directory inside every provider the plugins contribute, so the app
 writes no `App` component and calls no `registerRootComponent`.
 
@@ -20,8 +20,8 @@ five, four tabs and a More tab listing the rest.
 
 ```tsx
 // src/app/_layout.tsx
-import { Shell } from "@fcalell/plugin-native-ui/components/shell";
-import type { PlaceSpec } from "@fcalell/ui-core/descriptors";
+import { Shell } from "@slotform/native-ui/components/shell";
+import type { PlaceSpec } from "@slotform/ui-core/descriptors";
 import { Stack } from "expo-router";
 
 const places: PlaceSpec[] = [
@@ -49,7 +49,7 @@ A place is current at its route and every route under it; `/` only at itself.
 
 ## An address no route serves
 
-With `nativeUi()`, `stack generate` writes `src/app/+not-found.tsx` when the directory holds no
+With `nativeUi()`, `slotform generate` writes `src/app/+not-found.tsx` when the directory holds no
 `+not-found` file: the page for an unmatched address, drawn inside the root layout. It is yours
 from then on: replace its contents to draw another page, and it is never rewritten.
 
@@ -83,8 +83,8 @@ export default function ProjectScreen() {
 ## Navigating
 
 A roster `href`, `back` or place `route` navigates through expo-router on its own. App code
-navigates with `router` or `Link` from `expo-router`. Every one of these routes is typed: `stack generate`
-writes the route types from the files under the routes directory, and `stack dev` rewrites them
+navigates with `router` or `Link` from `expo-router`. Every one of these routes is typed: `slotform generate`
+writes the route types from the files under the routes directory, and `slotform dev` rewrites them
 as a route file comes or goes, so an `href` to a path no file serves fails the type-check.
 
 A phone screen starts its reads as it mounts, under the push. A route that wants them under way
@@ -92,7 +92,7 @@ sooner exports `preload`, built from the read its screen draws, as a web route's
 
 ```tsx
 // src/app/projects/[id].tsx
-import { preload as start } from "@fcalell/plugin-query/preload";
+import { preload as start } from "@slotform/query/preload";
 import type { QueryClient } from "@tanstack/react-query";
 
 const project = (id: string) => orpc.projects.get.read({ id });

@@ -1,9 +1,9 @@
 // Babel must live at the project root for Metro to find it. babel-preset-expo
-// includes the expo-router require.context transform used by .stack/entry.tsx.
+// includes the expo-router require.context transform used by .slotform/entry.tsx.
 // The React Compiler runs first (plugins precede presets) over your code and
-// @fcalell/* under node_modules, the same filter the web build uses;
+// @slotform/* under node_modules, the same filter the web build uses;
 // babel-preset-expo compiles no dependency on its own.
-const { COMPILED_SOURCE } = require("@fcalell/cli/compiled-source");
+const { COMPILED_SOURCE } = require("@slotform/cli/compiled-source");
 
 module.exports = (api) => {
 	api.cache(true);

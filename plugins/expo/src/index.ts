@@ -2,18 +2,18 @@ import { spawnSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
-import type { ContributionCtx } from "@fcalell/cli";
-import { plugin, slot } from "@fcalell/cli";
+import { api } from "@slotform/api";
+import type { ContributionCtx } from "@slotform/cli";
+import { GENERATED_DIR, plugin, slot } from "@slotform/cli";
 import type {
 	MiddlewareSpec,
 	ProviderSpec,
 	ScaffoldSpec,
 	TsImportSpec,
-} from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import type { GeneratedFile } from "@fcalell/cli/specs";
-import { api } from "@fcalell/plugin-api";
-import { cloudflare } from "@fcalell/plugin-cloudflare";
+} from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import type { GeneratedFile } from "@slotform/cli/specs";
+import { cloudflare } from "@slotform/cloudflare";
 import { z } from "zod";
 import {
 	aggregateEntry,
@@ -45,7 +45,7 @@ const SOURCE = "expo";
 
 const DEFAULT_PORT = 8081;
 const DEFAULT_APP_DIR = "src/app";
-// The `eas.json` `stack init` writes: the build profiles by name, the eas-cli floor its `cli.version` and
+// The `eas.json` `slotform init` writes: the build profiles by name, the eas-cli floor its `cli.version` and
 // the `eas-cli` devDependency share.
 const EAS_CLI_FLOOR = "27.10.0";
 const DEFAULT_EAS_BUILD = {
@@ -91,24 +91,24 @@ function versionGateFloors(
 
 // The generated expo-router custom root. It calls `registerRootComponent` and
 // mounts the provider stack, so it must be the package's `main` to ever run.
-const ENTRY_ARTIFACT = ".stack/entry.tsx";
+const ENTRY_ARTIFACT = `${GENERATED_DIR}/entry.tsx`;
 
 // Mirrors the `expo-env.d.ts` Expo's own tooling writes at a project root: a
 // single reference that pulls Expo's ambient types into the app's TS program
 // (require.context for the router entry, EXPO_PUBLIC_* env vars, etc.).
-// Emitted into `.stack/` so the consumer's `tsconfig.app.json` includes it
+// Emitted into `.slotform/` so the consumer's `tsconfig.app.json` includes it
 // without a hand-managed file.
-const EXPO_ENV_ARTIFACT = ".stack/expo-env.d.ts";
-const ROUTES_ARTIFACT = ".stack/routes.d.ts";
+const EXPO_ENV_ARTIFACT = `${GENERATED_DIR}/expo-env.d.ts`;
+const ROUTES_ARTIFACT = `${GENERATED_DIR}/routes.d.ts`;
 const EXPO_ENV_DTS = '/// <reference types="expo/types" />\n';
 
 // ── Slot declarations ──────────────────────────────────────────────
 //
-// plugin-expo owns the native bootstrap the way plugin-vite and the web
+// The `expo` plugin owns the native bootstrap the way the `vite` plugin and the web
 // plugin own the web one: metro config, the Expo app config, the entry, and typed
 // routes. Peer plugins (native-ui, auth/expo) contribute
 // into the list slots; the derived `*Config`/`*Source` slots compose them
-// into the files emitted under `.stack/`. Ordering is pure dataflow.
+// into the files emitted under `.slotform/`. Ordering is pure dataflow.
 
 const metroConfigImports = slot.list<MetroRequireSpec>({
 	source: SOURCE,
@@ -145,7 +145,7 @@ const entryImports = slot.list<TsImportSpec>({
 });
 
 // Resolved Metro dev-server port. Defaults to Expo's 8081; flows into the
-// localhost CORS origin contributed to plugin-api.
+// localhost CORS origin contributed to the `api` plugin.
 const devServerPort = slot.value<number, ExpoOptions>({
 	source: SOURCE,
 	name: "devServerPort",
@@ -155,7 +155,7 @@ const devServerPort = slot.value<number, ExpoOptions>({
 	},
 });
 
-// null with `routes: false`: docs/architecture/slot-catalog.md, "`expo.slots.*` (plugin-expo)".
+// null with `routes: false`: docs/architecture/slot-catalog.md, "`expo.slots.*` (the `expo` plugin)".
 const routesPagesDir = slot.derived({
 	source: SOURCE,
 	name: "routesPagesDir",
@@ -249,12 +249,12 @@ const entrySource = slot.derived({
 		aggregateEntry({
 			imports: inp.imports,
 			providers: inp.providers,
-			// entry.tsx lives in `.stack/`, so the app dir is one level up.
+			// entry.tsx lives in `.slotform/`, so the app dir is one level up.
 			appContextPath: inp.pagesDir === null ? null : `../${inp.pagesDir}`,
 		}),
 });
 
-// The app's typed routes, `.stack/routes.d.ts`; null when routing is off.
+// The app's typed routes, `.slotform/routes.d.ts`; null when routing is off.
 const routesDtsSource = slot.derived({
 	source: SOURCE,
 	name: "routesDtsSource",
@@ -308,12 +308,12 @@ export const expo = plugin("expo", {
 		// React's types back the app's JSX (`react/jsx-runtime`); without it a
 		// consumer's `tsconfig.app.json` can't resolve the automatic runtime.
 		"@types/react": "^19.3.0",
-		// `babel.config.cjs` runs it over the app's code and @fcalell/* (Babel
+		// `babel.config.cjs` runs it over the app's code and @slotform/* (Babel
 		// resolves the plugin from the consumer).
 		"babel-plugin-react-compiler": "^1.0.0",
 	},
 	// Expo cache + prebuild outputs (continuous native generation regenerates
-	// ios/ + android/ on demand via `stack expo prebuild`).
+	// ios/ + android/ on demand via `slotform expo prebuild`).
 	gitignore: [".expo", "ios", "android"],
 
 	guide: [
@@ -392,7 +392,7 @@ export const expo = plugin("expo", {
 				const args = ["expo", "start", "--port", String(port)];
 				if (flags.clear) args.push("--clear");
 				// Expo's TypeScript setup rewrites the generated tsconfig.json
-				// (`extends`, `include`), which stack owns.
+				// (`extends`, `include`), which Slotform owns.
 				const { ok } = runInherit(args, ctx.cwd, {
 					...ctx.env,
 					EXPO_NO_TYPESCRIPT_SETUP: "1",
@@ -503,7 +503,7 @@ export const expo = plugin("expo", {
 				return {
 					imports: [
 						{
-							source: "@fcalell/plugin-expo/version-gate",
+							source: "@slotform/expo/version-gate",
 							named: ["versionGate"],
 						},
 					],
@@ -550,8 +550,8 @@ export const expo = plugin("expo", {
 		}),
 
 		// The two config files are .cjs: docs/architecture/plugins/expo.md, "Config files are .cjs".
-		emitArtifact(".stack/metro.config.cjs", self.slots.metroConfig),
-		emitArtifact(".stack/app.config.cjs", self.slots.expoConfig),
+		emitArtifact(`${GENERATED_DIR}/metro.config.cjs`, self.slots.metroConfig),
+		emitArtifact(`${GENERATED_DIR}/app.config.cjs`, self.slots.expoConfig),
 		emitArtifact(ENTRY_ARTIFACT, self.slots.entrySource),
 		emitArtifact(ROUTES_ARTIFACT, self.slots.routesDtsSource),
 
@@ -560,7 +560,7 @@ export const expo = plugin("expo", {
 			async (ctx) => (await ctx.resolve(self.slots.notFoundFile)) ?? undefined,
 		),
 
-		// A route file added or removed during `stack dev` retypes the hrefs.
+		// A route file added or removed during `slotform dev` retypes the hrefs.
 		cliSlots.devWatchers.contribute(async (ctx) => {
 			const pagesDir = await ctx.resolve(self.slots.routesPagesDir);
 			if (pagesDir === null) return undefined;
@@ -639,7 +639,7 @@ export const expo = plugin("expo", {
 			ctx.scaffold("lib-api.ts", "src/lib/api.ts"),
 		),
 
-		// Clean up the scaffolded root config files on `stack remove expo`.
+		// Clean up the scaffolded root config files on `slotform remove expo`.
 		cliSlots.removeFiles.contribute(() => [
 			"metro.config.js",
 			"app.config.ts",
