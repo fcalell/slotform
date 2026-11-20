@@ -370,15 +370,13 @@ export const nativeUi = plugin("native-ui", {
 		},
 	],
 
-	// Consumer dependencies. A native module takes the version the app's Expo
-	// SDK is built against; the rest are not in the SDK's table.
+	// Consumer dependencies beside the required peers the CLI writes from the
+	// manifests. A native module takes the version the app's Expo SDK is built
+	// against; the rest are not in the SDK's table.
 	dependencies: {
 		// The `@source` root pointing into ui-core only resolves when the package
 		// sits in the consumer's node_modules.
-		"@fcalell/ui-core": stackSpec("@fcalell/ui-core"),
-		uniwind: "^1.13.2",
-		"@gorhom/bottom-sheet": "^5.2.14",
-		"lucide-react-native": "^1.73.0",
+		"@fcalell/ui-core": stackSpec(),
 		"@tanstack/react-query": "^5.107.1",
 		"@better-auth/expo": "1.7.25",
 		...sdkVersions([

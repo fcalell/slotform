@@ -83,7 +83,6 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"peerDependencies": {
-		"@better-auth/expo": "1.7.25",
 		"@gorhom/bottom-sheet": "^5.2.14",
 		"lucide-react-native": "^1.73.0",
 		"react": "^19.3.0",
@@ -101,7 +100,8 @@
 		"expo-sharing": "~58.0.23",
 		"expo-document-picker": "~58.0.5",
 		"expo-image-picker": "~58.0.10",
-		"expo-constants": "~58.0.16"
+		"expo-constants": "~58.0.16",
+		"zod": "^4.6.7"
 	},
 	"peerDependenciesMeta": {
 		"expo-audio": {
@@ -115,14 +115,11 @@
 		"@fcalell/plugin-expo": "workspace:^",
 		"@fcalell/ui-core": "workspace:^",
 		"@legendapp/list": "~3.7.2",
-		"class-variance-authority": "^0.7.1",
 		"lucide": "^1.73.0",
-		"zod": "^4.6.7",
 		"diff": "^9.0.0",
 		"marked": "^18.2.0"
 	},
 	"devDependencies": {
-		"@better-auth/expo": "1.7.25",
 		"@fcalell/typescript-config": "workspace:^",
 		"@gorhom/bottom-sheet": "^5.2.14",
 		"@tailwindcss/cli": "^4.3.5",
@@ -149,6 +146,7 @@
 		"expo-image-picker": "~58.0.10",
 		"expo-constants": "~58.0.16",
 		"react-native-screens": "~4.30.1",
-		"react-dom": "19.3.0"
+		"react-dom": "19.3.0",
+		"zod": "^4.6.7"
 	}
 }
