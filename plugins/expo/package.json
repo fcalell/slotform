@@ -53,14 +53,14 @@
 		"@fcalell/cli": "workspace:^",
 		"@fcalell/plugin-api": "workspace:^",
 		"@fcalell/plugin-cloudflare": "workspace:^",
-		"@fcalell/ui-core": "workspace:^",
-		"expo": "~58.0.25",
-		"hono": "^4.13.19",
-		"zod": "^4.6.7"
+		"@fcalell/ui-core": "workspace:^"
 	},
 	"peerDependencies": {
+		"expo": "~58.0.25",
 		"expo-application": ">=58.0.0",
-		"react-native": ">=0.88.0"
+		"hono": "^4.13.19",
+		"react-native": "^0.88.0",
+		"zod": "^4.6.7"
 	},
 	"peerDependenciesMeta": {
 		"expo-application": {
@@ -73,8 +73,11 @@
 	"devDependencies": {
 		"@fcalell/typescript-config": "workspace:^",
 		"@types/node": "^26.6.6",
+		"expo": "~58.0.25",
 		"expo-application": "~58.1.2",
+		"hono": "^4.13.19",
 		"react-native": "0.88.1",
-		"typescript": "^7.0.2"
+		"typescript": "^7.0.2",
+		"zod": "^4.6.7"
 	}
 }
