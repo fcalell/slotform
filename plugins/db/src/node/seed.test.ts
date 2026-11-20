@@ -73,7 +73,7 @@ async function withSeedFile<T>(
 	source: string | null,
 	run: (cwd: string) => Promise<T>,
 ): Promise<T> {
-	const cwd = mkdtempSync(join(tmpdir(), "stack-seed-"));
+	const cwd = mkdtempSync(join(tmpdir(), "slotform-seed-"));
 	try {
 		if (source !== null) {
 			mkdirSync(join(cwd, "src", "schema"), { recursive: true });
@@ -114,7 +114,7 @@ const orm = dirname(
 
 // A project whose seed reads its tables from drizzle, as a consumer's does.
 function seedProject(seed: string): string {
-	const cwd = mkdtempSync(join(tmpdir(), "stack-seed-apply-"));
+	const cwd = mkdtempSync(join(tmpdir(), "slotform-seed-apply-"));
 	mkdirSync(join(cwd, "src", "schema"), { recursive: true });
 	mkdirSync(join(cwd, "node_modules"), { recursive: true });
 	symlinkSync(orm, join(cwd, "node_modules", "drizzle-orm"), "dir");

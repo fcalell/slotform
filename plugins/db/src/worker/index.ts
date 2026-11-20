@@ -1,4 +1,4 @@
-import type { RuntimePlugin } from "@fcalell/cli/runtime";
+import type { RuntimePlugin } from "@slotform/cli/runtime";
 import type { AnyD1Database, DrizzleD1Database } from "drizzle-orm/d1";
 import { createClient } from "../d1/client.ts";
 

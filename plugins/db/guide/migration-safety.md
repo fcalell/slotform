@@ -1,13 +1,13 @@
 # Migration safety
 
-`stack db check` refuses four things, and `stack deploy` on d1 refuses the same four before it
+`slotform db check` refuses four things, and `slotform deploy` on d1 refuses the same four before it
 touches the cloud:
 
 - **Drift**: `src/schema/index.ts` differs from what the committed migrations build. The fix is
-  `stack db generate`, then commit the migration.
+  `slotform db generate`, then commit the migration.
 - **An unacknowledged drop**: the newest migration drops a table, a column or a view. A rename
   counts: the old name is gone. The check reads only the newest migration, so run it after every
-  `stack db generate`.
+  `slotform db generate`.
 - **A full-text index left without its triggers**: a migration rebuilds an indexed table and no
   later statement creates the index's triggers again. The page is [full-text search](./fts.md).
 - **A migration that does not apply**: the check builds an empty in-memory database from every
@@ -31,11 +31,11 @@ never meets a database missing a shape it uses. The steps are
 A migration whose drop is intentional and safe carries this line anywhere in its `.sql`:
 
 ```sql
--- stack:allow-destructive
+-- slotform:allow-destructive
 ```
 
 Add it only when no running code reads the dropped shape: the contract step, or a table no
 release ever used. Never add it to make the check pass on a drop the expand step has not made
 safe.
 
-**Check:** `stack db check` passes.
+**Check:** `slotform db check` passes.

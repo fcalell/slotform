@@ -1,14 +1,14 @@
 import { readFile } from "node:fs/promises";
 import { basename, join, posix } from "node:path";
-import { type ContributionCtx, plugin, slot } from "@fcalell/cli";
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
-import { cliSlots } from "@fcalell/cli/cli-slots";
-import { StackError } from "@fcalell/cli/errors";
-import type { PluginRuntimeEntry } from "@fcalell/plugin-api";
-import { api } from "@fcalell/plugin-api";
-import { cloudflare, LOCAL_PERSIST } from "@fcalell/plugin-cloudflare";
-import { node } from "@fcalell/plugin-node";
-import { screens } from "@fcalell/plugin-screens";
+import type { PluginRuntimeEntry } from "@slotform/api";
+import { api } from "@slotform/api";
+import { type ContributionCtx, plugin, slot } from "@slotform/cli";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
+import { cliSlots } from "@slotform/cli/cli-slots";
+import { SlotformError } from "@slotform/cli/errors";
+import { cloudflare, LOCAL_PERSIST } from "@slotform/cloudflare";
+import { node } from "@slotform/node";
+import { screens } from "@slotform/screens";
 import { coalesce } from "./node/coalesce.ts";
 import {
 	assertDeployableDatabaseId,
@@ -63,7 +63,7 @@ interface InitPromptCtx {
 }
 
 const d1Only = (command: string): string =>
-	`\`stack db ${command}\` only applies to the d1 dialect.`;
+	`\`slotform db ${command}\` only applies to the d1 dialect.`;
 
 export const db = plugin("db", {
 	label: "Database",
@@ -106,12 +106,12 @@ export const db = plugin("db", {
 		{
 			page: "commands",
 			trigger:
-				"Running a `stack db` command, or a migration, a local database or a deploy step misbehaves",
+				"Running a `slotform db` command, or a migration, a local database or a deploy step misbehaves",
 		},
 		{
 			page: "migration-safety",
 			trigger:
-				"`stack db check` or a deploy refuses a migration (drift or a drop)",
+				"`slotform db check` or a deploy refuses a migration (drift or a drop)",
 		},
 		{
 			page: "config",
@@ -219,7 +219,9 @@ export const db = plugin("db", {
 						force: true,
 					});
 				});
-				ctx.log.success("Local database deleted. Run `stack dev` to recreate.");
+				ctx.log.success(
+					"Local database deleted. Run `slotform dev` to recreate.",
+				);
 			},
 		},
 		create: {
@@ -245,7 +247,7 @@ export const db = plugin("db", {
 				}
 				ctx.log.success(`Created D1 database "${result.name}"`);
 				ctx.log.info(
-					`Set it in stack.config.ts: db({ dialect: "d1", databaseId: "${result.id}" })`,
+					`Set it in slotform.config.ts: db({ dialect: "d1", databaseId: "${result.id}" })`,
 				);
 			},
 		},
@@ -263,7 +265,7 @@ export const db = plugin("db", {
 					}
 				}
 				if (problems.length > 0) {
-					throw new StackError(
+					throw new SlotformError(
 						`db check failed: ${problems.join(", ")}`,
 						"DB_CHECK",
 					);
@@ -369,7 +371,7 @@ export const db = plugin("db", {
 				return { name: self.options.fileVar, devDefault: self.options.path };
 			}),
 
-			// The node bundle (`stack build`) carries the committed migrations beside
+			// The node bundle (`slotform build`) carries the committed migrations beside
 			// it and applies them before it listens, so the box needs no CLI.
 			node.slots.bundleEntries.contribute(() => {
 				if (self.options.dialect !== "sqlite") return undefined;
@@ -377,7 +379,7 @@ export const db = plugin("db", {
 					name: "db-migrate",
 					imports: [
 						{
-							source: "@fcalell/plugin-db/runtime/sqlite",
+							source: "@slotform/db/runtime/sqlite",
 							named: ["migrateSqlite"],
 						},
 					],
@@ -435,7 +437,7 @@ export const db = plugin("db", {
 						return {
 							plugin: "db",
 							import: {
-								source: "@fcalell/plugin-db/runtime/sqlite",
+								source: "@slotform/db/runtime/sqlite",
 								default: "dbRuntime",
 							},
 							identifier: "dbRuntime",
@@ -448,7 +450,7 @@ export const db = plugin("db", {
 					return {
 						plugin: "db",
 						import: {
-							source: "@fcalell/plugin-db/runtime",
+							source: "@slotform/db/runtime",
 							default: "dbRuntime",
 						},
 						identifier: "dbRuntime",
@@ -480,7 +482,7 @@ export const db = plugin("db", {
 				return names ? [...names] : undefined;
 			}),
 
-			// The schema push at `stack dev` Ready time, through the latch the
+			// The schema push at `slotform dev` Ready time, through the latch the
 			// schema watcher below shares.
 			cliSlots.devReadySetup.contribute((ctx) => {
 				const push = schemaPush(ctx);
@@ -542,7 +544,7 @@ export const db = plugin("db", {
 						migrationFiles(migrationsDir(ctx.cwd, self.options)).length === 0
 					) {
 						throw new Error(
-							"No migrations to build the scratch database from: run `stack db generate`.",
+							"No migrations to build the scratch database from: run `slotform db generate`.",
 						);
 					}
 					let scratch = serve.state;
@@ -566,13 +568,13 @@ export const db = plugin("db", {
 					return undefined;
 				}),
 
-				// `stack db check`'s checks, each refusing the deploy before the
+				// `slotform db check`'s checks, each refusing the deploy before the
 				// build or any migration touches the cloud.
 				...MIGRATION_CHECKS.map((check) =>
 					cliSlots.deployChecks.contribute((ctx) => {
 						if (!d1()) return undefined;
 						const problem = check.run(ctx.cwd, self.options, ctx.env);
-						if (problem) throw new StackError(problem, check.code);
+						if (problem) throw new SlotformError(problem, check.code);
 						return undefined;
 					}),
 				),

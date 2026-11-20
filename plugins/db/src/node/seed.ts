@@ -250,9 +250,9 @@ interface LoadedSeed {
 }
 
 // Import the consumer's `src/schema/seed.ts` (node strips its types, as it
-// does for `stack.config.ts`) and introspect it. Returns `null` when no seed file exists.
+// does for `slotform.config.ts`) and introspect it. Returns `null` when no seed file exists.
 // Each load imports a fresh URL: Node's ESM cache would hand a long-running
-// `stack dev` the file as it was at the first load. The modules it imports
+// `slotform dev` the file as it was at the first load. The modules it imports
 // (the schema) stay cached.
 export async function loadSeed(cwd: string): Promise<LoadedSeed | null> {
 	const seedPath = join(cwd, "src", "schema", "seed.ts");

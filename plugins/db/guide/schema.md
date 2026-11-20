@@ -6,9 +6,9 @@ as `context.db`, and migrations are generated from it.
 
 ```ts
 // src/schema/index.ts
-import { index, integer, sqliteTable, text } from "@fcalell/plugin-db/orm";
+import { index, integer, sqliteTable, text } from "@slotform/db/orm";
 
-export * from "@fcalell/plugin-auth/schema";
+export * from "@slotform/auth/schema";
 
 export const projects = sqliteTable(
   "projects",
@@ -24,14 +24,14 @@ export const projects = sqliteTable(
 ```
 
 With auth installed, the file also re-exports auth's tables (`export * from
-"@fcalell/plugin-auth/schema"`, plus its organization, passkey, oauth or devices subpath when those are on), so
+"@slotform/auth/schema"`, plus its organization, passkey, oauth or devices subpath when those are on), so
 they are migrated with the app's own; the auth pages say which.
 
 ## Rules
 
 - Import every Drizzle piece (tables, columns, constraints, operators, `sql`, `alias`,
-  `relations`, row types such as `InferSelectModel`) from `@fcalell/plugin-db/orm`, never from
-  `drizzle-orm`. A piece `/orm` lacks is a shortfall in stack, not a reason to import `drizzle-orm`.
+  `relations`, row types such as `InferSelectModel`) from `@slotform/db/orm`, never from
+  `drizzle-orm`. A piece `/orm` lacks is a shortfall in Slotform, not a reason to import `drizzle-orm`.
 - Keep every table in `src/schema/index.ts`: the worker, the migrations and the entity
   vocabulary all read that one file.
 - Export one table per `export const`, and only tables, views and their relations: every value
@@ -41,7 +41,7 @@ they are migrated with the app's own; the auth pages say which.
   => qb.select().from(tasks).where(...))` (the columns are the select's),
   `sqliteView("recent", { id: text("id") }).as((qb) => qb.select()...)` or `.as(sql`select ...`)`
   (the columns you declare type its rows), and `sqliteView("recent", {...}).existing()` for one the
-  database already holds. `stack db generate` writes its `CREATE VIEW`. drizzle's own
+  database already holds. `slotform db generate` writes its `CREATE VIEW`. drizzle's own
   `sqliteView(name, columns).as(...)` takes `sql` only and fails a query builder at load with
   `query.inlineParams is not a function`; the `/orm` one accepts both.
 - Declare search with `ftsTable`, never a raw virtual table: [full-text search](./fts.md).
@@ -50,7 +50,7 @@ they are migrated with the app's own; the auth pages say which.
 
 Each value exported by name from `src/schema/index.ts` becomes an entity a procedure names in
 `reads` and `writes`: `projects` above makes `reads: ["projects"]` type-check, and a misspelled
-entity fails `pnpm check`. The vocabulary updates on `stack generate` (and at `stack dev`'s
+entity fails `pnpm check`. The vocabulary updates on `slotform generate` (and at `slotform dev`'s
 start), not on a schema save. `export *` adds no names; auth contributes its own tables' names
 itself, so `reads: ["member"]` works with no export here. Name an export for the entity it holds,
 since the name is what the client's cache invalidation matches.
@@ -60,7 +60,7 @@ since the name is what the client's cache invalidation matches.
 Query through `context.db` in a procedure. Operators come from the same module:
 
 ```ts
-import { and, desc, eq } from "@fcalell/plugin-db/orm";
+import { and, desc, eq } from "@slotform/db/orm";
 import { projects } from "../../schema/index.ts";
 
 const rows = await context.db
@@ -74,4 +74,4 @@ const rows = await context.db
 subquery; its name must differ from the table's own, or the subquery silently correlates to
 itself. A fragment built with `sql` is typed `SQL`.
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.

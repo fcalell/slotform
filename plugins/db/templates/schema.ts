@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "@fcalell/plugin-db/orm";
+import { integer, sqliteTable, text } from "@slotform/db/orm";
 
 export const examples = sqliteTable("examples", {
 	id: text("id").primaryKey(),

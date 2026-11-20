@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { RuntimePlugin } from "@fcalell/cli/runtime";
+import type { RuntimePlugin } from "@slotform/cli/runtime";
 import Database from "better-sqlite3";
 import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
@@ -41,7 +41,7 @@ export default function dbRuntime<
 	};
 }
 
-/** The task the production bundle runs before it listens: applies the committed migrations (`folder`, copied beside the bundle) to the database file the env var `fileVar` names in the env the server boots with, the ones `stack db apply` would, in the same journal, so a bundle needs no CLI on its box. Run twice it changes nothing. With the var unset it does nothing: the worker's env check names it. */
+/** The task the production bundle runs before it listens: applies the committed migrations (`folder`, copied beside the bundle) to the database file the env var `fileVar` names in the env the server boots with, the ones `slotform db apply` would, in the same journal, so a bundle needs no CLI on its box. Run twice it changes nothing. With the var unset it does nothing: the worker's env check names it. */
 export function migrateSqlite(options: {
 	fileVar: string;
 	folder: URL;

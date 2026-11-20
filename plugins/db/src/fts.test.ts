@@ -150,7 +150,10 @@ test("ftsQuery quotes every word and prefixes the last", () => {
 test("an index migrates once, again when it changes, and drops when removed", () => {
 	const def = search[FTS_KEY];
 	const [created] = pendingFtsMigrations([def], new Map());
-	assert.match(created?.sql ?? "", /^-- stack:fts task_search [0-9a-f]{8}\n/);
+	assert.match(
+		created?.sql ?? "",
+		/^-- slotform:fts task_search [0-9a-f]{8}\n/,
+	);
 	assert.doesNotMatch(created?.sql ?? "", /DROP TABLE/);
 
 	assert.deepEqual(
@@ -173,14 +176,14 @@ test("migratedFts reads the newest marker per index", async () => {
 	try {
 		writeFileSync(
 			join(dir, "0001_a.sql"),
-			"-- stack:fts a 11111111\nSELECT 1;",
+			"-- slotform:fts a 11111111\nSELECT 1;",
 		);
 		writeFileSync(
 			join(dir, "0002_b.sql"),
-			"-- stack:fts a 22222222\nSELECT 1;",
+			"-- slotform:fts a 22222222\nSELECT 1;",
 		);
-		writeFileSync(join(dir, "0003_c.sql"), "-- stack:fts b 33333333\n");
-		writeFileSync(join(dir, "0004_d.sql"), "-- stack:fts-drop b\n");
+		writeFileSync(join(dir, "0003_c.sql"), "-- slotform:fts b 33333333\n");
+		writeFileSync(join(dir, "0004_d.sql"), "-- slotform:fts-drop b\n");
 		assert.deepEqual([...migratedFts(dir)], [["a", "22222222"]]);
 	} finally {
 		rmSync(dir, { recursive: true, force: true });

@@ -11,12 +11,12 @@ import {
 
 // Full-text index, its handle and DDL: docs/architecture/plugins/db.md, "Full-text indexes".
 
-export const FTS_KEY_NAME = "@fcalell/plugin-db/fts";
+export const FTS_KEY_NAME = "@slotform/db/fts";
 export const FTS_KEY = Symbol.for(FTS_KEY_NAME);
 
 const STATEMENT_BREAKPOINT = "--> statement-breakpoint";
 
-// Everything `stack db` needs to create, sync and migrate one index.
+// Everything `slotform db` needs to create, sync and migrate one index.
 export interface FtsDefinition {
 	// The virtual table's name.
 	name: string;
@@ -211,9 +211,9 @@ export const createsFtsTriggers = (sql: string, def: FtsDefinition): boolean =>
 	sql.includes(`CREATE TRIGGER ${q(triggerName(def.name, "ai"))}`);
 
 const ftsMarker = (def: Pick<FtsDefinition, "name" | "hash">): string =>
-	`-- stack:fts ${def.name} ${def.hash}`;
+	`-- slotform:fts ${def.name} ${def.hash}`;
 
-const ftsDropMarker = (name: string): string => `-- stack:fts-drop ${name}`;
+const ftsDropMarker = (name: string): string => `-- slotform:fts-drop ${name}`;
 
 const join = (statements: string[]): string =>
 	`${statements.join(`\n${STATEMENT_BREAKPOINT}\n`)}\n`;
@@ -241,7 +241,7 @@ export function ftsResyncSql(def: FtsDefinition): string {
 }
 
 // Statements for a live database, run in one transaction: the idempotent
-// converge `stack dev` runs after each push. `state` is what the database holds.
+// converge `slotform dev` runs after each push. `state` is what the database holds.
 export function ftsConvergeStatements(
 	def: FtsDefinition,
 	state: { table: string | null; triggers: Map<string, string> },

@@ -6,7 +6,7 @@ column-name mapping.
 
 ```ts
 // src/schema/seed.ts
-import { defineSeed, seedTable } from "@fcalell/plugin-db/orm";
+import { defineSeed, seedTable } from "@slotform/db/orm";
 import { projects } from "./index.ts";
 
 export default defineSeed([
@@ -18,16 +18,16 @@ export default defineSeed([
 
 ## When it runs
 
-- `stack dev`, after the schema push at start, and again on every save of `seed.ts`.
-- `stack db seed`, against the local database; `stack db seed --remote`, against the deployed D1.
-- `stack deploy` on d1, after the migrations.
+- `slotform dev`, after the schema push at start, and again on every save of `seed.ts`.
+- `slotform db seed`, against the local database; `slotform db seed --remote`, against the deployed D1.
+- `slotform deploy` on d1, after the migrations.
 
 Each run converges the database on the file: rows upsert by primary key, then rows whose key
 left the seed are deleted. A table with no primary key is emptied and refilled, and a table
 seeded with `[]` is emptied. So a seeded table belongs to the seed; never seed a table the app's
 users write to.
 
-The deployed database is the exception: `stack deploy` and `stack db seed --remote` only upsert,
+The deployed database is the exception: `slotform deploy` and `slotform db seed --remote` only upsert,
 and keep every row outside the seed. A table with no primary key, or seeded with `[]`, is left
 alone there. The deploy plan lists each seeded table and what the run does to it. To make the
 deployed database converge too, export `prune`:
@@ -41,7 +41,7 @@ Set it only when no user writes to a seeded table: a deploy then deletes those r
 
 ## Rules
 
-- Keep the file erasable TypeScript: `stack` loads it with a plain `import()` under Node's type
+- Keep the file erasable TypeScript: `slotform` loads it with a plain `import()` under Node's type
   stripping, so no enums, no parameter properties, no `namespace`, and every relative import
   names its file's extension (`./index.ts`, never `./index`).
 - `export default defineSeed([...])`; any other default export is refused.
@@ -50,4 +50,4 @@ Set it only when no user writes to a seeded table: a deploy then deletes those r
 - A row a user's data points at keeps that link only while its key stays in the seed; give the
   foreign key `onDelete: "set null"` when the row may leave it.
 
-**Check:** `stack db seed` prints `Seeded`.
+**Check:** `slotform db seed` prints `Seeded`.

@@ -19,7 +19,7 @@ import {
 } from "./layout.ts";
 
 // The destructive marker: docs/architecture/plugins/db.md, "Deploy checks".
-const ALLOW_DESTRUCTIVE_MARKER = "stack:allow-destructive";
+const ALLOW_DESTRUCTIVE_MARKER = "slotform:allow-destructive";
 
 // Drift paths stay relative to cwd: docs/architecture/plugins/db.md, "drizzle-kit".
 const DRIFT_DIR = `${DB_KIT_DIR}/drift`;
@@ -145,7 +145,7 @@ export function formatDrift(
 			pendingFtsMigrations(loadFtsDefinitions(cwd, env), migratedFts(dir))
 				.length > 0;
 		return drift
-			? "Schema drift: `src/schema` has changes with no committed migration. Run `stack db generate` and commit the migration."
+			? "Schema drift: `src/schema` has changes with no committed migration. Run `slotform db generate` and commit the migration."
 			: null;
 	} finally {
 		rmSync(driftAbs, { recursive: true, force: true });
@@ -171,12 +171,12 @@ export function formatDeadTriggers(
 				`  - ${d.migration} rebuilds "${d.table}"; the triggers of "${d.index}" are not created again`,
 		),
 		"",
-		"Append the resync that `stack db generate` writes after a rebuild to that migration: DROP TRIGGER IF EXISTS and CREATE TRIGGER for `<index>_ai`, `_ad` and `_au` (copy them from the index's `fts_<index>` migration), then INSERT INTO `<index>`(`<index>`) VALUES ('rebuild').",
-		"Do not edit a migration already applied to a database you keep: add a new custom migration (`stack db generate --custom`) with the same statements.",
+		"Append the resync that `slotform db generate` writes after a rebuild to that migration: DROP TRIGGER IF EXISTS and CREATE TRIGGER for `<index>_ai`, `_ad` and `_au` (copy them from the index's `fts_<index>` migration), then INSERT INTO `<index>`(`<index>`) VALUES ('rebuild').",
+		"Do not edit a migration already applied to a database you keep: add a new custom migration (`slotform db generate --custom`) with the same statements.",
 	].join("\n");
 }
 
-/** The first committed migration that fails to build a database from nothing, applied in order to a scratch in-memory sqlite, as `stack db apply` and a fresh deploy would; null when all apply. A statement SQLite refuses (a rebuilt table's index on a column it lacks, an empty custom migration) is reported with its migration. */
+/** The first committed migration that fails to build a database from nothing, applied in order to a scratch in-memory sqlite, as `slotform db apply` and a fresh deploy would; null when all apply. A statement SQLite refuses (a rebuilt table's index on a column it lacks, an empty custom migration) is reported with its migration. */
 export function formatFailedMigration(
 	cwd: string,
 	options: ResolvedDbOptions,
@@ -204,7 +204,7 @@ export function formatFailedMigration(
 						`Migration ${file} fails to apply to an empty database: ${why}`,
 						`  ${statement.split("\n")[0]?.slice(0, 160)}`,
 						"",
-						"Fix the schema and run `stack db generate` again, or, for a migration not yet applied anywhere, correct the statement in the file.",
+						"Fix the schema and run `slotform db generate` again, or, for a migration not yet applied anywhere, correct the statement in the file.",
 					].join("\n");
 				}
 			}
@@ -215,7 +215,7 @@ export function formatFailedMigration(
 	}
 }
 
-/** The checks `stack db check` runs and a d1 deploy refuses on, in that order: each formats its problem, or returns null. */
+/** The checks `slotform db check` runs and a d1 deploy refuses on, in that order: each formats its problem, or returns null. */
 export const MIGRATION_CHECKS = [
 	{
 		problem: "drift",

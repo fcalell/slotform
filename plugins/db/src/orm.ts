@@ -138,7 +138,7 @@ export type {
 
 // Seed authoring surface for `src/schema/seed.ts`. `seedTable` pins each row to
 // its table's insert model (typed against the schema, no column mapping, no
-// SQL); `defineSeed` collects the entries. `stack db seed` introspects these
+// SQL); `defineSeed` collects the entries. `slotform db seed` introspects these
 // into idempotent upsert/prune SQL.
 export interface SeedEntry {
 	table: SQLiteTable;

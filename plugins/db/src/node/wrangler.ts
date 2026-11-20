@@ -1,15 +1,16 @@
-import { LOCAL_PERSIST } from "@fcalell/plugin-cloudflare";
+import { GENERATED_DIR } from "@slotform/cli";
+import { LOCAL_PERSIST } from "@slotform/cloudflare";
 import { runCommand } from "./exec.ts";
 
 // One --config and --persist-to for every local wrangler invocation: docs/architecture/plugins/cloudflare.md, "Local state".
-const WRANGLER_CONFIG = ".stack/wrangler.toml";
+const WRANGLER_CONFIG = `${GENERATED_DIR}/wrangler.toml`;
 
 // The table `wrangler d1 migrations apply` records applied migrations in;
 // the generated wrangler config sets no `migrations_table`, so it is the default.
 export const MIGRATIONS_TABLE = "d1_migrations";
 
 // Flags that target the local miniflare-backed D1 that `wrangler dev` reads:
-// the dev state, or the `persist` directory of a `stack screens serve` run.
+// the dev state, or the `persist` directory of a `slotform screens serve` run.
 function localD1Flags(persist = LOCAL_PERSIST): string[] {
 	return ["--local", "--persist-to", persist, "--config", WRANGLER_CONFIG];
 }

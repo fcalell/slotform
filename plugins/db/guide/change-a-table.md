@@ -8,23 +8,23 @@ instead.
 ## 1. Edit the schema
 
 Add or change the table in `src/schema/index.ts`, with a primary key, imports from
-`@fcalell/plugin-db/orm`. A new column on a table that has rows is nullable or has a default.
-Under `stack dev` the local database takes the change on save. Page: [schema](./schema.md).
+`@slotform/db/orm`. A new column on a table that has rows is nullable or has a default.
+Under `slotform dev` the local database takes the change on save. Page: [schema](./schema.md).
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.
 
 ## 2. Generate the migration
 
-Run `stack db generate` and read the `.sql` it wrote: it must say what you meant, and nothing
+Run `slotform db generate` and read the `.sql` it wrote: it must say what you meant, and nothing
 else. Page: [commands](./commands.md).
 
-**Check:** `stack db check` passes.
+**Check:** `slotform db check` passes.
 
 ## 3. Seed it, when it holds fixed rows
 
 Add the table's rows to `src/schema/seed.ts`. Page: [seed](./seed.md).
 
-**Check:** `stack db seed` prints `Seeded`.
+**Check:** `slotform db seed` prints `Seeded`.
 
 ## 4. Use it
 

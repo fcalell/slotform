@@ -22,7 +22,7 @@ const orm = dirname(
 );
 
 function consumer(): string {
-	const cwd = mkdtempSync(join(tmpdir(), "stack-generate-"));
+	const cwd = mkdtempSync(join(tmpdir(), "slotform-generate-"));
 	mkdirSync(join(cwd, "src", "schema"), { recursive: true });
 	mkdirSync(join(cwd, "node_modules"), { recursive: true });
 	symlinkSync(orm, join(cwd, "node_modules", "drizzle-orm"), "dir");

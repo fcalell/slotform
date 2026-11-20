@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-db",
+	"name": "@slotform/db",
 	"version": "0.1.0",
-	"description": "Database plugin for @fcalell/stack: Drizzle ORM over Cloudflare D1 or a SQLite file, with schema tooling and migrations.",
+	"description": "Database plugin for slotform: Drizzle ORM over Cloudflare D1 or a SQLite file, with schema tooling and migrations.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/db"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/db#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/db#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -72,15 +72,15 @@
 		}
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-api": "workspace:^",
-		"@fcalell/plugin-cloudflare": "workspace:^",
-		"@fcalell/plugin-node": "workspace:^",
-		"@fcalell/plugin-screens": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/api": "workspace:^",
+		"@slotform/cloudflare": "workspace:^",
+		"@slotform/node": "workspace:^",
+		"@slotform/screens": "workspace:^",
 		"better-sqlite3": "^13.2.0"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@types/better-sqlite3": "^9.6.0",
 		"@types/node": "^26.6.6",
 		"drizzle-kit": "^0.31.11",

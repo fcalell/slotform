@@ -25,7 +25,7 @@ for (const value of Object.values(mod)) {
 	const def = value?.[Symbol.for(key)];
 	if (def && !defs.includes(def)) defs.push(def);
 }
-process.stdout.write("\\n@@stack-fts@@" + JSON.stringify(defs));
+process.stdout.write("\\n@@slotform-fts@@" + JSON.stringify(defs));
 `;
 
 export function loadFtsDefinitions(
@@ -46,11 +46,11 @@ export function loadFtsDefinitions(
 		cwd,
 		env,
 	);
-	const at = stdout.lastIndexOf("@@stack-fts@@");
+	const at = stdout.lastIndexOf("@@slotform-fts@@");
 	if (at < 0) return [];
 	// LOADER prints the definitions the schema carries, which ftsTable built.
 	return JSON.parse(
-		stdout.slice(at + "@@stack-fts@@".length),
+		stdout.slice(at + "@@slotform-fts@@".length),
 	) as FtsDefinition[];
 }
 
@@ -70,10 +70,12 @@ export function migratedFts(migrationsDir: string): Map<string, string> {
 	const state = new Map<string, string>();
 	for (const file of migrationFiles(migrationsDir)) {
 		const sql = readFileSync(join(migrationsDir, file), "utf-8");
-		for (const [, name, hash] of sql.matchAll(/^-- stack:fts (\S+) (\S+)$/gm)) {
+		for (const [, name, hash] of sql.matchAll(
+			/^-- slotform:fts (\S+) (\S+)$/gm,
+		)) {
 			if (name && hash) state.set(name, hash);
 		}
-		for (const [, name] of sql.matchAll(/^-- stack:fts-drop (\S+)$/gm)) {
+		for (const [, name] of sql.matchAll(/^-- slotform:fts-drop (\S+)$/gm)) {
 			if (name) state.delete(name);
 		}
 	}

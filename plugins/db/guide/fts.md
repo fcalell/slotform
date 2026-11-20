@@ -7,7 +7,7 @@ dialects.
 
 ```ts
 // src/schema/index.ts
-import { ftsTable, integer, sqliteTable, text } from "@fcalell/plugin-db/orm";
+import { ftsTable, integer, sqliteTable, text } from "@slotform/db/orm";
 
 export const tasks = sqliteTable("tasks", {
   id: integer("id").primaryKey(),
@@ -40,7 +40,7 @@ the hits, and the index joins to its table on `rowid`. Pass what a person typed 
 `null` when nothing searchable was typed, which FTS5 would refuse.
 
 ```ts
-import { bm25, eq, ftsQuery, getTableColumns, match } from "@fcalell/plugin-db/orm";
+import { bm25, eq, ftsQuery, getTableColumns, match } from "@slotform/db/orm";
 import { taskSearch, tasks } from "../../schema/index.ts";
 
 const query = ftsQuery(input.text);
@@ -66,23 +66,23 @@ changes a search result.
 Drizzle does not model virtual tables, and `ftsTable` is invisible to it, so the index has its
 own path:
 
-- `stack db generate` writes the index as a custom migration of its own (`fts_task_search`),
+- `slotform db generate` writes the index as a custom migration of its own (`fts_task_search`),
   after the migration that makes the table. A changed declaration writes a migration that
   replaces the index; a removed one writes a migration that drops it. A migration that rebuilds
   the table (SQLite copies it: dropping a column default, changing a constraint) gets the
   triggers and a rebuild of the index appended, since the copy takes the old table's triggers with
   it. The copy itself reads only the columns the table had before the migration, so a column
   added in the same change takes its default instead of failing the migration.
-- `stack dev` and `stack db push` create or converge the index after the tables are pushed.
-- `stack db check` reports a declared, changed or removed index with no migration as drift.
-- `stack db check` (and a d1 `stack deploy`) refuses a committed migration that rebuilds an
+- `slotform dev` and `slotform db push` create or converge the index after the tables are pushed.
+- `slotform db check` reports a declared, changed or removed index with no migration as drift.
+- `slotform db check` (and a d1 `slotform deploy`) refuses a committed migration that rebuilds an
   indexed table and creates the index's triggers nowhere after the rebuild: a hand-written copy,
   or one generated before the resync existed. Append the resync to it, or add a new custom
-  migration (`stack db generate --custom`) holding the `DROP TRIGGER IF EXISTS` and
+  migration (`slotform db generate --custom`) holding the `DROP TRIGGER IF EXISTS` and
   `CREATE TRIGGER` statements of the index's `fts_<name>` migration and
   `INSERT INTO <name>(<name>) VALUES ('rebuild');`.
 
-Each index migration starts with a `-- stack:fts <name> <hash>` line: it is how the next
+Each index migration starts with a `-- slotform:fts <name> <hash>` line: it is how the next
 `generate` knows the index is current. Never edit or delete it. The seed needs nothing: its
 inserts fire the triggers.
 
@@ -95,4 +95,4 @@ inserts fire the triggers.
 - Keep `columns` to the text a person searches. An update of any other column does not touch the
   index.
 
-**Check:** `stack db generate` writes `fts_<name>`, then `stack db check` passes.
+**Check:** `slotform db generate` writes `fts_<name>`, then `slotform db check` passes.

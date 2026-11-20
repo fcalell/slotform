@@ -78,7 +78,7 @@ test("a drop is found behind the custom migration that follows it", () => {
 		);
 		writeFileSync(
 			join(cwd, "src", "migrations", "0001_b.sql"),
-			"-- stack:allow-destructive\nALTER TABLE `t` DROP COLUMN `old`;",
+			"-- slotform:allow-destructive\nALTER TABLE `t` DROP COLUMN `old`;",
 		);
 		assert.equal(formatUnacknowledgedDrops(cwd, options), null);
 	} finally {

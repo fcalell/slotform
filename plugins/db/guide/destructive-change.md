@@ -8,7 +8,7 @@ names the page it needs and ends with its check. Page for the why:
 ## 1. Expand
 
 Add the new shape beside the old in `src/schema/index.ts` (for a rename, the new column,
-nullable) and run `stack db generate`. Append to the `.sql` it wrote the backfill that copies
+nullable) and run `slotform db generate`. Append to the `.sql` it wrote the backfill that copies
 the old shape into the new:
 
 ```sql
@@ -26,7 +26,7 @@ one statement per chunk.
 Change the code to write both shapes and read the new one, falling back to the old. Pages:
 [schema](./schema.md), [commands](./commands.md).
 
-**Check:** `stack db check` passes and `pnpm check` passes.
+**Check:** `slotform db check` passes and `pnpm check` passes.
 
 ## 2. Ship the expand release
 
@@ -37,8 +37,8 @@ Commit and deploy it.
 ## 3. Contract
 
 Remove the old shape from the schema and from the code (a rename's fallback and its second
-write go too), run `stack db generate`, and add `-- stack:allow-destructive` to the `.sql` it
+write go too), run `slotform db generate`, and add `-- slotform:allow-destructive` to the `.sql` it
 wrote. Page: [migration safety](./migration-safety.md).
 
-**Check:** `stack db check` passes, and `pnpm check` passes; then commit
+**Check:** `slotform db check` passes, and `pnpm check` passes; then commit
 and deploy.

@@ -164,7 +164,7 @@ const LOCK_TIMEOUT_MS = 30_000;
 
 // Polls the lock file: another process releasing it by deleting the file
 // signals nothing this process can wait on. The backoff cap is short enough
-// to keep `stack dev` responsive and long enough to avoid busy-spin under
+// to keep `slotform dev` responsive and long enough to avoid busy-spin under
 // contention. No lock should normally be held more than a few seconds; the
 // timeout guards against a wedged process leaving the lock file behind.
 async function waitFor(path: string): Promise<LockHandle> {
@@ -175,7 +175,7 @@ async function waitFor(path: string): Promise<LockHandle> {
 		if (handle) return handle;
 		if (Date.now() - start > LOCK_TIMEOUT_MS) {
 			throw new Error(
-				`plugin-db: timed out after ${LOCK_TIMEOUT_MS}ms waiting for migration lock at \`${path}\`. ` +
+				`db: timed out after ${LOCK_TIMEOUT_MS}ms waiting for migration lock at \`${path}\`. ` +
 					`Another process appears to be holding it. If you're sure no other migration writer is running, ` +
 					`delete the file and retry.`,
 			);
@@ -215,7 +215,7 @@ export async function withMigrationLock<T>(
 	} finally {
 		// Clear the entry only if we're still the tail; otherwise a later
 		// caller has already chained on top of us and we'd evict their
-		// place in line. Bounds the Map for long-lived processes (`stack
+		// place in line. Bounds the Map for long-lived processes (`slotform
 		// dev`) without breaking serialization.
 		if (inProcessQueue.get(lockPath) === tailMarker) {
 			inProcessQueue.delete(lockPath);

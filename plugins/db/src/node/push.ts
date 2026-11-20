@@ -1,7 +1,7 @@
 import { createHash, createHmac } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { LOCAL_PERSIST } from "@fcalell/plugin-cloudflare";
+import { LOCAL_PERSIST } from "@slotform/cloudflare";
 import type { ResolvedDbOptions } from "../types.ts";
 import {
 	assertSqliteDriver,
@@ -99,7 +99,7 @@ function ensureMiniflareD1(
 	executeSql(cwd, databaseId, "local", "SELECT 1", env);
 	if (!existsSync(path)) {
 		throw new Error(
-			"Could not materialize the local D1 database. Run `stack dev` once, then retry.",
+			"Could not materialize the local D1 database. Run `slotform dev` once, then retry.",
 		);
 	}
 	return path;
@@ -113,13 +113,13 @@ export async function pushSchemaLocal(
 	assertSqliteDriver();
 	// `drizzle-kit push` writes to the dev SQLite file; the lock serializes it
 	// across processes, so SQLite's per-file lock does not surface as "database
-	// is locked" when `stack db push` runs while `stack dev`'s schema watcher fires.
+	// is locked" when `slotform db push` runs while `slotform dev`'s schema watcher fires.
 	return withMigrationLock(migrationLockPath(cwd), async () => {
 		const configDir = join(cwd, DB_KIT_DIR);
 		mkdirSync(configDir, { recursive: true });
 
 		// Push targets the miniflare D1 that wrangler dev reads: docs/architecture/plugins/cloudflare.md, "Local state".
-		// The local database is disposable (`stack db reset`).
+		// The local database is disposable (`slotform db reset`).
 		const dbUrl =
 			options.dialect === "d1"
 				? ensureMiniflareD1(cwd, options.databaseId ?? "", env)

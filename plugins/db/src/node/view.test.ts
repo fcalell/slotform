@@ -23,7 +23,7 @@ const orm = dirname(
 const ormSource = join(import.meta.dirname, "..", "orm.ts");
 
 function consumer(schema: string): string {
-	const cwd = mkdtempSync(join(tmpdir(), "stack-view-"));
+	const cwd = mkdtempSync(join(tmpdir(), "slotform-view-"));
 	mkdirSync(join(cwd, "src", "schema"), { recursive: true });
 	mkdirSync(join(cwd, "node_modules"), { recursive: true });
 	symlinkSync(orm, join(cwd, "node_modules", "drizzle-orm"), "dir");

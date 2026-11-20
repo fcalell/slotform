@@ -1,4 +1,4 @@
 {
-	"extends": "@fcalell/typescript-config/node-tsx.json",
+	"extends": "@slotform/typescript-config/node-tsx.json",
 	"include": ["src"]
 }

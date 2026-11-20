@@ -62,8 +62,8 @@ export function assertDeployableDatabaseId(
 	if (!databaseId || databaseId === D1_PLACEHOLDER_ID) {
 		throw new Error(
 			`db: \`databaseId\` is still the placeholder (${D1_PLACEHOLDER_ID}). ` +
-				"Create a database with `stack db create` (or `wrangler d1 create <name>`) " +
-				"and set its id as `databaseId` in stack.config.ts before deploying.",
+				"Create a database with `slotform db create` (or `wrangler d1 create <name>`) " +
+				"and set its id as `databaseId` in slotform.config.ts before deploying.",
 		);
 	}
 	if (!new RegExp(`^${UUID.source}$`, "i").test(databaseId)) {
