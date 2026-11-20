@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { GROUP } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { GROUP } from "@slotform/ui-core/variants";
 import type { ReactNode, RefObject } from "react";
 
 const BOX = "shrink-0 overflow-hidden";

@@ -1,8 +1,8 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Message, MessageDetail } from "@fcalell/ui-core/descriptors";
-import { factParts, filled } from "@fcalell/ui-core/runs";
-import { closeOpenRuns } from "@fcalell/ui-core/streaming";
+import { cn } from "@slotform/ui-core/cn";
+import type { Message, MessageDetail } from "@slotform/ui-core/descriptors";
+import { factParts, filled } from "@slotform/ui-core/runs";
+import { closeOpenRuns } from "@slotform/ui-core/streaming";
 import {
 	CARD,
 	FIGURES,
@@ -18,7 +18,7 @@ import {
 	STREAM_IN,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { memo, type ReactNode, useId, useState } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { PaintedProse } from "../../atoms/prose/painted.tsx";

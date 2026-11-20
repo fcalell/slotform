@@ -4,13 +4,13 @@ import type {
 	LinkSegment,
 	Option,
 	OptionGroup,
-} from "@fcalell/ui-core/descriptors";
-import type { OptionRegions } from "@fcalell/ui-core/list-state";
-import { linked } from "@fcalell/ui-core/pick";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import type { Datum, Fielded as WithText } from "@fcalell/ui-core/read";
-import type { OptionText } from "@fcalell/ui-core/reason";
-import type { PickerFit } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/descriptors";
+import type { OptionRegions } from "@slotform/ui-core/list-state";
+import { linked } from "@slotform/ui-core/pick";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import type { Datum, Fielded as WithText } from "@slotform/ui-core/read";
+import type { OptionText } from "@slotform/ui-core/reason";
+import type { PickerFit } from "@slotform/ui-core/variants";
 import { type ReactElement, type ReactNode, use } from "react";
 import type { IconAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";

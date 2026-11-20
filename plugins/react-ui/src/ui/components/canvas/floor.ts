@@ -1,10 +1,10 @@
-import type { CanvasGroup } from "@fcalell/ui-core/descriptors";
+import type { CanvasGroup } from "@slotform/ui-core/descriptors";
 import {
 	BODY_SIZE,
 	MEASURE_CHARACTERS,
 	SANS_ADVANCE,
 	TYPE_SCALE,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
 import { type Box, spreadBoxes } from "./geometry.ts";
 import { EXTENT } from "./view.ts";
 

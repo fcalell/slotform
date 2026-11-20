@@ -1,8 +1,8 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { cn } from "@fcalell/ui-core/cn";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import {
 	IMAGE_CLOSE,
 	IMAGE_FAILED_INK,
@@ -11,7 +11,7 @@ import {
 	image,
 	imagePicture,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type CSSProperties, useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

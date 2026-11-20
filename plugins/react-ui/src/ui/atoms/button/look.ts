@@ -1,4 +1,4 @@
-import { type ButtonAct, PRESS_WASH } from "@fcalell/ui-core/variants";
+import { type ButtonAct, PRESS_WASH } from "@slotform/ui-core/variants";
 import type { ComponentProps } from "react";
 import type { Closed } from "../../lib/closed.ts";
 

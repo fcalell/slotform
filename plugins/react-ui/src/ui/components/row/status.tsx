@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { StatusMark } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { lineBox, STATUS, STATUS_LABEL } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { StatusMark } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import { lineBox, STATUS, STATUS_LABEL } from "@slotform/ui-core/variants";
 import { StatusDot } from "../../atoms/status/dot.tsx";
 import { Painted } from "../../lib/paint.tsx";
 

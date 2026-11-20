@@ -1,5 +1,5 @@
-import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
-import { DRAG_DELAY, DRAG_DELAY_SLOP } from "@fcalell/ui-core/drag";
+import type { CanvasPoint } from "@slotform/ui-core/descriptors";
+import { DRAG_DELAY, DRAG_DELAY_SLOP } from "@slotform/ui-core/drag";
 import {
 	type MouseEvent,
 	type PointerEvent,

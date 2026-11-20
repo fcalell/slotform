@@ -1,14 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
+import { cn } from "@slotform/ui-core/cn";
+import { PAINT_ROWS } from "@slotform/ui-core/paint";
 import {
 	decodeHTML,
 	keyed,
 	type Part,
 	parts,
 	safeHref,
-} from "@fcalell/ui-core/prose";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/prose";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import {
 	PROSE,
 	PROSE_BLOCKS,
@@ -23,7 +23,7 @@ import {
 	proseMarker,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { lexer, type Token, type Tokens } from "marked";
 import { type ReactNode, use, useMemo } from "react";
 import { ButtonLink } from "../../atoms/button/link.tsx";

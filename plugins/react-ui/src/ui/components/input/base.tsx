@@ -1,8 +1,8 @@
 import { Input as Control } from "@base-ui/react/input";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	FIELD_GLYPH,
 	FIELD_UNIT,
@@ -10,7 +10,7 @@ import {
 	type FieldKind,
 	field,
 	fieldValue,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { KeyboardEvent, MouseEvent } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

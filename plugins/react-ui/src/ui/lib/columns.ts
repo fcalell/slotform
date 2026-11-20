@@ -1,10 +1,10 @@
-import type { TableColumn } from "@fcalell/ui-core/descriptors";
+import type { TableColumn } from "@slotform/ui-core/descriptors";
 import {
 	type ColumnChoice,
 	columnsKey,
 	parseColumnChoice,
 	visibleColumns,
-} from "@fcalell/ui-core/list-state";
+} from "@slotform/ui-core/list-state";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { saveChoice, savedChoice, subscribeSaved } from "./saved.ts";
 

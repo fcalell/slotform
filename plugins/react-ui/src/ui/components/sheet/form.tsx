@@ -1,9 +1,9 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import type { Acting } from "@fcalell/ui-core/react/acts";
-import { useFrame } from "@fcalell/ui-core/react/read";
-import { useTouched } from "@fcalell/ui-core/react/touched";
-import { FORM_FOOT, FORM_FOOT_STUCK, ROWS } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import type { Acting } from "@slotform/ui-core/react/acts";
+import { useFrame } from "@slotform/ui-core/react/read";
+import { useTouched } from "@slotform/ui-core/react/touched";
+import { FORM_FOOT, FORM_FOOT_STUCK, ROWS } from "@slotform/ui-core/variants";
 import { type ReactNode, useState } from "react";
 import { useAct } from "../../lib/act.ts";
 import {

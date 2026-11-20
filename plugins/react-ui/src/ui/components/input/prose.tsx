@@ -1,13 +1,13 @@
 import { Input as Control } from "@base-ui/react/input";
-import { cn } from "@fcalell/ui-core/cn";
-import { wordCount } from "@fcalell/ui-core/controls";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import { cn } from "@slotform/ui-core/cn";
+import { wordCount } from "@slotform/ui-core/controls";
+import type { Draft } from "@slotform/ui-core/react/acts";
 import {
 	fieldValue,
 	TEXT_AREA_VALUE,
 	textArea,
 	textAreaBudget,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useHeldDraft } from "../../lib/act.ts";
 import { caretAtEnd } from "../../lib/caret.ts";
 import { useCommit } from "../../lib/commit.ts";

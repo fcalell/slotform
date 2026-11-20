@@ -2,11 +2,11 @@ import {
 	type PendingAttempt,
 	pendingShare,
 	timeLeft,
-} from "@fcalell/ui-core/clock";
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { usePending } from "@fcalell/ui-core/react/clock";
-import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
+} from "@slotform/ui-core/clock";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { usePending } from "@slotform/ui-core/react/clock";
+import { ReasonHostContext } from "@slotform/ui-core/react/reason";
 import {
 	PENDING_BAR,
 	PENDING_FILL,
@@ -15,7 +15,7 @@ import {
 	PENDING_TRACK,
 	text,
 	YIELDS_FIRST,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useState } from "react";
 import { useReasonLine } from "../../atoms/button/reason.tsx";
 import { Spinner } from "../../atoms/spinner/index.tsx";

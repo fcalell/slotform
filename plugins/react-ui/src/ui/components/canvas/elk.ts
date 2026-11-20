@@ -1,10 +1,10 @@
-import { backEdges } from "@fcalell/ui-core/canvas";
+import { backEdges } from "@slotform/ui-core/canvas";
 import type {
 	CanvasEdge,
 	CanvasGroup,
 	CanvasNode,
 	CanvasPoint,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import type { ElkNode } from "elkjs/lib/elk-api.js";
 import {
 	ARROW,

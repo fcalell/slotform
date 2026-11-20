@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { type ColumnsFit, columns } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { type ColumnsFit, columns } from "@slotform/ui-core/variants";
 import { type ReactNode, use } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { PageTitle } from "../../lib/container.ts";

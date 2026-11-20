@@ -1,4 +1,4 @@
-import type { Peaks, Track } from "@fcalell/ui-core/descriptors";
+import type { Peaks, Track } from "@slotform/ui-core/descriptors";
 import {
 	type Engine,
 	type Output,
@@ -11,7 +11,7 @@ import {
 	type TrackQueue,
 	type WindowQueueOptions,
 	windowQueue,
-} from "@fcalell/ui-core/player";
+} from "@slotform/ui-core/player";
 import { useSyncExternalStore } from "react";
 import { store } from "./player-store.ts";
 

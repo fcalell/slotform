@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { backEdges, pathOrder } from "@fcalell/ui-core/canvas";
+import { backEdges, pathOrder } from "@slotform/ui-core/canvas";
 import type {
 	CanvasEdge,
 	CanvasGroup,
 	CanvasNode,
-} from "@fcalell/ui-core/descriptors";
-import { BODY_SIZE, TYPE_SCALE } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/descriptors";
+import { BODY_SIZE, TYPE_SCALE } from "@slotform/ui-core/tokens";
 import ELK from "elkjs/lib/elk.bundled.js";
 import { DESKTOP, type Density, TOUCH } from "./__fixtures__/density.ts";
 import * as graphs from "./__fixtures__/graphs.ts";

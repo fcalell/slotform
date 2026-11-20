@@ -1,21 +1,21 @@
-import type { Offered } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Run } from "@fcalell/ui-core/descriptors";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
+import type { Offered } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct, Run } from "@slotform/ui-core/descriptors";
+import type { ProcedureCall } from "@slotform/ui-core/form";
 import {
 	FrameHolds,
 	hasBody,
 	useFrame,
 	usePainted,
-} from "@fcalell/ui-core/react/read";
+} from "@slotform/ui-core/react/read";
 import {
 	type Datum,
 	isEnded,
 	NO_HOLDS,
 	type Selection,
-} from "@fcalell/ui-core/read";
-import { type TrailPart, trailEnds } from "@fcalell/ui-core/route";
-import type { Tone } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/read";
+import { type TrailPart, trailEnds } from "@slotform/ui-core/route";
+import type { Tone } from "@slotform/ui-core/tokens";
 import {
 	FOOT_DOCKED,
 	PAGE_BODY,
@@ -23,7 +23,7 @@ import {
 	PAGE_BODY_UNDER_TOAST,
 	PAGE_HEAD_SPACE,
 	ROWS_MEASURED,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	type ReactNode,
 	use,
@@ -78,7 +78,7 @@ const DOCKED =
 // A chosen bar stands at the body's column: docs/architecture/ui-core/layout.md, "Foot".
 const FOOT_WIDE = "has-[[data-wide]]:[--foot-column:100%]";
 
-export type { RecordFact } from "@fcalell/ui-core/descriptors";
+export type { RecordFact } from "@slotform/ui-core/descriptors";
 
 /** A record's head in its Pane: the parts of the head under the bar (the overline, the facts, the description, the image). Where the record lives is the place's name, which the Pane draws before the record's in the bar on the desktop and at the start of the overline on touch, so `overline` never repeats it. */
 export type RecordHead<V extends string | null = string> = ItemHeaderParts<V>;

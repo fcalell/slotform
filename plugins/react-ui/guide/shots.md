@@ -1,14 +1,14 @@
 # Shots and audits
 
 How a review that shoots screens holds motion still, and how it audits them with axe. The run that
-shoots an app's screens is `node_modules/@fcalell/plugin-screens/guide/test-run.md`.
+shoots an app's screens is `node_modules/@slotform/screens/guide/test-run.md`.
 
 ## Shots at rest
 
-A review that shoots screens (`stack screens test` does, and so may an app's own browser driver) holds
-motion still with the one setup stack's own run uses: emulate `prefers-reduced-motion: reduce` (every
+A review that shoots screens (`slotform screens test` does, and so may an app's own browser driver) holds
+motion still with the one setup Slotform's own run uses: emulate `prefers-reduced-motion: reduce` (every
 rung is 0 ms and the pulse stills; CDP's `Emulation.setEmulatedMedia` with the feature
-`prefers-reduced-motion: reduce`, which `stack screens` sets). The spinner keeps
+`prefers-reduced-motion: reduce`, which `slotform screens` sets). The spinner keeps
 turning under it, which is no motion a shot can hold; a driver that wants it still too injects, once
 per page, unlayered:
 
@@ -34,4 +34,4 @@ keyframe that leaves the part standing once animations are off.
 
 ## Auditing with axe
 
-Run every axe rule, as stack's run does: the page-level ones (`region`) and `target-size` included, nothing excluded for an open popup (`node_modules/@fcalell/plugin-screens/guide/test-run.md`, "Limits").
+Run every axe rule, as Slotform's run does: the page-level ones (`region`) and `target-size` included, nothing excluded for an open popup (`node_modules/@slotform/screens/guide/test-run.md`, "Limits").

@@ -1,6 +1,6 @@
-import { HANDOFF_GLYPH } from "@fcalell/ui-core/canvas";
-import { cn } from "@fcalell/ui-core/cn";
-import { PATH_TONE } from "@fcalell/ui-core/variants";
+import { HANDOFF_GLYPH } from "@slotform/ui-core/canvas";
+import { cn } from "@slotform/ui-core/cn";
+import { PATH_TONE } from "@slotform/ui-core/variants";
 import { ChipBase } from "../../atoms/chip/base.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";
 import type { Box } from "./geometry.ts";

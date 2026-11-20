@@ -1,20 +1,20 @@
-import { stampsTime } from "@fcalell/ui-core/clock";
-import { cn } from "@fcalell/ui-core/cn";
+import { stampsTime } from "@slotform/ui-core/clock";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	Attachment,
 	MessageDetail,
 	Runs,
-} from "@fcalell/ui-core/descriptors";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { PAINT_TURNS } from "@fcalell/ui-core/paint";
-import { useArrivals } from "@fcalell/ui-core/react/arrive";
+} from "@slotform/ui-core/descriptors";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { PAINT_TURNS } from "@slotform/ui-core/paint";
+import { useArrivals } from "@slotform/ui-core/react/arrive";
 import {
 	type Frame,
 	FrameHolds,
 	useCollection,
 	useFrameRead,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	type Drawn,
@@ -22,9 +22,9 @@ import {
 	NO_HOLDS,
 	type Selection,
 	turnOf,
-} from "@fcalell/ui-core/read";
-import { sameBy } from "@fcalell/ui-core/same-by";
-import { THREAD, THREAD_COLUMN } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/read";
+import { sameBy } from "@slotform/ui-core/same-by";
+import { THREAD, THREAD_COLUMN } from "@slotform/ui-core/variants";
 import {
 	memo,
 	type ReactElement,

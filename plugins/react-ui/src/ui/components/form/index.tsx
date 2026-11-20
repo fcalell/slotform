@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { InputOf, ProcedureCall } from "@fcalell/ui-core/form";
-import type { FormModelProps } from "@fcalell/ui-core/react/form";
-import { CARD, FORM_FOOT, ROWS } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { InputOf, ProcedureCall } from "@slotform/ui-core/form";
+import type { FormModelProps } from "@slotform/ui-core/react/form";
+import { CARD, FORM_FOOT, ROWS } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";

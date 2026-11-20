@@ -1,6 +1,6 @@
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
-import type { ChipFamily } from "@fcalell/ui-core/tokens";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
+import type { ChipFamily } from "@slotform/ui-core/tokens";
 import { ChipBase } from "../../atoms/chip/base.tsx";
 import type { Closed } from "../../lib/closed.ts";
 

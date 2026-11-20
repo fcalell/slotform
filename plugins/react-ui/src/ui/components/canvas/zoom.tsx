@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { CANVAS_ZOOM } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import { CANVAS_ZOOM } from "@slotform/ui-core/variants";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import type { Act } from "../../lib/act.ts";
 import { ActFace } from "../button/face.tsx";

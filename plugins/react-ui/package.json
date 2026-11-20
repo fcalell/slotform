@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-react-ui",
+	"name": "@slotform/react-ui",
 	"version": "0.1.0",
-	"description": "The web half of the stack design system: the @fcalell/ui-core contract rendered on Tailwind v4, with the roster.",
+	"description": "The web half of the Slotform design system: the @slotform/ui-core contract rendered on Tailwind v4, with the roster.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/react-ui"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/react-ui#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/react-ui#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -119,12 +119,12 @@
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.9.0",
-		"@fcalell/cli": "workspace:^",
-		"@fcalell/plugin-auth": "workspace:^",
-		"@fcalell/plugin-react": "workspace:^",
-		"@fcalell/plugin-screens": "workspace:^",
-		"@fcalell/plugin-vite": "workspace:^",
-		"@fcalell/ui-core": "workspace:^",
+		"@slotform/cli": "workspace:^",
+		"@slotform/auth": "workspace:^",
+		"@slotform/react": "workspace:^",
+		"@slotform/screens": "workspace:^",
+		"@slotform/vite": "workspace:^",
+		"@slotform/ui-core": "workspace:^",
 		"@fontsource-variable/ibm-plex-sans": "^5.3.0",
 		"@fontsource/ibm-plex-mono": "^5.3.0",
 		"@tanstack/react-virtual": "~3.14.26",
@@ -139,7 +139,7 @@
 		"marked": "^18.2.0"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@tailwindcss/vite": "^4.3.5",
 		"@types/node": "^26.6.6",
 		"@types/react": "^19.3.0",

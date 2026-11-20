@@ -1,4 +1,4 @@
-import type { ChosenCount, LinkAct } from "@fcalell/ui-core/descriptors";
+import type { ChosenCount, LinkAct } from "@slotform/ui-core/descriptors";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";
 import type { PendingBarProps } from "../banner/pending.tsx";

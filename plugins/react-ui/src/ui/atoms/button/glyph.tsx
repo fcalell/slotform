@@ -1,8 +1,8 @@
 import { Button as BaseButton } from "@base-ui/react/button";
 import { Tooltip } from "@base-ui/react/tooltip";
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName } from "@fcalell/ui-core/descriptors";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName } from "@slotform/ui-core/descriptors";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
 import {
 	ICON_BUTTON_DESTRUCTIVE,
 	ICON_BUTTON_PRIMARY,
@@ -11,7 +11,7 @@ import {
 	LAYER_TOOLTIP,
 	TOOLTIP,
 	TOOLTIP_CUT,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactElement, type ReactNode, use, useContext } from "react";
 import { spacing } from "../../lib/measure.ts";
 import { useTouch } from "../../lib/media.ts";

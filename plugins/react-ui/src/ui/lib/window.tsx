@@ -1,10 +1,10 @@
-import { dev } from "@fcalell/ui-core/read";
+import { dev } from "@slotform/ui-core/read";
 import {
 	OVERSCAN,
 	ranged,
 	VIRTUAL_FROM,
 	windowEntries,
-} from "@fcalell/ui-core/window";
+} from "@slotform/ui-core/window";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import {
 	createContext,

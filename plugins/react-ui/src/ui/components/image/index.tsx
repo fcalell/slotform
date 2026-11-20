@@ -1,5 +1,5 @@
-import type { Datum } from "@fcalell/ui-core/read";
-import { IMAGE_CAP_LINES, imageAspect } from "@fcalell/ui-core/variants";
+import type { Datum } from "@slotform/ui-core/read";
+import { IMAGE_CAP_LINES, imageAspect } from "@slotform/ui-core/variants";
 import { useState } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { PictureTile, PictureView } from "./base.tsx";

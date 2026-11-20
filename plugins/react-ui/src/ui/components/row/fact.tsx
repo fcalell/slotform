@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { CODE_NAME, FIGURES } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { useWords } from "@slotform/ui-core/react/words";
+import { CODE_NAME, FIGURES } from "@slotform/ui-core/variants";
 import { useCopy } from "../../lib/copy.ts";
 import { Decoded } from "../../lib/region.tsx";
 import { Button } from "../button/index.tsx";

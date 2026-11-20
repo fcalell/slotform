@@ -1,6 +1,6 @@
 # Acts, the ActionBar and toasts
 
-How the web draws an act: the `Act` type, the `ActionBar`, the chosen bar over ticked rows, and `toast()`. What an act carries and the order it runs in is `node_modules/@fcalell/ui-core/guide/acts.md`; a sheet it opens is `node_modules/@fcalell/ui-core/guide/sheets.md`; which acts stand together is `rules.md`.
+How the web draws an act: the `Act` type, the `ActionBar`, the chosen bar over ticked rows, and `toast()`. What an act carries and the order it runs in is `node_modules/@slotform/ui-core/guide/acts.md`; a sheet it opens is `node_modules/@slotform/ui-core/guide/sheets.md`; which acts stand together is `rules.md`.
 
 ## The act
 
@@ -8,17 +8,17 @@ The web `Act`, `IconAct` and `MenuEntry` are `lib/act`: ui-core's `Act` plus `sh
 
 | Import | From |
 | --- | --- |
-| `Act`, `IconAct`, `MenuEntry`, `sheetOf` | `@fcalell/plugin-react-ui/lib/act` |
-| `refusal(error)` | `@fcalell/plugin-query/acts` |
-| `useAttempt()`, `useDraft` | `@fcalell/ui-core/react/acts` |
-| `confirm(confirmation)` | `@fcalell/ui-core/react/confirm`, for a decision no act starts |
-| `toast` | `@fcalell/plugin-react-ui/lib/toast` |
+| `Act`, `IconAct`, `MenuEntry`, `sheetOf` | `@slotform/react-ui/lib/act` |
+| `refusal(error)` | `@slotform/query/acts` |
+| `useAttempt()`, `useDraft` | `@slotform/ui-core/react/acts` |
+| `confirm(confirmation)` | `@slotform/ui-core/react/confirm`, for a decision no act starts |
+| `toast` | `@slotform/react-ui/lib/toast` |
 
-The pending look's delay is `--act-delay` (`tuned.actDelay`, `@fcalell/ui-core/paint`).
+The pending look's delay is `--act-delay` (`tuned.actDelay`, `@slotform/ui-core/paint`).
 
 ## ActionBar
 
-`@fcalell/plugin-react-ui/components/action-bar`: the acts that close a block ([rules](./rules.md#a-records-decision-is-an-actionbar)), or that apply to the rows chosen in a list.
+`@slotform/react-ui/components/action-bar`: the acts that close a block ([rules](./rules.md#a-records-decision-is-an-actionbar)), or that apply to the rows chosen in a list.
 
 | Prop | Is |
 | --- | --- |
@@ -37,7 +37,7 @@ The pending look's delay is `--act-delay` (`tuned.actDelay`, `@fcalell/ui-core/p
 
 One rule lays out every bar, by the width of the block it closes and never the viewport (the `acts` container): up to the auth column's width (a `Gate` step, a sheet on a phone) the acts stack across the block, one a row and the filled act on top; wider (a desktop sheet, a page's form) they stand at their own width at the block's end, the filled act last, wrapping to a further row only when the line cannot hold them. An empty state's act stands across a column at the empty width the same way.
 
-The bar holds its acts' attempt (`node_modules/@fcalell/ui-core/guide/acts.md#an-act-holds-its-attempt`), its rejection in the line under the acts. A blocked act waits for a touch: inert and silent until it is pressed, or until its form or sheet has taken input, then its reason stands in the line under the acts, at the filled act's edge. The line stands only while it says something, so it leaves with the reason.
+The bar holds its acts' attempt (`node_modules/@slotform/ui-core/guide/acts.md#an-act-holds-its-attempt`), its rejection in the line under the acts. A blocked act waits for a touch: inert and silent until it is pressed, or until its form or sheet has taken input, then its reason stands in the line under the acts, at the filled act's edge. The line stands only while it says something, so it leaves with the reason.
 
 A `Form`'s `submit` and `acts` and a `Sheet`'s foot draw this bar themselves; give a bar of your own only where no form or sheet stands, and for the rows a `Table` ticks.
 
@@ -56,6 +56,6 @@ The bar is one row at the body's column and start (the reading width, the body's
 
 ## Toasts
 
-`toast(sentence, { tone, act })` queues a toast for what no act started. `tone` is how the thing it reports ended (`node_modules/@fcalell/ui-core/guide/tone.md`). `act` is an `Act` or a `LinkAct` it offers (a route, a retry), never an undo. Only a page inside the `Shell` can call `toast()` or `confirm()`, since the `Shell` draws both.
+`toast(sentence, { tone, act })` queues a toast for what no act started. `tone` is how the thing it reports ended (`node_modules/@slotform/ui-core/guide/tone.md`). `act` is an `Act` or a `LinkAct` it offers (a route, a retry), never an undo. Only a page inside the `Shell` can call `toast()` or `confirm()`, since the `Shell` draws both.
 
 A toast stands over the foot of the container, above whatever docks there: a `Pane`'s `foot` or open docked `sheet`, and on touch an open bottom `Sheet`, so it never covers a foot, a sheet's sentence or an act. Where nothing docks it stands over the page's end for its few seconds, and the `Pane`'s body takes its reach under the last line, so scrolling to the end brings that line clear of it. It swipes away and takes no press outside its own box.

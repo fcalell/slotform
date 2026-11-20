@@ -1,13 +1,13 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import { ReasonHostContext, usePressed } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
+import { cn } from "@slotform/ui-core/cn";
+import { ReasonHostContext, usePressed } from "@slotform/ui-core/react/reason";
+import { useTouched } from "@slotform/ui-core/react/touched";
 import {
 	type ButtonAct,
 	type ButtonFit,
 	button,
 	buttonLabel,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use } from "react";
 import {
 	BLOCKED,

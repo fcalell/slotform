@@ -1,6 +1,6 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Menu as Control } from "@base-ui/react/menu";
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	LAYER_POPOVER,
 	menu,
@@ -10,7 +10,7 @@ import {
 	POPOVER,
 	row,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type KeyboardEvent, type ReactNode, use, useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

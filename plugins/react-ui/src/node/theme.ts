@@ -1,4 +1,4 @@
-import type { ResolvedTheme } from "@fcalell/ui-core/derive";
+import type { ResolvedTheme } from "@slotform/ui-core/derive";
 import {
 	densityTokens,
 	modeTokens,
@@ -9,14 +9,14 @@ import {
 	SOFT_GROUND_TOKENS,
 	shadowUtilities,
 	themeTokens,
-} from "@fcalell/ui-core/emit";
+} from "@slotform/ui-core/emit";
 import {
 	actsStackedMax,
 	definitionsOneRow,
 	rowOneLine,
 	rulesOneRow,
 	trailWhole,
-} from "@fcalell/ui-core/overflow";
+} from "@slotform/ui-core/overflow";
 import {
 	BREAKPOINT_PX,
 	BREAKPOINTS,
@@ -34,7 +34,7 @@ import {
 	TRACKED_ROLES,
 	TYPE_ROLES,
 	WIDTHS,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
 import { DESKTOP_MEDIA, ROOM_SCOPE, TOUCH_MEDIA } from "../density.ts";
 import type { CssBlock, CssLayer, CssSourceInline } from "../types.ts";
 import { renderMediaRule, renderRule } from "./codegen.ts";

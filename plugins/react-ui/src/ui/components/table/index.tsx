@@ -1,5 +1,5 @@
 import { Field } from "@base-ui/react/field";
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	CellValue,
 	ChangeKind,
@@ -16,9 +16,9 @@ import type {
 	TableColumn,
 	TablePick,
 	TableRowRegions,
-} from "@fcalell/ui-core/descriptors";
-import { stepOf } from "@fcalell/ui-core/drag";
-import { formatterFor } from "@fcalell/ui-core/format";
+} from "@slotform/ui-core/descriptors";
+import { stepOf } from "@slotform/ui-core/drag";
+import { formatterFor } from "@slotform/ui-core/format";
 import {
 	alongRows,
 	type Chooser,
@@ -54,11 +54,11 @@ import {
 	touchFacts,
 	touchNamed,
 	turnedOver,
-} from "@fcalell/ui-core/list-state";
-import { PAINT_ROWS, painting } from "@fcalell/ui-core/paint";
-import { useClock } from "@fcalell/ui-core/react/clock";
-import { useCollection, useWindow } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/list-state";
+import { PAINT_ROWS, painting } from "@slotform/ui-core/paint";
+import { useClock } from "@slotform/ui-core/react/clock";
+import { useCollection, useWindow } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	isRead,
@@ -68,8 +68,8 @@ import {
 	readKey,
 	sameQuery,
 	windowOf,
-} from "@fcalell/ui-core/read";
-import { sameBy } from "@fcalell/ui-core/same-by";
+} from "@slotform/ui-core/read";
+import { sameBy } from "@slotform/ui-core/same-by";
 import {
 	CARD,
 	FIGURES,
@@ -88,8 +88,8 @@ import {
 	tableRow,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
-import { pagesCovering } from "@fcalell/ui-core/window";
+} from "@slotform/ui-core/variants";
+import { pagesCovering } from "@slotform/ui-core/window";
 import {
 	type FocusEvent,
 	type KeyboardEvent,
@@ -295,7 +295,7 @@ interface TableBase<T, Q> extends Closed {
 type Chooses<T, Q> =
 	| { choose?: undefined }
 	| {
-			/** The rows the viewer ticks: a tick column leads the grid (its head tick over the rows that can be ticked) and, on touch, each row's leading is its tick. `chosen` is the ticked ids and `onChange` hears the set a tick makes, which the consumer applies its rule to and hands back through `chosen`; `blocked` and `moved` give a row's reason under its leading cell. Over a paginated read (`pages` or `window`), `{ picked, onPick, … }` holds a `Picked` instead: the head tick chooses the read's query, every row it matches loaded or not, and a tick then unticks a row (`except`); a mutation takes `picked` whole (`selector()` of plugin-api). A filter that changes the query ends a pick of the old one. The acts that apply to the rows ticked are the Pane's `foot`, an `ActionBar` with `chosen` (the count: the ticked and the rows that can be ticked, M, and a select-all that hears the set both make) the consumer gives it. */
+			/** The rows the viewer ticks: a tick column leads the grid (its head tick over the rows that can be ticked) and, on touch, each row's leading is its tick. `chosen` is the ticked ids and `onChange` hears the set a tick makes, which the consumer applies its rule to and hands back through `chosen`; `blocked` and `moved` give a row's reason under its leading cell. Over a paginated read (`pages` or `window`), `{ picked, onPick, … }` holds a `Picked` instead: the head tick chooses the read's query, every row it matches loaded or not, and a tick then unticks a row (`except`); a mutation takes `picked` whole (`selector()` of `@slotform/api`). A filter that changes the query ends a pick of the old one. The acts that apply to the rows ticked are the Pane's `foot`, an `ActionBar` with `chosen` (the count: the ticked and the rows that can be ticked, M, and a select-all that hears the set both make) the consumer gives it. */
 			choose: TableChoice<T> | TablePick<T, Q>;
 	  };
 

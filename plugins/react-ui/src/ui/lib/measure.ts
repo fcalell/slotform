@@ -1,4 +1,4 @@
-import type { Size, SpacingRole } from "@fcalell/ui-core/tokens";
+import type { Size, SpacingRole } from "@slotform/ui-core/tokens";
 
 // A spacing role or a size in pixels at the current density (a popup's
 // offset, a glyph's side), read off the root so it follows the density.

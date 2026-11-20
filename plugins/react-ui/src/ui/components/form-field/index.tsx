@@ -1,18 +1,18 @@
 import { Field } from "@base-ui/react/field";
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	ChangeKind,
 	FieldBinding,
 	FieldControl,
 	Run,
 	Runs,
-} from "@fcalell/ui-core/descriptors";
-import { markedRuns } from "@fcalell/ui-core/form";
-import { type Draft, useFieldDraft } from "@fcalell/ui-core/react/acts";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Datum } from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
+} from "@slotform/ui-core/descriptors";
+import { markedRuns } from "@slotform/ui-core/form";
+import { type Draft, useFieldDraft } from "@slotform/ui-core/react/acts";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Datum } from "@slotform/ui-core/read";
+import { partRuns, partText } from "@slotform/ui-core/runs";
 import {
 	DEFINITION_BOX,
 	DEFINITION_BOX_AREA,
@@ -42,7 +42,7 @@ import {
 	ROW_END,
 	row,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	type FocusEvent,
 	type ReactNode,

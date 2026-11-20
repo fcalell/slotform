@@ -1,6 +1,6 @@
 import { Toast } from "@base-ui/react/toast";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { TOAST_MS, type Tone } from "@fcalell/ui-core/tokens";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { TOAST_MS, type Tone } from "@slotform/ui-core/tokens";
 import { createContext } from "react";
 import type { Act } from "./act.ts";
 

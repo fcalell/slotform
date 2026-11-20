@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
-import { isRun } from "@fcalell/ui-core/runs";
-import { type TextRole, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
+import { isRun } from "@slotform/ui-core/runs";
+import { type TextRole, text } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { RunText } from "../../lib/code.tsx";

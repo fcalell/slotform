@@ -19,12 +19,12 @@ import {
 	TIME_SPACE,
 	timeSpace,
 	unitSymbol,
-} from "@fcalell/ui-core/chart";
-import { cn } from "@fcalell/ui-core/cn";
-import { formatterFor } from "@fcalell/ui-core/format";
-import { useCollection } from "@fcalell/ui-core/react/read";
-import type { Datum } from "@fcalell/ui-core/read";
-import { CHART_SERIES } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/chart";
+import { cn } from "@slotform/ui-core/cn";
+import { formatterFor } from "@slotform/ui-core/format";
+import { useCollection } from "@slotform/ui-core/react/read";
+import type { Datum } from "@slotform/ui-core/read";
+import { CHART_SERIES } from "@slotform/ui-core/tokens";
 import {
 	CHART,
 	CHART_BAR,
@@ -47,8 +47,8 @@ import {
 	lineBox,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
-import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
+} from "@slotform/ui-core/variants";
+import { VIRTUAL_FROM } from "@slotform/ui-core/window";
 import {
 	memo,
 	type ReactNode,

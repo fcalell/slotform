@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { CANVAS_GROUP_HEAD, canvasGroup } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { CANVAS_GROUP_HEAD, canvasGroup } from "@slotform/ui-core/variants";
 import { spacing } from "../../lib/measure.ts";
 import { GROUP_HEAD } from "../../lib/walk-classes.ts";
 import { UNZOOM, UNZOOM_VAR } from "./floor.ts";

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { basename } from "node:path";
-import { fallbackFace } from "@fcalell/ui-core/tokens";
+import { fallbackFace } from "@slotform/ui-core/tokens";
 import type { Plugin, ResolvedConfig, Rolldown } from "vite";
 import type { FontEntry } from "../types.ts";
 import { cssString, cssTokenValue, cssUrl } from "./css-escape.ts";
@@ -71,7 +71,7 @@ class MissingFontError extends Error {
 	constructor(font: FontEntry, cause: unknown) {
 		const detail = cause instanceof Error ? cause.message : String(cause);
 		super(
-			`[plugin-react-ui] could not resolve font specifier ${JSON.stringify(
+			`[react-ui] could not resolve font specifier ${JSON.stringify(
 				font.specifier,
 			)} for family ${JSON.stringify(font.family)}.\n` +
 				"  - Ensure the package providing the font file is installed in your workspace.\n" +
@@ -218,7 +218,7 @@ export function themeFontsPlugin(fonts: FontEntry[]): Plugin {
 							// invariant violation (e.g. another plugin stripped the
 							// asset from the bundle), not an author-land mistake.
 							throw new Error(
-								`[plugin-react-ui] internal error: resolved ${JSON.stringify(
+								`[react-ui] internal error: resolved ${JSON.stringify(
 									font.specifier,
 								)} for family ${JSON.stringify(font.family)}, ` +
 									"but it was not found in the emitted bundle even though " +

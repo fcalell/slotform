@@ -56,7 +56,7 @@ When the columns outrun the page the grid scrolls sideways inside its card under
 | `locked` | the column keys it draws read only with the lock, the hold of an open change set |
 | `warning` | what is wrong with the row, after its leading cell's name |
 | `change` | where the row stands in a change set, its mark ahead of the name |
-| `act` | the row's one act at its end, with its wiring: an `IconAct` or an `IconLinkAct` (`node_modules/@fcalell/ui-core/guide/links.md#icon-acts`) |
+| `act` | the row's one act at its end, with its wiring: an `IconAct` or an `IconLinkAct` (`node_modules/@slotform/ui-core/guide/links.md#icon-acts`) |
 | `more` | its other acts, in a menu after `act` |
 | `drop` | the drop the row is, as a `PlaceSpec`'s |
 
@@ -76,7 +76,7 @@ row={{
 | --- | --- |
 | `chosen` | the ticked ids |
 | `onChange` | hears the set a tick makes: apply your rule to it and return the ruled set through `chosen` |
-| `picked`, `onPick` | in place of `chosen` and `onChange` over a paginated read: a `Picked`, the ids or the query less the ids unticked, which the head tick sets to the whole query and a mutation takes whole (`selector()` of plugin-api) |
+| `picked`, `onPick` | in place of `chosen` and `onChange` over a paginated read: a `Picked`, the ids or the query less the ids unticked, which the head tick sets to the whole query and a mutation takes whole (`selector()` of `@slotform/api`) |
 | `blocked` | reads why a row cannot be ticked from its item, a short phrase under its leading cell |
 | `moved` | reads why a rule moved a row's tick, the same way |
 

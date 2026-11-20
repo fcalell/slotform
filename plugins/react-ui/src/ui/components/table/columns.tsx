@@ -1,12 +1,12 @@
 import { Menu } from "@base-ui/react/menu";
-import { cn } from "@fcalell/ui-core/cn";
-import type { TableColumn } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { TableColumn } from "@slotform/ui-core/descriptors";
 import {
 	type ColumnChoice,
 	columnShown,
 	columnsChanged,
-} from "@fcalell/ui-core/list-state";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/list-state";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	LAYER_POPOVER,
 	menu,
@@ -16,7 +16,7 @@ import {
 	POPOVER,
 	row,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

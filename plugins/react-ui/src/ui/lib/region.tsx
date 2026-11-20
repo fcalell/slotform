@@ -1,4 +1,4 @@
-import { scrambled, tuned } from "@fcalell/ui-core/paint";
+import { scrambled, tuned } from "@slotform/ui-core/paint";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { CodeWhole } from "./code.tsx";
 import { reducedNow } from "./media.ts";

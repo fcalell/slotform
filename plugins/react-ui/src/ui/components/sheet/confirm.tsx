@@ -1,10 +1,10 @@
-import { afterRun } from "@fcalell/ui-core/acts";
+import { afterRun } from "@slotform/ui-core/acts";
 import {
 	type ConfirmEntry,
 	dismissConfirmation,
 	useConfirmations,
-} from "@fcalell/ui-core/react/confirm";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/confirm";
+import { useWords } from "@slotform/ui-core/react/words";
 import { useState } from "react";
 import { FormField } from "../form-field/index.tsx";
 import { Input } from "../input/index.tsx";
@@ -62,7 +62,7 @@ export function ConfirmSheet(props: {
 	);
 }
 
-/** The first queued decision (queued by `confirm` and `ask`, `@fcalell/ui-core/react/confirm`); the last one stays drawn while its sheet closes. */
+/** The first queued decision (queued by `confirm` and `ask`, `@slotform/ui-core/react/confirm`); the last one stays drawn while its sheet closes. */
 export function Confirmations() {
 	const current = useConfirmations()[0];
 	const [last, setLast] = useState(current);

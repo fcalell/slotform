@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { CANVAS_GROUND, canvasNode } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { CANVAS_GROUND, canvasNode } from "@slotform/ui-core/variants";
 import { useId } from "react";
 import { IconBase } from "../../atoms/icon/index.tsx";
 import { Painted } from "../../lib/paint.tsx";

@@ -6,7 +6,7 @@ import { saveChoice, savedChoice, subscribeSaved } from "./saved.ts";
 // branch's route; a branch never chosen is left to the Shell (open on the
 // current place's path, else folded). The sidebar's column folds away the same
 // way, under a key no route can be.
-const KEY = "stack:places:open";
+const KEY = "slotform:places:open";
 
 // The parse of the last raw choice read, so the snapshot stays the same object
 // until the choice changes.

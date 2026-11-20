@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { LOCK_GLYPH } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { LOCK_GLYPH } from "@slotform/ui-core/variants";
 import { IconBase } from "../icon/index.tsx";
 
 const MARK = "flex items-center min-w-icon-meta";

@@ -1,12 +1,12 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, paints } from "@fcalell/ui-core/read";
-import { partRuns, partText } from "@fcalell/ui-core/runs";
-import { counted, named } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
+import { PAINT_ROWS } from "@slotform/ui-core/paint";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, paints } from "@slotform/ui-core/read";
+import { partRuns, partText } from "@slotform/ui-core/runs";
+import { counted, named } from "@slotform/ui-core/tokens";
 import {
 	CARD,
 	CODE_ACT,
@@ -17,7 +17,7 @@ import {
 	lineBox,
 	PRESS_WASH,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment, useId, useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

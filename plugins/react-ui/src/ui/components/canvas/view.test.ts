@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { SCROLL_EDGE } from "@fcalell/ui-core/drag";
+import { SCROLL_EDGE } from "@slotform/ui-core/drag";
 import type { Box } from "./geometry.ts";
 import {
 	autoPan,

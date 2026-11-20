@@ -1,19 +1,19 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	LinkSegment,
 	ToolbarChip,
 	ToolbarSearch,
-} from "@fcalell/ui-core/descriptors";
-import { filterSet, filtersFold } from "@fcalell/ui-core/list-state";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/descriptors";
+import { filterSet, filtersFold } from "@slotform/ui-core/list-state";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	TOOLBAR_CHIPS,
 	TOOLBAR_LINE,
 	TOOLBAR_ROW,
 	TOOLBAR_SEARCH,
 	TOOLBAR_TABS,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { CHIP_LINES } from "../../lib/chip-lines.ts";
 import type { Closed } from "../../lib/closed.ts";

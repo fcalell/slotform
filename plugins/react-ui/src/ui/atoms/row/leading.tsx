@@ -1,9 +1,9 @@
 import { Field } from "@base-ui/react/field";
-import { cn } from "@fcalell/ui-core/cn";
-import type { RowLeading } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { ChipFamily, Words } from "@fcalell/ui-core/tokens";
-import { rowMark, TREE_BLEED, TREE_RAIL } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { RowLeading } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { ChipFamily, Words } from "@slotform/ui-core/tokens";
+import { rowMark, TREE_BLEED, TREE_RAIL } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { NOOP } from "../../lib/noop.ts";
 import { AvatarBase } from "../avatar/base.tsx";

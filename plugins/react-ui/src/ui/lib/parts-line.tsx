@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { META_TAIL } from "@fcalell/ui-core/runs";
+import { cn } from "@slotform/ui-core/cn";
+import { META_TAIL } from "@slotform/ui-core/runs";
 import type { ReactNode } from "react";
 
 // A text line of parts a middle dot apart: docs/architecture/plugins/react-ui.md, "Text".

@@ -1,15 +1,15 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import { paintText } from "@fcalell/ui-core/paint";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { ChipFamily } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import { paintText } from "@slotform/ui-core/paint";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { ChipFamily } from "@slotform/ui-core/tokens";
 import {
 	BLOCK_IN,
 	CHIP_LABEL,
 	chip,
 	chipDot,
 	REMOVE_HIT,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 import { Icon } from "../icon/index.tsx";
 

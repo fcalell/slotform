@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { PROSE, PROSE_BLOCKS, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { PROSE, PROSE_BLOCKS, text } from "@slotform/ui-core/variants";
 import { Painted } from "../../lib/paint.tsx";
 
 // The loaded column's boxes (Prose's own).

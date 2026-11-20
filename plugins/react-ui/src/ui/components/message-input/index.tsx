@@ -1,11 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	Attachment,
 	Notice,
 	PickedFile,
-} from "@fcalell/ui-core/descriptors";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/descriptors";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	FLOW_IN,
 	field,
@@ -25,7 +25,7 @@ import {
 	THREAD_COLUMN,
 	text,
 	YIELDS_FIRST,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	type ChangeEvent,
 	type ClipboardEvent,

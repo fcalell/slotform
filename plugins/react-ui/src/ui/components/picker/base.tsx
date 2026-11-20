@@ -1,14 +1,14 @@
 import { Combobox } from "@base-ui/react/combobox";
 import { Dialog } from "@base-ui/react/dialog";
 import { Select } from "@base-ui/react/select";
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct, Option } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct, Option } from "@slotform/ui-core/descriptors";
 import {
 	optionBlocked,
 	optionLeading,
 	optionMeta,
 	toggled,
-} from "@fcalell/ui-core/list-state";
+} from "@slotform/ui-core/list-state";
 import {
 	type Grouped,
 	groupsOf,
@@ -18,13 +18,13 @@ import {
 	pickCurrent,
 	SEARCH_PAST,
 	type Several,
-} from "@fcalell/ui-core/pick";
-import type { Acting, Draft } from "@fcalell/ui-core/react/acts";
-import { useOptions } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { isEnded } from "@fcalell/ui-core/read";
-import { nounOf } from "@fcalell/ui-core/rules";
-import type { Tone } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/pick";
+import type { Acting, Draft } from "@slotform/ui-core/react/acts";
+import { useOptions } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { isEnded } from "@slotform/ui-core/read";
+import { nounOf } from "@slotform/ui-core/rules";
+import type { Tone } from "@slotform/ui-core/tokens";
 import {
 	CHIPS_RUN,
 	CHIPS_TRIGGER,
@@ -59,8 +59,8 @@ import {
 	text,
 	textStrong,
 	WORD_ACT,
-} from "@fcalell/ui-core/variants";
-import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
+} from "@slotform/ui-core/variants";
+import { VIRTUAL_FROM } from "@slotform/ui-core/window";
 import {
 	type ComponentProps,
 	memo,

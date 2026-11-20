@@ -1,16 +1,16 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import type { StatSpec } from "@fcalell/ui-core/descriptors";
-import { formatterFor } from "@fcalell/ui-core/format";
-import { useRow, useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { StatSpec } from "@slotform/ui-core/descriptors";
+import { formatterFor } from "@slotform/ui-core/format";
+import { useRow, useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	endedSentence,
 	isEnded,
 	paints,
 	shownText,
-} from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/read";
 import {
 	lineBox,
 	PRESS_WASH,
@@ -20,7 +20,7 @@ import {
 	STATS_FIGURE,
 	STATS_OPENS,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";
 import { follow } from "../../lib/navigate.ts";

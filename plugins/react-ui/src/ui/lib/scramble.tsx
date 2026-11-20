@@ -1,4 +1,4 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	kindOf,
 	loading,
@@ -7,7 +7,7 @@ import {
 	setLoading,
 	ticker,
 	tuned,
-} from "@fcalell/ui-core/paint";
+} from "@slotform/ui-core/paint";
 import {
 	BUSY_STILL,
 	busy,
@@ -15,9 +15,9 @@ import {
 	frame,
 	lockedAt,
 	seedOf,
-} from "@fcalell/ui-core/scramble";
-import type { LoadingRegion } from "@fcalell/ui-core/tokens";
-import { paint, SCRAMBLE } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/scramble";
+import type { LoadingRegion } from "@slotform/ui-core/tokens";
+import { paint, SCRAMBLE } from "@slotform/ui-core/variants";
 import { useId, useLayoutEffect, useRef } from "react";
 import { pageLang } from "./lang.ts";
 import { reducedNow } from "./media.ts";

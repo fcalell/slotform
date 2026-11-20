@@ -1,4 +1,4 @@
-import { commitMoment } from "@fcalell/ui-core/commit";
+import { commitMoment } from "@slotform/ui-core/commit";
 import { type KeyboardEvent, useState } from "react";
 
 // A typing control's commit moments: docs/architecture/ui-core/acts.md, "Commit".

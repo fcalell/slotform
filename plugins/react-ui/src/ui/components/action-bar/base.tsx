@@ -1,14 +1,14 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { chosenAbsent, kindOf, NO_FAILURE } from "@fcalell/ui-core/action-bar";
-import { cn } from "@fcalell/ui-core/cn";
-import type { ChosenCount, LinkAct } from "@fcalell/ui-core/descriptors";
-import { formatterFor } from "@fcalell/ui-core/format";
-import type { Acting } from "@fcalell/ui-core/react/acts";
-import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
-import { useTouched } from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { pressStands } from "@fcalell/ui-core/reason";
-import { filled } from "@fcalell/ui-core/tokens";
+import { chosenAbsent, kindOf, NO_FAILURE } from "@slotform/ui-core/action-bar";
+import { cn } from "@slotform/ui-core/cn";
+import type { ChosenCount, LinkAct } from "@slotform/ui-core/descriptors";
+import { formatterFor } from "@slotform/ui-core/format";
+import type { Acting } from "@slotform/ui-core/react/acts";
+import { ReasonHostContext } from "@slotform/ui-core/react/reason";
+import { useTouched } from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
+import { pressStands } from "@slotform/ui-core/reason";
+import { filled } from "@slotform/ui-core/tokens";
 import {
 	ACTION_BAR,
 	ACTION_BAR_ACTS,
@@ -17,7 +17,7 @@ import {
 	ACTION_BAR_CHOSEN_COLUMN,
 	PRESS_WASH,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { ButtonLink } from "../../atoms/button/link.tsx";

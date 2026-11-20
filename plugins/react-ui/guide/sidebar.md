@@ -14,7 +14,7 @@ On touch the places layer lists the groups first; a tap shows that group's place
 
 ## The tree
 
-A place with `children` is a branch (`node_modules/@fcalell/ui-core/guide/places.md#placespec`). A branch has a fold act at the end of its row; its children stand one `stack` space in per level. The browser keeps the viewer's open and folded branches per branch route; a branch they never chose is open when the current place is at or under it, else folded. The places on the path to the current one (its folded ancestors too) take the selected ink, while only the current one takes the wash and the bar.
+A place with `children` is a branch (`node_modules/@slotform/ui-core/guide/places.md#placespec`). A branch has a fold act at the end of its row; its children stand one `stack` space in per level. The browser keeps the viewer's open and folded branches per branch route; a branch they never chose is open when the current place is at or under it, else folded. The places on the path to the current one (its folded ancestors too) take the selected ink, while only the current one takes the wash and the bar.
 
 Every run of places, flat or nested, the footer group included, is a WAI-ARIA tree with one tab stop (the current place's row, else the first):
 

@@ -1,4 +1,4 @@
-import type { Run, Runs } from "@fcalell/ui-core/descriptors";
+import type { Run, Runs } from "@slotform/ui-core/descriptors";
 import { createContext } from "react";
 
 // A toggle a row's label targets: docs/architecture/ui-core/acts.md, "Fields".

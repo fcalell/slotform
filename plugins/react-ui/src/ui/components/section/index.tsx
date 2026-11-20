@@ -1,6 +1,6 @@
 import { Collapsible } from "@base-ui/react/collapsible";
-import type { Offered } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
+import type { Offered } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	Band as BandData,
 	IconLinkAct,
@@ -9,21 +9,21 @@ import type {
 	Row as RowData,
 	RowItem as RowItemData,
 	Run,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import {
 	factsOnly,
 	listedRows,
 	optionReads,
 	ownCount,
-} from "@fcalell/ui-core/list-state";
+} from "@slotform/ui-core/list-state";
 import {
 	type Frame,
 	useCollection,
 	useFrame,
 	useOptions,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	combine,
 	type Datum,
@@ -32,8 +32,8 @@ import {
 	pagesOf,
 	type Selection,
 	sampleOf,
-} from "@fcalell/ui-core/read";
-import { ROWS, SECTION, SECTION_BODY } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/read";
+import { ROWS, SECTION, SECTION_BODY } from "@slotform/ui-core/variants";
 import { type ReactNode, use, useId, useMemo, useRef, useState } from "react";
 import { SheetCard } from "../../atoms/section/card.tsx";
 import type { Act, IconAct, MenuEntry, Sheeted } from "../../lib/act.ts";

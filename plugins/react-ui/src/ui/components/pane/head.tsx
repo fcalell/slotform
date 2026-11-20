@@ -1,28 +1,28 @@
-import { endedItems, type Offered, offered } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
+import { endedItems, type Offered, offered } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	IconLinkAct,
 	LinkAct,
 	Route,
 	Run,
-} from "@fcalell/ui-core/descriptors";
-import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { actsSplit, trailSplit } from "@fcalell/ui-core/overflow";
+} from "@slotform/ui-core/descriptors";
+import { BACK_GLYPH } from "@slotform/ui-core/list-state";
+import { actsSplit, trailSplit } from "@slotform/ui-core/overflow";
 import {
 	type Frame,
 	useDrawsFailure,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	endedReason,
 	isEnded,
 	paints,
-} from "@fcalell/ui-core/read";
-import type { TrailPart } from "@fcalell/ui-core/route";
-import { isCode, partRuns, partText } from "@fcalell/ui-core/runs";
-import type { Tone } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/read";
+import type { TrailPart } from "@slotform/ui-core/route";
+import { isCode, partRuns, partText } from "@slotform/ui-core/runs";
+import type { Tone } from "@slotform/ui-core/tokens";
 import {
 	ITEM_OVERLINE,
 	PAGE_CONTEXT,
@@ -33,7 +33,7 @@ import {
 	PAGE_WITHIN_SEP,
 	TITLE_CODE,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment, use } from "react";
 import { IconButtonBase, IconButtonLink } from "../../atoms/button/glyph.tsx";
 import { type IconAct, type MenuEntry, wiringOf } from "../../lib/act.ts";

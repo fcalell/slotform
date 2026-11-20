@@ -1,4 +1,4 @@
-import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
+import type { CanvasPoint } from "@slotform/ui-core/descriptors";
 import { Stroke, SVG } from "./edges.tsx";
 import { type Box, bendRoute, cleanPoints, roundedPath } from "./geometry.ts";
 

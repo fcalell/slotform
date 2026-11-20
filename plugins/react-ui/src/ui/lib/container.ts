@@ -1,5 +1,5 @@
-import type { TrailPart } from "@fcalell/ui-core/route";
-import { DOCKED_LOG_FLOOR_ROWS } from "@fcalell/ui-core/variants";
+import type { TrailPart } from "@slotform/ui-core/route";
+import { DOCKED_LOG_FLOOR_ROWS } from "@slotform/ui-core/variants";
 import {
 	createContext,
 	type RefObject,

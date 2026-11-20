@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	IconLinkAct,
 	Option,
 	OptionGroup,
 	OptionPick,
-} from "@fcalell/ui-core/descriptors";
-import { optionLeading } from "@fcalell/ui-core/list-state";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, paints } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/descriptors";
+import { optionLeading } from "@slotform/ui-core/list-state";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, paints } from "@slotform/ui-core/read";
 import {
 	FIELD_PLACEHOLDER,
 	PRESS_WASH,
@@ -17,7 +17,7 @@ import {
 	SHELL_RAIL_GLYPH,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { AvatarBase } from "../../atoms/avatar/base.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

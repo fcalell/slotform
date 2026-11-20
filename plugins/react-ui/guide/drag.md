@@ -16,7 +16,7 @@ A drag is data: a row says what it carries, a place or a row says what it takes,
   choose={{ chosen, onChange: setChosen }} />
 
 // A place in the sidebar takes them. `drag.picked` is a `Picked`: the ids, or the query less the ids
-// unticked, which `selector()` of plugin-api takes whole.
+// unticked, which `selector()` of `@slotform/api` takes whole.
 const places: PlaceSpec[] = boards.map((p) => ({
   label: p.name, icon: "ListChecks", route: `#${p.id}`, group: "Boards",
   drop: {

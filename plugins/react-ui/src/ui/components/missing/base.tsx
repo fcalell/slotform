@@ -1,7 +1,7 @@
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { trailEnds } from "@fcalell/ui-core/route";
-import { filled } from "@fcalell/ui-core/tokens";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import { trailEnds } from "@slotform/ui-core/route";
+import { filled } from "@slotform/ui-core/tokens";
 import { use } from "react";
 import { BackRoute, PlaceTrail } from "../../lib/container.ts";
 import { EmptyBase, type EmptyFit } from "../../lib/empty.tsx";

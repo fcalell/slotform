@@ -5,7 +5,7 @@ diagram of `div`s and lines. It takes data and draws the nodes, the arrows betwe
 boxes around groups and the zoom stack.
 
 ```tsx
-import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
+import { Canvas } from "@slotform/react-ui/components/canvas";
 ```
 
 ## The data
@@ -13,7 +13,7 @@ import { Canvas } from "@fcalell/plugin-react-ui/components/canvas";
 A node is a `CanvasNode` (`id`, `icon`, `role`, `overline`, `title`, `line`, and a trailing `number` or
 `count`), an edge a `CanvasEdge` (`id`, `from`, `to`, an optional `label`), a group a
 `CanvasGroup` (`id`, `head`, `holds`: node ids and group ids). All come from
-`@fcalell/ui-core/descriptors`. The canvas draws `number` over `count` and never invents a number.
+`@slotform/ui-core/descriptors`. The canvas draws `number` over `count` and never invents a number.
 A node's `line` wraps to a second line and is cut at that one's end, so a list in it (a trigger's
 callers, a gate's answers) keeps more than its first words; the node is as tall as its lines.
 
@@ -46,7 +46,7 @@ A **journey** branches and rejoins, and numbers its steps. Take the numbers from
 the order the canvas reads and the keyboard walks:
 
 ```tsx
-import { pathOrder } from "@fcalell/ui-core/canvas";
+import { pathOrder } from "@slotform/ui-core/canvas";
 
 const numbers = new Map(pathOrder(nodes, edges).map((id, index) => [id, index + 1]));
 const numbered = nodes.map((node) => ({ ...node, number: numbers.get(node.id) }));

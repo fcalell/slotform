@@ -1,8 +1,8 @@
 import { Toast as ToastControl } from "@base-ui/react/toast";
 import { Tooltip } from "@base-ui/react/tooltip";
-import { cn } from "@fcalell/ui-core/cn";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { TOASTS } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { useWords } from "@slotform/ui-core/react/words";
+import { TOASTS } from "@slotform/ui-core/variants";
 import { type ReactNode, use, useState } from "react";
 import { useModality } from "../../lib/modality.ts";
 import { PortalContainer, PortalRegion } from "../../lib/portal.ts";

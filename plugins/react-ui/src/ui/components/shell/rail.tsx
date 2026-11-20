@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName } from "@slotform/ui-core/descriptors";
 import {
 	PRESS_WASH,
 	placeRow,
@@ -7,7 +7,7 @@ import {
 	SHELL_RAIL_ENTRY,
 	SHELL_RAIL_GLYPH,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { PointerEvent } from "react";
 import { Named } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

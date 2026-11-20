@@ -1,10 +1,10 @@
 import { Input as Control } from "@base-ui/react/input";
-import { cn } from "@fcalell/ui-core/cn";
-import { accepts, fileSize, kindsOf } from "@fcalell/ui-core/file";
-import { pathCut } from "@fcalell/ui-core/list-state";
-import { FieldDisabled } from "@fcalell/ui-core/react/field";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { filled } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import { accepts, fileSize, kindsOf } from "@slotform/ui-core/file";
+import { pathCut } from "@slotform/ui-core/list-state";
+import { FieldDisabled } from "@slotform/ui-core/react/field";
+import { useWords } from "@slotform/ui-core/react/words";
+import { filled } from "@slotform/ui-core/tokens";
 import {
 	FIELD_GLYPH,
 	FIELD_PLACEHOLDER,
@@ -13,7 +13,7 @@ import {
 	fieldValue,
 	text,
 	YIELDS_FIRST,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ChangeEvent, useState } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { BOX_FOCUS, useModality } from "../../lib/modality.ts";

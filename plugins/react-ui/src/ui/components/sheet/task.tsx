@@ -1,6 +1,6 @@
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { FrameHolds } from "@fcalell/ui-core/react/read";
-import { NO_HOLDS } from "@fcalell/ui-core/read";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { FrameHolds } from "@slotform/ui-core/react/read";
+import { NO_HOLDS } from "@slotform/ui-core/read";
 import { type ReactNode, useState } from "react";
 import { SheetBase } from "./base.tsx";
 import { useSheetForm } from "./form.tsx";

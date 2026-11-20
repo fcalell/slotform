@@ -1,9 +1,9 @@
-import type { Option, PickedFile } from "@fcalell/ui-core/descriptors";
-import { heldPick, type ProcedureCall } from "@fcalell/ui-core/form";
-import { type FieldModel, useFormModel } from "@fcalell/ui-core/react/form";
-import { useFrame } from "@fcalell/ui-core/react/read";
-import { useTouchState } from "@fcalell/ui-core/react/touched";
-import { type Datum, isSelection } from "@fcalell/ui-core/read";
+import type { Option, PickedFile } from "@slotform/ui-core/descriptors";
+import { heldPick, type ProcedureCall } from "@slotform/ui-core/form";
+import { type FieldModel, useFormModel } from "@slotform/ui-core/react/form";
+import { useFrame } from "@slotform/ui-core/react/read";
+import { useTouchState } from "@slotform/ui-core/react/touched";
+import { type Datum, isSelection } from "@slotform/ui-core/read";
 import type { Act } from "../../lib/act.ts";
 import type { Empty } from "../../lib/empty.tsx";
 import { toast } from "../../lib/toast.ts";

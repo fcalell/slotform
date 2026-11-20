@@ -1,5 +1,5 @@
 import { posix } from "node:path";
-import type { LintPlugin } from "@fcalell/cli/specs";
+import type { LintPlugin } from "@slotform/cli/specs";
 import { APP_SOURCE_DIR } from "./codegen.ts";
 
 // The `.grit` files of this package's `lint/`, each a rule of the web rules page
@@ -19,7 +19,7 @@ export function lintPlugins(routesDir: string | null): LintPlugin[] {
 	const appDir = routesDir === null ? APP_SOURCE_DIR : posix.dirname(routesDir);
 	const includes = [appDir === "." ? "**" : `${appDir}/**`];
 	return LINT_RULES.map((rule) => ({
-		path: `@fcalell/plugin-react-ui/lint/${rule}.grit`,
+		path: `@slotform/react-ui/lint/${rule}.grit`,
 		includes,
 	}));
 }

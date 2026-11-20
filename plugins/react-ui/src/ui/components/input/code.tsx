@@ -1,16 +1,16 @@
 import { Input as Control } from "@base-ui/react/input";
-import { drew, isThenable } from "@fcalell/ui-core/acts";
-import { cn } from "@fcalell/ui-core/cn";
-import { useAttempt } from "@fcalell/ui-core/react/acts";
-import { usePort } from "@fcalell/ui-core/react/port";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { drew, isThenable } from "@slotform/ui-core/acts";
+import { cn } from "@slotform/ui-core/cn";
+import { useAttempt } from "@slotform/ui-core/react/acts";
+import { usePort } from "@slotform/ui-core/react/port";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	FLOW_IN,
 	OTP,
 	OTP_DIGIT,
 	otpBox,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Spinner } from "../../atoms/spinner/index.tsx";
 import { useModality } from "../../lib/modality.ts";
 import type { CodeInputProps } from "./index.tsx";

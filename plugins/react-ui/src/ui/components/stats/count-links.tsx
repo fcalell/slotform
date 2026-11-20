@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { CountLink } from "@fcalell/ui-core/descriptors";
-import { formatterFor } from "@fcalell/ui-core/format";
+import { cn } from "@slotform/ui-core/cn";
+import type { CountLink } from "@slotform/ui-core/descriptors";
+import { formatterFor } from "@slotform/ui-core/format";
 import {
 	COUNT_LINKS,
 	FIGURES,
 	LINK_TARGET,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { ButtonLink } from "../../atoms/button/link.tsx";
 import { Painted } from "../../lib/paint.tsx";
 

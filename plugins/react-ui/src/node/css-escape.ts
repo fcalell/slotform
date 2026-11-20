@@ -1,4 +1,4 @@
-// The CSS escape policy, a label over `@fcalell/cli/css`: docs/architecture/codegen.md, "CSS escape boundary".
+// The CSS escape policy, a label over `@slotform/cli/css`: docs/architecture/codegen.md, "CSS escape boundary".
 import {
 	cssIdent as cssIdentBase,
 	cssString,
@@ -8,9 +8,9 @@ import {
 	cssVarName as cssVarNameBase,
 	isCssIdent,
 	isCssSupportsExpression,
-} from "@fcalell/cli/css";
+} from "@slotform/cli/css";
 
-const LABEL = "plugin-react-ui";
+const LABEL = "react-ui";
 
 export { cssString, isCssIdent, isCssSupportsExpression };
 

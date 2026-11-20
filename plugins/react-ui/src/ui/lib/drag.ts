@@ -1,4 +1,4 @@
-import type { Dragged, Drop, Moved } from "@fcalell/ui-core/descriptors";
+import type { Dragged, Drop, Moved } from "@slotform/ui-core/descriptors";
 import {
 	accepts,
 	type Band,
@@ -10,9 +10,9 @@ import {
 	moveOf,
 	pressed,
 	sideOf,
-} from "@fcalell/ui-core/drag";
-import { createStore } from "@fcalell/ui-core/store";
-import { counted, type Words } from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/drag";
+import { createStore } from "@slotform/ui-core/store";
+import { counted, type Words } from "@slotform/ui-core/tokens";
 import {
 	type PointerEvent as ReactPointerEvent,
 	useEffect,

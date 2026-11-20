@@ -1,7 +1,7 @@
-import { afterRun } from "@fcalell/ui-core/acts";
-import type { Moved, Reorder } from "@fcalell/ui-core/descriptors";
-import { moveEntry, type Step, stepOf } from "@fcalell/ui-core/drag";
-import type { Words } from "@fcalell/ui-core/tokens";
+import { afterRun } from "@slotform/ui-core/acts";
+import type { Moved, Reorder } from "@slotform/ui-core/descriptors";
+import { moveEntry, type Step, stepOf } from "@slotform/ui-core/drag";
+import type { Words } from "@slotform/ui-core/tokens";
 import {
 	type RefObject,
 	use,

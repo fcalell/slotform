@@ -1,15 +1,19 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { EitherPick, Rule, RuleValue } from "@fcalell/ui-core/descriptors";
-import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { isTyped, marked, pairSet, ruleName } from "@fcalell/ui-core/rules";
+import { cn } from "@slotform/ui-core/cn";
+import type {
+	EitherPick,
+	Rule,
+	RuleValue,
+} from "@slotform/ui-core/descriptors";
+import { useArrivals } from "@slotform/ui-core/react/arrive";
+import { useWords } from "@slotform/ui-core/react/words";
+import { isTyped, marked, pairSet, ruleName } from "@slotform/ui-core/rules";
 import {
 	BLOCK_IN,
 	RULE_CARD,
 	RULE_ROW,
 	RULES,
 	ruleArrow,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment, useMemo, useRef, useState } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { SheetCard } from "../../atoms/section/card.tsx";

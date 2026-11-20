@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName, RowMark } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName, RowMark } from "@slotform/ui-core/descriptors";
 import {
 	ROW_FLAG,
 	ROW_MARKS,
@@ -7,7 +7,7 @@ import {
 	ROW_RING_FILLED,
 	ROW_WARNING,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Painted } from "../../lib/paint.tsx";
 import { Named } from "../button/glyph.tsx";
 import { IconBase } from "../icon/index.tsx";

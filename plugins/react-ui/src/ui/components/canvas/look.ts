@@ -3,7 +3,7 @@ import type {
 	CanvasNode,
 	CanvasPath,
 	CanvasRole,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 
 type Surface =
 	| "plain"

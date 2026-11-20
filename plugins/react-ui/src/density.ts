@@ -1,4 +1,4 @@
-import { BREAKPOINT_PX } from "@fcalell/ui-core/tokens";
+import { BREAKPOINT_PX } from "@slotform/ui-core/tokens";
 
 // The density rule, one query for the layer, `touch:` and `useTouch`: docs/architecture/plugins/react-ui.md, "Density".
 export const DESKTOP_MEDIA = `(pointer: fine) and (width >= ${BREAKPOINT_PX.tablet}px)`;

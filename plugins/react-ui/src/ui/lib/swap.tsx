@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { tuned } from "@fcalell/ui-core/paint";
-import { rollOf, rollShift } from "@fcalell/ui-core/roll";
-import { SWAP_IN, SWAP_OUT } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { tuned } from "@slotform/ui-core/paint";
+import { rollOf, rollShift } from "@slotform/ui-core/roll";
+import { SWAP_IN, SWAP_OUT } from "@slotform/ui-core/variants";
 import {
 	type ReactNode,
 	useEffect,

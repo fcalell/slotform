@@ -1,6 +1,6 @@
-import type { PickedFile } from "@fcalell/ui-core/descriptors";
-import { FieldOwned } from "@fcalell/ui-core/react/field";
-import type { Datum } from "@fcalell/ui-core/read";
+import type { PickedFile } from "@slotform/ui-core/descriptors";
+import { FieldOwned } from "@slotform/ui-core/react/field";
+import type { Datum } from "@slotform/ui-core/read";
 import { use } from "react";
 import type { IconAct } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";

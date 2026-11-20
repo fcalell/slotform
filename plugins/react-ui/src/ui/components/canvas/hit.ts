@@ -1,4 +1,4 @@
-import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
+import type { CanvasPoint } from "@slotform/ui-core/descriptors";
 import type { FocusEvent } from "react";
 
 // The region's ground and its parts: docs/architecture/plugins/react-ui.md, "Canvas".

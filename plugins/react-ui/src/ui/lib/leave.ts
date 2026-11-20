@@ -1,6 +1,6 @@
-import type { Leave } from "@fcalell/ui-core/leave";
-import { askDiscard } from "@fcalell/ui-core/react/confirm";
-import { useWords } from "@fcalell/ui-core/react/words";
+import type { Leave } from "@slotform/ui-core/leave";
+import { askDiscard } from "@slotform/ui-core/react/confirm";
+import { useWords } from "@slotform/ui-core/react/words";
 import { useEffect } from "react";
 import { blockLeave } from "./navigate.ts";
 

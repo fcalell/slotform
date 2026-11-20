@@ -1,16 +1,16 @@
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkSegment } from "@fcalell/ui-core/descriptors";
-import { linkAt } from "@fcalell/ui-core/pick";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkSegment } from "@slotform/ui-core/descriptors";
+import { linkAt } from "@slotform/ui-core/pick";
+import type { Draft } from "@slotform/ui-core/react/acts";
 import {
 	SEGMENT_CHOSEN,
 	SEGMENT_IDLE,
 	SEGMENT_TRACK,
 	segment,
 	segmentLabel,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use, useLayoutEffect, useRef } from "react";
 import { useHeldDraft } from "../../lib/act.ts";
 import { GroupName } from "../../lib/field.ts";

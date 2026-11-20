@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	GATE_LOCKUP,
 	GATE_LOGO,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { createContext, type ReactNode, use, useState } from "react";
 
 /** The app's lockup: its icon, in the light mode and, when the app gave one, the dark, and its name; and, when the app drew one, its logo (symbol and name in one image). */

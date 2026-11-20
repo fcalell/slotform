@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { DRAG_GHOST, DROP_LINE } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { DRAG_GHOST, DROP_LINE } from "@slotform/ui-core/variants";
 import { use } from "react";
 import { createPortal } from "react-dom";
 import { useDrag } from "../../lib/drag.ts";

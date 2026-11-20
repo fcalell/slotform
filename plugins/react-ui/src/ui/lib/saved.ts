@@ -1,4 +1,4 @@
-import { createStore } from "@fcalell/ui-core/store";
+import { createStore } from "@slotform/ui-core/store";
 
 // A viewer's choice is theirs from one visit to the next: a convenience, so a
 // store that is blocked or empty leaves the choice for the visit alone. What

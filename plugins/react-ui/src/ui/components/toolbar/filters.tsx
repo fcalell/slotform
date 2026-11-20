@@ -1,18 +1,18 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { Popover } from "@base-ui/react/popover";
-import { cn } from "@fcalell/ui-core/cn";
-import type { MultiPick, OptionPick } from "@fcalell/ui-core/descriptors";
-import { filterChip, filterEmpty } from "@fcalell/ui-core/list-state";
-import { useOptions } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Fielded, paints } from "@fcalell/ui-core/read";
-import type { OptionText } from "@fcalell/ui-core/reason";
+import { cn } from "@slotform/ui-core/cn";
+import type { MultiPick, OptionPick } from "@slotform/ui-core/descriptors";
+import { filterChip, filterEmpty } from "@slotform/ui-core/list-state";
+import { useOptions } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Fielded, paints } from "@slotform/ui-core/read";
+import type { OptionText } from "@slotform/ui-core/reason";
 import {
 	LAYER_POPOVER,
 	POPOVER,
 	TOOLBAR_FILTERS,
 	TOOLBAR_FILTERS_POPOVER,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use, useRef, useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { ChipBase } from "../../atoms/chip/base.tsx";

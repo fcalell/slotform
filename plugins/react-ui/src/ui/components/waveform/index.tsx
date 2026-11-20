@@ -1,7 +1,7 @@
-import { trackTime } from "@fcalell/ui-core/clock";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Peaks } from "@fcalell/ui-core/descriptors";
-import { WAVEFORM_BAR, WAVEFORM_RECORD } from "@fcalell/ui-core/variants";
+import { trackTime } from "@slotform/ui-core/clock";
+import { cn } from "@slotform/ui-core/cn";
+import type { Peaks } from "@slotform/ui-core/descriptors";
+import { WAVEFORM_BAR, WAVEFORM_RECORD } from "@slotform/ui-core/variants";
 import {
 	COLUMN,
 	type Columns,
@@ -13,7 +13,7 @@ import {
 	seekKey,
 	shareOf,
 	type WaveformFit,
-} from "@fcalell/ui-core/waveform";
+} from "@slotform/ui-core/waveform";
 import {
 	type KeyboardEvent,
 	type PointerEvent,

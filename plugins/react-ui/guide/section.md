@@ -1,7 +1,7 @@
 # Section
 
 A titled stretch of a page, over its rows (`items`) or its parts (`children`): what a `Section` takes
-and how its rows draw. What a row carries is `node_modules/@fcalell/ui-core/guide/rows.md`.
+and how its rows draw. What a row carries is `node_modules/@slotform/ui-core/guide/rows.md`.
 
 | Prop | Is |
 | --- | --- |
@@ -10,15 +10,15 @@ and how its rows draw. What a row carries is `node_modules/@fcalell/ui-core/guid
 | `folded` | makes the title fold the body, and is the initial fold (`true` starts folded, `false` open; later changes are not read); the title stays the heading size folded or not |
 | `onToggle` | hears whether it is now open |
 | `act`, `more` | the head's one icon act and its other acts in a menu; a foldable section's `more` does not fold it |
-| `items` | the sheet's rows, `Row`s (`node_modules/@fcalell/ui-core/guide/rows.md#a-rows-fields`), a constant or a selection |
+| `items` | the sheet's rows, `Row`s (`node_modules/@slotform/ui-core/guide/rows.md#a-rows-fields`), a constant or a selection |
 | `groups` | the bands over them, `{ key, label, act? }`, a row's `group` naming a band's `key`; a constant or a selection |
 | `reorder` | lets the rows be moved ([drag, drop and reorder](./drag.md)) |
 | `read` | the read of a Section over parts (`children`); a Section with `items` frames its own selections and takes none |
 | `empty` | what it says when empty, `{ sentence, act? }`: the sentence in the meta ink over its act as an outlined button (a `LinkAct` too), both centred; a Section with a `description` takes an `empty` of its `act` alone |
 
-`Row` is `import type { Row } from "@fcalell/plugin-react-ui/components/section"`. A `Section` never stands in a `Section`, and its title is one size (the heading) everywhere, a sheet's body and a fold included.
+`Row` is `import type { Row } from "@slotform/react-ui/components/section"`. A `Section` never stands in a `Section`, and its title is one size (the heading) everywhere, a sheet's body and a fold included.
 
-A `Section` with `items` is a frame of its rows' reads: `items` and `groups` each take a constant or a selection, so the sheet paints until they land and a failure of either stands once in the sheet's place. A second read the rows depend on is the `Pane`'s or an enclosing frame's (`node_modules/@fcalell/ui-core/guide/frames.md`). A row's `pick` whose `options` are a selection of another read paints blocked while the options wait or after they failed, and the sheet says "This didn't load" with Retry once, over the rows.
+A `Section` with `items` is a frame of its rows' reads: `items` and `groups` each take a constant or a selection, so the sheet paints until they land and a failure of either stands once in the sheet's place. A second read the rows depend on is the `Pane`'s or an enclosing frame's (`node_modules/@slotform/ui-core/guide/frames.md`). A row's `pick` whose `options` are a selection of another read paints blocked while the options wait or after they failed, and the sheet says "This didn't load" with Retry once, over the rows.
 
 ## How a row draws
 

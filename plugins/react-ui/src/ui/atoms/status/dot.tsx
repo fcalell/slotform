@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Tone } from "@fcalell/ui-core/tokens";
-import { STATUS_SPINNER, statusDot } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Tone } from "@slotform/ui-core/tokens";
+import { STATUS_SPINNER, statusDot } from "@slotform/ui-core/variants";
 import { PAINT_BOX } from "../../lib/paint.tsx";
 import { Swap } from "../../lib/swap.tsx";
 import { Spinner } from "../spinner/index.tsx";

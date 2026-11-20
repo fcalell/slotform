@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { CENTRED } from "@fcalell/plugin-screens/shift";
-import { EXCEPTIONS } from "@fcalell/plugin-screens/walk";
-import { cn } from "@fcalell/ui-core/cn";
+import { CENTRED } from "@slotform/screens/shift";
+import { EXCEPTIONS } from "@slotform/screens/walk";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	CANVAS_GROUP_HEAD,
 	CARD,
@@ -16,7 +16,7 @@ import {
 	ROWS_HOST,
 	ROWS_MEASURED,
 	SUBGRID,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	BAR_CHART_BODY,
 	GATE_CENTRED,

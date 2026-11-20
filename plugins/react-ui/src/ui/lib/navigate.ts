@@ -1,5 +1,5 @@
-import type { Leave } from "@fcalell/ui-core/leave";
-import { createStore } from "@fcalell/ui-core/store";
+import type { Leave } from "@slotform/ui-core/leave";
+import { createStore } from "@slotform/ui-core/store";
 import {
 	createContext,
 	type MouseEvent,

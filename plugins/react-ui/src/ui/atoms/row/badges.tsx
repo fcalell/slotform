@@ -1,14 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	ChipMark,
 	RowMark,
 	Run,
 	StatusMark,
-} from "@fcalell/ui-core/descriptors";
-import type { PaintRole } from "@fcalell/ui-core/paint";
-import { paintText } from "@fcalell/ui-core/paint";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { isCode, partRuns } from "@fcalell/ui-core/runs";
+} from "@slotform/ui-core/descriptors";
+import type { PaintRole } from "@slotform/ui-core/paint";
+import { paintText } from "@slotform/ui-core/paint";
+import { useWords } from "@slotform/ui-core/react/words";
+import { isCode, partRuns } from "@slotform/ui-core/runs";
 import {
 	BADGE,
 	BADGE_LINE,
@@ -20,7 +20,7 @@ import {
 	ITEM_PILL_ACT,
 	text,
 	YIELDS_LAST_EACH,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { CodeCut, RunText } from "../../lib/code.tsx";
 import { follow } from "../../lib/navigate.ts";

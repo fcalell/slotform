@@ -1,7 +1,7 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Attachment } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { Attachment } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	ANSWER,
 	BLOCK_IN,
@@ -9,7 +9,7 @@ import {
 	IMAGE_REMOVE_DISC,
 	MESSAGE_ATTACHMENTS,
 	REMOVE_HIT,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode, RefObject } from "react";
 import { useRef } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";

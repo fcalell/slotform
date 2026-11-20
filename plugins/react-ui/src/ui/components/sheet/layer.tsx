@@ -1,5 +1,5 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	LAYER_CARD,
 	LAYER_SCRIM,
@@ -8,7 +8,7 @@ import {
 	SHEET,
 	SHEET_CENTERED,
 	SHEET_DESKTOP,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	createContext,
 	type ReactNode,

@@ -1,14 +1,14 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { qrModules, qrTooLong } from "@fcalell/ui-core/qr";
-import { useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, dev, paints } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import { qrModules, qrTooLong } from "@slotform/ui-core/qr";
+import { useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, dev, paints } from "@slotform/ui-core/read";
 import {
 	IMAGE_FAILED_INK,
 	QR_CODE,
 	QR_CODE_FAILED,
 	QR_CODE_FAILED_GLYPH,
 	QR_CODE_INK,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useEffect, useMemo } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import { PAINT_BOX } from "../../lib/paint.tsx";

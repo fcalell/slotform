@@ -1,10 +1,10 @@
-import { backEdges } from "@fcalell/ui-core/canvas";
+import { backEdges } from "@slotform/ui-core/canvas";
 import type {
 	CanvasEdge,
 	CanvasGroup,
 	CanvasNode,
 	CanvasPoint,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 import type { ElkNode } from "elkjs/lib/elk-api.js";
 import {
 	type RefObject,
@@ -365,7 +365,7 @@ export function useGraphRun({
 		flight.current = true;
 		const graph = elkGraph(given);
 		const set = setOf(given.order);
-		import("@fcalell/plugin-react-ui/lib/canvas-layout")
+		import("@slotform/react-ui/lib/canvas-layout")
 			.then(({ layoutElk }) => layoutElk(graph))
 			.then(
 				(output) => {

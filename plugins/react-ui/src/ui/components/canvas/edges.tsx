@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { CanvasEdge } from "@fcalell/ui-core/descriptors";
-import { PATH_TONE } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { CanvasEdge } from "@slotform/ui-core/descriptors";
+import { PATH_TONE } from "@slotform/ui-core/variants";
 import { useId } from "react";
 import {
 	ARROW,

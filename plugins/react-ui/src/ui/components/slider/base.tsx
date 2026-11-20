@@ -1,6 +1,6 @@
 import { Slider as Base } from "@base-ui/react/slider";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Draft } from "@fcalell/ui-core/react/acts";
+import { cn } from "@slotform/ui-core/cn";
+import type { Draft } from "@slotform/ui-core/react/acts";
 import {
 	ANSWER,
 	SLIDER,
@@ -11,7 +11,7 @@ import {
 	SLIDER_THUMB,
 	SLIDER_TRACK,
 	SLIDER_VALUE,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { PAINT_CONTROL_HIDDEN } from "../../lib/paint.tsx";
 import type { VarStyle } from "../../lib/style.ts";
 import type { SliderProps } from "./index.tsx";

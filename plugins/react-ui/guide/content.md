@@ -24,7 +24,7 @@ A conversation: `items` drawn through `message`, over a `composer`.
 - `composer`: `value`, `onChange`, `attachments`, `onAttach`, `onDetach`, `placeholder`, `notice`, `working`, `onSend`, `onStop`, `disabled`. An attached image's file carries `src`, an object URL to draw it from before it is uploaded; it stays until you revoke it (`URL.revokeObjectURL(file.src)`) once you drop the attachment. A `file` `Input`'s file carries no `src`.
 - `sheet`: docks in the input's place.
 - `replying`: a reply from the other author is on its way; the loaded log ends on a waiting message of theirs until it is cleared.
-- `reply`: the turn being written, a stream the app declares (`node_modules/@fcalell/plugin-query/guide/pages-and-streams.md`). It draws after the items and steps aside once the last item has its key.
+- `reply`: the turn being written, a stream the app declares (`node_modules/@slotform/query/guide/pages-and-streams.md`). It draws after the items and steps aside once the last item has its key.
 - `empty`: the sentence, and the act that makes the first message.
 
 ```tsx

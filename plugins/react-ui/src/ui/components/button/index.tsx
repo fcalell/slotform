@@ -1,11 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Decision, IconName } from "@fcalell/ui-core/descriptors";
-import { ReasonHostContext } from "@fcalell/ui-core/react/reason";
+import { cn } from "@slotform/ui-core/cn";
+import type { Decision, IconName } from "@slotform/ui-core/descriptors";
+import { ReasonHostContext } from "@slotform/ui-core/react/reason";
 import {
 	type ButtonAct,
 	type ButtonFit,
 	link,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use } from "react";
 import { IconButtonBase, IconButtonLink } from "../../atoms/button/glyph.tsx";
 import { ButtonLink, TEXT_PRESS } from "../../atoms/button/link.tsx";

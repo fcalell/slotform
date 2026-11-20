@@ -1,7 +1,7 @@
-import { createPlayer, type PlayerHost } from "@fcalell/ui-core/player";
+import { createPlayer, type PlayerHost } from "@slotform/ui-core/player";
 import { saveChoice, savedChoice } from "./saved.ts";
 
-const VOLUME_KEY = "stack.player.volume";
+const VOLUME_KEY = "slotform.player.volume";
 
 // The web's side of the store (`createPlayer`, in ui-core): a viewer's volume is
 // theirs from one visit to the next, a convenience, so a store that is blocked or

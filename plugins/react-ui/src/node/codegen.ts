@@ -18,7 +18,7 @@ import {
 // with file routing off.
 export const APP_SOURCE_DIR = "src";
 
-// The `.stack/app.css` render, escaped and validated: docs/architecture/codegen.md, "CSS escape boundary".
+// The `.slotform/app.css` render, escaped and validated: docs/architecture/codegen.md, "CSS escape boundary".
 export function aggregateAppCss(payload: CodegenAppCssPayload): string | null {
 	if (
 		payload.imports.length === 0 &&

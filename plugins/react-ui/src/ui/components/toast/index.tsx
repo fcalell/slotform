@@ -1,16 +1,16 @@
 import { Toast as Control } from "@base-ui/react/toast";
-import { TOAST_GLYPHS } from "@fcalell/ui-core/banner";
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Tone } from "@fcalell/ui-core/tokens";
+import { TOAST_GLYPHS } from "@slotform/ui-core/banner";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Tone } from "@slotform/ui-core/tokens";
 import {
 	LAYER_TOAST,
 	TOAST,
 	text,
 	toastState,
 	YIELDS_FIRST,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use, useRef } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

@@ -1,11 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Datum } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { Datum } from "@slotform/ui-core/read";
 import {
 	GALLERY,
 	GALLERY_TILE,
 	imageAspect,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { useState } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import { PictureTile, PictureView } from "../image/base.tsx";

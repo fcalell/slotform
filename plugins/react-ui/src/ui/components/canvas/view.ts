@@ -1,5 +1,5 @@
-import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
-import { edgeDepth } from "@fcalell/ui-core/drag";
+import type { CanvasNode, CanvasPoint } from "@slotform/ui-core/descriptors";
+import { edgeDepth } from "@slotform/ui-core/drag";
 import type { Box, Size } from "./geometry.ts";
 
 const ORIGIN: CanvasPoint = { x: 0, y: 0 };

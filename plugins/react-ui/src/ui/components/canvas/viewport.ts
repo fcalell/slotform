@@ -1,6 +1,6 @@
-import type { CanvasPoint } from "@fcalell/ui-core/descriptors";
-import { type Band, bandAt, edgeSpeed } from "@fcalell/ui-core/drag";
-import { createStore } from "@fcalell/ui-core/store";
+import type { CanvasPoint } from "@slotform/ui-core/descriptors";
+import { type Band, bandAt, edgeSpeed } from "@slotform/ui-core/drag";
+import { createStore } from "@slotform/ui-core/store";
 import { select } from "d3-selection";
 import { type D3ZoomEvent, zoom, zoomIdentity } from "d3-zoom";
 import {

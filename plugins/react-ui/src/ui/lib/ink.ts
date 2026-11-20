@@ -1,4 +1,4 @@
-import { createStore } from "@fcalell/ui-core/store";
+import { createStore } from "@slotform/ui-core/store";
 
 // The colour tokens a canvas draws with: docs/architecture/plugins/react-ui.md, "Canvas".
 const version = createStore(0, {

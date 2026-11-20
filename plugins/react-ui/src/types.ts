@@ -1,8 +1,8 @@
-import { themeSchema, wordsSchema } from "@fcalell/ui-core/schema";
+import { themeSchema, wordsSchema } from "@slotform/ui-core/schema";
 import { z } from "zod";
 import { isCssIdent, isCssSupportsExpression } from "./node/css-escape.ts";
 
-// A CSS `@import`, shorthand or structured: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (plugin-react-ui)".
+// A CSS `@import`, shorthand or structured: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (the `react-ui` plugin)".
 export const cssImportSchema = z.union([
 	z.string().min(1, "css @import url must be a non-empty string"),
 	z.object({
@@ -39,7 +39,7 @@ export const cssLayerSchema = z.object({
 
 export type CssLayer = z.input<typeof cssLayerSchema>;
 
-// A top-level `@theme`, `@utility` or `@custom-variant` block: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (plugin-react-ui)".
+// A top-level `@theme`, `@utility` or `@custom-variant` block: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (the `react-ui` plugin)".
 const cssDeclarationsSchema = z.record(z.string(), z.string());
 
 export const cssBlockSchema = z.discriminatedUnion("kind", [
@@ -63,7 +63,7 @@ export const cssBlockSchema = z.discriminatedUnion("kind", [
 
 export type CssBlock = z.input<typeof cssBlockSchema>;
 
-// An `@source inline` pattern: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (plugin-react-ui)".
+// An `@source inline` pattern: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (the `react-ui` plugin)".
 export const cssSourceInlineSchema = z
 	.string()
 	.regex(
@@ -73,7 +73,7 @@ export const cssSourceInlineSchema = z
 
 export type CssSourceInline = z.input<typeof cssSourceInlineSchema>;
 
-// The inputs of `.stack/app.css`: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (plugin-react-ui)".
+// The inputs of `.slotform/app.css`: docs/architecture/slot-catalog.md, "`reactUi.slots.*` (the `react-ui` plugin)".
 export interface CodegenAppCssPayload {
 	imports: CssImport[];
 	sources: CssSourceInline[];
@@ -116,5 +116,5 @@ export type ReactUiOptions = z.input<typeof reactUiOptionsSchema>;
 
 // The `theme` option's own type. It is ui-core's, re-exported here so a
 // consumer reaches it through the plugin it configures.
-export type { Theme } from "@fcalell/ui-core/schema";
-export type { Words } from "@fcalell/ui-core/tokens";
+export type { Theme } from "@slotform/ui-core/schema";
+export type { Words } from "@slotform/ui-core/tokens";

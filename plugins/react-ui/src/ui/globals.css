@@ -1,14 +1,14 @@
 /* The parts of the sheet only the web owns. The token contract — the `@theme`
    map, the per-mode colors and the shadow utilities — is emitted into
-   `.stack/app.css` from `@fcalell/ui-core`, which also imports `tailwindcss`
+   `.slotform/app.css` from `@slotform/ui-core`, which also imports `tailwindcss`
    before this file. Importing it again here would emit preflight twice. */
 
-/* `.stack/app.css` imports `tailwindcss` with `source(none)`, so no automatic
+/* `.slotform/app.css` imports `tailwindcss` with `source(none)`, so no automatic
    content detection runs; the component sources are declared explicitly,
    relative to this file. */
 @source "./";
 
-/* The variant matrices are class strings inside `@fcalell/ui-core`, and a cva
+/* The variant matrices are class strings inside `@slotform/ui-core`, and a cva
    composes them at runtime, so a build that never scans that package emits
    nothing for a cell no component also spells literally. Two paths are listed
    because the package sits one level away in an install and four in a

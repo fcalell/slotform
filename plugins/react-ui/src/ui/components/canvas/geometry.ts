@@ -2,7 +2,7 @@ import type {
 	CanvasEdge,
 	CanvasGroup,
 	CanvasPoint,
-} from "@fcalell/ui-core/descriptors";
+} from "@slotform/ui-core/descriptors";
 
 // Pure geometry of the canvas, in flow coordinates: no DOM, so the numbers it
 // is given (the spacing roles, the measured sizes) are the caller's.

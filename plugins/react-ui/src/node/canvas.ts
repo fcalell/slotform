@@ -6,8 +6,8 @@ export function canvasPlugin(): Plugin {
 		name: "fcalell:canvas",
 		config: () => ({
 			optimizeDeps: {
-				exclude: ["@fcalell/plugin-react-ui/lib/canvas-layout"],
-				include: ["@fcalell/plugin-react-ui > elkjs/lib/elk-api.js"],
+				exclude: ["@slotform/react-ui/lib/canvas-layout"],
+				include: ["@slotform/react-ui > elkjs/lib/elk-api.js"],
 			},
 		}),
 	};

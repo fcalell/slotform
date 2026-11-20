@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { ChangeKind } from "@fcalell/ui-core/descriptors";
-import { CHANGE_GLYPH } from "@fcalell/ui-core/list-state";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { changeMark } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { ChangeKind } from "@slotform/ui-core/descriptors";
+import { CHANGE_GLYPH } from "@slotform/ui-core/list-state";
+import { useWords } from "@slotform/ui-core/react/words";
+import { changeMark } from "@slotform/ui-core/variants";
 import { Named } from "../button/glyph.tsx";
 import { IconBase } from "../icon/index.tsx";
 

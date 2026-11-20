@@ -2,8 +2,8 @@ import type {
 	IconLinkAct,
 	IconName,
 	LinkAct,
-} from "@fcalell/ui-core/descriptors";
-import type { ButtonAct, ButtonFit } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/descriptors";
+import type { ButtonAct, ButtonFit } from "@slotform/ui-core/variants";
 import { IconButtonLink } from "../../atoms/button/glyph.tsx";
 import { ButtonLink } from "../../atoms/button/link.tsx";
 import { type Act, type IconAct, wiringOf } from "../../lib/act.ts";

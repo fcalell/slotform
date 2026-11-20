@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	BUSY_GLYPHS,
 	SPINNER,
 	SPINNER_ARC,
 	SPINNER_TRACK,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { BusyGlyphs, busyScrambles } from "../../lib/scramble.tsx";
 
 // It enters by a fade on `fast`, then turns (the loop keeps turning under

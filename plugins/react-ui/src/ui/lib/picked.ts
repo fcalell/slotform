@@ -1,4 +1,4 @@
-import type { PickedFile } from "@fcalell/ui-core/descriptors";
+import type { PickedFile } from "@slotform/ui-core/descriptors";
 
 export function pickedFrom(file: File): PickedFile {
 	return {

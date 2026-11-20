@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { markedRuns } from "@fcalell/ui-core/form";
-import { useReasonShown } from "@fcalell/ui-core/react/reason";
-import { partRuns } from "@fcalell/ui-core/runs";
-import { FIELD_ERROR_LINE, FLOW_IN, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { markedRuns } from "@slotform/ui-core/form";
+import { useReasonShown } from "@slotform/ui-core/react/reason";
+import { partRuns } from "@slotform/ui-core/runs";
+import { FIELD_ERROR_LINE, FLOW_IN, text } from "@slotform/ui-core/variants";
 import { RunText } from "../../lib/code.tsx";
 
 // At the line's end under an act at the row's end; `desktop` under an act

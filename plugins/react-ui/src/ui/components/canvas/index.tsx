@@ -1,5 +1,5 @@
-import { pathOrder } from "@fcalell/ui-core/canvas";
-import { cn } from "@fcalell/ui-core/cn";
+import { pathOrder } from "@slotform/ui-core/canvas";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	CanvasEdge,
 	CanvasGroup,
@@ -7,14 +7,14 @@ import type {
 	CanvasPath,
 	CanvasPoint,
 	LinkAct,
-} from "@fcalell/ui-core/descriptors";
-import { useFrame, useSelections } from "@fcalell/ui-core/react/read";
-import { type Datum, isEnded, isSelection } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/descriptors";
+import { useFrame, useSelections } from "@slotform/ui-core/react/read";
+import { type Datum, isEnded, isSelection } from "@slotform/ui-core/read";
 import {
 	BLOCK_IN,
 	CANVAS_GROUP_HEAD,
 	canvasGroup,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	type FocusEvent,
 	type KeyboardEvent,

@@ -1,13 +1,13 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct } from "@fcalell/ui-core/descriptors";
-import type { Datum } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct } from "@slotform/ui-core/descriptors";
+import type { Datum } from "@slotform/ui-core/read";
 import {
 	CARD_PART,
 	EMPTY_LINE,
 	EMPTY_PART,
 	EMPTY_SENTENCE,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { use } from "react";
 import { Icon } from "../atoms/icon/index.tsx";
 import { ActFace } from "../components/button/face.tsx";

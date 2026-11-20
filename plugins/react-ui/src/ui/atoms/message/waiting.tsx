@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { message, STREAM_IN, text } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { message, STREAM_IN, text } from "@slotform/ui-core/variants";
 import { Painted } from "../../lib/paint.tsx";
 
 const STACK = "flex flex-col";

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ROW_TITLE_LINES } from "@fcalell/ui-core/overflow";
+import { ROW_TITLE_LINES } from "@slotform/ui-core/overflow";
 import { TITLE_ADAPTS, TITLE_COMPACT } from "./title.ts";
 
 test("a row's title clamps at the shared line count, in both forms", () => {

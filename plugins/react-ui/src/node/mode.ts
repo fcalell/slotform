@@ -1,9 +1,9 @@
-import { scriptHash } from "@fcalell/plugin-vite/csp";
 import {
 	LOADING_REGIONS,
 	type LoadingPaint,
 	type LoadingRegion,
-} from "@fcalell/ui-core/tokens";
+} from "@slotform/ui-core/tokens";
+import { scriptHash } from "@slotform/vite/csp";
 import type { Plugin } from "vite";
 
 type Mode = "light" | "dark";

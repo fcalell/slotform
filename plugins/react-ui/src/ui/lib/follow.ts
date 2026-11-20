@@ -1,4 +1,4 @@
-import { DRAG_DELAY_SLOP } from "@fcalell/ui-core/drag";
+import { DRAG_DELAY_SLOP } from "@slotform/ui-core/drag";
 import {
 	eased,
 	mix,
@@ -6,7 +6,7 @@ import {
 	release,
 	type Sample,
 	velocity,
-} from "@fcalell/ui-core/follow";
+} from "@slotform/ui-core/follow";
 import {
 	type PointerEvent,
 	type RefObject,

@@ -1,6 +1,6 @@
 # Controls
 
-A control is a field: it takes its `label`, plus the `description`, `optional` and `error` it draws placed alone, and no screen draws a control's name itself (`node_modules/@fcalell/ui-core/guide/controls.md` says which control a value takes and when a control draws its field). A control's `value` may be a selection: it paints the control, inert, until its read lands, and follows it until the viewer changes it. Save from `onChange` or, where a keystroke is no save, `onCommit`: return the save's promise and the viewer's value holds while it pends; a refusal puts it back with its reason. This page is what each control takes.
+A control is a field: it takes its `label`, plus the `description`, `optional` and `error` it draws placed alone, and no screen draws a control's name itself (`node_modules/@slotform/ui-core/guide/controls.md` says which control a value takes and when a control draws its field). A control's `value` may be a selection: it paints the control, inert, until its read lands, and follows it until the viewer changes it. Save from `onChange` or, where a keystroke is no save, `onCommit`: return the save's promise and the viewer's value holds while it pends; a refusal puts it back with its reason. This page is what each control takes.
 
 ## The field's props
 
@@ -26,7 +26,7 @@ One act in three forms: labelled, `href` (a link) and `glyph` (the icon alone).
 | `count` | follows the label, in the label's ink |
 | `wait` | the seconds left of a delay (a resend that opens in 30): inert while it is above zero, its count drawn and no reason under it; at zero the count's region stays hidden so the act keeps its width |
 | `blocked` | why the act cannot run, a sentence: it is inert and says so under itself once pressed. The link form takes none |
-| `onAct`, `confirm`, `done`, `to`, `sheet` | the act's wiring, run in that order (`node_modules/@fcalell/ui-core/guide/acts.md#the-wiring-is-data`) |
+| `onAct`, `confirm`, `done`, `to`, `sheet` | the act's wiring, run in that order (`node_modules/@slotform/ui-core/guide/acts.md#the-wiring-is-data`) |
 | `href` | makes it a link, an `<a href>`: a new tab, a copied link and a middle click work, a plain click opens the route through the router, and a rest preloads it |
 | `glyph` | `true`: the icon alone |
 

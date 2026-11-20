@@ -1,4 +1,4 @@
-import { momentWords } from "@fcalell/ui-core/format";
+import { momentWords } from "@slotform/ui-core/format";
 import { pageLang } from "./lang.ts";
 
 // An ISO moment as a reader reads it, in the document's language

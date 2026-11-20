@@ -1,7 +1,7 @@
-# @fcalell/plugin-react-ui
+# @slotform/react-ui
 
-The web half of the stack design system: the CLI plugin that renders `@fcalell/ui-core`'s
-contract into `.stack/app.css` on Tailwind v4, loads the fonts, sets the mode before first paint,
+The web half of the Slotform design system: the CLI plugin that renders `@slotform/ui-core`'s
+contract into `.slotform/app.css` on Tailwind v4, loads the fonts, sets the mode before first paint,
 and mounts the words.
 
 How it is built: [docs/architecture/plugins/react-ui.md](../../docs/architecture/plugins/react-ui.md).
@@ -9,7 +9,7 @@ How it is built: [docs/architecture/plugins/react-ui.md](../../docs/architecture
 ## Install
 
 ```bash
-stack add react-ui
+slotform add react-ui
 ```
 
 Peer dependencies: `react` and `react-dom` `^19.2.0`. The config needs `vite()` and `react()`
@@ -17,11 +17,11 @@ beside it. `tailwindcss` and `@tailwindcss/vite` are optional peers that `reactU
 app ([From npm](../../docs/architecture/consumer-project.md#from-npm)).
 
 ```ts
-// stack.config.ts
-import { defineConfig } from "@fcalell/cli";
-import { react } from "@fcalell/plugin-react";
-import { reactUi } from "@fcalell/plugin-react-ui";
-import { vite } from "@fcalell/plugin-vite";
+// slotform.config.ts
+import { defineConfig } from "@slotform/cli";
+import { react } from "@slotform/react";
+import { reactUi } from "@slotform/react-ui";
+import { vite } from "@slotform/vite";
 
 export default defineConfig({
   app: { name: "my-app", domain: "example.com" },
@@ -31,7 +31,7 @@ export default defineConfig({
 
 ## Guide
 
-How to build on the plugin lives in `guide/`, indexed into a consumer's `.stack/guide.md`:
+How to build on the plugin lives in `guide/`, indexed into a consumer's `.slotform/guide.md`:
 [`rules.md`](./guide/rules.md), what every web `.tsx` follows;
 [`reference.md`](./guide/reference.md), the components' subpaths, the options and the modes;
 [`density.md`](./guide/density.md), density and the page container; a page per component or group of

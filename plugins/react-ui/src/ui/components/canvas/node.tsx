@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { CanvasNode, CanvasPoint } from "@fcalell/ui-core/descriptors";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { named } from "@fcalell/ui-core/tokens";
+import { cn } from "@slotform/ui-core/cn";
+import type { CanvasNode, CanvasPoint } from "@slotform/ui-core/descriptors";
+import { useWords } from "@slotform/ui-core/react/words";
+import { named } from "@slotform/ui-core/tokens";
 import {
 	BLOCK_IN,
 	CANVAS_PORT,
@@ -14,7 +14,7 @@ import {
 	canvasNodeText,
 	FLOW_IN,
 	PATH_TONE,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	type KeyboardEvent,
 	type MouseEvent,

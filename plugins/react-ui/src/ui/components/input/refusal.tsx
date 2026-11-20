@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { FIELD_ERROR_LINE, FLOW_IN } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { FIELD_ERROR_LINE, FLOW_IN } from "@slotform/ui-core/variants";
 import { type AriaAttributes, useId, useState } from "react";
 
 // What a control refused (a code's check, a file of the wrong type) stands in

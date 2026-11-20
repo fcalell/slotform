@@ -1,4 +1,4 @@
-import { useWords } from "@fcalell/ui-core/react/words";
+import { useWords } from "@slotform/ui-core/react/words";
 import { useEffect, useState } from "react";
 import { toast } from "./toast.ts";
 

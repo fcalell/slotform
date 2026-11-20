@@ -1,4 +1,4 @@
-import type { CanvasNode } from "@fcalell/ui-core/descriptors";
+import type { CanvasNode } from "@slotform/ui-core/descriptors";
 import {
 	type RefObject,
 	useCallback,

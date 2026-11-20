@@ -1,8 +1,8 @@
 import { Field } from "@base-ui/react/field";
 import { Radio } from "@base-ui/react/radio";
 import { RadioGroup } from "@base-ui/react/radio-group";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Option } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { Option } from "@slotform/ui-core/descriptors";
 import {
 	choose,
 	chosenOf,
@@ -11,14 +11,14 @@ import {
 	optionBlocked,
 	optionMeta,
 	optionsOf,
-} from "@fcalell/ui-core/list-state";
-import { groupsOf, paintedGroups } from "@fcalell/ui-core/pick";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { useDrawn } from "@fcalell/ui-core/react/arrive";
-import { useOptions } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { isEnded } from "@fcalell/ui-core/read";
-import { sameBy } from "@fcalell/ui-core/same-by";
+} from "@slotform/ui-core/list-state";
+import { groupsOf, paintedGroups } from "@slotform/ui-core/pick";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { useDrawn } from "@slotform/ui-core/react/arrive";
+import { useOptions } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { isEnded } from "@slotform/ui-core/read";
+import { sameBy } from "@slotform/ui-core/same-by";
 import {
 	BLOCK_IN,
 	FLOW_IN,
@@ -33,7 +33,7 @@ import {
 	PRESS_WASH,
 	row,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import {
 	memo,
 	type ReactNode,

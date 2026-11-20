@@ -2,8 +2,8 @@ import {
 	ageLongest,
 	ageWords,
 	ageShort as shortOf,
-} from "@fcalell/ui-core/clock";
-import { formatterFor } from "@fcalell/ui-core/format";
+} from "@slotform/ui-core/clock";
+import { formatterFor } from "@slotform/ui-core/format";
 import { pageLang } from "./lang.ts";
 
 // An ISO moment as its age from `now` ("2 minutes ago", "yesterday"), in the

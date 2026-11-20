@@ -1,5 +1,5 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconName } from "@fcalell/ui-core/descriptors";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconName } from "@slotform/ui-core/descriptors";
 import {
 	type ButtonAct,
 	type ButtonFit,
@@ -7,7 +7,7 @@ import {
 	buttonLabel,
 	LINK_TARGET,
 	link,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { follow } from "../../lib/navigate.ts";
 import { Icon } from "../icon/index.tsx";

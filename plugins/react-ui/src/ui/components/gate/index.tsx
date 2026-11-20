@@ -1,7 +1,7 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { LinkAct, Run, Runs } from "@fcalell/ui-core/descriptors";
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import { runsOf } from "@fcalell/ui-core/runs";
+import { cn } from "@slotform/ui-core/cn";
+import type { LinkAct, Run, Runs } from "@slotform/ui-core/descriptors";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import { runsOf } from "@slotform/ui-core/runs";
 import {
 	BLOCK_IN,
 	CARD,
@@ -11,7 +11,7 @@ import {
 	GATE_STEP,
 	ROWS,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Children, type ReactNode, use, useId, useState } from "react";
 import type { Act } from "../../lib/act.ts";
 import type { Closed } from "../../lib/closed.ts";

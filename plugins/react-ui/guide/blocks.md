@@ -46,7 +46,7 @@ A picture that opens full size on a press.
 
 ## Gallery
 
-Pictures side by side (`node_modules/@fcalell/ui-core/guide/pictures.md` says when). `items` are the pictures, in the order the full view steps through them:
+Pictures side by side (`node_modules/@slotform/ui-core/guide/pictures.md` says when). `items` are the pictures, in the order the full view steps through them:
 
 | Field | Is |
 | --- | --- |
@@ -72,7 +72,7 @@ Each tile stands a fixed height at its picture's `aspect`, held no narrower than
 
 ## QrCode
 
-A code a camera reads (`node_modules/@fcalell/ui-core/guide/pictures.md#a-code-a-camera-reads-is-a-qrcode`).
+A code a camera reads (`node_modules/@slotform/ui-core/guide/pictures.md#a-code-a-camera-reads-is-a-qrcode`).
 
 | Prop | Is |
 | --- | --- |

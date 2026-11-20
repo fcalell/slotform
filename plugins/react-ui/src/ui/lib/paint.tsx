@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { type PaintRole, paintText, scrambled } from "@fcalell/ui-core/paint";
-import { PULSE, paint } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import { type PaintRole, paintText, scrambled } from "@slotform/ui-core/paint";
+import { PULSE, paint } from "@slotform/ui-core/variants";
 import { ScrambledGlyphs } from "./scramble.tsx";
 
 // One breath for the page: docs/architecture/ui-core/reads.md, "One breath".

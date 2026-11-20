@@ -1,5 +1,8 @@
-import { type DrawnSheet, useDrawnSheets } from "@fcalell/ui-core/react/sheets";
-import { closeOnResolve, closeSheet } from "@fcalell/ui-core/sheets";
+import {
+	type DrawnSheet,
+	useDrawnSheets,
+} from "@slotform/ui-core/react/sheets";
+import { closeOnResolve, closeSheet } from "@slotform/ui-core/sheets";
 import type { ReactNode } from "react";
 import type { ActSheetProps } from "./index.tsx";
 import { TaskSheet } from "./task.tsx";
@@ -44,7 +47,7 @@ function OpenedSheet(props: { drawn: DrawnSheet; nested: ReactNode }) {
 	);
 }
 
-/** The sheets acts open (`openSheet`, `@fcalell/ui-core/sheets`), each later one drawn inside the one before it, as Base UI nests dialogs. Outside the package's exports: a root container's host draws it. */
+/** The sheets acts open (`openSheet`, `@slotform/ui-core/sheets`), each later one drawn inside the one before it, as Base UI nests dialogs. Outside the package's exports: a root container's host draws it. */
 export function SheetOutlet() {
 	return useDrawnSheets().reduceRight<ReactNode>(
 		(nested, drawn) => (

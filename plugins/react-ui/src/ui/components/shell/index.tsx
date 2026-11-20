@@ -1,26 +1,26 @@
 import { Dialog } from "@base-ui/react/dialog";
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import type {
 	GroupSpec,
 	IconName,
 	PlaceSpec,
-} from "@fcalell/ui-core/descriptors";
-import { BACK_GLYPH } from "@fcalell/ui-core/list-state";
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { ShellHome } from "@fcalell/ui-core/react/frame";
+} from "@slotform/ui-core/descriptors";
+import { BACK_GLYPH } from "@slotform/ui-core/list-state";
+import { PAINT_ROWS } from "@slotform/ui-core/paint";
+import { ShellHome } from "@slotform/ui-core/react/frame";
 import {
 	FrameHolds,
 	useFrame,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	isEnded,
 	isSelection,
 	paints,
-} from "@fcalell/ui-core/read";
-import { flatPlaces, placeTrail, trailEnds } from "@fcalell/ui-core/route";
+} from "@slotform/ui-core/read";
+import { flatPlaces, placeTrail, trailEnds } from "@slotform/ui-core/route";
 import {
 	LAYER_CARD,
 	placeRow,
@@ -49,7 +49,7 @@ import {
 	SWITCHER_REGION,
 	text,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type ReactNode, type Ref, useMemo, useState } from "react";
 import { Icon } from "../../atoms/icon/index.tsx";
 import type { Closed } from "../../lib/closed.ts";

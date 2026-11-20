@@ -1,19 +1,19 @@
 import { readFileSync } from "node:fs";
-import type { ContributionCtx } from "@fcalell/cli";
-import { plugin, slot, stackSpec } from "@fcalell/cli";
+import { auth } from "@slotform/auth";
+import type { ContributionCtx } from "@slotform/cli";
+import { GENERATED_DIR, plugin, slot, slotformSpec } from "@slotform/cli";
 import {
 	literalToProps,
 	type ProviderSpec,
 	type TsExpression,
 	type TsImportSpec,
-} from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { auth } from "@fcalell/plugin-auth";
-import { react } from "@fcalell/plugin-react";
-import { type PreviewGlobal, screens } from "@fcalell/plugin-screens";
-import { vite } from "@fcalell/plugin-vite";
-import { deriveTheme } from "@fcalell/ui-core/derive";
-import { uiCoreGuide } from "@fcalell/ui-core/manifest";
+} from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { react } from "@slotform/react";
+import { type PreviewGlobal, screens } from "@slotform/screens";
+import { deriveTheme } from "@slotform/ui-core/derive";
+import { uiCoreGuide } from "@slotform/ui-core/manifest";
+import { vite } from "@slotform/vite";
 import { z } from "zod";
 import { aggregateAppCss } from "./node/codegen.ts";
 import { defaultFonts, type FontEntry } from "./node/fonts.ts";
@@ -99,7 +99,7 @@ const resolvedTheme = slot.derived({
 		deriveTheme(ctx.options.theme),
 });
 
-// Rendered `.stack/app.css`, null when nothing landed.
+// Rendered `.slotform/app.css`, null when nothing landed.
 const appCssSource = slot.derived({
 	source: SOURCE,
 	name: "appCssSource",
@@ -122,7 +122,7 @@ export const reactUi = plugin("react-ui", {
 	dependencies: {
 		// The guide's index points into the consumer's node_modules for
 		// ui-core's pages.
-		"@fcalell/ui-core": stackSpec(),
+		"@slotform/ui-core": slotformSpec(),
 		tailwindcss: tailwindPeers.tailwindcss,
 	},
 	devDependencies: {
@@ -265,7 +265,7 @@ export const reactUi = plugin("react-ui", {
 		),
 		vite.slots.configImports.contribute(
 			(): TsImportSpec => ({
-				source: "@fcalell/plugin-react-ui/node/fonts",
+				source: "@slotform/react-ui/node/fonts",
 				named: ["themeFontsPlugin"],
 			}),
 		),
@@ -273,7 +273,7 @@ export const reactUi = plugin("react-ui", {
 		// as the fallback for a viewer with no stored choice.
 		vite.slots.configImports.contribute(
 			(): TsImportSpec => ({
-				source: "@fcalell/plugin-react-ui/node/mode",
+				source: "@slotform/react-ui/node/mode",
 				named: ["themeModePlugin"],
 			}),
 		),
@@ -299,7 +299,7 @@ export const reactUi = plugin("react-ui", {
 		// The canvas layout module is served as source: docs/architecture/plugins/react-ui.md, "Canvas serving".
 		vite.slots.configImports.contribute(
 			(): TsImportSpec => ({
-				source: "@fcalell/plugin-react-ui/node/canvas",
+				source: "@slotform/react-ui/node/canvas",
 				named: ["canvasPlugin"],
 			}),
 		),
@@ -330,7 +330,7 @@ export const reactUi = plugin("react-ui", {
 									object: { kind: "identifier", name: "import.meta" },
 									property: "resolve",
 								},
-								args: [{ kind: "string", value: "@fcalell/plugin-react-ui" }],
+								args: [{ kind: "string", value: "@slotform/react-ui" }],
 							},
 						],
 					},
@@ -360,7 +360,7 @@ export const reactUi = plugin("react-ui", {
 			return {
 				imports: [
 					{
-						source: "@fcalell/ui-core/react/words",
+						source: "@slotform/ui-core/react/words",
 						named: ["WordsProvider"],
 					},
 				],
@@ -395,7 +395,7 @@ export const reactUi = plugin("react-ui", {
 				return {
 					imports: [
 						{
-							source: "@fcalell/plugin-react-ui/lib/lockup",
+							source: "@slotform/react-ui/lib/lockup",
 							named: ["LockupProvider"],
 						},
 					],
@@ -419,9 +419,7 @@ export const reactUi = plugin("react-ui", {
 			url: "tailwindcss",
 			source: "none",
 		})),
-		self.slots.appCssImports.contribute(
-			() => "@fcalell/plugin-react-ui/globals.css",
-		),
+		self.slots.appCssImports.contribute(() => "@slotform/react-ui/globals.css"),
 		self.slots.appCssSources.contribute(() => tokenSources()),
 		self.slots.appCssBlocks.contribute(async (ctx) =>
 			themeBlock(await ctx.resolve(self.slots.resolvedTheme)),
@@ -456,11 +454,11 @@ export const reactUi = plugin("react-ui", {
 					return undefined;
 				return [
 					{
-						source: "@fcalell/plugin-react-ui/lib/navigate",
+						source: "@slotform/react-ui/lib/navigate",
 						named: ["bindRouter"],
 					},
 					{
-						source: "@fcalell/plugin-react-ui/lib/not-found",
+						source: "@slotform/react-ui/lib/not-found",
 						named: ["bindNotFound"],
 					},
 				];
@@ -491,7 +489,7 @@ export const reactUi = plugin("react-ui", {
 				];
 			},
 		),
-		emitArtifact(".stack/app.css", self.slots.appCssSource),
+		emitArtifact(`${GENERATED_DIR}/app.css`, self.slots.appCssSource),
 		// ui-core is no plugin: each UI plugin indexes its guide pages.
 		cliSlots.guide.contribute(() => uiCoreGuide),
 	],

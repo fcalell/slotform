@@ -1,7 +1,7 @@
 import { Switch as Base } from "@base-ui/react/switch";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Draft } from "@fcalell/ui-core/react/acts";
-import { switchThumb, switchTrack } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { Draft } from "@slotform/ui-core/react/acts";
+import { switchThumb, switchTrack } from "@slotform/ui-core/variants";
 import { useHeldDraft } from "../../lib/act.ts";
 import { PAINT_CONTROL } from "../../lib/paint.tsx";
 import type { SwitchProps } from "./index.tsx";

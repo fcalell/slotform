@@ -1,8 +1,8 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { usePort } from "@fcalell/ui-core/react/port";
-import { useWindowMore } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { fetchesMore, type More, type Read } from "@fcalell/ui-core/read";
+import { cn } from "@slotform/ui-core/cn";
+import { usePort } from "@slotform/ui-core/react/port";
+import { useWindowMore } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { fetchesMore, type More, type Read } from "@slotform/ui-core/read";
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import { ButtonBase } from "../components/button/base.tsx";

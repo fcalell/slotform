@@ -1,5 +1,5 @@
-import { ShellHome } from "@fcalell/ui-core/react/frame";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { ShellHome } from "@slotform/ui-core/react/frame";
+import { useWords } from "@slotform/ui-core/react/words";
 import type { ReactNode } from "react";
 import { use } from "react";
 import { Button } from "../components/button/index.tsx";

@@ -1,9 +1,9 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Drop, PlaceSpec } from "@fcalell/ui-core/descriptors";
-import { accepts } from "@fcalell/ui-core/drag";
-import { treeMove, treeRows, treeStop } from "@fcalell/ui-core/list-state";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { placesFolded } from "@fcalell/ui-core/route";
+import { cn } from "@slotform/ui-core/cn";
+import type { Drop, PlaceSpec } from "@slotform/ui-core/descriptors";
+import { accepts } from "@slotform/ui-core/drag";
+import { treeMove, treeRows, treeStop } from "@slotform/ui-core/list-state";
+import { useWords } from "@slotform/ui-core/react/words";
+import { placesFolded } from "@slotform/ui-core/route";
 import {
 	DROP_ON,
 	PLACE_NEST,
@@ -11,7 +11,7 @@ import {
 	placeRow,
 	placeRowGlyph,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { type KeyboardEvent, useMemo, useRef, useState } from "react";
 import { IconButtonBase } from "../../atoms/button/glyph.tsx";
 import { Icon } from "../../atoms/icon/index.tsx";

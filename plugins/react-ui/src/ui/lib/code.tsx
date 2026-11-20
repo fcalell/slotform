@@ -1,11 +1,11 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { Runs } from "@fcalell/ui-core/descriptors";
-import { valueCut } from "@fcalell/ui-core/list-state";
+import { cn } from "@slotform/ui-core/cn";
+import type { Runs } from "@slotform/ui-core/descriptors";
+import { valueCut } from "@slotform/ui-core/list-state";
 import {
 	CODE_NAME,
 	PROSE_CODESPAN,
 	textStrong,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import { Fragment, type ReactNode } from "react";
 import { boundPieces } from "./bound.ts";
 

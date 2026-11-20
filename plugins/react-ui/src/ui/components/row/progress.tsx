@@ -1,10 +1,10 @@
-import { cn } from "@fcalell/ui-core/cn";
-import { levelOf } from "@fcalell/ui-core/list-state";
+import { cn } from "@slotform/ui-core/cn";
+import { levelOf } from "@slotform/ui-core/list-state";
 import {
 	METER_TRACK,
 	meterFill,
 	ROW_PROGRESS,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { VarStyle } from "../../lib/style.ts";
 
 /** A row's progress: a running task's `value` of its `max` as the meter's bar along the row's foot, at the text column's start, a badge gap under the facts. It fills in the meta ink and turns the good tone once it reaches `max`, never amber. Outside the package's exports. */

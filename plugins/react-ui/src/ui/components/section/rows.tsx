@@ -1,4 +1,4 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	folding,
 	type SheetEntry,
@@ -7,13 +7,13 @@ import {
 	treeMove,
 	treeRows,
 	treeStop,
-} from "@fcalell/ui-core/list-state";
-import { PAINT_ROWS } from "@fcalell/ui-core/paint";
-import { useArrivals } from "@fcalell/ui-core/react/arrive";
-import { useReach } from "@fcalell/ui-core/react/read";
-import { type Drawn, placeholderData, type Read } from "@fcalell/ui-core/read";
-import { isRun, partText } from "@fcalell/ui-core/runs";
-import { VIRTUAL_FROM } from "@fcalell/ui-core/window";
+} from "@slotform/ui-core/list-state";
+import { PAINT_ROWS } from "@slotform/ui-core/paint";
+import { useArrivals } from "@slotform/ui-core/react/arrive";
+import { useReach } from "@slotform/ui-core/react/read";
+import { type Drawn, placeholderData, type Read } from "@slotform/ui-core/read";
+import { isRun, partText } from "@slotform/ui-core/runs";
+import { VIRTUAL_FROM } from "@slotform/ui-core/window";
 import {
 	type ComponentProps,
 	type FocusEvent,

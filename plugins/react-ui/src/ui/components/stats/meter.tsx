@@ -1,17 +1,17 @@
 import { Button as BaseButton } from "@base-ui/react/button";
-import { cn } from "@fcalell/ui-core/cn";
-import type { CountLink, MeterMark } from "@fcalell/ui-core/descriptors";
-import { formatterFor } from "@fcalell/ui-core/format";
-import { levelOf } from "@fcalell/ui-core/list-state";
-import { type PaintRole, paintText } from "@fcalell/ui-core/paint";
-import { useRow, useSelections } from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
+import { cn } from "@slotform/ui-core/cn";
+import type { CountLink, MeterMark } from "@slotform/ui-core/descriptors";
+import { formatterFor } from "@slotform/ui-core/format";
+import { levelOf } from "@slotform/ui-core/list-state";
+import { type PaintRole, paintText } from "@slotform/ui-core/paint";
+import { useRow, useSelections } from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
 import {
 	type Datum,
 	endedSentence,
 	isEnded,
 	shownText,
-} from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/read";
 import {
 	METER,
 	METER_MARK,
@@ -20,7 +20,7 @@ import {
 	STATS_FIGURE,
 	TRAVEL_X,
 	text,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { Closed } from "../../lib/closed.ts";
 import { PAINT_BOX, Painted } from "../../lib/paint.tsx";
 import { FailedMark, RetryMark } from "../../lib/read.tsx";

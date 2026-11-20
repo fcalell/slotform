@@ -1,12 +1,12 @@
-import { cn } from "@fcalell/ui-core/cn";
+import { cn } from "@slotform/ui-core/cn";
 import {
 	type Frame,
 	FrameHolds,
 	useSelections,
-} from "@fcalell/ui-core/react/read";
-import { useWords } from "@fcalell/ui-core/react/words";
-import { type Datum, type Drawn, isEnded, lift } from "@fcalell/ui-core/read";
-import { ROW_RETRY, row } from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/react/read";
+import { useWords } from "@slotform/ui-core/react/words";
+import { type Datum, type Drawn, isEnded, lift } from "@slotform/ui-core/read";
+import { ROW_RETRY, row } from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { IconButtonBase } from "../atoms/button/glyph.tsx";
 import { Icon } from "../atoms/icon/index.tsx";

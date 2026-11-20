@@ -1,5 +1,5 @@
-import type { ProcedureCall } from "@fcalell/ui-core/form";
-import type { Selection } from "@fcalell/ui-core/read";
+import type { ProcedureCall } from "@slotform/ui-core/form";
+import type { Selection } from "@slotform/ui-core/read";
 import type { ReactNode } from "react";
 import type { Closed } from "../../lib/closed.ts";
 import type { Empty } from "../../lib/empty.tsx";

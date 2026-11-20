@@ -1,5 +1,5 @@
-import { DESKTOP_MEDIA } from "@fcalell/plugin-react-ui/density";
-import { createStore } from "@fcalell/ui-core/store";
+import { DESKTOP_MEDIA } from "@slotform/react-ui/density";
+import { createStore } from "@slotform/ui-core/store";
 import { createContext, use, useSyncExternalStore } from "react";
 
 // The density rule, read by one store: docs/architecture/plugins/react-ui.md, "Density".

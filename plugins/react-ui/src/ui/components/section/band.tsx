@@ -1,6 +1,6 @@
-import { cn } from "@fcalell/ui-core/cn";
-import type { IconLinkAct } from "@fcalell/ui-core/descriptors";
-import { LIST_BAND, text, textStrong } from "@fcalell/ui-core/variants";
+import { cn } from "@slotform/ui-core/cn";
+import type { IconLinkAct } from "@slotform/ui-core/descriptors";
+import { LIST_BAND, text, textStrong } from "@slotform/ui-core/variants";
 import { CountBase } from "../../atoms/count/base.tsx";
 import type { IconAct } from "../../lib/act.ts";
 import { IconActFace } from "../button/face.tsx";

@@ -1,20 +1,20 @@
 import type { Dialog } from "@base-ui/react/dialog";
-import { cn } from "@fcalell/ui-core/cn";
-import type { Acting } from "@fcalell/ui-core/react/acts";
-import { askDiscard } from "@fcalell/ui-core/react/confirm";
-import { hasBody, submitOf, useFrame } from "@fcalell/ui-core/react/read";
+import { cn } from "@slotform/ui-core/cn";
+import type { Acting } from "@slotform/ui-core/react/acts";
+import { askDiscard } from "@slotform/ui-core/react/confirm";
+import { hasBody, submitOf, useFrame } from "@slotform/ui-core/react/read";
 import {
 	TouchedContext,
 	usePageTurn,
 	useTouchState,
-} from "@fcalell/ui-core/react/touched";
-import { useWords } from "@fcalell/ui-core/react/words";
-import type { Selection } from "@fcalell/ui-core/read";
+} from "@slotform/ui-core/react/touched";
+import { useWords } from "@slotform/ui-core/react/words";
+import type { Selection } from "@slotform/ui-core/read";
 import {
 	SHEET_FOOT,
 	SHEET_PARTS,
 	SHEET_PARTS_END,
-} from "@fcalell/ui-core/variants";
+} from "@slotform/ui-core/variants";
 import type { ReactNode } from "react";
 import { DIVIDER } from "../../atoms/section/card.tsx";
 import type { Act } from "../../lib/act.ts";
