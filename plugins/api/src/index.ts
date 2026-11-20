@@ -1,14 +1,14 @@
 import { join, posix } from "node:path";
-import type { ContributionCtx } from "@fcalell/cli";
-import { plugin, slot } from "@fcalell/cli";
+import type { ContributionCtx } from "@slotform/cli";
+import { plugin, slot } from "@slotform/cli";
 import type {
 	MiddlewareSpec,
 	TsExpression,
 	TsImportSpec,
 	TsTypeRef,
-} from "@fcalell/cli/ast";
-import { cliSlots, emitArtifact } from "@fcalell/cli/cli-slots";
-import { writeArtifact } from "@fcalell/cli/write-artifact";
+} from "@slotform/cli/ast";
+import { cliSlots, emitArtifact } from "@slotform/cli/cli-slots";
+import { writeArtifact } from "@slotform/cli/write-artifact";
 import { z } from "zod";
 import { isLocalOrigin } from "./lib/local-origin.ts";
 import { MCP_PATH } from "./mcp-path.ts";
@@ -98,7 +98,7 @@ const SCHEDULED_FILE = "src/worker/scheduled.ts";
 const MIDDLEWARE_FILE = "src/worker/middleware.ts";
 const CONTEXT_MIDDLEWARE_FILE = "src/worker/middleware.context.ts";
 
-// The consumer files `.stack/procedure.ts` leaves out: each imports it back,
+// The consumer files `.slotform/procedure.ts` leaves out: each imports it back,
 // the MCP definition to type itself against the routes and a job handler for
 // `defineQueue`, as the route barrel does.
 const WORKER_ONLY_IMPORTS = new Set([
@@ -150,7 +150,7 @@ const routesHandler = slot.value<{ identifier: string } | null>({
 	seed: (ctx) => (hasRoutableFiles(ctx.cwd) ? { identifier: "routes" } : null),
 });
 
-// MCP auth flag: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
+// MCP auth flag: docs/architecture/slot-catalog.md, "`api.slots.*` (the `api` plugin)".
 const mcpAuth = slot.value<boolean>({
 	source: SOURCE,
 	name: "mcpAuth",
@@ -168,7 +168,7 @@ const serverAuth = slot.value<boolean, ParsedOptions>({
 			: (await readServerManifest(ctx, ctx.options.server)).auth,
 });
 
-// A client app's `.stack/schema.ts`: docs/architecture/plugins/api.md, "Client-only apps".
+// A client app's `.slotform/schema.ts`: docs/architecture/plugins/api.md, "Client-only apps".
 const serverSchemaSource = slot.derived({
 	source: SOURCE,
 	name: "serverSchemaSource",
@@ -188,7 +188,7 @@ const serverSchemaSource = slot.derived({
 	},
 });
 
-// `.stack/server.ts` of a client app: the server's `AppRouter` type.
+// `.slotform/server.ts` of a client app: the server's `AppRouter` type.
 const serverTypesSource = slot.derived({
 	source: SOURCE,
 	name: "serverTypesSource",
@@ -211,7 +211,7 @@ const mcpMount = slot.derived({
 		if (!(await ctx.fileExists(MCP_FILE))) return null;
 		if (!inp.auth) {
 			throw new Error(
-				`api: ${MCP_FILE} serves MCP, which authenticates through the OAuth provider: set auth({ mcp: true }) in stack.config.ts.`,
+				`api: ${MCP_FILE} serves MCP, which authenticates through the OAuth provider: set auth({ mcp: true }) in slotform.config.ts.`,
 			);
 		}
 		if (inp.handler === null) {
@@ -444,7 +444,7 @@ const workerBase = slot.derived({
 	},
 });
 
-// RBAC statements for `rbac` and `can`: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
+// RBAC statements for `rbac` and `can`: docs/architecture/slot-catalog.md, "`api.slots.*` (the `api` plugin)".
 const rbacStatements = slot.value<Record<string, readonly string[]> | null>({
 	source: SOURCE,
 	name: "rbacStatements",
@@ -470,7 +470,7 @@ const routeBarrelSource = slot.derived({
 	},
 });
 
-// The `.stack/worker.ts` source: docs/architecture/plugins/api.md, "Generated files".
+// The `.slotform/worker.ts` source: docs/architecture/plugins/api.md, "Generated files".
 const workerSource = slot.derived({
 	source: SOURCE,
 	name: "workerSource",
@@ -508,7 +508,7 @@ const workerSource = slot.derived({
 	},
 });
 
-// The `.stack/procedure.ts` source and its gate: docs/architecture/runtime.md, "`virtual:stack-procedure`".
+// The `.slotform/procedure.ts` source and its gate: docs/architecture/runtime.md, "`virtual:slotform-procedure`".
 // The chain it rebuilds: docs/architecture/runtime.md, "The rebuilt chain".
 const procedureSource = slot.derived({
 	source: SOURCE,
@@ -640,7 +640,7 @@ export const api = plugin("api", {
 		// Always import `createWorker` — the base call uses it verbatim.
 		self.slots.workerImports.contribute(
 			(): TsImportSpec => ({
-				source: "@fcalell/plugin-api/runtime",
+				source: "@slotform/api/runtime",
 				default: "createWorker",
 			}),
 		),
@@ -714,16 +714,16 @@ export const api = plugin("api", {
 			} as MiddlewareSpec;
 		}),
 
-		// The `virtual:stack-procedure` alias: docs/architecture/runtime.md, "`virtual:stack-procedure`".
+		// The `virtual:slotform-procedure` alias: docs/architecture/runtime.md, "`virtual:slotform-procedure`".
 		cliSlots.tsconfigPaths.contribute(() => ({
-			"virtual:stack-procedure": [`./${PROCEDURE_FILE}`],
+			"virtual:slotform-procedure": [`./${PROCEDURE_FILE}`],
 		})),
 
 		// Both are null, and so not written, with no runtime and no route.
 		emitArtifact(WORKER_FILE, self.slots.workerSource),
 		emitArtifact(PROCEDURE_FILE, self.slots.procedureSource),
 
-		// `.stack/schema.ts` and `.stack/server.json`: docs/architecture/plugins/api.md, "Schema".
+		// `.slotform/schema.ts` and `.slotform/server.json`: docs/architecture/plugins/api.md, "Schema".
 		cliSlots.postWrite.contribute(async (ctx) => {
 			const auth = await ctx.resolve(self.slots.serverAuth);
 			return async () => {
@@ -777,7 +777,7 @@ export const api = plugin("api", {
 			},
 		})),
 
-		// Remove: clean the routes directory on `stack remove api`.
+		// Remove: clean the routes directory on `slotform remove api`.
 		cliSlots.removeFiles.contribute(() => `${ROUTES_DIR}/`),
 	],
 });

@@ -1,4 +1,4 @@
 {
-	"extends": ["./tsconfig.json", "@fcalell/typescript-config/build.json"],
+	"extends": ["./tsconfig.json", "@slotform/typescript-config/build.json"],
 	"exclude": ["src/**/*.test.ts"]
 }

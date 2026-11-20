@@ -1,15 +1,15 @@
 // Wire contract: docs/architecture/plugins/api.md, "Wire contract". Import-free so a client bundle never pulls in `procedure.ts`.
-export const STACK_READS_HEADER = "x-stack-reads";
-export const STACK_WRITES_HEADER = "x-stack-writes";
+export const SLOTFORM_READS_HEADER = "x-slotform-reads";
+export const SLOTFORM_WRITES_HEADER = "x-slotform-writes";
 
 // Not found: docs/architecture/plugins/api.md, "Not found".
-export const STACK_NOT_FOUND_HEADER = "x-stack-not-found";
+export const SLOTFORM_NOT_FOUND_HEADER = "x-slotform-not-found";
 
 // Exposed headers: docs/architecture/plugins/api.md, "Entity headers".
-export const STACK_EXPOSED_HEADERS = [
-	STACK_READS_HEADER,
-	STACK_WRITES_HEADER,
-	STACK_NOT_FOUND_HEADER,
+export const SLOTFORM_EXPOSED_HEADERS = [
+	SLOTFORM_READS_HEADER,
+	SLOTFORM_WRITES_HEADER,
+	SLOTFORM_NOT_FOUND_HEADER,
 ] as const;
 
 // Entity names: docs/architecture/plugins/api.md, "Entities".
@@ -22,8 +22,8 @@ export const ORG_RULES_PATH = ["auth", "orgRules"] as const;
 export const SCOPE_ROUTES_PATH = ["auth", "scope"] as const;
 
 // Listener contract: docs/architecture/plugins/api.md, "Listener contract".
-export const LISTENER_ENV = "STACK_LISTENER";
-export const ORIGIN_ENV = "STACK_ORIGIN";
+export const LISTENER_ENV = "SLOTFORM_LISTENER";
+export const ORIGIN_ENV = "SLOTFORM_ORIGIN";
 
 // The origin the request's listener serves, or null when the env names none.
 export function listenerOrigin(env: unknown): string | null {

@@ -2,7 +2,7 @@ import { createORPCClient } from "@orpc/client";
 import { RPCLink } from "@orpc/client/fetch";
 import { captureEntityHeaders } from "./query-invalidation.ts";
 import type { RouterClient } from "./types.ts";
-import { STACK_NOT_FOUND_HEADER } from "./wire.ts";
+import { SLOTFORM_NOT_FOUND_HEADER } from "./wire.ts";
 
 export { isNotFound } from "./not-found.ts";
 export type { RouterClient } from "./types.ts";
@@ -37,8 +37,8 @@ export interface ClientConfig {
 // ("/rpc") or absolute ("https://host/rpc"); both cases resolve through
 // `URL` against a dummy origin so the pathname strip is identical either way.
 function pathKeyFromRequestUrl(requestUrl: string, base: string): string {
-	const basePath = new URL(base, "http://stack.invalid").pathname;
-	const path = new URL(requestUrl, "http://stack.invalid").pathname;
+	const basePath = new URL(base, "http://slotform.invalid").pathname;
+	const path = new URL(requestUrl, "http://slotform.invalid").pathname;
 	const trimmedBase = basePath.replace(/^\/|\/$/g, "");
 	const trimmedPath = path.replace(/^\/|\/$/g, "");
 	return trimmedPath.startsWith(trimmedBase)
@@ -106,7 +106,7 @@ export function createClient<TRouter>(
 			}
 			// A read's not found travels as a success status (see the worker);
 			// oRPC decodes an error from the status, so the 404 goes back on.
-			if (response.headers.has(STACK_NOT_FOUND_HEADER)) {
+			if (response.headers.has(SLOTFORM_NOT_FOUND_HEADER)) {
 				return new Response(response.body, {
 					status: 404,
 					statusText: "Not Found",

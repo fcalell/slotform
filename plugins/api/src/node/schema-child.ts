@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { routerSchema } from "../schema.ts";
 import { PROCEDURE_FILE, WORKER_FILE } from "./types.ts";
 
-// The child `stack generate` runs to read the router: docs/architecture/plugins/api.md, "Schema".
+// The child `slotform generate` runs to read the router: docs/architecture/plugins/api.md, "Schema".
 // It prints the schema as JSON; a failure prints to stderr and exits 1.
 const [cwd] = process.argv.slice(2);
 if (cwd === undefined) throw new Error("schema-child: no project directory");
@@ -13,7 +13,7 @@ const procedure = pathToFileURL(join(cwd, PROCEDURE_FILE)).href;
 registerHooks({
 	resolve: (specifier, context, next) =>
 		next(
-			specifier === "virtual:stack-procedure" ? procedure : specifier,
+			specifier === "virtual:slotform-procedure" ? procedure : specifier,
 			context,
 		),
 });

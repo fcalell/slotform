@@ -1,11 +1,11 @@
 import type { Context } from "hono";
 import { extractIp, type RateLimitBinding } from "../procedure.ts";
 
-// The `/rpc` limiter's binding name, the contract with plugin-cloudflare: docs/architecture/plugins/api.md, "Rate limiting".
+// The `/rpc` limiter's binding name, the contract with the `cloudflare` plugin: docs/architecture/plugins/api.md, "Rate limiting".
 export const RATE_LIMITER_RPC = "RATE_LIMITER_RPC";
 
 // The Hono variable the worker sets to a request's effective CORS allow-list.
-export const ORIGINS_VAR = "__stackOrigins";
+export const ORIGINS_VAR = "__slotformOrigins";
 
 // The blanket per-IP `/rpc` limiter: docs/architecture/plugins/api.md, "Rate limiting". True when the limiter refuses.
 export async function ipLimited(

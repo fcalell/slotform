@@ -5,7 +5,7 @@ import {
 	type TsExpression,
 	type TsImportSpec,
 	type TsSourceFile,
-} from "@fcalell/cli/ast";
+} from "@slotform/cli/ast";
 import type {
 	CallbackSpec,
 	MiddlewareCall,
@@ -13,8 +13,8 @@ import type {
 	WorkerPayload,
 } from "./types.ts";
 
-// `<base>.use(<rt1>(opts))...use(<mw1>)...`, the chain `.stack/worker.ts` and
-// `.stack/procedure.ts` both build, with each runtime's callback spliced into
+// `<base>.use(<rt1>(opts))...use(<mw1>)...`, the chain `.slotform/worker.ts` and
+// `.slotform/procedure.ts` both build, with each runtime's callback spliced into
 // its options: docs/architecture/runtime.md, "Chain order".
 export function runtimeChain(
 	base: TsExpression,
@@ -61,7 +61,7 @@ export function runtimeChain(
 	return { chain, imports: [...runtimeImports, ...callbackImports] };
 }
 
-// The `.stack/worker.ts` source, the `workerSource` slot's: docs/architecture/plugins/api.md, "Generated files".
+// The `.slotform/worker.ts` source, the `workerSource` slot's: docs/architecture/plugins/api.md, "Generated files".
 export function aggregateWorker(payload: WorkerPayload): string {
 	const { chain, imports } = runtimeChain(
 		payload.base,

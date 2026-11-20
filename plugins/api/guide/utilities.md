@@ -10,7 +10,7 @@ A `paginated: true` procedure ([procedures](./procedures.md)) takes `input.curso
 `createdAt` (or the order columns you name):
 
 ```ts
-import { paginate } from "@fcalell/plugin-api/lib/cursor";
+import { paginate } from "@slotform/api/lib/cursor";
 
 return paginate(db.query.projects, {
   where: eq(projects.organizationId, input.organizationId),
@@ -46,7 +46,7 @@ A `paginated: "window"` procedure answers a page at an offset and the filter's t
 the one `where`:
 
 ```ts
-import { paginateWindow } from "@fcalell/plugin-api/lib/window";
+import { paginateWindow } from "@slotform/api/lib/window";
 
 return paginateWindow(db.query.tasks, {
   where: input.q ? like(tasks.title, `%${input.q}%`) : undefined,
@@ -65,7 +65,7 @@ column. `sorts` maps each key the procedure's `sort` names to what it orders by,
 expression, so the header sort of a `Table` reaches the whole query:
 
 ```ts
-import { bm25, eq, sql } from "@fcalell/plugin-db/orm";
+import { bm25, eq, sql } from "@slotform/db/orm";
 
 const nocase = (column: SQLiteColumn) => sql`${column} collate nocase`;
 
@@ -98,11 +98,11 @@ expression is not. Order a cursor list by a column, or window it.
 ## Selection over a query
 
 A `Table` with `choose` over a window or `pages` read can hold "every row the query matches but
-these". The mutation takes that as a field, `selector(query)` from `@fcalell/plugin-api/schema`
+these". The mutation takes that as a field, `selector(query)` from `@slotform/api/schema`
 (`{ ids } | { query, except }`, the query typed as the list's filter), and resolves it:
 
 ```ts
-import { chosenWhere } from "@fcalell/plugin-api/lib/chosen";
+import { chosenWhere } from "@slotform/api/lib/chosen";
 
 const query = z.object({ q: z.string().optional() });
 const where = ({ q }: z.infer<typeof query>) => (q ? like(tasks.title, `%${q}%`) : undefined);
@@ -121,7 +121,7 @@ client passes the table's `picked` whole: `mutateAsync({ tasks: picked })`.
 ## Slugs
 
 ```ts
-import { isReservedSlug, slugify } from "@fcalell/plugin-api/lib/slugify";
+import { isReservedSlug, slugify } from "@slotform/api/lib/slugify";
 
 slugify("My Project");       // "my-project"
 slugify("shop.example.com"); // "shop-example-com": a dot is a word boundary
@@ -130,6 +130,6 @@ isReservedSlug("admin");     // true
 
 `slugify` never refuses. A procedure checks `isReservedSlug(slug)` and answers a reserved slug as
 its own field error; the words are `RESERVED_SLUGS`. An organization's slug is refused on the server
-by auth (`node_modules/@fcalell/plugin-auth/guide/organizations.md`).
+by auth (`node_modules/@slotform/auth/guide/organizations.md`).
 
 **Check:** `pnpm check` passes, and a list call pages past the first `nextCursor`.

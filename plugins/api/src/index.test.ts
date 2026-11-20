@@ -3,12 +3,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
-import { buildGraph } from "@fcalell/cli/graph";
+import { buildGraph } from "@slotform/cli/graph";
 import { api } from "./index.ts";
 
 // The api plugin alone, over a project directory holding the given files.
 function project(files: Record<string, string>) {
-	const cwd = mkdtempSync(join(tmpdir(), "stack-api-"));
+	const cwd = mkdtempSync(join(tmpdir(), "slotform-api-"));
 	for (const [path, content] of Object.entries(files)) {
 		mkdirSync(dirname(join(cwd, path)), { recursive: true });
 		writeFileSync(join(cwd, path), content);

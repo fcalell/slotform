@@ -8,7 +8,7 @@ export type Selector<Q = unknown> =
 	| { ids: string[] }
 	| { query: Q; except: string[] };
 
-/** The schema of a `Selector` over a read's query: `selector(listQuery)`, the object schema the list procedure's input extends. A mutation takes it as a field (`.input(z.object({ tasks: selector(listQuery) }))`) and resolves it with `chosenWhere` from `@fcalell/plugin-api/lib/chosen`. */
+/** The schema of a `Selector` over a read's query: `selector(listQuery)`, the object schema the list procedure's input extends. A mutation takes it as a field (`.input(z.object({ tasks: selector(listQuery) }))`) and resolves it with `chosenWhere` from `@slotform/api/lib/chosen`. */
 export function selector<Q extends z.ZodType>(query: Q) {
 	return z.union([
 		z.object({ ids: z.array(z.string().min(1)) }).strict(),
@@ -93,7 +93,7 @@ function isProcedure(node: unknown): node is Built {
 	);
 }
 
-/** Every procedure of a router, by dotted path: what `stack generate` writes to `.stack/schema.ts`. An input of `undefined` or `void`, or none, is the empty object; an input that is not an object (a union) is `null`; a procedure that cannot be converted throws, naming its path. */
+/** Every procedure of a router, by dotted path: what `slotform generate` writes to `.slotform/schema.ts`. An input of `undefined` or `void`, or none, is the empty object; an input that is not an object (a union) is `null`; a procedure that cannot be converted throws, naming its path. */
 export function routerSchema(routes: unknown): Record<string, ProcedureSchema> {
 	const out: Record<string, ProcedureSchema> = {};
 	const walk = (node: unknown, path: string[]) => {

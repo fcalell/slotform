@@ -1,7 +1,7 @@
 # Background work
 
 Two files in `src/worker/` run work outside a request. `queue.ts` answers a Cloudflare queue batch
-and `scheduled.ts` answers a cron event. A file's existence is the switch: `stack generate` mounts
+and `scheduled.ts` answers a cron event. A file's existence is the switch: `slotform generate` mounts
 each one on the worker, and no option turns either on. Both run on the Cloudflare target only (on
 node, use a service in `src/server/services`), and both need a worker, a routable file in
 `src/worker/routes` or a plugin runtime; `generate` refuses a file without one, naming it.
@@ -10,7 +10,7 @@ node, use a service in `src/server/services`), and both need a worker, a routabl
 
 ```ts
 // src/worker/queue.ts
-import { defineQueue } from "virtual:stack-procedure";
+import { defineQueue } from "virtual:slotform-procedure";
 
 type Job = { kind: "welcome"; email: string } | { kind: "digest"; org: string };
 
@@ -38,7 +38,7 @@ it, as above.
 
 ```ts
 // src/worker/scheduled.ts
-import { defineScheduled } from "virtual:stack-procedure";
+import { defineScheduled } from "virtual:slotform-procedure";
 
 export default defineScheduled(async (event, { db }) => {
   switch (event.cron) {
@@ -70,7 +70,7 @@ request.
 ## Enqueueing and bindings
 
 A procedure puts a job on the queue through the `QUEUE` binding on `context.env`; the queue, its
-consumer settings and the cron `[triggers]` are Cloudflare's, set in plugin-cloudflare (its
+consumer settings and the cron `[triggers]` are Cloudflare's, set in the `cloudflare` plugin (its
 `wrangler` page for the bindings and local runs, its `deploy` page for creating the queue).
 The shape of a message is yours: type the body with `defineQueue<Body>` and share the type with
 the code that sends it.

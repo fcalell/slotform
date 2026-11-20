@@ -1,9 +1,9 @@
-import { STACK_READS_HEADER, STACK_WRITES_HEADER } from "./wire.ts";
+import { SLOTFORM_READS_HEADER, SLOTFORM_WRITES_HEADER } from "./wire.ts";
 
 // The client half of entity-based cache invalidation: docs/architecture/plugins/api.md, "Cache invalidation".
 
 // The app's entity names: docs/architecture/plugins/api.md, "Cache invalidation".
-// biome-ignore lint/suspicious/noEmptyInterface: an interface so `.stack/procedure.ts` can merge into it
+// biome-ignore lint/suspicious/noEmptyInterface: an interface so `.slotform/procedure.ts` can merge into it
 export interface Register {}
 
 export type EntityName = Register extends {
@@ -17,7 +17,7 @@ interface EntityEntry {
 	writes: string[];
 }
 
-// Structural subset of `@tanstack/react-query`'s `QueryClient`, so plugin-api
+// Structural subset of `@tanstack/react-query`'s `QueryClient`, so `@slotform/api`
 // depends on no query library.
 export interface InvalidatableQueryClient {
 	invalidateQueries(filters: {
@@ -62,10 +62,10 @@ function pathKeyFromOperationKey(
 // The registry the client and the query plugin's query client share: docs/architecture/plugins/api.md, "Client". It assumes one client and one user per isolate.
 const entries = new Map<string, EntityEntry>();
 
-/** Parses `x-stack-reads` / `x-stack-writes` off `headers` for `pathKey`. An absent header leaves that side untouched. */
+/** Parses `x-slotform-reads` / `x-slotform-writes` off `headers` for `pathKey`. An absent header leaves that side untouched. */
 export function captureEntityHeaders(pathKey: string, headers: Headers): void {
-	const reads = headers.get(STACK_READS_HEADER);
-	const writes = headers.get(STACK_WRITES_HEADER);
+	const reads = headers.get(SLOTFORM_READS_HEADER);
+	const writes = headers.get(SLOTFORM_WRITES_HEADER);
 	if (reads === null && writes === null) return;
 
 	const entry = entries.get(pathKey) ?? { reads: [], writes: [] };

@@ -22,11 +22,11 @@ function preflight(
 
 test("the origin of the listener a request came in on is trusted on it", async () => {
 	const worker = createWorker({ cors: [APP] }).handler();
-	const own = await preflight(worker, NETWORK, { STACK_ORIGIN: NETWORK });
+	const own = await preflight(worker, NETWORK, { SLOTFORM_ORIGIN: NETWORK });
 	assert.equal(own.headers.get("access-control-allow-origin"), NETWORK);
 	const elsewhere = await preflight(worker, NETWORK, {});
 	assert.equal(elsewhere.headers.get("access-control-allow-origin"), null);
-	const listed = await preflight(worker, APP, { STACK_ORIGIN: NETWORK });
+	const listed = await preflight(worker, APP, { SLOTFORM_ORIGIN: NETWORK });
 	assert.equal(listed.headers.get("access-control-allow-origin"), APP);
 });
 
@@ -48,7 +48,7 @@ test("isForbiddenOrigin admits the listener's own origin", async () => {
 			env,
 			undefined,
 		);
-	await post({ STACK_ORIGIN: NETWORK });
+	await post({ SLOTFORM_ORIGIN: NETWORK });
 	await post({});
 	assert.deepEqual(verdicts, [false, true]);
 });

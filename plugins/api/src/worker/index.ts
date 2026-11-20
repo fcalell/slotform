@@ -1,10 +1,10 @@
-import type { RuntimePlugin } from "@fcalell/cli/runtime";
 import { ORPCError } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import {
 	RequestHeadersPlugin,
 	ResponseHeadersPlugin,
 } from "@orpc/server/plugins";
+import type { RuntimePlugin } from "@slotform/cli/runtime";
 import { type Context, Hono, type MiddlewareHandler } from "hono";
 import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
@@ -19,8 +19,8 @@ import {
 } from "../procedure.ts";
 import {
 	listenerOrigin,
-	STACK_EXPOSED_HEADERS,
-	STACK_NOT_FOUND_HEADER,
+	SLOTFORM_EXPOSED_HEADERS,
+	SLOTFORM_NOT_FOUND_HEADER,
 } from "../wire.ts";
 import { ipLimited, ORIGINS_VAR } from "./guards.ts";
 import { buildMcpTools, createMcpEndpoint, createMcpRoute } from "./mcp.ts";
@@ -205,7 +205,7 @@ export interface EnvCheckSpec {
 export interface ApiWorkerOptions {
 	cors?: string[];
 	// Localhost dev-server origins. Honoured only when the worker runs with
-	// STACK_DEV set, so a production deploy never accepts them.
+	// SLOTFORM_DEV set, so a production deploy never accepts them.
 	devCors?: string[];
 	prefix?: `/${string}`;
 	envChecks?: EnvCheckSpec[];
@@ -214,10 +214,12 @@ export interface ApiWorkerOptions {
 type ResolvedApiOptions = Required<Pick<ApiWorkerOptions, "prefix">> &
 	Pick<ApiWorkerOptions, "cors" | "devCors" | "envChecks">;
 
-// The single dev predicate every gate reads: set by `stack dev`, never by a
+// The single dev predicate every gate reads: set by `slotform dev`, never by a
 // deploy. Also what `ctx._devMode` carries to procedures.
 function isDevMode(env: unknown): boolean {
-	return (env as Record<string, unknown> | null | undefined)?.STACK_DEV === "1";
+	return (
+		(env as Record<string, unknown> | null | undefined)?.SLOTFORM_DEV === "1"
+	);
 }
 
 // Asserts every baked env check against the live env. Throws the first
@@ -247,7 +249,7 @@ function assertEnvChecks(checks: EnvCheckSpec[], env: unknown): void {
 			}
 			if (check.devLocalhost && devMode && !isLocalOrigin(value)) {
 				throw new Error(
-					`Env var ${check.name} points at ${parsed.hostname} while STACK_DEV is set; refusing to serve. Unset STACK_DEV outside local dev.`,
+					`Env var ${check.name} points at ${parsed.hostname} while SLOTFORM_DEV is set; refusing to serve. Unset SLOTFORM_DEV outside local dev.`,
 				);
 			}
 		}
@@ -423,7 +425,7 @@ function createAppBuilder<
 
 			const app = new Hono<{
 				Variables: {
-					__stackCtx: Record<string, unknown>;
+					__slotformCtx: Record<string, unknown>;
 					[ORIGINS_VAR]: string[];
 				};
 			}>();
@@ -448,7 +450,7 @@ function createAppBuilder<
 							return allowed.includes(requestOrigin) ? requestOrigin : null;
 						},
 						credentials: true,
-						exposeHeaders: [...STACK_EXPOSED_HEADERS],
+						exposeHeaders: [...SLOTFORM_EXPOSED_HEADERS],
 					}),
 				);
 			}
@@ -526,7 +528,7 @@ function createAppBuilder<
 				}
 
 				c.set(ORIGINS_VAR, effectiveOrigins(env));
-				c.set("__stackCtx", ctx);
+				c.set("__slotformCtx", ctx);
 				await next();
 			});
 
@@ -548,7 +550,7 @@ function createAppBuilder<
 					return c.json({ code: "UNSUPPORTED_MEDIA_TYPE" }, 415);
 				}
 
-				const ctx = c.get("__stackCtx");
+				const ctx = c.get("__slotformCtx");
 
 				if (await ipLimited(c, ctx)) {
 					return c.json({ code: "TOO_MANY_REQUESTS" }, 429);
@@ -563,7 +565,7 @@ function createAppBuilder<
 					// A read's not found travels as a 200: docs/architecture/plugins/api.md, "Not found".
 					if (response.status === 404 && c.req.method === "GET") {
 						const headers = new Headers(response.headers);
-						headers.set(STACK_NOT_FOUND_HEADER, "1");
+						headers.set(SLOTFORM_NOT_FOUND_HEADER, "1");
 						return c.newResponse(response.body, { status: 200, headers });
 					}
 					return c.newResponse(response.body, response);
@@ -575,7 +577,7 @@ function createAppBuilder<
 			if (mcpRoute) {
 				// The one MCP route: any other method is refused before anything
 				// else, and `POST` verifies its bearer token first.
-				app.post(MCP_PATH, (c) => mcpRoute(c, c.get("__stackCtx")));
+				app.post(MCP_PATH, (c) => mcpRoute(c, c.get("__slotformCtx")));
 				app.all(MCP_PATH, (c) => c.body(null, 405, { Allow: "POST" }));
 			}
 
@@ -663,13 +665,13 @@ function createAppBuilder<
 // The injected plugin context (`db`, `auth`, `env`, …), for post-context
 // middleware and raw Hono routes. Annotate the call with the generated
 // `WorkerContext` to get the same typed context a procedure handler sees.
-export function stackContext<
+export function slotformContext<
 	TContext extends Record<string, unknown> = BaseContext,
 >(c: Context): TContext {
-	const ctx = c.get("__stackCtx") as TContext | undefined;
+	const ctx = c.get("__slotformCtx") as TContext | undefined;
 	if (!ctx) {
 		throw new Error(
-			"stackContext: no context on this request. Register the middleware with .useAfterContext() (src/worker/middleware.context.ts), not .use().",
+			"slotformContext: no context on this request. Register the middleware with .useAfterContext() (src/worker/middleware.context.ts), not .use().",
 		);
 	}
 	return ctx;

@@ -225,7 +225,7 @@ export function buildMcpTools(
 }
 
 interface CallExtra {
-	// What the procedure runs with: the stack context, the pinned tenancy and
+	// What the procedure runs with: the Slotform context, the pinned tenancy and
 	// the verified caller.
 	context: Record<string, unknown>;
 	organizationId: string;

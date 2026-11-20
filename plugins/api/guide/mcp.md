@@ -7,7 +7,7 @@ provider issues is the only credential `/mcp` accepts.
 
 ```ts
 // src/worker/mcp.ts
-import { defineMcp } from "@fcalell/plugin-api/mcp";
+import { defineMcp } from "@slotform/api/mcp";
 import type * as routes from "./routes/index.ts";
 
 export default defineMcp<typeof routes>({
@@ -25,7 +25,7 @@ fails type-checking. `tools/list` answers in the file's order.
 
 ## What generate checks
 
-`stack generate` refuses the file without `auth({ mcp: true })`, without a routable file in
+`slotform generate` refuses the file without `auth({ mcp: true })`, without a routable file in
 `src/worker/routes`, and when `api({ prefix })` is `/mcp`. Otherwise the worker mounts the
 endpoint, `/mcp` joins `api.slots.routePrefixes`, and `mcp` is a reserved organization slug.
 Building the worker refuses, naming the tool, a path that names no procedure, a name outside
@@ -65,4 +65,4 @@ no `cookie` or `authorization`.
 - The context key `_caller` is the endpoint's, and `oauth` is the provider's; neither is a scope
   name.
 
-**Check:** `stack generate`, then an MCP client lists the tools and calls one.
+**Check:** `slotform generate`, then an MCP client lists the tools and calls one.

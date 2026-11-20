@@ -14,7 +14,7 @@ Page: [procedures](./procedures.md), its options table.
 ## 2. Write it
 
 Add the procedure to a file in `src/worker/routes/`, a new named export or a key of an existing
-one. A new file joins the router when `stack generate` (or `stack dev`'s watcher) rewrites the
+one. A new file joins the router when `slotform generate` (or `slotform dev`'s watcher) rewrites the
 barrel. Page: [procedures](./procedures.md).
 
 ```ts
@@ -28,7 +28,7 @@ export const projects = {
 };
 ```
 
-**Check:** `stack generate`, then `pnpm check` passes.
+**Check:** `slotform generate`, then `pnpm check` passes.
 
 ## 3. Call it from the app
 

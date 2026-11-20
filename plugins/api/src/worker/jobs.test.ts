@@ -36,7 +36,7 @@ test("a queue batch gets the plugin context without the request", async () => {
 	assert.ok(worker.queue);
 	await worker.queue(
 		batch(),
-		{ STACK_DEV: "1" },
+		{ SLOTFORM_DEV: "1" },
 		{
 			waitUntil: (p: Promise<unknown>) => waited.push(p),
 		},
@@ -44,7 +44,7 @@ test("a queue batch gets the plugin context without the request", async () => {
 	assert.ok(seen);
 	assert.equal(seen.db, "the database");
 	assert.equal(seen._devMode, true);
-	assert.deepEqual(seen.env, { STACK_DEV: "1" });
+	assert.deepEqual(seen.env, { SLOTFORM_DEV: "1" });
 	for (const key of ["httpRequest", "reqHeaders", "resHeaders"])
 		assert.equal(key in seen, false, key);
 	const done = Promise.resolve();

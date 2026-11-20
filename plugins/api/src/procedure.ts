@@ -4,16 +4,16 @@ import { DEFAULT_LIMIT, LIMIT_CEILING, MAX_LIMIT } from "./lib/limits.ts";
 import type { Procedure } from "./types.ts";
 import {
 	ENTITY_NAME_RE,
-	STACK_READS_HEADER,
-	STACK_WRITES_HEADER,
+	SLOTFORM_READS_HEADER,
+	SLOTFORM_WRITES_HEADER,
 } from "./wire.ts";
 
 // Re-exported wire constants: docs/architecture/plugins/api.md, "Wire contract".
 export {
 	ORG_RULES_PATH,
 	SCOPE_ROUTES_PATH,
-	STACK_READS_HEADER,
-	STACK_WRITES_HEADER,
+	SLOTFORM_READS_HEADER,
+	SLOTFORM_WRITES_HEADER,
 } from "./wire.ts";
 
 // A scope's name in plain words: camelCase and snake_case split at their words
@@ -28,7 +28,7 @@ function scopeWords(name: string): string {
 		.toLowerCase();
 }
 
-/** The refusal a scoped call answers when the scope's row is missing or not visible: `NOT_FOUND`, "No such <scope>" with the scope's name in plain words (`lineItem` reads "No such line item"). Scoped procedures and plugin-auth's `bySlug` throw this one. */
+/** The refusal a scoped call answers when the scope's row is missing or not visible: `NOT_FOUND`, "No such <scope>" with the scope's name in plain words (`lineItem` reads "No such line item"). Scoped procedures and the `auth` plugin's `bySlug` throw this one. */
 export function noSuch(scope: {
 	name: string;
 }): ORPCError<"NOT_FOUND", unknown> {
@@ -371,7 +371,7 @@ function createAuthMiddleware() {
 	};
 }
 
-// The request context's tenancy capability, put there by plugin-auth's
+// The request context's tenancy capability, put there by the `auth` plugin's
 // runtime when organizations are on. Structural, so api never imports auth.
 type TenancyContext = {
 	tenancy: {
@@ -494,7 +494,7 @@ function createRateLimitMiddleware(kind: RateLimitKind) {
 		if (!limiter) {
 			console.error(
 				`[api] Procedure requires rate limiting ("${kind}") but no ${kind} rate limiter is bound to the worker context. ` +
-					`Ensure plugin-auth is configured with a rateLimiter binding, or inject { _rateLimiter: { ${kind}: binding } } via .use() when constructing the worker.`,
+					`Ensure the auth plugin is configured with a rateLimiter binding, or inject { _rateLimiter: { ${kind}: binding } } via .use() when constructing the worker.`,
 			);
 			throw new ORPCError("INTERNAL_SERVER_ERROR", {
 				message: "Server configuration error",
@@ -540,7 +540,7 @@ function assertValidEntityNames(
 		if (!ENTITY_NAME_RE.test(name)) {
 			throw new Error(
 				`procedure(): invalid entity name "${name}" in \`${kind}\` -- entity names become ` +
-					"comma-joined Headers values (x-stack-reads/x-stack-writes) and may only contain " +
+					"comma-joined Headers values (x-slotform-reads/x-slotform-writes) and may only contain " +
 					'letters, digits, "_", ".", and "-". Rename the entity.',
 			);
 		}
@@ -555,10 +555,10 @@ function createEntityHeadersMiddleware(
 	return async ({ context, next }, _input) => {
 		const result = await next({ context: {} });
 		if (reads.length > 0) {
-			context.resHeaders.set(STACK_READS_HEADER, reads.join(","));
+			context.resHeaders.set(SLOTFORM_READS_HEADER, reads.join(","));
 		}
 		if (writes.length > 0) {
-			context.resHeaders.set(STACK_WRITES_HEADER, writes.join(","));
+			context.resHeaders.set(SLOTFORM_WRITES_HEADER, writes.join(","));
 		}
 		return result;
 	};

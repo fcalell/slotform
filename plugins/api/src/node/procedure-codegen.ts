@@ -3,11 +3,11 @@ import {
 	renderTsSourceFile,
 	type TsExpression,
 	type TsImportSpec,
-} from "@fcalell/cli/ast";
+} from "@slotform/cli/ast";
 import { runtimeChain } from "./codegen.ts";
 import type { MiddlewareCall, PluginRuntimeEntry } from "./types.ts";
 
-// Renders `.stack/procedure.ts`, the `virtual:stack-procedure` target: docs/architecture/runtime.md, "The rebuilt chain".
+// Renders `.slotform/procedure.ts`, the `virtual:slotform-procedure` target: docs/architecture/runtime.md, "The rebuilt chain".
 interface ProcedurePayload {
 	// Same `workerBase` (`createWorker({...})` call) the real worker uses.
 	base: TsExpression;
@@ -19,26 +19,26 @@ interface ProcedurePayload {
 	middlewareChain: MiddlewareCall[];
 	// The imports the middleware calls name, without the same files as `imports`.
 	middlewareImports: TsImportSpec[];
-	// RBAC statements from `api.slots.rbacStatements`: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
+	// RBAC statements from `api.slots.rbacStatements`: docs/architecture/slot-catalog.md, "`api.slots.*` (the `api` plugin)".
 	statements: Record<string, readonly string[]> | null;
 	// The entity vocabulary from `api.slots.entities`: docs/architecture/plugins/api.md, "Entities".
 	entities: readonly string[];
 }
 
 const APP_BUILDER_IMPORT: TsImportSpec = {
-	source: "@fcalell/plugin-api/runtime",
+	source: "@slotform/api/runtime",
 	named: ["AppBuilder"],
 	typeOnly: true,
 };
 
 const CREATE_PROCEDURE_IMPORT: TsImportSpec = {
-	source: "@fcalell/plugin-api/procedure",
+	source: "@slotform/api/procedure",
 	named: ["createJobs", "createProcedure"],
 };
 
 const IDENT_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
-// The statements record as an inline type literal: docs/architecture/slot-catalog.md, "`api.slots.*` (plugin-api)".
+// The statements record as an inline type literal: docs/architecture/slot-catalog.md, "`api.slots.*` (the `api` plugin)".
 function renderStatementsType(
 	statements: Record<string, readonly string[]> | null,
 ): string {
@@ -84,11 +84,11 @@ export function aggregateProcedure(payload: ProcedurePayload): string {
 
 	return `${importsText}
 // Type-only: \`__chain\` mirrors the runtime plugin composition in
-// .stack/worker.ts so \`WorkerContext\` matches the real request context
+// .slotform/worker.ts so \`WorkerContext\` matches the real request context
 // without re-deriving each runtime factory's generics by hand. Never
 // exported or called further — only its type is used below.
 type ContextOf<B> = B extends AppBuilder<infer C> ? C : never;
-// Exported so post-context middleware can type \`stackContext<WorkerContext>(c)\`.
+// Exported so post-context middleware can type \`slotformContext<WorkerContext>(c)\`.
 // Import it type-only: this module imports the middleware file back, and only
 // erasure keeps that from being a real cycle.
 export type WorkerContext = ContextOf<typeof __chain>;
@@ -99,8 +99,8 @@ export type Entity = ${entityType};
 // \`Entity\` (type-only: nothing reaches the bundle). \`worker.ts\` re-exports
 // \`Entity\`, so an app's program loads this file with the router type. The
 // import puts the module in the program, which an augmentation alone does not.
-import type {} from "@fcalell/plugin-api/query-invalidation";
-declare module "@fcalell/plugin-api/query-invalidation" {
+import type {} from "@slotform/api/query-invalidation";
+declare module "@slotform/api/query-invalidation" {
 	interface Register {
 		entity: Entity;
 	}

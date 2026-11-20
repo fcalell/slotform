@@ -1,14 +1,15 @@
-import type { TsExpression, TsImportSpec } from "@fcalell/cli/ast";
+import { GENERATED_DIR } from "@slotform/cli";
+import type { TsExpression, TsImportSpec } from "@slotform/cli/ast";
 
 // The generated files: docs/architecture/plugins/api.md, "Generated files".
-export const WORKER_FILE = ".stack/worker.ts";
-export const PROCEDURE_FILE = ".stack/procedure.ts";
+export const WORKER_FILE = `${GENERATED_DIR}/worker.ts`;
+export const PROCEDURE_FILE = `${GENERATED_DIR}/procedure.ts`;
 
 // The route barrel: docs/architecture/plugins/api.md, "Routes barrel".
 export const ROUTES_DIR = "src/worker/routes";
 export const ROUTES_BARREL = `${ROUTES_DIR}/index.ts`;
 
-// How a file generated into `.stack/` imports a consumer source file.
+// How a file generated into `.slotform/` imports a consumer source file.
 export function importSource(file: string): string {
 	return `../${file}`;
 }
@@ -24,7 +25,7 @@ export const ROUTES_BARREL_IMPORT_SOURCE = importSource(ROUTES_BARREL);
 export interface PluginRuntimeEntry {
 	plugin: string;
 	// Runtime package import. Must be a `default` import (the factory is the
-	// default export of `@fcalell/plugin-<name>/runtime` by convention).
+	// default export of `@slotform/<name>/runtime` by convention).
 	import: TsImportSpec;
 	// Identifier used as the call callee. Derived from `import.default`; kept
 	// explicit so the aggregator doesn't re-narrow the import union.

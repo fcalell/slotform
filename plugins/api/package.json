@@ -1,14 +1,14 @@
 {
-	"name": "@fcalell/plugin-api",
+	"name": "@slotform/api",
 	"version": "0.1.0",
-	"description": "API plugin for @fcalell/stack: Hono + oRPC + Zod behind a procedure builder and a typed client.",
+	"description": "API plugin for slotform: Hono + oRPC + Zod behind a procedure builder and a typed client.",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fcalell/stack.git",
+		"url": "git+https://github.com/fcalell/slotform.git",
 		"directory": "plugins/api"
 	},
-	"homepage": "https://github.com/fcalell/stack/tree/master/plugins/api#readme",
+	"homepage": "https://github.com/fcalell/slotform/tree/master/plugins/api#readme",
 	"publishConfig": {
 		"access": "public"
 	},
@@ -97,13 +97,13 @@
 		"clear": "rm -rf dist node_modules .turbo"
 	},
 	"dependencies": {
-		"@fcalell/cli": "workspace:^",
+		"@slotform/cli": "workspace:^",
 		"@modelcontextprotocol/server": "2.4.0",
 		"slugify": "^1.6.9",
 		"ws": "^8.23.0"
 	},
 	"devDependencies": {
-		"@fcalell/typescript-config": "workspace:^",
+		"@slotform/typescript-config": "workspace:^",
 		"@orpc/client": "^1.16.2",
 		"@orpc/server": "^1.16.2",
 		"@types/better-sqlite3": "^9.6.0",
