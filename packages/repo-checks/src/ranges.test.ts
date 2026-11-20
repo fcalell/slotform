@@ -38,7 +38,7 @@ function librarySpecs(): Map<string, Specs> {
 	for (const { dir, manifest } of manifests) {
 		for (const field of FIELDS) {
 			for (const [name, spec] of Object.entries(manifest[field] ?? {})) {
-				if (name.startsWith("@fcalell/") || spec.startsWith("workspace:"))
+				if (name.startsWith("@slotform/") || spec.startsWith("workspace:"))
 					continue;
 				const specs = libraries.get(name) ?? new Map();
 				const bySpec = specs.get(field) ?? new Map<string, string[]>();
@@ -51,7 +51,7 @@ function librarySpecs(): Map<string, Specs> {
 	return libraries;
 }
 
-// docs/architecture/releasing.md, "Peers: one copy of each stack package".
+// docs/architecture/releasing.md, "Peers: one copy of each Slotform package".
 test("each third-party library has one spec per field across the public packages", () => {
 	const split: string[] = [];
 	for (const [name, specs] of librarySpecs()) {

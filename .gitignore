@@ -6,7 +6,7 @@ dist
 build
 .turbo
 .vite
-.stack
+.slotform
 
 # nix / direnv
 .direnv/

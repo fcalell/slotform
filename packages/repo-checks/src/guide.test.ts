@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { test } from "node:test";
-import { cliSlots } from "@fcalell/cli/cli-slots";
-import { uiCoreGuide } from "@fcalell/ui-core/manifest";
+import { cliSlots } from "@slotform/cli/cli-slots";
+import { uiCoreGuide } from "@slotform/ui-core/manifest";
 
 const ROOT = new URL("../../../", import.meta.url).pathname;
 const MAX_WORDS = 600;

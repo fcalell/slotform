@@ -14,11 +14,15 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import {
+	PLUGIN_NAMES,
+	pluginPackage,
+} from "../packages/cli/src/lib/first-party.ts";
 
 interface Consumer {
 	name: string;
 	plugins: string;
-	// `stack build` runs for these; every consumer runs `stack generate`.
+	// `slotform build` runs for these; every consumer runs `slotform generate`.
 	build: boolean;
 	// `tsc -b` runs for these.
 	typecheck: boolean;
@@ -64,7 +68,7 @@ if (unknown && unknown.length > 0) {
 }
 
 const out = resolve(
-	values.out ?? mkdtempSync(join(tmpdir(), "stack-release-check-")),
+	values.out ?? mkdtempSync(join(tmpdir(), "slotform-release-check-")),
 );
 const tarballs = join(out, "tarballs");
 const logs = join(out, "logs");
@@ -211,7 +215,7 @@ const installedPlugins = new Set(
 	CONSUMERS.flatMap((consumer) => consumer.plugins.split(",")),
 );
 for (const { name } of seen) {
-	const plugin = /^@fcalell\/plugin-(.+)$/.exec(name)?.[1];
+	const plugin = PLUGIN_NAMES.find((p) => pluginPackage(p) === name);
 	if (plugin && !installedPlugins.has(plugin))
 		fail(`${name} is in no consumer`);
 }
@@ -221,14 +225,14 @@ for (const row of rows) console.log(`  ${row}`);
 
 // ---------------------------------------------------------------- the consumers
 
-// Snapshots of each stack package in a lockfile: one per peer variant. Two of a package
+// Snapshots of each Slotform package in a lockfile: one per peer variant. Two of a package
 // split the slot graph (`Slot '…' is defined twice`).
 function copies(lockfile: string): Map<string, number> {
 	const text = readFileSync(lockfile, "utf8");
 	const snapshots = text.split("\nsnapshots:\n")[1] ?? "";
 	const counts = new Map<string, number>();
 	for (const line of snapshots.split("\n")) {
-		const match = /^ {2}'?(@fcalell\/[a-z-]+)@/.exec(line);
+		const match = /^ {2}'?(@slotform\/[a-z-]+)@/.exec(line);
 		if (match?.[1]) counts.set(match[1], (counts.get(match[1]) ?? 0) + 1);
 	}
 	return counts;
@@ -242,7 +246,7 @@ for (const consumer of CONSUMERS) {
 	const dir = join(consumersDir, consumer.name);
 	rmSync(dir, { recursive: true, force: true });
 	mkdirSync(dir, { recursive: true });
-	// Each stack package, direct or not, resolves to its tarball: what the registry will serve.
+	// Each Slotform package, direct or not, resolves to its tarball: what the registry will serve.
 	const overrides = seen
 		.map(
 			(m) =>
@@ -266,14 +270,14 @@ for (const consumer of CONSUMERS) {
 		ok = run(`${name}-install`, "pnpm", ["install", "--frozen-lockfile"], dir);
 	}
 	if (ok)
-		ok = run(`${name}-generate`, "pnpm", ["exec", "stack", "generate"], dir);
+		ok = run(`${name}-generate`, "pnpm", ["exec", "slotform", "generate"], dir);
 	if (ok && consumer.build)
-		ok = run(`${name}-build`, "pnpm", ["exec", "stack", "build"], dir);
+		ok = run(`${name}-build`, "pnpm", ["exec", "slotform", "build"], dir);
 	if (ok && consumer.typecheck)
 		ok = run(`${name}-types`, "pnpm", ["check-types"], dir);
 	if (ok) {
 		const counts = copies(join(dir, "pnpm-lock.yaml"));
-		const installed = readdirSync(join(dir, "node_modules/@fcalell")).sort();
+		const installed = readdirSync(join(dir, "node_modules/@slotform")).sort();
 		const du = spawnSync("du", ["-sk", join(dir, "node_modules")], {
 			encoding: "utf8",
 		});
@@ -283,7 +287,7 @@ for (const consumer of CONSUMERS) {
 		for (const [pkg, n] of counts)
 			if (n !== 1) fail(`${consumer.name}: ${n} copies of ${pkg}`);
 		console.log(
-			`  ${installed.length} stack packages in node_modules/@fcalell, ${counts.size} in the lockfile, ${[...counts.values()].every((n) => n === 1) ? "one copy each" : "MORE THAN ONE COPY"}`,
+			`  ${installed.length} Slotform packages in node_modules/@slotform, ${counts.size} in the lockfile, ${[...counts.values()].every((n) => n === 1) ? "one copy each" : "MORE THAN ONE COPY"}`,
 		);
 	}
 	if (!values.keep)

@@ -1,5 +1,5 @@
 {
-  description = "stack dev shell — pnpm/turbo plugin monorepo (@fcalell/stack)";
+  description = "slotform dev shell — pnpm/turbo plugin monorepo (slotform)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -32,7 +32,7 @@
             pkgs.tailwindcss-language-server # the web plugin's tailwind surface
           ];
 
-          # The Chrome `stack screens` drives.
+          # The Chrome `slotform screens` drives.
           CHROME_PATH = pkgs.lib.getExe pkgs.chromium;
 
           shellHook = ''
@@ -46,7 +46,7 @@
 
             # No `pnpm` call here: corepack would download a newly pinned pnpm with no
             # timeout, blocking direnv silently.
-            echo "stack dev shell: node $(node --version)"
+            echo "slotform dev shell: node $(node --version)"
           '';
         };
 

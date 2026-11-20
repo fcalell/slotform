@@ -1,4 +1,4 @@
-// A stack package's `prepare`, run from the package's directory: `node ../../scripts/prepare.ts`.
+// A Slotform package's `prepare`, run from the package's directory: `node ../../scripts/prepare.ts`.
 // When it builds: docs/architecture/releasing.md, "Prepare script".
 
 import { spawnSync } from "node:child_process";

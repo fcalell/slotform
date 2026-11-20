@@ -23,36 +23,36 @@ importers:
       '@better-auth/expo':
         specifier: 1.7.25
         version: 1.7.25(@better-auth/core@1.7.25(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.17)(kysely@0.29.9)(nanostores@1.5.5))(better-auth@1.7.25(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@types/better-sqlite3@9.6.0)(better-sqlite3@13.2.0)(kysely@0.29.9))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.1.0))(better-call@1.4.5(zod@4.6.7))(expo-constants@58.0.16)(expo-linking@58.0.17)(expo-network@58.0.5(expo@58.0.25)(react@19.3.0))(expo-secure-store@58.0.3(expo@58.0.25))(expo-web-browser@58.0.8(expo@58.0.25)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.0)(supports-color@10.2.2)))
-      '@fcalell/plugin-api':
-        specifier: workspace:*
-        version: link:../../plugins/api
-      '@fcalell/plugin-auth':
-        specifier: workspace:*
-        version: link:../../plugins/auth
-      '@fcalell/plugin-cloudflare':
-        specifier: workspace:*
-        version: link:../../plugins/cloudflare
-      '@fcalell/plugin-db':
-        specifier: workspace:*
-        version: link:../../plugins/db
-      '@fcalell/plugin-expo':
-        specifier: workspace:*
-        version: link:../../plugins/expo
-      '@fcalell/plugin-native-ui':
-        specifier: workspace:*
-        version: link:../../plugins/native-ui
-      '@fcalell/plugin-query':
-        specifier: workspace:*
-        version: link:../../plugins/query
-      '@fcalell/ui-core':
-        specifier: workspace:*
-        version: link:../../packages/ui-core
       '@gorhom/bottom-sheet':
         specifier: ^5.2.14
         version: 5.2.14(672165e471eb696f70317778bce922f4)
       '@orpc/tanstack-query':
         specifier: ^1.16.2
         version: 1.16.2(@orpc/client@1.16.2)(@tanstack/query-core@5.107.1)
+      '@slotform/api':
+        specifier: workspace:*
+        version: link:../../plugins/api
+      '@slotform/auth':
+        specifier: workspace:*
+        version: link:../../plugins/auth
+      '@slotform/cloudflare':
+        specifier: workspace:*
+        version: link:../../plugins/cloudflare
+      '@slotform/db':
+        specifier: workspace:*
+        version: link:../../plugins/db
+      '@slotform/expo':
+        specifier: workspace:*
+        version: link:../../plugins/expo
+      '@slotform/native-ui':
+        specifier: workspace:*
+        version: link:../../plugins/native-ui
+      '@slotform/query':
+        specifier: workspace:*
+        version: link:../../plugins/query
+      '@slotform/ui-core':
+        specifier: workspace:*
+        version: link:../../packages/ui-core
       '@tanstack/react-query':
         specifier: ^5.107.1
         version: 5.107.1(@types/react@19.3.0)(react@19.3.0)
@@ -147,10 +147,10 @@ importers:
         specifier: ^1.13.2
         version: 1.13.2(@expo/metro-config@58.0.22(expo@58.0.25)(supports-color@10.2.2)(typescript@7.0.2))(metro-cache@0.87.3(supports-color@10.2.2))(metro-transform-worker@0.87.3(supports-color@10.2.2))(metro@0.87.3(supports-color@10.2.2))(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.0)(supports-color@10.2.2))(react@19.3.0)(tailwindcss@4.3.5)
     devDependencies:
-      '@fcalell/cli':
+      '@slotform/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/node':
@@ -174,33 +174,33 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
-      '@fcalell/plugin-api':
-        specifier: workspace:*
-        version: link:../../plugins/api
-      '@fcalell/plugin-cloudflare':
-        specifier: workspace:*
-        version: link:../../plugins/cloudflare
-      '@fcalell/plugin-query':
-        specifier: workspace:*
-        version: link:../../plugins/query
-      '@fcalell/plugin-react':
-        specifier: workspace:*
-        version: link:../../plugins/react
-      '@fcalell/plugin-react-ui':
-        specifier: workspace:*
-        version: link:../../plugins/react-ui
-      '@fcalell/plugin-screens':
-        specifier: workspace:*
-        version: link:../../plugins/screens
-      '@fcalell/plugin-vite':
-        specifier: workspace:*
-        version: link:../../plugins/vite
-      '@fcalell/ui-core':
-        specifier: workspace:*
-        version: link:../../packages/ui-core
       '@orpc/tanstack-query':
         specifier: ^1.16.2
         version: 1.16.2(@orpc/client@1.16.2)(@tanstack/query-core@5.107.1)
+      '@slotform/api':
+        specifier: workspace:*
+        version: link:../../plugins/api
+      '@slotform/cloudflare':
+        specifier: workspace:*
+        version: link:../../plugins/cloudflare
+      '@slotform/query':
+        specifier: workspace:*
+        version: link:../../plugins/query
+      '@slotform/react':
+        specifier: workspace:*
+        version: link:../../plugins/react
+      '@slotform/react-ui':
+        specifier: workspace:*
+        version: link:../../plugins/react-ui
+      '@slotform/screens':
+        specifier: workspace:*
+        version: link:../../plugins/screens
+      '@slotform/ui-core':
+        specifier: workspace:*
+        version: link:../../packages/ui-core
+      '@slotform/vite':
+        specifier: workspace:*
+        version: link:../../plugins/vite
       '@tanstack/react-query':
         specifier: ^5.107.1
         version: 5.107.1(@types/react@19.3.0)(react@19.3.1)
@@ -220,12 +220,6 @@ importers:
       '@babel/core':
         specifier: ^7.29.13
         version: 7.29.13(supports-color@10.2.2)
-      '@fcalell/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@fcalell/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
       '@orpc/client':
         specifier: 1.16.2
         version: 1.16.2
@@ -238,6 +232,12 @@ importers:
       '@rolldown/plugin-babel':
         specifier: ^0.3.1
         version: 0.3.1(@babel/core@7.29.13(supports-color@10.2.2))(@babel/plugin-transform-runtime@7.29.7(@babel/core@7.29.13(supports-color@10.2.2))(supports-color@10.2.2))(@babel/runtime@8.1.2)(rolldown@1.2.19)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))
+      '@slotform/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@slotform/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@storybook/addon-a11y':
         specifier: ^10.6.7
         version: 10.6.7(storybook@10.6.7(@types/react@19.3.0)(prettier@3.10.1)(react@19.3.1))
@@ -328,7 +328,7 @@ importers:
       '@biomejs/biome':
         specifier: ^2.6.8
         version: 2.6.8
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../typescript-config
       '@types/node':
@@ -346,51 +346,51 @@ importers:
 
   packages/repo-checks:
     devDependencies:
-      '@fcalell/cli':
-        specifier: workspace:*
-        version: link:../cli
-      '@fcalell/plugin-api':
+      '@slotform/api':
         specifier: workspace:*
         version: link:../../plugins/api
-      '@fcalell/plugin-auth':
+      '@slotform/auth':
         specifier: workspace:*
         version: link:../../plugins/auth
-      '@fcalell/plugin-cloudflare':
+      '@slotform/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@slotform/cloudflare':
         specifier: workspace:*
         version: link:../../plugins/cloudflare
-      '@fcalell/plugin-db':
+      '@slotform/db':
         specifier: workspace:*
         version: link:../../plugins/db
-      '@fcalell/plugin-expo':
+      '@slotform/expo':
         specifier: workspace:*
         version: link:../../plugins/expo
-      '@fcalell/plugin-native-ui':
+      '@slotform/native-ui':
         specifier: workspace:*
         version: link:../../plugins/native-ui
-      '@fcalell/plugin-node':
+      '@slotform/node':
         specifier: workspace:*
         version: link:../../plugins/node
-      '@fcalell/plugin-query':
+      '@slotform/query':
         specifier: workspace:*
         version: link:../../plugins/query
-      '@fcalell/plugin-react':
+      '@slotform/react':
         specifier: workspace:*
         version: link:../../plugins/react
-      '@fcalell/plugin-react-ui':
+      '@slotform/react-ui':
         specifier: workspace:*
         version: link:../../plugins/react-ui
-      '@fcalell/plugin-screens':
+      '@slotform/screens':
         specifier: workspace:*
         version: link:../../plugins/screens
-      '@fcalell/plugin-vite':
-        specifier: workspace:*
-        version: link:../../plugins/vite
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
-      '@fcalell/ui-core':
+      '@slotform/ui-core':
         specifier: workspace:*
         version: link:../ui-core
+      '@slotform/vite':
+        specifier: workspace:*
+        version: link:../../plugins/vite
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6
@@ -421,12 +421,12 @@ importers:
         specifier: ^3.7.0
         version: 3.7.0
     devDependencies:
-      '@fcalell/typescript-config':
-        specifier: workspace:^
-        version: link:../typescript-config
       '@google/design.md':
         specifier: ^0.4.0
         version: 0.4.0(supports-color@10.2.2)
+      '@slotform/typescript-config':
+        specifier: workspace:^
+        version: link:../typescript-config
       '@tailwindcss/cli':
         specifier: ^4.3.5
         version: 4.3.5
@@ -466,12 +466,12 @@ importers:
 
   plugins/api:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
       '@modelcontextprotocol/server':
         specifier: 2.4.0
         version: 2.4.0
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
       slugify:
         specifier: ^1.6.9
         version: 1.6.9
@@ -479,15 +479,15 @@ importers:
         specifier: ^8.23.0
         version: 8.23.0
     devDependencies:
-      '@fcalell/typescript-config':
-        specifier: workspace:^
-        version: link:../../packages/typescript-config
       '@orpc/client':
         specifier: ^1.16.2
         version: 1.16.2
       '@orpc/server':
         specifier: ^1.16.2
         version: 1.16.2(ws@8.23.0)
+      '@slotform/typescript-config':
+        specifier: workspace:^
+        version: link:../../packages/typescript-config
       '@types/better-sqlite3':
         specifier: ^9.6.0
         version: 9.6.0
@@ -524,19 +524,19 @@ importers:
       '@better-auth/mcp':
         specifier: 1.7.25
         version: 1.7.25(@better-auth/core@1.7.25(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.17)(kysely@0.29.9)(nanostores@1.5.5))(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-auth@1.7.25(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@types/better-sqlite3@9.6.0)(better-sqlite3@13.2.0)(kysely@0.29.9))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.1.0))(better-call@1.4.5(zod@4.6.7))
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
+      '@slotform/api':
         specifier: workspace:^
         version: link:../api
-      '@fcalell/plugin-cloudflare':
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/cloudflare':
         specifier: workspace:^
         version: link:../cloudflare
-      '@fcalell/plugin-db':
+      '@slotform/db':
         specifier: workspace:^
         version: link:../db
-      '@fcalell/plugin-screens':
+      '@slotform/screens':
         specifier: workspace:^
         version: link:../screens
       ws:
@@ -555,15 +555,15 @@ importers:
       '@casl/ability':
         specifier: ^7.1.3
         version: 7.1.3
-      '@fcalell/typescript-config':
-        specifier: workspace:^
-        version: link:../../packages/typescript-config
       '@orpc/server':
         specifier: ^1.16.2
         version: 1.16.2(ws@8.23.0)
       '@react-native-google-signin/google-signin':
         specifier: ^17.0.0
         version: 17.0.0(expo@58.0.25)(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.0)(supports-color@10.2.2))(react@19.3.0)
+      '@slotform/typescript-config':
+        specifier: workspace:^
+        version: link:../../packages/typescript-config
       '@types/node':
         specifier: ^26.6.6
         version: 26.6.6
@@ -594,23 +594,23 @@ importers:
 
   plugins/cloudflare:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
+      '@slotform/api':
         specifier: workspace:^
         version: link:../api
-      '@fcalell/plugin-screens':
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/screens':
         specifier: workspace:^
         version: link:../screens
-      '@fcalell/plugin-vite':
+      '@slotform/vite':
         specifier: workspace:^
         version: link:../vite
       smol-toml:
         specifier: ^1.9.1
         version: 1.9.1
     devDependencies:
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@types/node':
@@ -625,26 +625,26 @@ importers:
 
   plugins/db:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
+      '@slotform/api':
         specifier: workspace:^
         version: link:../api
-      '@fcalell/plugin-cloudflare':
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/cloudflare':
         specifier: workspace:^
         version: link:../cloudflare
-      '@fcalell/plugin-node':
+      '@slotform/node':
         specifier: workspace:^
         version: link:../node
-      '@fcalell/plugin-screens':
+      '@slotform/screens':
         specifier: workspace:^
         version: link:../screens
       better-sqlite3:
         specifier: ^13.2.0
         version: 13.2.0
     devDependencies:
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@types/better-sqlite3':
@@ -668,20 +668,20 @@ importers:
 
   plugins/expo:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
+      '@slotform/api':
         specifier: workspace:^
         version: link:../api
-      '@fcalell/plugin-cloudflare':
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/cloudflare':
         specifier: workspace:^
         version: link:../cloudflare
-      '@fcalell/ui-core':
+      '@slotform/ui-core':
         specifier: workspace:^
         version: link:../../packages/ui-core
     devDependencies:
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@types/node':
@@ -708,24 +708,24 @@ importers:
 
   plugins/native-ui:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
-        specifier: workspace:^
-        version: link:../api
-      '@fcalell/plugin-auth':
-        specifier: workspace:^
-        version: link:../auth
-      '@fcalell/plugin-expo':
-        specifier: workspace:^
-        version: link:../expo
-      '@fcalell/ui-core':
-        specifier: workspace:^
-        version: link:../../packages/ui-core
       '@legendapp/list':
         specifier: ~3.7.2
         version: 3.7.2(react-dom@19.3.0(react@19.3.0))(react-native@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(@react-native/metro-config@0.88.1(@babel/core@7.29.13(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.0)(supports-color@10.2.2))(react@19.3.0)
+      '@slotform/api':
+        specifier: workspace:^
+        version: link:../api
+      '@slotform/auth':
+        specifier: workspace:^
+        version: link:../auth
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/expo':
+        specifier: workspace:^
+        version: link:../expo
+      '@slotform/ui-core':
+        specifier: workspace:^
+        version: link:../../packages/ui-core
       diff:
         specifier: ^9.0.0
         version: 9.0.0
@@ -736,12 +736,12 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
     devDependencies:
-      '@fcalell/typescript-config':
-        specifier: workspace:^
-        version: link:../../packages/typescript-config
       '@gorhom/bottom-sheet':
         specifier: ^5.2.14
         version: 5.2.14(672165e471eb696f70317778bce922f4)
+      '@slotform/typescript-config':
+        specifier: workspace:^
+        version: link:../../packages/typescript-config
       '@tailwindcss/cli':
         specifier: ^4.3.5
         version: 4.3.5
@@ -823,27 +823,27 @@ importers:
 
   plugins/node:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
-        specifier: workspace:^
-        version: link:../api
-      '@fcalell/plugin-query':
-        specifier: workspace:^
-        version: link:../query
-      '@fcalell/plugin-screens':
-        specifier: workspace:^
-        version: link:../screens
-      '@fcalell/plugin-vite':
-        specifier: workspace:^
-        version: link:../vite
-      '@fcalell/ui-core':
-        specifier: workspace:^
-        version: link:../../packages/ui-core
       '@hono/node-server':
         specifier: ^2.1.8
         version: 2.1.8(hono@4.13.19)
+      '@slotform/api':
+        specifier: workspace:^
+        version: link:../api
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/query':
+        specifier: workspace:^
+        version: link:../query
+      '@slotform/screens':
+        specifier: workspace:^
+        version: link:../screens
+      '@slotform/ui-core':
+        specifier: workspace:^
+        version: link:../../packages/ui-core
+      '@slotform/vite':
+        specifier: workspace:^
+        version: link:../vite
       ws:
         specifier: ^8.23.0
         version: 8.23.0
@@ -851,7 +851,7 @@ importers:
       '@biomejs/biome':
         specifier: ^2.6.8
         version: 2.6.8
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@tanstack/react-query':
@@ -881,34 +881,34 @@ importers:
 
   plugins/query:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
-        specifier: workspace:^
-        version: link:../api
-      '@fcalell/plugin-react':
-        specifier: workspace:^
-        version: link:../react
-      '@fcalell/plugin-vite':
-        specifier: workspace:^
-        version: link:../vite
-      '@fcalell/ui-core':
-        specifier: workspace:^
-        version: link:../../packages/ui-core
       '@orpc/client':
         specifier: ^1.16.2
         version: 1.16.2
+      '@slotform/api':
+        specifier: workspace:^
+        version: link:../api
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/react':
+        specifier: workspace:^
+        version: link:../react
+      '@slotform/ui-core':
+        specifier: workspace:^
+        version: link:../../packages/ui-core
+      '@slotform/vite':
+        specifier: workspace:^
+        version: link:../vite
     devDependencies:
       '@casl/ability':
         specifier: ^7.1.3
         version: 7.1.3
-      '@fcalell/typescript-config':
-        specifier: workspace:^
-        version: link:../../packages/typescript-config
       '@orpc/tanstack-query':
         specifier: ^1.16.2
         version: 1.16.2(@orpc/client@1.16.2)(@tanstack/query-core@5.107.1)
+      '@slotform/typescript-config':
+        specifier: workspace:^
+        version: link:../../packages/typescript-config
       '@tanstack/react-query':
         specifier: ^5.107.1
         version: 5.107.1(@types/react@19.3.0)(react@19.3.0)
@@ -933,14 +933,14 @@ importers:
 
   plugins/react:
     dependencies:
-      '@fcalell/cli':
+      '@slotform/cli':
         specifier: workspace:^
         version: link:../../packages/cli
-      '@fcalell/plugin-vite':
+      '@slotform/vite':
         specifier: workspace:^
         version: link:../vite
     devDependencies:
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@tanstack/router-generator':
@@ -964,30 +964,30 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-auth':
-        specifier: workspace:^
-        version: link:../auth
-      '@fcalell/plugin-react':
-        specifier: workspace:^
-        version: link:../react
-      '@fcalell/plugin-screens':
-        specifier: workspace:^
-        version: link:../screens
-      '@fcalell/plugin-vite':
-        specifier: workspace:^
-        version: link:../vite
-      '@fcalell/ui-core':
-        specifier: workspace:^
-        version: link:../../packages/ui-core
       '@fontsource-variable/ibm-plex-sans':
         specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/ibm-plex-mono':
         specifier: ^5.3.0
         version: 5.3.0
+      '@slotform/auth':
+        specifier: workspace:^
+        version: link:../auth
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/react':
+        specifier: workspace:^
+        version: link:../react
+      '@slotform/screens':
+        specifier: workspace:^
+        version: link:../screens
+      '@slotform/ui-core':
+        specifier: workspace:^
+        version: link:../../packages/ui-core
+      '@slotform/vite':
+        specifier: workspace:^
+        version: link:../vite
       '@tanstack/react-virtual':
         specifier: ~3.14.26
         version: 3.14.26(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -1019,7 +1019,7 @@ importers:
         specifier: ^18.2.0
         version: 18.2.0
     devDependencies:
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@tailwindcss/vite':
@@ -1055,40 +1055,40 @@ importers:
 
   plugins/screens:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
-        specifier: workspace:^
-        version: link:../api
-      '@fcalell/plugin-query':
-        specifier: workspace:^
-        version: link:../query
-      '@fcalell/plugin-react':
-        specifier: workspace:^
-        version: link:../react
-      '@fcalell/plugin-vite':
-        specifier: workspace:^
-        version: link:../vite
-      '@fcalell/ui-core':
-        specifier: workspace:^
-        version: link:../../packages/ui-core
       '@orpc/standard-server-fetch':
         specifier: ^1.16.2
         version: 1.16.2
+      '@slotform/api':
+        specifier: workspace:^
+        version: link:../api
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
+      '@slotform/query':
+        specifier: workspace:^
+        version: link:../query
+      '@slotform/react':
+        specifier: workspace:^
+        version: link:../react
+      '@slotform/ui-core':
+        specifier: workspace:^
+        version: link:../../packages/ui-core
+      '@slotform/vite':
+        specifier: workspace:^
+        version: link:../vite
       ws:
         specifier: ^8.23.0
         version: 8.23.0
     devDependencies:
-      '@fcalell/typescript-config':
-        specifier: workspace:^
-        version: link:../../packages/typescript-config
       '@orpc/client':
         specifier: ^1.16.2
         version: 1.16.2
       '@orpc/server':
         specifier: ^1.16.2
         version: 1.16.2(ws@8.23.0)
+      '@slotform/typescript-config':
+        specifier: workspace:^
+        version: link:../../packages/typescript-config
       '@storybook/addon-a11y':
         specifier: ^10.6.7
         version: 10.6.7(storybook@10.6.7(@types/react@19.3.0)(prettier@3.10.1)(react@19.3.0))
@@ -1140,14 +1140,14 @@ importers:
 
   plugins/vite:
     dependencies:
-      '@fcalell/cli':
-        specifier: workspace:^
-        version: link:../../packages/cli
-      '@fcalell/plugin-api':
+      '@slotform/api':
         specifier: workspace:^
         version: link:../api
+      '@slotform/cli':
+        specifier: workspace:^
+        version: link:../../packages/cli
     devDependencies:
-      '@fcalell/typescript-config':
+      '@slotform/typescript-config':
         specifier: workspace:^
         version: link:../../packages/typescript-config
       '@types/node':

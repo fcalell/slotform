@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { test } from "node:test";
+import { GENERATED_DIR } from "@slotform/cli";
 
 const ROOT = new URL("../../../", import.meta.url).pathname;
-const SKIP = new Set(["node_modules", "dist", ".stack"]);
+const SKIP = new Set(["node_modules", "dist", GENERATED_DIR]);
 const SELF = new URL(import.meta.url).pathname;
 
-// Words that belong to a consumer, not to the stack: its product, its
+// Words that belong to a consumer, not to Slotform: its product, its
 // packages, its hosts, its domain and its work-stream ids.
 const CONSUMER_WORDS: RegExp[] = [
 	/\bStead\b/i,
@@ -65,7 +66,7 @@ function roots(): string[] {
 	return found;
 }
 
-test("no consumer's names in stack's sources, guides or docs", () => {
+test("no consumer's names in Slotform's sources, guides or docs", () => {
 	const hits: string[] = [];
 	const scanned = new Set<string>();
 	for (const root of roots()) {

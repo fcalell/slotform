@@ -1,6 +1,6 @@
 # Changesets
 
-Every `@fcalell/*` package is versioned in lockstep (`fixed` in `config.json`), so one changeset
+Every `@slotform/*` package is versioned in lockstep (`fixed` in `config.json`), so one changeset
 bumps them all together.
 
 Add a changeset with your change:
