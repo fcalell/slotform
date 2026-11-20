@@ -15,6 +15,13 @@ repository, after stack, and stack never edits it.
 - **Peers.** Read each stack package's `peerDependencies` and match them. The ones that moved are
   Vite `^8`, MSW `^3` (plugin-screens), TypeScript 7, and for a phone app
   Expo SDK 58, React Native 0.88, React 19.3. Babel stays on 7.
+- **Required peers.** The libraries whose types or instance cross into the app are peers of the
+  stack packages ([the rule](../architecture/releasing.md#peers-one-copy-of-each-stack-package)),
+  so the app lists each required one itself, at a version inside the peer range. `stack init` and
+  `stack add` write them in a new app; an existing app adds them by hand from each installed
+  `node_modules/@fcalell/*/package.json` (every `peerDependencies` entry not marked optional).
+  The floors that rose: `zod` `^4.6.7`, `drizzle-orm` `^0.45.4`, `hono` `^4.13.19`, `@orpc/client`
+  and `@orpc/server` `^1.16.2`, `react` and `react-dom` `^19.3.0`, `react-native` `^0.88.0`.
 - **One copy of each stack package.** The lockfile holds one version of each `@fcalell/*` package
   ([the count](../architecture/releasing.md#peers-one-copy-of-each-stack-package)).
 - **The app's own vite.** `stack dev` and `stack build` fail with `VITE_NOT_INSTALLED` when the app

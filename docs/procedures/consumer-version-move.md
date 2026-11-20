@@ -1,7 +1,7 @@
 # Consumer version move
 
-How a consumer that pinned a stack commit (`github:fcalell/stack#<sha>&path:/plugins/db`) moves to
-a published version once the registry holds it. The version rule it moves onto is in
+How a consumer that pinned a stack commit (`github:fcalell/stack#<sha>&path:/plugins/db`) or links a
+checkout (`link:../stack/plugins/db`) moves to a published version once the registry holds it. The version rule it moves onto is in
 [releasing](../architecture/releasing.md#the-version-rule).
 
 ## Steps
@@ -14,6 +14,9 @@ a published version once the registry holds it. The version rule it moves onto i
    +"@fcalell/plugin-db": "^0.1.0",
    ```
 
+   Each required peer of the stack packages goes into `dependencies` too
+   ([consumer migration](consumer-migration.md#before-you-start), "Required peers").
+
 2. In its `pnpm-workspace.yaml`, delete what only the git route needed and keep the third-party
    verdicts:
    - the `overrides` entries naming `@fcalell/*`;
@@ -21,8 +24,8 @@ a published version once the registry holds it. The version rule it moves onto i
    - the `allowBuilds` keys of the form `"@fcalell/<name>@git+https://github.com/fcalell/stack.git": true`;
    - `childConcurrency` and `networkConcurrency`, which only the git prepares needed.
 3. Run `pnpm install`.
-4. Check that the lockfile holds no `github.com/fcalell/stack` entry and one copy of each stack
-   package ([the count](../architecture/releasing.md#peers-one-copy-of-each-stack-package)).
+4. Check that the lockfile holds no `github.com/fcalell/stack` or `link:` entry and one copy of each
+   stack package ([the count](../architecture/releasing.md#peers-one-copy-of-each-stack-package)).
 5. Run `stack generate`, then the consumer's `pnpm check`.
 
 ## After the move
