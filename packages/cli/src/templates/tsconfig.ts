@@ -35,6 +35,13 @@ export function workerTsconfig(layout: TsconfigLayout): string {
 	return isSplit(layout) ? "tsconfig.worker.json" : "tsconfig.json";
 }
 
+// The generated worker files the program that compiles the worker's sources
+// holds, so `.slotform/procedure.ts`'s augmentations apply with no route importing it.
+const WORKER_FILES = [
+	`${GENERATED_DIR}/worker.ts`,
+	`${GENERATED_DIR}/procedure.ts`,
+];
+
 interface TsconfigOptions extends TsconfigLayout {
 	// `cliSlots.tsconfigPaths` entries: docs/architecture/slot-catalog.md, "CLI lifecycle slots (`cliSlots`)".
 	procedurePaths: Record<string, string[]>;
@@ -67,8 +74,12 @@ export function tsconfigTemplate(
 		compilerOptions: options.worker
 			? { paths: options.procedurePaths }
 			: undefined,
-		// Only the `.slotform/*.d.ts` declarations are type-checked: docs/architecture/consumer-project.md, "TypeScript projects".
-		include: ["src", `${GENERATED_DIR}/*.d.ts`],
+		// The `.slotform/*.d.ts` declarations and, with a worker, its generated files: docs/architecture/consumer-project.md, "TypeScript projects".
+		include: [
+			"src",
+			`${GENERATED_DIR}/*.d.ts`,
+			...(options.worker ? WORKER_FILES : []),
+		],
 	};
 	return [["tsconfig.json", render(single)]];
 }
@@ -129,8 +140,7 @@ function workerProject(options: TsconfigOptions): Project {
 			"src/worker",
 			"src/schema",
 			"src/shared",
-			`${GENERATED_DIR}/worker.ts`,
-			`${GENERATED_DIR}/procedure.ts`,
+			...WORKER_FILES,
 			...(options.node
 				? ["src/server"]
 				: [`${GENERATED_DIR}/worker-configuration.d.ts`]),

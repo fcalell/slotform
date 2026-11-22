@@ -66,12 +66,52 @@ wait on another's.
 | `http.mount(prefix, handler)` | Routes every request under `prefix` to a fetch-style `handler(request)`, ahead of the worker and the web client. The longest prefix wins |
 | `http.session(request)` | The `{ user, session }` the request holds, by `/ws`'s rule ([who is connected](channels.md#who-is-connected)); `null` when there is none, it is refused, or the app has no `auth()` |
 | `http.port` | The listen port |
+| `jobContext()` | The app's job context (`db`, `env`, the `auth` runtime, `tenancy`), the one a Cloudflare queue handler gets (the `api` plugin's `background.md`, "The context"), built afresh on each call; `null` when the app has no worker (no routes and no plugin runtime) |
+
+## Writing to the database
+
+A service that writes rows outside a request (an importer, a crawler, a sync loop) takes the
+database from `jobContext()`. It opens no database of its own and calls no procedure of the app over
+HTTP.
+
+```ts
+// src/server/services/importer.ts
+import { defineService } from "@slotform/node/server";
+import { items } from "../../schema/index.ts";
+
+export default defineService({
+  name: "importer",
+  start({ log, jobContext }) {
+    const tick = async () => {
+      try {
+        const { db } = await jobContext();
+        await db.insert(items).values(await fetchPage()).onConflictDoNothing();
+      } catch (error) {
+        log.error(`import failed: ${String(error)}`);
+      }
+    };
+    void tick();
+    const timer = setInterval(() => void tick(), 60_000);
+    return () => clearInterval(timer);
+  },
+});
+```
+
+Call `jobContext()` once per unit of work (a tick, a batch), never once at boot: each call builds the
+context as a job's is built, and the plugins keep their costly parts themselves. Catch each tick's
+error: a throw from a timer callback ends the process, and under `pnpm dev` the schema push runs
+after the server listens, so the first tick on a fresh database finds no tables and the next one
+retries. `start` and `ready` hold the listen, so start the loop in either and return without
+awaiting it. The context has no session: the service acts as the app, so check what the work may
+touch in the service.
 
 ## Rules
 
 - One service per file, flat in `src/server/services/`: a subdirectory, `index.ts`, `*.test.ts`
   and `*.d.ts` are ignored.
 - Code that needs a service imports its module; nothing is passed through a context.
+- Database work goes through `jobContext()`, once per unit of work; a service opens no database of
+  its own.
 - A mount prefix starts with `/`, is not `/`, and has no trailing `/`; never mount under a worker
   path (`/rpc`, `/api/auth`) or `/ws`.
 - Release everything `start` and `ready` acquire in the stop function: a timer, a watcher, a connection.

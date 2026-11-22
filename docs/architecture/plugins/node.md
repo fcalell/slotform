@@ -67,7 +67,8 @@ is the guide's [node server](../../../plugins/node/guide/server.md), and what th
 ### Worker contract
 
 The server calls the worker shape the `api` plugin's `.slotform/worker.ts` emits (its `WorkerExport`,
-[api's runtime](api.md#runtime)), reduced to what this target calls. On Node, `env` is
+[api's runtime](api.md#runtime)), picked to what this target calls: `fetch` for every worker path,
+`checkEnv` before any service starts, and `jobContext` for the services. On Node, `env` is
 `process.env` and there is no execution context; the worker runtime degrades both.
 
 ## Generated server entry
@@ -160,13 +161,29 @@ answers is the guide's [who is connected](../../../plugins/node/guide/channels.m
 
 A service is a plain module singleton in the consumer tree: `src/server/services/<name>.ts`
 default-exports a `defineService({ name, start, ready? })`, and code that needs a service imports the
-module directly, with no context plumbing. `start(ctx)` receives `{ log, ws, http }` and may return a
-stop handle. The consumer's half is the guide's [services](../../../plugins/node/guide/services.md).
+module directly, with no context plumbing. `start(ctx)` receives `{ log, ws, http, jobContext }` and
+may return a stop handle. The consumer's half is the guide's
+[services](../../../plugins/node/guide/services.md).
 
 - **Order.** The services of `node.slots.services` start first, by name, then the consumer's in
   file-name order. `ready` runs for every service, in the same order, once every `start` has
   finished and before the server listens. Stops run in reverse order. What goes in `start` and what
   in `ready` is the guide's [order](../../../plugins/node/guide/services.md#order-start-then-ready).
+- **The job context.** `jobContext()` builds the worker's
+  [job context](../runtime.md#background-handlers) through the worker export's `jobContext(env)`,
+  the function a queue batch's context comes from, so a service writes through the `db` plugin's client
+  and calls no procedure over HTTP. It builds afresh on each call, as a job's does per batch: a
+  runtime keeps what is costly itself (db's client per file, auth's instance per env object), and
+  the env is the main listener's object, so a service gets the Better Auth instance the main
+  listener's requests do. The env checks have passed before any `start` ([Runtime](#runtime)); in
+  the bundle the migrations are applied before that (`boot`, [Build and bundle](#build-and-bundle)),
+  while under `slotform dev` db's push runs once the server listens
+  ([db's local dev push](db.md#local-dev-push)), so a write on a database never pushed finds no
+  tables. It is `null` when the app has no worker. Its type is the app's `JobContext`, which
+  `.slotform/procedure.ts` registers in `@slotform/api/procedure`'s `Register`, and that type is
+  non-null, since only an app with a worker has `.slotform/procedure.ts` to register one. A plugin's
+  own service, whose module must not import `virtual:slotform-procedure`, receives the same function,
+  typed nullable over the worker export's `jobContext` result in its own source.
 - **Mounts.** `http.mount(prefix, handler)` registers a raw fetch-style route: every request whose
   path equals `prefix` or is under `prefix + "/"` goes to `handler`, matched after `/ws` and before
   the worker, static files and SPA. The longest registered prefix wins and a duplicate throws, so a
@@ -339,7 +356,7 @@ browser loads. Without `screens` in the config the slot resolves to nothing.
 - `plugins/node/src/server/listeners.ts`: each listener's Host rule and env.
 - `plugins/node/src/server/ws-guard.ts`: the WebSocket admission rule and route sessions.
 - `plugins/node/src/server/ws-hub.ts`: channels, connections and session close.
-- `plugins/node/src/server/service.ts`: `defineService` and the service context.
+- `plugins/node/src/server/service.ts`: `defineService`, the service context and its `jobContext` type.
 - `plugins/node/src/server/modules.ts`: `loadModules`.
 - `plugins/node/src/server/worker.ts`: the worker shape the server calls.
 - `plugins/node/src/ws/index.ts`: the channel contract and wire protocol.

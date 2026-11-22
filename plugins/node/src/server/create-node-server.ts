@@ -276,7 +276,12 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 	let shuttingDown = false;
 
 	async function startServices(): Promise<void> {
-		const context = { log, ws: hub, http: { port, mount, session } };
+		const context = {
+			log,
+			ws: hub,
+			http: { port, mount, session },
+			jobContext: worker ? () => worker.jobContext(env) : null,
+		};
 		for (const service of services) {
 			const stop = await service.start(context);
 			if (stop) stops.push({ name: service.name, stop });
@@ -381,7 +386,7 @@ export function createNodeServer(options: NodeServerOptions): NodeServer {
 			// Before any service starts or the port opens: a hub missing
 			// AUTH_SECRET or APP_URL stops here with the list, not on its first
 			// request.
-			worker?.checkEnv?.(env);
+			worker?.checkEnv(env);
 			subscribe(SESSION_ENDED_CHANNEL, onSessionEnded);
 			stopSweep = startSweep();
 			await startServices();
