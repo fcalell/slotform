@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/screens",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The screens workbench for slotform web apps: every route in each query state, from typed fixtures, with no backend.",
 	"license": "MIT",
 	"repository": {

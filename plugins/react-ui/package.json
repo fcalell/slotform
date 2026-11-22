@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/react-ui",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The web half of the Slotform design system: the @slotform/ui-core contract rendered on Tailwind v4, with the roster.",
 	"license": "MIT",
 	"repository": {

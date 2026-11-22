@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/cloudflare",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The Cloudflare Workers target for slotform: renders the wrangler config and runs wrangler for dev, types and deploy.",
 	"license": "MIT",
 	"repository": {

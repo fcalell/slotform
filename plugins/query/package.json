@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/query",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Query plugin for slotform: the api's procedures as TanStack Query reads and acts, and the port the UI's read hooks run on.",
 	"license": "MIT",
 	"repository": {

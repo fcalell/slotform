@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/biome-config",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Shared Biome formatter and linter configuration for the slotform framework.",
 	"license": "MIT",
 	"repository": {

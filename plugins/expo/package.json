@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/expo",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The Expo/React Native target for slotform: Metro config, Expo app config, the expo-router entry and EAS commands.",
 	"license": "MIT",
 	"repository": {

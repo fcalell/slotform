@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/cli",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Plugin-driven CLI and configuration system for the slotform framework: defineConfig(), plugin(), the slot graph engine, codegen and the `slotform` binary.",
 	"license": "MIT",
 	"repository": {

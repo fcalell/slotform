@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/react",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "React framework plugin for slotform: React on Vite with the React Compiler, TanStack Router file routes and the HTML shell.",
 	"license": "MIT",
 	"repository": {

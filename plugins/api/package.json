@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/api",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "API plugin for slotform: Hono + oRPC + Zod behind a procedure builder and a typed client.",
 	"license": "MIT",
 	"repository": {

@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/vite",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The Vite lifecycle plugin for slotform, framework-agnostic: renders .slotform/vite.config.ts from what other plugins contribute, runs vite for dev and build, and serves the providers and schema virtual modules.",
 	"license": "MIT",
 	"repository": {

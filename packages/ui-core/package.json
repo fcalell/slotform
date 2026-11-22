@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/ui-core",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "The design system both Slotform UI plugins render from: the token contract, foundations, words, variant matrices and component roster.",
 	"license": "MIT",
 	"repository": {

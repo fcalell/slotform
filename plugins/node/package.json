@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/node",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "A long-running Node server target for slotform: serves the API, the built web client and background services from one process.",
 	"license": "MIT",
 	"repository": {

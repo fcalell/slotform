@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/auth",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Authentication for slotform: Better Auth with email codes, magic links, OAuth, passkeys, organizations, roles and record abilities.",
 	"license": "MIT",
 	"repository": {

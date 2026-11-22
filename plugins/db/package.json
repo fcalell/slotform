@@ -1,6 +1,6 @@
 {
 	"name": "@slotform/db",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Database plugin for slotform: Drizzle ORM over Cloudflare D1 or a SQLite file, with schema tooling and migrations.",
 	"license": "MIT",
 	"repository": {
