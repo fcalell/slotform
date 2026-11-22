@@ -358,6 +358,9 @@ Each bullet is what the consumer does.
   node app with a single `tsconfig.json` adds `.slotform/worker.ts` and `.slotform/procedure.ts` to its
   `include`, which `slotform init` writes, so `jobContext()` is typed where no route imports
   `virtual:slotform-procedure`.
+- A worker passed to `createNodeServer` or `startNodeServer` by hand, a test's fake worker among
+  them, has the shape `NodeWorker` ([worker contract](../architecture/plugins/node.md#worker-contract));
+  `checkEnv` was optional and `jobContext` is new.
 - `http.session` resolves through `AsyncLocalStorage`, not request identity: a session read on a
   second listener after the request is rebuilt now finds it.
 - A socket `send` after `close()` throws. Guard it, or stop sending once the handle is closed.
