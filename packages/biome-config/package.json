@@ -22,6 +22,17 @@
 	"scripts": {
 		"clear": "rm -rf node_modules .turbo"
 	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.6.8"
+	},
+	"peerDependencies": {
+		"@biomejs/biome": "^2.6.8"
+	},
+	"peerDependenciesMeta": {
+		"@biomejs/biome": {
+			"optional": true
+		}
+	},
 	"files": [
 		"shared.json",
 		"README.md",
