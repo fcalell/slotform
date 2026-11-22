@@ -94,10 +94,9 @@ if (!published) {
 	run("node", ["scripts/release-check.ts", "--no-build"]);
 
 	step("Publish");
+	// The exit code is the proof: npm accepts a publish minutes before `npm view` serves the version,
+	// so a read here finds none of them.
 	run("pnpm", ["-r", "publish", "--access", "public"]);
-	const missing = unpublished();
-	if (missing.length > 0)
-		stop(`npm does not hold ${tag} of ${missing.join(", ")}: run again`);
 }
 
 step("Record");
