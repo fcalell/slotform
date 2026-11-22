@@ -2,7 +2,6 @@
 
 import { spawnSync } from "node:child_process";
 import {
-	existsSync,
 	mkdirSync,
 	mkdtempSync,
 	readdirSync,
@@ -18,6 +17,7 @@ import {
 	PLUGIN_NAMES,
 	pluginPackage,
 } from "../packages/cli/src/lib/first-party.ts";
+import { publicPackages, ROOT } from "./public-packages.ts";
 
 interface Consumer {
 	name: string;
@@ -49,7 +49,6 @@ const CONSUMERS: Consumer[] = [
 	},
 ];
 
-const root = resolve(import.meta.dirname, "..");
 const { values } = parseArgs({
 	options: {
 		out: { type: "string" },
@@ -88,7 +87,7 @@ function run(
 	log: string,
 	command: string,
 	args: string[],
-	cwd: string = root,
+	cwd: string = ROOT,
 ): boolean {
 	console.log(`$ ${command} ${args.join(" ")}   (${log}.log)`);
 	const result = spawnSync(command, args, { cwd, encoding: "utf8" });
@@ -108,7 +107,6 @@ function run(
 interface Manifest {
 	name: string;
 	version: string;
-	private?: boolean;
 	license?: string;
 	repository?: { directory?: string };
 	publishConfig?: { access?: string };
@@ -134,17 +132,7 @@ function targets(value: unknown): string[] {
 
 if (!values["no-build"]) run("build", "pnpm", ["turbo", "run", "build"]);
 
-// A directory with no manifest is no package; private packages (repo-checks) are never packed: pnpm's filters cannot select on `private`.
-const publicDirs = ["packages", "plugins"].flatMap((group) =>
-	readdirSync(group).flatMap((name) => {
-		const dir = `./${group}/${name}`;
-		if (!existsSync(join(dir, "package.json"))) return [];
-		const manifest = JSON.parse(
-			readFileSync(join(dir, "package.json"), "utf8"),
-		) as Manifest;
-		return manifest.private ? [] : ["--filter", dir];
-	}),
-);
+const publicDirs = publicPackages().flatMap(({ dir }) => ["--filter", dir]);
 
 const packed = run("pack", "pnpm", [
 	"-r",
@@ -238,7 +226,7 @@ function copies(lockfile: string): Map<string, number> {
 	return counts;
 }
 
-const cli = join(root, "packages/cli/dist/cli.js");
+const cli = join(ROOT, "packages/cli/dist/cli.js");
 const consumersDir = join(out, "consumers");
 for (const consumer of CONSUMERS) {
 	if (!packed || (only && !only.includes(consumer.name))) continue;

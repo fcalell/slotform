@@ -12,9 +12,8 @@
 		"stories": "turbo run build --filter=showcase^... && pnpm --filter showcase generate && pnpm --filter showcase storybook",
 		"test": "turbo run test",
 		"changeset": "changeset",
-		"version-packages": "changeset version",
 		"release:check": "node scripts/release-check.ts",
-		"release": "turbo run build && pnpm -r publish --access public"
+		"release": "node scripts/release.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.6.8",

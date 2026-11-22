@@ -63,9 +63,9 @@ holds each entry to the package's own manifest.
   `TYPES_NODE_SPEC` and `BIOME_SPEC`, the ranges a scaffold writes. The published manifest keeps its
   `devDependencies`; a CLI whose manifest lacks one fails at start.
 - **The bump goes through changesets.** `pnpm changeset` goes with each user-facing change; at
-  release time `pnpm version-packages` applies the pending ones (versions and changelogs), and the
-  result is committed on `master`; with no pending changeset it exits 1. The first release,
-  `0.1.0`, needs no changeset: the manifests are already at it.
+  release time `pnpm release` applies the pending ones (`changeset version`: versions and
+  changelogs) and commits the result on `master` ([publishing](../procedures/publishing.md#steps)).
+  A release with no pending changeset publishes the version the manifests hold, once.
 
 ## Peers: one copy of each Slotform package
 
@@ -169,6 +169,8 @@ app should not hold are optional peers ([consumer project](./consumer-project.md
 ## In the code
 
 - `scripts/release-check.ts`: `pnpm release:check`.
+- `scripts/release.ts`: `pnpm release`, the owner's release ([publishing](../procedures/publishing.md#steps)).
+- `scripts/public-packages.ts`: `publicPackages`, the packages both scripts pack and publish.
 - `scripts/prepare.ts`: every package's `prepare`.
 - `packages/cli/src/lib/slotform-packages.ts`: `SLOTFORM_PACKAGES`, `slotformSpec`.
 - `packages/repo-checks/src/ranges.test.ts`: one spec per field per library, devDependencies inside the peer range.
