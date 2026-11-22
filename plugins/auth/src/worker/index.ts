@@ -122,7 +122,11 @@ export type {
 	OrganizationMember,
 	RejectedInvitation,
 } from "./outputs.ts";
-export type { AuthProcedureFactory, OAuthRedirect } from "./procedures.ts";
+export type {
+	AuthProcedureFactory,
+	OAuthRedirect,
+	ScopeLookup,
+} from "./procedures.ts";
 // The request context carries a `Tenancy` and an `AuthRateLimiter`, so a declaration
 // emit of the consumer's generated `.slotform/procedure.ts` names them through this subpath.
 export type { AuthRateLimiter } from "./rate-limit.ts";
